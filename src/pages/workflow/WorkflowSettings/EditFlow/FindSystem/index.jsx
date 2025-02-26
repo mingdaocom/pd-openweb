@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { NODE_TYPE, ACTION_ID, APP_TYPE } from '../../enum';
 import _ from 'lodash';
+import { getIcons } from '../../utils';
 
 export default class FindSystem extends Component {
   constructor(props) {
@@ -80,14 +81,8 @@ export default class FindSystem extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  item.appType === APP_TYPE.EXTERNAL_USER
-                    ? item.typeId === NODE_TYPE.FIND_SINGLE_MESSAGE
-                      ? 'icon-external_users'
-                      : 'icon-folder-public'
-                    : item.typeId === NODE_TYPE.FIND_SINGLE_MESSAGE
-                    ? 'icon-person_search'
-                    : 'icon-group-members',
                   item.selectNodeId || isSystem ? 'BGBlue' : 'BGGray',
+                  getIcons(item.typeId, item.appType),
                 )}
               />
             </div>

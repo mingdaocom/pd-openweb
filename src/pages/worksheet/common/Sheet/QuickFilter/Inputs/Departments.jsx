@@ -89,7 +89,7 @@ export default function Departments(props) {
       <DepartmentsCon>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
         {!isMultiple && !!values.length && (
-          <DepartmentsText className="ellipsis" title={values[0].departmentName}>
+          <DepartmentsText className="departmentsText ellipsis" title={values[0].departmentName}>
             {values[0].departmentName}
           </DepartmentsText>
         )}

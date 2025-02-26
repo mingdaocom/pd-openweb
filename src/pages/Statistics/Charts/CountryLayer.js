@@ -564,8 +564,8 @@ export default class extends Component {
     };
 
     if (displaySetup.showChartType === 2) {
-      config.provinceStroke = '#FFF';
-      config.cityStroke = '#FFF';
+      config.provinceStroke = '#ffffffcc';
+      config.cityStroke = '#ffffffcc';
       config.bubble = {
         color: this.colors[0],
         enable: true,
@@ -739,7 +739,7 @@ export default class extends Component {
           <div className="Absolute" style={{ left: offset.x, top: offset.y }} />
         </Dropdown>
         {displaySetup.showTotal ? (
-          <div>
+          <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">
               {count}

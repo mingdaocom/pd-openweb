@@ -1,5 +1,5 @@
 import React from 'react';
-import { getPrintContent } from '../util';
+import { getPrintContent, getFormData } from '../util';
 import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
 import STYLE_PRINT from './exportWordPrintTemCssString';
@@ -54,7 +54,18 @@ export default class TableRelation extends React.Component {
   }
 
   setData = props => {
-    const { printData, dataSource, controls, orderNumberCheck, id, isShowFn, showData, fileStyle, user_info } = props;
+    const {
+      printData,
+      dataSource,
+      controls,
+      orderNumberCheck,
+      id,
+      isShowFn,
+      showData,
+      fileStyle,
+      user_info,
+      dataInfo,
+    } = props;
     let list = [];
 
     if (orderNumberCheck) {
@@ -71,24 +82,30 @@ export default class TableRelation extends React.Component {
 
     let controlsList = [];
     let sumWidth = 50;
+
     controls.map(it => {
       let da = false;
+
       dataSource.map((o, i) => {
         if (da) {
           return;
         }
+
         let data = {
           ...it,
           value: o[it.controlId],
         };
+
         if (
           isShowFn(
             getPrintContent({
+              ...dataInfo,
               ...data,
               isRelateMultipleSheet: true,
               value: o[it.controlId],
               showData: showData,
               noUnit: true,
+              controls: getFormData(controls, o),
             }),
             true,
           )
@@ -138,11 +155,13 @@ export default class TableRelation extends React.Component {
 
             return getPrintContent({
               ...it,
+              ...dataInfo,
               isRelateMultipleSheet: true,
               value: record[it.controlId],
               fileStyle,
               user_info,
-              dataSource: id,
+              dataSource: it.type === 47 ? it.dataSource : id,
+              controls: getFormData(controls, record),
             });
           },
         });
@@ -150,10 +169,11 @@ export default class TableRelation extends React.Component {
     });
 
     list.forEach((l, index) => {
-      if(index === 0) return;
+      if (index === 0) return;
+      let isPicture = this.isAttachments(l.control);
 
-      l.width = Math.floor(l.width * 728 / sumWidth);
-    })
+      l.width = Math.max(Math.floor((l.width * 728) / sumWidth), isPicture ? minPictureW : minW);
+    });
 
     this.setState({
       list: list,
@@ -178,7 +198,7 @@ export default class TableRelation extends React.Component {
   };
 
   isAttachments = it => {
-    return it.type === 14 || (it.type === 30 && it.sourceControlType === 14);
+    return [14, 42].includes(it.type) || (it.type === 30 && it.sourceControlType === 14);
   };
 
   resizeWidth = (controlId, w) => {

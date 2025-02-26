@@ -20,6 +20,7 @@ export function handleBatchUpdateRecords({
   worksheetInfo,
   selectedControls,
   onClose = () => {},
+  onUpdate = () => {},
   setIsUpdating = () => {},
 }) {
   const args = {
@@ -71,6 +72,7 @@ export function handleBatchUpdateRecords({
         updateRows(hasAuthRowIds, changes);
       }
       getWorksheetSheetViewSummary();
+      onUpdate();
       onClose();
     } else {
       alert(_l('修改失败'), 2);

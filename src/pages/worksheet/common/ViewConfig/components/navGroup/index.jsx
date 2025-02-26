@@ -15,6 +15,7 @@ import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/Calen
 import _ from 'lodash';
 import { MaxNavW, MinNavW, defaultNavOpenW } from 'src/pages/worksheet/common/ViewConfig/config.js';
 import SearchConfig from './SearchConfig';
+import MobileConfig from './MobileConfig';
 
 const Wrap = styled.div`
   .hasData {
@@ -245,10 +246,11 @@ export default function NavGroup(params) {
   let [showAddCondition, setShowAddCondition] = useState();
   const [relateSheetInfo, setRelateSheetInfo] = useState([]);
   const [relateControls, setRelateControls] = useState([]);
-  const [{ navshow, navfilters, navwidth }, setState] = useSetState({
+  const [{ navshow, navfilters, navwidth, appnavtype }, setState] = useSetState({
     navshow: 0,
     navfilters: '[]',
     navwidth: defaultNavOpenW,
+    appnavtype: '2',
   });
   useEffect(() => {
     const { advancedSetting = {} } = view;
@@ -257,6 +259,7 @@ export default function NavGroup(params) {
       navshow: advancedSetting.navshow,
       navfilters: advancedSetting.navfilters || '[]',
       navwidth: advancedSetting.navwidth || defaultNavOpenW,
+      appnavtype: advancedSetting.appnavtype || '2',
     });
   }, [view]);
   useEffect(() => {
@@ -272,6 +275,9 @@ export default function NavGroup(params) {
       type: d.type === 30 ? d.sourceControlType : d.type,
     });
     d.type === 29 && d.dataSource && getRelate(d.dataSource);
+    if (_.includes([29, 35], d.type) && _.get(view, 'advancedSetting.appnavtype') === '3') {
+      setState({ appnavtype: '2' });
+    }
   }, [view.navGroup]);
   const onDelete = () => {
     updateView(undefined);
@@ -640,6 +646,23 @@ export default function NavGroup(params) {
               </div>
             </Tooltip>
           </div>
+
+          {view.viewType === 0 && (
+            <MobileConfig
+              value={appnavtype}
+              filterData={filterData}
+              onChange={newValue => {
+                let param = newValue;
+                updateCurrentView({
+                  ...view,
+                  advancedSetting: param,
+                  editAttrs: ['advancedSetting'],
+                  editAdKeys: Object.keys(param),
+                });
+              }}
+              advancedSetting={view.advancedSetting}
+            />
+          )}
         </div>
       ) : (
         <div className="noData">

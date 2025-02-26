@@ -384,12 +384,10 @@ export default class Write extends Component {
                     updateSource={this.updateSource}
                   />
 
-                  <div className="Font13 bold mTop25">{_l('按钮名称')}</div>
                   <ButtonName
-                    dataKey="submitBtnName"
-                    name={data.submitBtnName}
-                    buttonName={_l('提交按钮')}
-                    onChange={this.updateSource}
+                    buttons={[{ key: 'submitBtnName', title: _l('提交按钮'), placeholder: _l('提交') }]}
+                    data={data}
+                    updateSource={this.updateSource}
                   />
 
                   <PromptSoundDialog

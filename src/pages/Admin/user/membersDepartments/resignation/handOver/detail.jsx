@@ -69,6 +69,7 @@ export const callDialogSelectUser = function (projectId, callback = () => {}) {
       filterFriend: true,
       filterOtherProject: true,
       filterOthers: true,
+      filterResigned: false,
       unique: true,
       callback,
     },

@@ -36,6 +36,7 @@ class RoleManageContent extends Component {
           .addOrganizeUsers({
             projectId,
             organizeId: currentRole.organizeId,
+            filterResigned: false,
             accountIds: _.map(accountIds, user => user.accountId),
           })
           .then(data => {
@@ -76,7 +77,7 @@ class RoleManageContent extends Component {
   handleExportUser = () => {
     const { projectId, selectUserIds = [] } = this.props;
     if (_.isEmpty(selectUserIds)) return;
-    
+
     dialogUserBoard({
       projectId,
       accountIds: selectUserIds,

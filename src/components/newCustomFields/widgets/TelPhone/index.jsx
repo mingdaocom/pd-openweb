@@ -63,14 +63,17 @@ export default class Widgets extends Component {
     }
   };
 
-  onChange = event => {
+  onChange = _.debounce(event => {
     const value = event.target.value;
     this.props.onChange(value);
-  };
+  }, 300);
 
   getShowValue = () => {
     const value = this.text ? (this.text.value || '').replace(/ /g, '') : this.props.value || '';
-    return this.state.maskStatus && value ? dealMaskValue({ ...this.props, value }) : value;
+    if (value) {
+      return this.state.maskStatus ? dealMaskValue({ ...this.props, value }) : value;
+    }
+    return this.props.hint;
   };
 
   componentWillUnmount() {

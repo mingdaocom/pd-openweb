@@ -1,5 +1,6 @@
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import copy from 'copy-to-clipboard';
 import './index.less';
 import ajaxRequest from 'src/api/worksheet';
 import appManagementAjax from 'src/api/appManagement';
@@ -41,7 +42,10 @@ import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/
 import DocumentTitle from 'react-document-title';
 import integrationAjax from 'src/pages/integration/api/syncTask';
 
-const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
+const FIELD_TYPE = FIELD_TYPE_LIST.concat([
+  { text: _l('对象'), value: 10000006, en: 'object' },
+  { text: _l('文本'), value: 1, en: 'string' },
+]);
 
 const Wrap = styled.div`
   input {
@@ -132,6 +136,7 @@ class WorksheetApi extends Component {
       shareVisible: false,
       dataPipelineList: undefined,
       expandIds: [],
+      webhookList: [],
     };
     this.canScroll = true;
   }
@@ -191,7 +196,7 @@ class WorksheetApi extends Component {
         appInfo = {},
         addOptionsParams = [],
         getOptionsParams = [],
-        pbcList = [],
+        processList = [],
         dataApp = {},
         authorizes = [],
       ] = resArr;
@@ -229,7 +234,8 @@ class WorksheetApi extends Component {
             appInfo,
             addOptionsParams,
             getOptionsParams,
-            pbcList,
+            pbcList: processList.filter(l => l.startAppType !== 7),
+            webhookList: processList.filter(l => l.startAppType === 7),
           },
           () => {
             document.title = dataApp.name + ' - ' + _l('API说明');
@@ -307,7 +313,7 @@ class WorksheetApi extends Component {
   // 获取工作流信息
   getWorkflowApiInfo = processId => {
     processAjax.getProcessApiInfo({ processId, relationId: this.getId() }).then(res => {
-      this.setState({ workflowInfo: res }, () => {
+      this.setState({ workflowInfo: { ...res, processId } }, () => {
         this.scrollToFixedPosition();
       });
     });
@@ -507,11 +513,13 @@ class WorksheetApi extends Component {
   /**
    * 渲染封装业务流程侧栏
    */
-  renderPBCSide() {
-    const { pbcList, selectWorkflowId, expandIds = [] } = this.state;
-    const isOpen = expandIds[0] === 'workflowInfo';
+  renderPBCSide({ type, listKey, title }) {
+    const { selectWorkflowId, expandIds = [] } = this.state;
+    const isOpen = expandIds[0] === type;
 
-    if (!pbcList.length) return null;
+    if (!this.state[listKey].length) return null;
+
+    const list = this.state[listKey];
 
     return (
       <div className="worksheetApiMenu">
@@ -522,16 +530,16 @@ class WorksheetApi extends Component {
               ? this.setState({ expandIds: [] })
               : this.setSelectId({
                   selectId: 'workflowInfo',
-                  workflowId: pbcList[0].id,
-                  expandIds: ['workflowInfo'],
+                  workflowId: list[0].id,
+                  expandIds: [type],
                 });
           }}
         >
           <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
-          {_l('封装业务流程')}
+          {title}
         </div>
         {isOpen &&
-          pbcList.map(item => {
+          list.map(item => {
             return (
               <div
                 className={cx('worksheetApiMenuItem overflow_ellipsis', { active: item.id === selectWorkflowId })}
@@ -814,9 +822,14 @@ class WorksheetApi extends Component {
    * 渲染工作流信息
    */
   renderWorkflowInfo() {
-    const { data = [], workflowInfo } = this.state;
-    let inputExample = { appKey: data[0].appKey || 'YOUR_APP_KEY', sign: data[0].sign || 'YOUR_SIGN' };
+    const { data = [], workflowInfo, webhookList } = this.state;
+    const isWebhook = !!_.find(webhookList, l => l.id === workflowInfo.processId);
+    let inputExample =
+      isWebhook && workflowInfo.authType === 0
+        ? {}
+        : { appKey: data[0].appKey || 'YOUR_APP_KEY', sign: data[0].sign || 'YOUR_SIGN' };
     let outputExample = {};
+
     const renderInputs = source => {
       return source.map(o => {
         if (o.dataSource && _.find(workflowInfo.inputs, item => item.controlId === o.dataSource).type === 10000007) {
@@ -895,16 +908,17 @@ class WorksheetApi extends Component {
             <div className="mLeft30 w14">{_l('类型')}</div>
             <div className="mLeft30 w36">{_l('说明')}</div>
           </div>
-          {appInfoParameters.map(o => {
-            return (
-              <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
-                <div className="w32">{o.name}</div>
-                <div className="mLeft30 w18">{o.required}</div>
-                <div className="mLeft30 w14">{o.type}</div>
-                <div className="mLeft30 w36">{o.desc}</div>
-              </div>
-            );
-          })}
+          {(!isWebhook || workflowInfo.authType !== 0) &&
+            appInfoParameters.map(o => {
+              return (
+                <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
+                  <div className="w32">{o.name}</div>
+                  <div className="mLeft30 w18">{o.required}</div>
+                  <div className="mLeft30 w14">{o.type}</div>
+                  <div className="mLeft30 w36">{o.desc}</div>
+                </div>
+              );
+            })}
           {workflowInfo.outType === 1 && (
             <div className="flexRow worksheetApiLine flexRowHeight">
               <div className="w32">callbackURL</div>
@@ -914,17 +928,21 @@ class WorksheetApi extends Component {
             </div>
           )}
           {renderInputs(workflowInfo.inputs.filter(o => !o.dataSource))}
-          <div className="Font17 bold mTop30">{_l('响应参数')}</div>
-          <div className="bold mTop10">
-            {workflowInfo.outType === 1
-              ? _l('将向回调地址（请求时附带的参数callbackURL）返回以下内容，如果未附带该参数将不做返回')
-              : _l('将直接向请求地址返回以下参数')}
-          </div>
-          <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
-            <div className="w32">{_l('参数')}</div>
-            <div className="mLeft30 w36">{_l('说明')}</div>
-          </div>
-          {renderOutputs(workflowInfo.outputs.filter(o => !o.dataSource))}
+          {!isWebhook && (
+            <Fragment>
+              <div className="Font17 bold mTop30">{_l('响应参数')}</div>
+              <div className="bold mTop10">
+                {workflowInfo.outType === 1
+                  ? _l('将向回调地址（请求时附带的参数callbackURL）返回以下内容，如果未附带该参数将不做返回')
+                  : _l('将直接向请求地址返回以下参数')}
+              </div>
+              <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
+                <div className="w32">{_l('参数')}</div>
+                <div className="mLeft30 w36">{_l('说明')}</div>
+              </div>
+              {renderOutputs(workflowInfo.outputs.filter(o => !o.dataSource))}
+            </Fragment>
+          )}
         </div>
         {this.renderRightContent({ data: inputExample, outputData: outputExample })}
       </Fragment>
@@ -988,6 +1006,11 @@ class WorksheetApi extends Component {
     }
     curUrl = curUrl.substring(0, curUrl.length - 1);
     return { URL: curUrl };
+  }
+
+  onCopy(text) {
+    copy(text, { format: 'text/plain' });
+    alert(_l('已复制'));
   }
 
   /**
@@ -1215,6 +1238,7 @@ class WorksheetApi extends Component {
    */
   renderAuthorizationManagement = () => {
     const { authorizes = [], addSecretKey } = this.state;
+    const lang = window.getCurrentLang();
 
     return (
       <Fragment>
@@ -1233,11 +1257,15 @@ class WorksheetApi extends Component {
             return (
               <div key={o.appKey} className="flexRow worksheetApiLine flexRowHeight pTop8 pBottom8">
                 <div className="w25">
-                  <div>{o.appKey}</div>
+                  <div onClick={() => this.onCopy(o.appKey)}>{o.appKey}</div>
                   <div className="Gray_9e">{o.remark}</div>
                 </div>
-                <div className="mLeft30 w25">{o.secretKey}</div>
-                <div className="mLeft30 w25">{o.sign}</div>
+                <div className="mLeft30 w25" onClick={() => this.onCopy(o.secretKey)}>
+                  {o.secretKey}
+                </div>
+                <div className="mLeft30 w25" onClick={() => this.onCopy(o.sign)}>
+                  {o.sign}
+                </div>
                 <div className="mLeft30 w30">
                   <div>
                     {o.status === 2 ? _l('授权已关闭') : o.type === 1 ? _l('本应用全部接口') : _l('本应用只读接口')}

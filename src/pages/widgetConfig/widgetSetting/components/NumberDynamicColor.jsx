@@ -91,7 +91,7 @@ export default function NumberDynamicColor(props) {
                 }}
               />
               <span className="mLeft12 mRight12">{_l('颜色为')}</span>
-              <WidgetColor type="normal" color={item.value} handleChange={color => onChange({ value: color }, index)} />
+              <WidgetColor color={item.value} handleChange={color => onChange({ value: color }, index)} />
               <span
                 className={cx('icon-remove_circle_outline1 iconOp mLeft20', { disabled: deleteDisabled })}
                 onClick={() => {

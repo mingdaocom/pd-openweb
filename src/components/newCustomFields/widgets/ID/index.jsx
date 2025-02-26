@@ -5,6 +5,7 @@ import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import styled from 'styled-components';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { browserIsMobile } from 'src/util';
 
 const IDWrap = styled.div`
   position: absolute;
@@ -66,10 +67,10 @@ export default class Widgets extends Component {
     }
   };
 
-  onChange = event => {
+  onChange = _.debounce(event => {
     const value = this.formatValue(event.target.value);
     this.props.onChange(value);
-  };
+  }, 300);
 
   getShowValue = () => {
     const value = this.text ? (this.text.value || '').replace(/ /g, '') : this.props.value || '';
@@ -87,6 +88,7 @@ export default class Widgets extends Component {
     const { originValue, isEditing, maskStatus } = this.state;
     const isMask = maskPermissions && value && maskStatus;
     const defaultValue = this.formatValue(value);
+    const isMobile = browserIsMobile();
 
     return (
       <Fragment>

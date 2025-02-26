@@ -5,6 +5,20 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import SheetRows, { WithoutRows } from '../../SheetRows/';
 import { RecordInfoModal } from 'mobile/Record';
 import { LoadDiv } from 'ming-ui';
+import cx from 'classnames';
+import styled from 'styled-components';
+import _ from 'lodash';
+
+const DetailViewWrap = styled.div`
+  &.hideFormHeader {
+    .mobileSheetRowRecord {
+      .sheetNameWrap,
+      .header {
+        display: none !important;
+      }
+    }
+  }
+`;
 
 class DetailView extends Component {
   constructor(props) {
@@ -50,15 +64,23 @@ class DetailView extends Component {
     );
   };
   render() {
-    const { view, currentSheetRows = [], base = {}, sheetSwitchPermit, appNaviStyle, worksheetInfo = {} } = this.props;
+    const {
+      view,
+      currentSheetRows = [],
+      base = {},
+      sheetSwitchPermit,
+      appNaviStyle,
+      worksheetInfo = {},
+      sheetRowLoading,
+    } = this.props;
     const { loading } = this.state;
 
     return (
-      <Fragment>
+      <DetailViewWrap className={cx('w100 h100', { hideFormHeader: _.get(view, 'advancedSetting.showtitle') === '0' })}>
         {_.isEmpty(currentSheetRows) ? (
           this.renderWithoutRows()
         ) : view.childType === 1 ? (
-          loading ? (
+          loading || sheetRowLoading ? (
             <div className="w100 h100 flexRow justifyContentCenter alignItemsCenter">
               <LoadDiv />
             </div>
@@ -79,7 +101,7 @@ class DetailView extends Component {
         ) : (
           <SheetRows view={view} navigateTo={window.mobileNavigateTo} />
         )}
-      </Fragment>
+      </DetailViewWrap>
     );
   }
 }
@@ -93,7 +115,8 @@ export default connect(
       'currentSheetRows',
       'base',
       'sheetSwitchPermit',
-      'activeSavedFilter'
+      'activeSavedFilter',
+      'sheetRowLoading',
     ]),
   }),
   dispatch =>

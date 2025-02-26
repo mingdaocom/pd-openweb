@@ -39,6 +39,7 @@ function isFullLine(filter) {
 function QuickFilter(props) {
   const {
     mode,
+    isDark,
     base = {},
     from,
     noExpand,
@@ -127,6 +128,7 @@ function QuickFilter(props) {
     <Con isConfigMode={isConfigMode} className="quickFilterWrap">
       <Conditions
         from={from}
+        isDark={isDark}
         worksheetId={worksheetId}
         isFilterComp={from === 'filterComp'}
         isConfigMode={isConfigMode}

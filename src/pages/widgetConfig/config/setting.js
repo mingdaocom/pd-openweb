@@ -181,10 +181,11 @@ export const RELATION_SEARCH_DISPLAY = [
 // 标题字号映射关系
 export const TITLE_SIZE_OPTIONS = {
   0: '13px',
-  1: '16px',
+  1: '15px',
   2: '18px',
   3: '20px',
   4: '24px',
+  5: '28px',
 };
 
 export const CALC_TYPE = [

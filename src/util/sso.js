@@ -44,7 +44,7 @@ export const ajax = {
         if (result.state) {
           params.succees.call(this, result);
         } else {
-          window.nativeAlert(result.exception);
+          window.alert(result.exception);
           params.error.call(this, result);
         }
       }

@@ -1,12 +1,14 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Icon } from 'ming-ui';
 import { Select } from 'antd';
+import cx from 'classnames';
 import sheetApi from 'src/api/worksheet';
-import Input from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { formatFilterValues } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet';
+import { EditInfo } from 'src/pages/widgetConfig/styled';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+
 
 const SHOW_ITEMS = [
   { text: _l('全部'), value: '1' },
@@ -26,10 +28,10 @@ const filterShowItem = control => {
 };
 
 function FilterShowItem(props) {
-  const { filterId, dataType, sheet, allControls, control, advancedSetting, onChangeAdvancedSetting } = props;
+  const { sheet, allControls, control, advancedSetting, onChangeAdvancedSetting } = props;
   const { navshow = '1', navfilters } = advancedSetting;
   const [filterVisible, setFilterVisible] = useState(false);
-  const [filters, setFilters] = useState([]);
+  const [showCustomVisible, setShowCustomVisible] = useState(false);
   const [relateControls, setRelateControls] = useState([]);
   const showNavfilters = advancedSetting.showNavfilters
     ? JSON.parse(advancedSetting.showNavfilters)
@@ -84,55 +86,79 @@ function FilterShowItem(props) {
       </Select>
       {navshow === '2' && (
         <div className="WhiteBG">
-          <Input
-            {...sheet}
-            controlId={control.controlId}
-            active={false}
-            from={control.type === 26 && _.get(control, 'advancedSetting.usertype') === '2' ? '' : 'NavShow'}
-            control={{
-              ...control,
-              advancedSetting: _.includes([9, 10, 11])
-                ? { ...control.advancedSetting, allowadd: '0' }
-                : control.advancedSetting,
-            }}
-            advancedSetting={{ direction: '2', allowitem: '2' }}
-            values={formatFilterValues(dataType, showNavfilters)}
-            onChange={info => {
-              if (control.type === 29) {
-                const navfilters = JSON.stringify(info.values.map(o => o.rowid));
-                const res = info.values.map(data => {
-                  const name = getTitleTextFromRelateControl(control, data);
-                  return JSON.stringify({
-                    id: data.rowid,
-                    name: name,
+          <EditInfo className="pointer flexRow" onClick={() => setShowCustomVisible(true)}>
+            <div className={cx('overflow_ellipsis flex', showNavfilters.length <= 0 ? 'Gray_75' : 'Gray')}>
+              {showNavfilters.length <= 0 ? _l('设置指定项') : _l('选中%0个', showNavfilters.length)}
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </EditInfo>
+          {showCustomVisible && (
+            <SortCustom
+              canShowNull
+              fromCondition="fastFilter"
+              maxCount={50}
+              view={{
+                advancedSetting: {
+                  ...advancedSetting,
+                  navfilters: showNavfilters
+                }
+              }}
+              advancedSetting={{
+                ...advancedSetting,
+                navfilters: showNavfilters
+              }}
+              projectId={sheet.projectId}
+              appId={sheet.appId}
+              controlInfo={control}
+              title={_l('设置显示项')}
+              addTxt={_l('显示项')}
+              advancedSettingKey="navfilters"
+              onChange={infos => {
+                let values = [];
+                let showNavfilters = [];
+                const type = control.type === 30 ? control.sourceControlType : control.type;
+                switch (type) {
+                  case 29:
+                  case 26:
+                  case 27:
+                  case 48:
+                    const key =
+                      29 === type ? 'rowid' : 26 === type ? 'accountId' : 27 === type ? 'departmentId' : 'organizeId';
+                    values = infos.map(o => o[key]);
+                    break;
+                  default:
+                    values = infos;
+                    break;
+                }
+                if (type === 29) {
+                  showNavfilters = infos.map(data => {
+                    const name = getTitleTextFromRelateControl(control, data);
+                    return JSON.stringify({
+                      id: data.rowid,
+                      name: name,
+                    });
                   });
-                });
+                } else if (type === 26) {
+                  showNavfilters = infos.map(data => {
+                    return JSON.stringify({
+                      id: data.accountId,
+                      name: data.fullname,
+                      avatar: data.avatar,
+                    });
+                  });  
+                } else {
+                  showNavfilters = infos.map(item => _.isObject(item) ? JSON.stringify(item) : item);
+                }
                 onChangeAdvancedSetting({
-                  navfilters,
-                  showNavfilters: JSON.stringify(res),
+                  navfilters: JSON.stringify(values),
+                  showNavfilters: JSON.stringify(showNavfilters)
                 });
-              } else if (control.type === 26) {
-                const navfilters = JSON.stringify(info.values.map(o => o.accountId));
-                const res = info.values.map(data => {
-                  return JSON.stringify({
-                    id: data.accountId,
-                    name: data.fullname,
-                    avatar: data.avatar,
-                  });
-                });
-                onChangeAdvancedSetting({
-                  navfilters,
-                  showNavfilters: JSON.stringify(res),
-                });
-              } else {
-                const navfilters = JSON.stringify(info.values);
-                onChangeAdvancedSetting({
-                  navfilters,
-                  showNavfilters: navfilters,
-                });
-              }
-            }}
-          />
+              }}
+              onClose={() => setShowCustomVisible(false)}
+            />
+          )}
         </div>
       )}
       {navshow === '3' && (

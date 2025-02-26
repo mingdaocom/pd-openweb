@@ -292,6 +292,22 @@ var processVersion = {
     return mdyAPI(controllerName, 'v1processlist', args, $.extend(base, options));
   },
   /**
+   * 应用下所有流程接口
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.keyWords] keyWords
+   * @param {integer} [args.pageIndex] pageIndex
+   * @param {integer} [args.pageSize] pageSize
+   * @param {string} [args.relationId] 应用ID 或者 网络ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  listAll: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/process/listAll';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'v1processlistAll', args, $.extend(base, options));
+  },
+  /**
    * 切底删除流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

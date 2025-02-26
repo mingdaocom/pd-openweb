@@ -35,7 +35,8 @@ export default class Widgets extends Component {
     if (
       !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
       !_.isEqual(_.pick(nextState, ['keywords']), _.pick(this.state, ['keywords'])) ||
-      !_.isEqual(_.get(nextProps, 'controlId'), _.get(this.props, 'controlId'))
+      !_.isEqual(_.get(nextProps, 'controlId'), _.get(this.props, 'controlId')) ||
+      !_.isEqual(_.get(nextProps, 'options'), _.get(this.props, 'options'))
     ) {
       return true;
     }

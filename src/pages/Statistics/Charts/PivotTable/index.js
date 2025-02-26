@@ -23,24 +23,25 @@ const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
 import { generate } from '@ant-design/colors';
 import RegExpValidator from 'src/util/expression';
+
 export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch = {} }) => {
   const data = _.clone(pivotTableStyle);
   const { columnBgColor, lineBgColor } = data;
-  const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig || {};
+  const { pivoTableColor, pivoTableColorIndex = 1, pageStyleType, widgetBgColor } = customPageConfig || {};
   const { lineValue, columnValue } = linkageMatch;
   if (pivoTableColor && pivoTableColorIndex >= (data.pivoTableColorIndex || 0)) {
     const isLight = isLightColor(pivoTableColor);
     data.columnBgColor = pivoTableColor;
     data.lineBgColor = pivoTableColor;
-    data.columnTextColor = isLight ? '#757575' : '#fff';
-    data.lineTextColor = isLight ? '#151515' : '#fff';
+    data.columnTextColor = isLight ? '#757575' : '#ffffffcc';
+    data.lineTextColor = isLight ? '#151515' : '#ffffffcc';
   } else if ([2, 3].includes(sourceType)) {
     if (data.columnBgColor === 'themeColor') {
       data.columnBgColor = '#fafafa';
       data.columnTextColor = '#757575';
     }
     if (data.lineBgColor === 'themeColor') {
-      data.columnBgColor = '#fff';
+      data.columnBgColor = '#ffffffcc';
       data.lineTextColor = '#151515';
     }
   } else {
@@ -70,6 +71,12 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
     if (lineTextColor === 'LIGHT_COLOR') {
       data.lineTextColor = lightColor;
     }
+  }
+  if (pageStyleType === 'dark') {
+    data.evenBgColor = widgetBgColor;
+    data.evenTextColor = '#ffffffcc';
+    data.oddBgColor = widgetBgColor;
+    data.oddTextColor = '#ffffffcc';
   }
   // if (!_.isEmpty(linkageMatch)) {
   //   const { columnBgColor, lineBgColor } = data;

@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import common from '../../common';
 import account from 'src/api/account';
-import { LoadDiv, Dialog } from 'ming-ui';
+import { LoadDiv, Dialog, Icon } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ValidPassword from './ValidPassword';
 import ExitDialog from './ExitDialog';
@@ -37,7 +37,7 @@ export default class EnterpriseCard extends Component {
     const { userStatus, projectStatus } = item;
 
     let result = {
-      buttonState: 'default', //右侧处理类型（review: '待审核‘ | ’open: '开通' | default: '按成员类型展示'）
+      buttonState: 'default', //右侧处理类型（review: '待审核‘ | ’open: '开通' |  trial: '试用' | default: '按成员类型展示'）
       editCard: false, //可否编辑
       reportRelation: false, //查看汇报关系
       exit: false, //退出
@@ -49,6 +49,10 @@ export default class EnterpriseCard extends Component {
     } else {
       if (projectStatus === PROJECT_STATUS_TYPES.FREE) {
         result.buttonState = 'open';
+      }
+
+      if (projectStatus === PROJECT_STATUS_TYPES.TRIAL) {
+        result.buttonState = 'trial';
       }
 
       switch (projectStatus) {
@@ -229,6 +233,8 @@ export default class EnterpriseCard extends Component {
             </span>
           </span>
         );
+      case 'trial':
+        return <span className="trialText">{_l('免费试用剩余%0天', _.get(card, 'currentLicense.expireDays'))}</span>;
       case 'default':
         return null;
     }
@@ -259,7 +265,7 @@ export default class EnterpriseCard extends Component {
   render() {
     const { showItem, userInfo, loading, hasProjectAdminAuth } = this.state;
     const { departmentInfos = [], jobInfos = [] } = userInfo;
-    const { card } = this.props;
+    const { card, DragHandle } = this.props;
     const { currentLicense = {} } = card;
     const parmas = this.formatProjectStatus(card);
     //待开通状态
@@ -268,6 +274,11 @@ export default class EnterpriseCard extends Component {
       card.projectStatus === common.PROJECT_STATUS_TYPES.TOPAID;
     return (
       <div className={cx('enterpriseCardItem', { active: showItem })} onClick={e => this.handleChangeShow(e)}>
+        {DragHandle && (
+          <DragHandle>
+            <Icon icon="drag" className="dragIcon" />
+          </DragHandle>
+        )}
         <div className="cardItemHeader Hand">
           <div className="cardItemLeft">
             <div className="Font17 Bold mBottom12 Gray">{card.companyName}</div>
@@ -286,11 +297,23 @@ export default class EnterpriseCard extends Component {
                   <span className="icon-content-copy Font12 mLeft5 childTag"></span>
                 </ClipboardButton>
               </div>
+              {md.global.Config.IsLocal && (
+                <div className="Gray_75 hover_blue mLeft16">
+                  <ClipboardButton
+                    component="span"
+                    data-clipboard-text={card.projectCode}
+                    onSuccess={this.handleCopyTextSuccess.bind(this)}
+                  >
+                    <span className="childTag">{_l('组织 ID：%0', card.projectId)}</span>
+                    <span className="icon-content-copy Font12 mLeft5 childTag"></span>
+                  </ClipboardButton>
+                </div>
+              )}
             </div>
           </div>
           <div className="cardItemRight">
             {this.renderOption(parmas.buttonState)}
-            <span className={cx('Font20 mLeft24 Gray_70', showItem ? 'icon-expand_more' : 'icon-navigate_next')}></span>
+            <span className={cx('Font20 mLeft12 Gray_70', showItem ? 'icon-expand_more' : 'icon-navigate_next')}></span>
           </div>
         </div>
         <div className={cx('infoContent', showItem ? 'extendInfo' : 'closeInfo')}>

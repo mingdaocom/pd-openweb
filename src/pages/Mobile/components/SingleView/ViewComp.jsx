@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { useDeepCompareEffect } from 'react-use';
@@ -14,6 +14,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { mdAppResponse } from 'src/util';
 import homeAppAjax from 'src/api/homeApp';
+import SlideGroupFilter from 'src/pages/Mobile/RecordList/GroupFilter/SlideGroupFilter.jsx';
 import _ from 'lodash';
 import cx from 'classnames';
 
@@ -68,7 +69,19 @@ function ViewComp(props) {
   const { views = [], allowAdd } = worksheetInfo;
   const { viewId, appId, worksheetId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+  const appNavType = _.get(view, 'advancedSetting.appnavtype');
   const [appColor, setAppColor] = useState('');
+  const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
+    o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+  );
+  let hasGroupFilter =
+    view.viewId === base.viewId &&
+    !_.isEmpty(view.navGroup) &&
+    view.navGroup.length > 0 &&
+    !location.search.includes('chartId') &&
+    _.includes(['0'], String(view.viewType)) &&
+    navData &&
+    (appNavType === '2' || !appNavType || appNavType === '3' || _.includes([29, 35], navData.type)); // 是否存在分组列表
 
   useEffect(() => {
     if (appId && worksheetId) {
@@ -105,6 +118,10 @@ function ViewComp(props) {
 
   const addRecord = () => {
     const { appId, worksheetId } = worksheetInfo;
+    if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
+      window.location.href = `/mobile/addRecord/${appId}/${worksheetId}/${view.viewId}`;
+      return;
+    }
     const addRecord = data => {
       if (view.viewType) {
         props.addNewRecord(data, view);
@@ -160,9 +177,12 @@ function ViewComp(props) {
             {headerRight}
           </Header>
         )}
-        <ViewCon className="flexRow SingleViewBody">
-          <View view={view} viewFlag={Date.now()} />
-        </ViewCon>
+        <Fragment>
+          {hasGroupFilter && <SlideGroupFilter {...props} view={view} />}
+          <ViewCon className="flexRow SingleViewBody">
+            <View view={view} viewFlag={Date.now()} />
+          </ViewCon>
+        </Fragment>
         {!_.isEmpty(view) &&
           isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           allowAdd &&
@@ -178,7 +198,7 @@ function ViewComp(props) {
                 onClick={addRecord}
               >
                 <Icon icon="add" className="Font22 mRight5" />
-                {worksheetInfo.entityName}
+                {_.get(worksheetInfo, 'advancedSetting.btnname') || worksheetInfo.entityName || _l('记录')}
               </Button>
             </AddBtn>
           )}

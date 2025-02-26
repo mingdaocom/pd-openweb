@@ -180,7 +180,7 @@ function Explain(props) {
 }
 
 export default function CarouselPreview(props) {
-  const { componentConfig = {}, config = {}, editable } = props;
+  const { componentConfig = {}, config = {}, customPageConfig = {}, editable } = props;
   const [loading, setLoading] = useState(true);
   const [imageData, setImageData] = useState([]);
   const [rowData, setRowData] = useState([]);
@@ -193,12 +193,13 @@ export default function CarouselPreview(props) {
 
   const { worksheetId, viewId, image, count, title, subTitle, url } = componentConfig;
   const imageControl = _.find(controls, { controlId: image }) || {};
+  const isDark = customPageConfig.pageStyleType === 'dark';
 
   useEffect(() => {
     if (worksheetId && viewId && image) {
       homeAppApi
         .getAttachementImages({
-          workSheetId: worksheetId,
+          worksheetId,
           viewId,
           attachementControlId: image,
           imageLimitCount: count,
@@ -272,7 +273,7 @@ export default function CarouselPreview(props) {
   const style = {
     position: 'relative',
     height: contentHeight,
-    backgroundColor: imageControl.type === 14 ? config.fillColor : '#fff',
+    backgroundColor: imageControl.type === 14 ? (isDark ? customPageConfig.widgetBgColor || config.fillColor : config.fillColor) : '#fff',
   };
 
   async function handleTriggerAction(data) {

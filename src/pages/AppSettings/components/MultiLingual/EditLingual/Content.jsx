@@ -7,6 +7,7 @@ import Control from './Control';
 import View from './View';
 import CustomAction from './CustomAction';
 import StatisticsChart from './StatisticsChart';
+import ControlRules from './ControlRules';
 import Collections from './Collections';
 import CustomPageChart from './CustomPageChart';
 import CustomPageButton from './CustomPageButton';
@@ -31,6 +32,8 @@ const Components = {
   'customAction': CustomAction,
   // 统计图表
   'statisticsChart': StatisticsChart,
+  // 业务规则
+  'controlRules': ControlRules,
   // 选项集
   'collections': Collections,
   // 自定义页面、统计图

@@ -139,6 +139,7 @@ export default class Announce extends Component {
         filterFriend: true,
         filterOthers: true,
         filterOtherProject: true,
+        filterResigned: false,
         dataRange: 2,
         callback: function (userArr) {
           _this.setState({

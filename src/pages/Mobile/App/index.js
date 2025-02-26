@@ -49,16 +49,10 @@ class App extends Component {
 
   componentDidMount() {
     const { params } = this.props.match;
-    // if (this.props.appScrollY <= 0) {
-    // }
     this.props.dispatch(actions.getAppDetail(params.appId, this.detectionUrl));
     $('html').addClass('appListMobile');
     const { viewHideNavi } = _.get(this.props, 'appDetail.detail') || {};
     this.setState({ viewHideNavi });
-
-    // window.addEventListener('popstate', this.handleSetScrollTop);
-
-    // this.handleSetScrollTop();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -513,6 +507,7 @@ class App extends Component {
       appNaviDisplayType,
       appStatus,
       debugRole = {},
+      appNaviStyle,
     } = detail;
     const isUpgrade = _.includes([4, 11, 12], appStatus);
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
@@ -527,6 +522,7 @@ class App extends Component {
             };
           })
           .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
+    const hasNoLevel1 = appSection.length === 1 && !_.get(appSection, '[0].name');
     const { isHideTabBar, appMoreActionVisible, viewHideNavi, expandGroupKeys } = this.state;
     const { params } = match;
     const appExpandGroupInfo =
@@ -543,7 +539,8 @@ class App extends Component {
               ? []
               : appSection.map(item => item.appSectionId),
           };
-    const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
+    const { childSections = [], workSheetInfo = [] } = appSection;
+    const isEmptyAppSection = appSection.length === 1 && childSections.length && workSheetInfo.length;
     const hasDebugRoles = debugRole.canDebug && !_.isEmpty(debugRoles);
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
@@ -583,6 +580,19 @@ class App extends Component {
                     [APP_ROLE_TYPE.POSSESS_ROLE, APP_ROLE_TYPE.ADMIN_ROLE].includes(detail.permissionType) ? (
                     // 管理员身份 且 无任何数据
                     <AppPermissionsInfo appStatus={1} appId={params.appId} />
+                  ) : hasNoLevel1 ? (
+                    <Fragment>
+                      {appSection.map(item => {
+                        return (
+                          <List>
+                            {[0, 2].includes(appNaviStyle) && this.renderList(item, 'level1')}
+                            {appNaviStyle === 1 && (
+                              <div className="sudokuSectionWrap">{this.renderSudoku(item, 'level1')}</div>
+                            )}
+                          </List>
+                        );
+                      })}
+                    </Fragment>
                   ) : (
                     <Fragment>
                       <Collapse
@@ -696,10 +706,14 @@ class App extends Component {
 
   renderBody() {
     const { debugRoles = [] } = this.props;
-    const { appSection = {}, detail } = this.props.appDetail;
+    const { appSection = {}, detail, status } = this.props.appDetail;
     const { fixed, permissionType, webMobileDisplay, debugRole = {} } = detail;
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     const { batchOptVisible } = this.props;
+
+    if (status && status !== 1) {
+      return <AppPermissionsInfo appStatus={status} appId={_.get(this.props, 'match.params.appId')} />;
+    }
 
     if ([0, 1].includes(detail.appNaviStyle) || (fixed && !isAuthorityApp) || webMobileDisplay) {
       return this.renderContent();

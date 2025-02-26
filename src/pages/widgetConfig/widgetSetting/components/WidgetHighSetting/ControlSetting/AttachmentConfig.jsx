@@ -545,8 +545,42 @@ export default function AttachmentVerify(props) {
       {markVisible && <WaterMarkDialog {...props} onClose={() => setMarkVisible(false)} />}
 
       {md.global.Config.EnableDocEdit && (
-        <Fragment>
-          <div className="labelWrap labelBetween">
+        <div className="labelWrap labelBetween">
+          <Checkbox
+            size="small"
+            checked={allowedit === '1'}
+            onClick={checked => {
+              if (editFeatureType === '2') {
+                buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.editAttachment);
+                return;
+              }
+              onChange(
+                handleAdvancedSettingChange(data, { allowedit: String(+!checked), onlyeditself: String(+!checked) }),
+              );
+            }}
+          >
+            <span style={{ marginRight: '4px' }}>{_l('文档在线编辑')}</span>
+            <Tooltip
+              placement="bottom"
+              title={_l(
+                '基于WPS在线编辑能力，支持Office、WPS、PDF等主流文档格式编辑，最多10人在线协作编辑，最大文档尺寸100MB，具体可参考帮助文档说明。',
+              )}
+            >
+              <i className="icon-help Gray_9e Font16 Hand"></i>
+            </Tooltip>
+
+            {editFeatureType === '2' && (
+              <Tooltip placement="bottom" title={_l('当前版本无法使用此功能，请购买或者升级')}>
+                <UpgradeIcon />
+              </Tooltip>
+            )}
+          </Checkbox>
+        </div>
+      )}
+
+      {allowedit === '1' && (
+        <div className="pLeft24">
+          <div className="labelWrap">
             <Checkbox
               size="small"
               checked={allowedit === '1'}
@@ -598,7 +632,7 @@ export default function AttachmentVerify(props) {
               </div>
             </div>
           )}
-        </Fragment>
+        </div>
       )}
     </Fragment>
   );

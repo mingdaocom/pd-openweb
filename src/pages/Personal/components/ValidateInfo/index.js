@@ -244,8 +244,8 @@ export default class ValidateInfoCon extends Component {
         verifyCode,
       })
       .then(data => {
+        let accountTypeDesc = type === 'email' ? _l('邮箱') : _l('手机号');
         if (data === 1) {
-          let accountTypeDesc = type === 'email' ? _l('邮箱') : _l('手机号');
           alert(_l('%0修改绑定成功', accountTypeDesc), 1);
           // 删除自动登录
           window.localStorage.removeItem('LoginCheckList');

@@ -364,7 +364,7 @@ export const functions = {
     if (!args.length) {
       return 0;
     }
-    return _.sum(args) / args.length;
+    return _.sum(args.map(Number)) / args.length;
   },
   // 求和
   SUM: function (...args) {
@@ -372,7 +372,7 @@ export const functions = {
     if (!args.length) {
       throw new Error(_l('没有参数'));
     }
-    return _.sum(args);
+    return _.sum(args.map(Number));
   },
   // 转为数值
   NUMBER: function (value) {
@@ -1264,9 +1264,14 @@ export function checkTypeSupportForFunction(control) {
       WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 省市 23
       WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
       WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
+      WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 31 公式数值
+      WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE, // 38 公式日期
       WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
       WIDGETS_TO_API_TYPE_ENUM.LOCATION, // 定位 40
       WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件 7
+      WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC, // 公式函数 53
+      WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL, // 汇总 37
+      WIDGETS_TO_API_TYPE_ENUM.SCORE, // 等级 28
     ].indexOf(control.type) > -1
   ) {
     return true;

@@ -44,7 +44,7 @@ export default ({ from, data, onChange }) => {
       {from !== 'subList' && (_.includes(['1', '4'], type) || !type) && (
         <Fragment>
           <SettingItem>
-            <div className="settingItemTitle">{_l('限制移动端输入')}</div>
+            <div className="settingItemTitle">{_l('移动端输入')}</div>
             <div className="labelWrap">
               <Checkbox
                 size="small"

@@ -70,7 +70,7 @@ export class Count extends Component {
             >
               {(isCalculateMode && yAxis.controlType === 10000001 ? normTypes.filter(n => ![6].includes(n.value)) : normTypes.filter(n => ![5, 6].includes(n.value))).map(item => (
                 <Select.Option className="selectOptionWrapper" value={item.value}>
-                  {item.alias || item.text}
+                  {item.value === 5 ? _l('计算') : item.alias || item.text}
                 </Select.Option>
               ))}
             </Select>

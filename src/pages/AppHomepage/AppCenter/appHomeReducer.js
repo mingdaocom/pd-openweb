@@ -377,7 +377,7 @@ function getGroupsLangs(dispatch, projectId) {
 
 // 应用名称多语言
 function getAppLangs(dispatch, projectId, noCache = false) {
-  if (md.global.Account.lang === md.global.Config.DefaultLang) {
+  if (md.global.Account.lang === '') {
     return;
   }
 

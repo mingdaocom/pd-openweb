@@ -18,17 +18,58 @@ const WidgetContent = styled.div`
   flex: 1;
   box-sizing: border-box;
   padding: 12px;
-  background-color: #fff;
   height: 100%;
   &.button {
     display: flex;
+    .display .nameWrap {
+      color: var(--widget-title-color) !important;
+    }
+  }
+  &.embedUrl {
+    color: var(--widget-title-color);
   }
   &.embedUrl, &.view {
     padding: 0 !important;
   }
-  &.analysis .header {
-    height: 20px;
-    margin-bottom: 12px;
+  &.analysis {
+    padding: 0;
+    .statisticsCard {
+      background-color: transparent !important;
+    }
+    .summaryWrap,
+    .reportName,
+    .oneNumber .contentWrapper .name {
+      color: var(--widget-title-color) !important;
+    }
+    .hideNumberChartName {
+      .iconItem {
+        background-color: var(--widget-color) !important;
+      }
+      .header, .header .icon {
+        background-color: transparent !important;
+      }
+      .header {
+        background: none !important;
+        border: none !important;
+      }
+      .content {
+        padding-bottom: 0;
+      }
+    }
+    .numberChart {
+      .contentWrapper .name, .minorWrap, .minorWrap .name {
+        color: var(--widget-title-color) !important;
+      }
+    }
+    .fixedLoading {
+      background-color: var(--widget-color) !important;
+    }
+    .header .iconItem, .header .reportDesc {
+      color: var(--widget-icon-color) !important;
+      &:hover {
+        color: var(--widget-icon-hover-color) !important;
+      }
+    }
   }
   img {
     max-width: 100%;
@@ -163,7 +204,12 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
   if (componentType === 'carousel') {
     const { config, componentConfig } = widget;
     return (
-      <CarouselPreview editable={editable} config={config} componentConfig={componentConfig} />
+      <CarouselPreview
+        editable={editable}
+        config={config}
+        componentConfig={componentConfig}
+        customPageConfig={rest.config || {}}
+      />
     );
   }
   return (

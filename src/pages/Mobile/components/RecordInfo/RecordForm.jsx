@@ -185,8 +185,12 @@ export default class RecordForm extends Component {
     } = this.props;
     const { advancedSetting, formStyleImggeData, ownerAccount, allowEdit, projectId } = recordInfo;
     const { worksheetId, recordId, appId } = recordBase || {};
+    const isPublicShare =
+      _.get(window, 'shareState.isPublicRecord') ||
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage');
 
-    if (isEditRecord) return;
+    if (isEditRecord) return null;
 
     const isCoverid = _.get(advancedSetting, 'coverid') && !_.isEmpty(formStyleImggeData);
     const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
@@ -264,7 +268,7 @@ export default class RecordForm extends Component {
               });
             }}
           >
-            <span class="ellipsis">{_l('拥有者：%0', ownerAccount.fullname)}</span>
+            <span className="ellipsis">{_l('拥有者：%0', ownerAccount.fullname)}</span>
           </div>
         )}
       </Fragment>
@@ -281,16 +285,18 @@ export default class RecordForm extends Component {
             worksheetId={recordBase.worksheetId}
             recordId={recordBase.recordId}
           />
-          <div
-            className={cx('flexRow sheetNameWrap fixedSheetNameWrap', {
-              Absolute: view.viewType === 6 && view.childType === 1,
-            })}
-          >
-            <div className="flexRow alignItemsCenter w100">
-              {/* {refreshRecordIcon} */}
-              {sheetInfo}
+          {!isPublicShare && (
+            <div
+              className={cx('flexRow sheetNameWrap fixedSheetNameWrap', {
+                Absolute: view.viewType === 6 && view.childType === 1,
+              })}
+            >
+              <div className="flexRow alignItemsCenter w100">
+                {/* {refreshRecordIcon} */}
+                {sheetInfo}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       );
     }
@@ -300,6 +306,7 @@ export default class RecordForm extends Component {
       return <div className="flexRow sheetNameWrap">{header}</div>;
     }
 
+    if (isPublicShare) return null;
     return (
       <div className="flexRow sheetNameWrap">
         <div className="flexRow alignItemsCenter w100">

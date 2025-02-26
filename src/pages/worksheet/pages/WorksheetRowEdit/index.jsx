@@ -9,7 +9,7 @@ import { VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import _ from 'lodash';
 import DocumentTitle from 'react-document-title';
 import 'mobile/index.less';
-import { browserIsMobile, getTranslateInfo, getAppLangDetail } from 'src/util';
+import { browserIsMobile, getTranslateInfo, shareGetAppLangDetail } from 'src/util';
 
 const Header = ({ data, callback, onSubmit }) => {
   return (
@@ -55,7 +55,6 @@ class WorksheetRowEdit extends Component {
       worksheetAjax
         .getLinkDetail({
           id: shareId,
-          langType: getCurrentLangCode(),
           ...param,
         })
         .then(async data => {
@@ -78,11 +77,10 @@ class WorksheetRowEdit extends Component {
               !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', data.clientId);
             }
 
-            const { langInfo, projectId, appId } = data;
-            const lang = await getAppLangDetail({
-              langInfo,
+            const { projectId, appId } = data;
+            const lang = await shareGetAppLangDetail({
               projectId,
-              id: appId,
+              appId,
             });
             if (lang) {
               data.appName = getTranslateInfo(appId, null, appId).name || data.appName;

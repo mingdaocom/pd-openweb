@@ -126,9 +126,8 @@ export default class MobilePhone extends React.Component {
     const setKeyboardValue = value => {
       updateEditingStatus(true, () => {
         setTimeout(() => {
-          const inputDom = this.editRef.current.input;
-          if (inputDom) {
-            inputDom.value = value;
+          if (this.editRef && this.editRef.current && this.editRef.current.input) {
+            this.editRef.current.input.value = value;
             this.handleChange(value);
           }
         }, 10);
@@ -151,9 +150,8 @@ export default class MobilePhone extends React.Component {
           }
           updateEditingStatus(true, () => {
             setTimeout(() => {
-              const inputDom = this.editRef.current.input;
-              if (inputDom) {
-                inputDom.value = value;
+              if (this.editRef && this.editRef.current && this.editRef.current.input) {
+                this.editRef.current.input.value = value;
                 this.handleChange(value);
               }
             }, 10);

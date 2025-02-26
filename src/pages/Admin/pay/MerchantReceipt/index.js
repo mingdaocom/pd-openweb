@@ -131,6 +131,6 @@ export default function MerchantReceipt() {
 }
 
 const Comp = preall(MerchantReceipt, { allowNotLogin: true });
-const root = createRoot(document.querySelector('#receipt'));
+const root = createRoot(document.querySelector('#app'));
 
 root.render(<Comp />);

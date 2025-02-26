@@ -137,9 +137,9 @@ export const WORKFLOW_SYSTEM_FIELDS_SORT = [
   'wfcotime',
 ];
 
-export const getCanDisplayControls = (worksheetControls) => {
+export const getCanDisplayControls = (worksheetControls, disableTypes) => {
   return worksheetControls.filter(
-    c => c.attribute !== 1 && !!c.controlName && !_.includes([22, 10010, 43, 45, 47, 49, 51, 52], c.type),
+    c => c.attribute !== 1 && !!c.controlName && !_.includes(disableTypes || [22, 10010, 43, 45, 47, 49, 51, 52], c.type),
   );
 }
 

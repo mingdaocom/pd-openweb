@@ -374,7 +374,7 @@ export const TIME_TYPE = {
 export const TIME_TYPE_NAME = {
   1: _l('分钟'),
   2: _l('小时'),
-  3: _l('天'),
+  3: _l('天%250125'),
 };
 
 export const SUPPORT_HREF = {

@@ -8,35 +8,11 @@
         <meta name="force-rendering" content="webkit" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <title content="登录"></title>
-        <style>
-            ::-webkit-scrollbar {
-                width: 10px;
-                height: 10px;
-            }
-            ::-webkit-scrollbar-thumb {
-                width: 6px;
-                height: 6px;
-                border-radius: 6px;
-                background: rgba(187, 187, 187, 0.8);
-                background-clip: padding-box;
-                border: 2px solid transparent;
-            }
-            ::-webkit-scrollbar-thumb:active,
-            ::-webkit-scrollbar-thumb:hover {
-                background: rgba(125, 125, 125, 0.8);
-                background-clip: padding-box;
-            }
-        </style>
         <script type="text/javascript" src="//g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js"></script>
         <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
         <script src="/src/common/mdjs/freestyle.js"></script>
     </head>
     <body>
-        <div id="app"></div>
-        <script>
-            var __api_server__ = <%- apiServer %>;
-            var __webpack_public_path__ = '<%= publicPath %>';
-        </script>
-        <script src="webpack[single]?src/pages/accountLogin/sso"></script>
+        <script src="webpack[single]?src/pages/AuthService/sso"></script>
     </body>
 </html>

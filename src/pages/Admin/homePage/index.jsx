@@ -1,38 +1,46 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { HomePageWrap, FreeTrialWrap } from './styled';
+import React, { Fragment, useEffect, useState } from 'react';
+import { HomePageWrap, FreeTrialWrap, TitleWrap } from './styled';
 import cx from 'classnames';
+import moment from 'moment';
+import { useSetState } from 'react-use';
+import _ from 'lodash';
 import projectAjax from 'src/api/project';
+import projectSettingAjax from 'src/api/projectSetting';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import certificationApi from 'src/api/certification.js';
 import { Modal, Button, Progress } from 'antd';
-import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
-import moment from 'moment';
+import { Support, Tooltip, Icon, Dialog } from 'ming-ui';
+import { QUICK_ENTRY_CONFIG, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
+import { PERMISSION_ENUM } from '../enum';
 import { getCurrentProject, getFeatureStatus, formatNumberThousand } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import InstallDialog from './installDialog';
-import { Support, Tooltip, Icon, Dialog } from 'ming-ui';
+import BalanceManage from '../components/BalanceManage';
 import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import PurchaseExpandPack from '../components/PurchaseExpandPack';
 import SelectCertification from 'src/pages/certification/SelectCertification';
-import { useSetState } from 'react-use';
-import _ from 'lodash';
+import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
+import TimeIcon from './image/time.png';
+import PurchaseIcon from './image/purchaseIcon.png';
 
-export default function HomePage({ match, location: routerLocation }) {
+export default function HomePage({ match, location: routerLocation, authority, ...reset }) {
   const { projectId } = _.get(match, 'params');
   const { companyName } = getCurrentProject(projectId);
-  const [data, setData] = useSetState({});
+  const [data, setData] = useSetState({ basicLoading: true });
   const [installType, setType] = useState('');
   const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
   const isEnLang = md.global.Account.lang === 'en';
+  const isLocal = md.global.Config.IsLocal;
 
   useEffect(() => {
     document.title = _l('组织管理 - 首页 - %0', companyName);
     getBaseData();
     getUsageData();
     getVersionInfo();
+    getBalanceLimitNoticeSettings();
   }, []);
 
   useEffect(() => {
@@ -62,9 +70,11 @@ export default function HomePage({ match, location: routerLocation }) {
         'effectiveWorksheetCount',
         'effectiveWorksheetRowCount',
         'effectiveDataPipelineJobCount',
+        'effectiveDataPipelineEtlJobCount',
         'effectiveDataPipelineRowCount',
         'effectiveAggregationTableCount',
       ]);
+      resData.basicLoading = false;
       setData(resData);
     });
   };
@@ -79,6 +89,7 @@ export default function HomePage({ match, location: routerLocation }) {
         effectiveWorksheetCount,
         effectiveWorksheetRowCount,
         effectiveDataPipelineJobCount,
+        effectiveDataPipelineEtlJobCount,
         effectiveDataPipelineRowCount,
         effectiveAggregationTableCount,
       } = res;
@@ -89,9 +100,17 @@ export default function HomePage({ match, location: routerLocation }) {
         effectiveWorksheetCount,
         effectiveWorksheetRowCount,
         effectiveDataPipelineJobCount,
+        effectiveDataPipelineEtlJobCount,
         effectiveDataPipelineRowCount,
         effectiveAggregationTableCount,
       });
+    });
+  };
+
+  // 获取组织余额警告提醒
+  const getBalanceLimitNoticeSettings = () => {
+    projectSettingAjax.getOnlyManagerSettings({ projectId }).then(res => {
+      res && setData({ balanceInfo: res.balanceLimitNotice });
     });
   };
 
@@ -102,6 +121,7 @@ export default function HomePage({ match, location: routerLocation }) {
       navigateTo(`/admin/${type}/${projectId}`);
     }
   };
+
   const handleActionClick = action => {
     switch (action) {
       case 'addPerson':
@@ -114,7 +134,6 @@ export default function HomePage({ match, location: routerLocation }) {
         location.assign(`/admin/structure/${projectId}/create`);
         break;
       case 'batchImport':
-        // location.assign(`/admin/importusers/${projectId}`);
         location.assign(`/admin/structure/${projectId}/importusers`);
         break;
       case 'settingAdmin':
@@ -131,6 +150,7 @@ export default function HomePage({ match, location: routerLocation }) {
         break;
     }
   };
+
   const handleClick = type => {
     if (_.includes(['user', 'portalexpand', 'portalupgrade'], type)) {
       location.assign(`/admin/expansionservice/${projectId}/${type}`);
@@ -171,24 +191,6 @@ export default function HomePage({ match, location: routerLocation }) {
     });
   };
 
-  // 处理中文环境下行记录总数
-  const getWorksheetRowCount = value => {
-    // 大于100w
-    if (value > 1000000) {
-      return (
-        <div className="count">
-          <Tooltip text={formatValue(value)}>
-            <span>{(value / 10000).toFixed(0)}</span>
-          </Tooltip>
-          <span className="Gray_75 Font17 mLeft4 verticalTxtBottom">
-            {_l('万')}
-            {value % 10000 > 0 ? '+' : ''}
-          </span>
-        </div>
-      );
-    }
-    return <div className="count">{formatValue(value)}</div>;
-  };
   const { currentLicense = {}, nextLicense = {} } = data;
   const { endDate, expireDays, version = {} } = currentLicense;
   const { version: nextVersion, startDate: nextStartDate, endDate: nextEndDate } = nextLicense;
@@ -197,41 +199,77 @@ export default function HomePage({ match, location: routerLocation }) {
   const isTeam = data.licenseType === 1 && versionIdV2 === 1;
   const getValue = value => (_.isUndefined(value) || _.isNaN(value) ? '-' : value);
 
+  const getNoLimit = key => {
+    const isSingleVersion = versionIdV2 === 0;
+
+    switch (key) {
+      case 'limitWorksheetCount':
+        return !isFree && !isTeam && !isSingleVersion;
+      case 'limitDataPipelineJobCount':
+        return !isFree && !isLocal && !isSingleVersion;
+      case 'limitDataPipelineEtlJobCount':
+        return !isFree && !isLocal && !isSingleVersion;
+      case 'limitAllWorksheetRowCount':
+        return !isFree && !isSingleVersion;
+      case 'limitAggregationTableCount':
+        return isLocal && versionIdV2 === 3;
+    }
+    return false;
+  };
+
+  const getAllowAdd = key => {
+    switch (key) {
+      case 'limitExternalUserCount':
+        return !isFree && !isTrial;
+      default:
+        return !getNoLimit(key);
+    }
+  };
+
+  const getUsage = (key, numUnit, isAttachmentUpload) => {
+    if (getValue(data[key]) === '-' || getNoLimit(key)) return _l('不限');
+
+    return isAttachmentUpload
+      ? formatFileSize(data[key])
+      : isEnLang
+      ? `${formatValue(data[key])} ${numUnit}`
+      : data[key] >= 100000000
+      ? _l('%0 亿+', _.floor(getValue(data[key] / 100000000), 4)) + numUnit
+      : data[key] >= 10000
+      ? _l('%0 万', getValue(data[key] / 10000)) + numUnit
+      : `${getValue(data[key])} ${numUnit}`;
+  };
+
   const getCountText = (key, limit, numUnit) => {
     const isAttachmentUpload = key === 'effectiveApkStorageCount'; // 附件上传量
-    let percent = isAttachmentUpload
-      ? ((data[key] / (getValue(data[limit]) * Math.pow(1024, 3))) * 100).toFixed(2)
-      : data[key] / data[limit] > 0 && (data[key] / data[limit]) * 10000 <= 1
-      ? 0.01
-      : ((data[key] / data[limit]) * 100).toFixed(2);
-
-    const getUsage = key => {
-      return isAttachmentUpload
-        ? formatFileSize(data[key])
-        : isEnLang
-        ? `${formatValue(data[key])} ${numUnit}`
-        : data[key] >= 10000
-        ? _l('%0 万', getValue(data[key] / 10000)) + numUnit
-        : `${getValue(data[key])} ${numUnit}`;
-    };
 
     return (
       <div className="useCount">
-        <dov>
-          {_l('已用')}
-          <span className="Gray mLeft4">{`${_.isNaN(percent) ? '-' : percent}%`}</span>
-        </dov>
+        <div>{_l('已用: %0', getUsage(key, numUnit, isAttachmentUpload))}</div>
         <div className="flex TxtRight">
-          <span>{getUsage(key)}</span>
-          <span className="mLeft4">/</span>
-          <span className="mLeft4">{isAttachmentUpload ? `${data[limit]}GB` : getUsage(limit)}</span>
+          <span className="mLeft4">
+            {isAttachmentUpload ? `${getValue(data[limit])}GB` : getUsage(limit, numUnit, isAttachmentUpload)}
+          </span>
         </div>
       </div>
     );
   };
+
   const getCountProcess = (key, limit) => {
+    if (getValue(data[limit]) === '-' || getNoLimit(limit)) return 1;
+
     let percent = 0;
-    if (key === 'useExecCount' || key === 'effectiveDataPipelineRowCount') {
+
+    if (
+      [
+        'effectiveDataPipelineRowCount',
+        'useExecCount',
+        'effectiveAggregationTableCount',
+        'effectiveExternalUserCount',
+        'effectiveWorksheetCount',
+        'effectiveWorksheetRowCount',
+      ].includes(key)
+    ) {
       percent =
         data[key] / data[limit] > 0 && (data[key] / data[limit]) * 10000 <= 1
           ? 0.01
@@ -241,123 +279,195 @@ export default function HomePage({ match, location: routerLocation }) {
     }
     return percent;
   };
-  const getOperation = () => {
-    return null;
+
+  const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
+
+  // 设置余额警告提醒
+  const setBalanceLimitNotice = ({ noticeEnabled, balanceLimit, notifiers, closeDialog = () => {} }) => {
+    projectSettingAjax
+      .setBalanceLimitNotice({ projectId, noticeEnabled, balanceLimit, accountIds: notifiers.map(v => v.accountId) })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          closeDialog();
+          setData({
+            balanceInfo: {
+              ...data.balanceInfo,
+              noticeEnabled,
+              balanceLimit,
+              noticeAccounts: notifiers,
+            },
+          });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      });
   };
-  const getLicenseOperation = () => {
-    // 如果是旗舰版 或者是已购买的试用版 不显示
-    if (versionIdV2 === 3 || (isTrial && !_.isEmpty(nextLicense))) return null;
-    if (isTrial) {
-      return (
-        <div
-          className="delayTrial"
-          onClick={() => {
-            setVisible(true);
-          }}
-        >
-          <i className="icon-box_trial" />
-          <span>{_l('延长试用')}</span>
-        </div>
-      );
+
+  const setEarlyWarning = () => {
+    const { balanceInfo = {} } = data;
+    settingEarlyWarning({
+      type: 'balance',
+      projectId,
+      warningValue: balanceInfo.balanceLimit,
+      isWarning: balanceInfo.noticeEnabled,
+      notifiers: balanceInfo.noticeAccounts,
+      onOk: (warningValue, notifiers, closeDialog) => {
+        setBalanceLimitNotice({
+          noticeEnabled: true,
+          balanceLimit: warningValue,
+          notifiers,
+          closeDialog,
+        });
+      },
+      closeWarning: (warningValue, notifiers, closeDialog) => {
+        setBalanceLimitNotice({
+          noticeEnabled: false,
+          balanceLimit: 0,
+          notifiers,
+          closeDialog,
+        });
+      },
+    });
+  };
+
+  const handleClickRecherge = () => {
+    if (isFree && !data.authType) {
+      handleAuthenticate();
+      return;
     }
+    handleClick('recharge');
+  };
+
+  const renderVersionCard = () => {
+    const hasNextLicense = !_.isEmpty(nextLicense);
+    const surplus = getValue(expireDays || 0);
+
     return (
-      <div className="upgrade pointer" onClick={() => handleClick('upgrade')}>
-        {_l('升级')}
+      <div className="infoCard row1">
+        <div>
+          <div className="Font16 bold Gray mBottom6">{_l('版本')}</div>
+          <div className="Font28 bold Gray mBottom8 valignWrapper">
+            {getValue(version.name)}
+            {isTrial && <span className="trialTag Font14 Bold">{_l('试用中')}</span>}
+          </div>
+          {!data.basicLoading && (
+            <Fragment>
+              {hasNextLicense && (
+                <div className="Font14 mBottom10">
+                  <span className="renewTag mRight10">
+                    <Icon icon="done" className="doneIcon" />
+                    <span className="Bold">{_l('已续费')}</span>
+                  </span>
+                  {_.get(nextLicense, 'version.versionIdV2') !== _.get(version, 'versionIdV2') && (
+                    <span className="Gray">{nextVersion.name}</span>
+                  )}
+                </div>
+              )}
+              {isTrial && (
+                <div className="Font14 bold">
+                  <span className="mRight8 Yellow_de9">{_l('免费试用剩余 %0 天', surplus)}</span>
+                  {!hasNextLicense && !isLocal && (
+                    <span className="ThemeColor Hand" onClick={() => setVisible(true)}>
+                      {_l('延长试用')}
+                    </span>
+                  )}
+                </div>
+              )}
+              {!isFree && !isTrial && (
+                <Fragment>
+                  <div className="Font14">
+                    {hasNextLicense ? (
+                      <span className="Gray_75 mRight5">{_l('当前版本')}</span>
+                    ) : surplus < 31 ? (
+                      <span className="Red_f00 bold mRight5">{_l('剩余 %0 天', surplus)}</span>
+                    ) : null}
+                    <span className="Gray_75">{_l('%0到期', getValue(createTimeSpan(endDate, 4)))}</span>
+                  </div>
+                  {hasNextLicense && (
+                    <div className="Font14 Gray_75">
+                      <span className="mRight5">{_l('下个版本')}</span>
+                      {_l('%0到期', getValue(createTimeSpan(nextLicense.endDate, 4)))}
+                      <Tooltip
+                        text={
+                          <span>
+                            {_l('下个版本：%0', nextVersion.name)}
+                            <br />
+                            {`${createTimeSpan(nextLicense.startDate, 4)} ${moment(nextLicense.startDate).format(
+                              'HH:mm',
+                            )} ${_l('开始')}`}
+                          </span>
+                        }
+                      >
+                        <Icon icon="info" className="Gray_9e mLeft4 Hand" />
+                      </Tooltip>
+                    </div>
+                  )}
+                </Fragment>
+              )}
+            </Fragment>
+          )}
+        </div>
+        {!data.basicLoading && !isLocal && (
+          <div className="buttons">
+            {!isFree && _.isEmpty(nextLicense) && (
+              <div
+                className={cx('Bold', isTrial ? 'greenBtn' : 'blueBtn')}
+                onClick={() => handleClick(versionIdV2 === 0 ? 'toast' : 'renew')}
+              >
+                <img src={isTrial ? PurchaseIcon : TimeIcon} />
+                {isTrial ? _l('购买') : _l('续费')}
+              </div>
+            )}
+            {(isFree || (versionIdV2 !== 3 && !isTrial)) && (
+              <div
+                className={cx('Bold', isFree ? 'greenBtn' : 'whiteBtn')}
+                onClick={() => handleClick(isFree ? 'renew' : 'upgrade')}
+              >
+                <span className="mRight6">🚀</span>
+                {_l('升级')}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
 
-  const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
-
-  return (
-    <HomePageWrap>
-      <div className="infoWrap">
-        <div className="infoBox">
-          <div className="userInfo userInfoWrap">
-            <div className="title bold">{_l('成员')}</div>
-            <div className="content">
-              <ul>
-                {USER_COUNT.map(({ key, text, link }) => (
-                  <li
-                    className={cx('pointer', {})}
-                    key={key}
-                    onClick={() => linkHref(link, key === 'notActiveUserCount' ? 'uncursor' : null)}
-                  >
-                    <div className="name">{text}</div>
-                    <div className="count">{formatValue(getValue(data[key] || 0))}</div>
-                    {key === 'effectiveUserCount' && (
-                      <Fragment onClick={e => e.stopPropagation()}>
-                        <div className="limitUser">
-                          <span className="nowrap">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
-                        </div>
-                      </Fragment>
-                    )}
-                    {key === 'effectiveExternalUserCount' && (
-                      <Fragment>
-                        <div className="limitUser">{_l('上限 %0 人', getValue(data.limitExternalUserCount || 0))}</div>
-                      </Fragment>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              {isShowInviteUser && (
-                <div className="inviteUserWrap">
-                  <div className="inviteUser Hand" onClick={() => handleActionClick('addPerson')}>
-                    {_l('邀请成员')}
-                  </div>
-                </div>
-              )}
-            </div>
+  const renderUserCard = () => {
+    return (
+      <div className={cx('infoCard', { row1: md.global.Config.IsPlatformLocal === false })}>
+        <div>
+          <div className="Font16 bold Gray mBottom6 valignWrapper mBottom6">
+            {_l('用户')}
+            {!isLocal && (
+              <Support
+                className="mLeft6 helpIcon Hover_21"
+                type={1}
+                title={_l('点击查看人数计算规则')}
+                href="https://help.mingdao.com/purchase/user-billing"
+              />
+            )}
           </div>
-        </div>
-        <div className="infoBox pRight0">
-          <div className="financeInfo">
-            <div className="title bold">{_l('版本')}</div>
-            <div className="content">
-              {isTrial && (
-                <div className="trialInfo">
-                  <i className="icon-watch_latersvg_22" />
-                  {_l('试用还剩 %0 天', getValue(expireDays || 0))}
-                </div>
-              )}
-              <div className="licenseInfoWrap">
-                <div className="licenseInfo">
-                  <div className="licenseFlag" />
-                  <div className="licenseType Font15">{getValue(version.name)}</div>
-                  {isTrial && <span>{_l('-试用')}</span>}
-                  {isFree ? null : (
-                    <Fragment>
-                      <div className="expireDays">
-                        {_l('剩余')}
-                        <span>{getValue(expireDays || 0)}</span>
-                        {_l('天')}
-                      </div>
-                      <div className="expireDate">{_l('%0到期', getValue(moment(endDate).format('YYYY-MM-DD')))}</div>
-                      {/* {getLicenseOperation()} */}
-                    </Fragment>
-                  )}
-                </div>
-                {!_.isEmpty(nextLicense) && (
-                  <div className="nextLicenseInfo">
-                    <div className="licenseFlag" />
-                    <div className="licenseType Font15">{nextVersion.name}</div>
-                    <div className="expireDate">
-                      {_l(
-                        '%0 ~ %1',
-                        moment(nextStartDate).format('YYYY年MM月DD日'),
-                        moment(nextEndDate).format('YYYY年MM月DD日'),
-                      )}
-                    </div>
-                  </div>
-                )}
-                {getOperation()}
-              </div>
-              {md.global.Config.IsPlatformLocal && (
-                <div className="accountInfo">
-                  <i className="icon-sp_account_balance_wallet_white" />
-                  <span>{_l('当前账户余额 (￥)')}</span>
-                  <span className="balance">{formatNumberThousand(data.balance)}</span>
-                </div>
+          <div className="mBottom6">
+            <span className="Font28 Gray Bold Hand" onClick={() => linkHref('structure')}>
+              {formatValue(getValue(data.effectiveUserCount || 0))}
+            </span>
+            <span className="mLeft6 Black Font13">{_l('人')}</span>
+          </div>
+          {(!isTrial || isLocal) && !data.basicLoading && (
+            <div className="Font14">
+              <span className="Gray_75">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
+              {!isLocal && !isFree && !_.isUndefined(data.limitUserCount) && (
+                <span
+                  className="ThemeColor3 hoverColor mLeft8 Hand"
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleClick('user');
+                  }}
+                >
+                  {_l('扩充人数')}
+                </span>
               )}
               {/* {!isFree && !isTrial && (
                 <div className="recharge" onClick={() => handleClick('recharge')}>
@@ -365,80 +475,196 @@ export default function HomePage({ match, location: routerLocation }) {
                 </div>
               )} */}
             </div>
-          </div>
+          )}
         </div>
+        {isShowInviteUser && (
+          <div className="buttons">
+            <div className="blueBtn Bold" onClick={() => handleActionClick('addPerson')}>
+              {_l('邀请成员')}
+            </div>
+          </div>
+        )}
       </div>
-      <div className="infoWrap infoWrapCopy">
-        <div className="infoBox">
-          <div className="userInfo">
-            <div className="title overflowHidden">
-              <span className="Left bold">{_l('使用')}</span>
-              <span
-                className="Right Hand Font14 Gray_75"
-                onClick={() => {
-                  location.assign(`/admin/analytics/${projectId}`);
-                }}
-              >
-                {_l('查看详情')}
-                <Icon icon="arrow-right-border" className="mLeft6" />
+    );
+  };
+
+  const renderBalanceCard = () => {
+    const IsPlatformLocal = md.global.Config.IsPlatformLocal;
+
+    if (IsPlatformLocal === false) return;
+
+    const balanceInfo = data.balanceInfo;
+    const hasBalance = authority.includes(PERMISSION_ENUM.FINANCE);
+    const trialAuthenticate = !isLocal && isTrial && !data.authType;
+
+    return (
+      <div className="infoCard">
+        <div>
+          <div className="Font16 bold Gray mBottom6 valignWrapper mBottom6">
+            {_l('账户余额')}
+            <Tooltip
+              text={_l(
+                '用于系统中发送邮件、短信等计费服务项目自动扣费。为避免系统功能不可用，请保障账户余额充足。【点击查看详细说明】',
+              )}
+              popupPlacement="bottom"
+            >
+              <Icon icon="workflow_help" className="mLeft6 Hover_21 helpIcon" />
+            </Tooltip>
+          </div>
+          <div className="mBottom6">
+            <span className="Font28 Gray Bold Hand">{formatNumberThousand(data.balance)}</span>
+            <span className="mLeft6 Black Font13">{_l('元')}</span>
+          </div>
+          {!_.isEmpty(balanceInfo) && hasBalance && (
+            <div className="Font14">
+              {!!balanceInfo.noticeEnabled && (
+                <span className="Gray_70 mRight8">{_l('预警（<%0元）', balanceInfo.balanceLimit || 0)}</span>
+              )}
+              <span className="ThemeColor Hand hoverColor" onClick={setEarlyWarning}>
+                {balanceInfo.noticeEnabled ? _l('设置') : _l('余额预警')}
               </span>
             </div>
+          )}
+        </div>
+        <div className="buttons">
+          {trialAuthenticate ? (
+            <span className="recharge trialAuthenticate" onClick={handleAuthenticate}>
+              <Icon icon="gift" className="mRight5" />
+              {_l('认证组织+10元余额')}
+            </span>
+          ) : (
+            <Fragment>
+              {((isTrial && data.authType) || !isTrial) && (
+                <span className="blueBtn Bold" onClick={handleClickRecherge}>
+                  {_l('充值')}
+                </span>
+              )}
+              {hasBalance && (
+                <Fragment>
+                  <span className="whiteBtn Bold" onClick={() => linkHref('billinfo')}>
+                    {_l('使用明细')}
+                  </span>
+                  <span className="whiteBtn Bold" onClick={() => setData({ balanceManageVisible: true })}>
+                    {_l('管理')}
+                  </span>
+                </Fragment>
+              )}
+            </Fragment>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderBasicInfo = () => {
+    return (
+      <div className="basicInfo">
+        {renderVersionCard()}
+        {renderUserCard()}
+        {renderBalanceCard()}
+      </div>
+    );
+  };
+
+  const renderLimit = () => {
+    const IsPlatformLocal = md.global.Config.IsPlatformLocal;
+    const hasBalance = IsPlatformLocal !== false && authority.includes(PERMISSION_ENUM.FINANCE);
+
+    return (
+      <div className="infoWrap infoWrapCopy">
+        <div className="infoBox pRight0">
+          <div className="userInfo">
             <div className="content">
               <ul>
-                {ITEM_COUNT.map(({ key, text, link, featureId }) => {
+                {UPLOAD_COUNT.filter(
+                  item =>
+                    (IsPlatformLocal || !isLocal ? item : item.isLocalFilter) &&
+                    (versionIdV2 !== 0 || !item.singleHide),
+                ).map(item => {
+                  const {
+                    key,
+                    limit,
+                    text,
+                    link,
+                    click,
+                    numUnit,
+                    featureId,
+                    routePath = undefined,
+                    autoPurchase,
+                  } = item;
+
                   if (featureId && !getFeatureStatus(projectId, featureId)) return;
+
+                  const percentValue = getCountProcess(key, limit);
 
                   return (
                     <li
-                      key={key}
-                      className={cx('useAnalysis', {
-                        useAnalysisHover: _.includes(
-                          [
-                            'effectiveApkCount',
-                            'useProcessCount',
-                            'effectiveDataPipelineJobCount',
-                            'effectiveAggregationTableCount',
-                          ],
-                          key,
-                        ),
-                      })}
+                      className="Hand"
                       onClick={() => {
-                        if (key === 'effectiveDataPipelineJobCount') {
+                        if (
+                          [
+                            'effectiveDataPipelineRowCount',
+                            'effectiveDataPipelineJobCount',
+                            'effectiveDataPipelineEtlJobCount',
+                          ].includes(key)
+                        ) {
                           localStorage.setItem('currentProjectId', projectId);
                           return location.assign('/integration/task');
-                        } else if (
-                          _.includes(['effectiveApkCount', 'useProcessCount', 'effectiveAggregationTableCount'], key)
-                        ) {
-                          linkHref(link);
                         }
+                        link && linkHref(link);
                       }}
                     >
-                      <div className="name">
-                        {text}
-                        {key === 'effectiveWorksheetRowCount' && (
-                          <Tooltip
-                            popupPlacement="top"
-                            text={<span>{_l('所有工作表行记录总数（包含关闭应用）')}</span>}
-                          >
-                            <span className="icon-help1 Font13 mLeft8 Gray_9e" />
-                          </Tooltip>
+                      <div className="workflowTitle flexRow">
+                        <div className="flex">
+                          <span className="Font15 Bold">{text}</span>
+                          {key === 'effectiveApkStorageCount' && (
+                            <Tooltip
+                              popupPlacement="top"
+                              text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
+                            >
+                              <span className="icon-help1 Font13 Gray_9e" />
+                            </Tooltip>
+                          )}
+                        </div>
+                        {link && <span className="Gray_9e Bold Font13 Hover_21 detailBtn">{_l('查看')}</span>}
+                        {!!item.PurchaseExpandPack && getAllowAdd(limit) && (
+                          <PurchaseExpandPack
+                            className="mLeft12 Bold Hover_theme"
+                            text={_l('扩容')}
+                            type={click}
+                            projectId={projectId}
+                            routePath={routePath}
+                          />
                         )}
                       </div>
-                      <div className="count">
-                        {key === 'effectiveWorksheetRowCount' && _.includes([0, 3], getCurrentLangCode()) && data[key]
-                          ? getWorksheetRowCount(data[key])
-                          : formatValue(getValue(data[key] || 0))}
-                      </div>
-                      {key === 'effectiveWorksheetCount' && (isFree || isTeam) && (
-                        <div className="limitUser">{_l('上限 %0 个', data.limitWorksheetCount)}</div>
+                      <Progress
+                        showInfo={false}
+                        style={{ margin: '7px 0', textAlign: 'left' }}
+                        trailColor="#eaeaea"
+                        strokeColor={
+                          _.isNaN(Number(percentValue))
+                            ? '#eaeaea'
+                            : percentValue > 90
+                            ? { from: '#F51744 ', to: '#FF5779' }
+                            : { from: '#2196f3 ', to: '#4bb2ff' }
+                        }
+                        strokeWidth={4}
+                        percent={percentValue}
+                      />
+                      {getCountText(key, limit, numUnit)}
+                      {hasBalance && !!autoPurchase && !data[autoPurchase] && (
+                        <span
+                          className="mTop10 InlineBlock Gray_75 Font13 Underline Hover_21"
+                          onClick={e => {
+                            e.stopPropagation();
+                            setData({ balanceManageVisible: true });
+                          }}
+                        >
+                          {_l('启用自动增补')}
+                        </span>
                       )}
-                      {key === 'effectiveWorksheetRowCount' && isFree && (
-                        <div className="limitUser">{_l('上限 %0 万行', data.limitAllWorksheetRowCount / 10000)}</div>
-                      )}
-                      {key === 'effectiveAggregationTableCount' && isFree && data.limitAggregationTableCount ? (
-                        <div className="limitUser">{_l('上限 %0', data.limitAggregationTableCount)}</div>
-                      ) : (
-                        ''
+                      {data[autoPurchase] && item.autoPurchaseText && (
+                        <div className="mTop10 Gray_75 Font13 mul2_overflow_ellipsis">{item.autoPurchaseText}</div>
                       )}
                     </li>
                   );
@@ -447,63 +673,21 @@ export default function HomePage({ match, location: routerLocation }) {
             </div>
           </div>
         </div>
-        <div className="infoBox pRight0 pTitle">
-          <div className="userInfo">
-            <div className="content">
-              <ul>
-                {UPLOAD_COUNT.filter(item => (md.global.Config.IsPlatformLocal ? item : item.key === 'useExecCount'))
-                  .filter(o => !(md.global.SysSettings.hideDataPipeline && o.key === 'effectiveDataPipelineRowCount'))
-                  .map(({ key, limit, text, link, click, unit, numUnit }) => {
-                    const percentValue = getCountProcess(key, limit);
-                    return (
-                      <li
-                        className="pLeft10 pRight10 Hand"
-                        onClick={() => {
-                          if (key == 'effectiveDataPipelineRowCount') {
-                            localStorage.setItem('currentProjectId', projectId);
-                            return location.assign('/integration/task');
-                          }
-                          linkHref(link);
-                        }}
-                      >
-                        <div className="workflowTitle flexRow">
-                          <div className="flex">
-                            {text}
-                            <span className="Gray_9e">{unit}</span>
-                            {key === 'effectiveApkStorageCount' && (
-                              <Tooltip
-                                popupPlacement="top"
-                                text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
-                              >
-                                <span className="icon-help1 Font13 Gray_9e" />
-                              </Tooltip>
-                            )}
-                          </div>
-                          <PurchaseExpandPack text={_l('扩容')} type={click} projectId={projectId} />
-                        </div>
-                        <Progress
-                          showInfo={false}
-                          style={{ margin: '7px 0', textAlign: 'left' }}
-                          trailColor="#eaeaea"
-                          strokeColor={
-                            _.isNaN(Number(percentValue))
-                              ? '#eaeaea'
-                              : percentValue > 90
-                                ? { from: '#F51744 ', to: '#FF5779' }
-                                : { from: '#2196f3 ', to: '#4bb2ff' }
-                          }
-                          strokeWidth={4}
-                          percent={percentValue}
-                        />
-                        {getCountText(key, limit, numUnit)}
-                      </li>
-                    );
-                  })}
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
+    );
+  };
+
+  return (
+    <HomePageWrap>
+      {renderBasicInfo()}
+      <TitleWrap>
+        <span className="flex overflow_ellipsis">{_l('组织额度')}</span>
+        <span className="titleBtn" onClick={() => linkHref('analytics')}>
+          <Icon icon="stats_line_chart" className="ThemeColor Font16 mRight3" />
+          {_l('使用分析')}
+        </span>
+      </TitleWrap>
+      {renderLimit()}
       <div className="quickEntry">
         <div className="title bold">{_l('快捷入口')}</div>
         <div className="content">
@@ -515,7 +699,7 @@ export default function HomePage({ match, location: routerLocation }) {
                     <i className={`icon-${icon}`} />
                   </div>
                   <div className="text">
-                    <div className="entryTitle Font14">{title}</div>
+                    <div className="entryTitle Font14 Bold">{title}</div>
                     <div className="explain">{explain}</div>
                   </div>
                 </div>
@@ -565,6 +749,17 @@ export default function HomePage({ match, location: routerLocation }) {
           </Button>
         </FreeTrialWrap>
       </Modal>
+      <BalanceManage
+        visible={data.balanceManageVisible || false}
+        projectId={projectId}
+        value={_.pick(data, [
+          'autoPurchaseWorkflowExtPack',
+          'autoPurchaseApkStorageExtPack',
+          'autoPurchaseDataPipelineExtPack',
+        ])}
+        onClose={() => setData({ balanceManageVisible: false })}
+        onChange={value => setData(value)}
+      />
     </HomePageWrap>
   );
 }

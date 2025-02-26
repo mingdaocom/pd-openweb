@@ -8,14 +8,13 @@ export default ({ executeType, switchExecuteType, allowAdd = false, nodeType }) 
     {
       text: _l('继续执行'),
       value: 2,
-      desc:
-        nodeType === NODE_TYPE.WEBHOOK
-          ? _l('之后节点在使用本节点对象或数据时将跳过无法匹配值的项')
-          : _l('之后节点在使用本节点对象或数据时将跳过执行'),
+      desc: _.includes([NODE_TYPE.WEBHOOK, NODE_TYPE.API], nodeType)
+        ? _l('之后节点在使用本节点对象或数据时将跳过无法匹配值的项')
+        : _l('之后节点在使用本节点对象或数据时将跳过执行'),
     },
     { text: _l('在工作表中新增记录后继续执行'), value: 1 },
     {
-      text: _.includes([NODE_TYPE.WEBHOOK, NODE_TYPE.JSON_PARSE], nodeType)
+      text: _.includes([NODE_TYPE.WEBHOOK, NODE_TYPE.JSON_PARSE, NODE_TYPE.API], nodeType)
         ? _l('中止流程')
         : _l('中止流程，或继续执行查找结果分支'),
       value: 0,
@@ -29,7 +28,7 @@ export default ({ executeType, switchExecuteType, allowAdd = false, nodeType }) 
   return (
     <Fragment>
       <div className="mTop20 bold">
-        {nodeType === NODE_TYPE.WEBHOOK
+        {_.includes([NODE_TYPE.WEBHOOK, NODE_TYPE.API], nodeType)
           ? _l('请求超时或请求失败时')
           : nodeType === NODE_TYPE.JSON_PARSE
           ? _l('触发错误时')

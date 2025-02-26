@@ -19,7 +19,7 @@ const LayoutContent = styled.div`
   background-color: #fff;
 `;
 
-const { reportId, access_token, getFilters } = getRequest();
+const { reportId, getFilters } = getRequest();
 
 class MobileChart extends React.Component {
   constructor(props) {
@@ -56,11 +56,11 @@ class MobileChart extends React.Component {
       <Provider store={store}>
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
-            <SpinLoading color='primary' />
+            <SpinLoading color="primary" />
           </div>
         ) : (
           <LayoutContent className="mobileAnalysis flexColumn">
-            <ChartContent reportId={reportId} accessToken={access_token} dimensions={dimensions} filters={filters} />
+            <ChartContent reportId={reportId} dimensions={dimensions} filters={filters} />
           </LayoutContent>
         )}
       </Provider>
@@ -69,6 +69,6 @@ class MobileChart extends React.Component {
 }
 
 const Comp = preall(MobileChart, { allowNotLogin: false });
-const root = createRoot(document.getElementById('mobileChart'));
+const root = createRoot(document.getElementById('app'));
 
 root.render(<Comp />);

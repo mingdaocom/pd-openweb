@@ -158,7 +158,7 @@ export default function CreateSyncTask(props) {
       }
     });
   };
-  const featureType = getFeatureStatus(currentProjectId, VersionProductType.datantergration);
+  const featureType = getFeatureStatus(currentProjectId, VersionProductType.dataIntegrationETL);
 
   return (
     <SyncTaskWrapper>
@@ -174,21 +174,23 @@ export default function CreateSyncTask(props) {
             </div>
             <img src={onlySyncBg} width={330} />
           </CardWrapper>
-          <CardWrapper
-            onClick={() => {
-              if (featureType === '2') {
-                buriedUpgradeVersionDialog(currentProjectId, VersionProductType.datantergration);
-                return;
-              }
-              onInitTaskFlow();
-            }}
-          >
-            <div>
-              <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
-              <div className="Gray_9e mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
-            </div>
-            <img src={syncWithDealBg} width={330} />
-          </CardWrapper>
+          {!!featureType && (
+            <CardWrapper
+              onClick={() => {
+                if (featureType === '2') {
+                  buriedUpgradeVersionDialog(currentProjectId, VersionProductType.dataIntegrationETL);
+                  return;
+                }
+                onInitTaskFlow();
+              }}
+            >
+              <div>
+                <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
+                <div className="Gray_9e mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
+              </div>
+              <img src={syncWithDealBg} width={330} />
+            </CardWrapper>
+          )}
         </div>
       )}
       {syncType === SYNC_TYPE.ONLY_SYNC && <OnlySyncStep {...props} onClose={() => setSyncType(SYNC_TYPE.NO_SELECT)} />}

@@ -1,16 +1,15 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import SideNav from './components/sideNav/index';
 import Header from './components/header';
 import Con from './components/content';
-import { Icon, Dialog, LoadDiv, Menu, MenuItem } from 'ming-ui';
+import { Icon, Dialog, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import homeAppApi from 'src/api/homeApp';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 import SaveDia from './components/saveDia';
-import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE, FILTER_SYS } from './config';
+import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE } from './config';
 import { mdNotification } from 'ming-ui/functions';
 import webCacheAjax from 'src/api/webCache';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
@@ -19,12 +18,15 @@ import axios from 'axios';
 import { getControlsForPrint, SYST_PRINTData, isRelation, getVisibleControls, useUserPermission } from './util';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
-import { addBehaviorLog, getTranslateInfo, getAppLangDetail } from 'src/util';
+import { addBehaviorLog, getTranslateInfo, getAppLangDetail, getFeatureStatus } from 'src/util';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import processAjax from 'src/pages/workflow/api/processVersion';
+import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
+import { VersionProductType } from 'src/util/enum';
+import attachmentAjax from 'src/api/attachment';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -235,6 +237,12 @@ class PrintForm extends React.Component {
         customParseResponse: true,
       })
       .then(r => {
+        if (r.message) {
+          alert(r.message, 2);
+          this.setState({ ajaxUrlStr: 'error' });
+          return;
+        }
+
         this.setState(
           {
             ajaxUrlStr: r.data,
@@ -797,55 +805,29 @@ class PrintForm extends React.Component {
     }
   };
 
-  renderPreviewHeaderMenu = () => {
-    const { params, useWps, showSavePreviewService } = this.state;
-    const { fileTypeNum } = params;
+  onEdit = () => {
+    const { params = {} } = this.state;
+    const { worksheetId, printId } = params;
 
-    if (fileTypeNum === 5) return null;
-
-    return !useWps ? (
-      <div className="setWPSPreview" onClick={() => this.setState({ useWps: true })}>
-        <div className="bold">{_l('预览失败？使用WPS预览')}</div>
-      </div>
-    ) : (
-      <Trigger
-        popupVisible={showSavePreviewService}
-        onPopupVisibleChange={visible => {
-          this.setState({
-            showSavePreviewService: visible,
-          });
-        }}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [76, 0],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={
-          <Menu style={{ width: 237 }}>
-            <MenuItem
-              onClick={() => {
-                this.setState({ showSavePreviewService: false, useWps: false });
-                this.props.changePreviewService('original');
-              }}
-            >
-              {_l('使用默认方式预览')}
-            </MenuItem>
-          </Menu>
-        }
-      >
-        <div className="setWPSPreview useingWPS" onClick={() => this.setState({ showSavePreviewService: true })}>
-          <span className="bold">{_l('正在使用WPS服务预览')}</span>
-          <i className="icon icon-arrow-down White mLeft5"></i>
-        </div>
-      </Trigger>
-    );
+    attachmentAjax
+      .getAttachmentEditDetail({
+        fileId: printId,
+        editType: 2,
+        worksheetId,
+      })
+      .then(res => {
+        if (res.wpsEditUrl) window.open(res.wpsEditUrl);
+      });
   };
 
   renderShowPdf = () => {
-    const { params, printData, showHeader, useWps, isHaveCharge } = this.state;
-    const { fileTypeNum, allowDownloadPermission } = params;
+    const { params, printData, showHeader, useWps, isHaveCharge, info, downLoadUrl } = this.state;
+    const { fileTypeNum, allowDownloadPermission, from, projectId, worksheetId } = params;
     const allowDown = isHaveCharge || !allowDownloadPermission;
+    const canEditFile =
+      from === fromType.FORM_SET &&
+      _.get(info, 'roleType') === 2 &&
+      getFeatureStatus(projectId, VersionProductType.editAttachment);
 
     return (
       <div className={cx('previewContainer', { top0: !showHeader })}>
@@ -856,37 +838,33 @@ class PrintForm extends React.Component {
             {_l('正在生成文件...')}
           </p>
         </div>
-        <div className="previewHeader flexRow">
-          <div className="flexRow fileName">
-            {printData.name}.{fileTypeNum === 5 ? 'xlsx' : 'docx'}
-          </div>
-          {/*this.renderPreviewHeaderMenu()*/}
-          <div className="flexRow btns">
-            {allowDown && (
-              <div
-                class="download relative Hand btn"
-                onClick={() => {
-                  this.handleBehaviorLog();
-                  this.downFn();
-                }}
-              >
-                <span class="normal" data-tip="下载">
-                  <i class="ming Icon icon-default icon icon-download valignWrapper"></i>
-                </span>
-              </div>
-            )}
-            <div class="update Hand btn" onClick={() => $('.iframeDiv').attr('src', $('.iframeDiv').attr('src'))}>
-              <span class="normal" data-tip="刷新">
-                <i class="icon-task-update1"></i>
-              </span>
-            </div>
-            <div className="close Hand btn" onClick={() => this.setState({ showPdf: false, showHeader: true })}>
-              <span className="normal" data-tip={_l('关闭')}>
-                <i className="icon-delete" />
-              </span>
-            </div>
-          </div>
-        </div>
+        <CommonHeader
+          className={''}
+          editNameInfo={{
+            name: printData.name,
+            ext: fileTypeNum === 5 ? 'xlsx' : 'docx',
+            canEditFileName: false,
+          }}
+          showKcVersionPanel={false}
+          attachmentActionInfo={{
+            cauUseWpsPreview: fileTypeNum !== 5,
+            userWps: useWps,
+            showEdit: canEditFile && md.global.Config.EnableDocEdit !== false,
+            changePreview: type => this.setState({ useWps: type === 'wps' }),
+            clickEdit: this.onEdit,
+          }}
+          addKc={false}
+          showOpenNewPage={false}
+          showShare={false}
+          showDownload={allowDown}
+          showRefresh={true}
+          clickDownLoad={() => {
+            this.handleBehaviorLog();
+            this.downFn();
+          }}
+          clickRefresh={() => $('.iframeDiv').attr('src', $('.iframeDiv').attr('src'))}
+          onClose={() => this.setState({ showPdf: false, showHeader: true })}
+        />
         <iframe
           className="iframeDiv"
           onLoad={() => {
@@ -896,6 +874,7 @@ class PrintForm extends React.Component {
           src={this.state.pdfUrl}
           width="100%"
           height="100%"
+          style={{ height: 'calc(100% - 54px)' }}
         />
       </div>
     );

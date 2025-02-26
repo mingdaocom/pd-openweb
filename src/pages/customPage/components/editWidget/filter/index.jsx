@@ -181,8 +181,10 @@ export default function Filter(props) {
             setActiveId={setActiveId}
           />
           <Setting
+            filterInfo={filter}
+            setFilterInfo={setFilter}
             filter={_.find(filters, { filterId: activeId }) || {}}
-            setFilter={updateFilter}
+            updateFilter={updateFilter}
             filters={filters}
             setFilters={setFilters}
             setActiveId={setActiveId}

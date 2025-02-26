@@ -402,7 +402,7 @@ class Header extends Component {
           <div
             className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left"
             data-tip={_l('关闭')}
-            onClick={closeDetail}
+            onMouseDown={closeDetail}
           >
             <i className="Font16 icon-delete" />
           </div>

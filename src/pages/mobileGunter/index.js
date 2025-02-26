@@ -22,6 +22,6 @@ class MobileGunter extends React.Component {
 }
 
 const Comp = preall(MobileGunter, { allowNotLogin: false });
-const root = createRoot(document.getElementById('mobileGunter'));
+const root = createRoot(document.getElementById('app'));
 
 root.render(<Comp />);

@@ -37,6 +37,11 @@ export const dataIntegrationList = [
     txt: _l('工作表数据镜像'),
     icon: 'data_mirroring',
   },
+  {
+    type: 'stats',
+    txt: _l('统计'),
+    icon: 'stats_biaxial_chart',
+  },
 ];
 
 export const integrationConfig = [...list, ...dataIntegrationList];

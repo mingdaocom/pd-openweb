@@ -217,7 +217,8 @@ export default class MobileCityPicker extends Component {
                             <div
                               className="popupListItemContent"
                               style={{
-                                color: select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#151515',
+                                color:
+                                  select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#151515',
                               }}
                             >
                               {!_.isArray(data[0]) ? item.path : item.name}

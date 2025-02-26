@@ -54,29 +54,35 @@ const ConfigHeader = styled(FlexCenter)`
     }
   }
   .displayType {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0);
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
+    margin-right: 20px;
     li {
-      height: 100%;
-      line-height: 50px;
-      padding: 0 20px;
+      height: 32px;
+      padding: 1px 5px;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
       transition: all 0.25s;
       font-size: 22px;
       color: #9e9e9e;
-      &.highlight,
-      &:hover {
-        color: #2196f3;
+      border-radius: 4px;
+      margin-right: 4px;
+      &.highlight {
+        background-color: #efefef;
       }
       &:hover {
-        border-color: #2196f3;
+        background-color: #f5f5f5;
       }
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      right: -11px;
+      width: 1px;
+      height: 12px;
+      background: #dfdfdf;
     }
   }
   .pageSetting {
@@ -186,6 +192,7 @@ export default (props) => {
           </div>
         )}
       </div>
+      <div className="flex"></div>
       <ul className="displayType">
         {DisplayType.map(({ type, icon, text }) => (
           <li
@@ -198,10 +205,9 @@ export default (props) => {
           </li>
         ))}
       </ul>
-      <div className="flex"></div>
       <div className="flexRow alignItemsCenter pointer mRight20 pageSetting" onClick={() => setConfigVisible(true)}>
-        <Icon className="Font20 Gray_9e" icon="tune" />
-        <div className="mLeft5 Font13">{_l('页面配置')}</div>
+        <Icon className="Font20 Gray_75" icon="design-services" />
+        <div className="mLeft5 Font13 bold">{_l('页面配置')}</div>
       </div>
       {apk.appId && (
         <Button type="link" className="close" onClick={handleClose}>

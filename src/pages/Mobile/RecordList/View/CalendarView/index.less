@@ -9,12 +9,19 @@
     .fc-toolbar-chunk:nth-child(2) {
       display: flex;
       margin-left: 60px;
+      @media screen and (max-width: 320px) {
+        margin-left: 45px;
+      }
       > div {
         display: flex;
         .fc-toolbar-title {
           position: unset;
           transform: unset;
           font-size: 14px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          vertical-align: top;
         }
         .fc-button-primary {
           color: #9e9e9e;
@@ -97,9 +104,9 @@
       .fc-scrollgrid {
         .fc-scrollgrid-section {
           .fc-daygrid-body {
-            .fc-daygrid-day-events{
-              .fc-daygrid-event-harness{
-                .fc-daygrid-event{
+            .fc-daygrid-day-events {
+              .fc-daygrid-event-harness {
+                .fc-daygrid-event {
                   min-height: 36px;
                 }
               }
@@ -108,5 +115,9 @@
         }
       }
     }
+  }
+  .fc-event-selected:after,
+  .fc-event:focus:after {
+    display: none;
   }
 }

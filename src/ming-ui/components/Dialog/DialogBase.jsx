@@ -115,7 +115,7 @@ class DialogBase extends Component {
     }
 
     this.state = { dislocateIndex };
-
+    this.dialogId = Math.random();
     document.body.appendChild(this.target);
   }
 
@@ -299,18 +299,14 @@ class DialogBase extends Component {
 
     // 遮罩层关闭事件
     const overlayOnClick = e => {
-      e.stopPropagation();
+      if (e.target.className !== 'mui-dialog-scroll-container' || e.target.id !== String(this.dialogId)) {
+        return;
+      }
 
       if (overlayClosable && this.props.onClose && !window.getSelection().toString().trim()) {
         this.props.onClose(e);
       }
     };
-
-    // dialog 点击事件
-    const dialogOnClick = e => {
-      e.stopPropagation();
-    };
-
     // container
     let container = null;
     if (this.props.visible) {
@@ -326,18 +322,12 @@ class DialogBase extends Component {
           {mask}
           <div
             className={cx(containerClasses, containerClassName)}
+            id={this.dialogId}
             onClick={e => {
               overlayOnClick(e);
             }}
           >
-            <div
-              className={dialogClassList.join(' ')}
-              style={style}
-              ref={dialog => (this._dialog = dialog)}
-              onClick={e => {
-                dialogOnClick(e);
-              }}
-            >
+            <div className={dialogClassList.join(' ')} style={style} ref={dialog => (this._dialog = dialog)}>
               {this.props.children}
             </div>
             <span className="mui-dialog-ghost" ref={ghost => (this._ghost = ghost)} />

@@ -30,7 +30,6 @@ import {
   VIEW_CONFIG_RECORD_CLICK_ACTION,
 } from 'worksheet/constants/enum';
 import _, { get, head } from 'lodash';
-import { Base64 } from 'js-base64';
 import { HAVE_VALUE_STYLE_WIDGET } from '../widgetConfig/config';
 import { findLastIndex } from 'lodash';
 import { getSheetViewRows } from './common/TreeTableHelper';
@@ -359,6 +358,12 @@ const stringUnitCellList = [8, 6, 31, 38, 53];
 /** 是否是文本了控件 */
 export function checkIsTextControl(type) {
   const STRING = stringCellList.concat(stringUnitCellList);
+  return _.includes(STRING, type);
+}
+
+/** 是否是文本了控件 */
+export function checkControlCanSetStyle(type) {
+  const STRING = stringCellList.concat(stringUnitCellList).concat([46]);
   return _.includes(STRING, type);
 }
 
@@ -1590,8 +1595,8 @@ export function KVSet(key, value, { needEncode = true, expireTime } = {}) {
   let newKey = key;
   let newValue = value;
   if (needEncode) {
-    newKey = Base64.encode(key);
-    newValue = Base64.encode(value);
+    newKey = btoa(key);
+    newValue = btoa(unescape(encodeURIComponent(value)));
   }
   return webCache.add({
     key: newKey,
@@ -1608,9 +1613,9 @@ export function KVSet(key, value, { needEncode = true, expireTime } = {}) {
 export function KVGet(key, { needEncode = true } = {}) {
   let newKey = key;
   if (needEncode) {
-    newKey = Base64.encode(key);
+    newKey = btoa(key);
   }
-  return webCache.get({ key: newKey }).then(res => (get(res, 'data') ? Base64.decode(get(res, 'data')) : ''));
+  return webCache.get({ key: newKey }).then(res => (get(res, 'data') ? atob(get(res, 'data')) : ''));
 }
 
 /**
@@ -1621,7 +1626,7 @@ export function KVGet(key, { needEncode = true } = {}) {
 export function KVClear(key, { needEncode = true } = {}) {
   let newKey = key;
   if (needEncode) {
-    newKey = Base64.encode(key);
+    newKey = btoa(key);
   }
   return webCache.clear({ key: newKey }, { silent: true });
 }
@@ -1826,8 +1831,12 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
         data.advancedSetting.prefix = translateInfo.suffix || advancedSetting.prefix;
       }
     }
-    // 子表
-    if (c.type === 34) {
+    // 子表 || 关联表
+    if (c.type === 34 || c.type === 29) {
+      if (data.sourceBtnName) {
+        const translateInfo = getTranslateInfo(appId, null, data.dataSource);
+        data.sourceBtnName = translateInfo.createBtnName || data.sourceBtnName;
+      }
       data.relationControls = replaceControlsTranslateInfo(appId, data.dataSource, data.relationControls);
     }
     // 填充备注字段内容
@@ -1837,6 +1846,38 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
       data.desc = translateInfo.description || c.desc;
     }
     return data;
+  });
+};
+
+export const replaceAdvancedSettingTranslateInfo = (appId, worksheetId, advancedSetting) => {
+  const translateInfo = getTranslateInfo(appId, null, worksheetId);
+  const data = {
+    ...advancedSetting,
+    title: translateInfo.formTitle || advancedSetting.title,
+    sub: translateInfo.formSub || advancedSetting.sub,
+    continue: translateInfo.formContinue || advancedSetting.continue,
+    deftabname: translateInfo.defaultTabName || advancedSetting.deftabname,
+    btnname: translateInfo.createBtnName || advancedSetting.btnname,
+  };
+  if (data.doubleconfirm) {
+    const doubleconfirm = JSON.parse(data.doubleconfirm);
+    data.doubleconfirm = JSON.stringify({
+      confirmMsg: translateInfo.confirmMsg || doubleconfirm.confirmMsg,
+      confirmContent: translateInfo.confirmContent || doubleconfirm.confirmContent,
+      sureName: translateInfo.sureName || doubleconfirm.sureName,
+      cancelName: translateInfo.cancelName || doubleconfirm.cancelName,
+    });
+  }
+  return data;
+};
+
+export const replaceRulesTranslateInfo = (appId, worksheetId, rules) => {
+  return rules.map(rule => {
+    const translateInfo = getTranslateInfo(appId, worksheetId, rule.ruleId);
+    if (rule.type === 1) {
+      rule.ruleItems[0].message = translateInfo.message || rule.ruleItems[0].message;
+    }
+    return rule;
   });
 };
 
@@ -1889,7 +1930,7 @@ export function getControlStyles(controls) {
 export function needHideViewFilters(view) {
   return (
     (String(view.viewType) === VIEW_DISPLAY_TYPE.structure &&
-      _.includes([0, 1], Number(view.childType)) &&
+      !_.includes([0, 1], Number(view.childType)) &&
       get(view, 'advancedSetting.hierarchyViewType') === '3') ||
     String(view.viewType) === VIEW_DISPLAY_TYPE.gunter
   );
@@ -1950,3 +1991,60 @@ export function getRelateRecordCountOfControlFromRow(control, row = {}) {
     return 0;
   }
 }
+
+function parseCardStyle(control, value, type) {
+  try {
+    const parsedValue = safeParse(value);
+    return {
+      ...getValueStyle({
+        ...control,
+        type: 2,
+        value: '_',
+        advancedSetting: {
+          ...control.advancedSetting,
+          valuecolor: parsedValue.color || 'none',
+          valuesize: parsedValue.size || (type === 'recordTitle' ? 1 : undefined),
+          valuestyle: parsedValue.style,
+        },
+      }),
+      direction: parsedValue.direction,
+    };
+  } catch (err) {
+    return {};
+  }
+}
+
+export function getRecordCardStyle(control) {
+  const {
+    cardtitlestyle, // 字段标题 direction: 1 水平 2 垂直
+    cardvaluestyle, // 字段值
+    rowtitlestyle, // 记录标题
+    cardstyle,
+  } = control.advancedSetting;
+  const cardStyle = safeParse(cardstyle);
+  return {
+    controlTitleStyle: parseCardStyle(control, cardtitlestyle),
+    controlValueStyle: parseCardStyle(control, cardvaluestyle),
+    recordTitleStyle: parseCardStyle(control, rowtitlestyle, 'recordTitle'),
+    cardStyle: {
+      backgroundColor: cardStyle.background,
+      borderColor: cardStyle.bordercolor,
+    },
+  };
+}
+
+// 本地存储当前选中菜单
+export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
+  const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
+    ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
+    : {};
+  if (!sheetConfigNavInfo[worksheetId]) {
+    sheetConfigNavInfo[worksheetId] = {};
+  }
+  sheetConfigNavInfo[worksheetId][navType] = navValue;
+  const sheetIds = Object.keys(sheetConfigNavInfo);
+  if (sheetIds.length > 10) {
+    delete sheetConfigNavInfo[sheetIds[0]];
+  }
+  localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
+};

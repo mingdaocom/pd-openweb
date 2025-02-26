@@ -9,7 +9,7 @@
 
 @line-color: #d3d3d3; // 连接线 颜色
 @line-horizontal-width: 40px; // 连接线 横向长度
-@line-vertical-height: @node-vertical-gap + @node-height / 2; // 连接线 垂直长度
+@line-vertical-height: @node-vertical-gap + (@node-height / 2); // 连接线 垂直长度
 
 @toggle-button-size: 20px;
 
@@ -80,7 +80,7 @@
         top: @node-vertical-gap + @line-vertical-height;
       }
       > .toggleButton {
-        top: @node-height / 2 - @toggle-button-size / 2 + 2 * @node-vertical-gap;
+        top: (@node-height / 2) - (@toggle-button-size / 2) + (2 * @node-vertical-gap);
       }
     }
   }
@@ -118,13 +118,13 @@
   .toggleButton {
     .circle();
     left: -(@toggle-button-size / 2);
-    top: @node-height / 2 - @toggle-button-size / 2 + @node-vertical-gap;
+    top: (@node-height / 2) - (@toggle-button-size / 2) + @node-vertical-gap;
   }
 
   .itemOperator {
     .circle();
     right: 4px;
-    top: @node-height / 2 - @toggle-button-size / 2;
+    top: (@node-height / 2) - (@toggle-button-size / 2);
     font-size: 16px;
   }
 
@@ -149,7 +149,7 @@
     line-height: 30px;
     padding: 6px 0;
     right: -@width;
-    top: @node-height / 2 - @toggle-button-size / 2;
+    top: (@node-height / 2) - (@toggle-button-size / 2);
     li {
       padding: 0px 10px;
       &:hover {

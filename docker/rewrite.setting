@@ -57,6 +57,7 @@ rewrite (?i)^/join /login.html break;
 rewrite (?i)^/findPassword /login.html break;
 rewrite (?i)^/twofactor /login.html break;
 rewrite (?i)^/logout /logout.html break;
+rewrite (?i)^/resetPassword /login.html break;
 
 # 注销账户
 rewrite (?i)^/cancellation /cancellation.html break;

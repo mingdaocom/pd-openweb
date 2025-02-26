@@ -83,7 +83,7 @@ export default class ByUser extends Component {
                 size={32}
                 projectId={props.projectId}
               />
-              <span className="mLeft10">{user.fullname || ''}</span>
+              <span className="mLeft10 overflow_ellipsis">{user.fullname || ''}</span>
             </div>
           );
         },
@@ -215,6 +215,7 @@ export default class ByUser extends Component {
         filterFriend: true,
         filterOthers: true,
         filterOtherProject: true,
+        filterResigned: false,
         unique: true,
         callback: data => {
           this.setState({ userInfo: data, pageIndex: 1 }, () => {

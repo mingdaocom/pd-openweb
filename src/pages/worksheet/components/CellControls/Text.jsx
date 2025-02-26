@@ -19,7 +19,7 @@ import { toFixed } from '../../../../util';
 import { flushSync } from 'react-dom';
 
 const InputCon = styled.div`
-  box-sizing: border-box
+  box-sizing: border-box;
   padding: 0 6px;
   height: 34px;
   textarea {
@@ -532,7 +532,7 @@ export default class Text extends React.Component {
                             linelimit: needLineLimit,
                             ellipsis: isMobile,
                           })
-                        : cx({ 'ellipsis w100 InlineBlock': isCard })
+                        : cx({ 'ellipsis w100 InlineBlock': isCard, ellipsis3: isCard && isMobile })
                     }
                     title={text}
                     onClick={this.handleUnMask}

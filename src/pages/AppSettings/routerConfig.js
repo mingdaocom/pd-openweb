@@ -57,7 +57,7 @@ export const routerConfigs = [
     type: 'language',
     icon: 'language',
     featureId: 35,
-    text: _l('多语言'),
+    text: _l('语言'),
     component: () => import('./components/MultiLingual'),
   },
   {

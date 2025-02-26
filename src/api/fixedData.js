@@ -85,4 +85,16 @@ export default {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('FixedData', 'LoadExtraDatas', args, options);
    },
+  /**
+  * 加载语言列表
+  * @param {Object} args 请求参数
+  * @param {array} args.langCodes
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   loadLangList: function (args, options = {}) {
+     
+     return mdyAPI('FixedData', 'LoadLangList', args, options);
+   },
 };

@@ -192,7 +192,7 @@ export default class Card extends Component {
   renderInfo() {
     const { currentTab, item, batchApproval } = this.props;
     const { flowNode, flowNodeType, workItem } = item;
-    const { batch, btnMap } = flowNode;
+    const { fastApprove, btnMap } = flowNode;
     const { operationType } = workItem;
     if (currentTab === 'waitingApproval') {
       if (batchApproval) {
@@ -200,12 +200,12 @@ export default class Card extends Component {
       }
       return (
         <div className="valignWrapper mLeft10 approveBtnWrapper">
-          {!batch && (
+          {!fastApprove && (
             <Button className="backlog" type="ghostgray" size="small">
               {_l('办理')}
             </Button>
           )}
-          {batch && (
+          {fastApprove && (
             <Button
               className="ellipsis pass mRight5"
               type="ghostgray"
@@ -217,7 +217,7 @@ export default class Card extends Component {
               {btnMap[4] || _l('通过')}
             </Button>
           )}
-          {batch && btnMap[5] && (
+          {fastApprove && '5' in btnMap && (
             <Button
               className="ellipsis overrule"
               type="ghostgray"
@@ -330,8 +330,8 @@ export default class Card extends Component {
       batchApproval,
       showApproveChecked = true,
     } = this.props;
-    const { batch } = item.flowNode || {};
-    const disabled = !batch;
+    const { batchApprove } = item.flowNode || {};
+    const disabled = !batchApprove;
     return (
       <Fragment>
         <div className={cx('mobileProcessCardWrapper flexRow', { batchApproval, approveChecked })}>
@@ -364,6 +364,7 @@ export default class Card extends Component {
             action={action}
             selectedUser={{}}
             instance={instance}
+            instanceId={item.id}
             onAction={this.handleAction}
             onHide={() => {
               this.setState({

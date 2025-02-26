@@ -483,7 +483,7 @@ class TaskDetail extends Component {
             </div>
           ) : null}
           {openType === OPEN_TYPE.dialog ? (
-            <span className="taskCloseBtn ThemeColor3" data-tip={_l('关闭')} onClick={this.closeDetail}>
+            <span className="taskCloseBtn ThemeColor3" data-tip={_l('关闭')} onMouseDown={this.closeDetail}>
               <i className="icon-delete" />
             </span>
           ) : null}

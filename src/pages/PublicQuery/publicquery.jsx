@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
 import DocumentTitle from 'react-document-title';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import _ from 'lodash';
 
 const Con = styled.div`
   background: #f5f5f9;
@@ -76,6 +77,12 @@ const Con = styled.div`
   }
 `;
 
+const ErrText = {
+  1: _l('查询不存在或已关闭!'),
+  2: _l('未设置可用的查询条件'),
+  3: _l('数据源已删除'),
+};
+
 class Publicquery extends React.Component {
   constructor(props) {
     super(props);
@@ -92,10 +99,8 @@ class Publicquery extends React.Component {
     });
   }
 
-  renderErr = () => {
-    const { publicqueryRes = {} } = this.props;
-    const { visibleType } = publicqueryRes;
-    return <div className="err">{visibleType === 1 ? _l('查询不存在或已关闭!') : _l('未设置可用的查询条件')}</div>;
+  renderErr = errCode => {
+    return <div className="err">{ErrText[errCode]}</div>;
   };
 
   //查询
@@ -123,17 +128,32 @@ class Publicquery extends React.Component {
   render() {
     const { publicqueryRes = {}, querydata = {} } = this.props;
     const { Components } = this.state;
-    const { queryControlIds = [], viewId, worksheet = {}, worksheetId = '', visibleType, title } = publicqueryRes;
-    const { projectId = '', template = {} } = worksheet;
+    const {
+      queryControlIds = [],
+      viewId,
+      worksheet = {},
+      worksheetId = '',
+      visibleType,
+      title,
+    } = publicqueryRes;
+    const { projectId = '', template = {}, viewIds } = worksheet;
     const controls = (template.controls || []).filter(o => queryControlIds.includes(o.controlId));
-    let isErr = queryControlIds.length <= 0 || !viewId || controls.length <= 0 || visibleType === 1;
+    const errCode =
+      visibleType === 1
+        ? 1
+        : queryControlIds.length <= 0 || !viewId || controls.length <= 0
+        ? 2
+        : !_.includes(viewIds, viewId)
+        ? 3
+        : 0;
+
     return (
       <Con style={{ minHeight: document.documentElement.clientHeight }}>
         <DocumentTitle title={['公开查询', publicqueryRes.worksheetName].filter(o => !!o).join('-')} />
         <div className="queryBox">
           <h3>{title || _l('公开查询')}</h3>
-          {isErr ? (
-            this.renderErr()
+          {!!errCode ? (
+            this.renderErr(errCode)
           ) : !Components ? null : (
             <Components.default
               disableRules
@@ -153,7 +173,7 @@ class Publicquery extends React.Component {
             />
           )}
           <div
-            className={cx('btn', { disable: isErr })}
+            className={cx('btn', { disable: !!errCode })}
             onClick={() => {
               const submitData = this.customWidget.getSubmitData();
 

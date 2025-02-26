@@ -8,7 +8,7 @@ import ViewSahre from './ViewSahre';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { getTranslateInfo, getAppLangDetail, getRequest } from 'src/util';
+import { getTranslateInfo, shareGetAppLangDetail, getRequest } from 'src/util';
 import globalEvents from 'src/router/globalEvents';
 
 const Wrap = styled.div`
@@ -60,11 +60,10 @@ const Entry = props => {
     const clientId = sessionStorage.getItem(shareId);
     window.clientId = clientId;
     getShareInfoByShareId({
-      clientId,
-      langType: getCurrentLangCode(),
+      clientId
     }).then(async result => {
       const { data } = result;
-      const { appId, projectId, langInfo } = data;
+      const { appId, projectId } = data;
       localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
@@ -73,17 +72,6 @@ const Entry = props => {
           requestParams: { projectId },
         },
       );
-      const lang = await getAppLangDetail({
-        langInfo,
-        projectId,
-        id: appId,
-      });
-      if (lang) {
-        window.appInfo = { id: appId };
-        data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
-        data.worksheetName = getTranslateInfo(appId, null, data.worksheetId).name || data.worksheetName;
-        data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
-      }
       setShare(result);
       setLoading(false);
     });
@@ -95,8 +83,21 @@ const Entry = props => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
       const shareAuthor = _.get(result, 'data.shareAuthor');
       const clientId = _.get(result, 'data.clientId');
+      const { appId, projectId } = result.data;
       window.clientId = clientId;
       clientId && sessionStorage.setItem(shareId, clientId);
+      if (result.resultCode === 1) {
+        const lang = await shareGetAppLangDetail({
+          projectId,
+          appId,
+        });
+        if (lang) {
+          window.appInfo = { id: appId };
+          data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
+          data.worksheetName = getTranslateInfo(appId, null, data.worksheetId).name || data.worksheetName;
+          data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
+        }
+      }
       resolve(result);
     });
   };

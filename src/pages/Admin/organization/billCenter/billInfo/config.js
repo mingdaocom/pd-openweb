@@ -33,6 +33,7 @@ export const orderRecordType = enumObj({
   FileTransferPDF: 27,
   AggregationTable: 28,
   AIGC: 29,
+  Merchant: 100,
 });
 
 export const orderTypeText = {
@@ -65,6 +66,7 @@ export const orderTypeText = {
   FileTransferPDF: _l('获取打印记录文件生成PDF文件'),
   AggregationTable: _l('聚合表数量购买'),
   AIGC: 'AIGC',
+  Merchant: _l('产品功能'),
 };
 
 export const enumInvoiceStatus = enumObj({
@@ -105,7 +107,9 @@ export const orderRecordStatusDropdownData = [{ value: 0, text: _l('全部') }].
 
 export const enumOrderRecordStatus = enumObj(orderRecordStatus);
 
-export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 28];
+export const PAID_RECORD_TYPE = [
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 28, 100,
+];
 export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29];
 
 export const invoiceConfig = [

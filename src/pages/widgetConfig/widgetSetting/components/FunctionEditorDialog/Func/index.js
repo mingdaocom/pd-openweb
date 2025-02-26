@@ -116,7 +116,7 @@ function Func(props, ref) {
         controlIds.filter(
           id =>
             !_.find(controls, {
-              controlId: /^[a-zA-Z0-9]+-\w+$/.test(id) ? id.replace(/[a-zA-Z0-9]+-/, '') : id,
+              controlId: /^[a-zA-Z0-9]+-[\w\W]+$/.test(id) ? id.replace(/[a-zA-Z0-9]+-/, '') : id,
             }),
         ).length
       ) {

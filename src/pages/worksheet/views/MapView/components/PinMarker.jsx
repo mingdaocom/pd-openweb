@@ -273,7 +273,7 @@ export default function MarkerCard(props) {
             onTouchStartCapture={e => {
               e.stopPropagation();
               handleRecordClick(view, marker.record, () => {
-                if (window.isMingDaoApp && !window.shareState.shareId) {
+                if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
                   window.location.href = `/mobile/record/${appId}/${worksheetInfo.worksheetId}/${viewId}/${record.rowid}`;
                   return;
                 }

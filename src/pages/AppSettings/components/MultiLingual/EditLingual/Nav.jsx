@@ -108,6 +108,10 @@ const sheetConfig = [
     title: _l('统计图'),
     type: 'statisticsChart',
   },
+  {
+    title: _l('业务规则'),
+    type: 'controlRules',
+  },
 ];
 
 const customPageConfig = [

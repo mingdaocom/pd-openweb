@@ -5,7 +5,7 @@ import { removePssId } from 'src/util/pssId';
 import AccountCon from './AccountCon';
 import cx from 'classnames';
 import externalPortalAjax from 'src/api/externalPortal';
-import { ActionResult } from 'src/pages/accountLogin/config';
+import { ActionResult } from 'src/pages/AuthService/config';
 const DelDialogWrap = styled.div``;
 export default function DelDialog(props) {
   const { setShow, show, appId, classNames, account, type } = props;

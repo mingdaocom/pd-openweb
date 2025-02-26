@@ -142,8 +142,7 @@ export default {
   /**
   * 获取商户信息
   * @param {Object} args 请求参数
-  * @param {string} args.merchantNo 交易商户号
-  * @param {string} args.merchantId 商户id
+  * @param {string} args.merchantId 交易商户id
   * @param {string} args.projectId 组织id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -156,16 +155,16 @@ export default {
   /**
   * 获取商户列表
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织Id
-  * @param {string} args.merchantNo 交易商户号
-  * @param {string} args.shortName 商户简称
+  * @param {string} args.projectId
+  * @param {string} args.merchantNo
+  * @param {string} args.shortName
   * @param {} args.status
   * @param {} args.aliPayStatus
   * @param {} args.wechatPayStatus
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -246,6 +245,19 @@ export default {
    deleteMerchant: function (args, options = {}) {
      
      return mdyAPI('Payment', 'DeleteMerchant', args, options);
+   },
+  /**
+  * 更新试用状态
+  * @param {Object} args 请求参数
+  * @param {string} args.merchantNo 交易商户号
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateMerchantTrailStatus: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'UpdateMerchantTrailStatus', args, options);
    },
   /**
   * 获取订单汇总

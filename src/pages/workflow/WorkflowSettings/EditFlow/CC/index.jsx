@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, MembersName, NodeOperate } from '../components';
-import { NODE_TYPE } from '../../enum';
+import { getIcons } from '../../utils';
 
 export default class CC extends Component {
   constructor(props) {
@@ -64,7 +64,7 @@ export default class CC extends Component {
                 className={cx(
                   'workflowAvatar',
                   item.accounts.length || item.selectNodeId ? 'BGBlue' : 'BGGray',
-                  item.typeId === NODE_TYPE.CC ? 'icon-workflow_notice' : 'icon-hr_message_reminder',
+                  getIcons(item.typeId),
                 )}
               />
             </div>

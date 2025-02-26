@@ -18,7 +18,7 @@ import {
   isTabSheetList,
   supportDisplayRow,
 } from 'src/pages/widgetConfig/util';
-import _, { countBy, get, includes, isEmpty } from 'lodash';
+import _, { countBy, find, get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText';
 import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
@@ -217,7 +217,7 @@ function formatRowToServer(row, controls = [], { isDraft, isSubList } = {}) {
           controlId: 'tempRowId',
           value: row.rowid,
         };
-      } else if (!c) {
+      } else if (!c || c.type === 47) {
         return undefined;
       } else {
         return _.pick(
@@ -564,12 +564,45 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType,
   return titleControl ? renderCellText(titleControl, options) || _l('未命名') : _l('未命名');
 }
 
+export function getTitleControlId(control = {}) {
+  let newTitleControlId;
+  if (control.type === 29) {
+    newTitleControlId = control.advancedSetting.showtitleid;
+  } else if (control.type === 51 && control.enumDefault !== 1) {
+    newTitleControlId = control.advancedSetting.showtitleid;
+  } else if (control.type === 51 && control.enumDefault === 1 && control.showControls[0]) {
+    newTitleControlId = control.showControls[0];
+  }
+  const attributeTitle = find(control.relationControls, { attribute: 1 });
+  const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
+  return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
+}
+
 /**
  * 从关联记录字段获取标题字段文本
  * @param  {} controls 所有控件
  * @param  {} data 控件所在记录数据[可选]
  */
 export function getTitleTextFromRelateControl(control = {}, data, options = {}) {
+  let newTitleControlId = control.advancedSetting.showtitleid;
+  if (control.type === 51 && control.enumDefault === 1 && control.showControls[0]) {
+    newTitleControlId = control.showControls[0];
+  }
+  const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
+  if (newTitleControlId && matchedTitleControl) {
+    control = {
+      ...control,
+      ...(newTitleControlId
+        ? {
+            relationControls: control.relationControls.map(c => ({
+              ...c,
+              attribute: newTitleControlId === c.controlId ? 1 : 0,
+            })),
+          }
+        : {}),
+    };
+  }
+
   if (data && data.name) {
     return data.name;
   }
@@ -634,109 +667,6 @@ export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
   }
 
   return '';
-};
-
-export const formatFiltersValue = (filters = [], data = [], recordId) => {
-  let conditions = formatValuesOfOriginConditions(filters) || [];
-  let hasCurrent = false;
-  conditions.forEach(item => {
-    if (item.dynamicSource && item.dynamicSource.length > 0) {
-      const cid = _.get(item.dynamicSource[0] || {}, 'cid');
-      if (cid === 'current-rowid' && item.dataType === 29) {
-        item.values = [recordId];
-        hasCurrent = !recordId;
-      }
-      if (cid === 'rowid') {
-        item.values = recordId ? [recordId] : [];
-        return;
-      }
-      if (cid === 'currenttime') {
-        item.dateRange = 18;
-        let formatMode = getDatePickerConfigs({
-          advancedSetting: { showtype: item.dataType === 46 ? '9' : item.dataType === 15 ? '6' : '3' },
-        }).formatMode;
-        item.value = moment(new Date()).format(formatMode);
-        return;
-      }
-      let currentControl = _.find(data, da => da.controlId === cid);
-      if (currentControl && currentControl.type === 30) {
-        currentControl = redefineComplexControl(currentControl);
-      }
-      if (currentControl && currentControl.type === 53) {
-        currentControl.type = currentControl.enumDefault2;
-      }
-      //排除为空、不为空、在范围，不在范围类型
-      if (currentControl && currentControl.value && !_.includes([7, 8, 11, 12, 31, 32], item.filterType)) {
-        //普通数值类
-        if (_.includes([6, 8, 25, 31, 37], currentControl.type)) {
-          item.value = currentControl.value;
-          return;
-        }
-        //普通文本
-        if (_.includes([2, 3, 5, 7, 28, 32, 33], currentControl.type)) {
-          item.values = [currentControl.value];
-          return;
-        }
-        //日期特殊处理
-        if (
-          _.includes([15, 16], currentControl.type) ||
-          (currentControl.type === 38 && currentControl.enumDefault === 2)
-        ) {
-          item.dateRange = 18;
-          if (currentControl.value) {
-            const valueFormat = getDatePickerConfigs(currentControl).formatMode;
-            item.value = moment(currentControl.value).format(valueFormat);
-          }
-          return;
-        }
-        // 时间特殊处理
-        if (_.includes([46], currentControl.type)) {
-          item.dateRange = 18;
-          const mode = currentControl.unit === '6' ? 'HH:mm:ss' : 'HH:mm';
-          if (currentControl.value) {
-            item.value = moment(currentControl.value).year()
-              ? moment(moment(currentControl.value).format(mode), mode).format('HH:mm:ss')
-              : moment(currentControl.value, mode).format('HH:mm:ss');
-          }
-          return;
-        }
-        //单选
-        if (_.includes([9, 10, 11], currentControl.type)) {
-          item.values = JSON.parse(currentControl.value) || [];
-          return;
-        }
-        //人员、部门、关联表、组织角色
-        if (_.includes([26, 27, 35, 48], currentControl.type)) {
-          item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[WIDGET_VALUE_ID[currentControl.type]]);
-          return;
-        }
-        if (
-          _.includes([29], currentControl.type) &&
-          _.get(currentControl, 'advancedSetting.showtype') !== String(RELATE_RECORD_SHOW_TYPE.LIST)
-        ) {
-          try {
-            if (typeof currentControl.value === 'string') {
-              item.values = currentControl.value.startsWith('deleteRowIds')
-                ? []
-                : safeParse(currentControl.value || '[]').map(ac => ac[WIDGET_VALUE_ID[currentControl.type]]);
-            } else if (_.isObject(currentControl.value)) {
-              item.values = (_.get(currentControl, 'value.records') || []).map(ac => ac.rowid);
-            } else {
-              item.values = (currentControl.data || []).map(ac => ac.rowid);
-            }
-          } catch (err) {}
-          return;
-        }
-      }
-    } else {
-      //数值类型 在范围 ｜ 不在范围处理
-      if (_.includes([6, 8, 25, 31, 37], item.dataType) && _.includes([11, 12], item.filterType)) {
-        delete item.value;
-        delete item.values;
-      }
-    }
-  });
-  return hasCurrent ? [] : conditions;
 };
 
 // 工作表查询部门、地区、用户赋值特殊处理
@@ -1255,7 +1185,7 @@ export const getValueStyle = data => {
   return _.includes(HAVE_VALUE_STYLE_WIDGET, type)
     ? {
         type,
-        isTextArea: item.type === 2 && item.enumDefault === 1,
+        isTextArea: item.type === 2 && item.enumDefault !== 2, // 多行、加单行line-height: 1.5,单行计算
         height: valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36,
         size: TITLE_SIZE_OPTIONS[valuesize],
         valueStyle: isEmptyValue(item.value) ? '' : `color: ${valuecolor} !important;${getTitleStyle(valuestyle)}`,
@@ -1331,7 +1261,7 @@ export const formatControlValue = (value, type) => {
 //非文本类控件
 export const isUnTextWidget = (data = {}) => {
   //200自定义控件
-  const UN_TEXT_TYPE = [9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 40, 42, 45, 46, 47, 48, 200];
+  const UN_TEXT_TYPE = [9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 40, 42, 45, 46, 47, 48, 50, 200];
   if (isCustomWidget(data)) return true;
   if (_.includes(UN_TEXT_TYPE, data.type)) return true;
   if (data.type === 6 && _.includes(['2', '3'], _.get(data, 'advancedSetting.showtype'))) return true;

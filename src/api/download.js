@@ -359,6 +359,17 @@ export default {
      return mdyAPI('Download', 'Trade', args, options);
    },
   /**
+  * 下载授权应用的历史版本
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   historyFile: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('Download', 'HistoryFile', args, options);
+   },
+  /**
   * 下载插件导出文件
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数

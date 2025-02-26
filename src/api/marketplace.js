@@ -155,6 +155,7 @@ export default {
   * @param {string} args.iconColor 颜色
   * @param {integer} args.licenseType 套餐类型 0 = 免费，1 = 付费
   * @param {array} args.pictures 图片
+  * @param {array} args.videos 视频
   * @param {array} args.workflowIds 勾选的工作流信息
   * @param {array} args.noCopyBtnIds 不复制的按钮id
   * @param {array} args.licenses 授权套餐信息
@@ -175,7 +176,6 @@ export default {
   * @param {string} args.id 商品应用id
   * @param {integer} args.editType 更新套餐 = 1，更新版本 = 2
   * @param {boolean} args.onShelves 审核通过后是否直接上架
-  * @param {boolean} args.isData 是否携带实例数据
   * @param {} args.editLicense
   * @param {} args.editVersion
   * @param {Object} options 配置参数
@@ -219,6 +219,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -232,6 +233,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -245,6 +247,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {integer} args.type 0 = 场景，1 = 行业
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -259,6 +262,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {integer} args.type 0 = 场景，1 = 行业
   * @param {array} args.ids 对应标签类型的id数组
   * @param {Object} options 配置参数
@@ -317,6 +321,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -143,6 +143,7 @@ export default function CustomEvent(props) {
    * 渲染执行动作内容
    */
   const renderActionContent = (actionData = {}) => {
+    const { customQueryConfig = [] } = props;
     const { actionType, actionItems = [], isAll, message, advancedSetting = {}, dataSource } = actionData;
 
     // 用默认值那套配置的呈现
@@ -163,6 +164,7 @@ export default function CustomEvent(props) {
       case ACTION_VALUE_ENUM.HIDE:
       case ACTION_VALUE_ENUM.READONLY:
       case ACTION_VALUE_ENUM.EDIT:
+      case ACTION_VALUE_ENUM.ACTIVATE_TAB:
         const textArr = getTextById(allControls, actionItems, actionType) || [];
         return (
           <div className="textCon breakAll">{isAll ? _l('所有字段') : textArr.map(cur => cur.name).join(', ')}</div>
@@ -197,7 +199,11 @@ export default function CustomEvent(props) {
                     {_.get(controlInfo, 'name')}
                   </span>
                   <span className="title mRight10">{_l('值设为')}</span>
-                  {i.type === '1' ? _l('函数计算') : renderDynamicValue(i.value, i.controlId)}
+                  {i.type === '1'
+                    ? _l('函数计算')
+                    : i.type === '2'
+                    ? _l('查询工作表')
+                    : renderDynamicValue(i.value, i.controlId)}
                 </div>
               );
             })}
@@ -259,6 +265,19 @@ export default function CustomEvent(props) {
         return <div className="textCon LineHeight30">{renderDynamicValue(message)}</div>;
       case ACTION_VALUE_ENUM.CREATE:
         return <div className="textCon">{_l('%0 - %1', advancedSetting.appName, advancedSetting.sheetName)}</div>;
+      case ACTION_VALUE_ENUM.SEARCH_WORKSHEET:
+        const queryId = _.get(safeParse(advancedSetting.dynamicsrc || '{}'), 'id');
+        const { appName, sourceName, templates = [] } = _.find(customQueryConfig, q => q.id === queryId) || {};
+        const isDelete = !_.get(templates, [0, 'controls', 'length']);
+        return (
+          <Fragment>
+            {isDelete ? (
+              <div className="Red">{_l('工作表已删除')}</div>
+            ) : (
+              <div className="textCon title">{_l('%0 - %1', appName, sourceName)}</div>
+            )}
+          </Fragment>
+        );
     }
   };
 

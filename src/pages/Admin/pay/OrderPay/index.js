@@ -497,6 +497,6 @@ export default class OrderPay extends Component {
 }
 
 const Comp = preall(OrderPay, { allowNotLogin: true });
-const root = createRoot(document.querySelector('#orderPay'));
+const root = createRoot(document.querySelector('#app'));
 
 root.render(<Comp />);

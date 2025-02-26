@@ -733,12 +733,12 @@ export default function Certification(props) {
       <DocumentTitle
         title={
           !currentPage
-            ? _l('认证 - 明道云HAP')
+            ? _l('认证')
             : currentPage === 'success'
-            ? _l('认证成功 - 明道云HAP')
+            ? _l('认证成功')
             : certSource === 'personal' || currentPage === 'personal'
-            ? _l('个人认证 - 明道云HAP')
-            : _l('企业认证 - 明道云HAP')
+            ? _l('个人认证')
+            : _l('企业认证')
         }
       />
       <div className="headerBar">

@@ -15,6 +15,8 @@ import {
 } from '../components';
 import styled from 'styled-components';
 import { handleGlobalVariableName, getControlTypeName } from '../../utils';
+import project from 'src/api/project';
+import signDialog from 'src/pages/workflow/components/signDialog';
 
 const TagBox = styled.div`
   padding: 0 7px;
@@ -59,6 +61,8 @@ export default class Message extends Component {
 
       showTestDialog: false,
       testArray: [],
+
+      isCertified: null,
     };
   }
 
@@ -340,6 +344,7 @@ export default class Message extends Component {
     const { data } = this.state;
     const { messageTemplate } = data;
 
+    this.getProjectAuthType();
     this.setState({
       showSetTemplate: false,
       addNewTemplate: true,
@@ -379,7 +384,13 @@ export default class Message extends Component {
       <Fragment>
         <div className="mTop20 flexRow">
           <div className="flex">{_l('选择已审核模板')}</div>
-          <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => this.setState({ addNewTemplate: true })}>
+          <div
+            className="ThemeColor3 ThemeHoverColor2 pointer"
+            onClick={() => {
+              this.getProjectAuthType(true);
+              this.setState({ addNewTemplate: true });
+            }}
+          >
             <i className="icon-plus mRight5" />
             {_l('创建新模板')}
           </div>
@@ -465,7 +476,9 @@ export default class Message extends Component {
    * 渲染新模板
    */
   renderNewTemplate() {
-    const { data, sign, messageContent, type, showSignList, isSelectNewTpl, showTestDialog, testArray } = this.state;
+    const { companyId } = this.props;
+    const { data, sign, messageContent, type, showSignList, isSelectNewTpl, showTestDialog, testArray, isCertified } =
+      this.state;
     const companySignatureList = data.companySignatureList.filter(key => key.indexOf(sign) > -1);
     const MESSAGE_TYPES = [
       { text: _l('行业通知'), value: 1, desc: _l('一般性通知。如验证码短信、通知短信、物流快递短信、订单短信') },
@@ -507,39 +520,45 @@ export default class Message extends Component {
           )}
         </div>
 
-        <div className="mTop10 relative flexRow" style={{ width: 190 }}>
-          <input
-            type="text"
-            maxLength={12}
-            placeholder={_l('请输入签名')}
-            className="ThemeBorderColor3 actionControlBox flex pLeft10 pRight10 pTop0 pBottom0"
-            value={sign}
-            onFocus={() => this.setState({ showSignList: true })}
-            onBlur={evt => {
-              let value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]+/g, '');
+        <div className="mTop10 flexRow alignItemsCenter">
+          <div className="relative flexRow" style={{ width: 190 }}>
+            <input
+              type="text"
+              maxLength={12}
+              placeholder={_l('请输入签名')}
+              className="ThemeBorderColor3 actionControlBox flex pLeft10 pRight10 pTop0 pBottom0"
+              value={sign}
+              onFocus={() => this.setState({ showSignList: true })}
+              disabled={!isCertified}
+              onBlur={evt => {
+                let value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]+/g, '');
 
-              // 全英文清空
-              if (value.replace(/[\u4e00-\u9fa5]/g, '').length === value.length) {
-                value = '';
-              }
+                // 全英文清空
+                if (value.replace(/[\u4e00-\u9fa5]/g, '').length === value.length) {
+                  value = '';
+                }
 
-              this.setState({
-                showSignList: false,
-                sign: value,
-              });
-            }}
-            onChange={evt => this.setState({ sign: evt.currentTarget.value })}
-          />
+                this.setState({ showSignList: false, sign: value });
+              }}
+              onChange={evt => this.setState({ sign: evt.currentTarget.value })}
+            />
 
-          {showSignList && (
-            <Menu className="fomulaFnList" style={{ right: 0 }}>
-              {!companySignatureList.length && <div className="fnEmpty">{_l('没有可用的签名')}</div>}
-              {companySignatureList.map((value, i) => (
-                <MenuItem key={i} onMouseDown={() => this.setState({ sign: value })}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Menu>
+            {showSignList && (
+              <Menu className="fomulaFnList" style={{ right: 0 }}>
+                {!companySignatureList.length && <div className="fnEmpty">{_l('没有可用的签名')}</div>}
+                {companySignatureList.map((value, i) => (
+                  <MenuItem key={i} onMouseDown={() => this.setState({ sign: value })}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Menu>
+            )}
+          </div>
+
+          {isCertified === false && (
+            <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft20" onClick={() => signDialog(companyId)}>
+              {_l('自定义签名')}
+            </span>
           )}
         </div>
 
@@ -866,6 +885,17 @@ export default class Message extends Component {
     this.setState({ showSetTemplate: false, isSelectNewTpl: false });
     messageTemplate.messageContent = cacheTemplateContent;
     this.updateSource({ messageTemplate });
+  };
+
+  /**
+   * 获取网络认证状态
+   */
+  getProjectAuthType = isNew => {
+    const { companyId } = this.props;
+
+    project.getProjectInfo({ projectId: companyId }).then(res => {
+      this.setState({ isCertified: res.authType === 2, sign: isNew && res.authType === 2 ? '' : '平台' });
+    });
   };
 
   render() {

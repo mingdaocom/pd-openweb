@@ -10,6 +10,7 @@ import LimitAttachmentUpload from './LimitAttachmentUpload';
 import projectSettingController from 'src/api/projectSetting';
 import dataLimitAjax from 'src/api/dataLimit';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import WaterMarkSettingDialog from './WaterMarkSettingDialog';
 
 export default class DataCom extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ export default class DataCom extends Component {
       showWebProxySetting: false,
       showLimitDownload: false,
       showLimitAttachmentUpload: false,
+      enabledWatermarkTxt: undefined,
     };
   }
 
@@ -33,7 +35,7 @@ export default class DataCom extends Component {
 
   getEnabledWatermark = () => {
     projectSettingController.getEnabledWatermark({ projectId: Config.projectId }).then(res => {
-      this.setState({ watermark: res.enabledWatermark });
+      this.setState({ watermark: res.enabledWatermark, enabledWatermarkTxt: res.enabledWatermarkTxt });
     });
   };
 
@@ -101,6 +103,20 @@ export default class DataCom extends Component {
     this.setState({ limitType, whiteList });
   };
 
+  renderWaterMarkSetting = () => {
+    const { showWaterMarkSetting, enabledWatermarkTxt } = this.state;
+
+    if (!showWaterMarkSetting) return null;
+
+    return (
+      <WaterMarkSettingDialog
+        visible={showWaterMarkSetting}
+        defaultValue={enabledWatermarkTxt || ''}
+        onClose={() => this.setState({ showWaterMarkSetting: false })}
+      />
+    );
+  };
+
   render() {
     const {
       showEncryptRules,
@@ -153,11 +169,13 @@ export default class DataCom extends Component {
               {
                 key: 'watermark',
                 title: _l('屏幕水印'),
-                description: _l('启用水印配置后，将在组织所有应用内显示当前使用者的姓名'),
+                description: _l('启用水印配置后，将在组织所有应用内显示水印。可自定义水印文字'),
                 showSlideIcon: false,
                 showSwitch: true,
                 switchChecked: watermark,
+                showSetting: watermark,
                 clickSwitch: this.setEnabledWatermark,
+                clickSetting: () => this.setState({ showWaterMarkSetting: true }),
               },
               {
                 key: 'limitFileDownload',
@@ -210,6 +228,7 @@ export default class DataCom extends Component {
             ].filter(v => (md.global.Config.IsLocal ? true : v.key !== 'limitFileDownload'))}
           />
         </div>
+        {this.renderWaterMarkSetting()}
       </div>
     );
   }

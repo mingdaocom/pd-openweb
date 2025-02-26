@@ -115,7 +115,9 @@ export const MarkdownWithCSS = styled.div`
 
   img {
     border-style: none;
-    max-width: 100%;
+    max-width: 240px;
+    max-height: 90px;
+    margin-bottom: 8px;
     box-sizing: content-box;
   }
 

@@ -1983,6 +1983,13 @@ export const SIDEBAR_LIST = [
     key: 'workflowInfo',
     title: _l('封装业务流程'),
     render: 'renderPBCSide',
+    args: { type: 'workflowInfo', listKey: 'pbcList', title: _l('封装业务流程') },
+  },
+  {
+    key: 'webhook',
+    title: _l('Webhook'),
+    render: 'renderPBCSide',
+    args: { type: 'webhook', listKey: 'webhookList', title: _l('Webhook') },
   },
   {
     key: 'role',

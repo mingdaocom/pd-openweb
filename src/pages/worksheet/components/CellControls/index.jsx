@@ -39,7 +39,7 @@ import Search from './Search';
 import RelationSearch from './RelationSearch';
 
 import './CellControls.less';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 
 function mergeControlAdvancedSetting(control = {}, advancedSetting = {}) {
   return {
@@ -236,7 +236,11 @@ export default class CellControl extends React.Component {
     } catch (err) {
       console.log(err);
     }
-    const error = checkRulesErrorOfControl(cell, rowForCheckRule);
+    const error = checkRulesErrorOfControl({
+      control: cell,
+      row: rowForCheckRule,
+      validateRealtime: true,
+    });
     if (error) {
       this.setState({ error: error.errorMessage });
       return !error;
@@ -287,6 +291,9 @@ export default class CellControl extends React.Component {
         });
       }
     } else {
+      if (cell.type === 26 && get(safeParse(pasteData.value), '0.status') === 2) {
+        return;
+      }
       if (isSameTypeForPaste(cell.type, pasteData.controlType)) {
         handlePasteUpdateCell(cell, pasteData, value => {
           this.handleUpdateCell({ value: value });

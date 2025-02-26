@@ -8,33 +8,11 @@
         <meta name="force-rendering" content="webkit" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <title content="登出"></title>
-        <style>
-            ::-webkit-scrollbar {
-                width: 10px;
-                height: 10px;
-            }
-            ::-webkit-scrollbar-thumb {
-                width: 6px;
-                height: 6px;
-                border-radius: 6px;
-                background: rgba(187, 187, 187, 0.8);
-                background-clip: padding-box;
-                border: 2px solid transparent;
-            }
-            ::-webkit-scrollbar-thumb:active,
-            ::-webkit-scrollbar-thumb:hover {
-                background: rgba(125, 125, 125, 0.8);
-                background-clip: padding-box;
-            }
-        </style>
-        <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
-        <script src="/src/common/mdjs/freestyle.js"></script>
     </head>
     <body>
         <script>
-            var __api_server__ = <%- apiServer %>;
-            if (/\/portal\//.test(location.pathname)) {
-                window.subPath = '/portal';
+            if (/theportal\.cn$/.test(location.host)) {
+                window.__api_server__.main = '/api/';
             }
             var request = new XMLHttpRequest();
             var cookie = document.cookie.match(/md_pss_id=(\w+)/)[1];
@@ -61,7 +39,7 @@
 
                                 if (location.href.indexOf('?ReturnUrl') > -1) {
                                     location.href = loginUrl + location.search;
-                                }  else {
+                                } else {
                                     location.href = loginUrl;
                                 }
                             }

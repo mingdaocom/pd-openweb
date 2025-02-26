@@ -6,44 +6,50 @@ import _ from 'lodash';
 import hapAI from './images/hapAI.png';
 import HapAiDialog from './HapAiDialog';
 
-const collections = [
-  {
-    type: 'support',
-    text: _l('支持'),
-    items: [
-      { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
-      { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.net/' },
-      { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
-      { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
-      { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
-    ],
-  },
-  {
-    type: 'resource',
-    text: _l('资源'),
-    items: [
-      { id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.mingdao.com' },
-      { id: 'activity', text: _l('活动'), icon: 'school', href: 'https://www.mingdao.com/activitycenter' },
-      {
-        id: 'lastUpdated',
-        text: _l('最近更新'),
-        icon: 'gift',
-        href: 'https://blog.mingdao.com/category/product/product-update	',
-      },
-      {
-        id: 'api',
-        text: _l('API文档'),
-        icon: 'worksheet_API',
-        href: 'https://www.showdoc.com.cn/mingdao/8260676420253318	',
-      },
-    ],
-  },
-  {
-    type: 'buy',
-    text: _l('购买'),
-    items: [{ id: 'versionAndPrice', text: _l('版本和价格'), icon: 'stars', href: 'https://www.mingdao.com/price' }],
-  },
-];
+const collections = () => {
+  const lang = window.getCurrentLang();
+
+  return [
+    {
+      type: 'support',
+      text: _l('支持'),
+      items: [
+        { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
+        { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.net/' },
+        { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
+        { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
+        { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+      ],
+    },
+    {
+      type: 'resource',
+      text: _l('资源'),
+      items: [
+        { id: 'blog', text: _l('博客'), icon: 'rss_feed', href: 'https://blog.mingdao.com' },
+        { id: 'activity', text: _l('活动'), icon: 'school', href: 'https://www.mingdao.com/activitycenter' },
+        {
+          id: 'lastUpdated',
+          text: _l('最近更新'),
+          icon: 'gift',
+          href: 'https://blog.mingdao.com/category/product/product-update	',
+        },
+        {
+          id: 'api',
+          text: _l('API文档'),
+          icon: 'worksheet_API',
+          href: `${md.global.Config.WebUrl}apidoc/${
+            lang === 'zh-Hans' ? 'zh-Hans/' : 'en/'
+          }`,
+        },
+      ],
+    },
+    {
+      type: 'buy',
+      text: _l('购买'),
+      items: [{ id: 'versionAndPrice', text: _l('版本和价格'), icon: 'stars', href: 'https://www.mingdao.com/price' }],
+    },
+  ];
+};
 
 const CollectionWrap = styled.div`
   width: 340px;
@@ -106,7 +112,7 @@ export default function HelpCollection(props) {
   return (
     <CollectionWrap>
       {isTop && renderHap()}
-      {collections.map((item, index) => {
+      {collections().map((item, index) => {
         const { type, text, items = [] } = item;
 
         return (

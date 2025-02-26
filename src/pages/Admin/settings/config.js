@@ -1,3 +1,6 @@
+import CustomChart from './images/customChart.png';
+import CustomTheme from './images/customTheme.png';
+
 export const SYS_COLOR = [
   { color: '#A00416' },
   { color: '#D81029' },
@@ -81,3 +84,16 @@ export const SYS_CHART_COLORS = [
     id: '9',
   },
 ];
+
+export const CUSTOM_ILLUSTRATION = {
+  chart: {
+    title: _l('自定义图表配色'),
+    desc: _l('主题和图表配色联动，实现风格的一致性'),
+    image: CustomChart,
+  },
+  theme: {
+    title: _l('自定义主题颜色'),
+    desc: _l('方便快速选择应用的主题颜色，满足个性化需求'),
+    image: CustomTheme,
+  },
+};

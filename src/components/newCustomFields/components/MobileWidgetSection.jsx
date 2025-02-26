@@ -267,7 +267,7 @@ export default function MobileWidgetSection(props) {
       const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId);
       const c = { ...activeControl, disabled: initC.disabled, value: initC.value, isDraft };
       return (
-        <RelateTabCon className="pTop10">
+        <RelateTabCon className="pTop10 pRight8">
           <RelateRecord
             {...c}
             worksheetId={worksheetId}

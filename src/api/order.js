@@ -521,6 +521,46 @@ export default {
      return mdyAPI('Order', 'AddRechargeOrder', args, options);
    },
   /**
+  * 添加产品功能-商户订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {} args.productType
+  * @param {} args.productOrderType
+  * @param {string} args.productDetailId 产品功能子项ID
+  * @param {string} args.startDate 开始时间
+  * @param {string} args.endDate 结束时间
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addMerchantPaymentOrder: function (args, options = {}) {
+     
+     return mdyAPI('Order', 'AddMerchantPaymentOrder', args, options);
+   },
+  /**
+  * 获取产品功能-商户订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {} args.productType
+  * @param {} args.productOrderType
+  * @param {string} args.productDetailId 产品功能子项ID
+  * @param {string} args.startDate 开始时间
+  * @param {string} args.endDate 结束时间
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMerchantPaymentOrderPrice: function (args, options = {}) {
+     
+     return mdyAPI('Order', 'GetMerchantPaymentOrderPrice', args, options);
+   },
+  /**
   * 获取订单详情
   * @param {Object} args 请求参数
   * @param {string} args.orderId 订单id

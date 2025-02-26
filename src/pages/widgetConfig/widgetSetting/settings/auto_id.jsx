@@ -153,7 +153,7 @@ const TIME_MODE = [
 
 const DEFAULT_PARA = { 4: { format: 'YYYYMMDD', type: 4 } };
 
-function SortableItem({ index, rule, allControls, deleteRule, updateRule, renderDragHandle, ...rest }) {
+function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, renderDragHandle, ...rest }) {
   const [{ numberConfigVisible, timeFormatVisible }, setVisible] = useSetState({
     numberConfigVisible: false,
     timeFormatVisible: false,
@@ -272,6 +272,7 @@ function SortableItem({ index, rule, allControls, deleteRule, updateRule, render
       {numberConfigVisible && (
         <AutoNumberConfig
           rule={rule}
+          controlId={data.controlId}
           onClose={() => setVisible({ numberConfigVisible: false })}
           onOk={data => updateRule(data)}
         />
@@ -287,7 +288,7 @@ function SortableItem({ index, rule, allControls, deleteRule, updateRule, render
   );
 }
 
-function SortableRules({ rules, deleteRule, updateRule, addRule, onSortEnd, fromExcel, ...rest }) {
+function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd, fromExcel, ...rest }) {
   const getTypes = () => {
     return rules.some(item => item.type === 4)
       ? [
@@ -313,6 +314,7 @@ function SortableRules({ rules, deleteRule, updateRule, addRule, onSortEnd, from
             <SortableItem
               index={index}
               rule={item}
+              data={data}
               renderDragHandle={() => (
                 <DragHandle>
                   <i className="icon-drag Gray_75 ThemeHoverColor3 pointer"></i>
@@ -375,6 +377,7 @@ export default function AutoId({ data, onChange, ...rest }) {
         <div className="settingItemTitle">{_l('编号规则')}</div>
         <SortableRules
           {...rest}
+          data={data}
           rules={rules}
           onSortEnd={newRules => handleRulesChange(getSortItems(newRules, false))}
           deleteRule={deleteRule}

@@ -7,7 +7,7 @@ import worksheetAjax from 'src/api/worksheet';
 import WorksheetRocordLog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRocordLog';
 import _ from 'lodash';
 
-const { access_token, appId, worksheetId, rowId, getLogParams } = getRequest();
+const { appId, worksheetId, rowId, getLogParams } = getRequest();
 
 const LogContent = styled.div`
   width: 100%;
@@ -24,7 +24,6 @@ class MobileLog extends React.Component {
       filters: [],
       filterUniqueIds: [],
     };
-    window.access_token = access_token;
   }
 
   componentDidMount() {
@@ -69,6 +68,6 @@ class MobileLog extends React.Component {
 }
 
 const Comp = preall(MobileLog, { allowNotLogin: false });
-const root = createRoot(document.getElementById('mobileLog'));
+const root = createRoot(document.getElementById('app'));
 
 root.render(<Comp />);

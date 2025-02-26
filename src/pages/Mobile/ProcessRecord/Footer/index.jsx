@@ -83,9 +83,9 @@ export default class Footer extends Component {
           </div>
         </div>
       ),
-      onAction: (action) => {
+      onAction: action => {
         this.actionSheetHandler.close();
-      }
+      },
     });
   };
   safeAuthentication = (success = () => {}) => {
@@ -283,13 +283,16 @@ export default class Footer extends Component {
         run('after');
       } else {
         this.actionOperationHandler = ActionSheet.show({
-          actions: [{
-            key: 'after',
-            text: <div className="Gray bold">{_l('通过申请后增加审批人')}</div>
-          },{
-            key: 'before',
-            text: <div className="Gray bold">{_l('在我审批前增加审批人')}</div>
-          }],
+          actions: [
+            {
+              key: 'after',
+              text: <div className="Gray bold">{_l('通过申请后增加审批人')}</div>,
+            },
+            {
+              key: 'before',
+              text: <div className="Gray bold">{_l('在我审批前增加审批人')}</div>,
+            },
+          ],
           extra: (
             <div className="flexRow header">
               <span className="Font13">{_l('加签')}</span>
@@ -306,7 +309,7 @@ export default class Footer extends Component {
               run('before');
             }
             this.actionOperationHandler.close();
-          }
+          },
         });
       }
       return;
@@ -326,8 +329,8 @@ export default class Footer extends Component {
               <Icon className="mRight10 Gray_9e Font22" icon={item.icon} />
               <span className="Bold ellipsis">{btnMap[item.type] || item.text}</span>
             </Fragment>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -340,7 +343,7 @@ export default class Footer extends Component {
       onAction: (action, index) => {
         this.handleOperation(buttons[index].id);
         this.actionSelectOperationHandler.close();
-      }
+      },
     });
   };
   get getHandleBtnConfig() {
@@ -383,7 +386,7 @@ export default class Footer extends Component {
   }
   render() {
     const { isRequest, isUrged, submitAction, otherActionVisible } = this.state;
-    const { instance } = this.props;
+    const { instance, instanceId } = this.props;
     const { btnMap = {}, works } = instance;
     const { actionList, buttons } = this.getHandleBtnConfig;
 
@@ -451,6 +454,7 @@ export default class Footer extends Component {
             action={this.state.action}
             projectId={instance.companyId}
             instance={instance}
+            instanceId={instanceId}
             onAction={this.handleAction}
             onHide={() => this.setState({ otherActionVisible: false })}
           />

@@ -256,7 +256,7 @@ export const browserIsMobile = () => {
     isHarmony ||
     isAndroid;
 
-  if (sUserAgent.includes('dingtalk') || sUserAgent.includes('wxwork')) {
+  if (sUserAgent.includes('dingtalk') || sUserAgent.includes('wxwork') || sUserAgent.includes('feishu')) {
     // 钉钉和微信设备针对侧边栏打开判断为 mobile 环境
     const { pc_slide = '' } = getRequest();
     return pc_slide.includes('true') || sessionStorage.getItem('dingtalk_pc_slide') ? true : value;
@@ -1595,6 +1595,67 @@ export const getAppLangDetail = appDetail => {
   });
 };
 
+export const shareGetAppLangDetail = (data) => {
+  const langKey = getBrowserLang();
+  const { appId, projectId } = data;
+  return new Promise(reslove => {
+    appManagementApi.getAppLangs({
+      appId,
+      projectId,
+    }).then(data => {
+      const langInfo = _.find(data, { langCode: langKey });
+      if (langInfo) {
+        appManagementApi.getAppLangDetail({
+          appId,
+          projectId,
+          appLangId: langInfo.id,
+        }).then(lang => {
+          window[`langData-${appId}`] = lang.items;
+          reslove(lang);
+        });
+      } else {
+        reslove();
+      }
+    });
+  });
+}
+
+// 从浏览器获取 language 匹配 getAppLangs 接口
+const getBrowserLang = () => {
+  let langKey = null;
+  switch (navigator.language) {
+    case 'zh-CN':
+    case 'zh_cn':
+    case 'zh-cn':
+    case 'zh-SG':
+    case 'zh_sg':
+      langKey = 'zh_hans';
+      break;
+    case 'zh-TW':
+    case 'zh-HK':
+    case 'zh-Hant':
+      langKey = 'zh_hant';
+      break;
+    case 'en-CA':
+    case 'en-GB':
+    case 'en-US':
+    case 'en-AU':
+    case 'en-IN':
+    case 'en-IE':
+    case 'en-NZ':
+    case 'en-ZA':
+    case 'en-GB-oxendict':
+      langKey = 'en';
+      break;
+    case 'ko-KR':
+      langKey = 'ko';
+      break;
+    default:
+      langKey = navigator.language || 'en';
+  }
+  return langKey;
+}
+
 /**
  * 获取时区
  */
@@ -1652,9 +1713,10 @@ export const handlePushState = (queryKey = '', queryValue = '') => {
 };
 
 export const handleReplaceState = (queryKey, queryValue, callback = () => {}) => {
+  const popupKey = queryKey + `=` + queryValue;
   if (_.get(window, 'history.state.popupKey') === `${queryKey}=${queryValue}`) {
-    history.replaceState({ [queryKey]: queryValue }, '', location.href);
     callback();
+    history.replaceState({ ...history.state, ...{ popupKey } }, '');
   }
 };
 

@@ -366,14 +366,16 @@ export const getShowFormat = data => {
         'format',
       );
   if (mode === 'year') {
-    return showformat === '1' ? _l('YYYY年') : formatMode;
+    const yearShowType = _.get(showType.match(/[\yY]+/), '0');
+    return showformat === '1' ? _l('YYYY年') : yearShowType || formatMode;
   }
   // 年月需要特殊处理
   if (mode === 'month') {
     if (showformat === '1') return _l('YYYY年M月');
     if (_.includes(['2', '3'], showformat)) return 'M/YYYY';
     if (showformat === '4') return 'YYYY/M';
-    return formatMode;
+    const yearMonthShowType = _.get(showType.match(/[\yY]+[\-\/]{0,1}[M]+/), '0');
+    return yearMonthShowType || formatMode;
   }
   return formatMode.replace('YYYY-MM-DD', showType);
 };

@@ -48,7 +48,7 @@ export default class RecordWrapper extends Component {
       },
       row,
       () => {
-        if (window.isMingDaoApp && !window.shareState.shareId) {
+        if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
           window.location.href = `/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`;
         } else {
           this.setState({

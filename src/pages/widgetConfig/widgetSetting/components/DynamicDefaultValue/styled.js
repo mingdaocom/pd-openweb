@@ -415,6 +415,9 @@ export const SearchWorksheetWrap = styled.div`
       }
     }
   }
+  .addFilterIcon {
+    width: fit-content;
+  }
   .addFilterIcon span {
     color: #2196f3;
     display: inline-block;
@@ -428,26 +431,7 @@ export const SearchWorksheetWrap = styled.div`
   }
   .searchWorksheetFilter {
     & > div > div > div:last-child {
-      margin: 0 !important;
-      .addFilterCondition {
-        i,
-        span {
-          color: #2196f3;
-        }
-        display: inline-block;
-        padding: 8px;
-        & > div > div {
-          margin-right: 0 !important;
-        }
-        &:hover {
-          i,
-          span {
-            color: #1780d3;
-          }
-          background: #f5f5f5;
-          border-radius: 3px;
-        }
-      }
+      margin: 10px 0 !important;
     }
   }
   .conditionRelationBox {

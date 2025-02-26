@@ -1,14 +1,11 @@
 /* eslint-disable no-bitwise */
 import qs from 'query-string';
 import moment from 'moment';
-import base64 from 'js-base64';
 import { assign, trim, isObject, isEmpty } from 'lodash';
 import { PICK_TYPE, ROOT_PERMISSION_TYPE, NODE_SORT_TYPE, NODE_SORT_BY } from '../constant/enum';
 import Dialog from 'ming-ui/components/Dialog';
 import React from 'react';
 import _ from 'lodash';
-
-const base64encode = base64.Base64.encode;
 
 function smi(i32) {
   return ((i32 >>> 1) & 0x40000000) | (i32 & 0xbfffffff);
@@ -279,7 +276,7 @@ export function humanDateTime(time) {
  * URL安全的Base64编码
  **/
 export function getUrlBase64Encode(str) {
-  return base64encode(str).replace(/\//g, '_').replace(/\+/g, '-');
+  return btoa(str).replace(/\//g, '_').replace(/\+/g, '-');
 }
 
 /**

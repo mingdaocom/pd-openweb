@@ -19,7 +19,14 @@ const DISPLAY_LIST = [
 
 export default function RelateStyle(props) {
   const { data, onChange } = props;
-  const { alternatecolor = '1', sheettype = '0', allowedit = '1', layercontrolid, showtype } = getAdvanceSetting(data);
+  const {
+    alternatecolor = '1',
+    sheettype = '0',
+    allowedit = '1',
+    layercontrolid,
+    showtype,
+    titlewrap,
+  } = getAdvanceSetting(data);
   const tableControls = _.get(data, 'relationControls') || [];
   const tableData = tableControls
     .filter(c => c.type === 29 && c.dataSource === data.dataSource && c.enumDefault === 1)
@@ -58,7 +65,7 @@ export default function RelateStyle(props) {
       </SettingItem>
       <WidgetRowHeight {...props} />
 
-      {data.type === 29 && showtype === '5' && (
+      {data.type === 29 && _.includes(['5', '6'], showtype) && (
         <SettingItem>
           <div className="settingItemTitle">
             {_l('树形表格')}
@@ -117,6 +124,14 @@ export default function RelateStyle(props) {
             checked={alternatecolor === '1'}
             text={_l('显示交替行颜色')}
             onClick={checked => onChange(handleAdvancedSettingChange(data, { alternatecolor: String(+!checked) }))}
+          />
+        </div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={titlewrap === '1'}
+            text={_l('标题行文字换行')}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
           />
         </div>
       </SettingItem>

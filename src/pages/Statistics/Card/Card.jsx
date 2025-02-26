@@ -11,6 +11,7 @@ import { configureStore } from 'src/redux/configureStore';
 import { fillValueMap, chartNav, isOptionControl } from '../common';
 import { reportTypes } from '../Charts/common';
 import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
+import Sort from '../components/Sort';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getFilledRequestParams } from 'src/pages/worksheet/util';
 import MoreOverlay from './MoreOverlay';
@@ -41,6 +42,7 @@ class Card extends Component {
       sheetVisible: false,
       isLinkageFilter: true,
       activeData: undefined,
+      sorts: undefined
     };
     this.isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   }
@@ -89,10 +91,10 @@ class Card extends Component {
       filtersGroup,
       linkageFiltersGroup,
       pageId,
-      sourceType,
+      sourceType
     } = props || this.props;
     const isEmbed = location.href.includes('embed/chart');
-    const { isLinkageFilter } = this.state;
+    const { isLinkageFilter, sorts } = this.state;
     const printFilter =
       location.href.includes('printPivotTable') && JSON.parse(sessionStorage.getItem(`printFilter-${report.id}`));
     this.setState({ loading: true });
@@ -103,6 +105,7 @@ class Card extends Component {
       pageId,
       version: '6.5',
       reload,
+      sorts,
       filters: printFilter
         ? printFilter
         : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
@@ -111,7 +114,7 @@ class Card extends Component {
     this.request.then(result => {
       result.reportId = report.id;
       this.setState({
-        reportData: fillValueMap(result),
+        reportData: fillValueMap(result, pageId),
         loading: false,
       });
       this.props.onLoad(result);
@@ -260,18 +263,18 @@ class Card extends Component {
   }
   renderBody() {
     const { needRefresh } = this.props;
-    const { loading, reportData } = this.state;
+    const { loading, reportData, sorts } = this.state;
 
-    if (reportData.reportType === reportTypes.CountryLayer && needRefresh) {
+    if (reportData.reportType === reportTypes.CountryLayer && needRefresh && _.isEmpty(sorts)) {
       return (
-        <Fragment>
+        <div className="content flexColumn">
           {loading && (
             <div className="fixedLoading">
               <Loading />
             </div>
           )}
           {reportData.status > 0 ? this.renderContent() : <Abnormal status={reportData.status} />}
-        </Fragment>
+        </div>
       );
     } else {
       return (
@@ -316,9 +319,48 @@ class Card extends Component {
       projectId,
       onCancelFavorite,
     } = this.props;
+    const { titleStyle = 0, pageBgColor, pageStyleType = 'light' } = customPageConfig;
+    const isLight = pageStyleType === 'light';
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable].includes(reportData.reportType);
     const translateInfo = getTranslateInfo(appId, null, report.id);
+    const getBgColor = () => {
+      if (titleStyle === 1) {
+        const card = document.querySelector(`.statisticsCard-${report.id}`);
+        const hideNumberChartName = card ? card.classList.contains('hideNumberChartName') : true;
+        return {
+          '--title-color': hideNumberChartName ? undefined : '#fff',
+          '--icon-color': hideNumberChartName ? undefined : '#fff',
+          '--widget-title-color': isLight && !hideNumberChartName ? '#fff' : undefined,
+          '--widget-icon-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
+          '--widget-icon-hover-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
+          marginBottom: 8,
+          backgroundColor: themeColor,
+        }
+      }
+      if (titleStyle === 2) {
+        const card = document.querySelector(`.statisticsCard-${report.id}`);
+        const hideNumberChartName = card ? card.classList.contains('hideNumberChartName') : true;
+        return {
+          '--title-color': hideNumberChartName ? undefined : '#fff',
+          '--icon-color': hideNumberChartName ? undefined : '#fff',
+          '--widget-title-color': isLight && !hideNumberChartName ? '#fff' : undefined,
+          '--widget-icon-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
+          '--widget-icon-hover-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
+          marginBottom: 8,
+          background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`
+        }
+      }
+      if (titleStyle === 3) {
+        return {
+          margin: '0 10px 8px',
+          padding: 0,
+          borderBottom: `2px solid transparent`,
+          borderImage: `linear-gradient(to right, ${themeColor}, ${pageBgColor}) 1`
+        }
+      }
+      return {};
+    }
 
     return (
       <div
@@ -328,7 +370,7 @@ class Card extends Component {
           headerHover: showTitle
         })}
       >
-        <div className="header">
+        <div className="header" style={getBgColor()}>
           {(sourceType ? false : permissions) && DragHandle && (
             <DragHandle>
               <Tooltip title={_l('拖拽')} placement="bottom">
@@ -414,6 +456,36 @@ class Card extends Component {
                 </span>
               </Tooltip>
             )}
+            {needEnlarge && reportData.status > 0 && (
+              <Sort
+                reportId={report.id}
+                pageId={pageId}
+                sourceType={sourceType}
+                currentReport={{
+                  ...reportData,
+                  pivotTable: {
+                    columns: reportData.columns,
+                    lines: reportData.lines,
+                  }
+                }}
+                reportType={reportData.reportType}
+                map={reportData.map}
+                valueMap={reportData.valueMap}
+                reportData={reportData}
+                onChangeCurrentReport={data => {
+                  const { sorts } = data;
+                  this.setState({
+                    sorts
+                  }, this.getData);
+                }}
+              >
+                <span className="iconItem Gray_9e">
+                  <Tooltip title={_l('排序')} placement="bottom">
+                    <Icon icon="swap_vert" className="Font20 Bold" />
+                  </Tooltip>
+                </span>
+              </Sort>
+            )}
             {needRefresh && reportData.status > 0 && (
               <Tooltip title={_l('刷新')} placement="bottom">
                 <span
@@ -475,24 +547,24 @@ class Card extends Component {
                 onOpenSetting={
                   (sourceType === 1 ? isCharge : permissions)
                     ? () => {
-                        this.handleOperateClick({
-                          settingVisible: true,
-                          activeData: undefined,
-                        });
-                      }
+                      this.handleOperateClick({
+                        settingVisible: true,
+                        activeData: undefined,
+                      });
+                    }
                     : null
                 }
                 onSheetView={
                   isSheetView
                     ? () => {
-                        this.setState({
-                          dialogVisible: true,
-                          sheetVisible: true,
-                          settingVisible: false,
-                          scopeVisible: false,
-                          activeData: undefined,
-                        });
-                      }
+                      this.setState({
+                        dialogVisible: true,
+                        sheetVisible: true,
+                        settingVisible: false,
+                        scopeVisible: false,
+                        activeData: undefined,
+                      });
+                    }
                     : null
                 }
               />

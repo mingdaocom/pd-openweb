@@ -14,7 +14,7 @@ import {
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { checkConditionsIsNull } from '../../utils';
+import { checkConditionsIsNull,getIcons } from '../../utils';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
 
@@ -826,7 +826,7 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
-        <div className="mTop5 Gray_75">{_l('最大删除1000行数据')}</div>
+        <div className="mTop5 Gray_75">{_l('最大删除10000行数据')}</div>
 
         <div className="mTop15 flexRow">
           <Checkbox
@@ -842,6 +842,7 @@ export default class GetMoreRecord extends Component {
   }
 
   render() {
+    const { selectNodeType } = this.props;
     const { data, showOtherWorksheet } = this.state;
     const isRefresh = data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA;
 
@@ -854,7 +855,7 @@ export default class GetMoreRecord extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon={isRefresh ? 'icon-architecture' : 'icon-transport'}
+          icon={getIcons(selectNodeType, data.appType, data.actionId)}
           bg={isRefresh ? 'BGGreen' : 'BGYellow'}
           updateSource={this.updateSource}
         />

@@ -417,7 +417,7 @@ export default class HistoryDetail extends Component {
 
                     <div className="flowItemHistory flexRow">
                       <HistoryStatus config={NODE_STATUS} statusCode={status} />
-                      {index !== works.length - 1 && !!(logs || []).length && (
+                      {!!(logs || []).length && (
                         <span className="mLeft8">
                           <div className="historyDetailRetryResult">{_l('重试') + '#' + logs.length}</div>
                         </span>

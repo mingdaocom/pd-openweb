@@ -71,7 +71,6 @@ export default props => {
   const worksheetId = selectNodeType === NODE_TYPE.FIRST ? data.appId : data.selectNodeObj.appId;
   const InitiatorAction = [
     { text: _l('允许发起人撤回流程'), key: 'allowRevoke' },
-    { text: _l('允许审批人撤回上次审批结果'), key: 'allowTaskRevoke' },
     { text: _l('允许发起人催办'), key: 'allowUrge' },
   ];
   const INITIATOR_TYPE = [
@@ -700,7 +699,18 @@ export default props => {
           <div className="Font13 mTop20 bold">{_l('其他')}</div>
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox
-              text={_l('当没有上级负责人时，由本级进行处理')}
+              text={_l('允许审批人撤回上次审批结果')}
+              checked={data.processConfig.allowTaskRevoke}
+              onClick={checked =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, { allowTaskRevoke: !checked }),
+                })
+              }
+            />
+          </div>
+          <div className="flexRow mTop15 alignItemsCenter">
+            <Checkbox
+              text={_l('当没有上级负责人时，由当前人员进行处理')}
               checked={data.processConfig.defaultCandidateUser}
               onClick={checked =>
                 updateSource({

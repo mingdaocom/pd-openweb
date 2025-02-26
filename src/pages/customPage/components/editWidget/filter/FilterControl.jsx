@@ -119,7 +119,6 @@ export default function FilterControl(props) {
             if (!index) {
               const firstSheet = _.find(sheetList, { worksheetId: _.get(filterObjectControls[0], 'worksheetId') });
               const control = _.find(_.get(firstSheet, 'template.controls'), { controlId: value }) || {};
-              const { type } = control;
               const { controlId, ...data } = getSetDefault(control);
               param.control = control;
               param.filterType = 0;
@@ -128,6 +127,11 @@ export default function FilterControl(props) {
               param.minValue = '';
               param.maxValue = '';
               param.showDefsource = undefined;
+              param.dateRange = undefined;
+              param.advancedSetting = {
+                ...advancedSetting,
+                daterange: '[]'
+              }
               Object.assign(param, data);
             }
             setSearchValue('');

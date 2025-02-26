@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID } from '../../enum';
 import { SUMMARY_LIST } from 'src/pages/worksheet/util';
+import { getIcons } from '../../utils';
 
 export default class Formula extends Component {
   constructor(props) {
@@ -152,13 +153,8 @@ export default class Formula extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  _.includes(
-                    [ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL],
-                    item.actionId,
-                  )
-                    ? 'icon-sigma'
-                    : 'icon-workflow_function',
                   item.formulaValue || item.selectNodeId || item.appId ? 'BGGreen' : 'BGGray',
+                  getIcons(item.typeId, item.appType, item.actionId),
                 )}
               />
             </div>

@@ -49,6 +49,7 @@ class ConfirmButton extends Component {
         disabled={this.props.disabled}
         onClick={this.handleClick}
         loading={this.state.loading}
+        className={this.props.className}
       >
         {this.props.children}
       </Button>
@@ -61,6 +62,7 @@ ConfirmButton.propTypes = {
   onClose: PropTypes.func,
   children: PropTypes.node,
   type: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default ConfirmButton;

@@ -1,11 +1,8 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 import _ from 'lodash';
 import { Switch, Dialog } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 
 let ajaxPromise = {};
@@ -20,7 +17,7 @@ export default ({ projectId }) => {
     percent: '100.00%',
   });
   const [arithmeticLoading, setArithmeticLoading] = useState(true);
-  const [taskNum, setTaskNum] = useState({ currentTaskNum: 0, maxTaskNum: 0 });
+  const [taskNum, setTaskNum] = useState({ currentTaskNum: 0, maxTaskNum: 0, etlTaskNum: 0, maxEtlTaskNum: 0 });
 
   const getAutoPurchaseDataPipelineExtPack = () => {
     ajaxPromise.getAutoPurchaseDataPipelineExtPack = projectSettingAjax.getAutoPurchaseDataPipelineExtPack({
@@ -91,16 +88,25 @@ export default ({ projectId }) => {
           <span>
             {md.global.Config.IsLocal && (
               <Fragment>
-                <span className="Gray_9e mRight3">{_l('同步任务数')}</span>
+                <span className="Gray_9e mRight3">{_l('直接同步任务数')}</span>
                 <span className="Bold">
                   {taskNum.currentTaskNum} / {taskNum.maxTaskNum} ，
                 </span>
+                <span className="Gray_9e mRight3">{_l('ETL处理任务数')}</span>
+                <span className="Bold">
+                  {taskNum.etlTaskNum} / {taskNum.maxEtlTaskNum}
+                  {md.global.Config.IsPlatformLocal && <span>，</span>}
+                </span>
               </Fragment>
             )}
-            <span className="Gray_9e mRight3">{_l('本月算力')}</span>
-            <span className="Bold">{_l('%0 万行 / %1 万行', used, total)}</span>
-            <span className="Gray_9e mLeft3 mRight3">{_l('剩余')}</span>
-            <span className="Bold">{percent}</span>
+            {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && (
+              <Fragment>
+                <span className="Gray_9e mRight3">{_l('本月算力')}</span>
+                <span className="Bold">{_l('%0 万行 / %1 万行', used, total)}</span>
+                <span className="Gray_9e mLeft3 mRight3">{_l('剩余')}</span>
+                <span className="Bold">{percent}</span>
+              </Fragment>
+            )}
           </span>
           {!md.global.Config.IsLocal && (
             <PurchaseExpandPack

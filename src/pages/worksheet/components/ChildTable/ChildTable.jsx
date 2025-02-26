@@ -8,12 +8,16 @@ import styled from 'styled-components';
 import moment from 'moment';
 import cx from 'classnames';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
+import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
 import Pagination from 'worksheet/components/Pagination';
+import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
+import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { Menu, MenuItem, Skeleton } from 'ming-ui';
 import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/constants/enum';
 import SearchInput from 'worksheet/components/SearchInput';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
+import { controlCanEdit } from 'worksheet/common/BatchEditRecord/BatchEditRecord';
 import ChildTableContext from './ChildTableContext';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
@@ -215,6 +219,7 @@ class ChildTable extends React.Component {
     if (_.isFunction(control.addRefreshEvents)) {
       control.addRefreshEvents(control.controlId, options => this.refresh(null, options));
     }
+    if (browserIsMobile()) return;
     $(this.childTableCon).on('mouseenter', '.cell:not(.row-head)', this.handleMouseEnter);
     $(this.childTableCon).on('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
     window.addEventListener('keydown', this.handleKeyDown);
@@ -570,9 +575,12 @@ class ChildTable extends React.Component {
     return result;
   }
 
-  newRow = (defaultRow, { isDefaultValue, isCreate, isQueryWorksheetFill } = {}) => {
+  newRow = (defaultRow, { isDefaultValue, isCreate, isQueryWorksheetFill, isImportFromExcel } = {}) => {
     const tempRowId = !isDefaultValue ? `temp-${uuidv4()}` : `default-${uuidv4()}`;
-    const row = this.rowUpdate({ row: defaultRow, rowId: tempRowId }, { isCreate, isQueryWorksheetFill });
+    const row = this.rowUpdate(
+      { row: defaultRow, rowId: tempRowId },
+      { isCreate, isQueryWorksheetFill, isImportFromExcel },
+    );
     return {
       ...row,
       rowid: tempRowId,
@@ -610,7 +618,10 @@ class ChildTable extends React.Component {
     addRows(newRows);
   }
 
-  rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
+  rowUpdate(
+    { row, controlId, value, rowId } = {},
+    { isCreate = false, isQueryWorksheetFill = false, isImportFromExcel } = {},
+  ) {
     const { masterData, recordId } = this.props;
     const { projectId, rules = [] } = this.worksheetInfo;
     const { searchConfig } = this;
@@ -646,6 +657,7 @@ class ChildTable extends React.Component {
           ...c,
           isSubList: true,
           isQueryWorksheetFill,
+          isImportFromExcel,
           value: controlValue,
         };
       }),
@@ -753,7 +765,7 @@ class ChildTable extends React.Component {
           addRows(
             data
               .slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length)
-              .map(updatedValues => this.newRow(updatedValues, { isCreate: true })),
+              .map(updatedValues => this.newRow(updatedValues, { isCreate: true, isImportFromExcel: true })),
           );
         }, 0);
       },
@@ -1020,6 +1032,41 @@ class ChildTable extends React.Component {
     $('.mdTableErrorTip').remove();
     $('.cell').removeClass('errorActive');
   };
+  handleBatchUpdateRecords = ({ tableRows, activeControl } = {}) => {
+    const { appId, control, updateRows } = this.props;
+    const { selectedRowIds } = this.state;
+    const { projectId, worksheetId } = this.worksheetInfo;
+    if (!selectedRowIds.length) {
+      return;
+    }
+    const selectedRows = selectedRowIds
+      .map(rowId => find(tableRows, { rowid: rowId }))
+      .filter(_.identity)
+      .filter(row => row.allowedit);
+    if (!selectedRows.length) {
+      return;
+    }
+    batchEditRecord({
+      appId,
+      worksheetId,
+      projectId,
+      isCharge: control.isCharge,
+      selectedRows,
+      activeControl,
+      defaultWorksheetInfo: {
+        entityName: _l('记录'),
+        template: { controls: this.getShowColumns() },
+      },
+      triggerBatchUpdateRecords: ({ needUpdateControls, onClose }) => {
+        const changes = needUpdateControls.reduce((acc, control) => {
+          acc[control.controlId] = control.sourceValue || control.value;
+          return acc;
+        }, {});
+        updateRows({ rowIds: selectedRowIds, value: changes });
+        onClose();
+      },
+    });
+  };
 
   render() {
     const {
@@ -1132,6 +1179,8 @@ class ChildTable extends React.Component {
       !!filterEmptyChildTableRows(tableRows).length;
     const showImport = !isMobile && allowImport && !disabledNew;
     const RowDetailComponent = isMobile ? RowDetailMobile : RowDetail;
+    const allowEdit = !disabled && allowedit;
+    const allowBatchEditControls = columns.filter(controlCanEdit);
     if (!columns.length) {
       return <div className="childTableEmptyTag"></div>;
     }
@@ -1338,11 +1387,13 @@ class ChildTable extends React.Component {
                       <i className="icon icon-knowledge-upload Font16 Gray_75"></i>
                     </span>
                   )}
-                  {showImport && showBatchEdit && <div className="splitter"></div>}
-                  {showBatchEdit && (allowBatchDelete || (allowadd && allowCopy)) && (
-                    <span className="addRowByLine" onClick={() => this.setState({ isBatchEditing: true })}>
-                      {_l('批量操作')}
-                    </span>
+                  {showBatchEdit && (allowBatchDelete || allowEdit || (allowadd && allowCopy)) && (
+                    <Fragment>
+                      <div className="splitter"></div>
+                      <span className="addRowByLine" onClick={() => this.setState({ isBatchEditing: true })}>
+                        {_l('批量操作')}
+                      </span>
+                    </Fragment>
                   )}
                 </Fragment>
               ) : (
@@ -1355,6 +1406,16 @@ class ChildTable extends React.Component {
                     <i className="icon icon-close Gray_9e Font18 mRight5"></i>
                     {_l('退出')}
                   </span>
+                  {allowEdit && (
+                    <span
+                      className={cx('operateButton', {
+                        disabled: !selectedRowIds.length || !allowBatchEditControls.length,
+                      })}
+                      onClick={() => allowBatchEditControls.length && this.handleBatchUpdateRecords({ tableRows })}
+                    >
+                      {_l('编辑')}
+                    </span>
+                  )}
                   {allowBatchDelete && (
                     <span
                       className={cx('operateButton', { disabled: !selectedRowIds.length })}
@@ -1607,6 +1668,10 @@ class ChildTable extends React.Component {
                   const maskData =
                     _.get(control, 'advancedSetting.datamask') === '1' &&
                     _.get(control, 'advancedSetting.isdecrypt') === '1';
+                  const controlAllowEdit =
+                    _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
+                    controlState(control).editable &&
+                    !SYS.filter(o => o !== 'ownerid').includes(control.controlId);
                   return (
                     <ColumnHead
                       disableSort={isTreeTableView}
@@ -1674,6 +1739,17 @@ class ChildTable extends React.Component {
                             >
                               <i className="icon icon-eye_off"></i>
                               {_l('解码')}
+                            </MenuItem>
+                          )}
+                          {selectedRowIds.length && controlAllowEdit && allowEdit && (
+                            <MenuItem
+                              onClick={() => {
+                                this.handleBatchUpdateRecords({ tableRows, activeControl: control });
+                                closeMenu();
+                              }}
+                            >
+                              <i className="icon icon-hr_edit"></i>
+                              {_l('编辑选中记录')}
                             </MenuItem>
                           )}
                         </Menu>
@@ -1953,6 +2029,7 @@ const mapDispatchToProps = dispatch => ({
   addRow: bindActionCreators(actions.addRow, dispatch),
   addRows: bindActionCreators(actions.addRows, dispatch),
   updateRow: bindActionCreators(actions.updateRow, dispatch),
+  updateRows: bindActionCreators(actions.updateRows, dispatch),
   deleteRow: bindActionCreators(actions.deleteRow, dispatch),
   deleteRows: bindActionCreators(actions.deleteRows, dispatch),
   sortRows: bindActionCreators(actions.sortRows, dispatch),

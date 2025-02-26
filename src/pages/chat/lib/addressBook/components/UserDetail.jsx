@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import Dropdown from 'ming-ui/components/Dropdown';
 import { Tooltip, Icon, LoadDiv, ScrollView, Dialog } from 'ming-ui';
 import Menu from 'ming-ui/components/Menu';
@@ -333,6 +334,11 @@ export default class UserDetail extends React.Component {
       });
   };
 
+  onCopyID = () => {
+    copy(_.get(this.state.data, 'accountId'));
+    alert(_l('复制成功'));
+  };
+
   renderProjectCard() {
     const placeHolder = <span className="Gray_bd">{_l('未填写')}</span>;
     const {
@@ -418,14 +424,15 @@ export default class UserDetail extends React.Component {
           </div>
         </div>
         {this.renderDetailCard()}
-        <div
-          className="mTop10 Font13 Gray_9e Hand ThemeHoverColor3"
-          onClick={() => {
-            this.setState({ isShowDetail: !isShowDetail });
-          }}
-        >
-          <span>{isShowDetail ? '收起详情' : '展开详情'}</span>
-          {isShowDetail ? <Icon icon="arrow-up" className="mLeft5" /> : <Icon icon="arrow-down" className="mLeft5" />}
+        <div className="mTop10 Font13 Gray_9e Hand ">
+          <span className="ThemeHoverColor3" onClick={() => this.setState({ isShowDetail: !isShowDetail })}>
+            <span>{isShowDetail ? '收起详情' : '展开详情'}</span>
+            {isShowDetail ? <Icon icon="arrow-up" className="mLeft5" /> : <Icon icon="arrow-down" className="mLeft5" />}
+          </span>
+          <span className="Gray_9e Hover_21 mLeft48 Hand" onClick={this.onCopyID}>
+            {_l('用户ID')}
+            <Icon icon="copy" className="mLeft5" />
+          </span>
         </div>
       </React.Fragment>
     );

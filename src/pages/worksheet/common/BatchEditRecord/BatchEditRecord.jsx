@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import worksheetApi from 'src/api/worksheet';
 import useApi from 'worksheet/hooks/useApi';
-import { find, get, isEmpty, some, isArray, pick, includes, omit } from 'lodash';
+import { find, get, isEmpty, some, isArray, pick, includes, omit, isFunction } from 'lodash';
 import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { controlState, formatControlToServer } from 'src/components/newCustomFields/tools/utils';
@@ -67,6 +67,20 @@ const EditCon = styled.div`
   max-height: ${props => (props.maxHeight ? `${props.maxHeight}px` : '400px')};
 `;
 
+export function controlCanEdit(control, view = { controls: [] }) {
+  return (
+    ((control.type < 10000 &&
+      includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
+      !(control.type === 29 && includes(['2', '5', '6'], get(control, 'advancedSetting.showtype'))) &&
+      !(control.type === 14 && includes(['0'], get(control, 'advancedSetting.allowdelete') || '1')) &&
+      !find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
+      !find(view.controls, id => control.controlId === id)) ||
+      control.controlId === 'ownerid') &&
+    controlState(control).visible &&
+    controlState(control).editable
+  );
+}
+
 export default function BatchEditRecord(props) {
   const {
     isCharge,
@@ -74,7 +88,7 @@ export default function BatchEditRecord(props) {
     worksheetId,
     projectId,
     viewId,
-    view,
+    view = { controls: [] },
     recordId,
     selectedRows,
     allWorksheetIsSelected,
@@ -84,36 +98,32 @@ export default function BatchEditRecord(props) {
     filtersGroup,
     reloadWorksheet,
     activeControl,
+    defaultWorksheetInfo,
+    triggerBatchUpdateRecords,
     clearSelect = () => {},
     hideEditRecord = () => {},
     updateRows = () => {},
+    onUpdate = () => {},
     getWorksheetSheetViewSummary = () => {},
     onClose,
   } = props;
   const editConRef = useRef(null);
   const addRef = useRef(null);
   const refCache = useRef({});
-  const [loading, error, worksheetInfo] = useApi(worksheetApi.getWorksheetInfo, {
-    appId,
-    worksheetId,
-    getTemplate: true,
-  });
+  const [loading, error, worksheetInfo] = useApi(
+    worksheetApi.getWorksheetInfo,
+    {
+      appId,
+      worksheetId,
+      getTemplate: true,
+    },
+    defaultWorksheetInfo,
+  );
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedControls, setSelectedControls] = useState([]);
   const controlsForSelect = useMemo(() => {
     const formData = replaceControlsTranslateInfo(appId, worksheetId, get(worksheetInfo, 'template.controls', []));
-    const result = formData.filter(
-      control =>
-        ((control.type < 10000 &&
-          includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
-          !(control.type === 29 && includes(['2', '5', '6'], get(control, 'advancedSetting.showtype'))) &&
-          !(control.type === 14 && includes(['0'], get(control, 'advancedSetting.allowdelete') || '1')) &&
-          !find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
-          !find(view.controls, id => control.controlId === id)) ||
-          control.controlId === 'ownerid') &&
-        controlState(control).visible &&
-        controlState(control).editable,
-    );
+    const result = formData.filter(c => controlCanEdit(c, view));
     return result;
   }, [worksheetInfo]);
   const filteredSelectedControls = useMemo(() => {
@@ -155,6 +165,7 @@ export default function BatchEditRecord(props) {
               type: item.control.type,
               value: ownerValue,
             };
+            newItem.sourceValue = item.value;
           } else {
             newItem = formatControlToServer(
               {
@@ -163,6 +174,7 @@ export default function BatchEditRecord(props) {
               },
               { needFullUpdate: !recordId },
             );
+            newItem.sourceValue = item.value;
           }
         } else {
           newItem = {
@@ -184,11 +196,15 @@ export default function BatchEditRecord(props) {
       return;
     }
     setIsUpdating(true);
+    if (isFunction(triggerBatchUpdateRecords)) {
+      triggerBatchUpdateRecords({ needUpdateControls, onClose });
+      return;
+    }
     handleBatchUpdateRecords({
       appId,
       viewId,
       worksheetId,
-      needUpdateControls: needUpdateControls.map(c => omit(c, 'editType')),
+      needUpdateControls: needUpdateControls.map(c => omit(c, 'editType', 'sourceValue')),
       selectedRows,
       allWorksheetIsSelected,
       hasAuthRowIds,
@@ -204,6 +220,9 @@ export default function BatchEditRecord(props) {
       worksheetInfo,
       selectedControls,
       onClose,
+      onUpdate: () => {
+        onUpdate({ needUpdateControls });
+      },
       setIsUpdating,
     });
   }, [selectedControls, refCache]);
@@ -313,4 +332,6 @@ BatchEditRecord.propTypes = {
   hideEditRecord: PropTypes.func,
   updateRows: PropTypes.func,
   getWorksheetSheetViewSummary: PropTypes.func,
+  triggerBatchUpdateRecords: PropTypes.func,
+  defaultWorksheetInfo: PropTypes.shape({}),
 };

@@ -1,12 +1,12 @@
 import React from 'react';
 import sheetAjax from 'src/api/worksheet';
 import { checkValueAvailable, replaceStr } from './filterFn';
-import { getDynamicValue, calcDefaultValueFunction } from './DataFormat.js';
+import { getDynamicValue, calcDefaultValueFunction, formatSearchResultValue } from './DataFormat.js';
 import { getParamsByConfigs } from '../widgets/Search/util.js';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog, browserIsMobile } from 'src/util';
 import { Dialog } from 'ming-ui';
 import { handleUpdateApi } from '../widgets/Search/util.js';
-import { formatControlToServer, formatFiltersValue } from './utils.js';
+import { formatControlToServer, getCurrentValue } from './utils.js';
 import { FORM_ERROR_TYPE } from './config.js';
 import {
   FILTER_VALUE_ENUM,
@@ -18,6 +18,9 @@ import {
 import fileAjax from 'src/api/file';
 import _ from 'lodash';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
+import { v4 as uuidv4 } from 'uuid';
+import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
 
 // 显隐、只读编辑等处理
 const dealDataPermission = props => {
@@ -86,9 +89,189 @@ const getDynamicData = ({ formData, embedData, masterData }, control) => {
     const parsed = safeParse(defSource, 'array');
     // 没值或配置清空相当于清空
     if (_.isEmpty(parsed) || _.get(parsed, '0.cid') === 'empty') {
-      return isSheetDisplay(control) ? '[]' : '';
+      return isSheetDisplay(control) || control.type === 34 ? '[]' : '';
     }
     return getDynamicValue(formData, control, masterData, embedData);
+  }
+};
+
+// 能配查询多条的是否赋值的控件
+const canSearchMore = currentControl => {
+  return !_.includes([29, 34], currentControl.type) || (currentControl.type === 29 && currentControl.enumDefault === 1);
+};
+
+// 获取查询工作表数据
+const getSearchWorksheetData = async props => {
+  const { formData, recordId, queryConfig = {}, control } = props;
+  const { items = [], templates = [], sourceId, moreSort, controlId, id } = queryConfig;
+  const currentControl = control || _.find(formData, da => da.controlId === controlId);
+  const controls = _.get(templates[0] || {}, 'controls') || [];
+  let queryCount = getDefaultCount(currentControl, queryConfig.queryCount);
+  if (templates.length > 0 && controls.length > 0) {
+    const filterControls = getFilter({
+      control: {
+        ...currentControl,
+        advancedSetting: { filters: JSON.stringify(items) },
+        recordId,
+        relationControls: controls,
+      },
+      formData,
+      ignoreEmptyRule: true,
+    });
+    let params = {
+      filterControls: filterControls === false ? [] : filterControls,
+      pageIndex: 1,
+      searchType: 1,
+      status: 1,
+      getType: 7,
+      worksheetId: sourceId,
+      pageSize: isSheetDisplay(currentControl) || currentControl.type === 34 ? queryCount : 1,
+      id,
+      getAllControls: true,
+      sortControls: moreSort,
+    };
+    if (window.isPublicWorksheet) {
+      params.formId = window.publicWorksheetShareId;
+    }
+
+    const resultData = await sheetAjax.getFilterRowsByQueryDefault(params);
+
+    if (_.get(resultData, 'resultCode') === 1) {
+      let result = resultData.data || [];
+      // 查询多条时不赋值
+      if (canSearchMore(currentControl) && resultData.count > 1 && (queryConfig || {}).moreType === 1) {
+        result = false;
+      }
+      return result;
+    } else {
+      return false;
+    }
+  }
+  return false;
+};
+
+const getSubListData = async props => {
+  const listResult = await sheetAjax.getRowRelationRows({
+    ...props,
+    pageIndex: 1,
+  });
+  return listResult.resultCode === 1 ? listResult.data : [];
+};
+
+const getRelateSearchResult = (control, searchResult) => {
+  const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1);
+  const newValue = (searchResult || []).map(itemResult => {
+    const nameValue = titleControl ? itemResult[titleControl.controlId] : undefined;
+    return {
+      isNew: true,
+      isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
+      sourcevalue: JSON.stringify(itemResult),
+      row: itemResult,
+      type: 8,
+      sid: itemResult.rowid,
+      name: getCurrentValue(titleControl, nameValue, { type: 2 }),
+    };
+  });
+  if (_.isEmpty(newValue) && _.includes([29], control.type)) {
+    if (browserIsMobile()) return JSON.stringify(newValue);
+    return 'deleteRowIds: all';
+  } else {
+    return JSON.stringify(newValue);
+  }
+};
+
+// 查询工作表赋值
+const handleUpdateSearchResult = props => {
+  const { handleChange, queryConfig = {}, searchResult = [], formData = [], isMix, control } = props;
+  const { configs = [], templates = {} } = queryConfig;
+  const controls = _.get(templates[0] || {}, 'controls') || [];
+
+  if (control && _.includes([29, 35], control.type)) {
+    const newVal = getRelateSearchResult(control, searchResult);
+    handleChange(newVal, control.controlId, false);
+  } else {
+    configs.map(async item => {
+      const { pid, cid, subCid } = item;
+      const currentControl = control || _.find(formData, i => i.controlId === cid);
+      if (!pid && currentControl) {
+        // 关联记录赋值
+        if (_.includes([29, 35], currentControl.type)) {
+          const newVal = getRelateSearchResult(currentControl, searchResult);
+          handleChange(newVal, currentControl.controlId, false);
+          // 子表赋值
+        } else if (currentControl.type === 34) {
+          const subMapConfigs = isMix
+            ? configs.filter(i => i.cid === currentControl.controlId || i.pid === currentControl.controlId)
+            : configs;
+          const subResult = isMix
+            ? await getSubListData({
+                rowId: _.get(searchResult, '0.rowid'),
+                worksheetId: _.get(searchResult, '0.wsid'),
+                controlId: subCid,
+                pageSize: (searchResult[0] || {}).subCid,
+              })
+            : searchResult;
+
+          const newValue = [];
+          if (subResult.length) {
+            subResult.forEach(item => {
+              let row = {};
+              subMapConfigs.map(({ cid = '', subCid = '' }) => {
+                const subItemControl = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+                if (subItemControl) {
+                  if (subCid === 'rowid') {
+                    row[cid] =
+                      subItemControl.type === 29
+                        ? JSON.stringify([
+                            {
+                              sourcevalue: JSON.stringify(item),
+                              row: item,
+                              type: 8,
+                              sid: item.rowid,
+                            },
+                          ])
+                        : item.rowid;
+                    return;
+                  }
+                  row[cid] = formatSearchResultValue({
+                    targetControl: _.find(controls, s => s.controlId === subCid),
+                    currentControl: subItemControl,
+                    controls,
+                    searchResult: item[subCid] || '',
+                  });
+                }
+              });
+              //映射明细所有字段值不为空
+              if (_.some(Object.values(row), i => !_.isUndefined(i))) {
+                newValue.push({
+                  ...row,
+                  rowid: `temprowid-${uuidv4()}`,
+                  allowedit: true,
+                  addTime: new Date().getTime(),
+                });
+              }
+            });
+          }
+          handleChange(
+            {
+              action: 'clearAndSet',
+              isDefault: true,
+              rows: newValue,
+            },
+            currentControl.controlId,
+            false,
+          );
+        } else {
+          const itemVal = formatSearchResultValue({
+            targetControl: _.find(controls, c => c.controlId === subCid),
+            currentControl: currentControl,
+            controls,
+            searchResult: (searchResult[0] || {})[subCid],
+          });
+          handleChange(itemVal, currentControl.controlId, false);
+        }
+      }
+    });
   }
 };
 
@@ -97,11 +280,21 @@ const getSearchWorksheetResult = async props => {
   const { advancedSetting = {}, searchConfig = [], formData, recordId } = props;
   const { id } = safeParse(advancedSetting.dynamicsrc || '{}');
   const currentSearchConfig = _.find(searchConfig, s => s.id === id) || {};
-  const { items = [], templates = [], sourceId, moreSort, resultType } = currentSearchConfig;
+  const { items = [], templates = [], sourceId, moreSort, resultType, controlId } = currentSearchConfig;
   const controls = _.get(templates[0] || {}, 'controls') || [];
   if (templates.length > 0 && controls.length > 0) {
+    const filterControls = getFilter({
+      control: {
+        ..._.find(formData, da => da.controlId === controlId),
+        advancedSetting: { filters: JSON.stringify(items) },
+        recordId,
+        relationControls: controls,
+      },
+      formData,
+      ignoreEmptyRule: true,
+    });
     let params = {
-      filterControls: formatFiltersValue(items, formData, recordId),
+      filterControls: filterControls === false ? [] : filterControls,
       pageIndex: 1,
       searchType: 1,
       status: 1,
@@ -284,10 +477,11 @@ const triggerCustomActions = async props => {
     formData,
     recordId,
     worksheetId,
+    searchConfig = [],
     setRenderData = () => {},
     handleChange = () => {},
     setErrorItems = () => {},
-    triggerType,
+    handleActiveTab = () => {},
   } = props;
 
   for (const a of actions) {
@@ -322,36 +516,62 @@ const triggerCustomActions = async props => {
         break;
       // 设置字段值
       case ACTION_VALUE_ENUM.SET_VALUE:
-        actionItems.forEach(item => {
+        actionItems.forEach(async item => {
           const control = _.find(formData, f => f.controlId === item.controlId);
           if (control) {
-            let value = getDynamicData(props, {
-              ...control,
-              advancedSetting: {
-                // 当前人员需要
-                ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
-                [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
-                defaulttype: item.type,
-              },
-            });
             // 已有记录关联列表不变更
             const canNotSet =
               control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
-            if (value !== control.value && !props.disabled && !canNotSet) {
-              if (control.type === 29) {
-                try {
-                  const records = safeParse(value);
-                  value = JSON.stringify(
-                    records.map(record => ({
-                      ...record,
-                      count: records.length,
-                    })),
-                  );
-                } catch (err) {
-                  console.log(err);
-                }
+            // 查询工作表单独更新
+            if (item.type === '2') {
+              const queryId = _.get(safeParse(item.value || '{}'), 'id');
+              const queryConfig = _.find(searchConfig, q => q.id === queryId);
+              const searchResult = await getSearchWorksheetData({ ...props, queryConfig, control });
+              if (!(searchResult === false || canNotSet || props.disabled)) {
+                handleUpdateSearchResult({ ...props, searchResult, queryConfig, control });
               }
-              handleChange(value, item.controlId, control, false);
+            } else {
+              let value = getDynamicData(props, {
+                ...control,
+                advancedSetting: {
+                  // 当前人员需要
+                  ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
+                  [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
+                  defaulttype: item.type,
+                },
+              });
+              if (value !== control.value && !props.disabled && !canNotSet) {
+                if (control.type === 29) {
+                  try {
+                    const records = safeParse(value || '[]');
+                    if (_.isEmpty(records)) {
+                      value = 'deleteRowIds: all';
+                    } else {
+                      value = JSON.stringify(
+                        records.map(record => ({
+                          ...record,
+                          count: records.length,
+                        })),
+                      );
+                    }
+                  } catch (err) {
+                    console.log(err);
+                  }
+                }
+                if (control.type === 34) {
+                  try {
+                    const records = safeParse(value || '[]');
+                    value = {
+                      action: 'clearAndSet',
+                      isDefault: true,
+                      rows: records,
+                    };
+                  } catch (err) {
+                    console.log(err);
+                  }
+                }
+                handleChange(value, item.controlId, control, false);
+              }
             }
           }
         });
@@ -456,6 +676,18 @@ const triggerCustomActions = async props => {
       // 创建记录
       case ACTION_VALUE_ENUM.CREATE:
         createRecord({ ...props, actionItems, advancedSetting });
+        break;
+      case ACTION_VALUE_ENUM.ACTIVATE_TAB:
+        const id = _.get(actionItems, '0.controlId');
+        handleActiveTab(id);
+        break;
+      case ACTION_VALUE_ENUM.SEARCH_WORKSHEET:
+        const queryId = _.get(safeParse(advancedSetting.dynamicsrc || '{}'), 'id');
+        const queryConfig = _.find(searchConfig, q => q.id === queryId);
+        const searchResult = await getSearchWorksheetData({ ...props, queryConfig });
+        if (searchResult !== false) {
+          handleUpdateSearchResult({ ...props, searchResult, queryConfig, isMix: true });
+        }
         break;
     }
   }

@@ -140,14 +140,14 @@ export const HAVE_CONFIG_SUB_LIST = [2, 3, 10, 15, 16, 28, 32, 35, 46];
 export const HAVE_MASK_WIDGET = [3, 4, 5, 7, 8];
 
 // 有操作的控件
-export const HAVE_OPTION_WIDGET = [14, 29, 34, 51];
+export const HAVE_OPTION_WIDGET = [14, 29, 34];
 
 // 有表格样式的控件
 export const HAVE_TABLE_STYLE_WIDGET = [34];
 
 // 有高级设置的控件
 export const HAVE_HIGH_SETTING_WIDGET = [
-  2, 3, 6, 10, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46, 51,
+  2, 3, 6, 10, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46,
 ];
 
 // 有移动端设置的控件

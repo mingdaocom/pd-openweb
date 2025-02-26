@@ -20,6 +20,7 @@ import cx from 'classnames';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 import weixinApi from 'src/api/weixin';
 import { themes, WX_ICON_LIST } from '../publicWorksheetConfig/enum';
+import { getPageConfig } from 'src/pages/publicWorksheetConfig/utils';
 
 const TopBar = styled.div(
   ({ color, hasBorderRadius }) =>
@@ -80,7 +81,6 @@ export default class PublicWorksheet extends React.Component {
       getPublicWorksheet(
         {
           shareId,
-          langType: getCurrentLangCode(),
         },
         info => {
           this.setState({ loading: false, ...info });
@@ -137,14 +137,6 @@ export default class PublicWorksheet extends React.Component {
           });
         }
       });
-  }
-
-  getPageConfig() {
-    const { publicWorksheetInfo, pageConfigKey } = this.state;
-    const pageConfigs = safeParse(_.get(publicWorksheetInfo, 'extendDatas.pageConfigs'));
-    const PageConfigIndex = _.findIndex(pageConfigs, l => l.key === pageConfigKey);
-
-    return pageConfigs[PageConfigIndex < 0 ? 0 : PageConfigIndex] || {};
   }
 
   onClosePreFillDesc = () => this.setState({ preFillDescVisible: false });
@@ -211,12 +203,12 @@ export default class PublicWorksheet extends React.Component {
 
   render() {
     const { isPreview } = this.props;
-    const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl } = this.state;
+    const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey } = this.state;
     const { worksheetId, projectName, writeScope } = publicWorksheetInfo;
     const request = getRequest();
     const { bg, footer } = request;
     const hideBg = bg === 'no';
-    const config = this.getPageConfig();
+    const config = getPageConfig(_.get(publicWorksheetInfo, 'extendDatas.pageConfigs'), pageConfigKey);
     const { themeBgColor, layout, cover, showQrcode, themeColor } = config;
     const bgShowTop = layout === 2 && !loading;
     const theme = this.getThemeBgColor({ themeBgColor, themeColor });

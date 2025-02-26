@@ -61,6 +61,7 @@ const tabs = [
 
 function Filters(props, ref) {
   const {
+    style = {},
     maxHeight = 543,
     supportGroup = true,
     projectId,
@@ -69,6 +70,7 @@ function Filters(props, ref) {
     worksheetId,
     isCharge,
     columns,
+    showSavedFilters = true,
     sheetSwitchPermit = {},
     state = {},
     actions = {},
@@ -105,7 +107,7 @@ function Filters(props, ref) {
   const [activeTab, setActiveTab] = useState(
     (() => {
       const newType = localStorage.getItem('worksheetFilters_activeTab');
-      return newType === '2' ? 2 : 1;
+      return newType === '2' && showSavedFilters ? 2 : 1;
     })(),
   );
   const isSavedEditing = !!editingFilter && !/^new/.test(editingFilter.id);
@@ -145,6 +147,9 @@ function Filters(props, ref) {
     }, 80);
   }
   useEffect(() => {
+    if (!showSavedFilters) {
+      return;
+    }
     loadFilters(worksheetId, data => {
       if (!_.isEmpty(data) && !cache.current.callFromColumn) {
         updateActiveTab(2);
@@ -179,8 +184,8 @@ function Filters(props, ref) {
     },
   }));
   return (
-    <Con ref={conRef}>
-      {!isSavedEditing && (
+    <Con ref={conRef} style={style}>
+      {!isSavedEditing && showSavedFilters && (
         <SwitchTab>
           {tabs.map(tab => (
             <span
@@ -213,7 +218,7 @@ function Filters(props, ref) {
                   maxHeight={maxHeight}
                   canEdit
                   supportGroup
-                  hideSave={!formatForSave(editingFilter).length}
+                  hideSave={!formatForSave(editingFilter).length || !showSavedFilters}
                   base={base}
                   filter={editingFilter}
                   actions={actions}

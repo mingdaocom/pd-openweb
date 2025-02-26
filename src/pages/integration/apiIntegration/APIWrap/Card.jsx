@@ -41,6 +41,9 @@ const Wrap = styled.div`
           background: #f7f7f7;
         }
       }
+      .w180 {
+        width: 180px;
+      }
       .w120 {
         width: 100px;
       }
@@ -53,14 +56,14 @@ const Wrap = styled.div`
     right: 0;
     z-index: 100;
   }
-  .w180 {
-    width: 180px;
+  .w150 {
+    width: 150px;
   }
   .paramLi {
     // height: 34px;
     line-height: 34px;
     padding: 0 8px;
-    &:hover {
+    &:not(.disabled):hover {
       background: #f7f7f7;
     }
     & > div {
@@ -203,6 +206,13 @@ export default function Card(props) {
         }
         return (
           <div className="con">
+            <div className="flexRow paramLi bold disabled">
+              <div className="w150 WordBreak">{_l('字段名/参数名')}</div>
+              <div className="w150 WordBreak">{_l('类型')}</div>
+              <div className="w150 WordBreak">{_l('默认值')}</div>
+              <div className="flex WordBreak">{_l('说明')}</div>
+            </div>
+
             {getList(controls).map(o => {
               if ([10000007].includes((controls.find(it => it.controlId === o.dataSource) || {}).type)) {
                 return null;
@@ -210,18 +220,19 @@ export default function Card(props) {
               return (
                 <Fragment>
                   <div className="flexRow paramLi Hand">
-                    <div className="w180 WordBreak" style={{ 'padding-left': (o.level || 0) * 20 }}>
+                    <div className="w150 WordBreak" style={{ 'padding-left': (o.level || 0) * 20 }}>
                       <span className="WordBreak flex">{o.controlName}</span>
                       <span className="Gray_9e mLeft5 WordBreak">{o.alias}</span>
                     </div>
-                    <div className="w180 Gray_75 WordBreak">{FIELD_TYPE.find(s => s.value === o.type).text}</div>
+                    <div className="w150 Gray_75 WordBreak">{FIELD_TYPE.find(s => s.value === o.type).text}</div>
+                    <div className="w150 WordBreak">{o.workflowDefaultValue}</div>
                     <div className="flex WordBreak">{o.desc}</div>
                   </div>
                   {o.type === 9 &&
                     o.options.map(item => (
                       <div className="flexRow paramLi Hand" key={item.key}>
-                        <div className="w180 WordBreak"></div>
-                        <div className="w180 Gray_75 WordBreak">{item.value}</div>
+                        <div className="w150 WordBreak"></div>
+                        <div className="w150 Gray_75 WordBreak">{item.value}</div>
                         <div className="flex WordBreak">{item.key}</div>
                       </div>
                     ))}

@@ -11,6 +11,9 @@ export default class MoreOption extends React.Component {
 
   deleteFn = () => {
     const { setFn, deleteFn, delTxt, description } = this.props;
+
+    setFn({ isRename: false, showMoreOption: false });
+
     return confirm({
       title: <span className="Red">{delTxt || _l('删除模板')}</span>,
       description: description || _l('删除后将无法恢复'),

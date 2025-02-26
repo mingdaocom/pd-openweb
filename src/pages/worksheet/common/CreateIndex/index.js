@@ -92,7 +92,6 @@ const QA_TEXT = [
     ),
   },
 ];
-const MAX_COUNT = md.global.Config.IsLocal ? 10 : 5;
 
 export default class CreateIndex extends Component {
   constructor(props) {
@@ -254,9 +253,9 @@ export default class CreateIndex extends Component {
   };
   addField = () => {
     let { selectedIndexList = [] } = this.state;
-    const { worksheetAvailableFields } = this.props;
+    const { worksheetAvailableFields, worksheetRowIndexLimit } = this.props;
     let maxWorksheetAvailableFields = selectedIndexList.length > worksheetAvailableFields.length - 1;
-    if (selectedIndexList.length >= MAX_COUNT || maxWorksheetAvailableFields) return;
+    if (selectedIndexList.length >= worksheetRowIndexLimit || maxWorksheetAvailableFields) return;
     let copySelectedIndexList = [...selectedIndexList];
     let temp =
       _.differenceWith(worksheetAvailableFields, selectedIndexList, (item1, item2) => item1.id === item2.fieldId) || [];
@@ -287,7 +286,13 @@ export default class CreateIndex extends Component {
     this.setState({ showQAList: temp });
   };
   render() {
-    const { isEdit, currentIndexInfo, worksheetAvailableFields, getFieldObjById = () => {} } = this.props;
+    const {
+      isEdit,
+      currentIndexInfo,
+      worksheetAvailableFields,
+      getFieldObjById = () => {},
+      worksheetRowIndexLimit,
+    } = this.props;
     let { selectedIndexList = [], wildcardIndex, uniqueIndex, customeIndexName, showQAList = [] } = this.state;
     let maxWorksheetAvailableFields = selectedIndexList.length > worksheetAvailableFields.length - 1;
     return (
@@ -373,7 +378,7 @@ export default class CreateIndex extends Component {
                   <Icon
                     icon="create-network"
                     className={cx('Font16 Hand Gray_9d', {
-                      disabledAct: selectedIndexList.length >= MAX_COUNT || maxWorksheetAvailableFields,
+                      disabledAct: selectedIndexList.length >= worksheetRowIndexLimit || maxWorksheetAvailableFields,
                     })}
                     onClick={this.addField}
                   />

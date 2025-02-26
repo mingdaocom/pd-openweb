@@ -231,6 +231,12 @@ const Files = props => {
   // 重命名未保存的七牛云附件
   const handleResetNameFile = (id, newName) => {
     newName = newName.trim();
+
+    if ((/[\/\\:\*\?"<>\|]/g).test(newName)) {
+      alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
+      return;
+    }
+
     const error = props.checkValueByFilterRegex(newName);
     if (error) {
       alert(error, 2);
@@ -252,11 +258,13 @@ const Files = props => {
   // 明道云附件预览
   const handleMDPreview = data => {
     const { allowShare, allowDownload = false, advancedSetting, projectId, isDraft } = props;
+    const { allowedit, onlyeditself } = advancedSetting;
     const hideFunctions = ['editFileName', 'saveToKnowlege']
       .concat(allowDownload ? [] : ['download'])
       .concat(allowShare ? [] : ['share']);
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId: data.fileID, rowId: recordBaseInfo.recordId });
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewImage) {
+      const file = _.find(attachmentData, { fileID: data.fileID }) || {};
       window.MDJS.previewImage({
         nameEditing: props.allowEditName, // 默认true, 是否允许修改文件名
         deletion: props.allowEditName, // 默认true, 是否允许删除文件
@@ -269,7 +277,12 @@ const Files = props => {
         worksheetId: recordBaseInfo.worksheetId,
         rowId: recordBaseInfo.recordId,
         controlId,
+        onlineEditing:
+          allowedit === '1' &&
+          ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1') &&
+          isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true), // @11.1 文档在线编辑
       });
+      handleTriggerMore(file);
       return;
     }
     previewAttachments(
@@ -293,7 +306,9 @@ const Files = props => {
         masterWorksheetId: _.get(masterData, 'worksheetId'),
         masterRecordId: _.get(masterData, 'recordId'),
         masterControlId: _.get(masterData, 'controlId'),
-        allowEdit: props.allowEditName
+        allowEdit:
+          allowedit === '1' &&
+          ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1'),
       },
       {
         mdReplaceAttachment: newAttachment => {
@@ -313,7 +328,7 @@ const Files = props => {
   // 未保存的知识附件预览
   const handleKCPreview = data => {
     const res = knowledgeAtts.filter(item => item.node).map(item => item.node);
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewImage) {
       window.MDJS.previewImage({
         index: _.findIndex(res, { id: data.fileID }),
         files: res,
@@ -406,11 +421,14 @@ const Files = props => {
   };
 
   const handleTriggerMore = file => {
+    const { advancedSetting } = props;
+    const { allowedit, onlyeditself } = advancedSetting;
     const parentWorksheetId = _.get(masterData, 'worksheetId');
     const parentRowId = _.get(masterData, 'recordId');
     const parentControlId = _.get(masterData, 'controlId');
     if (
-      props.allowEditName &&
+      allowedit === '1' &&
+      ((onlyeditself === '1' && md.global.Account.accountId === file.accountId) || onlyeditself !== '1') &&
       isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true) &&
       !_.get(window, 'shareState.shareId')
     ) {
@@ -427,11 +445,25 @@ const Files = props => {
           attachmentShareId,
           parentWorksheetId,
           parentRowId,
-          foreignControlId: parentControlId
+          foreignControlId: parentControlId,
+          editType: 1, // 1:表单内附件 2:打印模板
         })
         .then(data => {
+          if (window.isMingDaoApp && window.MDJS && window.MDJS.onlineEditingURLLoaded) {
+            window.MDJS.onlineEditingURLLoaded({
+              fileId: file.fileID,
+              url: data.wpsEditUrl,
+            });
+            return;
+          }
+
           setWpsEditUrls(values => ({ ...values, [file.fileID]: data.wpsEditUrl }));
         });
+    } else if (window.isMingDaoApp && window.MDJS && window.MDJS.onlineEditingURLLoaded) {
+      window.MDJS.onlineEditingURLLoaded({
+        fileId: file.fileID,
+        url: '',
+      });
     }
   };
 
@@ -463,6 +495,10 @@ const Files = props => {
         onResetNameFile={handleResetNameFile}
         onAttachmentName={(id, name) => {
           name = name.trim();
+          if ((/[\/\\:\*\?"<>\|]/g).test(name)) {
+            alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
+            return;
+          }
           if (_.isEmpty(name)) {
             alert(_l('名称不能为空'), 2);
             return;

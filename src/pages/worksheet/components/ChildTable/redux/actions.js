@@ -167,6 +167,20 @@ export const updateRow = ({ rowid, value }, { asyncUpdate, noRealUpdate } = {}) 
   };
 };
 
+export const updateRows = ({ rowIds, value }, { asyncUpdate, noRealUpdate } = {}) => {
+  return dispatch => {
+    dispatch({
+      type: 'UPDATE_ROWS',
+      asyncUpdate,
+      rowIds,
+      noRealUpdate,
+      value: { ...value, empty: false },
+    });
+    dispatch(updateTreeTableViewData());
+    return Promise.resolve();
+  };
+};
+
 async function batchLoadRows(args) {
   let rows = [];
   let total, res;

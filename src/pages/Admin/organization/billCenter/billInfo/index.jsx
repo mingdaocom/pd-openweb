@@ -3,7 +3,6 @@ import { LoadDiv, Dropdown, ScrollView, UserHead } from 'ming-ui';
 import orderAjax from 'src/api/order';
 import copy from 'copy-to-clipboard';
 import projectAjax from 'src/api/project';
-import projectSettingAjax from 'src/api/projectSetting';
 import applicationAjax from 'src/api/application';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
@@ -26,7 +25,6 @@ import InvoiceSetting from './invoiceSetting';
 import ApplyInvoice from './applyInvoice';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
 import PaginationWrap from '../../../components/PaginationWrap';
-import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
 import Common from '../common';
 import img from 'staticfiles/images/billinfo_system.png';
 import _ from 'lodash';
@@ -45,8 +43,6 @@ export default function BillInfo({ match }) {
       applyOrderId: '',
     });
   const [loading, setLoading] = useState(false);
-  const [balanceLimitNoticeInfo, setBalanceLimitNoticeInfo] = useState({});
-  const { balanceLimit, noticeAccounts = [], noticeEnabled } = balanceLimitNoticeInfo;
   const [displayRecordType, setType] = useState('paid');
   const { balance, list = [], allCount, invoiceType } = data;
   const { pageIndex, status, pageSize, startDate, endDate } = paras;
@@ -102,7 +98,6 @@ export default function BillInfo({ match }) {
   };
   useEffect(() => {
     document.title = _l('组织管理 - 账务 - %0', companyName);
-    getBalanceLimitNoticeSettings();
   }, []);
 
   useEffect(() => {
@@ -157,33 +152,6 @@ export default function BillInfo({ match }) {
     );
   };
 
-  // 获取组织余额警告提醒
-  const getBalanceLimitNoticeSettings = () => {
-    projectSettingAjax.getBalanceLimitNoticeSettings({ projectId }).then(res => {
-      setBalanceLimitNoticeInfo(res);
-    });
-  };
-
-  // 设置余额警告提醒
-  const setBalanceLimitNotice = ({ noticeEnabled, balanceLimit, notifiers, closeDialog = () => {} }) => {
-    projectSettingAjax
-      .setBalanceLimitNotice({ projectId, noticeEnabled, balanceLimit, accountIds: notifiers.map(v => v.accountId) })
-      .then(res => {
-        if (res) {
-          alert(_l('操作成功'));
-          closeDialog();
-          setBalanceLimitNoticeInfo({
-            ...balanceLimitNoticeInfo,
-            noticeEnabled,
-            balanceLimit,
-            noticeAccounts: notifiers,
-          });
-        } else {
-          alert(_l('操作失败'), 2);
-        }
-      });
-  };
-
   const renderRecordList = () => {
     if (loading) return <LoadDiv />;
     if (!list.length) return <div className="emptyList">{_l('无相应订单数据')}</div>;
@@ -211,7 +179,8 @@ export default function BillInfo({ match }) {
               <li key={orderId || recordId} className="recordItem">
                 <div className="time overflow_ellipsis item Font14 Gray_75">{createTime}</div>
                 <div className={cx('type overflow_ellipsis item', { rechargeType: displayRecordType === 'recharge' })}>
-                  {orderTypeText[orderRecordType[recordType]] + (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
+                  {orderTypeText[orderRecordType[recordType]] +
+                    (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
                 </div>
                 <div className={cx('amount item', { isPositive: price > 0 })}>{formatNumberThousand(price)}</div>
                 {isRechargeType ? (
@@ -334,43 +303,6 @@ export default function BillInfo({ match }) {
             <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
               {_l('充值')}
             </span>
-          )}
-          {!_.isEmpty(balanceLimitNoticeInfo) && (
-            <Fragment>
-              <span
-                className="warningBtn pointer bold mLeft16"
-                onClick={() => {
-                  settingEarlyWarning({
-                    type: 'balance',
-                    projectId,
-                    warningValue: balanceLimit,
-                    isWarning: noticeEnabled,
-                    notifiers: noticeAccounts,
-                    onOk: (warningValue, notifiers, closeDialog) => {
-                      setBalanceLimitNotice({
-                        noticeEnabled: true,
-                        balanceLimit: warningValue,
-                        notifiers,
-                        closeDialog,
-                      });
-                    },
-                    closeWarning: (warningValue, notifiers, closeDialog) => {
-                      setBalanceLimitNotice({
-                        noticeEnabled: false,
-                        balanceLimit: warningValue,
-                        notifiers,
-                        closeDialog,
-                      });
-                    },
-                  });
-                }}
-              >
-                {_l('余额预警')}
-              </span>
-              {noticeEnabled && (
-                <span className="mLeft10 Font12 Gray_9e">{_l('预警（%0）', balanceLimitNoticeInfo.balanceLimit)}</span>
-              )}
-            </Fragment>
           )}
         </div>
         <div className="listHeader">

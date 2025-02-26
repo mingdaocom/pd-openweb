@@ -5,8 +5,6 @@ import Avatar from '../baseComponent/avatar';
 import Star from '../baseComponent/star';
 import { formatInboxItem } from '../../util';
 import { getRequest } from 'src/util';
-import settingGroups from 'src/components/group/settingGroup/settingGroups';
-import AddressBookDialog from 'src/pages/chat/lib/addressBook';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import linkify from 'linkifyjs/html';
 import { navigateTo } from 'src/router/navigateTo';
@@ -16,7 +14,7 @@ import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFrom
 import TaskCenterController from 'src/api/taskCenter';
 import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
 import { SvgIcon, Icon, Tooltip } from 'ming-ui';
-import { MSGTYPES } from '../../constants';
+import { MSGTYPES, MSG_DONE_TEXT } from '../../constants';
 import processAjax from 'src/pages/workflow/api/process';
 import Emotion from 'src/components/emotion/emotion';
 
@@ -48,6 +46,7 @@ export default class SystemMessage extends PureComponent {
   state = {
     showAddressBook: false,
     processInfo: null,
+    Components: null,
   };
 
   componentDidMount() {
@@ -87,12 +86,16 @@ export default class SystemMessage extends PureComponent {
           const { type, gid } = getRequest(href.slice(href.indexOf('?')));
 
           if (type === 'group' && gid) {
-            settingGroups({
-              groupId: gid,
-              viewType: 1,
+            import('src/components/group/settingGroup/settingGroups').then(func => {
+              func.default({
+                groupId: gid,
+                viewType: 1,
+              });
             });
           } else {
-            that.setState({ showAddressBook: true });
+            import('src/pages/chat/lib/addressBook').then(res => {
+              that.setState({ Components: res, showAddressBook: true });
+            });
           }
 
           return;
@@ -194,7 +197,7 @@ export default class SystemMessage extends PureComponent {
 
   render() {
     const { Message = {}, createTime, inboxType, app = null, processId = null, status, readTime } = this.props;
-    const { showAddressBook, processInfo } = this.state;
+    const { showAddressBook, processInfo, Components } = this.state;
     const { typeName, isFavorite, inboxId } = formatInboxItem(this.props);
     const parse = Emotion.parse;
 
@@ -287,7 +290,7 @@ export default class SystemMessage extends PureComponent {
                 <Tooltip text={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
                   <Done className="Hover_21 Hand">
                     <Icon icon="done" className="mRight6" />
-                    <span className="text">{_l('已处理')}</span>
+                    <span className="text">{MSG_DONE_TEXT[inboxType] || _l('已处理')}</span>
                     <span className="mRight12 mLeft12 Gray_bd">|</span>
                   </Done>
                 </Tooltip>
@@ -330,11 +333,13 @@ export default class SystemMessage extends PureComponent {
           </div>
         </div>
 
-        <AddressBookDialog
-          showNewFriends={true}
-          showAddressBook={showAddressBook}
-          closeDialog={() => this.setState({ showAddressBook: false })}
-        />
+        {showAddressBook && (
+          <Components.default
+            showNewFriends={true}
+            showAddressBook={true}
+            closeDialog={() => this.setState({ showAddressBook: false })}
+          />
+        )}
       </div>
     );
   }

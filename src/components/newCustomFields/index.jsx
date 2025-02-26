@@ -22,7 +22,7 @@ import {
   isUnTextWidget,
   getServiceError,
 } from './tools/utils';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl, replaceRulesTranslateInfo } from 'worksheet/util';
 import { FORM_ERROR_TYPE, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
@@ -42,6 +42,7 @@ import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/
 const CustomFormItemControlWrap = styled.div`
   .customFormTextarea {
     ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+    line-height: ${props => (props.isTextArea ? '1.5 !important' : `${props.height - 14}px !important`)};
   }
   .customFormControlBox {
     ${props => {
@@ -89,6 +90,12 @@ const CustomFormItemControlWrap = styled.div`
     }
     &:not(.editable) .CityPicker-input-textCon {
       ${props => props.valueStyle}
+    }
+  }
+  .RefreshBtn {
+    ${props => (props.isMobile && !props.disabled ? 'margin-right: 5px;' : '')}
+    i {
+      ${props => (props.isMobile ? 'color: #9e9e9e !important;' : '')}
     }
   }
 `;
@@ -324,13 +331,14 @@ export default class CustomFields extends Component {
    * 获取配置（业务规则 || 查询配置）
    */
   getConfig = async (props, { getRules, getSearchConfig }) => {
-    const { data, disabled, worksheetId, onRulesLoad = () => {} } = props;
+    const { data, disabled, appId, worksheetId, onRulesLoad = () => {} } = props;
     let rules;
     let config;
 
     // 获取字段显示规则
     if (getRules) {
       rules = await sheetAjax.getControlRules({ worksheetId, type: 1 });
+      rules = replaceRulesTranslateInfo(appId, worksheetId, rules);
       onRulesLoad(rules);
     }
 
@@ -352,7 +360,7 @@ export default class CustomFields extends Component {
    * 规则筛选数据
    */
   getFilterDataByRule(isInit) {
-    const { ignoreHideControl, recordId, from, systemControlData } = this.props;
+    const { ignoreHideControl, recordId, from, systemControlData, verifyAllControls } = this.props;
     const { rules = [] } = this.state;
 
     let tempRenderData = updateRulesData({
@@ -365,6 +373,7 @@ export default class CustomFields extends Component {
       checkRuleValidator: (controlId, errorType, errorMessage, rule) => {
         this.dataFormat.setErrorControl(controlId, errorType, errorMessage, rule, isInit);
       },
+      verifyAllControls,
     });
 
     // 标签页显示，但标签页内没有显示字段，标签页隐藏
@@ -584,7 +593,7 @@ export default class CustomFields extends Component {
    * 自定义事件
    */
   triggerCustomEvent(props) {
-    const { systemControlData, handleEventPermission = () => {} } = this.props;
+    const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = this.props;
     const { searchConfig = [], renderData = [] } = this.state;
 
     const customProps = {
@@ -605,6 +614,19 @@ export default class CustomFields extends Component {
       },
       handleChange: (value, cid, item, searchByChange) => {
         this.handleChange(value, cid, item, searchByChange);
+      },
+      handleActiveTab: id => {
+        const curControl = _.find(renderData, r => r.controlId === id);
+        if (
+          curControl &&
+          controlState(curControl, from).visible &&
+          !(_.includes([FROM.PUBLIC_ADD, FROM.PUBLIC_EDIT], from) && _.includes([29, 51], curControl.type))
+        ) {
+          this.setActiveTabControlId(id);
+          if (_.isFunction(tabControlProp.handleSectionClick)) {
+            tabControlProp.handleSectionClick(id);
+          }
+        }
       },
     };
     dealCustomEvent(customProps);
@@ -925,6 +947,7 @@ export default class CustomFields extends Component {
       recordId,
       checkAllUpdate: true,
       ignoreHideControl,
+      verifyAllControls,
     });
     // 过滤系统字段
     const list = ruleList.filter(i => !_.find(systemControlData, s => s.controlId === i.controlId));

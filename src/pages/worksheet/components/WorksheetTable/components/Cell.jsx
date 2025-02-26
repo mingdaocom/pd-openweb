@@ -167,6 +167,7 @@ function Cell(props) {
   const { key, style = {}, data = {} } = props;
   const {
     treeTableViewData,
+    masterRecord,
     grid = {},
     tableId,
     isTrash,
@@ -511,6 +512,7 @@ function Cell(props) {
                     addRecord.default({
                       worksheetId,
                       isDraft,
+                      masterRecord,
                       defaultRelatedSheet: {
                         worksheetId,
                         relateSheetControlId: addParentControl.sourceControlId,

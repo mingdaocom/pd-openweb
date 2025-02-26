@@ -360,6 +360,6 @@ class PrivateImageInstall extends Component {
   }
 }
 
-const root = createRoot(document.getElementById('privateImageInstallWrapper'));
+const root = createRoot(document.getElementById('app'));
 
 root.render(<PrivateImageInstall />);

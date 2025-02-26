@@ -257,6 +257,7 @@ function WeChatEnhance(props) {
               alert(_l('有不合法的文件格式，请重新选择图片上传'), 3);
               return;
             },
+            type: 30,
           }}
           bucket={4}
           onUploaded={handleUploaded}

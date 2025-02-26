@@ -256,7 +256,6 @@ export default function Number(props) {
                   />
                   {itemcolor.type === 1 ? (
                     <WidgetColor
-                      type="normal"
                       color={itemcolor.color}
                       handleChange={color => {
                         onChange(

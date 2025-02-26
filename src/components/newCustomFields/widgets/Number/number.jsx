@@ -81,14 +81,14 @@ export default class Widgets extends Component {
     }
   };
 
-  onChange = (event, tempValue) => {
+  onChange = _.debounce((event, tempValue) => {
     let { advancedSetting = {} } = this.props;
 
     let value =
       tempValue ||
       event.target.value
         .replace(/[^-\d.]/g, '')
-        .replace(/^\./g, '')
+        .replace(/^\.$/g, '')
         .replace(/^-/, '$#$')
         .replace(/-/g, '')
         .replace('$#$', '-')
@@ -110,7 +110,7 @@ export default class Widgets extends Component {
     }
 
     this.props.onChange(value);
-  };
+  }, 300);
 
   onBlur = () => {
     let { value, dot, onChange, onBlur, advancedSetting = {} } = this.props;
@@ -256,11 +256,18 @@ export default class Widgets extends Component {
       );
     }
 
+    const inputAttribute = isMobile
+      ? window.isIphone
+        ? { type: 'number', pattern: '\d' }
+        : { inputmode: 'decimal' }
+      : {};
+
     return (
       <div className="flexCenter flexRow">
         {isMobile && this.renderMobileNumberControl('subtract')}
         <input
           type="text"
+          {...inputAttribute}
           className="customFormControlBox Gray flex"
           style={{ paddingRight: suffix ? 32 : 12, paddingTop: 2 }}
           ref={number => {

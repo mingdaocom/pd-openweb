@@ -1,20 +1,22 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip, Icon, Dialog, Input, SortableList } from 'ming-ui';
+import styled from 'styled-components';
+import { withRouter } from 'react-router-dom';
 import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
+import { Drawer } from 'antd';
+import { Tooltip, Icon, Dialog, Input, SortableList, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/util/enum';
+import { getFeatureStatus } from 'src/util';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
 import { getDefaultViewSet } from 'worksheet/constants/common';
 import AddViewDisplayMenu from './AddViewDisplayMenu';
-import './ViewItems.less';
 import Item from './Item';
-import { Drawer } from 'antd';
-import { withRouter } from 'react-router-dom';
 import HideItem from './HideItem';
-import styled from 'styled-components';
-import { navigateTo } from 'src/router/navigateTo';
+import 'rc-trigger/assets/index.css';
+import './ViewItems.less';
 
 const EmptyData = styled.div`
   font-size: 12px;
@@ -40,6 +42,9 @@ export default class ViewItems extends Component {
       searchWorksheetListValue: undefined,
       sideMenuVisible: false,
       hasClickDrawe: false,
+      hasRecycle: getFeatureStatus(_.get(props, 'worksheetInfo.projectId'), VersionProductType.recycle) === '1',
+      expandRecycle: false,
+      recycleData: [],
     };
     this.searchRef = React.createRef();
     this.containerWrapper = document.getElementById('wrapper');
@@ -67,6 +72,7 @@ export default class ViewItems extends Component {
     }
     this.computeDirectionVisible();
   }
+
   componentDidUpdate() {
     if (!this.flag) {
       this.computeDirectionVisible();
@@ -91,16 +97,21 @@ export default class ViewItems extends Component {
       });
     }
   };
-  getWorksheetViews(worksheetId) {
+  getWorksheetViews(worksheetId, status) {
     const { appId } = this.props;
     sheetAjax
       .getWorksheetViews({
         appId,
         worksheetId,
+        status,
       })
       .then(res => {
-        this.props.updateViewList(res, res[0]);
-        this.computeDirectionVisible();
+        if (status === 9) {
+          this.setState({ recycleData: (res || []).sort((a, b) => (a.deleteTime > b.deleteTime ? -1 : 1)) });
+        } else {
+          this.props.updateViewList(res, res[0]);
+          this.computeDirectionVisible();
+        }
       })
       .catch(err => {
         alert(_l('获取视图列表失败'), 2);
@@ -189,6 +200,7 @@ export default class ViewItems extends Component {
             appId,
             viewId: view.viewId,
             worksheetId,
+            status: 9,
           })
           .then(result => {
             this.props.onRemoveView(
@@ -196,6 +208,7 @@ export default class ViewItems extends Component {
               view.viewId,
             );
             this.handleScrollPosition(0);
+            this.getWorksheetViews(worksheetId, 9);
           })
           .catch(err => {
             alert(_l('删除视图失败'), 2);
@@ -337,7 +350,32 @@ export default class ViewItems extends Component {
       hasClickDrawe: false,
     });
     this.handleAutoFocus();
+    this.getWorksheetViews(this.props.worksheetId, 9)
   };
+
+  handleExpandRecycle = () => this.setState({ expandRecycle: !this.state.expandRecycle });
+
+  restoreWorksheetView = viewId => {
+    const { recycleData } = this.state;
+    const { worksheetId, appId } = this.props;
+
+    sheetAjax
+      .restoreWorksheetView({
+        viewId,
+        appId,
+        worksheetId,
+      })
+      .then(res => {
+        if (res) {
+          this.getWorksheetViews(worksheetId);
+          this.setState({ recycleData: recycleData.filter(l => l.viewId !== viewId) });
+        } else {
+          alert(_l('恢复视图失败'), 2);
+        }
+      });
+  };
+
+  hasSearchWords = name => _.toLower(name).includes(_.toLower(_.trim(this.state.searchWorksheetListValue)));
 
   renderSortList = (type, items) => {
     const { searchWorksheetListValue } = this.state;
@@ -372,11 +410,7 @@ export default class ViewItems extends Component {
       <SortableList
         canDrag
         renderBody={!isNavSort}
-        items={
-          isNavSort
-            ? items
-            : items.filter(l => !searchWorksheetListValue || l.name.includes(_.trim(searchWorksheetListValue)))
-        }
+        items={['drawerWorksheetHiddenList', 'sortNav'].includes(type) ? items : items.filter(l => !searchWorksheetListValue || this.hasSearchWords(l.name))}
         itemKey="viewId"
         onSortEnd={newList => this.handleSortEnd(newList, type === 'drawerWorksheetShowList')}
         renderItem={options => (
@@ -416,23 +450,73 @@ export default class ViewItems extends Component {
     );
   };
 
+  renderRecycle = () => {
+    const { hasRecycle, expandRecycle, recycleData, searchWorksheetListValue } = this.state;
+    const { appId } = this.props;
+    const data = recycleData.filter(l => !searchWorksheetListValue || this.hasSearchWords(l.name));
+
+    if (!hasRecycle || !data.length) return null;
+
+    return (
+      <Fragment>
+        <div className="drawerWorksheetRecycleListTitle Gray_9e valignWrapper" onClick={this.handleExpandRecycle}>
+          <span className="flex valignWrapper">
+            {_l('最近删除')}
+            <Tooltip text={_l('视图60天后将被自动删除')}>
+              <Icon icon="info" className="Gray_9e Font14 mLeft8" />
+            </Tooltip>
+          </span>
+          <Icon icon={expandRecycle ? 'arrow-down' : 'arrow-right-tip'} className="mRight12" />
+        </div>
+        {expandRecycle && (
+          <ul className="drawerWorksheetRecycleList">
+            {data.map(l => {
+              return (
+                <HideItem
+                  item={l}
+                  appId={appId}
+                  style={{ zIndex: 999999 }}
+                  projectId={_.get(this.props, 'worksheetInfo.projectId')}
+                  type="recycle"
+                  onRecycle={this.restoreWorksheetView}
+                />
+              );
+            })}
+          </ul>
+        )}
+      </Fragment>
+    );
+  };
+
   render() {
-    const { directionVisible, hideDirection, addMenuVisible, setWorksheetHidden, searchWorksheetListValue } =
-      this.state;
+    const {
+      directionVisible,
+      hideDirection,
+      addMenuVisible,
+      setWorksheetHidden,
+      searchWorksheetListValue,
+      recycleData = [],
+    } = this.state;
     const { viewList, currentViewId, isCharge, changeViewDisplayType, sheetSwitchPermit, getNavigateUrl, isLock } =
       this.props;
     const isEmpty =
       searchWorksheetListValue &&
+      !recycleData.find(l => this.hasSearchWords(l.name)) &&
       _.isEmpty(
-        viewList
-          .filter(l => isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0)
-          .filter(l => l.name.includes(_.trim(searchWorksheetListValue))),
+        viewList.filter(
+          l =>
+            (isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0) &&
+            this.hasSearchWords(l.name),
+        ),
       );
     const currentViewHideValue = _.get(
       viewList.find(l => l.viewId === currentViewId) || {},
       'advancedSetting.showhide',
     );
-    const hideList = viewList.filter(l => _.get(l, 'advancedSetting.showhide') === 'hide');
+    const hideList = viewList.filter(
+      l =>
+        _.get(l, 'advancedSetting.showhide') === 'hide' && (!searchWorksheetListValue || this.hasSearchWords(l.name)),
+    );
 
     return (
       <div className="valignWrapper flex">
@@ -499,6 +583,7 @@ export default class ViewItems extends Component {
                   <div className="drawerWorksheetHiddenListTitle Gray_9e">{_l('隐藏的视图')}</div>
                 )}
                 {isCharge && this.renderSortList('drawerWorksheetHiddenList', hideList)}
+                {isCharge && this.renderRecycle()}
               </Fragment>
             )}
           </Drawer>

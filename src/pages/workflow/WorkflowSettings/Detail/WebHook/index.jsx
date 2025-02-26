@@ -150,6 +150,7 @@ export default class WebHook extends Component {
       errorMsg,
       executeType,
       authId,
+      ignoreValueEmpty,
     } = data;
     const handleFormControls = formControls
       .filter(item => item.name)
@@ -215,6 +216,7 @@ export default class WebHook extends Component {
           errorMsg,
           executeType,
           authId,
+          ignoreValueEmpty,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -408,6 +410,8 @@ export default class WebHook extends Component {
             onlyFile={data.contentType === 5}
             formulaMap={data.formulaMap}
             btnText={data.contentType === 4 ? '+ Form' : data.contentType === 5 ? '' : '+ key-value pairs'}
+            showIgnoreEmpty={_.includes([1, 4], data.contentType)}
+            ignoreValueEmpty={data.ignoreValueEmpty}
             updateSource={this.updateSource}
           />
         )}
@@ -556,7 +560,7 @@ export default class WebHook extends Component {
   send = (testMap = {}, { json, authId } = {}) => {
     const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
-    const { headers, body, sendContent, method, formControls, contentType, settings } = data;
+    const { headers, body, sendContent, method, formControls, contentType, settings, ignoreValueEmpty } = data;
 
     this.setState({ showTestDialog: false });
 
@@ -575,7 +579,7 @@ export default class WebHook extends Component {
           processId,
           nodeId: selectNodeId,
           method,
-          url: formatTestParameters(sendContent, testMap),
+          url: formatTestParameters(sendContent, testMap).trim(),
           headers: formatTestParameters(
             headers.filter(item => item.name),
             testMap,
@@ -591,6 +595,7 @@ export default class WebHook extends Component {
           settings,
           json,
           authId,
+          ignoreValueEmpty,
         },
         { isIntegration },
       )

@@ -160,7 +160,7 @@ export default class CustomPage extends Component {
             pageComponents: newPageComponents,
             loading: false,
             pageName: result.name,
-            pageConfig: replaceColor(result.config, _.get(result.apk, 'iconColor'))
+            pageConfig: replaceColor(result.config || {}, _.get(result.apk, 'iconColor'))
           });
           store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
         });

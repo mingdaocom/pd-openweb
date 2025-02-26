@@ -18,7 +18,7 @@
   position: relative;
   z-index: 2;
   right: -2px;
-  background: url(/images/Bg_UpdateDiv_Tag.gif) no-repeat left 30px;
+  background: url(../../images/Bg_UpdateDiv_Tag.gif) no-repeat left 30px;
   padding-top: 50px;
 }
 .myUpdateItem_Content {

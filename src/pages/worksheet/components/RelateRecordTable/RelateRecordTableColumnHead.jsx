@@ -1,14 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { emitter } from 'worksheet/util';
 import cx from 'classnames';
 import { Menu, MenuItem } from 'ming-ui';
+import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { fieldCanSort, getSortData } from 'worksheet/util';
+import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import _ from 'lodash';
+import _, { get } from 'lodash';
+
+import { controlCanEdit } from 'worksheet/common/BatchEditRecord/BatchEditRecord.jsx';
 
 export default function ColumnHead(props) {
   const {
+    iseditting,
+    isCustomButtonFillRecord,
     disabled,
+    isNewRecord,
     className,
     style,
     control,
@@ -16,6 +26,9 @@ export default function ColumnHead(props) {
     fixedColumnCount,
     isAsc,
     isLast,
+    tableId,
+    isRelationRecord,
+    selectedRowIds = [],
     sheetHiddenColumnIds = [],
     clearHiddenColumn,
     hideColumn,
@@ -24,10 +37,20 @@ export default function ColumnHead(props) {
     frozen,
     getPopupContainer,
     onShowFullValue,
+    handleBatchUpdateRecords,
     isDraft,
+    hideFilter,
   } = props;
   const itemType = control.type === 30 ? control.sourceControlType : control.type;
+  const filterWhiteKeys = _.flatten(
+    Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
+  );
+  let canFilter = _.includes(filterWhiteKeys, itemType);
+  if ((control.type === 30 && control.strDefault === '10') || hideFilter) {
+    canFilter = false;
+  }
   const canSort = !disabled && fieldCanSort(itemType);
+  const canEdit = controlCanEdit(control);
   const maskData =
     !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
     _.get(control, 'advancedSetting.datamask') === '1' &&
@@ -67,6 +90,23 @@ export default function ColumnHead(props) {
               {_l('解密')}
             </MenuItem>
           )}
+          {canFilter &&
+            !iseditting &&
+            !isCustomButtonFillRecord &&
+            !isNewRecord &&
+            !selectedRowIds.length &&
+            !get(window, 'shareState.shareId') &&
+            !isRelationRecord && (
+              <MenuItem
+                onClick={() => {
+                  emitter.emit(tableId, control);
+                  closeMenu();
+                }}
+              >
+                <i className="icon icon-worksheet_filter"></i>
+                {_l('筛选')}
+              </MenuItem>
+            )}
           <MenuItem
             onClick={() => {
               hideColumn(control.controlId);
@@ -109,6 +149,17 @@ export default function ColumnHead(props) {
               {_l('解冻所有列')}
             </MenuItem>
           )}
+          {canEdit && selectedRowIds.length && !get(window, 'shareState.shareId') && (
+            <MenuItem
+              onClick={() => {
+                handleBatchUpdateRecords(control);
+                closeMenu();
+              }}
+            >
+              <i className="icon icon-hr_edit"></i>
+              {_l('编辑选中记录')}
+            </MenuItem>
+          )}
         </Menu>
       )}
     />
@@ -133,6 +184,7 @@ ColumnHead.propTypes = {
   clearHiddenColumn: PropTypes.func,
   changeSort: PropTypes.func,
   updateSheetColumnWidths: PropTypes.func,
+  handleBatchUpdateRecords: PropTypes.func,
   getPopupContainer: PropTypes.func,
   onShowFullValue: PropTypes.func,
 };

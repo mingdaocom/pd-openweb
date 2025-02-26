@@ -92,13 +92,86 @@ class Discuss extends Component {
         allowExAccountDiscuss, //允许外部用户讨论
         exAccountDiscussEnum,
       } = res;
-      this.setState({
-        allowExAccountDiscuss, //允许外部用户讨论
-        exAccountDiscussEnum,
-        loading: false,
-      });
+      this.setState(
+        {
+          allowExAccountDiscuss, //允许外部用户讨论
+          exAccountDiscussEnum,
+          loading: false,
+        },
+        this.getRecordPartner,
+      );
     });
   };
+
+  // 获取记录参与者
+  getRecordPartner = () => {
+    let { formData = [] } = this.props;
+    const {
+      discussions = [],
+      disType,
+      allowExAccountDiscuss = false, //是否配置外部门户可参与讨论
+      exAccountDiscussEnum = 0, //外部门户可见讨论区域为全部
+    } = this.state;
+    let data = [];
+    formData = formData.filter(
+      o =>
+        [o.sourceControlType, o.type].includes(26) && //成员字段
+        (o.userPermission !== 0 || o.controlId === 'ownerid' || (o.type === 30 && _.get(o, 'strDefault.0') !== '1')), //排除仅用于记录人员数据(除了拥有者字段外)
+    );
+    if (disType === 1) {
+      //内部讨论
+      if (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) {
+        //未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
+        formData = formData.filter(o => (o.advancedSetting || {}).usertype !== '2');
+      }
+    }
+    formData.map(o => {
+      let d;
+      try {
+        d = JSON.parse(o.value).map(item => {
+          return Object.assign({}, item, { job: o.controlName });
+        });
+      } catch (err) {
+        d = [];
+      }
+      data = data.concat(d);
+    });
+    let accountsInMessage = [];
+    let dis = discussions.map(o => {
+      accountsInMessage = accountsInMessage.concat(o.accountsInMessage);
+      return o.createAccount;
+    });
+    data = data
+      //参与讨论的
+      .concat(dis.map(item => Object.assign({}, item, { job: _l('讨论用户') })))
+      //@到的
+      .concat(accountsInMessage.map(item => Object.assign({}, item, { job: _l('讨论用户') })))
+      //排除自己以及未指定等
+      .filter(
+        d =>
+          !(
+            ['user-undefined', 'user-publicform', md.global.Account.accountId].includes(d.accountId) ||
+            d.accountId.indexOf('user-') >= 0
+          ),
+      );
+    data = data.filter(
+      d =>
+        !(
+          disType === 1 &&
+          (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) &&
+          d.accountId.indexOf('a#') >= 0
+        ),
+      //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
+    );
+    let hash = {};
+    const data2 = data.reduce((preVal, curVal) => {
+      hash[curVal.accountId] ? '' : (hash[curVal.accountId] = true && preVal.push(curVal));
+      return preVal;
+    }, []);
+
+    this.setState({ recordPartner: data2 });
+  };
+
   getGroupInfo() {
     const { params } = this.props.match;
     const { appId, worksheetId } = params;
@@ -120,8 +193,8 @@ class Discuss extends Component {
   render() {
     const { isModal, onClose, originalData, discussionCount } = this.props;
     const { params } = this.props.match;
-    const { worksheetId, rowId } = params;
-    const { replyVisible, discussionInfo } = this.state;
+    const { appId, worksheetId, rowId } = params;
+    const { replyVisible, discussionInfo, recordPartner = [] } = this.state;
     const { replyId } = discussionInfo;
     const {
       switchPermit,
@@ -199,6 +272,7 @@ class Discuss extends Component {
         {recordLogSwitch && pageType === 3 && (
           <div className="flex overflowHidden">
             <Logs
+              appId={appId}
               worksheetId={params.worksheetId}
               rowId={rowId || ''}
               originalData={originalData}
@@ -270,6 +344,7 @@ class Discuss extends Component {
             visible={replyVisible}
             projectId={this.props.projectId}
             temporaryDiscuss={temporaryDiscuss}
+            recordPartner={recordPartner}
             onClose={() => {
               this.setState({
                 replyVisible: false,

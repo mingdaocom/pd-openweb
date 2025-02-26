@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import CalendarView from 'src/pages/worksheet/views/CalendarView';
 import { isIllegalFormat } from 'src/pages/worksheet/views/CalendarView/util';
 import ScheduleModal from './components/ScheduleModal';
 import ViewErrorPage from '../components/ViewErrorPage';
 import * as calendarActions from 'src/pages/worksheet/redux/actions/calendarview';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { RecordInfoModal } from 'mobile/Record';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, handlePushState, handleReplaceState } from 'src/util';
 import { Icon } from 'ming-ui';
 import './index.less';
 import _ from 'lodash';
@@ -16,17 +15,38 @@ import moment from 'moment';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
+
 class MobileCalendarView extends Component {
   constructor(props) {
     super(props);
     this.state = {
       scheduleVisible: false,
       previewRecordId: undefined,
+      Component: null,
     };
   }
-  componentDidMount() {}
+  componentDidMount() {
+    import('src/pages/worksheet/views/CalendarView').then(component => {
+      this.setState({ Component: component.default });
+    });
+
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'currentDateListPage', () => this.props.mobileIsShowMoreClick(false));
+    handleReplaceState('page', 'scheduleList', () => this.setState({ scheduleVisible: false }));
+  };
+
   showschedule = () => {
     safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventAll');
+    if (!this.state.scheduleVisible) {
+      handlePushState('page', 'scheduleList');
+    }
     this.setState({ scheduleVisible: !this.state.scheduleVisible });
     this.props.fetchExternal();
   };
@@ -53,7 +73,7 @@ class MobileCalendarView extends Component {
   };
 
   render() {
-    let { scheduleVisible, previewRecordId } = this.state;
+    let { scheduleVisible, previewRecordId, Component } = this.state;
     const { view, currentSheetRows, calendarview = {}, base = {}, sheetSwitchPermit, worksheetInfo = {} } = this.props;
     const { calendarData = {} } = calendarview;
     const { calendarInfo = [] } = calendarData;
@@ -89,6 +109,7 @@ class MobileCalendarView extends Component {
       },
       dateClick: info => {
         this.getMoreClickData(info.date);
+        handlePushState('page', 'currentDateListPage');
         this.props.mobileIsShowMoreClick(true);
       },
       eventClick: eventInfo => {
@@ -104,6 +125,7 @@ class MobileCalendarView extends Component {
         } else {
           const currentDate = _.get(eventInfo, 'event._def.extendedProps.timeList[0].start');
           currentDate && this.getMoreClickData(currentDate);
+          handlePushState('page', 'currentDateListPage');
           this.props.mobileIsShowMoreClick(true);
         }
       },
@@ -114,9 +136,10 @@ class MobileCalendarView extends Component {
     if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
       return <ViewErrorPage icon="event" viewName={view.name + _l('视图')} color="#f64082" />;
     }
+    if (!Component) return null;
     return (
       <div className="mobileBoxCalendar">
-        <CalendarView {...this.props} mobileCalendarSetting={mobileCalendarSetting} />
+        <Component {...this.props} mobileCalendarSetting={mobileCalendarSetting} />
         {(!isHaveSelectControl && (
           <div className="expandIcon" onClick={this.showschedule}>
             <Icon className="schedule" icon="abstract" />

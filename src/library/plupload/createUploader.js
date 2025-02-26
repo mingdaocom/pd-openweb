@@ -1,6 +1,5 @@
 import { assign, endsWith, forEach, find, trim } from 'lodash';
 import { getToken } from 'src/util';
-import { Base64 } from 'js-base64';
 import RegExpValidator from 'src/util/expression';
 
 const validateFileName = str => {
@@ -15,6 +14,8 @@ const validateFileName = str => {
     alert(_l('文件名过长'), 3);
     return false;
   }
+
+  return true;
 
   const illegalChars = /[\/\\:\*\?"<>\|]/g;
   const valid = !illegalChars.test(str);
@@ -116,11 +117,10 @@ export default option => {
     const invalidFiles = [];
     const tokenFiles = [];
     forEach(files, file => {
+      file.name = file.name.replace(/[\/\\:\*\?"<>\|]/g, '_');
       if (validateFile(file)) {
         validFiles.push(file);
       } else {
-        // file.name += '_重命名';
-        // validFiles.push(file);
         invalidFiles.push(file);
       }
       let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
@@ -440,11 +440,7 @@ export default option => {
         res => {
           $.ajax({
             url:
-              option.url.replace(/(\/)$/, '') +
-              '/mkfile/' +
-              (file.size ? file.size : 0) +
-              '/key/' +
-              Base64.encode(res[0].key),
+              option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(res[0].key),
             type: 'POST',
             beforeSend: request => {
               request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');

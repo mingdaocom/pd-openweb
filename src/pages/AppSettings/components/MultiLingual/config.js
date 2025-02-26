@@ -9,6 +9,7 @@ export const LANG_DATA_TYPE = {
   wrokSheetCustomAction: 6,
   collections: 7,
   wrokSheetStatistics: 8,
+  wrokSheetControlRules: 13,
   customePageContent: 9,
   customePageFilter: 10,
   customePageButton: 11,

@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import axios from 'axios';
 import { getToken } from 'src/util';
-import { Base64 } from 'js-base64';
 import accountSettingAjax from 'src/api/accountSetting';
 
 const SignatureBox = styled.div`
@@ -89,7 +88,7 @@ export default class Signature extends Component {
       if (res.error) {
         alert(res.error);
       } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
         axios
           .post(url, this.signaturePad.toDataURL('image/png').split(',')[1], {
             headers: {

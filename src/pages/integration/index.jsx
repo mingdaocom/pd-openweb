@@ -9,9 +9,10 @@ import { emitter, getCurrentProject, upgradeVersionDialog } from 'src/util';
 import Connector from './dataIntegration/connector';
 import DataSource from './dataIntegration/source';
 import DataMirror from './dataIntegration/dataMirror';
+import Stats from './dataIntegration/stats';
 import SyncTask from './dataIntegration/task';
 import TaskCon from './dataIntegration/TaskCon';
-import { integrationConfig, dataIntegrationList } from 'src/pages/integration/config.js';
+import { integrationConfig } from 'src/pages/integration/config.js';
 import './svgIcon';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
@@ -28,6 +29,7 @@ const ROUTE_CONFIG_PATH = {
   task: '/integration/task',
   source: '/integration/source',
   dataMirror: '/integration/dataMirror',
+  stats: '/integration/stats',
 };
 const TYPE_TO_COMP = {
   connectList: ConnectList,
@@ -36,8 +38,9 @@ const TYPE_TO_COMP = {
   task: SyncTask,
   source: DataSource,
   dataMirror: DataMirror,
+  stats: Stats,
 };
-const ENABLE_DATAPIPELINE_KEYS = ['dataConnect', 'taskCon', 'task', 'source', 'dataMirror'];
+const ENABLE_DATAPIPELINE_KEYS = ['dataConnect', 'taskCon', 'task', 'source', 'dataMirror', 'stats'];
 
 const getRoutes = param => {
   let components = [];
@@ -129,12 +132,19 @@ export default class HubContainer extends React.Component {
       noSourceMenu:
         !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK) &&
         !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_DATA_SOURCES),
+      noMirrorMenu: !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK),
+      noStatsMenu: !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK),
     };
     const param = {
       ...this.props,
       currentProjectId,
       myPermissions,
     };
+
+    if ((type === 'dataMirror' && menuAuth.noMirrorMenu) || (type === 'stats' && menuAuth.noStatsMenu)) {
+      navigateTo('/integration');
+      return;
+    }
 
     if (
       (type === 'dataConnect' && menuAuth.noCreateTaskMenu) ||
@@ -149,7 +159,7 @@ export default class HubContainer extends React.Component {
         ? '/integration/source'
         : '/integration';
       navigateTo(navigateLink);
-      return '';
+      return;
     }
 
     return (

@@ -18,6 +18,7 @@ export default class SubSheet extends Component {
     recordListVisible: false,
   };
   handleClick = () => {
+    if (this.props.eventKey) return;
     const {
       data: { relationControls = [] },
     } = this.props;
@@ -31,8 +32,8 @@ export default class SubSheet extends Component {
     this.props.onDynamicValueChange([]);
   };
   onTriggerClick = () => {
-    const { defaultType } = this.props;
-    if (defaultType === 'dynamiccustom') {
+    const { defaultType, eventKey } = this.props;
+    if (defaultType === 'dynamiccustom' && !eventKey) {
       this.setState({ recordListVisible: true });
       return;
     }

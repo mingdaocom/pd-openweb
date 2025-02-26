@@ -12,6 +12,7 @@ import { Tooltip } from 'antd';
 import './index.less';
 import delegationAJAX from '../../../../api/delegation';
 import Attachment from 'src/components/newCustomFields/widgets/Attachment';
+import instanceAJAX from '../../../../api/instance';
 
 const Member = styled.span`
   align-items: center;
@@ -150,6 +151,7 @@ export default class OtherAction extends Component {
       removeNoneVerification: false,
       files: '',
       countersignType: 1,
+      opinionList: [],
     };
   }
 
@@ -170,6 +172,19 @@ export default class OtherAction extends Component {
         },
       });
     }
+
+    this.getHistoryOpinionList();
+  }
+
+  /**
+   * 获取历史意见列表
+   */
+  getHistoryOpinionList() {
+    const { instanceId } = this.props;
+
+    instanceAJAX.getOperationHistoryList({ instanceId }).then(res => {
+      this.setState({ opinionList: res });
+    });
   }
 
   /**
@@ -493,28 +508,49 @@ export default class OtherAction extends Component {
    */
   renderTemplateList() {
     const { action, data } = this.props;
-    const { content } = this.state;
+    const { content, opinionList } = this.state;
     const { opinions = [] } = data.opinionTemplate || {};
     let list = (_.includes(['pass', 'after'], action) ? opinions[4] : opinions[5]) || [];
 
-    if (!list.length) {
+    if (!list.length && !opinionList.length) {
       return null;
     }
 
     return (
       <Fragment>
-        <div className="Gray_75 mTop15 mBottom6">{_l('选择预设')}</div>
-        <TemplateList>
-          {list.map((item, index) => (
-            <span
-              className={cx('ellipsis', { active: content.trim() === item.value.trim() })}
-              key={index}
-              onClick={() => this.setState({ content: item.value })}
-            >
-              {item.value}
-            </span>
-          ))}
-        </TemplateList>
+        {!!list.length && (
+          <Fragment>
+            <div className="Gray_75 mTop15 mBottom6">{_l('选择预设')}</div>
+            <TemplateList>
+              {list.map((item, index) => (
+                <span
+                  className={cx('ellipsis', { active: content.trim() === item.value.trim() })}
+                  key={index}
+                  onClick={() => this.setState({ content: item.value })}
+                >
+                  {item.value}
+                </span>
+              ))}
+            </TemplateList>
+          </Fragment>
+        )}
+
+        {!!opinionList.length && (
+          <Fragment>
+            <div className="Gray_75 mTop15 mBottom6">{_l('上次输入')}</div>
+            <TemplateList>
+              {opinionList.map((item, index) => (
+                <span
+                  className={cx('ellipsis', { active: content.trim() === item.opinion.trim() })}
+                  key={index}
+                  onClick={() => this.setState({ content: item.opinion })}
+                >
+                  {item.opinion}
+                </span>
+              ))}
+            </TemplateList>
+          </Fragment>
+        )}
       </Fragment>
     );
   }
@@ -522,7 +558,7 @@ export default class OtherAction extends Component {
   render() {
     const { action, onCancel, projectId } = this.props;
     const { callBackNodeType, opinionTemplate, app = {} } = this.props.data;
-    const { auth, encrypt } = (this.props.data || {}).flowNode || {};
+    const { auth, encrypt, allowUploadAttachment } = (this.props.data || {}).flowNode || {};
     const {
       content,
       backNodeId,
@@ -662,7 +698,7 @@ export default class OtherAction extends Component {
                   *
                 </div>
               )}
-              {action === 'return' ? _l('撤回理由') : _l('审批意见')}
+              {action === 'return' ? _l('退回理由') : _l('审批意见')}
             </div>
             <div className="mTop10 relative">
               <div className="flexRow">
@@ -678,37 +714,39 @@ export default class OtherAction extends Component {
                     onlySelectTemplate ? _l('选择预设的审批意见') : (ACTION_TO_TEXT[action] || {}).placeholder
                   }
                 />
-                {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) && (
-                  <AttachmentBtn
-                    className="tip-top"
-                    data-tip={_l('添加附件')}
-                    onClick={() => {
-                      $('.approveDialog .customFieldsContainer .triggerTraget').click();
-                    }}
-                  >
-                    <i className="Font16 Gray_75 icon-attachment" />
-                  </AttachmentBtn>
-                )}
+                {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&
+                  allowUploadAttachment && (
+                    <AttachmentBtn
+                      className="tip-top"
+                      data-tip={_l('添加附件')}
+                      onClick={() => {
+                        $('.approveDialog .customFieldsContainer .triggerTraget').click();
+                      }}
+                    >
+                      <i className="Font16 Gray_75 icon-attachment" />
+                    </AttachmentBtn>
+                  )}
               </div>
 
               {_.includes(['pass', 'overrule', 'return', 'after'], action) && this.renderTemplateList()}
             </div>
 
-            {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) && (
-              <div className="mTop10">
-                <div className="customFieldsContainer InlineBlock mLeft0 pointer">
-                  <Attachment
-                    projectId={projectId}
-                    appId={app.id}
-                    value={files}
-                    hint={_l('附件')}
-                    canAddKnowledge={false}
-                    advancedSetting={{}}
-                    onChange={files => this.setState({ files })}
-                  />
+            {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&
+              allowUploadAttachment && (
+                <div className="mTop10">
+                  <div className="customFieldsContainer InlineBlock mLeft0 pointer">
+                    <Attachment
+                      projectId={projectId}
+                      appId={app.id}
+                      value={files}
+                      hint={_l('附件')}
+                      canAddKnowledge={false}
+                      advancedSetting={{}}
+                      onChange={files => this.setState({ files })}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </Fragment>
         )}
 

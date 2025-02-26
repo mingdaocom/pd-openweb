@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 import cx from 'classnames';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, Dialog } from 'ming-ui';
 import { Input } from 'antd';
 import EditInput from './EditInput';
 import sheetApi from 'src/api/worksheet';
@@ -40,6 +40,7 @@ export default function CustomAction(props) {
   const [sheetBtns, setSheetBtns] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const scrollViewRef = useRef();
+  const [optionsEditDialogVisible, setOptionsEditDialogVisible] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -97,6 +98,15 @@ export default function CustomAction(props) {
     const comparisonLangInfo = getTranslateInfo(app.id, null, btn.btnId, comparisonLangData);
     const name = comparisonLangId ? comparisonLangInfo.name : btn.name;
     const desc = comparisonLangId ? comparisonLangInfo.description : btn.desc;
+    const completeText = comparisonLangId ? comparisonLangInfo.completeText : _.get(btn.advancedSetting, 'tiptext');
+    const confirmMsg = comparisonLangId ? comparisonLangInfo.confirmMsg : _.get(btn, 'confirmMsg');
+    const confirmContent = comparisonLangId ? comparisonLangInfo.confirmContent : _.get(btn.advancedSetting, 'confirmcontent');
+    const sureName = comparisonLangId ? comparisonLangInfo.sureName : _.get(btn, 'sureName');
+    const cancelName = comparisonLangId ? comparisonLangInfo.cancelName : _.get(btn, 'cancelName');
+    const remark = comparisonLangId ? comparisonLangInfo.remark : _.get(btn.advancedSetting, 'remarkname');
+    const hintText = comparisonLangId ? comparisonLangInfo.hintText : _.get(btn.advancedSetting, 'remarkhint');
+    const remarkoptions = _.get(JSON.parse(_.get(btn.advancedSetting, 'remarkoptions') || '{}'), 'template') || [];
+    const withoutRemarkoptions = remarkoptions.filter((item, index) => !translateInfo[`templateName_${index}`]);
 
     const handleSave = info => {
       onEditAppLang({
@@ -138,6 +148,128 @@ export default function CustomAction(props) {
             onChange={value => handleSave({ description: value })}
           />
         </div>
+        {completeText && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('流程执行完后提示')}</div>
+            <Input className="flex mRight20" value={completeText} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!completeText}
+              value={translateInfo.completeText}
+              onChange={value => handleSave({ completeText: value })}
+            />
+          </div>
+        )}
+        {confirmMsg && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认标题')}</div>
+            <Input className="flex mRight20" value={confirmMsg} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!confirmMsg}
+              value={translateInfo.confirmMsg}
+              onChange={value => handleSave({ confirmMsg: value })}
+            />
+          </div>
+        )}
+        {confirmContent && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认说明')}</div>
+            <Input className="flex mRight20" value={confirmContent} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!confirmContent}
+              value={translateInfo.confirmContent}
+              onChange={value => handleSave({ confirmContent: value })}
+            />
+          </div>
+        )}
+        {sureName && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认提交按钮')}</div>
+            <Input className="flex mRight20" value={sureName} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!sureName}
+              value={translateInfo.sureName}
+              onChange={value => handleSave({ sureName: value })}
+            />
+          </div>
+        )}
+        {cancelName && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认取消按钮')}</div>
+            <Input className="flex mRight20" value={cancelName} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!cancelName}
+              value={translateInfo.cancelName}
+              onChange={value => handleSave({ cancelName: value })}
+            />
+          </div>
+        )}
+        {remark && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认备注名称')}</div>
+            <Input className="flex mRight20" value={remark} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!remark}
+              value={translateInfo.remark}
+              onChange={value => handleSave({ remark: value })}
+            />
+          </div>
+        )}
+        {hintText && (
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认备注引导文字')}</div>
+            <Input className="flex mRight20" value={hintText} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!hintText}
+              value={translateInfo.hintText}
+              onChange={value => handleSave({ hintText: value })}
+            />
+          </div>
+        )}
+        {!!remarkoptions.length && (
+          <div className="flexRow nodeItem">
+            <div className="Font13 mRight20 label">{_l('二次确认备注模版')}</div>
+            <div className="flex mRight20">
+              {_l('有%0个模版', remarkoptions.length)}
+              {!!withoutRemarkoptions.length && `，${_l('%0个没有译文', withoutRemarkoptions.length)}`}
+            </div>
+            <div className="flex">
+              <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(btn.btnId)}>{_l('编辑译文')}</span>
+            </div>
+          </div>
+        )}
+        {optionsEditDialogVisible && optionsEditDialogVisible === btn.btnId && (
+          <Dialog
+            visible={true}
+            className="editLingualDialog"
+            width={860}
+            title={(
+              <div className="flexRow alignItemsCenter mBottom10">
+                <span>{_l('模版')}</span>
+              </div>
+            )}
+            showFooter={false}
+            onCancel={() => setOptionsEditDialogVisible('')}
+          >
+            {remarkoptions.map((item, index) => (
+              <div className="flexRow alignItemsCenter nodeItem" key={index}>
+                <Input className="flex mRight20" value={item.value} disabled={true} />
+                <EditInput
+                  className="flex"
+                  disabled={!item.value}
+                  value={translateInfo[`templateName_${index}`]}
+                  onChange={value => handleSave({ [`templateName_${index}`]: value })}
+                />
+              </div>
+            ))}
+          </Dialog>
+        )}
       </div>
     );
   }

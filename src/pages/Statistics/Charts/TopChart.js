@@ -56,7 +56,7 @@ const TopChartContent = styled.div`
   .valueProgressWrap {
     flex: 1;
     height: 12px;
-    background: #efedee;
+    background-color: ${props => props.isDark ? '#ffffff99' : '#efedee'}
     border-radius: 2px;
     overflow: hidden;
     .progress {
@@ -64,10 +64,8 @@ const TopChartContent = styled.div`
       height: 100%;
     }
   }
-  &.noneValueProportion {
-    .item:hover {
-      background-color: #f7f7f7;
-    }
+  .item:hover {
+    background-color: ${props => props.isDark ? '#ffffff1a' : '#f7f7f7'}
   }
   .top {
     width: 20px;
@@ -212,8 +210,10 @@ export default class extends Component {
     });
   }
   getBgColor = (data) => {
-    const { themeColor, projectId, reportData, linkageMatch } = this.props;
-    const { style = {} } = reportData;
+    const { themeColor, projectId, reportData, linkageMatch, customPageConfig = {} } = this.props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const colors = getChartColors(style, themeColor, projectId);
     let color = colors[0];
     if (!_.isEmpty(linkageMatch)) {
@@ -251,21 +251,21 @@ export default class extends Component {
       </Menu>
     );
   }
-  renderHeader() {
+  renderHeader(isDark) {
     const { xaxes, yaxisList } = this.props.reportData;
     return (
-      <div className="flexRow valignWrapper item">
-        <div className="index alignItemsCenter justifyContentCenter flexRow Gray_9e">{_l('排行')}</div>
-        <div className="name Gray_9e flex ellipsis">{xaxes.rename || xaxes.controlName}</div>
+      <div className={cx('flexRow valignWrapper item', isDark ? 'White' : 'Gray_9e')}>
+        <div className="index alignItemsCenter justifyContentCenter flexRow">{_l('排行')}</div>
+        <div className="name flex ellipsis">{xaxes.rename || xaxes.controlName}</div>
         {yaxisList.map(item => (
-          <div key={item.controlId} className="value ellipsis Gray_9e">
+          <div key={item.controlId} className="value ellipsis">
             {item.rename || item.controlName}
           </div>
         ))}
       </div>
     );
   }
-  renderItem(data, index, maxValue) {
+  renderItem(data, index, maxValue, isDark) {
     const { reportData, isViewOriginalData, isLinkageData } = this.props;
     const { style = {}, yaxisList, displaySetup, sorts } = reportData;
     const sortId = sorts[0] ? Object.keys(sorts[0])[0] : null;
@@ -282,8 +282,8 @@ export default class extends Component {
           }
         }}
       >
-        <div className="index alignItemsCenter justifyContentCenter flexRow Gray_75">{this.renderIndex(index + 1)}</div>
-        <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '30%' } : { flex: 1 }} title={data.name}>{data.name}</div>
+        <div className={cx('index alignItemsCenter justifyContentCenter flexRow', isDark ? 'White' : 'Gray_75')}>{this.renderIndex(index + 1)}</div>
+        <div className={cx('name ellipsis mRight8', isDark ? 'White' : 'Gray')} style={valueProgressVisible ? { width: '30%' } : { flex: 1 }} title={data.name}>{data.name}</div>
         {valueProgressVisible && (
           <div className="valueProgressWrap">
             <div
@@ -296,7 +296,7 @@ export default class extends Component {
           </div>
         )}
         {yaxisList.map(item => (
-          <div key={item.controlId} className="value ellipsis">
+          <div key={item.controlId} className={cx('value ellipsis', isDark ? 'White' : 'Gray')}>
             {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId, false)}
           </div>
         ))}
@@ -304,20 +304,21 @@ export default class extends Component {
     );
   }
   renderTopChart() {
-    const { customPageConfig = {}, reportData } = this.props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { customPageConfig = {}, reportData, isThumbnail } = this.props;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, yaxisList } = reportData;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
     return (
-      <TopChartContent className="h100 topChart noneValueProportion">
+      <TopChartContent className="h100 topChart" isDark={isDark}>
         <ScrollView>
           <Fragment>
-            {yaxisList.length > 1 && this.renderHeader()}
+            {yaxisList.length > 1 && this.renderHeader(isDark)}
             {data.map((data, index) => (
-              this.renderItem(data, index, maxValue || 0)
+              this.renderItem(data, index, maxValue || 0, isDark)
             ))}
           </Fragment>
         </ScrollView>
@@ -328,7 +329,7 @@ export default class extends Component {
     const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup = {} } = this.props.reportData;
     return (
-      <div className="flex flexColumn chartWrapper Relative" ref={el => (this.chartWrapEl = el)}>
+      <div className="flex flexColumn chartWrapper topChart Relative" ref={el => (this.chartWrapEl = el)}>
         <Dropdown
           visible={dropdownVisible}
           onVisibleChange={(dropdownVisible) => {
@@ -341,7 +342,7 @@ export default class extends Component {
           <div className="Absolute" style={{ width: 1, height: 1, left: offset.x, top: offset.y }}></div>
         </Dropdown>
         {displaySetup.showTotal ? (
-          <div className="pBottom10">
+          <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>

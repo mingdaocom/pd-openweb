@@ -1,29 +1,23 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import _ from 'lodash';
+import _, { get, identity } from 'lodash';
 import { validate } from 'uuid';
+import cx from 'classnames';
 import { CardButton } from '../Basics';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { browserIsMobile } from 'src/util';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl, getTitleControlId } from 'src/components/newCustomFields/tools/utils';
+import { getRecordCardStyle } from 'worksheet/util';
 import CardCellControls from './CardCellControls';
-import { FROM } from 'src/components/newCustomFields/tools/config';
+import { className } from 'twemoji';
 
 const Con = styled.div`
-  display: inline-flex;
-  flex-direction: row;
-  margin: ${({ isMobile }) => (isMobile ? '0 0 10px 0' : '0 14px 14px 0')};
+  ${({ isMobile }) => (isMobile ? 'margin-bottom:10px' : 'display: inline-flex;')}
   position: relative;
   border-radius: 3px;
   background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 4px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
-  &:hover {
-    ${({ canView, isMobile }) =>
-      canView && !isMobile
-        ? 'box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;'
-        : ''}
-  }
+  border: 1px solid #eaeaea;
   .operateButton {
     position: absolute;
     display: flex;
@@ -42,6 +36,10 @@ const Con = styled.div`
   .hoverShow {
     visibility: hidden;
   }
+  &.Hand:hover {
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
+    ${({ isMobile }) => (isMobile ? ' box-shadow:unset' : '')};
+  }
   &:hover {
     .hoverShow {
       visibility: visible;
@@ -49,21 +47,47 @@ const Con = styled.div`
   }
 `;
 
+const Content = styled.div`
+  flex: 1;
+  overflow: hidden;
+`;
+
 const Title = styled.div`
-  font-weight: 500;
+  font-weight: bold;
   font-size: 14px;
   line-height: 20px;
   color: #151515;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+  ${({ titleStyle }) => titleStyle}
 `;
 
 const ControlCon = styled.div`
+  display: flex;
   flex: 1;
   padding: 12px 16px;
   overflow: hidden;
+  flex-direction: ${({ small }) => (small ? 'column' : 'row')};
+  .cover {
+    width: 80px;
+    height: 80px;
+    box-sizing: content-box;
+    border-radius: 3px;
+    object-fit: contain;
+    border: 1px solid #eaeaea;
+    ${({ small }) => (small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
+  }
 `;
 
 function click(func) {
   return e => {
+    e.preventDefault();
     e.stopPropagation();
     func();
   };
@@ -71,10 +95,13 @@ function click(func) {
 
 export default function RecordCoverCard(props) {
   const {
+    className,
     from,
+    hideTitle,
     disabled,
+    showAddAsDropdown,
     style = {},
-    width,
+    containerWidth,
     controls,
     data,
     cover,
@@ -90,7 +117,6 @@ export default function RecordCoverCard(props) {
     sheetSwitchPermit = [],
     onReplaceRecord = () => {},
   } = props;
-  const coverSize = 50 + 28 * controls.slice(0, 3).length;
   const isMobile = browserIsMobile();
   const [forceShowFullValue, setForceShowFullValue] = useState(false);
   const titleControl = _.find(parentControl.relationControls, { attribute: 1 });
@@ -98,30 +124,47 @@ export default function RecordCoverCard(props) {
     titleControl &&
     _.get(titleControl, 'advancedSetting.datamask') === '1' &&
     _.get(titleControl, 'advancedSetting.isdecrypt') === '1';
+  const recordCardStyle = getRecordCardStyle(parentControl);
   const title =
     props.title ||
     (data.rowid && validate(data.rowid)
       ? getTitleTextFromRelateControl(parentControl, data, { noMask: forceShowFullValue })
       : _l('关联当前%0', sourceEntityName));
+  const titleControlId = getTitleControlId(parentControl);
+  const fullShowCard = containerWidth < 700;
+  const coverComp = cover && !!controls.length && (
+    <img
+      className="cover"
+      src={cover}
+      onClick={e => {
+        e.stopPropagation();
+        previewQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
+          disableDownload: true,
+          ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
+        });
+      }}
+    />
+  );
   return (
     <Con
       onClick={onClick}
-      style={{ ...style, ...(width ? { width } : {}) }}
-      className={!disabled && allowlink !== '0' && 'Hand'}
+      style={{
+        ...style,
+        backgroundColor: get(recordCardStyle, 'cardStyle.backgroundColor') || '#fff',
+        borderColor: get(recordCardStyle, 'cardStyle.borderColor') || '#eaeaea',
+        ...(fullShowCard ? { width: '100%' } : {}),
+      }}
+      className={cx(className, allowlink !== '0' && 'Hand')}
       canView={allowlink !== '0'}
       isMobile={isMobile}
     >
-      {!disabled && (
+      {!disabled && !showAddAsDropdown && (
         <div className="operateButton">
           {allowReplaceRecord && (
             <CardButton
               className="mRight8 tip-bottom"
               style={isMobile ? { visibility: 'visible' } : {}}
               onClick={click(onReplaceRecord)}
-              onTouchStart={e => {
-                e.preventDefault();
-                onReplaceRecord();
-              }}
               data-tip={isMobile ? '' : _l('重新选择')}
               isMobile={isMobile}
             >
@@ -132,10 +175,6 @@ export default function RecordCoverCard(props) {
             className={isMobile ? '' : 'red'}
             style={isMobile ? { visibility: 'visible' } : {}}
             onClick={click(onDelete)}
-            onTouchStart={e => {
-              e.preventDefault();
-              onDelete();
-            }}
             isMobile={isMobile}
           >
             <i className="icon icon-close"></i>
@@ -146,53 +185,48 @@ export default function RecordCoverCard(props) {
         style={{
           ...(controls.length ? { paddingBottom: 10 } : {}),
         }}
+        small={containerWidth < 420}
       >
-        <Title key="title" className="ellipsis" title={title} style={{ marginBottom: controls.length ? 8 : 0 }}>
-          {title}
-          {titleMasked && !forceShowFullValue && (
-            <i
-              className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 Gray_9e mLeft4 mTop4 hoverShow"
-              style={{ verticalAlign: 'middle' }}
-              onClick={e => {
-                e.stopPropagation();
-                setForceShowFullValue(true);
+        {coverComp}
+        <Content>
+          {!hideTitle && (
+            <Title
+              key="title"
+              title={title}
+              style={{
+                marginBottom: controls.length ? 8 : 0,
+                fontSize: get(recordCardStyle, 'recordTitleStyle.size') || '15px',
+                lineHeight:
+                  Math.floor(get(recordCardStyle, 'recordTitleStyle.size', '14px').replace(/[^\d]/g, '') * 1.3) + 'px',
               }}
-            ></i>
+              titleStyle={get(recordCardStyle, 'recordTitleStyle.valueStyle', {})}
+            >
+              {title}
+              {titleMasked && !forceShowFullValue && (
+                <i
+                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 Gray_9e mLeft4 mTop4 hoverShow"
+                  style={{ verticalAlign: 'middle' }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setForceShowFullValue(true);
+                  }}
+                ></i>
+              )}
+            </Title>
           )}
-        </Title>
-        <CardCellControls
-          parentControl={parentControl}
-          width={width}
-          controls={controls}
-          data={data}
-          worksheetId={parentControl.dataSource}
-          projectId={projectId}
-          viewId={viewId}
-          isCharge={isCharge}
-          sheetSwitchPermit={sheetSwitchPermit}
-        />
+          <CardCellControls
+            fullShowCard={fullShowCard}
+            parentControl={parentControl}
+            controls={controls.filter(identity).filter(c => c.controlId !== titleControlId || hideTitle)}
+            data={data}
+            worksheetId={parentControl.dataSource}
+            projectId={projectId}
+            viewId={viewId}
+            isCharge={isCharge}
+            sheetSwitchPermit={sheetSwitchPermit}
+          />
+        </Content>
       </ControlCon>
-      {cover && !!controls.length && (
-        <img
-          src={cover}
-          style={{
-            width: coverSize,
-            height: coverSize,
-            boxSizing: 'content-box',
-            borderTopRightRadius: '3px',
-            borderBottomRightRadius: '3px',
-            borderLeft: '1px solid rgb(0, 0, 0, .04)',
-            objectFit: 'contain',
-          }}
-          onClick={e => {
-            e.stopPropagation();
-            previewQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
-              disableDownload: true,
-              ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
-            });
-          }}
-        />
-      )}
     </Con>
   );
 }

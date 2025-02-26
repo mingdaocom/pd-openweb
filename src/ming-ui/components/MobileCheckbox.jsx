@@ -163,7 +163,7 @@ export default class MobileCheckbox extends Component {
                     ) !== -1,
                 )
                 .map(item => (
-                  <List.Item key={item.key} arrowIcon={false} onClick={() => this.onChange(item.key)}>
+                  <List.Item className="mobileCheckboxListItem" key={item.key} arrowIcon={false} onClick={() => this.onChange(item.key)}>
                     <Checkbox
                       className="flexRow alignItemsCenter"
                       text={renderText ? renderText(item) : item.value}

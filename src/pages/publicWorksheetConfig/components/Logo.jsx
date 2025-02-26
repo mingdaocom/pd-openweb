@@ -89,6 +89,7 @@ export default class Logo extends React.Component {
               filters: {
                 mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png' }],
               },
+              type: 30,
             }}
             bucket={4}
             onUploaded={this.handleUploaded}

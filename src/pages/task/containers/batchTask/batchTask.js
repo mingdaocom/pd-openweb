@@ -15,7 +15,8 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
-import { LoadDiv as MingUiLoadDiv, Dialog, Checkbox } from 'ming-ui';
+import { LoadDiv, Dialog, Checkbox } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
 
 const SearchFolderCon = styled.ul`
   width: 438px;
@@ -119,7 +120,7 @@ function SearchFolder(props) {
         id="SearchFolderCon"
       >
         {loading ? (
-          <MingUiLoadDiv size="middle" />
+          <LoadDiv size="middle" />
         ) : data.length === 0 ? (
           <li className="emptyItem">{_l('没有搜索到相关结果')}</li>
         ) : (
@@ -442,7 +443,9 @@ BatchTask.loadBatchData = function (auth) {
 // 显示弹出层
 BatchTask.bindDialog = function () {
   const { projectId } = Store.getState().task.taskConfig;
-  $('#batchTask').addClass('slideLeft').html(LoadDiv());
+  $('#batchTask')
+    .addClass('slideLeft')
+    .html(renderToString(<LoadDiv />));
 
   let lockedSize = 0;
   $.map($('.selectTask'), (_this, i) => {

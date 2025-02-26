@@ -26,12 +26,12 @@ export default class DataContrast extends Component {
       lifecycleValue: 0,
     });
   }
-  handleChangeDropdown = value => {
+  handleChangeDropdown = data => {
     const { displaySetup } = this.props.currentReport;
     this.props.onUpdateDisplaySetup(
       {
         ...displaySetup,
-        contrastType: value,
+        ...data
       },
       true,
     );
@@ -41,7 +41,7 @@ export default class DataContrast extends Component {
     const { currentReport } = this.props;
     const { displaySetup, filter } = currentReport;
     const contrastTypes = formatContrastTypes(filter);
-    const { customRangeValue } = filter;
+    const { customRangeValue, ignoreToday = false } = filter;
     return (
       <div className="mBottom16">
         <div className="flexRow mBottom8">
@@ -77,7 +77,9 @@ export default class DataContrast extends Component {
         {!!displaySetup.contrastType && !!contrastTypes.length && (
           <Select
             className="chartSelect w100"
-            value={customRangeVisible ? 5 : displaySetup.contrastType}
+            // value={_.findIndex(contrastTypes, { value: customRangeVisible ? 5 : displaySetup.contrastType, ignoreToday: ignoreToday ? ignoreToday : undefined })}
+            // value={customRangeVisible ? 5 : displaySetup.contrastType}
+            value={customRangeVisible ? 5 : ignoreToday ? `${displaySetup.contrastType}-ignoreToday` : displaySetup.contrastType}
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={(value) => {
               if (value ===  5) {
@@ -94,16 +96,27 @@ export default class DataContrast extends Component {
                   }
                 }, true);
               } else {
+                const isIgnoreToday = _.isString(value);
+                let contrastType = isIgnoreToday ? Number(value.split('-')[0]) : value;
                 this.setState({ customRangeVisible: false });
-                this.handleChangeDropdown(value);
+                this.props.onChangeCurrentReport({
+                  displaySetup: {
+                    ...displaySetup,
+                    contrastType,
+                  },
+                  filter: {
+                    ...filter,
+                    ignoreToday: isIgnoreToday ? true : false
+                  }
+                }, true);
               }
             }}
           >
-            {contrastTypes.map(item => (
+            {contrastTypes.map((item, index) => (
               <Select.Option
                 className="selectOptionWrapper"
-                key={item.value}
-                value={item.value}
+                key={item.ignoreToday ? `${item.value}-ignoreToday` : item.value}
+                value={item.ignoreToday ? `${item.value}-ignoreToday` : item.value}
               >
                 {item.text}
               </Select.Option>
@@ -147,7 +160,9 @@ export default class DataContrast extends Component {
           className="chartSelect w100"
           value={displaySetup.contrastType || 0}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-          onChange={this.handleChangeDropdown}
+          onChange={valaue => {
+            this.handleChangeDropdown({ contrastType: valaue });
+          }}
         >
           {contrastTypes.map(item => (
             <Select.Option

@@ -466,6 +466,8 @@ export const dealControlPos = controls => {
 // 自定义事件保存时处理执行动作内默认值
 const dealCusTomEventActions = (actionItems = [], controls = []) => {
   return (actionItems || []).map(item => {
+    // 函数、查询不处理，动态值处理
+    if (_.includes(['1', '2'], item.type)) return item;
     const currentControl = _.find(controls, c => c.controlId === item.controlId);
     // 默认值处理，成员、部门等取id
     if (currentControl && item.value) {
@@ -503,8 +505,8 @@ export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
   }
 };
 
-// 表单保存校验
-export const checkWidgetErrorBySave = (controls = [], originControls = []) => {
+// 表单保存前校验
+export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) => {
   let errorMsg = '';
   let errorNum = 3;
   for (const data of controls) {
@@ -569,6 +571,44 @@ export const checkWidgetErrorBySave = (controls = [], originControls = []) => {
     return true;
   }
   return false;
+};
+
+// 重置等处理
+export const checkWidgetBeforeSave = (controls = [], originControls = [], globalInfo = {}, deep = 0) => {
+  controls.map(data => {
+    // 自动编号重置
+    if (data.type === 33 && !data.controlId.includes('-')) {
+      checkAutoIdReset(data, originControls, globalInfo);
+    }
+
+    // 游离子表自动编号重置
+    if (data.type === 34 && getAdvanceSetting(data, 'detailworksheettype') === 2 && deep === 0) {
+      deep = 1;
+      const oriControls = _.get(
+        _.find(originControls, o => o.controlId === data.controlId),
+        'relationControls',
+      );
+      checkWidgetBeforeSave(data.relationControls, oriControls, {
+        appId: globalInfo.appId,
+        worksheetId: data.dataSource,
+      });
+    }
+  });
+};
+
+const checkAutoIdReset = (data = {}, originControls = [], globalInfo = {}) => {
+  const increase = getAdvanceSetting(data, 'increase') || [];
+  const originAutoId = _.find(originControls, o => o.controlId === data.controlId);
+  const originIncrease = getAdvanceSetting(originAutoId, 'increase') || [];
+  const startValueChange =
+    _.get(_.find(increase, { type: 1 }), 'start') !== _.get(_.find(originIncrease, { type: 1 }), 'start');
+  if (startValueChange && window.auto_id_reset[data.controlId]) {
+    sheetAjax.resetControlIncrease({
+      ..._.pick(globalInfo, ['appId', 'worksheetId']),
+      controlId: data.controlId,
+      initNum: 0,
+    });
+  }
 };
 
 export const formatControlsData = (controls = [], fromSub = false) => {
@@ -695,6 +735,17 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       }
       if (getAdvanceSetting(data, 'topshow') === 2 && !isEmpty(getAdvanceSetting(data, 'topfilters'))) {
         data = dealCascaderId(data);
+      }
+      // 查询聚合表指定字段处理showtype
+      if (type === 51 && (data.enumDefault === 1 || getAdvanceSetting(data, 'querytype') === 1)) {
+        data = {
+          ...handleAdvancedSettingChange(data, {
+            ...(data.enumDefault === 1 ? { showtype: data.showControls.length > 1 ? '1' : '3' } : {}),
+            allowlink: '0',
+            allowedit: '0',
+          }),
+          enumDefault2: 1,
+        };
       }
       // 关联表sid处理
       return fromSub

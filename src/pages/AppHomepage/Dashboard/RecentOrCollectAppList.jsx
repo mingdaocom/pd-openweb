@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, forwardRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, Tooltip, SvgIcon, SortableList } from 'ming-ui';
@@ -119,7 +119,7 @@ const ListItemSkeleton = styled.div`
   }
 `;
 
-function RecentOrCollectAppList(props) {
+const RecentOrCollectAppList = forwardRef((props, ref) => {
   const {
     apps = [],
     loading,
@@ -292,6 +292,6 @@ function RecentOrCollectAppList(props) {
         ))}
     </Wrapper>
   );
-}
+});
 
 export default autoSize(RecentOrCollectAppList);

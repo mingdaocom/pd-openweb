@@ -100,9 +100,6 @@ export function QuickFilter(props) {
   } = props;
   const updateQuickFilter = _.includes([21, 1], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
   const width = document.documentElement.clientWidth - 60;
-  const showQueryBtn =
-    (view.advancedSetting && view.advancedSetting.enablebtn && view.advancedSetting.enablebtn === '1') ||
-    savedFilters.length;
   const store = useRef({});
   const [values, setValues] = useState({});
   const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
@@ -255,17 +252,11 @@ export function QuickFilter(props) {
                 store.current.activeType = item.control.type;
                 const newValues = { ...values, [i]: { ...values[i], ...change } };
                 setValues(newValues);
-                if (!showQueryBtn && !_.isEmpty(newValues)) {
-                  update(newValues);
-                }
               }}
               onRemove={() => {
                 values[i] = { ...values[i], dateRange: 0, minValue: undefined, maxValue: undefined, value: undefined };
                 const newValues = { ...values };
                 setValues(newValues);
-                if (!showQueryBtn) {
-                  update(newValues);
-                }
               }}
             />
           </Item>
@@ -299,16 +290,14 @@ export function QuickFilter(props) {
           </Fragment>
         )}
       </div>
-      {!!showQueryBtn && (
-        <div className="footer flexRow valignWrapper">
-          <div className="flex Font16 centerAlign" onClick={handleReset}>
-            {_l('重置')}
-          </div>
-          <div className="flex Font16 centerAlign query" onClick={() => update()}>
-            {_l('查询')}
-          </div>
+      <div className="footer flexRow valignWrapper">
+        <div className="flex Font16 centerAlign" onClick={handleReset}>
+          {_l('重置')}
         </div>
-      )}
+        <div className="flex Font16 centerAlign query" onClick={() => update()}>
+          {_l('查询')}
+        </div>
+      </div>
     </Con>
   );
 }

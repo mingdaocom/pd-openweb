@@ -99,7 +99,7 @@ class TaskCanvas extends Component {
     });
   };
   //计算更新后的数据
-  onCompute = data => {
+  onCompute = (data, cb) => {
     const { flowNodes } = this.state;
     const { toAdd = [], toUpdate = [], toDeleteIds = [], srcIsDb } = data;
     const updateIds = (toUpdate || []).map(o => o.nodeId);
@@ -120,12 +120,13 @@ class TaskCanvas extends Component {
         this.setState({
           loading: false,
         });
+        cb && cb();
       },
     );
   };
 
   //更新节点信息
-  updateNode = (node, forName) => {
+  updateNode = (node, forName, cb) => {
     const { currentProjectId: projectId } = this.props;
     const { flowId = '' } = this.state;
     const { nodeId, name, nodeType, nodeConfig } = node;
@@ -137,12 +138,15 @@ class TaskCanvas extends Component {
         name,
       }).then(res => {
         const { srcIsDb } = res;
-        this.onCompute({
-          toUpdate: [node],
-          toAdd: [],
-          toDeleteIds: [],
-          srcIsDb,
-        });
+        this.onCompute(
+          {
+            toUpdate: [node],
+            toAdd: [],
+            toDeleteIds: [],
+            srcIsDb,
+          },
+          cb,
+        );
       });
       return;
     }
@@ -162,16 +166,19 @@ class TaskCanvas extends Component {
       if (_.get(node, 'nodeConfig.config.scheduleConfig.isUpdate')) {
         node.nodeConfig.config.scheduleConfig.isUpdate = false;
       }
-      this.onCompute({
-        toUpdate: !!toUpdate
-          ? !toUpdate.find(o => o.nodeId === node.nodeId)
-            ? [...toUpdate, node]
-            : toUpdate
-          : [node],
-        toAdd: !!toAdd ? toAdd : [],
-        toDeleteIds: !!toDeleteIds ? toDeleteIds : [],
-        srcIsDb,
-      });
+      this.onCompute(
+        {
+          toUpdate: !!toUpdate
+            ? !toUpdate.find(o => o.nodeId === node.nodeId)
+              ? [...toUpdate, node]
+              : toUpdate
+            : [node],
+          toAdd: !!toAdd ? toAdd : [],
+          toDeleteIds: !!toDeleteIds ? toDeleteIds : [],
+          srcIsDb,
+        },
+        cb,
+      );
       if (!isSucceeded && errorMsgList) {
         return Dialog.confirm({
           title: _l('报错信息'),
@@ -308,16 +315,20 @@ class TaskCanvas extends Component {
               onClose={() => {
                 this.closeEdit();
               }}
-              onUpdate={node => {
+              onUpdate={(node, cb) => {
                 if (currentId !== node.nodeId) {
                   this.setState({
                     currentId: node.nodeId,
                   });
                 }
-                this.updateNode({
-                  ...node,
-                  status: 'NORMAL',
-                });
+                this.updateNode(
+                  {
+                    ...node,
+                    status: 'NORMAL',
+                  },
+                  null,
+                  cb,
+                );
               }}
               onUpdateFlowDatasources={data => {
                 const { flowData } = this.props;

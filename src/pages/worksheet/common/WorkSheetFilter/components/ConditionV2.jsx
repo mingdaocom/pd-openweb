@@ -145,7 +145,7 @@ export default class Condition extends Component {
 
   changeConditionType = type => {
     const { control, condition, onChange, from } = this.props;
-    const overrideValue = getConditionOverrideValue(type, { ...condition, control }, this.state.valueType);
+    const overrideValue = getConditionOverrideValue(type, { ...condition, control }, this.state.valueType, from);
     if (
       includes([FILTER_CONDITION_TYPE.DATE_BETWEEN, FILTER_CONDITION_TYPE.DATE_NBETWEEN], type) &&
       condition.maxValue &&

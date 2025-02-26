@@ -13,6 +13,20 @@ class Header extends Component {
   };
 
   render() {
+    const MONTH_LANG = {
+      1: _l('1月'),
+      2: _l('2月'),
+      3: _l('3月'),
+      4: _l('4月'),
+      5: _l('5月'),
+      6: _l('6月'),
+      7: _l('7月'),
+      8: _l('8月'),
+      9: _l('9月'),
+      10: _l('10月'),
+      11: _l('11月'),
+      12: _l('12月'),
+    };
     const time = this.props.time;
     // 年 YYYY
     const thisYear = time.getFullYear();
@@ -81,7 +95,7 @@ class Header extends Component {
             this.buttonOnClick(event, 'month');
           }}
         >
-          {_l('%0月', month)}
+          {MONTH_LANG[month]}
         </button>,
       ]);
     }

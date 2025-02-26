@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { TinyColor } from '@ctrl/tinycolor';
+import IllustrationTrigger from './IllustrationTrigger';
 
 const CustomChartContentWrap = styled.div`
   .label {
@@ -93,6 +94,9 @@ const CustomChartContentWrap = styled.div`
         color: #2196f3;
       }
     }
+  }
+  .fitContent {
+    width: fit-content;
   }
 `;
 
@@ -291,7 +295,12 @@ export default function ChartSettingDialog(props) {
             </div>
           ))}
         </div>
-        <div className="label mBottom16 mTop32">{_l('主题颜色')}</div>
+        <IllustrationTrigger type="chart">
+          <div className="label mBottom16 mTop32 valignWrapper fitContent">
+            {_l('主题颜色（只可选择自定义主题色）')}
+            <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
+          </div>
+        </IllustrationTrigger>
         <div className="themeList">
           {themeColors.map(color => (
             <div className={cx('colorItem', { disable: !editable })}>

@@ -18,7 +18,6 @@ import CollectionCharts from './CollectionCharts';
 import cx from 'classnames';
 import _ from 'lodash';
 import { getToken } from 'src/util';
-import { Base64 } from 'js-base64';
 import axios from 'axios';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -260,11 +259,11 @@ export default function Dashboard(props) {
           boardSwitch: true,
           advancedSetting: _.pick(theme, 'themeKey'),
         })
-      : getToken([{ bucket: 4, ext: '.jpg' }]).then(res => {
+      : getToken([{ bucket: 4, ext: '.jpg' }], 4).then(res => {
           if (res.error) {
             alert(res.error);
           } else {
-            const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${Base64.encode(res[0].key)}`;
+            const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
             urlToBase64(theme.bulletinPic).then(base64 => {
               axios
                 .post(url, base64.replace('data:image/jpeg;base64,', ''), {

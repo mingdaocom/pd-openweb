@@ -16,7 +16,7 @@ import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import alreadyDelete from './State/assets/alreadyDelete.png';
-import { mdAppResponse } from 'src/util';
+import { mdAppResponse, getRequest } from 'src/util';
 import _ from 'lodash';
 
 @withRouter
@@ -30,7 +30,8 @@ class RecordList extends Component {
     };
   }
   componentDidMount() {
-    if (window.isMingDaoApp) {
+    const { getFilters } = getRequest();
+    if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
         const { value = [] } = data;
         this.props.updateFilterControls(value);

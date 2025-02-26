@@ -18,8 +18,19 @@ const Con = styled.div`
     ${({ isMultiple }) => (isMultiple ? '' : 'height: 32px;')}
     line-height: 32px;
     overflow: hidden;
+    .ant-select-arrow {
+      color: #9e9e9e;
+    }
+    .ant-select-clear {
+      background: transparent !important;
+    }
     &:hover {
       border-color: #ccc !important;
+    }
+    &:not(.isEmpty):hover {
+      .ant-select-arrow {
+        display: none;
+      }
     }
     &.ant-select-open {
       border-color: #2196f3 !important;

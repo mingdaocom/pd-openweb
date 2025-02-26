@@ -422,7 +422,11 @@ export default class RelateRecordList extends React.PureComponent {
                 onNewRecord(e);
               }}
             >
-              <i className="icon icon-plus"></i> {worksheet.entityName || (control && control.sourceEntityName)}
+              <i className="icon icon-plus"></i>
+              {_.get(worksheet, 'advancedSetting.btnname') ||
+                (control && control.sourceBtnName) ||
+                worksheet.entityName ||
+                (control && control.sourceEntityName)}
             </div>
           )}
       </div>

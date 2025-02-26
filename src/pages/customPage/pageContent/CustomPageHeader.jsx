@@ -26,7 +26,7 @@ import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
 import store from 'redux/configureStore';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { replaceColor, isLightColor } from 'src/pages/customPage/util';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo, getCurrentProject } from 'src/util';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { chartNav } from 'statistics/common';
 
@@ -81,10 +81,18 @@ export default function CustomPageHeader(props) {
 
   const saveImage = () => {
     const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
+    const isUserWatermark =
+      md.global.Account.accountId &&
+      (getCurrentProject(projectId, true).enabledWatermark ||
+        (md.global.Account.watermark == 1 && md.global.Account.isPortal));
     setExportLoading(true);
     window.customPageWindowResize && window.customPageWindowResize();
     createFontLink()
-      .then(exportImage.bind(this, pageConfig.pageBgColor))
+      .then(exportImage.bind(this, {
+        pageBgColor: pageConfig.pageBgColor,
+        isUserWatermark,
+        currentProject: md.global.Account.accountId && projectId !== 'external' ? getCurrentProject(projectId, true) : {}
+      }))
       .then(blob => {
         setExportLoading(false);
         saveAs(blob, imageName);
@@ -284,6 +292,10 @@ export default function CustomPageHeader(props) {
     );
   };
 
+  const isDarkTheme = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
+  const backgroundColor =
+    appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
+
   return (
     <Fragment>
       <header
@@ -293,11 +305,13 @@ export default function CustomPageHeader(props) {
             appPkg.currentPcNaviStyle === 2
               ? false
               : !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
-          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor),
         })}
         style={{
-          backgroundColor:
-            appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor,
+          zIndex: pageConfig.pageBgImage ? 0 : 2,
+          '--title-color': isDarkTheme ? '#ffffffcc' : '#333',
+          '--icon-color': isDarkTheme ? '#ffffffcc' : '#757575a1',
+          '--icon-hover-color': isDarkTheme ? '#ffffff' : '#2196f3',
+          backgroundColor: backgroundColor,
         }}
       >
         <div className="nameWrap flex">
@@ -443,7 +457,7 @@ export default function CustomPageHeader(props) {
                     setConfigVisible(true);
                   }}
                 >
-                  <Icon className="Font20 pointer" icon="tune" />
+                  <Icon className="Font20 pointer" icon="design-services" />
                 </div>
               </Tooltip>
             )}
@@ -552,7 +566,10 @@ export default function CustomPageHeader(props) {
             customApi.updatePage({
               appId: id,
               adjustScreen,
-              config,
+              config: {
+                ...config,
+                webNewCols: config.orightWebCols,
+              },
               urlParams,
             });
           }}

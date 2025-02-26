@@ -72,7 +72,6 @@ function ChartComponent(props) {
     pageId,
     reportId,
     name,
-    accessToken,
     filters = [],
     pageComponents,
     appId,
@@ -81,6 +80,7 @@ function ChartComponent(props) {
     filtersGroup = [],
     onLoad,
     isHorizontal,
+    needUpdate,
   } = props;
   const mobileCount = _.get(widget, 'config.mobileCount');
   const mobileFontSize = _.get(widget, 'config.mobileFontSize');
@@ -96,15 +96,11 @@ function ChartComponent(props) {
     filtersGroup: filtersGroup.length ? filtersGroup : undefined,
   };
 
-  if (accessToken) {
-    window.access_token = accessToken;
-  }
-
   const request = useRef(null);
 
   useDeepCompareEffect(() => {
     handleReportRequest();
-  }, [reportId, filtersGroup, linkageFiltersGroup]);
+  }, [reportId, filtersGroup, linkageFiltersGroup, needUpdate]);
 
   const handleReportRequest = param => {
     let requestParam = {
@@ -233,7 +229,10 @@ function ChartComponent(props) {
     linkageMatch,
     onUpdateLinkageFiltersGroup,
     loading,
-    pageConfig,
+    pageConfig: {
+      ...pageConfig,
+      pageStyleType: 'light'
+    },
     themeColor,
     mobileFontSize,
     onOpenFilterModal: handleOpenFilterModal,
@@ -261,12 +260,7 @@ function ChartComponent(props) {
           <ModalContent className="leftAlign flexColumn h100">{DialogContent()}</ModalContent>
         )}
       </Popup>
-      <Popup
-        visible={zoomVisible}
-        onClose={handleOpenZoomModal}
-        className="h100"
-        position="left"
-      >
+      <Popup visible={zoomVisible} onClose={handleOpenZoomModal} className="h100" position="left">
         <HorizontalChartContent
           className="leftAlign pAll20"
           height={document.documentElement.clientWidth}
@@ -332,7 +326,7 @@ function ChartContent(props) {
       setTimeout(() => {
         setVisible(true);
       }, 100);
-    }
+    };
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
       delete window[`refresh-${objectId}`];
@@ -346,7 +340,7 @@ function ChartContent(props) {
   ) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
-        <SpinLoading color='primary' />
+        <SpinLoading color="primary" />
       </div>
     );
   }
@@ -370,7 +364,7 @@ function ChartContent(props) {
   if (!visible) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
-        <SpinLoading color='primary' />
+        <SpinLoading color="primary" />
       </div>
     );
   }

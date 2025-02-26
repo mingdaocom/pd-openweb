@@ -134,10 +134,10 @@ export const BillInfoWrap = styled.div`
       }
     }
     .time {
-      width: 20%;
+      width: 16%;
     }
     .type {
-      width: 20%;
+      width: 24%;
     }
     .operation {
       text-align: center;
@@ -164,10 +164,10 @@ export const BillInfoWrap = styled.div`
         width: 10%;
       }
       .time {
-        width: 20%;
+        width: 16%;
       }
       .type {
-        width: 20%;
+        width: 24%;
       }
       .operation {
         text-align: center;

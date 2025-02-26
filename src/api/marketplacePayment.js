@@ -53,26 +53,25 @@ export default {
   /**
   * 获取订单列表
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织ID
-  * @param {string} args.orderId 订单号
-  * @param {string} args.merchantOrderId 交易订单号
-  * @param {string} args.description 描述信息
+  * @param {string} args.projectId
+  * @param {string} args.orderId
+  * @param {string} args.merchantOrderId
+  * @param {string} args.description
   * @param {} args.status
   * @param {} args.payOrderType
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
-  * @param {string} args.startPaidTime 付款成功时间起始
-  * @param {string} args.endPaidTime 付款成功时间结束
-  * @param {string} args.startRefundTime 退款时间起始
-  * @param {string} args.endRefundTime 退款时间结束
-  * @param {string} args.startConfirmTime 完成时间起始
-  * @param {string} args.endConfirmTime 完成时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
+  * @param {string} args.startPaidTime
+  * @param {string} args.endPaidTime
+  * @param {string} args.startRefundTime
+  * @param {string} args.endRefundTime
+  * @param {string} args.startConfirmTime
+  * @param {string} args.endConfirmTime
   * @param {} args.getOrderSource
   * @param {} args.buyType
-  * @param {string} args.productId 商品Id
-  * @param {boolean} args.isAutoTask 是否自动任务调用
+  * @param {string} args.productId
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -109,26 +108,25 @@ export default {
   /**
   * 导出买家中心交易流水
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织ID
-  * @param {string} args.orderId 订单号
-  * @param {string} args.merchantOrderId 交易订单号
-  * @param {string} args.description 描述信息
+  * @param {string} args.projectId
+  * @param {string} args.orderId
+  * @param {string} args.merchantOrderId
+  * @param {string} args.description
   * @param {} args.status
   * @param {} args.payOrderType
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
-  * @param {string} args.startPaidTime 付款成功时间起始
-  * @param {string} args.endPaidTime 付款成功时间结束
-  * @param {string} args.startRefundTime 退款时间起始
-  * @param {string} args.endRefundTime 退款时间结束
-  * @param {string} args.startConfirmTime 完成时间起始
-  * @param {string} args.endConfirmTime 完成时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
+  * @param {string} args.startPaidTime
+  * @param {string} args.endPaidTime
+  * @param {string} args.startRefundTime
+  * @param {string} args.endRefundTime
+  * @param {string} args.startConfirmTime
+  * @param {string} args.endConfirmTime
   * @param {} args.getOrderSource
   * @param {} args.buyType
-  * @param {string} args.productId 商品Id
-  * @param {boolean} args.isAutoTask 是否自动任务调用
+  * @param {string} args.productId
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -141,26 +139,25 @@ export default {
   /**
   * 导出开发者交易流水
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织ID
-  * @param {string} args.orderId 订单号
-  * @param {string} args.merchantOrderId 交易订单号
-  * @param {string} args.description 描述信息
+  * @param {string} args.projectId
+  * @param {string} args.orderId
+  * @param {string} args.merchantOrderId
+  * @param {string} args.description
   * @param {} args.status
   * @param {} args.payOrderType
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
-  * @param {string} args.startPaidTime 付款成功时间起始
-  * @param {string} args.endPaidTime 付款成功时间结束
-  * @param {string} args.startRefundTime 退款时间起始
-  * @param {string} args.endRefundTime 退款时间结束
-  * @param {string} args.startConfirmTime 完成时间起始
-  * @param {string} args.endConfirmTime 完成时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
+  * @param {string} args.startPaidTime
+  * @param {string} args.endPaidTime
+  * @param {string} args.startRefundTime
+  * @param {string} args.endRefundTime
+  * @param {string} args.startConfirmTime
+  * @param {string} args.endConfirmTime
   * @param {} args.getOrderSource
   * @param {} args.buyType
-  * @param {string} args.productId 商品Id
-  * @param {boolean} args.isAutoTask 是否自动任务调用
+  * @param {string} args.productId
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -173,26 +170,25 @@ export default {
   /**
   * 导出运营中心交易流水
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织ID
-  * @param {string} args.orderId 订单号
-  * @param {string} args.merchantOrderId 交易订单号
-  * @param {string} args.description 描述信息
+  * @param {string} args.projectId
+  * @param {string} args.orderId
+  * @param {string} args.merchantOrderId
+  * @param {string} args.description
   * @param {} args.status
   * @param {} args.payOrderType
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
-  * @param {string} args.startPaidTime 付款成功时间起始
-  * @param {string} args.endPaidTime 付款成功时间结束
-  * @param {string} args.startRefundTime 退款时间起始
-  * @param {string} args.endRefundTime 退款时间结束
-  * @param {string} args.startConfirmTime 完成时间起始
-  * @param {string} args.endConfirmTime 完成时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
+  * @param {string} args.startPaidTime
+  * @param {string} args.endPaidTime
+  * @param {string} args.startRefundTime
+  * @param {string} args.endRefundTime
+  * @param {string} args.startConfirmTime
+  * @param {string} args.endConfirmTime
   * @param {} args.getOrderSource
   * @param {} args.buyType
-  * @param {string} args.productId 商品Id
-  * @param {boolean} args.isAutoTask 是否自动任务调用
+  * @param {string} args.productId
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -218,14 +214,14 @@ export default {
   /**
   * 获取提现列表
   * @param {Object} args 请求参数
-  * @param {string} args.withdrawId 提现订单号
-  * @param {string} args.accountId 提现人
-  * @param {string} args.description 描述信息
+  * @param {string} args.withdrawId
+  * @param {string} args.accountId
+  * @param {string} args.description
   * @param {} args.status
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
   * @param {} args.withdrawType
   * @param {} args.getOrderSource
   * @param {} args.pageFilter
@@ -240,6 +236,12 @@ export default {
   /**
   * 获取开发者提现汇总
   * @param {Object} args 请求参数
+  * @param {} args.getOrderSource
+  * @param {} args.withdrawType
+  * @param {string} args.withdrawId 提现订单号
+  * @param {} args.status
+  * @param {string} args.startCreateTime 创建时间起始
+  * @param {string} args.endCreateTime 创建时间结束
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -299,16 +301,27 @@ export default {
      return mdyAPI('MarketplacePayment', 'CancelWithdraw', args, options);
    },
   /**
+  * 同步民生银行提现单状态
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   synchronizeBankStatus: function (args, options = {}) {
+     
+     return mdyAPI('MarketplacePayment', 'SynchronizeBankStatus', args, options);
+   },
+  /**
   * 导出提现流水
   * @param {Object} args 请求参数
-  * @param {string} args.withdrawId 提现订单号
-  * @param {string} args.accountId 提现人
-  * @param {string} args.description 描述信息
+  * @param {string} args.withdrawId
+  * @param {string} args.accountId
+  * @param {string} args.description
   * @param {} args.status
-  * @param {string} args.startCreateTime 创建时间起始
-  * @param {string} args.endCreateTime 创建时间结束
-  * @param {string} args.startUpdateTime 更新时间起始
-  * @param {string} args.endUpdateTime 更新时间结束
+  * @param {string} args.startCreateTime
+  * @param {string} args.endCreateTime
+  * @param {string} args.startUpdateTime
+  * @param {string} args.endUpdateTime
   * @param {} args.withdrawType
   * @param {} args.getOrderSource
   * @param {} args.pageFilter
@@ -438,5 +451,38 @@ export default {
    exportRefundOrders: function (args, options = {}) {
      
      return mdyAPI('MarketplacePayment', 'ExportRefundOrders', args, options);
+   },
+  /**
+  * 单笔退款
+  * @param {Object} args 请求参数
+  * @param {string} args.orderId 订单id
+  * @param {string} args.description
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   applyRefund: function (args, options = {}) {
+     
+     return mdyAPI('MarketplacePayment', 'ApplyRefund', args, options);
+   },
+  /**
+  * 获取退款汇总
+  * @param {Object} args 请求参数
+  * @param {string} args.refundOrderId 退款单号
+  * @param {string} args.orderId 订单号
+  * @param {} args.status
+  * @param {} args.payOrderType
+  * @param {string} args.startCreateTime 创建时间起始
+  * @param {string} args.endCreateTime 创建时间结束
+  * @param {string} args.startRefundTime 退款时间起始
+  * @param {string} args.endRefundTime 退款时间结束
+  * @param {} args.getOrderSource
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRefundSummary: function (args, options = {}) {
+     
+     return mdyAPI('MarketplacePayment', 'GetRefundSummary', args, options);
    },
 };

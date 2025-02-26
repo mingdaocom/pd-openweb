@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Icon, LoadDiv, Support } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { showEditFn, getRulesAll, deleteRules, saveFn } from '../actions/action';
-import { Prompt } from 'react-router';
+import { Prompt } from 'react-router-dom';
 import './index.less';
 import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';

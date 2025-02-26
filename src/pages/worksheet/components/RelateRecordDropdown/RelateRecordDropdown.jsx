@@ -6,6 +6,7 @@ import { ClickAway } from 'ming-ui';
 import styled from 'styled-components';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
@@ -610,6 +611,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderSelected(free) {
     const {
+      isDark,
       control = {},
       isQuickFilter,
       isediting,
@@ -638,6 +640,7 @@ export default class RelateRecordDropdown extends React.Component {
           emptyRecord: !selected.length,
           readonly: disabled,
           allowOpenRecord: allowOpenRecord,
+          isDark,
           'customFormControlBox mobile': this.isMobile,
         })}
         ref={this.cell}
@@ -670,6 +673,8 @@ export default class RelateRecordDropdown extends React.Component {
   render() {
     const {
       from,
+      appId,
+      multiple,
       isDraft,
       insheet,
       popupOffset,
@@ -691,6 +696,8 @@ export default class RelateRecordDropdown extends React.Component {
     const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
     const popup = this.renderPopup({ disabledManualWrite });
     const popupVisible = insheet ? isediting : listvisible;
+    const chooseShowIds = safeParse(control.advancedSetting.chooseshowids, 'array');
+    let showCards = !multiple && !!chooseShowIds.length && !insheet;
     return (
       <div
         className={cx('RelateRecordDropdown', className)}
@@ -700,41 +707,65 @@ export default class RelateRecordDropdown extends React.Component {
           }
         }}
       >
-        <Trigger
-          action={insheet ? [] : ['click']}
-          popupVisible={popupVisible}
-          onPopupVisibleChange={visilbe => {
-            if (!disabled && visilbe) {
-              this.openPopup();
-              // 处理iOS下无法自动激活键盘
-              if (this.inputForIOSKeyboardRef.current) {
-                this.inputForIOSKeyboardRef.current.focus();
+        {!(showCards && disabled) && (
+          <Trigger
+            action={insheet ? [] : ['click']}
+            popupVisible={popupVisible}
+            onPopupVisibleChange={visilbe => {
+              if (!disabled && visilbe) {
+                this.openPopup();
+                // 处理iOS下无法自动激活键盘
+                if (this.inputForIOSKeyboardRef.current) {
+                  this.inputForIOSKeyboardRef.current.focus();
+                }
+              } else {
+                this.setState({ listvisible: false });
               }
-            } else {
-              this.setState({ listvisible: false });
-            }
-            onVisibleChange(visilbe);
-          }}
-          popupClassName={cx('relateRecordDropdownPopup filterTrigger', popupClassName, { isQuickFilter })}
-          getPopupContainer={popupContainer || (() => document.body)}
-          popupAlign={{
-            points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
-            offset: popupOffset || [0, 2],
-            overflow: {
-              adjustX: !this.isMobile,
-              adjustY: true,
-            },
-          }}
-          zIndex={zIndex || (this.isMobile ? 999 : 1000)}
-          destroyPopupOnHide
-          popup={popup}
-        >
-          {(!insheet || !isediting) && (!isQuickFilter || !listvisible) ? (
-            this.renderSelected()
-          ) : (
-            <div style={selectedStyle} ref={this.cell} />
-          )}
-        </Trigger>
+              onVisibleChange(visilbe);
+            }}
+            popupClassName={cx('relateRecordDropdownPopup filterTrigger', popupClassName, { isQuickFilter })}
+            getPopupContainer={popupContainer || (() => document.body)}
+            popupAlign={{
+              points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
+              offset: popupOffset || [0, 2],
+              overflow: {
+                adjustX: !this.isMobile,
+                adjustY: true,
+              },
+            }}
+            zIndex={zIndex || (this.isMobile ? 999 : 1000)}
+            destroyPopupOnHide
+            popup={popup}
+          >
+            {(!insheet || !isediting) && (!isQuickFilter || !listvisible) ? (
+              this.renderSelected()
+            ) : (
+              <div style={selectedStyle} ref={this.cell} />
+            )}
+          </Trigger>
+        )}
+        {showCards && !!selected.length && (
+          <div className="mTop10">
+            <RelateRecordCards
+              hideTitle={!disabled}
+              appId={appId}
+              recordId={this.props.recordId}
+              allowOpenRecord={disabled ? control.advancedSetting.allowlink === '1' : false}
+              cardClassName={disabled && control.advancedSetting.allowlink === '1' ? 'Hand' : undefined}
+              control={{
+                ...control,
+                disabled: true,
+                showControls: chooseShowIds,
+                advancedSetting: {
+                  ...control.advancedSetting,
+                  showtype: '1',
+                },
+              }}
+              records={selected.slice(0, 1)}
+              from={from}
+            />
+          </div>
+        )}
         {window.isIPad && (
           <input
             type="text"

@@ -389,7 +389,7 @@ export default class GlobalSearchAllContent extends Component {
             data={appData}
             dataKey={'app'}
             searchKeyword={searchKeyword}
-            currentProjectName={_.find(md.global.Account.projects, { projectId: appProjectId }).companyName}
+            currentProjectName={_.get(_.find(md.global.Account.projects, { projectId: appProjectId }), 'companyName')}
             needTitle={true}
             needShowMore={true}
             start={highlightType ? highlightType === 'app' : this.getStart('app')}

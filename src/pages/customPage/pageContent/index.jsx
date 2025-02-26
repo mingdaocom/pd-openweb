@@ -22,7 +22,7 @@ import CustomPage from 'src/pages/customPage';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { browserIsMobile } from 'src/util';
 import { findSheet } from 'worksheet/util';
-import { enumWidgetType } from 'src/pages/customPage/util';
+import { enumWidgetType, updateLayout } from 'src/pages/customPage/util';
 import DocumentTitle from 'react-document-title';
 import { pick } from 'lodash';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -44,7 +44,7 @@ const CustomPageContentWrap = styled.div`
     border-radius: 3px 3px 0 0;
     background-color: #fff;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-    z-index: 2;
+    z-index: 1;
     .customPageDesc {
       padding: 0 4px;
     }
@@ -53,6 +53,7 @@ const CustomPageContentWrap = styled.div`
       align-items: center;
       min-width: 0;
       .pageName {
+        color: var(--title-color);
         margin: 0 6px;
         font-size: 18px;
         font-weight: bold;
@@ -62,9 +63,9 @@ const CustomPageContentWrap = styled.div`
       vertical-align: top;
     }
     .iconWrap {
-      color: #757575a1;
+      color: var(--icon-color);
       &:hover {
-        color: #2196f3;
+        color: var(--icon-hover-color);
       }
     }
     .svgWrap {
@@ -89,6 +90,11 @@ const CustomPageContentWrap = styled.div`
     .hoverGray:hover {
       // background: #f5f5f5;
     }
+    .createSource {
+      &>div, & a {
+        color: var(--title-color);
+      }
+    }
   }
   .content {
     min-height: 0;
@@ -104,19 +110,6 @@ const CustomPageContentWrap = styled.div`
   .selectIconWrap {
     top: 40px;
     left: 10px;
-  }
-  .darkTheme {
-    .pageName,
-    .moreOperateIcon,
-    .iconWrap .icon,
-    .componentTitle,
-    .createSource a,
-    .customPageDesc {
-      color: rgba(255, 255, 255, 1) !important;
-    }
-    .createSource {
-      color: rgba(255, 255, 255, 0.8) !important;
-    }
   }
 `;
 
@@ -185,7 +178,7 @@ function CustomPageContent(props) {
         appId: pageId,
       })
       .then(({ components, desc, apk, adjustScreen, urlParams, name, config, version }) => {
-        const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
+        const componentsData = isMobile ? components.filter(item => item.mobile.visible) : updateLayout(components, config);
         addBehaviorLog('customPage', pageId, {}, true);
         updatePageInfo({
           components: componentsData,
@@ -194,7 +187,7 @@ function CustomPageContent(props) {
           urlParams,
           pageId,
           apk: apk || {},
-          config: config || defaultConfig,
+          config: config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
           pageName: name,
           filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
           version,
@@ -255,7 +248,7 @@ function CustomPageContent(props) {
             <div className="iconWrap">
               <i className="icon-custom_widgets"></i>
             </div>
-            <p className="mTop16">{_l('没有内容')}</p>
+            <p className="mTop16">{_l('暂未添加组件')}</p>
           </div>
         }
       />

@@ -86,7 +86,7 @@ const initRegisterShape = (G2) => {
             x: center.x,
             y: center.y,
             r: 2,
-            fill: '#fff',
+            fill: '#ffffffcc',
           },
         });
       }
@@ -137,8 +137,6 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
       displaySetup.showDimension !== oldDisplaySetup.showDimension ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
@@ -146,7 +144,7 @@ export default class extends Component {
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       !_.isEqual(style, oldStyle) ||
-      !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
       const GaugeChartConfig = this.getComponentConfig(nextProps);
@@ -177,7 +175,8 @@ export default class extends Component {
   }
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, yaxisList, displaySetup } = reportData;
     const { showChartType, showDimension, showNumber, colorRules } = displaySetup;
     const showPercent = displaySetup.percent.enable;
@@ -332,6 +331,9 @@ export default class extends Component {
               return progressLable;
             }
           },
+          style: {
+            fill: isDark ? '#ffffffcc' : undefined
+          }
         },
         tickMethod: applySectionScale ? () => getTicks() : undefined,
         tickLine: isNumberScale || isProgressScale || scaleType !== null ? {} : false,
@@ -347,7 +349,7 @@ export default class extends Component {
             return `${showNumber ? value : ''} ${showPercent ? percentValue : ''}`;
           },
           style: {
-            color: getFontColor(),
+            color: isDark ? '#ffffffcc' : getFontColor(),
             fontSize: '20px',
             lineHeight: '24px',
             width: '50%',
@@ -360,7 +362,7 @@ export default class extends Component {
         title: showDimension ? {
           formatter: ({ percent }) => `${numberControlName}`,
           style: {
-            color: '#9e9e9e',
+            color: isDark ? '#ffffffcc' : '#9e9e9e',
             lineHeight: 4,
             fontSize: '13px',
           },

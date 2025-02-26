@@ -210,7 +210,7 @@ export default class MyProcess extends Component {
     if (visible && this.filterEl) {
       this.filterEl.getTodoListFilter();
     }
-    
+
   }
   bindEscEvent = () => {
     document.body.addEventListener('keydown', this.closeGlobalSearch);
@@ -545,7 +545,7 @@ export default class MyProcess extends Component {
       const isApprove = TABS.WAITING_APPROVE === stateTab;
       const count = isApprove ? waitingApproval : waitingWrite;
       const { passVisible, rejectVisible } = this.state;
-      const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
+      const allowApproveList = list.filter(c => _.get(c, 'flowNode.batchApprove'));
       const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
       return (
         <div className={cx('filterWrapper', { hide: count <= 0 })}>

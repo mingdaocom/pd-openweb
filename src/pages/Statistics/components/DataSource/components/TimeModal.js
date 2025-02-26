@@ -52,7 +52,8 @@ export default class TimeModal extends Component {
       filterRangeId,
       rangeType,
       rangeValue,
-      today: [8, 15, 18, 19].includes(rangeType) ? today : false,
+      today: [4, 8, 11, 15, 18, 19].includes(rangeType) ? today : false,
+      ignoreToday: false,
       dynamicFilter,
     });
   };
@@ -153,7 +154,7 @@ export default class TimeModal extends Component {
             <TimeZoneTag appId={appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
           </div>
           {rangeType == 20 && this.renderRangePicker()}
-          {[8, 15, 18, 19].includes(rangeType) && (
+          {[4, 8, 11, 15, 18, 19].includes(rangeType) && (
             <div className="flexRow valignWrapper mLeft10">
               <Checkbox
                 checked={today}

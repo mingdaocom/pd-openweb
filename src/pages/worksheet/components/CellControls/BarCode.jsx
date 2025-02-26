@@ -20,18 +20,20 @@ const Con = styled.div`
 `;
 
 export default function OptionsSteps(props) {
-  const { className, style, rowFormData, cell = {}, rowHeight = 34, onClick } = props;
+  const { className, recordId = '', style, rowFormData, cell = {}, rowHeight = 34, onClick } = props;
   return (
     <Con className={cx(className, 'cellControl flexRow')} style={style} imgHeight={rowHeight - 9} onClick={onClick}>
-      <BarCode
-        isCell
-        {...{
-          ...cell,
-          advancedSetting: { ...cell.advancedSetting, width: 200 },
-          ..._.pick(props, ['recordId', 'appId', 'worksheetId', 'viewId']),
-        }}
-        formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
-      />
+      {!recordId.startsWith('empty') && (
+        <BarCode
+          isCell
+          {...{
+            ...cell,
+            advancedSetting: { ...cell.advancedSetting, width: 200 },
+            ..._.pick(props, ['recordId', 'appId', 'worksheetId', 'viewId']),
+          }}
+          formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
+        />
+      )}
     </Con>
   );
 }

@@ -58,8 +58,6 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
       displaySetup.showTotal !== oldDisplaySetup.showTotal ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -68,7 +66,7 @@ export default class extends Component {
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
@@ -191,12 +189,17 @@ export default class extends Component {
         },
       ];
     } else {
-      return [{ type: isAnnular ? 'pie-statistic-active' : 'element-active' }];
+      if (isAnnular) {
+        return [{ type: 'pie-statistic-active' }, { type: 'element-active' }];
+      } else {
+        return [{ type: 'element-active' }];
+      }
     }
   }
   getPieConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, displaySetup, yaxisList, summary, xaxes, reportId } = reportData;
     const { percent } = displaySetup;
     const styleConfig = reportData.style || {};
@@ -238,9 +241,7 @@ export default class extends Component {
         },
       },
       theme: {
-        styleSheet: {
-          backgroundColor: '#fff'
-        }
+        background: isDark ? widgetBgColor : '#ffffffcc',
       },
       color: (data) => {
         const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
@@ -266,6 +267,11 @@ export default class extends Component {
             flipPage: true,
             itemHeight: 20,
             radio: { style: { r: 6 } },
+            itemName: {
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
+            }
           }
         : false,
       tooltip: isAnnular || !data.length
@@ -283,6 +289,16 @@ export default class extends Component {
                 value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
               };
             },
+            domStyles: isDark ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              }
+            } : undefined
           },
       statistic: displaySetup.showTotal || !data.length
         ? {
@@ -292,6 +308,7 @@ export default class extends Component {
                 fontSize: 14,
                 fontWeight: 300,
                 transform: `translate(-50%, -100%) scale(${titleScale})`,
+                color: isDark ? '#ffffffcc' : undefined
               },
               formatter: datum => (datum ? datum.name || datum.originalId : formatSummaryName(summary)),
             },
@@ -300,7 +317,8 @@ export default class extends Component {
                 fontSize: 22,
                 fontWeight: 500,
                 transform: `translate(-50%, 0px) scale(${contentScale})`,
-                width: `${_.min([clientWidth, clientHeight]) / 3}px`
+                width: `${_.min([clientWidth, clientHeight]) / 3}px`,
+                color: isDark ? '#ffffffcc' : undefined
               },
               formatter: datum => {
                 const value = datum ? datum.originalValue : summary.sum;
@@ -326,6 +344,9 @@ export default class extends Component {
               const percentText = percent.enable ? `(${formatNumberValue(item.percent * 100, percent)}%)` : '';
               return `${dimensionText} ${numberText} ${percentText}`;
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : false,
       interactions: data.length && this.interactions(isAnnular),

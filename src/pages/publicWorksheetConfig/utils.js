@@ -184,25 +184,10 @@ export function renderLimitInfo(worksheetSettings) {
   );
 }
 
-// 本地存储当前选中菜单
-export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
-  const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
-    ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
-    : {};
-  if (!sheetConfigNavInfo[worksheetId]) {
-    sheetConfigNavInfo[worksheetId] = {};
-  }
-  sheetConfigNavInfo[worksheetId][navType] = navValue;
-  const sheetIds = Object.keys(sheetConfigNavInfo);
-  if (sheetIds.length > 10) {
-    delete sheetConfigNavInfo[sheetIds[0]];
-  }
-  localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
-};
-
 export const getPageConfig = (pageConfigs = '[]', pageConfigKey) => {
   const configs = safeParse(pageConfigs);
-  const index = _.findIndex(configs, l => l.key === pageConfigKey);
 
-  return configs[index < 0 ? 0 : index] || {};
+  if (!pageConfigKey) return configs[0] || {};
+
+  return _.find(configs, l => l.key === pageConfigKey) || configs[0] || {};
 };

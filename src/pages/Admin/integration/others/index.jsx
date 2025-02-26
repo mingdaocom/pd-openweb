@@ -48,7 +48,7 @@ const DATA_INFO = [
     key: 'orgKey',
     label: _l('开放接口'),
     showSetting: false,
-    docLink: 'https://www.showdoc.com.cn/mingdao',
+    docLink: md.global.Config.WebUrl + 'apidoc/',
     description: _l('此密钥是用于访问系统企业授权开放API接口的凭证'),
   },
   // {
@@ -691,6 +691,7 @@ export default class OtherTool extends Component {
   renderIndex() {
     const { licenseType } = getCurrentProject(Config.projectId, true);
     const { authority } = this.props;
+    const lang = window.getCurrentLang();
 
     return (
       <Fragment>
@@ -769,7 +770,9 @@ export default class OtherTool extends Component {
                 </div>
                 <div className="toolItemDescribe">
                   {description}
-                  {docLink && <Support text={_l('查看文档')} type={3} href={docLink} />}
+                  {docLink && (
+                    <Support text={_l('查看文档')} type={3} href={docLink + (lang === 'zh-Hans' ? 'zh-Hans/' : 'en/')} />
+                  )}
                 </div>
                 {showCustomName && (
                   <Fragment>

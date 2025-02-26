@@ -148,8 +148,7 @@ export default function RecordBlock(props) {
       if (Math.abs(changValue) <= 0 && Math.abs(changValueY) <= 0) {
         handleRecordClick(view, props.row, () => {
           $ref.current.style.top = `${top + changValueY}px`;
-
-          if (window.isMingDaoApp && !window.shareState.shareId) {
+          if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
             window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
             return;
           }
@@ -273,7 +272,7 @@ export default function RecordBlock(props) {
           dragDisable
             ? () => {
                 handleRecordClick(view, props.row, () => {
-                  if (window.isMingDaoApp && !window.shareState.shareId) {
+                  if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
                     window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
                     return;
                   }

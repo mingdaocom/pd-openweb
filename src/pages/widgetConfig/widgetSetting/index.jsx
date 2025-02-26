@@ -6,7 +6,7 @@ import { enumWidgetType, supportWidgetIntroOptions } from '../util';
 import WidgetIntro from './components/WidgetIntro';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import SettingContent from './content/SettingContent';
-import StyleContent from './content/StyleContent';
+import StyleContent from '../widgetSetting/components/StyleContent';
 import ExplainContent from './content/ExplainContent';
 import CustomEvent from './content/CustomEvent';
 import { getAdvanceSetting } from '../util/setting';

@@ -9,6 +9,7 @@ import orderController from 'src/api/order';
 import projectSetting from 'src/api/projectSetting';
 import PortalProgress from './PortalProgress';
 import projectAjax from 'src/api/project';
+import paymentAjax from 'src/api/payment';
 import _ from 'lodash';
 import moment from 'moment';
 import { getCurrentProject } from 'src/util';
@@ -24,6 +25,7 @@ const EXPAND_TYPE = {
   COMPUTING: 'computing',
   RENEWCOMPUTING: 'renewcomputing',
   AGGREGATIONTABLE: 'aggregationtable',
+  MERCHANT: 'merchant',
 };
 
 const PAGE_TITLE = {
@@ -36,6 +38,7 @@ const PAGE_TITLE = {
   computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
+  merchant: _l('开通商户号收款'),
 };
 
 //主操作标题名称
@@ -49,6 +52,7 @@ const HeaderTitle = {
   computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
+  merchant: { trial: _l('开通商户号收款试用'), normal: _l('开通商户号收款') },
 };
 
 //第一步标题名称
@@ -62,6 +66,7 @@ const HeaderSubTitle = {
   computing: _l('选择规格'),
   renewcomputing: _l('确认续费信息'),
   aggregationtable: _l('扩充聚合表数量'),
+  merchant: _l('开通商户号收款'),
 };
 
 //总计接口
@@ -78,6 +83,7 @@ const GET_ORDER_PRICE = {
   computingMonthly: orderController.getMonthlyComputingInstanceOrderPrice,
   renewcomputing: orderController.getComputingInstanceExtensionOrderPrice,
   aggregationtable: orderController.getAggregationTableOrderPrice,
+  merchant: orderController.getMerchantPaymentOrderPrice,
 };
 
 //下单接口
@@ -95,6 +101,7 @@ const ADD_ORDER_PRICE = {
   renewcomputing: orderController.addComputingInstanceExtensionOrder,
   aggregationtable: orderController.addAggregationTableOrder,
   computingPermanent: orderController.addPermanentComputingInstanceOrder,
+  merchant: orderController.addMerchantPaymentOrder,
 };
 
 const WORKFLOW_TYPE_LIST = [
@@ -112,6 +119,10 @@ const EXCLUSIVE_TYPE_LIST =
         { title: _l('组织到期时间'), key: 1 },
         { title: _l('当月有效'), key: 0 },
       ];
+const MERCHANT_TYPE_LIST = [
+  { title: _l('组织到期时间'), key: 1, price: _l('%0元/年', 999) },
+  { title: _l('一个月'), key: 4, price: _l('%0元/月', 199) },
+];
 
 const getFormatCount = count => {
   let formatCount = count % 100 || 100;
@@ -170,6 +181,7 @@ export default class ExpansionService extends Component {
         memory: '',
         currentLicense: {},
       },
+      merchantType: 0,
     };
   }
 
@@ -308,6 +320,25 @@ export default class ExpansionService extends Component {
       });
     } else if (expandType === EXPAND_TYPE.AGGREGATIONTABLE) {
       this.setState({ addUserCount: 5, addUserStep: 5, loading: false });
+    } else if (expandType === EXPAND_TYPE.MERCHANT) {
+      Promise.all([
+        projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }),
+        paymentAjax.getMerchant({
+          merchantId: Config.params[4],
+          projectId: Config.projectId,
+        }),
+      ]).then(([licenseInfo, merchantInfo]) => {
+        this.setState(
+          {
+            addUserCount: 1,
+            addUserStep: 1,
+            licenseInfo,
+            loading: false,
+            merchantInfo,
+          },
+          () => this.computePrince(),
+        );
+      });
     } else {
       this.setState(
         {
@@ -325,6 +356,7 @@ export default class ExpansionService extends Component {
 
   //计算金钱
   computePrince() {
+    const { addUserCount, limitNumber } = this.state;
     const actionType = this.getCurrentType();
     const expandType = this.expandType;
 
@@ -346,17 +378,19 @@ export default class ExpansionService extends Component {
       const { orderId, productId } = this.state.renewexclusiveInfo;
       param.productId = productId;
       param.orderId = orderId;
+    } else if (expandType === EXPAND_TYPE.MERCHANT) {
+      param = { ...param, ...this.getMerchantParam() };
     }
 
     this.ajax = GET_ORDER_PRICE[actionType]({
       projectId: Config.projectId,
-      num: expandType === EXPAND_TYPE.WORKFLOW ? this.state.addUserCount / 1000 : this.state.addUserCount,
+      num: param.num || (expandType === EXPAND_TYPE.WORKFLOW ? addUserCount / 1000 : addUserCount),
       ...param,
     });
     this.ajax.then(price => {
       this.setState({
         totalPrince: price,
-        totalNum: this.state.limitNumber + this.state.addUserCount,
+        totalNum: limitNumber + addUserCount,
       });
     });
   }
@@ -377,6 +411,36 @@ export default class ExpansionService extends Component {
       actionType = this.state.payType;
     }
     return actionType;
+  }
+
+  getMerchantDate() {
+    const { merchantType, licenseInfo, merchantInfo, addUserCount } = this.state;
+    const isTrial = Config.params[5] === 'trial';
+    const startDate =
+      !merchantInfo.subscribeMerchant || isTrial
+        ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
+        : moment(merchantInfo.planExpiredTime).isBefore(new Date())
+        ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
+        : moment(merchantInfo.planExpiredTime).add(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ');
+
+    return {
+      startDate,
+      endDate: merchantType
+        ? moment(startDate).add(addUserCount, 'months').subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ')
+        : moment(licenseInfo.currentLicense.endDate).format('YYYY-MM-DDTHH:mm:ssZ'),
+    };
+  }
+
+  getMerchantParam() {
+    const { merchantType, addUserCount, merchantInfo } = this.state;
+    const isTrial = Config.params[5] === 'trial';
+
+    return {
+      num: addUserCount,
+      productOrderType: isTrial ? 0 : MERCHANT_TYPE_LIST[merchantType].key,
+      productDetailId: merchantInfo.merchantNo,
+      ...this.getMerchantDate(),
+    };
   }
 
   handleBack() {
@@ -472,21 +536,29 @@ export default class ExpansionService extends Component {
       param.id = Config.params[Config.params.length - 1];
       param.num = undefined;
       param.productId = this.state.renewexclusiveInfo.productId;
+    } else if (expandType === EXPAND_TYPE.MERCHANT) {
+      param = { ...param, ...this.getMerchantParam() };
     }
     if (isNotPlatformLocal) actionType = 'computingPermanent';
     if (ADD_ORDER_PRICE[actionType]) {
       ADD_ORDER_PRICE[actionType]({
         projectId: Config.projectId,
-        num: expandType === EXPAND_TYPE.WORKFLOW ? addUserCount / 1000 : addUserCount,
+        num: param.num || (expandType === EXPAND_TYPE.WORKFLOW ? addUserCount / 1000 : addUserCount),
         needSalesAssistance,
         ...param,
       }).then(function (data) {
         if (data) {
-          alert(isNotPlatformLocal ? _l('创建成功') : _l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
-            window.location.href = isNotPlatformLocal
-              ? `/admin/computing/${Config.projectId}`
-              : '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
-          });
+          const isTrial = Config.params[5] === 'trial';
+          alert(
+            isTrial || isNotPlatformLocal ? _l('订单已创建成功') : _l('订单已创建成功，正在转到付款页...'),
+            1,
+            500,
+            function () {
+              window.location.href = isNotPlatformLocal
+                ? `/admin/computing/${Config.projectId}`
+                : '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
+            },
+          );
         } else {
           _this.setState({ isPay: false });
           alert(_l('操作失败'), 2);
@@ -496,7 +568,7 @@ export default class ExpansionService extends Component {
   }
 
   // input加减框
-  renderPlusInput({ hasUnit = false, disabled = false, desc = '' } = {}) {
+  renderPlusInput({ hasUnit = false, disabled = false, desc = '', addDisabled = false, disableBlur = false } = {}) {
     const { addUserCount, addUserStep, maxUserCount } = this.state;
     const value = addUserCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,');
     return (
@@ -521,7 +593,7 @@ export default class ExpansionService extends Component {
               this.handleInputChange(e);
             }}
             onBlur={e => {
-              if (disabled) return;
+              if (disabled || disableBlur) return;
               this.handleInputBlur(e);
             }}
             onPaste={() => {
@@ -529,9 +601,9 @@ export default class ExpansionService extends Component {
             }}
           />
           <span
-            className={cx('plus', { unClick: addUserCount >= maxUserCount })}
+            className={cx('plus', { unClick: addUserCount >= maxUserCount || addDisabled })}
             onClick={() => {
-              if (disabled) return;
+              if (disabled || addDisabled) return;
               this.handlePlus();
             }}
           >
@@ -742,7 +814,7 @@ export default class ExpansionService extends Component {
           <div className="addUserLabl">
             {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建数量') : _l('购买数量')}
           </div>
-          {this.renderPlusInput(false, true)}
+          {this.renderPlusInput({ hasUnit: false, disabled: true })}
           <div className="mLeft16">{_l('个实例数')}</div>
         </div>
         {exclusiveInfo.currentLicense.endDate && !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
@@ -791,6 +863,64 @@ export default class ExpansionService extends Component {
     );
   }
 
+  renderMerchantContent(disable = false) {
+    const { merchantType, licenseInfo, merchantInfo } = this.state;
+    const color = disable ? 'Gray_9' : 'Gray_75';
+    const dateRange = this.getMerchantDate();
+
+    return (
+      <Fragment>
+        <div className="mTop24">
+          <span className={cx('mRight24', color)}>{_l('商户名称')}</span>
+          <span>{merchantInfo.shortName || '-'}</span>
+        </div>
+        <div className="mTop24">
+          <span className={cx('mRight24', color)}>{_l('单价')}</span>
+          <span>{MERCHANT_TYPE_LIST[merchantType].price}</span>
+        </div>
+        <div className="Font13 mTop24">
+          <div className={cx('mRight24 mBottom16', color)}>{_l('购买时长')}</div>
+          <div className="flexRow">
+            {MERCHANT_TYPE_LIST.map((item, index) => (
+              <div
+                className={cx('merchantTypeCard flexColumn justifyContentCenter', {
+                  active: index === merchantType,
+                })}
+                key={`merchantTypeCard-${index}`}
+                onClick={() => {
+                  if (disable) return;
+                  this.setState({ merchantType: index }, () => this.computePrince());
+                }}
+              >
+                <div className="Font15 bold Gray">{item.title}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {merchantType === 1 && (
+          <div className="addWorkFlowBox">
+            <div className={cx('addUserLabl', color)}>{_l('购买数量')}</div>
+            {this.renderPlusInput({
+              hasUnit: false,
+              addDisabled: moment(licenseInfo.currentLicense.endDate).isBefore(dateRange.endDate),
+              disabled: disable,
+              disableBlur: true,
+            })}
+            <div className="mLeft16">{_l('月')}</div>
+          </div>
+        )}
+        {licenseInfo.currentLicense.endDate && (
+          <div className={cx('Font13 mBottom24', { mTop24: merchantType !== 1 })}>
+            <span className={cx('mRight24', color)}>{_l('购买时间')}</span>
+            <span className={disable ? 'Gray_9' : 'Gray'}>{moment(dateRange.startDate).format('YYYY年MM月DD日')}</span>
+            <span className="mLeft6 mRight6">-</span>
+            <span className={disable ? 'Gray_9' : 'Gray'}>{moment(dateRange.endDate).format('YYYY年MM月DD日')}</span>
+          </div>
+        )}
+      </Fragment>
+    );
+  }
+
   //类型选择操作
   renderOptionStyle() {
     switch (this.expandType) {
@@ -823,6 +953,8 @@ export default class ExpansionService extends Component {
         return this.renderRenewExclusiveContent();
       case EXPAND_TYPE.AGGREGATIONTABLE:
         return this.renderPlusInput({ desc: _l('100元/个/年（版本剩余时间）') });
+      case EXPAND_TYPE.MERCHANT:
+        return this.renderMerchantContent();
     }
   }
 
@@ -940,6 +1072,8 @@ export default class ExpansionService extends Component {
             <div className="flex">{_l('%0个', addUserCount)}</div>
           </div>
         );
+      case EXPAND_TYPE.MERCHANT:
+        return this.renderMerchantContent(true);
     }
   }
 
@@ -1017,7 +1151,7 @@ export default class ExpansionService extends Component {
   }
 
   renderSelectText() {
-    const { dataSyncType, workflowType, exclusiveInfo } = this.state;
+    const { dataSyncType, workflowType, exclusiveInfo, merchantType } = this.state;
     switch (this.expandType) {
       case EXPAND_TYPE.DATASYNC:
         return dataSyncType === 1 ? _l('每月额度升级包') : _l('本月额度升级包');
@@ -1025,6 +1159,8 @@ export default class ExpansionService extends Component {
         return workflowType === 1 ? _l('每月额度升级包') : _l('本月额度升级包');
       case EXPAND_TYPE.COMPUTING:
         return EXCLUSIVE_TYPE_LIST.find(l => l.key === exclusiveInfo.type).title;
+      case EXPAND_TYPE.MERCHANT:
+        return MERCHANT_TYPE_LIST[merchantType].title;
       default:
         return null;
     }
@@ -1057,7 +1193,9 @@ export default class ExpansionService extends Component {
       <div className="expansionService">
         <div className="valueAddServerHeader">
           <Icon icon="backspace" className="Hand mRight18 TxtMiddle Font24" onClick={() => this.handleBack()}></Icon>
-          <span className="Font17 Bold">{HeaderTitle[expandType]}</span>
+          <span className="Font17 Bold">
+            {_.get(HeaderTitle, expandType === 'merchant' ? `merchant.${Config.params[5] || 'normal'}` : expandType)}
+          </span>
         </div>
         <div style={{ flex: 1, overflow: 'scroll' }}>
           <div className="warpOneStep">
@@ -1160,33 +1298,14 @@ export default class ExpansionService extends Component {
                   <span>{_l('生成订单')}</span>
                 </div>
                 <div className={cx('stepContent pTop30', { Hidden: step !== 2 })}>
-                  {[EXPAND_TYPE.WORKFLOW, EXPAND_TYPE.DATASYNC, EXPAND_TYPE.COMPUTING].includes(expandType) ? (
+                  {[EXPAND_TYPE.WORKFLOW, EXPAND_TYPE.DATASYNC, EXPAND_TYPE.COMPUTING, EXPAND_TYPE.MERCHANT].includes(
+                    expandType,
+                  ) ? (
                     <div className="mBottom10">
                       <span className="mRight8 Gray_9">{_l('已选择')}</span>
                       <span className="color_b">{this.renderSelectText()}</span>
                     </div>
                   ) : null}
-                  <div>
-                    <span className="Font13 mRight8 Gray_9">{_l('总计：')}</span>
-                    <span className="Font24 Bold color_b">￥{totalPrince}</span>
-                  </div>
-                  <div className="pTop40">
-                    <button
-                      type="button"
-                      disabled={isPay}
-                      className="ming Button Button--primary nextBtn"
-                      onClick={() => this.handlePay()}
-                    >
-                      {_l('确认下单')}
-                    </button>
-                  </div>
-                  {!md.global.Config.IsLocal && (
-                    <div className="warpNeedHelp">
-                      <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>
-                        {_l('我希望得到销售代表的协助')}
-                      </Checkbox>
-                    </div>
-                  )}
                 </div>
               </div>
             </Fragment>

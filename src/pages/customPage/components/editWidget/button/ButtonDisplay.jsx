@@ -15,10 +15,10 @@ const ButtonDisplayWrap = styled.div`
   width: 100%;
   padding: 20px 0;
   text-align: center;
-  background-color: #fff;
   .explain {
     text-align: center;
     margin-bottom: 12px;
+    color: var(--title-color);
   }
 `;
 

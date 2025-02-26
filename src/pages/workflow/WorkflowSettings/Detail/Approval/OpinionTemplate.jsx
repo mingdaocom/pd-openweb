@@ -62,7 +62,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
           style={{ paddingTop: 7, paddingBottom: 7 }}
           minHeight={0}
           maxHeight={120}
-          value={item.value}
+          defaultValue={item.value}
           onChange={value =>
             setData(
               Object.assign({}, data, {

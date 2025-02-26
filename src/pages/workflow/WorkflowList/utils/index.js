@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { MdLink } from 'ming-ui';
 import moment from 'moment';
 import { DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME, APP_TYPE, ACTION_ID } from '../../WorkflowSettings/enum';
 
@@ -9,7 +9,7 @@ export const FLOW_TYPE = {
   OTHER_APP: '3',
   ADMIN_APP: '4',
   ADMIN_NETWORK: '5',
-  OTHER: '6',
+  WEBHOOK: '6',
   CUSTOM_ACTION: '7',
   SUB_PROCESS: '8',
   USER: '9',
@@ -41,11 +41,11 @@ export const FLOW_TYPE_NULL = {
     text: _l('暂无组织流程'),
   },
   6: {
-    icon: 'sheet',
+    icon: 'webhook',
     text: _l('在服务器接收到第三方推送的消息后运行流程'),
   },
   7: {
-    icon: 'other',
+    icon: 'action',
     text: _l('当用户点击记录的自定义按钮后运行流程'),
   },
   8: {
@@ -69,7 +69,7 @@ export const FLOW_TYPE_NULL = {
     text: _l('当满足条件事件触发时，进行数据推送'),
   },
   13: {
-    icon: 'sheet',
+    icon: 'loop',
     text: _l('在某个流程中执行一段循环的流程'),
   },
 };
@@ -148,16 +148,17 @@ export const START_APP_TYPE = {
 };
 
 export const TYPES = [
+  { text: _l('所有流程'), value: '', icon: 'icon-workflow' },
   { text: _l('工作表事件%03003'), value: FLOW_TYPE.APP, icon: 'icon-table' },
   { text: _l('时间%03004'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
   { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
-  { text: _l('Webhook'), value: FLOW_TYPE.OTHER, icon: 'icon-workflow_webhook' },
+  { text: _l('Webhook'), value: FLOW_TYPE.WEBHOOK, icon: 'icon-workflow_webhook' },
+  { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
   { text: _l('循环'), value: FLOW_TYPE.LOOP, icon: 'icon-arrow_loop' },
   { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
-  { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
   { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
-  { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
   { text: _l('封装业务流程%03009'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
+  { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
   { text: _l('事件推送'), value: FLOW_TYPE.EVENT_PUSH, icon: 'icon-sending' },
 ];
 
@@ -253,7 +254,7 @@ export const getActionTypeContent = (type, item, disable) => {
   }
 
   // webhook触发
-  if (type === FLOW_TYPE.OTHER) {
+  if (type === FLOW_TYPE.WEBHOOK) {
     return _l('Webhook触发');
   }
 
@@ -282,9 +283,9 @@ export const getActionTypeContent = (type, item, disable) => {
     return disable ? (
       item.triggerName
     ) : (
-      <Link to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3 stopPropagation">
+      <MdLink to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3">
         {item.triggerName}
-      </Link>
+      </MdLink>
     );
   }
 
@@ -295,6 +296,11 @@ export const getActionTypeContent = (type, item, disable) => {
       : item.triggerId === ACTION_ID.COUNT_LOOP
       ? _l('循环指定次数')
       : _l('循环触发');
+  }
+
+  // 所有流程
+  if (!type) {
+    return (TYPES.find(o => o.value === String(item.processListType)) || {}).text;
   }
 
   return (item.appNames || []).join('、');

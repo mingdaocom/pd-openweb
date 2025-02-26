@@ -552,6 +552,9 @@ export const supportSettingCollapse = (props, key) => {
     case 'base':
       return true;
     case 'option':
+      if (type === 51) {
+        return enumDefault === 2 && advancedSetting.querytype !== '1';
+      }
       return _.includes(HAVE_OPTION_WIDGET, type) || (type === 45 && enumDefault === 3);
     case 'style':
       return _.includes(HAVE_TABLE_STYLE_WIDGET, type) || isSheetDisplay(data);
@@ -570,6 +573,8 @@ export const supportSettingCollapse = (props, key) => {
           const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
           const selectedControl = getControlByControlId(relationControls, sourceControlId);
           return isShowUnitConfig(data, selectedControl);
+        case 51:
+          return enumDefault === 2 && advancedSetting.querytype !== '1';
         case 53:
           return _.includes([2, 6, 15, 16], enumDefault2);
         default:
@@ -606,8 +611,8 @@ export const supportSettingCollapse = (props, key) => {
 export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle = false) => {
   // 回收站不显示样式、说明
   if (isRecycle && _.includes([2, 3, 4], introType)) return false;
-  // 分段、他表、标签页、多条列表没有样式设置
-  if ((_.includes([22, 30, 52], data.type) || isSheetDisplay(data)) && introType === 2) return false;
+  // 分段、他表、标签页
+  if (_.includes([22, 30, 52], data.type) && introType === 2) return false;
   // 空白子表里面字段不支持说明
   if (from === 'subList' && introType === 3) return false;
   // 子表不支持事件

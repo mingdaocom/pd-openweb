@@ -8,9 +8,11 @@ import useChatBot from './useChat';
 import LoadingDots from './LoadingDots';
 import Markdown from './Markdown';
 import AutoHeightInput from './AutoHeightInput';
-import { get } from 'lodash';
-import { SYSTEM_PROMPT } from './enum';
+import { get, isFunction } from 'lodash';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
+import UploadImage from './UploadImage';
 import { generateParamsForPrompt, getMessageList, saveMessageList } from '../util';
+import { v4 } from 'uuid';
 
 const Container = styled.div`
   display: flex;
@@ -102,7 +104,6 @@ const InputWrapper = styled.div`
   margin: 0 17px;
   font-size: 0px;
   padding: 4px 0;
-  padding-right: 45px;
   border-radius: 5px;
   border: 1px solid #ddd;
   &.focused {
@@ -127,10 +128,13 @@ const Input = styled(AutoHeightInput)`
   }
 `;
 
+const SendTools = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 12px;
+`;
+
 const SendButton = styled.div`
-  position: absolute;
-  right: 15px;
-  bottom: 11px;
   cursor: pointer;
   color: #2196f3;
   font-size: 20px;
@@ -248,7 +252,10 @@ function ChatLLM(
 ) {
   const messageStoreId = freeId || control.controlId;
   const cache = useRef({});
+  const uploadImageRef = useRef(null);
   const [messageListLoading, setMessageListLoading] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
   const isRefValue = control.type === 54;
   const handleSaveMessageList = useCallback(newMessages => {
     const filteredMessages = newMessages.filter(m => m.type !== MESSAGE_TYPE.SHOW_NOT_SEND);
@@ -293,6 +300,7 @@ function ChatLLM(
   const [scrollToBottomVisible, setScrollToBottomVisible] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const [dropElementId] = useState(v4());
   const messagesContainerRef = useRef(null);
   const updateScrollToBottomButtonVisible = useCallback(() => {
     setScrollToBottomVisible(
@@ -331,6 +339,8 @@ function ChatLLM(
       if ($codeCard) {
         const messageId = $codeCard.dataset.messageId;
         onCodeCardClick(messageId);
+      } else if (e.target.tagName.toLowerCase() === 'img') {
+        previewQiniuUrl(e.target.src, { ext: 'png' });
       }
     },
     [loading],
@@ -340,7 +350,12 @@ function ChatLLM(
     e.preventDefault();
     sendMessage(input, {
       noCode: showEmptyHolder,
+      imageUrl: uploadedImageUrl,
     });
+    if (isFunction(get(uploadImageRef, 'current.clear'))) {
+      uploadImageRef.current.clear();
+      setUploadedImageUrl('');
+    }
     setTimeout(() => {
       inputRef.current.focus();
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -429,6 +444,7 @@ function ChatLLM(
             setRef={ref => {
               inputRef.current = ref;
             }}
+            id={dropElementId}
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -454,20 +470,42 @@ function ChatLLM(
               cache.current.isOnComposition = false;
             }}
           />
-          {loading ? (
-            <AbortButton
-              onClick={() => {
-                abortRequest();
-                inputRef.current.focus();
+          <SendTools>
+            <UploadImage
+              ref={uploadImageRef}
+              dropElementId={dropElementId}
+              dropElement={inputRef.current}
+              onBegin={() => {
+                setUploadedImageUrl(null);
+                setIsUploadingImage(true);
               }}
-            >
-              <span className="square"></span>
-            </AbortButton>
-          ) : (
-            <SendButton className={!input.trim() ? 'disabled' : ''} onClick={!input.trim() ? null : handleSubmit}>
-              <i className="icon icon-sending" />
-            </SendButton>
-          )}
+              onUploaded={url => {
+                setUploadedImageUrl(url);
+                setIsUploadingImage(false);
+              }}
+              onError={() => {
+                setUploadedImageUrl(null);
+                setIsUploadingImage(false);
+              }}
+            />
+            {loading ? (
+              <AbortButton
+                onClick={() => {
+                  abortRequest();
+                  inputRef.current.focus();
+                }}
+              >
+                <span className="square"></span>
+              </AbortButton>
+            ) : (
+              <SendButton
+                className={!input.trim() || isUploadingImage ? 'disabled' : ''}
+                onClick={!input.trim() ? null : handleSubmit}
+              >
+                <i className="icon icon-sending" />
+              </SendButton>
+            )}
+          </SendTools>
         </InputWrapper>
         <Footer>
           <div

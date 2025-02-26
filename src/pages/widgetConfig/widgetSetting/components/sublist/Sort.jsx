@@ -12,7 +12,15 @@ const defaultSort = [
 ];
 
 export default function SubListSort(props) {
-  const { data, controls, fromRelate, onChange, onClose, advancedSettingKey = 'sorts' } = props;
+  const {
+    data,
+    controls,
+    fromRelate,
+    onChange,
+    onClose,
+    advancedSettingKey = 'sorts',
+    onlyShowSystemDateControl,
+  } = props;
   const [sorts, setSorts] = useState(getAdvanceSetting(data, advancedSettingKey));
   return (
     <Dialog
@@ -37,6 +45,7 @@ export default function SubListSort(props) {
         showSystemControls
         onChange={setSorts}
         isSubList={true}
+        onlyShowSystemDateControl={onlyShowSystemDateControl}
       />
     </Dialog>
   );

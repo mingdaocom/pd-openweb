@@ -26,7 +26,8 @@ export default function TimeZoneTag(props) {
 
   if (
     _.isUndefined(appTimeZone) ||
-    (md.global.Account.timeZone === 1 ? moment().utcOffset() : md.global.Account.timeZone) === appTimeZone
+    (md.global.Account.timeZone === 1 ? moment().utcOffset() : md.global.Account.timeZone) ===
+      (appTimeZone === 1 ? moment().utcOffset() : appTimeZone)
   ) {
     return '';
   }

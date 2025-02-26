@@ -210,7 +210,9 @@ export const isClickChart = (state = false, action) => {
 export const filterControls = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_FILTER_CONTROLS':
-      return [...action.filterControls];
+      const { filterControls } = action;
+
+      return _.isArray(filterControls) ? [...filterControls] : [filterControls];
     default:
       return state;
   }
@@ -220,6 +222,15 @@ export const isPullRefreshing = (state = false, action) => {
   switch (action.type) {
     case 'MOBILE_IS_PULL_REFRESHING':
       return action.flag;
+    default:
+      return state;
+  }
+};
+
+export const groupListLoading = (state = false, action) => {
+  switch (action.type) {
+    case 'GROUP_FILTER_LIST_LOADING':
+      return action.data;
     default:
       return state;
   }

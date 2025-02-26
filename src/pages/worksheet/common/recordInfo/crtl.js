@@ -6,9 +6,9 @@ import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util';
+import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import _ from 'lodash';
-import { handleRecordError, postWithToken, replaceBtnsTranslateInfo, checkCellIsEmpty } from 'worksheet/util';
+import { handleRecordError, postWithToken, replaceBtnsTranslateInfo, replaceRulesTranslateInfo } from 'worksheet/util';
 import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
 import appManagement from 'src/api/appManagement';
 import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
@@ -65,7 +65,7 @@ export function loadRecord({
     promise
       .then(([row, rules]) => {
         if (row.resultCode === 1) {
-          resolve(rules ? { ...row, rules } : row);
+          resolve(rules ? { ...row, rules: replaceRulesTranslateInfo(appId, worksheetId, rules) } : row);
         } else {
           reject(row);
         }

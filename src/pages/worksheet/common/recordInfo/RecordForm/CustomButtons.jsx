@@ -4,7 +4,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm, SvgIcon } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
-import { verifyPassword } from 'src/util';
+import { verifyPassword, getTranslateInfo } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import FillRecordControls from '../FillRecordControls';
@@ -102,7 +102,7 @@ export default class CustomButtons extends React.Component {
   };
 
   triggerCustomBtn = btn => {
-    const { worksheetId, recordId, handleUpdateWorksheetRow, projectId } = this.props;
+    const { appId, worksheetId, recordId, handleUpdateWorksheetRow, projectId } = this.props;
     this.remark = undefined;
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
@@ -164,19 +164,32 @@ export default class CustomButtons extends React.Component {
     function handleTrigger() {
       const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
       function confirm({ onOk, onClose = () => {} } = {}) {
+        const translateInfo = getTranslateInfo(appId, worksheetId, btn.btnId);
         confirmClick({
           projectId,
-          title: btn.confirmMsg,
-          description: _.get(btn, 'advancedSetting.confirmcontent'),
+          title: translateInfo.confirmMsg || btn.confirmMsg,
+          description: translateInfo.confirmContent || _.get(btn, 'advancedSetting.confirmcontent'),
           enableRemark: _.get(btn, 'advancedSetting.enableremark'),
-          remarkName: _.get(btn, 'advancedSetting.remarkname'),
-          remarkHint: _.get(btn, 'advancedSetting.remarkhint'),
+          remarkName: translateInfo.remark || _.get(btn, 'advancedSetting.remarkname'),
+          remarkHint: translateInfo.hintText || _.get(btn, 'advancedSetting.remarkhint'),
           remarkRequired: _.get(btn, 'advancedSetting.remarkrequired'),
-          remarkoptions: _.get(btn, 'advancedSetting.remarkoptions'),
+          remarkoptions: (() => {
+            const remarkoptions = safeParse(_.get(btn, 'advancedSetting.remarkoptions'));
+            const { template = [] } = remarkoptions;
+            return JSON.stringify({
+              ...remarkoptions,
+              template: template.map((item, index) => {
+                return {
+                  ...item,
+                  value: translateInfo[`templateName_${index}`] || item.value
+                }
+              })
+            })
+          })(),
           remarktype: _.get(btn, 'advancedSetting.remarktype'),
           verifyPwd: btn.verifyPwd,
-          okText: btn.sureName,
-          cancelText: btn.cancelName,
+          okText: translateInfo.sureName || btn.sureName,
+          cancelText: translateInfo.cancelName || btn.cancelName,
           onOk: onOk || run,
           onClose,
         });

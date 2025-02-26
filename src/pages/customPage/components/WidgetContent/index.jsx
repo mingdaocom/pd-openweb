@@ -35,6 +35,7 @@ const LayoutContent = styled.div`
     background-color: #fff;
     border-radius: 6px;
     overflow: auto;
+    transition: box-shadow 0.2s;
     // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     &.richText {
       .editorNull {
@@ -79,6 +80,7 @@ const LayoutContent = styled.div`
     pointer-events: none;
   }
   .componentTitle {
+    color: var(--title-color);
     width: 100%;
     height: 32px;
     line-height: 32px;
@@ -118,18 +120,20 @@ const LayoutContent = styled.div`
     z-index: 1;
   }
 `;
+
 const LAYOUT_CONFIG = {
   web: {
     rowHeight: COLUMN_HEIGHT,
     margin: [10, 10],
-    cols: 12,
+    cols: 48,
   },
   mobile: {
-    rowHeight: COLUMN_HEIGHT,
+    rowHeight: 40,
     margin: [10, 10],
     cols: 2,
   },
 };
+
 function WidgetContent(props) {
   const {
     layoutType = 'web',
@@ -170,19 +174,6 @@ function WidgetContent(props) {
     };
     window.addEventListener('resize', throttle(handle));
   }, []);
-
-  /*
-  useEffect(() => {
-    const $inputDom = $input.current;
-    if (!$inputDom) return;
-    $inputDom.style.width = `${$inputDom.value.length * 16}px`;
-    const handler = e => {
-      $inputDom.style.width = `${e.target.value.length * 16}px`;
-    };
-    $inputDom.addEventListener('keydown', handler);
-    return () => $inputDom.removeEventListener('keydown', handler);
-  }, [$input.current]);
-  */
 
   const handleToolClick = (clickType, { widget, index, result }) => {
     switch (clickType) {
@@ -297,9 +288,6 @@ function WidgetContent(props) {
         className="layout"
         chatVisible={chatVisible}
         sheetListVisible={sheetListVisible}
-        cols={12}
-        rowHeight={40}
-        margin={[16, 16]}
         isDraggable={editable}
         isResizable={editable}
         isFullscreen={isFullscreen}
@@ -347,6 +335,9 @@ function WidgetContent(props) {
                   haveTitle: titleVisible,
                   iframeNoneEvent: enumType === 'embedUrl' && editable,
                 })}
+                style={{
+                  backgroundColor: layoutType === 'web' ? config.widgetBgColor : undefined
+                }}
               >
                 <WidgetDisplay
                   widget={widget}

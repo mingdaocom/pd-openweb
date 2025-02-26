@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import autoSize from 'ming-ui/decorators/autoSize';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import homeAppAjax from 'src/api/homeApp';

@@ -8,13 +8,10 @@
     <meta name="force-rendering" content="webkit" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title content="登录"></title>
-    <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
-    <script src="/src/common/mdjs/freestyle.js"></script>
   </head>
 
   <body>
     <script>
-      var __api_server__ = <%- apiServer %>;
       var getRequest = () => {
           var encodeUrl = new URL(location.href.replace('#', encodeURIComponent('#')));
           var search = encodeUrl.search.replace('?', '');

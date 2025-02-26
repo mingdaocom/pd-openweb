@@ -157,6 +157,6 @@ function PaySuccess(props) {
 }
 
 const Comp = preall(PaySuccess, { allowNotLogin: false });
-const root = createRoot(document.querySelector('#paySuccess'));
+const root = createRoot(document.querySelector('#app'));
 
 root.render(<Comp />);

@@ -17,7 +17,7 @@ const BasicsSettingConfig = [
   },
   {
     type: 'allowDownloadPermission',
-    label: _l('允许下载打印文件'),
+    label: _l('允许成员下载打印文件'),
     tip: null,
     negate: true,
     isNumber: true,

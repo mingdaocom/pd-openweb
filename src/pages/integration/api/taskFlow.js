@@ -11,6 +11,7 @@ var taskFlow = {
    * @param {string} args.owner 所属用户id
    * @param {string} args.firstNodeId 初始的节点id
    * @param {object} args.flowNodes 任务流节点(map data)
+   * @param {object} args.any object any object.(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -81,6 +82,7 @@ var taskFlow = {
    * @param {string} args.owner 所属用户id
    * @param {string} args.firstNodeId 初始的节点id
    * @param {object} args.flowNodes 任务流节点(map data)
+   * @param {object} args.any object any object.(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -168,6 +170,7 @@ var taskFlow = {
    * @param {string} args.status 节点状态(See: 节点状态)
    * @param {string} args.description 描述
    * @param {object} args.nodeConfig 节点配置(object)
+   * @param {object} args.any object any object.(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -199,6 +202,7 @@ var taskFlow = {
    * @param {string} args.projectId 组织id
    * @param {string} args.flowId 任务流id
    * @param {object} args.fieldForIdentifyDuplicate 用于工作表识别重复的字段信息(object)
+   * @param {object} args.any object any object.(object)
    * @param {string} args.writeMode 工作表写入模式(See: 写入模式)
    * @param {boolean} args.isCleanDestTableData 是否清空目标表数据
    * @param {boolean} args.isCheckPasswordWasVerified 需要清空目标表数据时，是否检查密码是否检验过
@@ -222,6 +226,7 @@ var taskFlow = {
    * @param {string} args.projectId 组织id
    * @param {string} args.owner 所属用户id
    * @param {object} args.sourceNode 源表节点(object)
+   * @param {object} args.any object any object.(object)
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
    * @param {boolean} args.comment 是否同步注释信息(新建表)
@@ -259,6 +264,7 @@ var taskFlow = {
    * @param {string} args.projectId 组织id
    * @param {string} args.owner 所属用户id
    * @param {object} args.sourceNode 源表节点(object)
+   * @param {object} args.any object any object.(object)
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
    * @param {boolean} args.comment 是否同步注释信息(新建表)
@@ -280,6 +286,7 @@ var taskFlow = {
    * @param {string} args.projectId 组织id
    * @param {string} args.owner 所属用户id
    * @param {object} args.sourceNode 源表节点(object)
+   * @param {object} args.any object any object.(object)
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
    * @param {boolean} args.comment 是否同步注释信息(新建表)

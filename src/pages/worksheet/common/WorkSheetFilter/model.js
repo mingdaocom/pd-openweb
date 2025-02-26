@@ -280,6 +280,12 @@ class Actions {
       ids: sortedIds,
     });
   };
+
+  reset = () => {
+    this.dispatch({
+      type: 'RESET',
+    });
+  };
 }
 
 export function createActions(dispatch) {
@@ -406,6 +412,8 @@ export function createReducer(state = {}, action) {
           $apply: oldFilters => action.ids.map(id => _.find(oldFilters, { id })).filter(_.identity),
         },
       });
+    case 'RESET':
+      return {};
     default:
       return state;
   }

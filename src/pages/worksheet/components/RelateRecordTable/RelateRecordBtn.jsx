@@ -82,6 +82,7 @@ const Splitter = styled.span`
 
 export default function RelateRecordBtn(props) {
   const {
+    btnName,
     entityName,
     btnVisible,
     selectedRowIds,
@@ -92,11 +93,11 @@ export default function RelateRecordBtn(props) {
     onSelect,
     onBatchOperate,
   } = props;
-  const { enterBatchEdit, deleteRecords, removeRelation, exportRecords } = btnVisible;
+  const { enterBatchEdit, deleteRecords, removeRelation, exportRecords, edit } = btnVisible;
   const isShareState = !!get(window, 'shareState.shareId');
   const [menuVisible, setMenuVisible] = useState();
   const conRef = useRef();
-  const btnText = addVisible ? entityName : _l('选择%0', entityName);
+  const btnText = addVisible ? btnName || entityName : _l('选择%0', entityName);
   const iconName = addVisible ? 'icon-plus' : 'icon-link_record';
   const btnClick = addVisible ? onNew : onSelect;
   const noSelected = isEmpty(selectedRowIds);
@@ -134,7 +135,7 @@ export default function RelateRecordBtn(props) {
               <Button onClick={btnClick}>
                 <div className="content">
                   <i className={`icon ${iconName} mRight5 Font16`}></i>
-                  {btnText}
+                  {btnText || _l('记录')}
                 </div>
                 {addVisible && selectVisible && (
                   <DropIcon
@@ -168,6 +169,19 @@ export default function RelateRecordBtn(props) {
                 <i className="icon icon-close Gray_9e Font18 mRight5"></i>
                 {_l('退出')}
               </div>
+            </Button>
+          )}
+          {edit && !get(window, 'shareState.shareId') && (
+            <Button
+              className={cx('mRight10', { disabled: noSelected })}
+              onClick={() => {
+                if (noSelected) {
+                  return;
+                }
+                onBatchOperate({ action: 'edit' });
+              }}
+            >
+              <div className="content">{_l('编辑')}</div>
             </Button>
           )}
           {removeRelation && (
@@ -216,6 +230,7 @@ export default function RelateRecordBtn(props) {
 }
 
 RelateRecordBtn.propTypes = {
+  btnName: PropTypes.string,
   entityName: PropTypes.string,
   btnVisible: PropTypes.shape({}),
   selectedRowIds: PropTypes.arrayOf(PropTypes.string),

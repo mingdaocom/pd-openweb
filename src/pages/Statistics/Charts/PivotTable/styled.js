@@ -111,7 +111,7 @@ const PivotTableContent = styled.div`
   .line-content {
     text-align: ${props => props.pivotTableStyle.lineTextAlign || 'left'};
     color: ${props => props.pivotTableStyle.lineTextColor || '#000000d9'};
-    background-color: ${props => props.pivotTableStyle.lineBgColor || '#fff'} !important;
+    background-color: ${props => props.pivotTableStyle.lineBgColor || '#ffffffcc'} !important;
   }
   .line-content, .cell-content {
     white-space: pre-wrap;
@@ -144,12 +144,18 @@ const PivotTableContent = styled.div`
     background: initial;
   }
   .ant-table-tbody > tr.ant-table-row:nth-child(${props => props.isFreeze ? 'odd' : 'even'}) {
+    .cell-content {
+      color: ${props => props.pivotTableStyle.evenTextColor} !important;
+    }
     background-color: ${props => props.pivotTableStyle.evenBgColor || '#fafcfd'};
     &:hover {
       background-color: ${props => props.pivotTableStyle.evenBgColor ? `${props.pivotTableStyle.evenBgColor}e8` : '#fafafa'};
     }
   }
   .ant-table-tbody > tr.ant-table-row:nth-child(${props => props.isFreeze ? 'even' : 'odd'}) {
+    .cell-content {
+      color: ${props => props.pivotTableStyle.oddTextColor} !important;
+    }
     background-color: ${props => props.pivotTableStyle.oddBgColor || 'transparent'};
     &:hover {
       background-color: ${props => props.pivotTableStyle.oddBgColor ? `${props.pivotTableStyle.oddBgColor}e8` : '#fafafa'};

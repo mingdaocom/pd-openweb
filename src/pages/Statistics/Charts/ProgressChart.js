@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Row, Col } from 'antd';
-import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor } from './common';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatrChartValue, getChartColors, getStyleColor } from './common';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
@@ -69,7 +68,7 @@ class ProgressChart extends Component {
     this.ProgressChart.render();
   }
   getComponentConfig(props) {
-    const { data, yAxis, controlMinAndMax, isThumbnail, reportData } = props;
+    const { data, yAxis, controlMinAndMax, isThumbnail, reportData, isDark } = props;
     const { yaxisList, displaySetup, style } = reportData;
     const { showChartType, showNumber, colorRules } = displaySetup;
     const { showValueType = 1 } = style;
@@ -118,12 +117,12 @@ class ProgressChart extends Component {
         statistic: {
           title: showNumber ? {
             offsetY: 10,
-            style: { color: '#151515', fontWeight: 'bold', fontSize: '20px', textAlign: 'center' },
+            style: { color: isDark ? '#ffffffcc' : '#333', fontWeight: 'bold', fontSize: '20px', textAlign: 'center' },
             formatter: titleFormatter
           } : null,
           content: {
             offsetY: 5,
-            style: { color: '#151515', fontSize: '13px', fontWeight: 400, opacity: 0.65 },
+            style: { color: isDark ? '#ffffffcc' : '#333', fontSize: '13px', fontWeight: 400, opacity: 0.65 },
             formatter: () => yAxis.rename || yAxis.controlName,
           }
         },
@@ -158,11 +157,11 @@ class ProgressChart extends Component {
         statistic: {
           title: showNumber ? {
             offsetY: 10,
-            style: { color: '#151515', fontWeight: 'bold', fontSize: '20px', textAlign: 'center', textShadow: '#fff 1px 0 10px' },
+            style: { color: isDark ? '#ffffffcc' : '#151515', fontWeight: 'bold', fontSize: '20px', textAlign: 'center', textShadow: '#fff 1px 0 10px' },
             formatter: titleFormatter
           } : null,
           content: {
-            style: { color: '#151515', fontSize: '13px', fontWeight: 400, textShadow: '#fff 1px 0 10px' },
+            style: { color: isDark ? '#ffffffcc' : '#151515', fontSize: '13px', fontWeight: 400, textShadow: '#fff 1px 0 10px' },
             formatter: () => yAxis.rename || yAxis.controlName,
           }
         },
@@ -189,18 +188,18 @@ class ProgressChart extends Component {
     }
   }
   renderProgress() {
-    const { data, yAxis, reportData } = this.props;
+    const { data, yAxis, reportData, isDark } = this.props;
     const { yaxisList, displaySetup, style } = reportData;
     const { currentValueName = _l('实际'), targetValueName = _l('目标') } = style;
 
     return (
       <Fragment>
-        <div className="Gray_75 Font13">{yAxis.rename || yAxis.controlName}</div>
+        <div className={cx('Font13', isDark ? 'White' : 'Gray_75')}>{yAxis.rename || yAxis.controlName}</div>
         <div className="flexRow alignItemsCenter mTop7 mBottom7 printStatisticSign">
           <div className="flex overflowHidden" style={{ borderRadius: 2 }}  ref={el => this.chartEl = el} />
-          <div className="Gray Font20 ellipsis mLeft12 bold" style={{ lineHeight: '18px' }}>{`${(data.value / (data.targetValue || 1) * 100).toFixed(2)}%`}</div>
+          <div className={cx('Font20 ellipsis mLeft12 bold', isDark ? 'White' : 'Gray')} style={{ lineHeight: '18px' }}>{`${(data.value / (data.targetValue || 1) * 100).toFixed(2)}%`}</div>
         </div>
-        <div className="Gray Font13">
+        <div className={cx('Font13', isDark ? 'White' : 'Gray')}>
           {displaySetup.showNumber && (
             `${currentValueName}: ${formatrChartValue(data.value || 0, false, yaxisList, '', false)}`
           )}
@@ -239,8 +238,9 @@ class ProgressChart extends Component {
 
 
 export default (props) => {
-  const { themeColor, projectId, customPageConfig = {}, reportData } = props;
-  const { chartColor, chartColorIndex = 1 } = customPageConfig;
+  const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+  const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
+  const isDark = pageStyleType === 'dark' && isThumbnail;
   const { map, yaxisList, config } = reportData;
   const { targetList } = config;
   const styleConfig = reportData.style || {};
@@ -260,6 +260,7 @@ export default (props) => {
             color={map[data.controlId] ? color[index % color.length] : null}
             data={map[data.controlId] || { value: 0, targetValue: targetList[index] ? targetList[index].value : 0 }}
             controlMinAndMax={controlMinAndMax}
+            isDark={isDark}
             yAxis={data}
           />
         ))}

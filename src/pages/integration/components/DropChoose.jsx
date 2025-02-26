@@ -53,7 +53,7 @@ export default function DropChoose(props) {
   useEffect(() => {
     setState({
       list: !!keywords
-        ? props.list.filter(o => o.alias.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0)
+        ? props.list.filter(o => (o.alias || '').toLocaleLowerCase().indexOf((keywords || '').toLocaleLowerCase()) >= 0)
         : props.list,
     });
   }, [keywords]);

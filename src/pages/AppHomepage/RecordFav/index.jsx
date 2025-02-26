@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Icon, SvgIcon, ScrollView } from 'ming-ui';
+import { Icon, SvgIcon, ScrollView, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import Item from './Item';
@@ -10,6 +10,8 @@ import favoriteApi from 'src/api/favorite.js';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { addBehaviorLog } from 'src/util';
 import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
+import './index.less';
+
 const BaseBtnCon = styled.div`
   display: flex;
   align-items: center;
@@ -81,6 +83,11 @@ const Con = styled.div`
       }
     }
   }
+  .rowDivider {
+    height: 1px;
+    background: #ddd;
+    margin: 16px 0;
+  }
 `;
 const NavCon = styled.div`
   width: 214px;
@@ -128,21 +135,25 @@ const Cell = styled.div`
   background-color: #f5f5f5;
   margin: ${({ forCard }) => (forCard ? `16px 0` : '25px 0 0 0')};
 `;
+
 let request;
 let currentProjectId;
+
 function RecordFav(props) {
   const { projectId } = props;
-  const [{ loading, navloading, openNav, keywords, recordListAll, recordList, favApps, appId }, setSate] = useSetState({
-    loading: props.loading || true,
-    navloading: true,
-    openNav: localStorage.getItem('recordFavIsFolded') === '1',
-    keywords: '',
-    recordListAll: [],
-    recordList: [],
-    favApps: [],
-    appId: 'all',
-    record: {},
-  });
+  const [{ loading, navloading, openNav, keywords, recordListAll, recordList, topList, favApps, appId }, setState] =
+    useSetState({
+      loading: props.loading || true,
+      navloading: true,
+      openNav: localStorage.getItem('recordFavIsFolded') === '1',
+      keywords: '',
+      recordListAll: [],
+      recordList: [],
+      topList: [],
+      favApps: [],
+      appId: 'all',
+      record: {},
+    });
 
   useEffect(() => {
     getAllList();
@@ -155,10 +166,8 @@ function RecordFav(props) {
   }, [props.loading, props.projectId]);
 
   useEffect(() => {
-    const recordList = getList();
-    setSate({
-      recordList,
-    });
+    const list = getList();
+    setState({ recordList: list.filter(item => !item.isTop), topList: list.filter(item => item.isTop) });
   }, [keywords, appId]);
 
   const getList = data => {
@@ -190,14 +199,11 @@ function RecordFav(props) {
         acc[appId].push(item);
         return acc;
       }, {});
-      const recordList = getList(
-        res.map(o => {
-          return { ...o, rowid: o.rowId };
-        }),
-      );
-      setSate({
+      const list = getList(res.map(o => ({ ...o, rowid: o.rowId })));
+      setState({
         recordListAll: res,
-        recordList,
+        recordList: list.filter(item => !item.isTop),
+        topList: list.filter(item => item.isTop),
         favApps: Object.values(groupedData),
         navloading: false,
         loading: false,
@@ -205,7 +211,7 @@ function RecordFav(props) {
     });
   };
   const onSearch = value => {
-    setSate({ keywords: value });
+    setState({ keywords: value });
   };
   const renderSkeleton = height => {
     return (
@@ -222,9 +228,7 @@ function RecordFav(props) {
         <div
           className={cx('flexRow navListLi alignItemsCenter Hand', { isCur: o.appId === appId })}
           onClick={() => {
-            setSate({
-              appId: o.appId,
-            });
+            setState({ appId: o.appId });
           }}
         >
           <div
@@ -249,9 +253,7 @@ function RecordFav(props) {
           <BaseBtnCon
             onClick={() => {
               safeLocalStorageSetItem('recordFavIsFolded', '1');
-              setSate({
-                openNav: true,
-              });
+              setState({ openNav: true });
             }}
           >
             <Icon className="Font20 Gray_75 Hand " icon="menu" />
@@ -269,9 +271,7 @@ function RecordFav(props) {
                     <BaseBtnCon
                       onClick={() => {
                         safeLocalStorageSetItem('recordFavIsFolded', '');
-                        setSate({
-                          openNav: false,
-                        });
+                        setState({ openNav: false });
                       }}
                     >
                       <Icon className="Font20 Gray_75 Hand" icon="menu_left" />
@@ -309,13 +309,14 @@ function RecordFav(props) {
   };
   const onRefresh = isClear => {
     isClear &&
-      setSate({
+      setState({
         recordListAll: [],
         recordList: [],
+        topList: [],
         favApps: [],
         keywords: '',
       });
-    setSate({
+    setState({
       navloading: true,
       loading: true,
     });
@@ -347,31 +348,74 @@ function RecordFav(props) {
       recordId: rowId,
       viewId,
       // onClose: () => onRefresh(),
-      currentSheetRows: recordList,
+      currentSheetRows: topList.concat(recordList),
       showPrevNext: true,
       currentIndex: rowId,
       projectId,
     });
   };
+
+  const onUpdateFavoriteTop = (favoriteId, isTop) => {
+    favoriteApi.updateFavoriteTop({ projectId, favoriteId, isTop }).then(res => {
+      if (res) {
+        alert(isTop ? _l('置顶成功') : _l('取消置顶成功'));
+        onRefresh();
+      } else {
+        alert(isTop ? _l('置顶失败') : _l('取消置顶失败'), 2);
+      }
+    });
+  };
+
+  const onUpdateTopSort = newItems => {
+    const favoriteIds = newItems.map(item => item.favoriteId);
+    favoriteApi.updateFavoriteTopSort({ projectId, favoriteIds }).then(res => {
+      if (res) {
+        setState({ recordListAll: newItems.concat(recordList), topList: newItems });
+      }
+    });
+  };
+
   const renderCon = () => {
     const list = (
       <React.Fragment>
-        {recordList.length <= 0 ? (
+        {recordListAll.length <= 0 ? (
           nullCon()
         ) : (
           <React.Fragment>
-            {recordList.map(o => {
-              return (
+            <SortableList
+              useDragHandle
+              items={topList}
+              canDrag={appId === 'all'}
+              renderItem={({ item, DragHandle }) => (
                 <Item
-                  {...o}
+                  {...item}
                   forCard={props.forCard}
-                  remove={() => onDel(o)}
+                  remove={() => onDel(item)}
                   onShowRecord={() => {
-                    getRowInfo(o);
+                    getRowInfo(item);
                   }}
+                  DragHandle={DragHandle}
+                  canDrag={appId === 'all'}
+                  isTop={true}
+                  onUpdateFavoriteTop={() => onUpdateFavoriteTop(item.favoriteId, false)}
                 />
-              );
-            })}
+              )}
+              itemKey="favoriteId"
+              helperClass={cx('recordSortItemHelper', { forCard: props.forCard })}
+              onSortEnd={onUpdateTopSort}
+            />
+            {!props.forCard && appId === 'all' && !!topList.length && <div className="rowDivider" />}
+            {recordList.map(item => (
+              <Item
+                {...item}
+                forCard={props.forCard}
+                remove={() => onDel(item)}
+                onShowRecord={() => {
+                  getRowInfo(item);
+                }}
+                onUpdateFavoriteTop={() => onUpdateFavoriteTop(item.favoriteId, true)}
+              />
+            ))}
           </React.Fragment>
         )}
       </React.Fragment>

@@ -48,6 +48,6 @@ function PayFailed(props) {
 }
 
 const Comp = preall(PayFailed, { allowNotLogin: false });
-const root = createRoot(document.querySelector('#payFailed'));
+const root = createRoot(document.querySelector('#app'));
 
 root.render(<Comp />);

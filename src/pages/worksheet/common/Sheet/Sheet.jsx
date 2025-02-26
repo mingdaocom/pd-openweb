@@ -254,7 +254,7 @@ function Sheet(props) {
     };
   }, []);
   return (
-    <SheetContext.Provider value={{ config }}>
+    <SheetContext.Provider value={{ config, isRequestingRelationControls: worksheetInfo.isRequestingRelationControls }}>
       <Con className="worksheetSheet">
         {type === 'common' && worksheetName && (
           <DocumentTitle
@@ -283,10 +283,16 @@ function Sheet(props) {
             <Con id="worksheetRightContentBox">
               {showQuickFilter && (
                 <QuickFilterCon>
-                  <QuickFilter
-                    {...basePara}
-                    filters={setSysWorkflowTimeControlFormat(quickFilterWithDefault, worksheetInfo.switches)}
-                  />
+                  {worksheetInfo.isRequestingRelationControls ? (
+                    <div style={{ height: 50, overflow: 'hidden' }}>
+                      <Skeleton direction="row" widths={['140px']} active itemStyle={{ margin: '20px 0' }} />
+                    </div>
+                  ) : (
+                    <QuickFilter
+                      {...basePara}
+                      filters={setSysWorkflowTimeControlFormat(quickFilterWithDefault, worksheetInfo.switches)}
+                    />
+                  )}
                 </QuickFilterCon>
               )}
               {hasGroupFilter && !chartId ? (

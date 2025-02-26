@@ -145,12 +145,19 @@ export default class MobileOrEmailInvite extends Component {
   };
 
   submit = () => {
-    const { list = [], loading } = this.state;
+    const { list = [], loading, selectType } = this.state;
     const { needAlert } = this.props;
     if (needAlert) {
       alert(_l('非付费用户不允许添加'), 2);
       return;
     }
+
+    if (list.some(i => !i.phone && !i.isErr)) {
+      alert(selectType === TYPE_MODE.MOBILE ? _l('请输入正确的手机号') : _l('请输入正确的邮箱'), 3);
+      return;
+    }
+
+    if (list.some(i => i.isErr)) return;
 
     if (loading) return;
 
@@ -228,7 +235,6 @@ export default class MobileOrEmailInvite extends Component {
   render() {
     const { projectId, fromType, setDetailMode, showInviteRules } = this.props;
     const { selectType, list, loading, keywords, searchData, showDialogSettingInviteRules } = this.state;
-    const hasValue = list.some(i => i.phone && !i.isErr);
 
     // 好友邀请
     if (fromType === FROM_TYPE.PERSONAL) {
@@ -247,9 +253,9 @@ export default class MobileOrEmailInvite extends Component {
           : null;
       return (
         <div className="addFriendsContent">
-          <div class="addFriendHeader">
-            <div class="inputWrapper">
-              <span class="icon-search searchIcon"></span>
+          <div className="addFriendHeader">
+            <div className="inputWrapper">
+              <span className="icon-search searchIcon"></span>
               <input
                 type="text"
                 value={keywords}
@@ -258,7 +264,7 @@ export default class MobileOrEmailInvite extends Component {
               />
               {keywords && (
                 <span
-                  class="searchClear icon-delete Hand"
+                  className="searchClear icon-delete Hand"
                   onClick={() => {
                     this.setState({ keywords: '', searchData: null });
                   }}
@@ -330,7 +336,7 @@ export default class MobileOrEmailInvite extends Component {
             )}
           </div>
           <Button
-            disabled={!hasValue || loading}
+            disabled={loading}
             onClick={evt => {
               evt.nativeEvent.stopImmediatePropagation();
               this.submit();

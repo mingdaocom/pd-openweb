@@ -225,9 +225,7 @@ export default class SelectOtherField extends Component {
     }
     //自定义事件没有查询工作表
     if (this.props.fromCustomEvent) {
-      types = types.filter(
-        item => !_.includes([OTHER_FIELD_TYPE.SEARCH, OTHER_FIELD_TYPE.DEPT, OTHER_FIELD_TYPE.ROLE], item.key),
-      );
+      types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.DEPT, OTHER_FIELD_TYPE.ROLE], item.key));
     }
     if (this.props.fromRange) {
       // 成员范围补充当前用户所在部门
@@ -261,6 +259,7 @@ export default class SelectOtherField extends Component {
       withDY,
       linkParams = [],
       hideDynamic,
+      fromCustomEventApi,
     } = this.props;
 
     const filterTypes = this.getCurrentField(data);
@@ -383,7 +382,7 @@ export default class SelectOtherField extends Component {
             popupAlign={{
               points: ['tr', 'br'],
               offset: [0, 5],
-              overflow: { adjustX: true, adjustY: true },
+              ...(fromCustomEventApi ? {} : { overflow: { adjustX: true, adjustY: true } }),
             }}
           >
             <Tooltip
@@ -409,8 +408,8 @@ export default class SelectOtherField extends Component {
                     withLinkParams && !withDY
                       ? 'icon-global_variable'
                       : isSubList
-                        ? 'icon-lookup'
-                        : 'icon-workflow_other',
+                      ? 'icon-lookup'
+                      : 'icon-workflow_other',
                   )}
                 ></i>
               </SelectOtherFieldWrap>

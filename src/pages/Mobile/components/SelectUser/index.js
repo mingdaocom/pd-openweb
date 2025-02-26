@@ -1,25 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView, LoadDiv, Switch, PopupWrapper } from 'ming-ui';
-import { Checkbox, List, Collapse } from 'antd-mobile';
+import { List } from 'antd-mobile';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
 import { getAccounts } from 'src/ming-ui/functions/quickSelectUser/util';
+import UserOrDepartmentItem from './components/UserOrDepartmentItem';
 import './index.less';
 import _ from 'lodash';
-
-const isChecked = (id, ids) => {
-  let result = false;
-  for (let i = 0; i < ids.length; i++) {
-    if (ids[i] === id) {
-      result = true;
-      break;
-    }
-  }
-  return result;
-};
 
 export default class SelectUser extends Component {
   constructor(props) {
@@ -48,6 +38,7 @@ export default class SelectUser extends Component {
       // 最常协作
       oftenUsers: [],
       isOftenUsersShow: true,
+      isPartnerShow: true,
     };
   }
   componentDidMount() {
@@ -123,23 +114,22 @@ export default class SelectUser extends Component {
     const { projectId, selectRangeOptions, filterAccountIds = [], appointedAccountIds = [], appId } = this.props;
 
     if (userType === 2 || portalUserVisible) {
-      this.request = externalPortalAjax
-        .getUsersByApp({
-          projectId,
-          appId,
-          pageIndex,
-          pageSize,
-          keywords: searchValue ? searchValue : undefined,
-        })
-        .then(res => {
-          let userList = res.map(item => ({ ...item, fullname: item.name }));
-          this.setState({
-            users: users.concat(userList),
-            loading: false,
-            pageIndex: pageIndex + 1,
-            isMore: userList.length === pageSize,
-          });
+      this.request = externalPortalAjax.getUsersByApp({
+        projectId,
+        appId,
+        pageIndex,
+        pageSize,
+        keywords: searchValue ? searchValue : undefined,
+      });
+      this.request.then(res => {
+        let userList = res.map(item => ({ ...item, fullname: item.name }));
+        this.setState({
+          users: users.concat(userList),
+          loading: false,
+          pageIndex: pageIndex + 1,
+          isMore: userList.length === pageSize,
         });
+      });
     } else {
       if (selectRangeOptions) {
         this.request = userAjax.getProjectContactUserListByApp({
@@ -168,7 +158,7 @@ export default class SelectUser extends Component {
       }
       this.request.then(result => {
         const { list } = result.users;
-        let oftenUsers = _.get(result, 'oftenUsers.list') || [];
+        let oftenUsers = _.get(result, 'oftenUsers.list') || this.state.oftenUsers;
         let prefixUsers = prefixAccounts;
 
         if (includeUndefinedAndMySelf && !searchValue) {
@@ -218,7 +208,7 @@ export default class SelectUser extends Component {
       departmentUsersLoading: true,
     });
 
-    if (this.request) {
+    if (this.request && _.isFunction(this.request.abort)) {
       this.request.abort();
     }
 
@@ -398,7 +388,7 @@ export default class SelectUser extends Component {
       this.setState({
         onlyJoinDepartmentChecked: false,
         departmentPath: [],
-      })
+      });
     }
     this.setState(
       {
@@ -409,6 +399,9 @@ export default class SelectUser extends Component {
       type === 'user' ? this.requestContactUserList : this.requestSearchDepartment,
     );
   };
+
+  realTimeSearch = _.debounce(() => this.handleSearch(), 500);
+
   renderSearch() {
     const { searchValue } = this.state;
     const { type } = this.props;
@@ -428,12 +421,8 @@ export default class SelectUser extends Component {
             className="Font14"
             value={searchValue}
             onChange={e => {
-              this.setState({ searchValue: e.target.value });
+              this.setState({ searchValue: e.target.value }, this.realTimeSearch);
             }}
-            onKeyDown={event => {
-              event.which === 13 && this.handleSearch();
-            }}
-            onBlur={this.handleSearch}
           />
         </form>
         {searchValue ? (
@@ -456,7 +445,14 @@ export default class SelectUser extends Component {
 
   onlyShowJoinDepartment = checked => {
     this.setState(
-      { onlyJoinDepartmentChecked: !checked, depPageIndex: 1, departments: [], isMoreDep: true, loading: true, departmentPath: [] },
+      {
+        onlyJoinDepartmentChecked: !checked,
+        depPageIndex: 1,
+        departments: [],
+        isMoreDep: true,
+        loading: true,
+        departmentPath: [],
+      },
       () => {
         const { type } = this.props;
         if (type === 'department' && checked) this.requestSearchDepartment(true);
@@ -555,52 +551,35 @@ export default class SelectUser extends Component {
 
   // 人员选择行
   renderSelectUserItem(item, key) {
-    let { departmentName } = _.get(item, 'departmentInfo') || {};
-    // 指定人员时，部门字段取department
-    if (item.department) departmentName = item.department;
-    let { job } = item;
-    let avatar = item.avatar || 'https://dn-mdpic.mingdao.com/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90';
     const { onlyOne, filterAccountIds = [] } = this.props;
+    const { selectedUsers } = this.state;
+
     return (
-      <div key={`${key}_${item.accountId}`} className="checkItemBox" onClick={() => this.selectedAccount(item)}>
-        {!onlyOne && (
-          <div className="checkboxBox" onMouseDown={event => event.preventDefault()}>
-            <Checkbox
-              style={{ '--icon-size': '18px' }}
-              checked={isChecked(
-                item.accountId,
-                this.state.selectedUsers.map(item => item.accountId),
-              )}
-              onClick={() => this.selectedAccount(item)}
-            />
-          </div>
-        )}
-        <div className="checkItemInfoBox" onMouseDown={event => event.preventDefault()}>
-          <img src={avatar} className="avatar" />
-          <div className="useInfoBox">
-            <div className={cx('fullname ellipsis', { bold: key === 'prefix' })}>
-              {key === 'prefix' &&
-              !filterAccountIds.includes(md.global.Account.accountId) &&
-              item.accountId === md.global.Account.accountId
-                ? _l('我自己')
-                : item.fullname}
-            </div>
-            <div className="departmentInfo ellipsis">
-              {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}
-            </div>
-          </div>
-        </div>
-      </div>
+      <UserOrDepartmentItem
+        renderKey={`${key}_${item.accountId}`}
+        renderItemType="user"
+        item={item}
+        onlyOne={onlyOne}
+        filterAccountIds={filterAccountIds}
+        selectedUsers={selectedUsers}
+        selectedAccount={this.selectedAccount}
+      />
     );
   }
 
   // 人员-部门-选择行
   renderSelectUserWithDepartmentItem(item) {
+    const { onlyOne, filterAccountIds = [] } = this.props;
+    const { selectedUsers } = this.state;
+
     return (
-      <div
-        key={item.departmentId}
-        className="departmentItemBox"
-        onClick={() => {
+      <UserOrDepartmentItem
+        renderKey={item.departmentId}
+        item={item}
+        onlyOne={onlyOne}
+        filterAccountIds={filterAccountIds}
+        selectedUsers={selectedUsers}
+        selectedDepartment={() => {
           this.setState(
             {
               department: item,
@@ -609,55 +588,25 @@ export default class SelectUser extends Component {
             this.requestContactProjectDepartments,
           );
         }}
-      >
-        <div className="departmentSelectItemInfoBox" onMouseDown={event => event.preventDefault()}>
-          <div className="departmentItemContent">
-            <div className="groupWrapper">
-              <Icon icon="group" className="Font22 White" />
-            </div>
-            <div className="departmentName">{item.departmentName}</div>
-          </div>
-          <Icon icon="arrow-right-border" className="Font18 Gray_bd" />
-        </div>
-      </div>
+      />
     );
   }
 
   // 部门选择行
   renderSelectDepartmentItem(item) {
     const { onlyOne } = this.props;
+    const { selectedUsers } = this.state;
+
     return (
-      <div key={item.departmentId} className="departmentItemBox">
-        {!onlyOne && (
-          <div className="checkboxBox" onMouseDown={event => event.preventDefault()}>
-            <Checkbox
-              style={{ '--icon-size': '18px' }}
-              checked={
-                item.disabledSubDepartment ||
-                isChecked(
-                  item.departmentId,
-                  this.state.selectedUsers.map(item => item.departmentId),
-                )
-              }
-              disabled={item.disabledSubDepartment || item.disabled}
-              onClick={() => this.selectedDepartment(item)}
-            />
-          </div>
-        )}
-        <div className="departmentSelectItemInfoBox" onMouseDown={event => event.preventDefault()}>
-          <div className="departmentItemContent" onClick={() => this.selectedDepartment(item)}>
-            <div className="groupWrapper">
-              <Icon icon="group" className="Font22 White" />
-            </div>
-            <div className="departmentName">{item.departmentName}</div>
-          </div>
-          {item.haveSubDepartment && (
-            <div className="extraDivision" onClick={() => this.handleSelectSubDepartment(item)}>
-              <Icon icon="arrow-right-border" className="Font18 Gray_bd" />
-            </div>
-          )}
-        </div>
-      </div>
+      <UserOrDepartmentItem
+        renderKey={item.departmentId}
+        renderItemType="department"
+        item={item}
+        onlyOne={onlyOne}
+        selectedUsers={selectedUsers}
+        selectedDepartment={this.selectedDepartment}
+        handleSelectSubDepartment={this.handleSelectSubDepartment}
+      />
     );
   }
 
@@ -774,12 +723,14 @@ export default class SelectUser extends Component {
                 {departmentUsers.map(item =>
                   item.isDep ? this.renderSelectUserWithDepartmentItem(item) : this.renderSelectUserItem(item),
                 )}
-                {_.isEmpty(departmentUsers) ? <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div> : null}
+                {_.isEmpty(departmentUsers) ? (
+                  <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+                ) : null}
               </ScrollView>
             )
           ) : (
             <ScrollView className="flex">
-              <div className="flexRow onlyShowJoinDepartment" onMouseDown={(e) => e.preventDefault()}>
+              <div className="flexRow onlyShowJoinDepartment" onMouseDown={e => e.preventDefault()}>
                 <span className="onlySelf">{_l('只看我加入的部门')}</span>
                 <Switch checked={onlyJoinDepartmentChecked} onClick={this.onlyShowJoinDepartment} />
               </div>
@@ -814,7 +765,7 @@ export default class SelectUser extends Component {
             </List.Item>
             {userType === 3 && (
               <List.Item
-                key="departmentSelect"
+                key="portalSelect"
                 prefix={<Icon icon="supervisor_account" className="portalIconBox TxtMiddle Font18 White" />}
                 arrowIcon={<Icon icon="arrow-right-border" className="Font20 Gray_75" />}
                 onClick={() => {
@@ -846,8 +797,8 @@ export default class SelectUser extends Component {
 
   // 渲染人员列表
   renderUsers() {
-    const { selectRangeOptions, userType, staticAccounts = [] } = this.props;
-    const { users, loading, pageIndex, oftenUsers, isOftenUsersShow } = this.state;
+    const { selectRangeOptions, userType, staticAccounts = [], recordPartner = [] } = this.props;
+    const { users, loading, pageIndex, oftenUsers, isOftenUsersShow, isPartnerShow, searchValue } = this.state;
     const isStatic =
       !_.isEmpty(staticAccounts) &&
       !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
@@ -856,8 +807,23 @@ export default class SelectUser extends Component {
       <div className="flex">
         <ScrollView onScrollEnd={this.requestContactUserList}>
           {!isStatic && !selectRangeOptions && (userType === 1 || userType === 3) && this.renderDepartment()}
+          {/* 参与者 */}
+          {!_.trim(searchValue) && !!recordPartner.length && (
+            <Fragment>
+              <div
+                className="sortTitle oftenUserHeader"
+                onClick={() => {
+                  this.setState({ isPartnerShow: !isPartnerShow });
+                }}
+              >
+                <span>{_l('参与者')}</span>
+                <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isPartnerShow ? 'rotatable' : ''}`} />
+              </div>
+              {isPartnerShow && <div>{recordPartner.map(item => this.renderSelectUserItem(item, 'partner'))}</div>}
+            </Fragment>
+          )}
           {/* 最常协作 */}
-          {oftenUsers && oftenUsers.length > 0 && (
+          {!_.trim(searchValue) && oftenUsers && oftenUsers.length > 0 && (
             <Fragment>
               <div
                 className="sortTitle oftenUserHeader"
@@ -885,7 +851,9 @@ export default class SelectUser extends Component {
                     <LoadDiv size="middle" />
                   </div>
                 ) : null}
-                {_.isEmpty(users) ? <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div> : null}
+                {_.isEmpty(users) ? (
+                  <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+                ) : null}
               </Fragment>
             )}
           </div>
@@ -932,7 +900,9 @@ export default class SelectUser extends Component {
                     <LoadDiv size="middle" />
                   </div>
                 ) : null}
-                {_.isEmpty(users) ? <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div> : null}
+                {_.isEmpty(users) ? (
+                  <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+                ) : null}
               </Fragment>
             )}
           </List>

@@ -6,6 +6,7 @@ import {
   getFormData,
   getSelectedOptions,
   isRelateRecordTableControl,
+  checkCellIsEmpty
 } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ROW_ID_CONTROL, SYSTEM_DATE_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -286,7 +287,7 @@ export function checkConditionAvailable(condition) {
   }
 }
 
-export function getConditionOverrideValue(type, condition, valueType) {
+export function getConditionOverrideValue(type, condition, valueType, from) {
   const { value, values, dateRange, dateRangeType, fullValues } = condition;
   let newDateRangeType = dateRangeType;
   const conditionGroupType = getConditionType(condition);
@@ -338,8 +339,9 @@ export function getConditionOverrideValue(type, condition, valueType) {
       }
       if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
         return Object.assign({}, base, {
-          minValue: moment().add(-1, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-          maxValue: moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+          minValue:
+            from === 'relateSheet' ? undefined : moment().add(-1, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+          maxValue: from === 'relateSheet' ? undefined : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
           dateRange,
           dateRangeType: newDateRangeType,
         });
@@ -348,7 +350,8 @@ export function getConditionOverrideValue(type, condition, valueType) {
           dateRange: dateRange,
           value:
             _.includes([101, 102, 10, 11], dateRange) ||
-            (_.get(condition, 'control.type') === 16 && _.get(condition, 'control.advancedSetting.showtype') === '6')
+            (_.get(condition, 'control.type') === 16 && _.get(condition, 'control.advancedSetting.showtype') === '6') ||
+            from === 'relateSheet'
               ? value
               : formatDateValue({ type, value }),
           dateRangeType: newDateRangeType || DATE_RANGE_TYPE.DAY,
@@ -653,7 +656,11 @@ export function getDefaultCondition(control, from) {
   const filterTypesOfControl = getFilterTypes(control);
   let defaultFilterType =
     getDefaultFilterType(control, from) || FILTER_CONDITION_TYPE.EQ || filterTypesOfControl[0].value;
-  if (_.isUndefined(defaultFilterType) || !_.find(filterTypesOfControl, c => c.value === defaultFilterType)) {
+  if (
+    (_.isUndefined(defaultFilterType) || !_.find(filterTypesOfControl, c => c.value === defaultFilterType)) &&
+    filterTypesOfControl &&
+    filterTypesOfControl[0]
+  ) {
     defaultFilterType = filterTypesOfControl[0].value;
   }
   const baseCondition = {
@@ -971,7 +978,7 @@ export function relateDy(conditionType, controls, control, defaultValue) {
   }
 }
 
-export function getFilter({ control, formData = [], filterKey = 'filters' }) {
+export function getFilter({ control, formData = [], filterKey = 'filters', ignoreEmptyRule = false }) {
   if (
     !control ||
     _.isEmpty(control.advancedSetting) ||
@@ -987,7 +994,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
     return [];
   }
   const abortFilterWhenEmpty =
-    get(conditions, '0.emptyRule') === 3 || get(conditions, '0.groupFilters.0.emptyRule') === 3;
+    (get(conditions, '0.emptyRule') === 3 || get(conditions, '0.groupFilters.0.emptyRule') === 3) && !ignoreEmptyRule;
   function handleFormatCondition(condition) {
     if (_.isEmpty(condition.dynamicSource)) {
       return Object.assign({}, condition, {
@@ -1078,12 +1085,20 @@ export function fillConditionValue({
     return condition;
   }
   if (cid === 'currenttime') {
-    if (filterControl.type === 46) {
+    let formatFilterControl = { ...filterControl };
+    if (!filterControl && ignoreFilterControl) {
+      if (dataType === 46) {
+        formatFilterControl = { unit: '9', type: dataType };
+      } else {
+        formatFilterControl = { type: dataType, advancedSetting: { showtype: dataType === 15 ? '6' : '3' } };
+      }
+    }
+    if (formatFilterControl.type === 46) {
       condition.value = moment(new Date()).format(
-        filterControl.unit === '6' || filterControl.unit === '9' ? 'HH:mm:ss' : 'HH:mm',
+        formatFilterControl.unit === '6' || formatFilterControl.unit === '9' ? 'HH:mm:ss' : 'HH:mm',
       );
     } else {
-      condition.value = moment(new Date()).format(getDatePickerConfigs(filterControl).formatMode);
+      condition.value = moment(new Date()).format(getDatePickerConfigs(formatFilterControl).formatMode);
     }
     return condition;
   }
@@ -1108,7 +1123,7 @@ export function fillConditionValue({
     cid: (_.includes(['fastFilter', 'navGroup'], rcid) ? rcid + '_' : '') + cid,
     data: formData,
   });
-  if (!value) {
+  if (checkCellIsEmpty(value)) {
     return abortFilterWhenEmpty ? undefined : condition;
   }
   // // 强制异化，rowid取关联记录的值

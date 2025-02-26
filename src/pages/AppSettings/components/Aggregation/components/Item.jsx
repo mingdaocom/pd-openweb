@@ -385,6 +385,18 @@ export default function ItemCard(props) {
             popup={
               <WrapS>
                 <MenuItem
+                  icon={<Icon className="Font16" icon={'edit'} />}
+                  onClick={event => {
+                    setState({
+                      showMoreOption: false,
+                      showChangeName: true,
+                    });
+                    event.stopPropagation();
+                  }}
+                >
+                  <div className="mLeft16 Gray">{_l('重命名')}</div>
+                </MenuItem>
+                <MenuItem
                   icon={<Icon className="Font16" icon={'copy'} />}
                   onClick={event => {
                     setState({
@@ -407,18 +419,6 @@ export default function ItemCard(props) {
                   icon={<Icon className="Font16" icon={'swap_horiz'} />}
                 >
                   <div className="mLeft16 Gray">{_l('移动到')}</div>
-                </MenuItem>
-                <MenuItem
-                  icon={<Icon className="Font16" icon={'edit'} />}
-                  onClick={event => {
-                    setState({
-                      showMoreOption: false,
-                      showChangeName: true,
-                    });
-                    event.stopPropagation();
-                  }}
-                >
-                  <div className="mLeft16 Gray">{_l('重命名')}</div>
                 </MenuItem>
                 {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
                   <MenuItem

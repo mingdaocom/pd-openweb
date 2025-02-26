@@ -221,6 +221,7 @@ export default class ExecDialog extends Component {
               rowId={rowId}
               worksheetId={worksheetId}
               noAuth={resultCode === 7}
+              instanceId={id}
               {...this.props}
             />
           );

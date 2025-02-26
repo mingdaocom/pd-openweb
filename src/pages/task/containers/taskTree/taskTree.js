@@ -10,10 +10,13 @@ import treeMaster from './tpl/treeMaster.html';
 import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
-import { UserHead } from 'ming-ui';
+import { UserHead, LoadDiv } from 'ming-ui';
 import { createRoot } from 'react-dom/client';
 import { updateTaskCharge } from '../../redux/actions';
 import { dialogSelectUser } from 'ming-ui/functions';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
 
 const taskTreeSettings = {
   pageIndex: 1,
@@ -566,7 +569,7 @@ class TaskTree extends Component {
   getNodeTask($li) {
     const { listSort } = this.props.taskConfig;
     const taskId = $li.data('taskid');
-    $li.append('<div class="treeLoadingSingleTask"> ' + LoadDiv() + '  </div>');
+    $li.append('<div class="treeLoadingSingleTask"> ' + loading + '  </div>');
     const deep = $li.data('deep');
 
     ajaxRequest

@@ -61,10 +61,10 @@ export default class Widgets extends Component {
     }
   };
 
-  onChange = event => {
+  onChange = _.debounce(event => {
     const value = event.target.value;
     this.props.onChange(value);
-  };
+  }, 300);
 
   getShowValue = () => {
     const { hint } = this.props;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import SettingContent from '../../content/SettingContent';
-import StyleContent from '../../content/StyleContent';
+import StyleContent from '../StyleContent';
 import ExplainContent from '../../content/ExplainContent';
 import WidgetIntro from '../WidgetIntro';
 import _ from 'lodash';

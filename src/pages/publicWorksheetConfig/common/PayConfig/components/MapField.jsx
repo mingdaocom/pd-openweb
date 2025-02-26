@@ -36,6 +36,7 @@ export default class MapField extends Component {
         { controlId: 'refundFee', controlName: _l('退款金额'), type: [8] },
         { controlId: 'settleFee', controlName: _l('结算金额'), type: [8] },
         { controlId: 'tradeFee', controlName: _l('结算手续费'), type: [8] },
+        { controlId: 'tradeFeeRate', controlName: _l('结算手续费率'), type: [8] },
         { controlId: 'mchId', controlName: _l('商户号'), type: [2] },
         { controlId: 'sourceType', controlName: _l('订单来源'), type: [2, 11] },
         { controlId: 'payAccount', controlName: _l('下单人'), type: [2] },

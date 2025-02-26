@@ -7,7 +7,7 @@ import {
 } from 'src/pages/worksheet/views/ResourceView/util.js';
 import { sortGrouping, fillRecordTimeBlockColor } from 'src/pages/worksheet/views/GunterView/util.js';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
-import { getRequest, dateConvertToServerZone, dateConvertToUserZone } from 'src/util';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 import dayjs from 'dayjs';
@@ -35,12 +35,6 @@ export const initData = () => {
 export const fetchRows = (refresh = true) => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [], resourceview } = getState().sheet;
-    const { access_token } = getRequest();
-
-    if (access_token) {
-      window.access_token = access_token;
-    }
-
     const view = (base.viewId ? _.find(views, { viewId: base.viewId }) : views[0]) || {};
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     const { gridTimes = [], currentTime, keywords } = resourceview;
@@ -103,12 +97,6 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [], resourceview } = getState().sheet;
     const { resourceData = [] } = resourceview;
-    const { access_token } = getRequest();
-
-    if (access_token) {
-      window.access_token = access_token;
-    }
-
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     const { gridTimes = [], currentTime, keywords } = resourceview;

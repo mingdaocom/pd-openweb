@@ -360,7 +360,7 @@ function Setting(props) {
           }}
         >
           {controls
-            .filter(c => c.type === 2)
+            .filter(c => [2, 32].includes(c.type))
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100">
@@ -387,7 +387,7 @@ function Setting(props) {
           }}
         >
           {controls
-            .filter(c => c.type === 2)
+            .filter(c => [2, 32].includes(c.type))
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100">

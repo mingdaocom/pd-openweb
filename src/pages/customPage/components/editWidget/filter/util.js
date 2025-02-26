@@ -13,6 +13,7 @@ export const formatFiltersGroup = (id, filtersGroup) => {
       'dataType',
       'filterType',
       'dateRange',
+      'dateRangeType',
       'value',
       'values',
       'minValue',

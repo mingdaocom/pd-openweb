@@ -16,14 +16,18 @@ const SmallCard = props => {
   const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [showDownloadOfDeleteBtn, setShowDownloadOfDeleteBtn] = useState(true);
+  const [diffWidth, setDiffWidth] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [fileSizeVisible, setFileSizeVisible] = useState(true);
+  const wrapRef = useRef(null);
   const ref = useRef(null);
   const allowReset = allowEditName && !isKc;
   const allowNewPage = recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState);
 
   useEffect(() => {
+    const current = _.get(ref, 'current');
     if (isPicture) {
       loadImage(previewUrl)
         .then()
@@ -80,6 +84,35 @@ const SmallCard = props => {
           {_l('在线编辑')}
         </MenuItem>
       )}
+      {allowDownload && (
+        <MenuItem
+          key="download"
+          icon={<Icon icon="download" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            handleDownload(data, isDownload, {
+              controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
+              rowId: recordId,
+              parentWorksheetId: _.get(masterData, 'worksheetId'),
+              parentRowId: _.get(masterData, 'recordId'),
+            });
+          }}
+        >
+          {_l('下载')}
+        </MenuItem>
+      )}
+      {isDeleteFile && (
+        <MenuItem
+          key="delete"
+          icon={<Icon icon="task-new-delete" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            setDeleteConfirmVisible(true);
+          }}
+        >
+          {_l('删除')}
+        </MenuItem>
+      )}
       {(allowReset || allowShare) && <div className="hr-line" />}
       {allowReset && (
         <MenuItem
@@ -121,6 +154,20 @@ const SmallCard = props => {
         hover: dropdownVisible || isEdit,
         mRight10: isDeleteFile && isMobile,
       })}
+      ref={wrapRef}
+      onMouseEnter={() => {
+        const current = _.get(wrapRef, 'current.parentNode.parentNode');
+        if (current) {
+          const diffWidth = current.clientWidth - 300;
+          if (diffWidth < 0) {
+            setDiffWidth(diffWidth + -10);
+            setShowDownloadOfDeleteBtn(false);
+          } else {
+            setDiffWidth(0);
+            setShowDownloadOfDeleteBtn(true);
+          }
+        }
+      }}
     >
       <div
         className="fileImageWrap fileImageWrap pointer flexRow alignItemsCenter justifyContentCenter"
@@ -145,7 +192,7 @@ const SmallCard = props => {
         <div className={cx('fileSize Gray_75', { hide: !fileSizeVisible })}>{fileSize}</div>
       </div>
       {!isMobile ? (
-        <div className="operateBtns flexRow alignItemsCenter">
+        <div className="operateBtns flexRow alignItemsCenter" style={{ marginRight: Math.abs(diffWidth) }}>
           {deleteConfirmVisible ? (
             <Fragment>
               <div className="cancelBtn mRight6" onClick={() => setDeleteConfirmVisible(false)}>
@@ -157,29 +204,33 @@ const SmallCard = props => {
             </Fragment>
           ) : (
             <Fragment>
-              {allowDownload && (
-                <Tooltip title={_l('下载')} placement="bottom">
-                  <div
-                    className="btnWrap pointer"
-                    onClick={() => {
-                      handleDownload(data, isDownload, {
-                        controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
-                        rowId: recordId,
-                        parentWorksheetId: _.get(masterData, 'worksheetId'),
-                        parentRowId: _.get(masterData, 'recordId'),
-                      });
-                    }}
-                  >
-                    <Icon className="Gray_9e Font17" icon="download" />
-                  </div>
-                </Tooltip>
-              )}
-              {isDeleteFile && (
-                <Tooltip title={_l('删除')} placement="bottom">
-                  <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
-                    <Icon className="Gray_9e Font17" icon="task-new-delete" />
-                  </div>
-                </Tooltip>
+              {showDownloadOfDeleteBtn && (
+                <Fragment>
+                  {allowDownload && (
+                    <Tooltip title={_l('下载')} placement="bottom">
+                      <div
+                        className="btnWrap pointer"
+                        onClick={() => {
+                          handleDownload(data, isDownload, {
+                            controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
+                            rowId: recordId,
+                            parentWorksheetId: _.get(masterData, 'worksheetId'),
+                            parentRowId: _.get(masterData, 'recordId'),
+                          });
+                        }}
+                      >
+                        <Icon className="Gray_9e Font17" icon="download" />
+                      </div>
+                    </Tooltip>
+                  )}
+                  {isDeleteFile && (
+                    <Tooltip title={_l('删除')} placement="bottom">
+                      <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
+                        <Icon className="Gray_9e Font17" icon="task-new-delete" />
+                      </div>
+                    </Tooltip>
+                  )}
+                </Fragment>
               )}
               {isMore && (
                 <Trigger
@@ -236,8 +287,8 @@ const NotSaveSmallCard = props => {
   const previewImageUrl = isKc
     ? data.viewUrl
     : url.indexOf('imageView2') > -1
-    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-    : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
+      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+      : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
 
   const handlePreview = () => {

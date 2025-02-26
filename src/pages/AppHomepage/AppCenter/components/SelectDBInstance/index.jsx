@@ -33,7 +33,7 @@ const DropdownWrap = styled.div`
 function SelectDBInstance(props) {
   const { visible = false, options = [], onOk = () => {}, onCancel = () => {} } = props;
 
-  const [dbInstance, setDbInstance] = useState({ label: undefined, value: undefined });
+  const [dbInstance, setDbInstance] = useState({ label: _l('系统默认数据库'), value: '' });
   const [open, setOpen] = useState(false);
 
   const handleOk = () => {

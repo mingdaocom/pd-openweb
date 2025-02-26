@@ -135,6 +135,43 @@ window._l = function (key, ...args) {
   return content.replace(/\\/g, '');
 };
 
+/**
+ * 加载多语言文件
+ */
+(function () {
+  const pages = [
+    '/auth/workwx',
+    '/auth/chatTools',
+    '/auth/welink',
+    '/auth/feishu',
+    '/sso/dingding',
+    '/sso/sso',
+    '/sso/workweixin',
+  ];
+
+  if (pages.includes(location.pathname)) {
+    return;
+  }
+
+  const currentLang = langConfig.find(item => item.key === getCurrentLang());
+
+  if (!!currentLang) {
+    const xhrObj = new XMLHttpRequest();
+    const script = document.createElement('script');
+    const path =
+      (!location.href.match(/mingdao\.com|share\.mingdao\.net/)
+        ? currentLang.path
+        : currentLang.path.replace('/staticfiles/lang', 'https://alifile.mingdaocloud.com/lang/HAP')) +
+      `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
+
+    xhrObj.open('GET', path, false);
+    xhrObj.send('');
+    script.type = 'text/javascript';
+    script.text = xhrObj.responseText;
+    document.head.appendChild(script);
+  }
+})();
+
 const ua = window.navigator.userAgent.toLowerCase();
 
 window.isDingTalk = ua.includes('dingtalk'); // 是否是钉钉环境下
@@ -224,21 +261,6 @@ if (window.isWeiXin) {
 }
 
 /**
- * 返回loading动画
- */
-window.LoadDiv = () => {
-  return `
-    <div class="TxtCenter TxtMiddle mTop10 mBottom10 w100">
-      <div class="divCenter MdLoader MdLoader--middle">
-        <svg class="MdLoader-circular">
-          <circle class="MdLoader-path" stroke-width="3" cx="6" cy="6" r="12"></circle>
-        </svg>
-      </div>
-    </div>
-  `;
-};
-
-/**
  * 兼容parse报错
  * @param {string} str - 要解析的字符串
  * @param {string} type - 返回值类型 ('array' 或 'object')
@@ -273,7 +295,7 @@ window.safeLocalStorageSetItem = (...args) => {
 /**
  * 格式化时间
  * @param {string} dateStr 具体的日期字符串，格式为 yyyy-MM-dd HH:mm:ss
- * @param {string} showType 输出类型 1:精简模式 2:极简模式 3:完整显示
+ * @param {string} showType 输出类型 1:精简模式 2:极简模式 3:完整显示 4:完整显示（不带时分秒）
  * @returns {string} 相对的时间，如15分钟前
  */
 window.createTimeSpan = (dateStr, showType = 1) => {
@@ -293,6 +315,7 @@ window.createTimeSpan = (dateStr, showType = 1) => {
   const second = dateTime.format('ss');
 
   if (showType === 3) return `${_l('%0年%1月%2日', year, month, day)} ${hour}:${minute}:${second}`;
+  if (showType === 4) return `${_l('%0年%1月%2日', year, month, day)}`;
 
   // 处理未来时间的情况
   if (diff < 0) return `${hour}:${minute}`;
@@ -531,6 +554,7 @@ const generateLocalizationParams = (requestData = {}) => {
         'Login_LoginOut',
         'Worksheet_UpdateWorksheetRow',
         'Worksheet_AddWorksheetRow',
+        'Worksheet_RestoreWorksheetView',
       ],
     },
     Worksheet_GetQueryBySheetId: {
@@ -779,43 +803,6 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
 
   return promise;
 };
-
-/**
- * 加载多语言文件
- */
-(function () {
-  const pages = [
-    '/auth/workwx',
-    '/auth/chatTools',
-    '/auth/welink',
-    '/auth/feishu',
-    '/sso/dingding',
-    '/sso/sso',
-    '/sso/workweixin',
-  ];
-
-  if (pages.includes(location.pathname)) {
-    return;
-  }
-
-  const currentLang = langConfig.find(item => item.key === getCurrentLang());
-
-  if (!!currentLang) {
-    const xhrObj = new XMLHttpRequest();
-    const script = document.createElement('script');
-    const path =
-      (!location.href.match(/mingdao\.com|share\.mingdao\.net/)
-        ? currentLang.path
-        : currentLang.path.replace('/staticfiles/lang', '/locale')) +
-      `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
-
-    xhrObj.open('GET', path, false);
-    xhrObj.send('');
-    script.type = 'text/javascript';
-    script.text = xhrObj.responseText;
-    document.head.appendChild(script);
-  }
-})();
 
 /**
  * 兼容企业微信windows客户端低版本没有prepend方法报错的问题

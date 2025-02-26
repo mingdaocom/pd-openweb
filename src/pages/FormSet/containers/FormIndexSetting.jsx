@@ -175,7 +175,6 @@ const ArrowDown = styled.span`
   }
 `;
 
-const MAX_COUNT = md.global.Config.IsLocal ? 10 : 5;
 const sortRules = { 1: _l('升序'), '-1': _l('降序'), text: _l('文本索引') };
 const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50, 51, 52, 54];
 
@@ -193,6 +192,7 @@ function FormIndexSetting(props) {
   const [isloading, setIsloading] = useState(true);
   const [selectedIndexList, setSelectedIndexList] = useState([{}]);
   const [worksheetAvailableFields, setWorksheetAvailableFields] = useState([]);
+  const [worksheetRowIndexLimit, setWorksheetRowIndexLimit] = useState(0);
   const [sort, setSort] = useState('');
 
   useEffect(() => {
@@ -214,6 +214,7 @@ function FormIndexSetting(props) {
       );
       setWorksheetAvailableFields(worksheetAvailableFields);
       setIsloading(false);
+      setWorksheetRowIndexLimit(res.worksheetRowIndexLimit);
     });
   };
   // 重命名
@@ -276,17 +277,20 @@ function FormIndexSetting(props) {
               </h5>
               <p className="desc mTop8">
                 <span className="Font13 Gray_9e">
-                  {_l('手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。', MAX_COUNT)}
+                  {_l(
+                    '手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。',
+                    worksheetRowIndexLimit,
+                  )}
                 </span>
                 <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/index-acceleration" />
               </p>
             </div>
             <span
               className={cx('add Relative bold', {
-                disabled: (indexList || []).filter(item => !item.isSystem).length >= MAX_COUNT,
+                disabled: (indexList || []).filter(item => !item.isSystem).length >= worksheetRowIndexLimit,
               })}
               onClick={() => {
-                if ((indexList || []).filter(item => !item.isSystem).length >= MAX_COUNT) return;
+                if ((indexList || []).filter(item => !item.isSystem).length >= worksheetRowIndexLimit) return;
                 setShowCreateIndex(true);
                 setIsEdit(false);
                 setCurrentIndexInfo({});
@@ -532,6 +536,7 @@ function FormIndexSetting(props) {
               worksheetAvailableFields={worksheetAvailableFields}
               appId={appId}
               worksheetId={worksheetId}
+              worksheetRowIndexLimit={worksheetRowIndexLimit}
               getIndexesInfo={getIndexesInfo}
               indexList={indexList}
               onClose={() => {

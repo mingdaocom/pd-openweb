@@ -76,9 +76,10 @@ export default function FormHeader(props) {
           <div className="Right">
             {createTime && isOpenLogs && (
               <span className="lastLog InlineBlock Font12 Gray_9e">
-                {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
-                <span className="mRight3">{createTime === updateTime ? _l('创建于') : _l('更新于')}</span>
                 {createTimeSpan(dateConvertToUserZone(createTime === updateTime ? createTime : updateTime))}
+                ,&nbsp;
+                {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
+                <span className="mRight3">{createTime === updateTime ? _l('创建') : _l('更新了')}</span>
               </span>
             )}
             {showOwner && (

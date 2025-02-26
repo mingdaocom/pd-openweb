@@ -17,14 +17,14 @@ export default function ChangeName(props) {
       title={title || _l('重命名')}
       onCancel={onCancel}
       onOk={() => {
-        let name = value.trim();
+        let name = (value || '').trim();
         if (deduplication && list.find(item => item.alias === name)) {
           return alert(_l('名称重复，请修改后提交'), 3);
         }
-        if (!value.trim()) {
+        if (!name) {
           return alert(_l('名称不能为空'), 3);
         }
-        onChange(value.trim());
+        onChange(name);
         onCancel();
       }}
     >

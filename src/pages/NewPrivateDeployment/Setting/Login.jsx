@@ -2,17 +2,14 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import PrivateLinkDialog from './components/PrivateLinkDialog';
 import privateLinkApi from 'src/api/privateLink';
-import privateSysSettingApi from 'src/api/privateSysSetting';
-import cx from 'classnames';
 import { Switch, Checkbox, Radio, Icon, LoadDiv } from 'ming-ui';
 import { Button, Divider, Input, Tooltip } from 'antd';
-import { encrypt } from 'src/util';
-import { PUBLIC_KEY } from 'src/util/enum';
 import { updateSysSettings } from '../common';
 import { BrandHomeImage } from '../Platform/Brand';
 import SettingIconAndName from 'src/pages/Admin/components/SettingIconAndName';
-import googleIcon from '../images/google.svg';
 import _ from 'lodash';
+import SSOSet from './SSOSet';
+import cx from 'classnames';
 
 const Login = props => {
   const { IsPlatformLocal } = md.global.Config;
@@ -286,165 +283,6 @@ const Login = props => {
   );
 };
 
-const GoogleSso = prosp => {
-  const [edit, setEdit] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [original, setOriginal] = useState({});
-  const [ssoSettings, setSsoSettings] = useState({});
-
-  useEffect(() => {
-    privateSysSettingApi.getSsoSettings({}).then(data => {
-      const config = data[0] || {};
-      setSsoSettings(config);
-      setOriginal(config);
-      setLoading(false);
-    });
-  }, []);
-
-  const handleSave = () => {
-    if (!(ssoSettings.clientId && ssoSettings.clientSecret && ssoSettings.redirectUri)) {
-      alert(_l('请完善配置信息'), 3);
-      return;
-    }
-    privateSysSettingApi
-      .setSso({
-        clientId: encrypt(ssoSettings.clientId),
-        clientSecret: encrypt(ssoSettings.clientSecret),
-        redirectUri: ssoSettings.redirectUri,
-        tpType: ssoSettings.tpType,
-      })
-      .then(data => {
-        const config = {
-          ...ssoSettings,
-          clientSecret: '************',
-        };
-        setSsoSettings(config);
-        setOriginal(config);
-        setEdit(false);
-      });
-  };
-  const handleChangeSsoSettings = config => {
-    setSsoSettings(data => {
-      return {
-        ...data,
-        ...config,
-      };
-    });
-  };
-  const handleSetSsoStatus = status => {
-    privateSysSettingApi
-      .setSsoStatus({
-        tpType: ssoSettings.tpType,
-        status,
-      })
-      .then(data => {
-        handleChangeSsoSettings({
-          status: status ? 1 : 0,
-        });
-      });
-  };
-  const handleReset = () => {
-    handleChangeSsoSettings({
-      clientId: original.clientId,
-      clientSecret: original.clientSecret,
-      redirectUri: original.redirectUri,
-    });
-    setEdit(false);
-  };
-  return (
-    <div className="privateCardWrap flexColumn">
-      <div className="flexRow">
-        <div className="flex Font17 bold mBottom5">{_l('SSO')}</div>
-        <Switch
-          checked={ssoSettings.status === 1}
-          onClick={value => {
-            handleSetSsoStatus(!value);
-          }}
-        />
-      </div>
-      <div className="mBottom15 Gray_9e">{_l('启后将在登录页显示Google登录按钮')}</div>
-      <div className={cx('flexRow valignWrapper', { mBottom20: ssoSettings.status === 1 })}>
-        <img src={googleIcon} width="20px" />
-        <span className="mLeft8">{'Google'}</span>
-      </div>
-      {ssoSettings.status === 1 &&
-        (loading ? (
-          <LoadDiv />
-        ) : edit ? (
-          <Fragment>
-            <div className="flexColumn mBottom20">
-              <div className="mBottom5">{'client id'}</div>
-              <Input
-                className="flex"
-                value={ssoSettings.clientId}
-                onChange={event => {
-                  handleChangeSsoSettings({
-                    clientId: event.target.value.replace(/\s/g, ''),
-                  });
-                }}
-              />
-            </div>
-            <div className="flexColumn mBottom20">
-              <div className="mBottom5">{'client secret'}</div>
-              <Input
-                className="flex"
-                type="password"
-                value={ssoSettings.clientSecret}
-                onChange={event => {
-                  handleChangeSsoSettings({
-                    clientSecret: event.target.value.replace(/\s/g, ''),
-                  });
-                }}
-              />
-            </div>
-            <div className="flexColumn mBottom20">
-              <div className="mBottom5">{_l('回调地址')}</div>
-              <Input
-                className="flex"
-                value={ssoSettings.redirectUri}
-                onChange={event => {
-                  handleChangeSsoSettings({
-                    redirectUri: event.target.value.replace(/\s/g, ''),
-                  });
-                }}
-              />
-            </div>
-            <div className="flexRow valignWrapper">
-              <Button className="mRight10" type="primary" onClick={handleSave}>
-                {_l('保存')}
-              </Button>
-              <Button onClick={handleReset}>{_l('取消')}</Button>
-            </div>
-          </Fragment>
-        ) : (
-          <Fragment>
-            {ssoSettings.clientId && (
-              <div className="flexRow mBottom20">
-                <div className="mRight25 Gray_9e">{'client id'}</div>
-                <div>{ssoSettings.clientId}</div>
-              </div>
-            )}
-            {ssoSettings.clientSecret && (
-              <div className="flexRow mBottom20">
-                <div className="mRight25 Gray_9e">{'client secret'}</div>
-                <div>{ssoSettings.clientSecret}</div>
-              </div>
-            )}
-            {ssoSettings.redirectUri && (
-              <div className="flexRow mBottom20">
-                <div className="mRight25 Gray_9e">{_l('回调地址')}</div>
-                <div>{ssoSettings.redirectUri}</div>
-              </div>
-            )}
-            <Button ghost type="primary" style={{ width: 'max-content' }} onClick={() => setEdit(true)}>
-              {_l('设置')}
-            </Button>
-          </Fragment>
-        ))}
-    </div>
-  );
-};
-
 const Sso = prosp => {
   const { SysSettings } = md.global;
   const [edit, setEdit] = useState(false);
@@ -569,46 +407,91 @@ const Sso = prosp => {
 const LoginGotoAppId = props => {
   const { SysSettings } = md.global;
   const [isEdit, setIsEdit] = useState(false);
-  const [loginGotoAppId, setLoginGotoAppId] = useState(SysSettings.loginGotoAppId || '');
+  const [{ loginGotoAppId, loginGotoUrl, type }, setState] = useSetState({
+    loginGotoUrl: SysSettings.loginGotoUrl || '',
+    loginGotoAppId: SysSettings.loginGotoAppId || '',
+    type: SysSettings.loginGotoAppId ? 2 : 1,
+  });
 
   const handleSave = () => {
-    if (loginGotoAppId && loginGotoAppId.length !== 36) {
-      alert(_l('应用ID格式不正确，请重新输入'), 3);
-      return;
+    let param = { loginGotoUrl, loginGotoAppId: '' };
+    let key1 = 'loginGotoUrl';
+    let key2 = 'loginGotoAppId';
+    if (type === 2) {
+      key1 = 'loginGotoAppId';
+      key2 = 'loginGotoUrl';
+      if (loginGotoAppId && loginGotoAppId.length !== 36) {
+        alert(_l('应用ID格式不正确，请重新输入'), 3);
+        return;
+      }
+      param = { loginGotoAppId, loginGotoUrl: '' };
     }
-    updateSysSettings(
-      {
-        loginGotoAppId,
-      },
-      () => {
-        md.global.SysSettings.loginGotoAppId = loginGotoAppId;
-        setIsEdit(false);
-      },
-    );
+    updateSysSettings(param, () => {
+      setState({
+        [key1]: param[key1],
+        [key2]: '',
+        type: param.loginGotoAppId ? 2 : 1,
+      });
+      md.global.SysSettings[key1] = param[key1];
+      md.global.SysSettings[key2] = '';
+      setIsEdit(false);
+    });
   };
   const handleReset = () => {
-    setLoginGotoAppId(SysSettings.loginGotoAppId || '');
+    setState({
+      loginGotoUrl: SysSettings.loginGotoUrl || '',
+      loginGotoAppId: SysSettings.loginGotoAppId || '',
+      type: SysSettings.loginGotoAppId ? 2 : 1,
+    });
     setIsEdit(false);
   };
 
   return (
     <div className="privateCardWrap flexRow">
       <div className="flex flexColumn">
-        <div className="Font14 bold mBottom7">{_l('登录后直接进入应用')}</div>
+        <div className="Font14 bold mBottom7">{_l('登录后直接进入指定页面')}</div>
         <div className="Gray_9e mBottom15">
-          {_l('支持设置登录后直接进入的应用，应用ID可前往应用管理右上角查看。若未设置，则默认登录后进入工作台')}
+          {_l(
+            '设置登录后直接进入指定的应用或系统内页面。可填写应用ID(见应用管理右上角)或系统内页面的地址,未填写时不生效',
+          )}
         </div>
         {isEdit ? (
           <Fragment>
-            <div className="mBottom15 valignWrapper">
-              <span className="Gray_9e mRight18">{_l('应用ID')}</span>
-              <Input
-                style={{ width: 500 }}
-                value={loginGotoAppId}
-                onChange={event => {
-                  setLoginGotoAppId(event.target.value.replace(/\s/g, ''));
-                }}
-              />
+            <div className="mBottom15 flexColumn">
+              <div className="flexRow mTop10 flex">
+                {[
+                  { text: _l('链接地址'), value: 1 },
+                  { text: _l('应用'), value: 2 },
+                ].map((item, index) => (
+                  <div className="mRight30">
+                    <Radio
+                      key={`type_${index}`}
+                      text={item.text}
+                      checked={type === item.value}
+                      onClick={() => {
+                        if (item.value === type) return;
+                        setState({ type: item.value });
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <span className="Gray_9e mTop20">{type === 1 ? _l('设置链接地址') : _l('设置应用ID')}</span>
+              <div className="flexRow valignWrapper mTop10">
+                {type === 1 && <span className="Gray">{md.global.Config.WebUrl}</span>}
+                <Input
+                  className={cx('flex', { mLeft10: type === 1 })}
+                  style={{ width: 500 }}
+                  value={type === 1 ? loginGotoUrl : loginGotoAppId}
+                  onChange={event => {
+                    if (type === 1) {
+                      setState({ loginGotoUrl: event.target.value.replace(/\s/g, '') });
+                    } else {
+                      setState({ loginGotoAppId: event.target.value.replace(/\s/g, '') });
+                    }
+                  }}
+                />
+              </div>
             </div>
             <div className="flexRow valignWrapper">
               <Button className="mRight10" type="primary" onClick={handleSave}>
@@ -620,8 +503,14 @@ const LoginGotoAppId = props => {
         ) : (
           <Fragment>
             <div className="mBottom15 valignWrapper">
-              <span className="Gray_9e mRight18">{_l('应用ID')}</span>
-              <span>{loginGotoAppId ? loginGotoAppId : _l('未设置')}</span>
+              <span className="Gray_9e mRight18">{loginGotoAppId ? _l('应用ID') : _l('进入链接地址')}</span>
+              <span>
+                {loginGotoAppId
+                  ? loginGotoAppId
+                  : loginGotoUrl
+                    ? `${md.global.Config.WebUrl}${loginGotoUrl}`
+                    : _l('未设置')}
+              </span>
             </div>
             <div>
               <Button ghost type="primary" onClick={() => setIsEdit(true)}>
@@ -639,7 +528,7 @@ export default props => {
   return (
     <Fragment>
       <Login {...props} />
-      <GoogleSso {...props} />
+      <SSOSet {...props} />
       <Sso {...props} />
       <LoginGotoAppId {...props} />
     </Fragment>

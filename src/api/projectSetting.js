@@ -144,7 +144,7 @@ export default {
      return mdyAPI('ProjectSetting', 'GetAutoPurchaseDataPipelineExtPack', args, options);
    },
   /**
-  * 获取 API集成 仅管理员 可用开关（integration 简写成 intg）
+  * 获取 API集成 仅管理员 可用开关（integration 简写成 intg）,预警信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -184,6 +184,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -209,6 +210,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -234,6 +236,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -259,6 +262,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -284,6 +288,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -306,7 +311,7 @@ export default {
      return mdyAPI('ProjectSetting', 'SetOnlyManagerCreateApp', args, options);
    },
   /**
-  * 设置 是否 只允许管理员创建应用
+  * 设置 是否 开启水印功能
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {boolean} args.allowProjectCodeJoin 企业标识
@@ -322,6 +327,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -329,6 +335,32 @@ export default {
    setEnabledWatermark: function (args, options = {}) {
      
      return mdyAPI('ProjectSetting', 'SetEnabledWatermark', args, options);
+   },
+  /**
+  * 设置 开启水印功能 文本
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.allowProjectCodeJoin 企业标识
+  * @param {string} args.logoName LOGO
+  * @param {string} args.imageName 二级域名页面背景图片
+  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
+  * @param {boolean} args.isAudit 设置审批
+  * @param {boolean} args.forAll 设置允许全员可见组织结构
+  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
+  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+  * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
+  * @param {boolean} args.notice 设置允许Score通知
+  * @param {string} args.subDomain 设置二级域名
+  * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setEnabledWatermarkTxt: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetEnabledWatermarkTxt', args, options);
    },
   /**
   * 设置 是否 启用用户密码输入可以设置免密验证
@@ -347,6 +379,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -380,6 +413,19 @@ export default {
    setAutoPurchaseDataPipelineExtPack: function (args, options = {}) {
      
      return mdyAPI('ProjectSetting', 'SetAutoPurchaseDataPipelineExtPack', args, options);
+   },
+  /**
+  * 设置 是否 自动订购ApkStorage升级包
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.autoPurchaseApkStorageExtPack 是否 自动订购应用附件上传流量升级包
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setAutoPurchaseApkStorageExtPack: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetAutoPurchaseApkStorageExtPack', args, options);
    },
   /**
   * 设置 是否允许申请后台组织管理员权限
@@ -465,6 +511,7 @@ export default {
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
+  * @param {string} args.enabledWatermarkTxt 水印文本
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -627,9 +674,9 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * 编辑自定义颜色设置
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
+  * @param {} args.type
   * @param {array} args.chart 颜色
   * @param {array} args.theme 主题
-  * @param {} args.type
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

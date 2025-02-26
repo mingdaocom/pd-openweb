@@ -7,7 +7,8 @@ import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import worksheetAjax from 'src/api/worksheet';
-import { isPublicLink, formatFiltersValue } from '../../tools/utils';
+import reportApi from 'statistics/api/report.js';
+import { isPublicLink } from '../../tools/utils';
 
 const EmbedWrap = styled.div`
   width: 100%;
@@ -56,83 +57,92 @@ const EmbedWrap = styled.div`
 
 export default class Widgets extends Component {
   static propTypes = {
-    value: PropTypes.string,
     enumDefault: PropTypes.number,
   };
 
   iframe = React.createRef();
 
   state = {
-    value: '',
-    needUpdate: '',
+    resultData: '',
+    needUpdate: Math.random(),
     ChartComponents: null,
     viewType: '',
     controls: [],
   };
 
   componentDidMount() {
-    this.initFunc(this.props);
+    this.initFunc();
+    this.embedWatch = setInterval(this.setValue, 3000);
   }
 
-  initFunc = (props, callback) => {
+  initFunc = () => {
+    const { enumDefault, addRefreshEvents, controlId, triggerCustomEvent } = this.props;
     const isMobile = browserIsMobile();
 
-    if (props.enumDefault === 1) {
-      this.setValue();
-      this.embedWatch = setInterval(this.setValue, 3000);
-    } else if (props.enumDefault === 2) {
+    if (enumDefault === 2) {
       if (isMobile) {
-        import('mobile/CustomPage/ChartContent').then(component => {
-          this.setState({ ChartComponents: component });
-        });
+        import('mobile/CustomPage/ChartContent').then(component =>
+          this.setState({ ChartComponents: component }, this.setValue),
+        );
       } else {
-        import('statistics/Card').then(component => {
-          this.setState({ ChartComponents: component });
-        });
+        import('statistics/Card').then(component => this.setState({ ChartComponents: component }, this.setValue));
       }
-    } else if (props.enumDefault === 3) {
-      import('./EmbedPreview').then(component => {
-        const { reportid, wsid } = safeParse(props.dataSource || '{}');
-
-        if (wsid) {
-          worksheetAjax
-            .getWorksheetInfo({ worksheetId: wsid, getViews: true })
-            .then(({ template = {}, views = [] }) => {
-              const curView = _.find(views, v => v.viewId === reportid);
-              this.setState({
-                ChartComponents: component,
-                viewType: String(_.get(curView, 'viewType')),
-                controls: _.get(template, 'controls') || [],
-              });
-            });
-        }
-      });
+    } else if (enumDefault === 3) {
+      import('./EmbedPreview').then(this.getControls);
+    } else {
+      this.setValue();
     }
 
-    if (_.isFunction(props.addRefreshEvents)) {
-      props.addRefreshEvents(props.controlId, this.handleReloadIFrame.bind(this));
+    if (_.isFunction(addRefreshEvents)) {
+      addRefreshEvents(controlId, this.handleReloadIFrame.bind(this));
     }
 
-    if (_.isFunction(props.triggerCustomEvent)) {
-      props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    if (_.isFunction(triggerCustomEvent)) {
+      triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
+  };
 
-    if (_.isFunction(callback)) {
-      callback();
+  getControls = component => {
+    const { dataSource } = this.props;
+    const { reportid, wsid } = safeParse(dataSource || '{}');
+
+    worksheetAjax.getWorksheetInfo({ worksheetId: wsid, getViews: true }).then(({ template = {}, views = [] }) => {
+      const curView = _.find(views, v => v.viewId === reportid);
+      this.setState(
+        {
+          ChartComponents: component,
+          viewType: String(_.get(curView, 'viewType')),
+          controls: _.get(template, 'controls') || [],
+        },
+        this.setValue,
+      );
+    });
+  };
+
+  setValue = props => {
+    const { enumDefault, value, formData, recordId } = props || this.props;
+    const { resultData, controls = [] } = this.state;
+    if (enumDefault === 1) {
+      if (value && value !== resultData) {
+        this.setState({ resultData: value });
+      }
+    } else {
+      const filterResult = getFilter({
+        control: { ...this.props, relationControls: controls || [], recordId, ignoreFilterControl: enumDefault === 2 },
+        formData,
+      }) || [{}];
+
+      if (!_.isEqual(resultData, filterResult)) {
+        this.setState({ resultData: filterResult, needUpdate: Math.random() });
+      }
     }
   };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.flag !== this.props.flag || nextProps.recordId !== this.props.recordId) {
-      this.initFunc(nextProps, () => this.setState({ needUpdate: Math.random() }));
+      this.setValue(nextProps);
     }
   }
-
-  setValue = () => {
-    if (this.props.value && this.props.value !== this.state.value) {
-      this.setState({ value: this.props.value });
-    }
-  };
 
   componentWillUnmount() {
     clearInterval(this.embedWatch);
@@ -160,7 +170,6 @@ export default class Widgets extends Component {
       enumDefault,
       enumDefault2,
       dataSource,
-      formData,
       viewId,
       recordId,
       projectId,
@@ -168,13 +177,13 @@ export default class Widgets extends Component {
       viewIdForPermit,
       isDraft,
     } = this.props;
-    const { value, needUpdate, ChartComponents, viewType, controls } = this.state;
-    const { height, filters, rownum = '10' } = advancedSetting;
+    const { resultData, needUpdate, ChartComponents, viewType } = this.state;
+    const { height, rownum = '10' } = advancedSetting;
     const isMobile = browserIsMobile();
     const { appid, reportid, wsid, type } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
 
     const getContent = () => {
-      const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(value) : dataSource;
+      const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;
       const isShareView = _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
 
       if (!isLegal) {
@@ -209,7 +218,7 @@ export default class Widgets extends Component {
               webkitallowfullscreen="true"
               mozallowfullscreen="true"
               allowfullscreen="true"
-              src={value}
+              src={resultData}
             />
           </div>
         );
@@ -217,11 +226,6 @@ export default class Widgets extends Component {
         if (!ChartComponents || !wsid) return null;
 
         if (enumDefault === 3) {
-          const filtersGroup = getFilter({
-            control: { ...this.props, relationControls: controls || [] },
-            formData,
-          }) || [{}];
-
           return (
             <div className="embedContainer viewContainer">
               <ChartComponents.default
@@ -239,14 +243,12 @@ export default class Widgets extends Component {
                     isDraft,
                   },
                 }}
-                filtersGroup={filtersGroup}
+                filtersGroup={resultData}
                 needUpdate={needUpdate}
               />
             </div>
           );
         }
-
-        const formatFilters = formatFiltersValue(safeParse(filters || '[]'), formData, recordId);
 
         return (
           <Fragment>
@@ -255,7 +257,7 @@ export default class Widgets extends Component {
                 <ChartComponents.default
                   reportId={reportid}
                   pageId={isShareView ? viewId : recordId}
-                  filters={formatFilters}
+                  filters={resultData}
                   needUpdate={needUpdate}
                   viewId={viewIdForPermit}
                 />
@@ -268,7 +270,7 @@ export default class Widgets extends Component {
                 projectId={projectId}
                 appId={appid || this.props.appId}
                 sourceType={2}
-                filters={formatFilters}
+                filters={resultData}
                 needUpdate={needUpdate}
                 isCharge={isCharge}
                 viewId={viewIdForPermit}

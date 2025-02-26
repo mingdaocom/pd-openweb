@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
+import copy from 'copy-to-clipboard';
 import AvatorInfo from './modules/AvatorInfo';
 import EditDetail from './modules/EditDetail';
 import EditInfo from './modules/EditInfo';
 import AddOrEditItem from './modules/AddOrEditItem';
-import { Tooltip, LoadDiv, Dialog } from 'ming-ui';
+import { Tooltip, LoadDiv, Dialog, Icon } from 'ming-ui';
 import account from 'src/api/account';
 import './index.less';
 import fixedDataAjax from 'src/api/fixedData.js';
@@ -375,6 +376,11 @@ export default class PersonalInfo extends React.Component {
     });
   }
 
+  onCopyID = () => {
+    copy(_.get(window.md, 'global.Account.accountId'));
+    alert(_l('复制成功'));
+  };
+
   render() {
     const { accountInfo, loading, educationList, workList, baseDetail, editFullName, isErr } = this.state;
     if (loading) {
@@ -428,6 +434,10 @@ export default class PersonalInfo extends React.Component {
                   {_l('使用：')}
                   <span className="mLeft5 ThemeColor3">{_l('%0 天', accountInfo.loginDays)}</span>
                 </label>
+                <span className="Gray_9e Hover_21 mLeft48 Hand" onClick={this.onCopyID}>
+                  {_l('用户ID')}
+                  <Icon icon="copy" className="mLeft5" />
+                </span>
               </div>
             </div>
           </div>

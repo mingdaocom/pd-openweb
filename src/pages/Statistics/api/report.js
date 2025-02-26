@@ -6,7 +6,7 @@ var report = {
   /**
    * 导出图表
    * @param {Object} args 请求参数
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*exportReportRequest
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*exportReportRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -132,6 +132,9 @@ var report = {
    * @param {integer} [args.filter.filterControls[0].dateRange] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].cid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].rcid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].staticValue] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {boolean} [args.filter.filterControls[0].isAsc] null
@@ -148,8 +151,10 @@ var report = {
    * @param {array} [args.filter.filterControls[0].values] null
    * @param {string} [args.filter.filterId] 筛选ID
    * @param {string} [args.filter.filterRangeId] 筛选范围字段ID
+   * @param {boolean} [args.filter.ignoreToday] 对比时忽略至今天
    * @param {integer} [args.filter.rangeType] 筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义,21自定义动态时间范围
-   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天
+   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天,财年: 第一位是 上一财年-1, 本财年 0，下一财年-2，第二位是月份 例如0:3，本财年3月份
+   * @param {object} [args.filter.requestParams] requestParams
    * @param {boolean} [args.filter.today] 至今天
    * @param {string} [args.filter.viewId] 视图ID
    * @param {integer} [args.filter.viewType] 视图类型
@@ -207,7 +212,7 @@ var report = {
    * @param {string} [args.name] 名称
    * @param {string} [args.owner] 拥有者ID
    * @param {integer} [args.particleSizeType] 日期： 粒度 1:日 2:周 3:月  /地区 ： 1: 省 2：市 3：区/县
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
    * @param {integer} [args.reportType] 类型   1:柱图 2:折线图  3:饼图  4:数值图 5：雷达图 6:漏斗图 7：双轴图 8：透视图 9:行政区划
    * @param {integer} [args.sourceType] 来源 空 代表 来自报表创建，1：page页面创建
    * @param {boolean} [args.split.XAxisEmpty] null
@@ -418,6 +423,9 @@ var report = {
    * @param {integer} [args.filter.filterControls[0].dateRange] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].cid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].rcid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].staticValue] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {boolean} [args.filter.filterControls[0].isAsc] null
@@ -434,8 +442,10 @@ var report = {
    * @param {array} [args.filter.filterControls[0].values] null
    * @param {string} [args.filter.filterId] 筛选ID
    * @param {string} [args.filter.filterRangeId] 筛选范围字段ID
+   * @param {boolean} [args.filter.ignoreToday] 对比时忽略至今天
    * @param {integer} [args.filter.rangeType] 筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义,21自定义动态时间范围
-   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天
+   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天,财年: 第一位是 上一财年-1, 本财年 0，下一财年-2，第二位是月份 例如0:3，本财年3月份
+   * @param {object} [args.filter.requestParams] requestParams
    * @param {boolean} [args.filter.today] 至今天
    * @param {string} [args.filter.viewId] 视图ID
    * @param {integer} [args.filter.viewType] 视图类型
@@ -493,7 +503,7 @@ var report = {
    * @param {string} [args.name] 名称
    * @param {string} [args.owner] 拥有者ID
    * @param {integer} [args.particleSizeType] 日期： 粒度 1:日 2:周 3:月  /地区 ： 1: 省 2：市 3：区/县
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
    * @param {integer} [args.reportType] 类型   1:柱图 2:折线图  3:饼图  4:数值图 5：雷达图 6:漏斗图 7：双轴图 8：透视图 9:行政区划
    * @param {integer} [args.sourceType] 来源 空 代表 来自报表创建，1：page页面创建
    * @param {boolean} [args.split.XAxisEmpty] null
@@ -704,6 +714,9 @@ var report = {
    * @param {integer} [args.filter.filterControls[0].dateRange] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].cid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].rcid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].staticValue] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {boolean} [args.filter.filterControls[0].isAsc] null
@@ -720,8 +733,10 @@ var report = {
    * @param {array} [args.filter.filterControls[0].values] null
    * @param {string} [args.filter.filterId] 筛选ID
    * @param {string} [args.filter.filterRangeId] 筛选范围字段ID
+   * @param {boolean} [args.filter.ignoreToday] 对比时忽略至今天
    * @param {integer} [args.filter.rangeType] 筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义,21自定义动态时间范围
-   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天
+   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天,财年: 第一位是 上一财年-1, 本财年 0，下一财年-2，第二位是月份 例如0:3，本财年3月份
+   * @param {object} [args.filter.requestParams] requestParams
    * @param {boolean} [args.filter.today] 至今天
    * @param {string} [args.filter.viewId] 视图ID
    * @param {integer} [args.filter.viewType] 视图类型
@@ -779,7 +794,7 @@ var report = {
    * @param {string} [args.name] 名称
    * @param {string} [args.owner] 拥有者ID
    * @param {integer} [args.particleSizeType] 日期： 粒度 1:日 2:周 3:月  /地区 ： 1: 省 2：市 3：区/县
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
    * @param {integer} [args.reportType] 类型   1:柱图 2:折线图  3:饼图  4:数值图 5：雷达图 6:漏斗图 7：双轴图 8：透视图 9:行政区划
    * @param {integer} [args.sourceType] 来源 空 代表 来自报表创建，1：page页面创建
    * @param {boolean} [args.split.XAxisEmpty] null
@@ -889,7 +904,7 @@ var report = {
   /**
    * 获取统计图表的条件id
    * @param {Object} args 请求参数
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*request
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -1002,6 +1017,9 @@ var report = {
    * @param {integer} [args.filter.filterControls[0].dateRange] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].cid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].rcid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].staticValue] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {boolean} [args.filter.filterControls[0].isAsc] null
@@ -1018,8 +1036,10 @@ var report = {
    * @param {array} [args.filter.filterControls[0].values] null
    * @param {string} [args.filter.filterId] 筛选ID
    * @param {string} [args.filter.filterRangeId] 筛选范围字段ID
+   * @param {boolean} [args.filter.ignoreToday] 对比时忽略至今天
    * @param {integer} [args.filter.rangeType] 筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义,21自定义动态时间范围
-   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天
+   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天,财年: 第一位是 上一财年-1, 本财年 0，下一财年-2，第二位是月份 例如0:3，本财年3月份
+   * @param {object} [args.filter.requestParams] requestParams
    * @param {boolean} [args.filter.today] 至今天
    * @param {string} [args.filter.viewId] 视图ID
    * @param {integer} [args.filter.viewType] 视图类型
@@ -1077,7 +1097,7 @@ var report = {
    * @param {string} [args.name] 名称
    * @param {string} [args.owner] 拥有者ID
    * @param {integer} [args.particleSizeType] 日期： 粒度 1:日 2:周 3:月  /地区 ： 1: 省 2：市 3：区/县
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
    * @param {integer} [args.reportType] 类型   1:柱图 2:折线图  3:饼图  4:数值图 5：雷达图 6:漏斗图 7：双轴图 8：透视图 9:行政区划
    * @param {integer} [args.sourceType] 来源 空 代表 来自报表创建，1：page页面创建
    * @param {boolean} [args.split.XAxisEmpty] null
@@ -1316,6 +1336,9 @@ var report = {
    * @param {integer} [args.filter.filterControls[0].dateRange] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
    * @param {integer} [args.filter.filterControls[0].dateRangeType] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].cid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].rcid] null
+   * @param {string} [args.filter.filterControls[0].dynamicSource[0].staticValue] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {integer} [args.filter.filterControls[0].filterType] null
    * @param {boolean} [args.filter.filterControls[0].isAsc] null
@@ -1332,8 +1355,10 @@ var report = {
    * @param {array} [args.filter.filterControls[0].values] null
    * @param {string} [args.filter.filterId] 筛选ID
    * @param {string} [args.filter.filterRangeId] 筛选范围字段ID
+   * @param {boolean} [args.filter.ignoreToday] 对比时忽略至今天
    * @param {integer} [args.filter.rangeType] 筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义,21自定义动态时间范围
-   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天
+   * @param {string} [args.filter.rangeValue] 范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天,财年: 第一位是 上一财年-1, 本财年 0，下一财年-2，第二位是月份 例如0:3，本财年3月份
+   * @param {object} [args.filter.requestParams] requestParams
    * @param {boolean} [args.filter.today] 至今天
    * @param {string} [args.filter.viewId] 视图ID
    * @param {integer} [args.filter.viewType] 视图类型
@@ -1391,7 +1416,7 @@ var report = {
    * @param {string} [args.name] 名称
    * @param {string} [args.owner] 拥有者ID
    * @param {integer} [args.particleSizeType] 日期： 粒度 1:日 2:周 3:月  /地区 ： 1: 省 2：市 3：区/县
-   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
+   * @param {获取图表数据} {appId:工作表id(string),contrastType:对比周期(integer),customRangeValue:同比自定义时间范围(string),dynamicFilter:动态筛选(ref),exportType:导出类型 0 ：原始值导出，1：显示值导出(integer),filterCode:范围 :空 代表全中国(string),filterControls:筛选条件(array),filterRangeId:筛选范围字段ID(string),filters:筛选条件(array),isPersonal:查看原始数据： ture，其他:false(boolean),match:点击的数值条件：{"caid":"user-workflow","ownerid":"user-undefined"}(object),pageId:自定义页面id(string),particleSizeType:粒度 1:日 2:周 3:月  /  行政区域图 1： 全国，2：省，3：市(integer),rangeType:筛选范围: 1:今天，2：昨天，3：明天，4：本周，5：上周，6：下周，8：本月，9：上月，10：下月，11：本季度，12：上季度，13：下季度，15：本年，16：上一年，17：下一年，18：今天之前的...天，19：今天之后的..天,20:自定义(integer),rangeValue:范围的值：7:7天，14：14天，30：30天,90：90天，180：180天，365：365天(string),reload:是否刷新(boolean),reportId:图表ID(string),requestParams:链接参数(object),sorts:自定义排序的数组(array),today:至今天(boolean),version:版本(string),}*reportDataRequest
    * @param {integer} [args.reportType] 类型   1:柱图 2:折线图  3:饼图  4:数值图 5：雷达图 6:漏斗图 7：双轴图 8：透视图 9:行政区划
    * @param {integer} [args.sourceType] 来源 空 代表 来自报表创建，1：page页面创建
    * @param {boolean} [args.split.XAxisEmpty] null

@@ -8,6 +8,7 @@ import { filterHidedSubList } from 'worksheet/util';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
+import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -134,6 +135,7 @@ class FillRecordControls extends React.Component {
         },
       },
     );
+    this.handleAppScan(controls);
     this.state = {
       formData: controls,
       showError: false,
@@ -142,6 +144,24 @@ class FillRecordControls extends React.Component {
   cellObjs = {};
   customwidget = React.createRef();
   formcon = React.createRef();
+
+  handleAppScan = controls => {
+    const { hideDialog = () => {}, worksheetInfo } = this.props;
+    handleAPPScanCode({
+      controls,
+      worksheetInfo,
+      updateData: data => {
+        this.customwidget.current.dataFormat.updateDataSource(data);
+        this.customwidget.current.updateRenderData();
+      },
+      handleSubmit: () => {
+        this.handleSave();
+      },
+      handleScanFinished: () => {},
+      onCancel: hideDialog,
+    });
+  };
+
   handleSave = () => {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);

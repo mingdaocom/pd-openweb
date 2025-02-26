@@ -113,7 +113,7 @@ export default {
      return mdyAPI('WorkWeiXin', 'EditDDProjectClientWorkingPattern', args, options);
    },
   /**
-  * 编辑钉钉消息链接可配置打开方式
+  * 编辑集成消息链接可配置打开方式
 1 侧边栏打开（默认），2 浏览器打开
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -147,6 +147,8 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {string} args.appId 明道应用id
   * @param {string} args.agentId 钉钉应用代理id
+  * @param {boolean} args.isEnableRobot 是否启用钉钉机器人消息通知
+  * @param {string} args.robotCode 钉钉机器人robotCode
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -512,6 +514,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {boolean} args.isLark 是否是国外lark
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -589,6 +592,7 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {string} args.appId 应用的Id
   * @param {string} args.appSecret 应用的Secret
+  * @param {boolean} args.isLark 是否是国外lark
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -603,6 +607,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {boolean} args.isLark 是否是国外lark
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

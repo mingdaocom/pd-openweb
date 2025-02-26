@@ -6,8 +6,11 @@ import rootTpl from './tpl/rootTpl.html';
 import nodeTpl from './tpl/nodeTpl.html';
 import ajax from 'src/api/kc';
 import _ from 'lodash';
-import Dialog from 'ming-ui/components/Dialog';
 import React from 'react';
+import { LoadDiv, Dialog } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
 
 var PICK_TYPE = {
     MYFILE: 1,
@@ -114,7 +117,7 @@ $.extend(FolderSelect.prototype, {
               <span className="createFolder icon-createFolder"></span>
             </div>
           </div>
-          <div className="folderNode" dangerouslySetInnerHTML={{ __html: LoadDiv() }}></div>
+          <div className="folderNode" dangerouslySetInnerHTML={{ __html: loading }}></div>
           <div className="selectedHint">
             <div className="selectedItem Hidden">
               已选中<span className="selectedNum"></span>个文件
@@ -477,7 +480,7 @@ $.extend(FolderSelect.prototype, {
       .hide()
       .end()
       .find('.folderNode')
-      .html(LoadDiv());
+      .html(loading);
     var projectArr = (
       (_.isArray(_.get(md, 'global.Account.projects')) && _.get(md, 'global.Account.projects')) ||
       []
@@ -590,7 +593,7 @@ $.extend(FolderSelect.prototype, {
     var $folderHtml;
     if (isScroll) {
       $folderHtml = $folderNode.find('.nodeList');
-      $folderHtml.append(LoadDiv());
+      $folderHtml.append(loading);
       var inputText = $.trim($folderUrl.find('.operation .searchFolder').val());
       if (settings.keywords && settings.keywords !== inputText) {
         settings.skip = 0;
@@ -652,7 +655,7 @@ $.extend(FolderSelect.prototype, {
           );
         }
       }
-      $folderHtml = $('<ul class="nodeList">' + LoadDiv() + '</ul>');
+      $folderHtml = $('<ul class="nodeList">' + loading + '</ul>');
       $folderNode.find('span.homeNetWork').nextAll().remove();
       $folderNode.append($folderHtml);
 

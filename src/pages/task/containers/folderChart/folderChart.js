@@ -15,7 +15,10 @@ import customDom from './tpl/customDom.html';
 import DateFilter from 'src/components/DateFilter';
 import _ from 'lodash';
 import moment from 'moment';
-import Dialog from 'ming-ui/components/Dialog';
+import { Dialog, LoadDiv } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
 
 const folderChartSettings = {
   type: 1,
@@ -57,7 +60,7 @@ class FolderChart extends Component {
   componentWillUnmount() {
     delete window.feedSelectDate;
     delete window.feedCustomDate;
-    rootFolderChartTime.unmount();
+    rootFolderChartTime && rootFolderChartTime.unmount();
   }
 
   /**
@@ -91,6 +94,7 @@ class FolderChart extends Component {
             type: folderChartSettings.type,
             data: source.data,
             timeTxt: moment().subtract(6, 'd').format('YYYY/MM/DD') + ' - ' + moment().format('YYYY/MM/DD'),
+            loading,
           }),
         );
 
@@ -125,6 +129,7 @@ class FolderChart extends Component {
           $('#taskList .folderChartBox').html(
             doT.template(folderChart)({
               type: folderChartSettings.type,
+              loading,
             }),
           );
 
@@ -463,7 +468,7 @@ class FolderChart extends Component {
       width: 860,
       children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
       handleClose: () => {
-        rootMaxViewUpdateTime.unmount();
+        rootMaxViewUpdateTime && rootMaxViewUpdateTime.unmount();
         $('.folderChartMaxView').parent().remove();
       },
     });
@@ -1213,38 +1218,48 @@ class FolderChart extends Component {
 
   renderCustomTime() {
     rootFolderChartTime = createRoot(document.querySelector('.folderChartTime'));
-    rootFolderChartTime.render(
-      <DateFilter
-        noClear={true}
-        onChange={(startDate, endDate) => {
-          startDate = startDate ? startDate.format('YYYY-MM-DD') : undefined;
-          endDate = endDate ? endDate.format('YYYY-MM-DD') : undefined;
-          this.updateTimeRefreshChart(false, startDate, endDate);
-        }}
-      >
-        <div className="mTop10 mRight10 pointer">
-          <Icon icon="calander" className="Font16 Gray_9" />
-        </div>
-      </DateFilter>,
-    );
+
+    if (rootFolderChartTime) {
+      rootFolderChartTime.render(
+        <DateFilter
+          noClear={true}
+          onChange={(startDate, endDate) => {
+            startDate = startDate ? startDate.format('YYYY-MM-DD') : undefined;
+            endDate = endDate ? endDate.format('YYYY-MM-DD') : undefined;
+            this.updateTimeRefreshChart(false, startDate, endDate);
+          }}
+        >
+          <div className="mTop10 mRight10 pointer">
+            <Icon icon="calander" className="Font16 Gray_9" />
+          </div>
+        </DateFilter>,
+      );
+    }
   }
 
   renderMaxCustomTime() {
-    rootMaxViewUpdateTime = createRoot(document.querySelector('#maxViewUpdateTime'));
-    rootMaxViewUpdateTime.render(
-      <DateFilter
-        noClear={true}
-        onChange={(startDate, endDate) => {
-          startDate = startDate ? startDate.format('YYYY-MM-DD') : undefined;
-          endDate = endDate ? endDate.format('YYYY-MM-DD') : undefined;
-          this.updateTimeRefreshChart(true, startDate, endDate);
-        }}
-      >
-        <div className="mTop10 mRight10 pointer">
-          <Icon icon="calander" className="Font16 Gray_9" />
-        </div>
-      </DateFilter>,
-    );
+    const node = document.querySelector('#maxViewUpdateTime');
+
+    if (!node) return;
+
+    rootMaxViewUpdateTime = createRoot(node);
+
+    if (rootMaxViewUpdateTime) {
+      rootMaxViewUpdateTime.render(
+        <DateFilter
+          noClear={true}
+          onChange={(startDate, endDate) => {
+            startDate = startDate ? startDate.format('YYYY-MM-DD') : undefined;
+            endDate = endDate ? endDate.format('YYYY-MM-DD') : undefined;
+            this.updateTimeRefreshChart(true, startDate, endDate);
+          }}
+        >
+          <div className="mTop10 mRight10 pointer">
+            <Icon icon="calander" className="Font16 Gray_9" />
+          </div>
+        </DateFilter>,
+      );
+    }
   }
 
   /**

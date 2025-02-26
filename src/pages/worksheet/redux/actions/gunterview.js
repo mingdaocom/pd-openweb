@@ -20,7 +20,7 @@ import { getDynamicValue } from 'src/components/newCustomFields/tools/DataFormat
 import { formatQuickFilter, getFilledRequestParams, handleRecordError } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { getRequest, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
+import { dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -57,11 +57,6 @@ export const fetchRows = () => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [] } = getState().sheet;
     const { filterControls } = getState().mobile;
-    const { access_token } = getRequest();
-
-    if (access_token) {
-      window.access_token = access_token;
-    }
 
     if (window.isMingDaoApp) {
       filters.filterControls = filterControls;
@@ -94,8 +89,12 @@ export const fetchRows = () => {
               data.map(item => {
                 const rows = (item.rows || []).map(row => {
                   const data = formatRecordTime(JSON.parse(row), gunterView.viewConfig);
-                  const startTime = data.startTime ? moment(dateConvertToUserZone(data.startTime)).format(startFormat) : data.startTime;
-                  const endTime = data.endTime ? moment(dateConvertToUserZone(data.endTime)).format(endFormat) : data.endTime;
+                  const startTime = data.startTime
+                    ? moment(dateConvertToUserZone(data.startTime)).format(startFormat)
+                    : data.startTime;
+                  const endTime = data.endTime
+                    ? moment(dateConvertToUserZone(data.endTime)).format(endFormat)
+                    : data.endTime;
                   data[startId] = startTime;
                   data[endId] = endTime;
                   data.startTime = startTime;
@@ -115,7 +114,7 @@ export const fetchRows = () => {
                 };
               }),
               view,
-              controls
+              controls,
             );
             if (isGunterExport) {
               const { calendartype } = view.advancedSetting;

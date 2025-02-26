@@ -1,8 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
 import { useSetState } from 'react-use';
-import { Dropdown, RadioGroup } from 'ming-ui';
-import { Tooltip } from 'antd';
+import { Dropdown, RadioGroup, Icon } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
 import styled from 'styled-components';
@@ -10,27 +9,25 @@ import cx from 'classnames';
 import { handleAdvancedSettingChange, getControlsSorts, getAdvanceSetting } from '../../util/setting';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import { getSortData } from 'src/pages/worksheet/util';
-import { EditInfo, SettingItem } from '../../styled';
+import { EditInfo, SettingItem, AnimationWrap } from '../../styled';
 import { WHOLE_SIZE } from '../../config/Drag';
 import worksheetAjax from 'src/api/worksheet';
-import { toEditWidgetPage, getFilterRelateControls } from '../../util';
+import { toEditWidgetPage, getFilterRelateControls, filterSysControls, formatControlsToDropdown } from '../../util';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { FilterItemTexts } from '../components/FilterData';
 import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
-import WidgetRowHeight from '../components/WidgetRowHeight';
+import { SUPPORT_RELATE_SEARCH } from '../../config';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 
 const FILL_TYPES = [
-  {
-    text: _l('填满'),
-    value: '0',
-  },
-  {
-    text: _l('完整显示'),
-    value: '1',
-  },
+  { text: _l('填满'), value: '0' },
+  { text: _l('完整显示'), value: '1' },
+];
+
+const SEARCH_RESULT_TYPES = [
+  { text: _l('单条记录'), value: 1 },
+  { text: _l('多条记录'), value: 2 },
 ];
 
 const RelateSheetWrap = styled.div`
@@ -47,11 +44,11 @@ const RelateSheetCover = styled.div`
   .sortColumnWrap {
     flex: 1;
     .Dropdown--input {
-      border-right: none;
-      border-radius: 3px 0px 0px 3px;
+      ${props => (props.hideCover ? 'border-radius: 3px;' : 'border-right: none;border-radius: 3px 0px 0px 3px;')};
     }
   }
   .relateCoverSetting {
+    ${props => (props.hideCover ? 'display: none;' : '')}
     width: 36px;
     height: 36px;
     border-radius: 0px 3px 3px 0px;
@@ -109,7 +106,14 @@ export default function RelationSearch(props) {
     coverCid,
     sourceControlId,
   } = data;
-  let { showtype = String(enumDefault), covertype = '0', maxcount, allowexport } = getAdvanceSetting(data);
+  let {
+    showtype = String(enumDefault),
+    covertype = '0',
+    maxcount,
+    allowexport,
+    querytype,
+    showtitleid,
+  } = getAdvanceSetting(data);
   const resultFilters = getAdvanceSetting(data, 'resultfilters');
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
 
@@ -147,6 +151,9 @@ export default function RelationSearch(props) {
     return _.includes(['2', '5', '6'], value || showtype);
   };
 
+  const setTitleControls = filterSysControls(filterControls).filter(i => _.includes(SUPPORT_RELATE_SEARCH, i.type));
+  const showTitleDelete = showtitleid && !_.find(setTitleControls, s => s.controlId === showtitleid);
+
   useEffect(() => {
     //  切换控件手动更新
     if (!loading && !isEmpty(controls) && worksheetInfo.worksheetId === dataSource) {
@@ -175,11 +182,6 @@ export default function RelationSearch(props) {
         return id;
       })
       .filter(item => !isEmpty(item));
-  };
-
-  const getGhostControlId = () => {
-    if (isSheetDisplay() || !titleControl) return [];
-    return [titleControl.controlId];
   };
 
   const renderCover = () => {
@@ -235,10 +237,11 @@ export default function RelationSearch(props) {
     sheetName: worksheetInfo.name,
     appId: worksheetInfo.appId,
     isDeleteWorksheet,
-    onOk: ({ sheetId, resultFilters, relationControls, sourceControlId, sheetName }) => {
+    onOk: ({ sheetId, resultFilters, relationControls, sourceControlId, sheetName, queryType }) => {
       onChange({
         ...handleAdvancedSettingChange(data, {
           resultfilters: JSON.stringify(resultFilters),
+          querytype: queryType || '0',
           sorts: sheetId !== dataSource ? '[{"controlId":"ctime","isAsc":true}]' : JSON.stringify(sorts),
         }),
         dataSource: sheetId,
@@ -257,19 +260,26 @@ export default function RelationSearch(props) {
       ) : (
         <Fragment>
           <SettingItem>
-            <div className="settingItemTitle">{_l('查询工作表')}</div>
+            <div className="settingItemTitle">{_l('查询表')}</div>
             <EditInfo
               className={cx('pointer', { borderError: isDeleteWorksheet })}
               onClick={() => relateSearchWorksheet(relateSearchPara)}
             >
               {isDeleteWorksheet ? (
-                <div className="Red">{_l('工作表已删除')}</div>
+                <div className="Red">{_l('查询表已删除')}</div>
               ) : (
-                <div className="overflow_ellipsis Gray">
+                <div className="overflow_ellipsis Gray flexCenter">
+                  {querytype === '1' && (
+                    <Icon className="Font20 mRight5" icon="aggregate_table" style={{ color: '#4CAF50' }} />
+                  )}
                   <span
                     className="ThemeColor3 ThemeHoverColor2 Hand Bold"
                     onClick={e => {
                       e.stopPropagation();
+                      if (querytype === '1') {
+                        window.open(`/app/${worksheetInfo.appId}/settings/aggregations`);
+                        return;
+                      }
                       toEditWidgetPage({ sourceId: dataSource, fromURL: 'newPage' });
                     }}
                   >
@@ -329,8 +339,79 @@ export default function RelationSearch(props) {
         </Fragment>
       )}
 
+      {relationControls.length > 0 && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('排序')}</div>
+          <EditInfo className="pointer" onClick={() => setVisible(true)}>
+            <div className="overflow_ellipsis Gray">
+              {sorts.length > 0
+                ? sorts.reduce((p, item) => {
+                    const sortsRelationControls = relationControls
+                      .filter(column => !_.find(SYSTEM_CONTROL, c => c.controlId === column.controlId))
+                      .concat(SYSTEM_CONTROL);
+                    const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
+                    const flag = item.isAsc === true ? 2 : 1;
+                    const { text } = getSortData(control.type, control).find(item => item.value === flag);
+                    const value = control.controlId ? `${control.controlName}：${text}` : '';
+                    return p ? `${p}；${value}` : value;
+                  }, '')
+                : _l('创建时间-最旧的在前')}
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </EditInfo>
+          {sortVisible && (
+            <Sort
+              {...props}
+              onlyShowSystemDateControl={querytype === '1'}
+              controls={relationControls}
+              onClose={() => setVisible(false)}
+            />
+          )}
+        </SettingItem>
+      )}
+
       <SettingItem>
-        <div className="settingItemTitle">{_l('显示方式')}</div>
+        <div className="settingItemTitle">{_l('显示查询结果')}</div>
+        <AnimationWrap>
+          {SEARCH_RESULT_TYPES.map(({ text, value }) => (
+            <div
+              className={cx('animaItem', { active: enumDefault === value })}
+              onClick={() => {
+                let nextData = { ...data, enumDefault: value };
+                if (value === 1) {
+                  const clearAds = {
+                    showtype: '',
+                    showtitleid: '',
+                    maxcount: '',
+                    allowlink: '0',
+                    openview: '',
+                  };
+                  onChange({
+                    ...handleAdvancedSettingChange(nextData, { ...clearAds }),
+                    strDefault: '000',
+                    enumDefault2: 1,
+                    coverCid: '',
+                  });
+                  return;
+                }
+                onChange({
+                  ...handleAdvancedSettingChange(nextData, {
+                    showtype: '5',
+                    allowlink: querytype === '1' ? '0' : '1',
+                  }),
+                });
+              }}
+            >
+              {text}
+            </div>
+          ))}
+        </AnimationWrap>
+      </SettingItem>
+
+      <SettingItem hide={enumDefault === 1}>
+        <div className="settingItemTitle">{_l('记录显示方式')}</div>
         <Dropdown
           border
           value={showtype}
@@ -354,34 +435,33 @@ export default function RelationSearch(props) {
           }}
         />
       </SettingItem>
-      {showtype !== '3' && (
+      {/**文本、卡片支持选项名/标题字段 */}
+      {!isSheetDisplay() && enumDefault === 2 && (
         <SettingItem>
-          <div className="settingItemTitle mBottom8">
-            <span>{_l('显示字段')}</span>
-            {enumDefault === 1 && (
-              <Tooltip
-                className="hoverTip"
-                title={
-                  <span>
-                    {_l('在卡片中，最多可显示9个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。')}
-                  </span>
-                }
-                popupPlacement="bottom"
-              >
-                <i className="icon icon-help pointer Gray_bd Font15" />
-              </Tooltip>
-            )}
-          </div>
-          <RelateSheetCover>
+          <div className="settingItemTitle">{_l('标题字段')}</div>
+          <Dropdown
+            border
+            cancelAble
+            value={showTitleDelete ? undefined : showtitleid || undefined}
+            data={formatControlsToDropdown(setTitleControls)}
+            placeholder={showTitleDelete ? <span className="Red">{_l('已删除')}</span> : _l('默认使用记录标题')}
+            onChange={value => onChange(handleAdvancedSettingChange(data, { showtitleid: value }))}
+          />
+        </SettingItem>
+      )}
+      {((showtype !== '3' && enumDefault === 2) || enumDefault === 1) && (
+        <SettingItem>
+          <div className="settingItemTitle mBottom8">{enumDefault === 1 ? _l('显示指定字段') : _l('显示字段')}</div>
+          <RelateSheetCover hideCover={enumDefault === 1 || querytype === '1'}>
             <SortColumns
               sortAutoChange
               isShowColumns
               empty={<div />}
               min1msg={_l('至少显示一列')}
               noempty={false}
-              ghostControlIds={getGhostControlId()}
+              ghostControlIds={[]}
               showControls={showControls}
-              columns={filterControls}
+              columns={querytype === '1' ? filterSysControls(filterControls) : filterControls}
               controlsSorts={getControlsSorts(data, filterControls)}
               onChange={({ newShowControls, newControlSorts }) => {
                 onChange(
@@ -414,33 +494,8 @@ export default function RelationSearch(props) {
           </RelateSheetCover>
         </SettingItem>
       )}
-      {isSheetDisplay() && <WidgetRowHeight {...props} />}
-      {relationControls.length > 0 && (
-        <SettingItem>
-          <div className="settingItemTitle">{_l('排序')}</div>
-          <EditInfo className="pointer" onClick={() => setVisible(true)}>
-            <div className="overflow_ellipsis Gray">
-              {sorts.length > 0
-                ? sorts.reduce((p, item) => {
-                    const sortsRelationControls = relationControls
-                      .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
-                      .concat(SYSTEM_CONTROLS);
-                    const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
-                    const flag = item.isAsc === true ? 2 : 1;
-                    const { text } = getSortData(control.type, control).find(item => item.value === flag);
-                    const value = control.controlId ? `${control.controlName}：${text}` : '';
-                    return p ? `${p}；${value}` : value;
-                  }, '')
-                : _l('创建时间-最旧的在前')}
-            </div>
-            <div className="edit">
-              <i className="icon-edit"></i>
-            </div>
-          </EditInfo>
-          {sortVisible && <Sort {...props} controls={relationControls} onClose={() => setVisible(false)} />}
-        </SettingItem>
-      )}
-      <SettingItem>
+
+      <SettingItem hide={enumDefault === 1}>
         <div className="settingItemTitle">{_l('查询数量')}</div>
         <div className="labelWrap flexCenter">
           <InputValue

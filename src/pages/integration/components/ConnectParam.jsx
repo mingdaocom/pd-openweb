@@ -67,6 +67,9 @@ const Wrap = styled.div`
     }
     .option {
       flex: 1;
+      &.required {
+        max-width: 54px;
+      }
       .del {
         &:hover {
           color: red !important;
@@ -180,6 +183,10 @@ function ConnectParam(props) {
       .map(o => {
         return { ...o, alias: o.controlName };
       });
+    if (controlData.filter(o => !o.value && o.required).length > 0) {
+      alert(_l('存在必填参数未填'), 3);
+      return;
+    }
     flowNodeAjax
       .saveNode(
         {
@@ -207,9 +214,10 @@ function ConnectParam(props) {
           type="text"
           className={cx('Gray')}
           placeholder={_l('请输入')}
-          value={o[key]}
+          defaultValue={o[key]}
+          key={JSON.stringify(o)}
           readOnly={props.connectType === 2 && key !== 'value'}
-          onChange={e => {
+          onBlur={e => {
             setState({
               controls: controls.map((item, n) => {
                 if (item.controlId === o.controlId) {
@@ -297,6 +305,7 @@ function ConnectParam(props) {
               <div className="name Gray_75">{_l('参数名称')}</div>
               <div className="param Gray_75">{_l('参数值')}</div>
               <div className="des Gray_75">{_l('说明')}</div>
+              <div className="option required Gray_75">{_l('必填')}</div>
               <div className="option Gray_75">
                 {_l('隐藏')}
                 <Tooltip
@@ -320,6 +329,31 @@ function ConnectParam(props) {
                 <div className="param WordBreak">{inputRender(o, 'value')}</div>
                 <div className={cx('des WordBreak', { disable: props.connectType === 2 })}>
                   {inputRender(o, 'desc')}
+                </div>
+                <div className="option required">
+                  {isEdit ? (
+                    <Checkbox
+                      className="mLeft5 flex TxtMiddle"
+                      size="small"
+                      checked={o.required}
+                      disabled={props.connectType === 2}
+                      onClick={() => {
+                        setState({
+                          controls: controls.map((item, n) => {
+                            if (item.controlId === o.controlId) {
+                              return { ...item, required: !o.required };
+                            } else {
+                              return item;
+                            }
+                          }),
+                        });
+                      }}
+                    />
+                  ) : o.required ? (
+                    <span className="Gray_75">{_l('必填')}</span>
+                  ) : (
+                    ''
+                  )}
                 </div>
                 {isEdit && (
                   <div className="option flexRow">

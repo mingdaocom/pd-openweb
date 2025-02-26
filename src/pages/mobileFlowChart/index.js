@@ -8,6 +8,9 @@ import preall from 'src/common/preall';
 const LayoutContent = styled.div`
   background-color: #f5f5f9;
   display: flex;
+  .workflowEditRelease {
+    height: 100%;
+  }
 `;
 
 const { processId, instanceId, selectNodeId } = getRequest();
@@ -26,6 +29,6 @@ class MobileFlowChart extends React.Component {
 }
 
 const Comp = preall(MobileFlowChart, { allowNotLogin: false });
-const root = createRoot(document.getElementById('mobileFlowChart'));
+const root = createRoot(document.getElementById('app'));
 
 root.render(<Comp />);

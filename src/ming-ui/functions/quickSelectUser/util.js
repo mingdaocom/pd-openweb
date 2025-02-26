@@ -29,7 +29,8 @@ export function getAccounts({
       prefixUsers = users.filter(l => _.startsWith(l.accountId, 'user'));
       users = users.filter(l => !_.startsWith(l.accountId, 'user'));
     } else {
-      prefixUsers = users.splice(0, 7);
+      prefixUsers = users.filter(c => c.accountId.length !== 36);
+      users = users.filter(c => c.accountId.length === 36);
     }
   } else {
     if (hasPrefix) {

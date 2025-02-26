@@ -23,6 +23,7 @@ export default class Header extends Component {
     }),
     currentWorkItem: shape({ operationTime: string }),
     errorMsg: string,
+    instanceId: string,
   };
 
   static defaultProps = {
@@ -30,6 +31,7 @@ export default class Header extends Component {
     data: {},
     currentWorkItem: {},
     errorMsg: '',
+    instanceId: '',
   };
 
   state = {
@@ -308,6 +310,7 @@ export default class Header extends Component {
       viewId,
       works,
       noAuth,
+      instanceId,
     } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
     const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
@@ -441,6 +444,7 @@ export default class Header extends Component {
               projectId={projectId}
               data={data}
               action={action}
+              instanceId={instanceId}
               onOk={this.handleAction}
               onCancel={() => this.setState({ otherActionVisible: false })}
             />

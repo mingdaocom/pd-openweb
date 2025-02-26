@@ -34,7 +34,7 @@ const Wrap = styled.div`
     }
     &.hover:hover {
       cursor: pointer;
-      background-color: #f5f5f5;
+      background-color: ${props => props.isDark ? '#ffffff1a' : '#f5f5f5'}
     }
   }
   .wrap-center {
@@ -390,14 +390,14 @@ export default class extends Component {
   }
   renderContrast(value, contrastValue, name, isContrastValue) {
     const { filter, displaySetup = {}, style, yaxisList } = this.props.reportData;
-    const { rangeType, rangeValue } = filter;
+    const { ignoreToday } = filter;
     const percentage = ((value - contrastValue) / contrastValue) * 100;
     const positiveNumber = percentage >= 0;
     const { numberChartStyle = {} } = style;
     const { contrastValueShowPercent = true, contrastValueShowNumber = false, contrastValueDot = 2 } = numberChartStyle;
     const contrastColor = _.isUndefined(numberChartStyle.contrastColor) ? style.contrastColor : numberChartStyle.contrastColor;
     const isEquality = value && contrastValue ? value === contrastValue : false;
-    const { text: tipsText } = formatContrastTypes(filter).filter(item => item.value === displaySetup.contrastType)[0] || {};
+    const { text: tipsText } = formatContrastTypes(filter).filter(item => item.value === displaySetup.contrastType && (item.ignoreToday ? ignoreToday === item.ignoreToday : true))[0] || {};
 
     if (!_.isNumber(contrastValue)) {
       return null;
@@ -437,7 +437,9 @@ export default class extends Component {
   }
   renderMapItem(data, controlMinAndMax, span) {
     const { isLinkageMatch } = this.state;
-    const { linkageMatch, isViewOriginalData, reportData, themeColor, customPageConfig = {}, layoutType } = this.props;
+    const { linkageMatch, isViewOriginalData, reportData, themeColor, customPageConfig = {}, layoutType, isThumbnail } = this.props;
+    const { pageStyleType = 'light' } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const mobileFontSize = (isMobile || layoutType === 'mobile') ? this.props.mobileFontSize : 0;
     const { xaxes, yaxisList, style, filter, displaySetup, desc } = reportData;
     const { controlId, name, value, lastContrastValue, contrastValue, minorList = [], descVisible } = data;
@@ -461,11 +463,22 @@ export default class extends Component {
       controlMinAndMax,
       rule,
       controlId: rule.controlId || yaxisList[0].controlId
-    }) : fontColor;
+    }) : (() => {
+      if (layoutType === 'mobile') {
+        return themeColor;
+      }
+      return pageStyleType === 'dark' && !isThumbnail ? themeColor : fontColor;
+    })();
     const isOpacity = !_.isEmpty(linkageMatch) && isLinkageMatch ? linkageMatch.value !== data.originalId : false;
     return (
       <Col span={span} onClick={event => !oneNumber ? this.handleClick(event, data) : _.noop()}>
-        <div style={{ opacity: isOpacity ? 0.3 : undefined }} className={cx(`wrap-${textAlign}`, { oneNumber, hover: !oneNumber && displaySetup.showRowList && isViewOriginalData })}>
+        <div
+          style={{ opacity: isOpacity ? 0.3 : undefined }}
+          className={cx(`wrap-${textAlign}`, {
+            oneNumber,
+            hover: displaySetup.showRowList && isViewOriginalData
+          })}
+        >
           {iconVisible && oneNumber && (
             <div className={cx('svgIconWrap valignWrapper justifyContentCenter', shape, `svgIconSize${newFontSize}`)} style={{ backgroundColor: iconColor }}>
               <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#fff" size={32} />
@@ -505,7 +518,7 @@ export default class extends Component {
               {!!contrastTypes.length && this.renderContrast(value, contrastValue, contrastText || _l('同比'), true)}
               {minorList.map(data => (
                 <div className="w100 flexRow textWrap minorWrap Font14">
-                  <div className="mRight5 Gray_75">{data.name}</div>
+                  <div className="mRight5 Gray_75 name">{data.name}</div>
                   <div>{formatrChartValue(data.value, false, newYaxisList, data.controlId)}</div>
                 </div>
               ))}
@@ -534,7 +547,9 @@ export default class extends Component {
     );
   }
   render() {
-    const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail } = this.props;
+    const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail, customPageConfig } = this.props;
+    const { pageStyleType = 'light' } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { name, xaxes, map, contrast = [], contrastMap = [], displaySetup = {}, summary, yaxisList, style } = reportData;
     const { numberChartStyle = {} } = style;
     const { dropdownVisible, offset } = this.state;
@@ -550,8 +565,9 @@ export default class extends Component {
     const controlMinAndMax = getControlMinAndMax(map);
     return (
       <Wrap
-        className={cx('flexRow h100', `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`)}
+        className={cx('numberChart flexRow h100', `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`)}
         columnCount={columnCount}
+        isDark={isDark}
         onClick={(event) => oneNumber ? this.handleClick(event, list[0]) : _.noop()}
       >
         <Row gutter={[8, 0]}>

@@ -61,6 +61,7 @@ EnableCreateProject:bool，非平台管理员是否可以创建组织
 EnableMobilePhoneRegister:bool，是否允许手机号注册
 EnableEmailRegister:bool，是否允许邮箱注册
 EnableEditAccountInfo:bool，是否允许修改个人账号信息
+EnableVerificationCodeLogin:bool，是否允许验证码登录
 EnableSmsCustomContent:bool，是否支持自定义短信内容的功能
 EnableBackupWorksheetData:bool，是否支持备份工作表数据
 EnableFooterInfo:bool，是否显示页脚信息栏
@@ -75,6 +76,9 @@ SsoWebUrl:string，SSO Web Url
 SsoAppUrl:string，SSO App Url
 LoginGotoAppId:string，登录后直接进入的应用Id
 EnablePromptNewVersion:bool，是否开启新版本提醒
+SessionWeb:string，Web（PC/H5) 内部用户会话有效期设置（格式：{t:1,v:5,r:true}）
+SessionApp:string，APP 内部用户会话有效期设置（格式：{t:1,v:5,r:true}）
+SessionWebPortal:string，Web（PC/H5) 外部门户用户会话有效期设置（格式：{t:1,v:5,r:true}）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -113,7 +117,7 @@ EnablePromptNewVersion:bool，是否开启新版本提醒
   * @param {Object} args 请求参数
   * @param {string} args.clientId 客户端Id
   * @param {string} args.clientSecret 客户端密钥
-  * @param {string} args.redirectUri 回调地址
+  * @param {string} args.redirectUri 回调地址（废弃，改成服务端固定地址，前端只作为显示）
   * @param {} args.tpType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -135,6 +139,18 @@ EnablePromptNewVersion:bool，是否开启新版本提醒
    setSsoStatus: function (args, options = {}) {
      
      return mdyAPI('PrivateSysSetting', 'SetSsoStatus', args, options);
+   },
+  /**
+  * 删除 SSO 配置
+  * @param {Object} args 请求参数
+  * @param {} args.tpType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeSso: function (args, options = {}) {
+     
+     return mdyAPI('PrivateSysSetting', 'RemoveSso', args, options);
    },
   /**
   * 获取 SSO 配置信息

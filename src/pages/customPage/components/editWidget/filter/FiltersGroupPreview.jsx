@@ -38,7 +38,7 @@ const Wrap = styled.div`
 `;
 
 function FiltersGroupPreview(props) {
-  const { appId, projectId, widget, className, updateFiltersGroup, updatePageInfo } = props;
+  const { appId, projectId, widget, config = {}, className, updateFiltersGroup, updatePageInfo } = props;
   const { id, value } = widget;
   const [loading, setLoading] = useState(true);
   const [filtersGroup, setFiltersGroup] = useState({});
@@ -46,6 +46,7 @@ function FiltersGroupPreview(props) {
   const { filters = [] } = filter;
   const isDisable = className.includes('disableFiltersGroup');
   const translateInfo = getTranslateInfo(appId, null, id);
+  const isDark = _.get(config, 'pageStyleType') === 'dark';
 
   useEffect(() => {
     if (value) {
@@ -126,6 +127,7 @@ function FiltersGroupPreview(props) {
       ) : (
         <Filters
           mode={isDisable ? 'config' : ''}
+          isDark={isDark}
           projectId={projectId}
           appId={appId}
           enableBtn={filter.enableBtn}
@@ -166,6 +168,7 @@ export default errorBoundary(
     state => ({
       filterComponents: state.customPage.filterComponents,
       loadFilterComponentCount: state.customPage.loadFilterComponentCount,
+      config: state.customPage.config,
     }),
     dispatch => bindActionCreators({ updateFiltersGroup, updatePageInfo }, dispatch),
   )(FiltersGroupPreview),

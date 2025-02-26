@@ -10,7 +10,7 @@ import ConfigHeader from './ConfigHeader';
 import WebLayout from './webLayout';
 import * as actions from './redux/action';
 import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
-import { enumWidgetType, reorderComponents, fillObjectId, formatNavfilters } from './util';
+import { enumWidgetType, reorderComponents, fillObjectId, formatNavfilters, updateLayout } from './util';
 import { reportTypes } from 'statistics/Charts/common';
 import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
@@ -42,6 +42,8 @@ const CustomPageWrap = styled.div`
   .react-grid-item > .react-resizable-handle::after {
     width: 8px;
     height: 8px;
+    opacity: 0.6;
+    border-color: var(--title-color);
   }
 `;
 
@@ -74,13 +76,13 @@ export default class CustomPage extends Component {
     customApi
       .getPage({ appId: pageId })
       .then(({ components, apk, version, adjustScreen, config }) => {
-        components = fillObjectId(components);
+        components = updateLayout(fillObjectId(components), config);
         updatePageInfo({
           components,
           pageId,
           version,
           adjustScreen,
-          config: config || defaultConfig,
+          config: config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
           apk: apk || {},
           visible: true,
           filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
@@ -489,14 +491,17 @@ export default class CustomPage extends Component {
         urlParams,
         config,
       })
-      .then(({ appId: pageId, version, components, apk }) => {
+      .then(({ appId: pageId, version, components, apk, config = {} }) => {
         if (_.isNumber(version)) {
           this.removeWorksheetBtn();
           this.removeFilterId();
           this.removeFiltersGroup();
           this.$originComponents = components;
           this.$originAdjustScreen = adjustScreen;
-          this.$originConfig = config;
+          this.$originConfig = {
+            ...config,
+            orightWebCols: config.webNewCols
+          };
           updatePageInfo({
             components,
             pageId,
@@ -504,6 +509,7 @@ export default class CustomPage extends Component {
             modified: false,
             filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
             apk,
+            config: this.$originConfig
           });
           alert(_l('保存成功'), 1);
         } else {
@@ -548,7 +554,7 @@ export default class CustomPage extends Component {
           displayType={displayType}
           cancelModified={this.cancelModified}
           switchType={this.switchType}
-          onBack={this.handleBack}
+          onBack={this.cancelModified}
           onSave={this.handleSave}
         />
         <div className="customPageContentWrap">

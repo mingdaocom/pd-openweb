@@ -134,7 +134,9 @@ export default class TriggerCondition extends Component {
       <Fragment>
         <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
         <Tooltip title={item.controlName ? null : `ID：${item.controlId}`}>
-          <span style={{ color: item.controlName ? '#151515' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
+          <span style={{ color: item.controlName ? '#151515' : '#f44336' }}>
+            {item.controlName || _l('字段已删除')}
+          </span>
         </Tooltip>
       </Fragment>
     );
@@ -697,7 +699,7 @@ export default class TriggerCondition extends Component {
                   renderTitle={
                     !conditionValues[0] || conditionValues[0].type === undefined
                       ? () => <span className="Gray_75">{_l('请选择')}</span>
-                      : () => <span>{DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)).text}</span>
+                      : () => <span>{(DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)) || {}).text}</span>
                   }
                   onChange={type =>
                     this.updateConditionDateValue({

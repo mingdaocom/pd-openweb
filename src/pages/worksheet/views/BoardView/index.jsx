@@ -348,7 +348,7 @@ function BoardView(props) {
   };
 
   return (
-    <div className="worksheetBoardViewWrap" ref={drop}>
+    <div className={cx('worksheetBoardViewWrap', { mobileWorksheetBoardViewWrap: browserIsMobile() })} ref={drop}>
       <RecordBoardWrap>{renderContent()}</RecordBoardWrap>
     </div>
   );

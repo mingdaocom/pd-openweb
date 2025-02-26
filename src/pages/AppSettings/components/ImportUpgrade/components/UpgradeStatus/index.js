@@ -205,12 +205,13 @@ export default class UpgradeStatus extends Component {
     const { pcNaviStyle } = appPkg;
 
     if (pcNaviStyle === 1) {
-      const renderContent = (count, onClick) => {
+      const renderContent = ({ count, waitingExamine }, onClick) => {
         return (
           <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={onClick}>
             <Icon icon="task_alt" className="Font18" />
             <div className="mLeft5 mRight5 bold">{_l('待办')}</div>
             {!!count && <div className="count">{count}</div>}
+            {!!waitingExamine && !count && <div className="weakCount"></div>}
           </div>
         );
       };

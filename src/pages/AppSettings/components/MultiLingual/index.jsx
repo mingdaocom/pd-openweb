@@ -1,49 +1,30 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Icon, Button, LoadDiv } from 'ming-ui';
-import languageIcon from '../../img/language.png';
+import React, { useState, useEffect } from 'react';
+import { LoadDiv } from 'ming-ui';
 import LingualList from './LingualList';
 import EditLingual from './EditLingual';
-import AddLangModal from './AddLangModal';
 import appManagementApi from 'src/api/appManagement';
 import worksheetApi from 'src/api/worksheet';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/util';
+import fixedDataApi from 'src/api/fixedData';
 
-function Entrance(props) {
-  const { app, onGetAppLangs } = props;
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="h100 flexColumn justifyContentCenter alignItemsCenter">
-      <img style={{ width: 200 }} src={languageIcon} />
-      <div className="Font32 bold mTop25 mBottom15">{_l('多语言')}</div>
-      <div className="Font15 mBottom20">{_l('设置用户在访问应用时可以使用的语言')}</div>
-      <Button
-        type="primary"
-        radius={true}
-        style={{ height: 36 }}
-        onClick={() => setVisible(true)}
-      >
-        <Icon icon="plus" />
-        <span>{_l('添加语言')}</span>
-      </Button>
-      <AddLangModal
-        app={app}
-        visible={visible}
-        onSave={onGetAppLangs}
-        onCancel={() => setVisible(false)}
-      />
-    </div>
-  );
-}
+const keys = {
+  'zh-Hans': 'zh_hansName',
+  'zh-Hant': 'zh_hantName',
+  'en': 'enName',
+  'ja': 'jaName',
+};
 
 export default function MultiLingual(props) {
-  const { data } = props;
+  const { data, match } = props;
   const { id, projectId } = data;
   const [loading, setLoading] = useState(true);
   const [langs, setLangs] = useState([]);
   const [collections, setCollections] = useState([]);
   const [langInfo, setLangInfo] = useState(null);
+  const [allLangList, setAllLangList] = useState([]);
   const { langId, flag } = getRequest();
+  const currentLangKey = keys[getCookie('i18n_langtag')];
 
   const handleGetAppLangs = () => {
     setLoading(true);
@@ -65,6 +46,15 @@ export default function MultiLingual(props) {
   }
 
   useEffect(() => {
+    if (data.id !== match.params.appId) {
+      location.reload();
+    }
+  }, []);
+
+  useEffect(() => {
+    fixedDataApi.loadLangList().then(data => {
+      setAllLangList(_.toArray(data));
+    });
     handleGetAppLangs();
   }, [flag]);
 
@@ -83,7 +73,9 @@ export default function MultiLingual(props) {
           ...data,
           collections
         }}
+        currentLangKey={currentLangKey}
         langs={langs}
+        allLangList={allLangList}
         langInfo={langInfo}
         onBack={() => {
           navigateTo(`/app/${id}/settings/language`);
@@ -96,7 +88,9 @@ export default function MultiLingual(props) {
   return (
     <LingualList
       app={data}
+      currentLangKey={currentLangKey}
       langs={langs}
+      allLangList={allLangList}
       onGetAppLangs={handleGetAppLangs}
       onChangeLangInfo={data => {
         navigateTo(`?langId=${data.id}`);

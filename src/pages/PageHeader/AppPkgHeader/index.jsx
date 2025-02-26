@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import './index.less';
 import { browserIsMobile } from 'src/util';
-import { getAppId } from 'src/pages/accountLogin/portalAccount/util';
+import { getAppId } from 'src/pages/AuthService/portalAccount/util';
 
 @connect(
   undefined,

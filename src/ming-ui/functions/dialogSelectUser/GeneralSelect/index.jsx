@@ -80,6 +80,16 @@ const SearchUserTabs = [
   },
 ];
 
+const ResignedTab = {
+  id: UserTabsId.RESIGNED,
+  name: _l('已离职'),
+  type: 7,
+  page: true,
+  actions: {
+    getUsers: userController.getProjectResignedUserList,
+  },
+};
+
 export { default as DepartmentList } from './DepartmentList';
 
 export default class GeneraSelect extends Component {
@@ -324,7 +334,8 @@ export default class GeneraSelect extends Component {
     showTabs.forEach(id => {
       tabs = tabs.concat(userSettings.defaultTabs.filter(item => item.id === id));
     });
-    userSettings.defaultTabs = tabs;
+    userSettings.defaultTabs =
+      !userSettings.filterResigned && !userSettings.hideResignedTab ? tabs.concat(ResignedTab) : tabs;
 
     let state = {
       /** 当期的选择类型 */
@@ -1327,7 +1338,7 @@ export default class GeneraSelect extends Component {
     const type = this.getRenderTypeByTabId(tabId);
     if (type === renderType) {
       if (tabId === UserTabsId.CONACT_USER) {
-        const totalUsers = ((data.users || {}).list || []).concat((data.oftenUsers || {}).list || [])
+        const totalUsers = ((data.users || {}).list || []).concat((data.oftenUsers || {}).list || []);
         return _.uniqBy(totalUsers, 'accountId').length;
       } else if (tabId === UserTabsId.RESIGNED) {
         return data.allCount;

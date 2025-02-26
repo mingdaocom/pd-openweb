@@ -88,7 +88,7 @@ const SelectedTags = styled.div`
 `;
 
 export default function RelateRecord(props) {
-  const { from, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {} } = props;
+  const { from, isDark, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {} } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
@@ -202,6 +202,7 @@ export default function RelateRecord(props) {
   return (
     <Con ref={conRef} className={cx({ isMultiple: true, active })}>
       <Dropdown
+        isDark={isDark}
         popupClassName={values.length < 2 ? 'small' : ''}
         getFilterRowsGetType={32}
         zIndex="xxx"

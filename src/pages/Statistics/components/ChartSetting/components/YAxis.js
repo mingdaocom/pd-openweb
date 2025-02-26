@@ -68,7 +68,7 @@ const renderOverlay = (props) => {
                   onNormType(controlId, item.value);
                 }}
               >
-                {item.text}
+                {item.alias || item.text}
               </Menu.Item>
             ))}
         </Menu.SubMenu>

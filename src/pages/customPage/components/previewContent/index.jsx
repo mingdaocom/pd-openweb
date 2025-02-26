@@ -91,7 +91,13 @@ function PreviewContent(props) {
     );
   }
 
-  if (!hrefReg.test(value)) return _l('嵌入链接无法解析');
+  if (!hrefReg.test(value)) {
+    return (
+      <div className="h100 flexRow alignItemsCenter justifyContentCenter">
+        {_l('嵌入链接无法解析')}
+      </div>
+    )
+  };
 
   function parseLink(link) {
     const url = genUrl(link, param, info);

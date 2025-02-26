@@ -100,6 +100,8 @@ export default class SubList extends React.Component {
                 : lastAction.rowid,
             ),
           );
+        } else if (lastAction.type === 'UPDATE_ROWS' && !lastAction.noRealUpdate) {
+          updated = _.uniqBy(updated.concat(lastAction.rowIds));
         } else if (lastAction.type === 'ADD_ROWS') {
           updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
         }

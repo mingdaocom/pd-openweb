@@ -413,6 +413,7 @@ export default {
   * 网络管理 - 用户下的部门ids
   * @param {Object} args 请求参数
   * @param {string} args.projectId
+  * @param {boolean} args.includePath
   * @param {array} args.accountIds
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

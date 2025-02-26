@@ -4,7 +4,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
   {
     // 工作流
     workflow: {
-      path: '/app/:appId/workflow',
+      path: '/app/:appId/workflow/:worksheetId?',
       component: () => import('pages/workflow/WorkflowList/AppWorkflowList'),
       sensitive: true,
     },

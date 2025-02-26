@@ -379,7 +379,10 @@ function WorksheetDraft(props) {
     };
   }, []);
 
-  if (isNewRecord && !total) return null;
+  // v11.1变更: 草稿箱入口不受存草稿开关限制（有草稿记录就显示草稿箱列表入口）
+  if ((isNewRecord && !total) || (_.get(worksheetInfo, 'advancedSetting.closedrafts') === '1' && !Number(total))) {
+    return null;
+  }
 
   return (
     <span

@@ -1,21 +1,51 @@
-import React, { Fragment, useCallback, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, Dialog } from 'ming-ui';
-import { Input, Checkbox, Space, Divider, Tooltip } from 'antd';
+import cx from 'classnames';
+import { Input, Divider, Tooltip, Switch } from 'antd';
 import { connect } from 'react-redux';
 import FilterObject from './FilterObject';
 import FilterControl from './FilterControl';
+import FilterListSort from './FilterListSort';
 import _ from 'lodash';
+
+const Tab = [
+  { text: _l('配置'), type: 'setting' },
+  { text: _l('样式'), type: 'style' },
+];
 
 const Wrap = styled.div`
   box-sizing: border-box;
   width: 360px;
-  padding: 24px;
   display: flex;
   flex-direction: column;
   background-color: #f8f8f8;
   overflow: auto;
   position: relative;
+
+  .filterDisplayTab {
+    display: flex;
+    padding: 0 24px;
+    margin-top: 20px;
+    li {
+      flex: 1;
+      padding-bottom: 16px;
+      text-align: center;
+      border-bottom: 3px solid #eee;
+      transition: all 0.25s;
+      cursor: pointer;
+      &.active {
+        color: #2196f3;
+        border-bottom-color: #2196f3;
+      }
+    }
+  }
+
+  .settingsBox {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+  }
 
   .ant-checkbox-input {
     position: absolute;
@@ -34,9 +64,12 @@ const Wrap = styled.div`
 `;
 
 function Setting(props) {
-  const { filter = {}, setFilter } = props;
+  const { filter = {}, updateFilter } = props;
   const { filters = [], setFilters, setActiveId } = props;
-  const { appId, appPkg = {}, pageId, components } = props;
+  const { filterInfo = {}, setFilterInfo } = props;
+  const { advancedSetting = {} } = filterInfo;
+  const { pageId, components } = props;
+  const [displayType, setDisplayType] = useState('setting');
 
   const allControls = filters.map(data => {
     const { control, objectControls } = data;
@@ -53,7 +86,7 @@ function Setting(props) {
       }
       if (checked) {
         data.objectControls = filterId === f.filterId ? objectControls : objectControls.map(c => {
-          const target =  _.find(data.objectControls, { worksheetId: c.worksheetId });
+          const target = _.find(data.objectControls, { worksheetId: c.worksheetId });
           if (target) {
             return target;
           } else {
@@ -115,49 +148,109 @@ function Setting(props) {
 
   return (
     <Wrap className="setting">
-      <div className="flexRow valignWrapper Gray_9e">
-        <div className="flex Font13">{_l('设置筛选器')}</div>
-        <div data-tip={_l('删除')}>
-          <Icon
-            icon="delete2"
-            className="Font20 pointer"
-            onClick={removeFilter}
+      <ul className="filterDisplayTab">
+        {Tab.map(({ text, type }) => (
+          <li key={type} className={cx({ active: displayType === type })} onClick={() => setDisplayType(type)}>
+            {text}
+          </li>
+        ))}
+      </ul>
+      {displayType === 'setting' ? (
+        <div className="settingsBox Relative">
+          <div className="flexRow valignWrapper Gray_9e">
+            <div className="flex Font13">{_l('设置筛选器')}</div>
+            <div data-tip={_l('删除')}>
+              <Icon
+                icon="delete2"
+                className="Font20 pointer"
+                onClick={removeFilter}
+              />
+            </div>
+          </div>
+          <Divider className="mTop15 mBottom15" />
+          <div className="Font13 bold mBottom10">{_l('筛选器名称')}</div>
+          <Input
+            className="w100 Font13"
+            placeholder={_l('未命名')}
+            value={filter.name}
+            onChange={(e) => {
+              updateFilter({ name: e.target.value });
+            }}
           />
-        </div>
-      </div>
-      <Divider className="mTop15 mBottom15" />
-      <div className="Font13 bold mBottom10">{_l('筛选器名称')}</div>
-      <Input
-        className="w100 Font13"
-        placeholder={_l('未命名')}
-        value={filter.name}
-        onChange={(e) => {
-          setFilter({ name: e.target.value });
-        }}
-      />
-      <Divider className="mTop16 mBottom14" />
-      <FilterObject
-        pageId={pageId}
-        components={components}
-        filter={filter}
-        setFilter={(data) => {
-          if (!data.objectControls.length) {
-            data.dataType = 0;
-          }
-          setFilter(data);
-        }}
-        changeGlobal={changeGlobal}
-        changeAllFilterObjectControls={changeAllFilterObjectControls}
-      />
-      {!!_.get(filter, 'objectControls.length') && (
-        <Fragment>
-          <Divider className="mTop5 mBottom14" />
-          <FilterControl
+          <Divider className="mTop16 mBottom14" />
+          <FilterObject
+            pageId={pageId}
+            components={components}
             filter={filter}
-            setFilter={setFilter}
-            allControls={allControls}
+            setFilter={(data) => {
+              if (!data.objectControls.length) {
+                data.dataType = 0;
+              }
+              updateFilter(data);
+            }}
+            changeGlobal={changeGlobal}
+            changeAllFilterObjectControls={changeAllFilterObjectControls}
           />
-        </Fragment>
+          {!!_.get(filter, 'objectControls.length') && (
+            <Fragment>
+              <Divider className="mTop5 mBottom14" />
+              <FilterControl
+                filter={filter}
+                setFilter={updateFilter}
+                allControls={allControls}
+              />
+            </Fragment>
+          )}
+        </div>
+      ) : (
+        <div className="settingsBox Relative">
+          <div className="flexRow valignWrapper">
+            <div className="flex bold">{_l('启用筛选按钮')}</div>
+            <Switch
+              size="small"
+              checked={filterInfo.enableBtn}
+              onChange={(checked) => {
+                setFilterInfo({
+                  ...filterInfo,
+                  enableBtn: checked
+                });
+              }}
+            />
+          </div>
+          <Divider className="mTop15 mBottom15" />
+          <div className="flexRow valignWrapper">
+            <div className="flexRow valignWrapper flex bold">
+              {_l('在执行筛选查询后显示数据')}
+              <Tooltip title={_l('勾选后，进入页面初始不显示数据，查询后显示符合筛选条件的数据。')} placement="bottom">
+                <Icon className="Font17 pointer Gray_9e mLeft10" icon="workflow_help" />
+              </Tooltip>
+            </div>
+            <Switch
+              size="small"
+              checked={advancedSetting.clicksearch == '1'}
+              onChange={(checked) => {
+                setFilterInfo({
+                  ...filterInfo,
+                  advancedSetting: {
+                    ...advancedSetting,
+                    clicksearch: checked ? '1' : '0'
+                  }
+                });
+              }}
+            />
+          </div>
+          <Divider className="mTop15 mBottom15" />
+          <div className="flexColumn">
+            <div className="flex bold">{_l('排序')}</div>
+            <FilterListSort
+              filters={filters}
+              onSortEnd={(filters) => {
+                setFilters(filters);
+              }}
+            />
+          </div>
+          <Divider className="mTop15 mBottom15" />
+        </div>
       )}
     </Wrap>
   );

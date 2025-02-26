@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Modal, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import _ from 'lodash';
+import _, { get, identity } from 'lodash';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import addRecord from 'worksheet/common/newRecord/addRecord';
@@ -13,7 +13,7 @@ import { FlexCenter } from 'worksheet/components/Basics';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import sheetAjax from 'src/api/worksheet';
 import RecordCoverCard from 'worksheet/components/RelateRecordCards/RecordCoverCard';
-import { LoadingButton, getCardWidth } from 'worksheet/components/RelateRecordCards/RelateRecordCards';
+import { LoadingButton, getCardColNum } from 'worksheet/components/RelateRecordCards/RelateRecordCards';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
@@ -22,8 +22,25 @@ import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import RegExpValidator from 'src/util/expression';
+import { getValueStyle } from 'src/components/newCustomFields/tools/utils';
+
 const PAGE_SIZE = 50;
+
+const CARD_MIN_WIDTH = 360;
+const CARDS_GAP = 16;
+
+const CardsCon = styled.div`
+  ${({ width }) => (width > 700 ? 'display: grid;' : '')}
+  grid-gap: ${CARDS_GAP}px;
+  grid-template-columns: repeat(auto-fit, minmax(${CARD_MIN_WIDTH}px, 1fr));
+  &.mobileCardsCom {
+    display: flex;
+    flex-direction: column;
+    grid-gap: unset;
+  }
+`;
 
 const Con = styled.div`
   margin: 5px 0 5px;
@@ -39,10 +56,13 @@ const RecordText = styled.div`
   .text {
     display: inline-block;
     max-width: 202px;
+    ${({ inlineStyle }) => inlineStyle}
   }
-  .splitter {
-    margin-right: 6px;
-  }
+`;
+
+const Splitter = styled.span`
+  margin-right: 6px;
+  ${({ inlineStyle }) => inlineStyle}
 `;
 
 const RecordTextAdd = styled(FlexCenter)`
@@ -102,6 +122,15 @@ const MobileCardsEmpty = styled.div`
   margin: -20px -24px 0;
 `;
 
+const EmptyTag = styled.span`
+    display: block;
+    margin: 15px 0;
+    width: 22px;
+    height: 6px;
+    background: #eaeaea;
+    border-radius: 3px;
+}`;
+
 function getCoverUrl(coverId, record, controls) {
   const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
   if (!coverControl) {
@@ -120,15 +149,14 @@ function getCoverUrl(coverId, record, controls) {
 function Cards(props) {
   const {
     loading,
+    width,
     allowOpenRecord,
     allowNewRecord,
     entityName,
-    records,
     showAll,
     colNum,
     projectId,
     viewId,
-    cardWidth,
     isCharge,
     controls,
     advancedSetting,
@@ -142,8 +170,12 @@ function Cards(props) {
     onOpen,
     disabled,
   } = props;
+  let { records } = props;
   const showNewRecord = browserIsMobile() ? !disabled && allowNewRecord : allowNewRecord;
-
+  if (control.type === 51 && control.enumDefault === 1) {
+    records = records.slice(0, 1);
+  }
+  const hideTitle = control.type === 51 && control.enumDefault === 1;
   return (
     <Fragment>
       {showNewRecord && (
@@ -151,67 +183,68 @@ function Cards(props) {
           <Button onClick={onAdd}>
             <div className="content">
               <i className={`icon icon-plus mRight5 Font16`}></i>
-              {entityName}
+              {entityName || _l('记录')}
             </div>
           </Button>
         </div>
       )}
-      {!loading &&
-        !!records.length &&
-        (showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)).map((record, i) => (
-          <RecordCoverCard
-            projectId={projectId}
-            viewId={viewId}
-            disabled
-            width={cardWidth}
-            isCharge={isCharge}
-            key={i}
-            cover={getCoverUrl(control.coverCid, record, controls)}
-            controls={control.showControls
-              .map(cid => _.find(controls, { controlId: cid }))
-              .filter(c => c && c.attribute !== 1)}
-            data={record}
-            allowlink={allowOpenRecord ? '1' : '0'}
-            parentControl={{ ...control, relationControls: controls }}
-            onClick={() => {
-              if (!allowOpenRecord) {
-                return;
-              }
-              onOpen(record.rowid);
-            }}
-          />
-        ))}
-      {browserIsMobile() && advancedSetting.showtype === '2' && !loading && !isLoadingMore && !records.length && (
-        <MobileCardsEmpty>
-          <WithoutRows text={_l('暂无记录')} />
-        </MobileCardsEmpty>
-      )}
-      {records.length > colNum * 3 && (
-        <div>
-          {showLoadMore && showAll && (
-            <LoadingButton
+      <CardsCon width={width} className={cx({ mobileCardsCom: browserIsMobile() })}>
+        {!loading &&
+          !!records.length &&
+          (showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)).map((record, i) => (
+            <RecordCoverCard
+              projectId={projectId}
+              viewId={viewId}
+              disabled
+              isCharge={isCharge}
+              hideTitle={hideTitle}
+              containerWidth={width}
+              key={i}
+              cover={getCoverUrl(control.coverCid, record, controls)}
+              controls={control.showControls.map(cid => _.find(controls, { controlId: cid })).filter(identity)}
+              data={record}
+              allowlink={allowOpenRecord ? '1' : '0'}
+              parentControl={{ ...control, relationControls: controls }}
               onClick={() => {
-                if (!isLoadingMore) {
-                  loadRecords(pageIndex + 1);
+                if (!allowOpenRecord) {
+                  return;
                 }
+                onOpen(record.rowid);
               }}
+            />
+          ))}
+        {browserIsMobile() && advancedSetting.showtype === '2' && !loading && !isLoadingMore && !records.length && (
+          <MobileCardsEmpty>
+            <WithoutRows text={_l('暂无记录')} />
+          </MobileCardsEmpty>
+        )}
+        {records.length > colNum * 3 && (
+          <div>
+            {showLoadMore && showAll && (
+              <LoadingButton
+                onClick={() => {
+                  if (!isLoadingMore) {
+                    loadRecords(pageIndex + 1);
+                  }
+                }}
+              >
+                {isLoadingMore && (
+                  <span className="loading">
+                    <i className="icon icon-loading_button"></i>
+                  </span>
+                )}
+                {_l('加载更多')}
+              </LoadingButton>
+            )}
+            <LoadingButton
+              className="ThemeColor3 Hand mBottom10 InlineBlock"
+              onClick={() => setState(old => ({ ...old, showAll: !showAll }))}
             >
-              {isLoadingMore && (
-                <span className="loading">
-                  <i className="icon icon-loading_button"></i>
-                </span>
-              )}
-              {_l('加载更多')}
+              {showAll ? _l('收起') : _l('展开更多')}
             </LoadingButton>
-          )}
-          <LoadingButton
-            className="ThemeColor3 Hand mBottom10 InlineBlock"
-            onClick={() => setState(old => ({ ...old, showAll: !showAll }))}
-          >
-            {showAll ? _l('收起') : _l('展开更多')}
-          </LoadingButton>
-        </div>
-      )}
+          </div>
+        )}
+      </CardsCon>
     </Fragment>
   );
 }
@@ -219,6 +252,14 @@ function Texts(props) {
   const { control, entityName, allowOpenRecord, allowNewRecord, records = [], onAdd, onOpen, disabled } = props;
 
   const isMobile = browserIsMobile();
+  let valueStyle = {};
+  let style = {};
+  if (control.type === 51) {
+    valueStyle = getValueStyle({ ...control, type: 2, value: '_' });
+    style = {
+      fontSize: valueStyle.size,
+    };
+  }
 
   if (isMobile) {
     return (
@@ -261,6 +302,8 @@ function Texts(props) {
         const text = getTitleTextFromRelateControl(control, record);
         return (
           <RecordText
+            inlineStyle={valueStyle.valueStyle}
+            style={style}
             key={i}
             className={cx({ 'ThemeColor3 Hand': allowOpenRecord })}
             onClick={() => {
@@ -273,7 +316,7 @@ function Texts(props) {
             <div className="text ellipsis" title={text}>
               {text}
             </div>
-            {i < records.length - 1 && <span className="splitter">,</span>}
+            {i < records.length - 1 && <Splitter inlineStyle={valueStyle.valueStyle}>,</Splitter>}
           </RecordText>
         );
       })}
@@ -329,7 +372,11 @@ function RelationSearch(props) {
   } = state;
   const isMobile = browserIsMobile();
 
-  const { cardWidth, colNum } = getCardWidth({ width: browserIsMobile() ? undefined : width, enumDefault });
+  const colNum = getCardColNum({
+    width: browserIsMobile() ? undefined : width,
+    isMobile: browserIsMobile(),
+    enumDefault,
+  });
   const allowOpenRecord = _.get(advancedSetting, 'allowlink') === '1' && !_.get(window, 'shareState.shareId');
   const allowNewRecord =
     worksheetAllowAdd &&
@@ -376,12 +423,19 @@ function RelationSearch(props) {
       rowId: recordId,
       controlId: control.controlId,
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: control.enumDefault === 1 ? 1 : PAGE_SIZE,
       getWorksheet: pageIndex === 1,
       getRules: pageIndex === 1,
     };
     sheetAjax.getRowRelationRows(args).then(res => {
       setWorksheetAllowAdd(_.get(res, 'worksheet.allowAdd'));
+      if (_.get(res, 'worksheet.template.controls')) {
+        res.worksheet.template.controls = replaceControlsTranslateInfo(
+          res.worksheet.appId,
+          res.worksheet.worksheetId,
+          _.get(res, 'worksheet.template.controls'),
+        );
+      }
       setState(oldState => {
         const newRecords = _.uniqBy([...(oldState.records || []), ...(res.data || [])], 'rowid');
         return {
@@ -436,7 +490,7 @@ function RelationSearch(props) {
   const handleOpenRecord = useCallback(needOpenRecordId => {
     addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
     if (isMobile) {
-      handlePushState('page', 'relateRecord');
+      handlePushState('page', `relateRecord-${recordId}`);
       setRecordInfoVisible(true);
       setOpenRecordId(needOpenRecordId);
       return;
@@ -451,7 +505,7 @@ function RelationSearch(props) {
 
   const onQueryChange = () => {
     if (!recordInfoVisible) return;
-    handleReplaceState('page', 'relateRecord', () => setRecordInfoVisible(false));
+    handleReplaceState('page', `relateRecord-${recordId}`, () => setRecordInfoVisible(false));
   };
 
   useEffect(() => {
@@ -485,7 +539,9 @@ function RelationSearch(props) {
       window.removeEventListener('popstate', onQueryChange);
     };
   }, [recordInfoVisible]);
-
+  if ((control.type === 51 && control.enumDefault === 1 && control.showControls.length === 0) || !records.length) {
+    return <EmptyTag />;
+  }
   return (
     <Con ref={ref}>
       {loading && (
@@ -509,6 +565,7 @@ function RelationSearch(props) {
         <Cards
           {...{
             loading,
+            width,
             entityName,
             allowOpenRecord,
             allowNewRecord,
@@ -517,7 +574,6 @@ function RelationSearch(props) {
             colNum,
             projectId,
             viewId,
-            cardWidth,
             isCharge,
             controls,
             advancedSetting,

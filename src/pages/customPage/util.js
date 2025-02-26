@@ -37,11 +37,11 @@ export const getIndexById = ({ component, components }) => {
 export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type, config = {} }) => {
   if (layoutType === 'web') {
     if (type === 'view') {
-      return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 10, minW: 2, minH: 6 };
+      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 6 };
     } else if (type === 'filter') {
-      return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 2, minW: 2, minH: 2 };
+      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 2 };
     } else {
-      return { x: (components.length * 6) % 12, y: Infinity, w: 6, h: 6, minW: 2, minH: 2 };
+      return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 2 };
     }
   };
   if (layoutType === 'mobile') {
@@ -50,11 +50,11 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
     const enumType = getEnumType(type);
     const minW = _.includes(['button'], enumType) ? 2 : 1;
     if (enumType === 'view') {
-      return { x: 0, y: y + h, w: 2, h: titleVisible ? 9 : 8, minW, minH: 4 };
+      return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 4 };
     } else if (enumType === 'filter') {
-      return { x: 0, y: y + h, w: 2, h: 1, minW, minH: 1 };
+      return { x: 0, y: y + h, w: 4, h: 1, minW, minH: 1 };
     } else {
-      return { x: 0, y: y + h, w: 2, h: titleVisible ? 7 : 6, minW, minH: 2 };
+      return { x: 0, y: y + h, w: 4, h: titleVisible ? 7 : 6, minW, minH: 2 };
     }
   }
 };
@@ -169,7 +169,7 @@ const imgToCanvas = img => {
   return canvas;
 };
 
-const watermark = (canvas, layouts) => {
+const addHintWatermark = (canvas, layouts) => {
   return new Promise((resolve, reject) => {
     const text = _l('不支持打印');
     const ctx = canvas.getContext('2d');
@@ -179,9 +179,61 @@ const watermark = (canvas, layouts) => {
     layouts.forEach(({ left, top }) => {
       ctx.fillText(text, left, top);
     });
-    canvas.toBlob(blob => resolve(blob));
+    resolve(canvas);
+    // canvas.toBlob(blob => resolve(blob));
   });
 };
+
+const addUserWatermark = (canvas, currentProject) => {
+
+  const getValue = key => {
+    switch (key) {
+      case 'mobilePhone':
+        return (_.get(md, 'global.Account.mobilePhone') || '').substr(-4, 4);
+      case 'email':
+        return (_.get(md, 'global.Account.email') || '').replace(/@.*/g, '');
+      case 'companyName':
+        return currentProject.companyName || '';
+      default:
+        return _.get(md, `global.Account.${key}`) || '';
+    }
+  };
+
+  const getContent = () => {
+    if (!!currentProject.enabledWatermarkTxt) {
+      return currentProject.enabledWatermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
+    }
+
+    return md.global.Account.fullname + '/' + (getValue('mobilePhone') || getValue('email'));
+  };
+
+  const content = getContent();
+
+  return new Promise((resolve, reject) => {
+    const ctx = canvas.getContext('2d');
+
+    ctx.font = '18px normal';
+    ctx.fillStyle = 'rgba(0, 0, 0, .06)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const angle = (50 * Math.PI) / 180;
+    const horizontalGap = 212;
+    const verticalGap = 222;
+
+    for (let y = 0; y < canvas.height; y += verticalGap) {
+      for (let x = 0; x < canvas.width; x += horizontalGap) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(content, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    resolve(canvas);
+  });
+}
 
 export const createFontLink = () => {
   return new Promise((resolve, reject) => {
@@ -195,7 +247,7 @@ export const createFontLink = () => {
   });
 }
 
-export const exportImage = bgColor => {
+export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) => {
   return new Promise((resolve, reject) => {
     const wrap = document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
     const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
@@ -210,7 +262,7 @@ export const exportImage = bgColor => {
     });
     domtoimage
       .toBlob(wrap, {
-        bgcolor: bgColor || '#f5f5f5',
+        bgcolor: pageBgColor || '#f5f5f5',
         width: offsetWidth,
         height: offsetHeight,
       })
@@ -224,9 +276,13 @@ export const exportImage = bgColor => {
             top: top - wrapTop + height / 2,
           };
         });
-        const newBlob = await watermark(canvas, layouts);
+        let newCanvas = null;
+        newCanvas = await addHintWatermark(canvas, layouts);
+        if (isUserWatermark) {
+          newCanvas = await addUserWatermark(newCanvas, currentProject);
+        }
         fontlinksheet && fontlinksheet.remove();
-        resolve(newBlob);
+        newCanvas.toBlob(blob => resolve(blob));
       }).catch((error, data) => {
         fontlinksheet && fontlinksheet.remove();
         console.log(error, data);
@@ -280,8 +336,25 @@ export const formatNavfilters = data => {
 }
 
 export const replaceColor = (config, iconColor) => {
-  const lightColor = iconColor && generate(iconColor)[0];
+  const iconColors = iconColor ? generate(iconColor) : [];
+  const lightColor = iconColors[0];
   const data = { ...config };
+  if (config.pageStyleType === 'dark') {
+    if (data.pageBgColor === 'iconColor10') {
+      data.widgetBgColor = iconColors[8];
+    } else {
+      data.widgetBgColor = '#2A2D2F';
+    }
+  } else {
+    data.widgetBgColor = '#fff';
+  }
+  if (data.pageBgColor === 'iconColor10') {
+    data.pageBgColor = iconColors[9];
+  }
+  if (data.widgetBgColor === data.pageBgColor) {
+    data.widgetBgColor = iconColors[7];
+    data.pageBgColor = iconColors[8];
+  }
   if (data.pageBgColor === 'iconColor') {
     data.pageBgColor = iconColor;
     data.darkenPageBgColor = new TinyColor(iconColor).darken(6).toRgbString();
@@ -314,24 +387,24 @@ export const isLightColor = color => {
 function getQuarterDateRange(year, quarter) {
   let startMonth, endMonth;
   switch (quarter) {
-      case 1:
-          startMonth = 1;
-          endMonth = 3;
-          break;
-      case 2:
-          startMonth = 4;
-          endMonth = 6;
-          break;
-      case 3:
-          startMonth = 7;
-          endMonth = 9;
-          break;
-      case 4:
-          startMonth = 10;
-          endMonth = 12;
-          break;
-      default:
-          throw new Error('Invalid quarter');
+    case 1:
+      startMonth = 1;
+      endMonth = 3;
+      break;
+    case 2:
+      startMonth = 4;
+      endMonth = 6;
+      break;
+    case 3:
+      startMonth = 7;
+      endMonth = 9;
+      break;
+    case 4:
+      startMonth = 10;
+      endMonth = 12;
+      break;
+    default:
+      throw new Error('Invalid quarter');
   }
 
   const startOfQuarter = moment().year(year).month(startMonth - 1).startOf('month');
@@ -342,7 +415,7 @@ function getQuarterDateRange(year, quarter) {
 
 export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linkageFiltersGroup) => {
   const result = [];
-  for(let key in linkageFiltersGroup) {
+  for (let key in linkageFiltersGroup) {
     const data = linkageFiltersGroup[key];
     const { onlyChartIds = [] } = data;
     if (data.sheetId === sheetId && reportId !== data.reportId && (onlyChartIds.length ? onlyChartIds.includes(objectId) : true)) {
@@ -483,4 +556,28 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
   };
 }
 
+export const updateLayout = (components, config) => {
+  const oldCols = 12;
+  const newCols = 48;
+  if (_.get(config, 'webNewCols') === 48) {
+    return components;
+  }
+  return components.map(c => {
+    const { web = {} } = c;
+    const { layout } = web;
+    return {
+      ...c,
+      web: {
+        ...web,
+        layout: layout ? {
+          ...layout,
+          w: Math.round((layout.w / oldCols) * newCols),
+          x: Math.round((layout.x / oldCols) * newCols),
+          h: Math.round((layout.h / oldCols) * 24),
+          y: Math.round((layout.y / oldCols) * 24),
+        } : layout
+      }
+    }
+  });
+}
 

@@ -39,20 +39,6 @@ var monitor = {
   },
 
   /**
-   * 
-   *
-   * @param {Object} args 请求参数
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  getTestCount2: function (args, options) {
-    base.ajaxOptions.url = base.server(options) + 'monitor/getTestCount2';
-    base.ajaxOptions.type = 'POST';
-    return mdyAPI(controllerName, 'monitorgetTestCount2', JSON.stringify(args), $.extend(base, options));
-  },
-
-  /**
    * 获取任务历史区间数据
    *
    * @param {Object} args 请求参数
@@ -122,20 +108,6 @@ var monitor = {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTaskCount';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'monitorgetTaskCount', JSON.stringify(args), $.extend(base, options));
-  },
-
-  /**
-   * 
-   *
-   * @param {Object} args 请求参数
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  getTestCount: function (args, options) {
-    base.ajaxOptions.url = base.server(options) + 'monitor/getTestCount';
-    base.ajaxOptions.type = 'POST';
-    return mdyAPI(controllerName, 'monitorgetTestCount', JSON.stringify(args), $.extend(base, options));
   }
 };
 

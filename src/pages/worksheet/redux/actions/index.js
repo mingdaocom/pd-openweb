@@ -23,7 +23,13 @@ import { refreshBtnData } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { getFilledRequestParams, needHideViewFilters, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import {
+  getFilledRequestParams,
+  needHideViewFilters,
+  replaceControlsTranslateInfo,
+  replaceAdvancedSettingTranslateInfo,
+  replaceRulesTranslateInfo,
+} from 'src/pages/worksheet/util';
 import _, { find, get, some } from 'lodash';
 import { getTranslateInfo, addBehaviorLog } from 'src/util';
 import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
@@ -140,7 +146,7 @@ export function loadWorksheet(worksheetId, setRequest) {
       getSwitchPermit: true,
     };
 
-    worksheetRequest = worksheetAjax.getWorksheetInfo(args);
+    worksheetRequest = worksheetAjax.getWorksheetBaseInfo(args);
     if (_.isFunction(setRequest)) {
       setRequest(worksheetRequest);
     }
@@ -148,17 +154,8 @@ export function loadWorksheet(worksheetId, setRequest) {
       .then(async res => {
         const translateInfo = getTranslateInfo(appId, null, worksheetId);
         res.entityName = translateInfo.recordName || res.entityName;
-        if (res.advancedSetting) {
-          res.advancedSetting.title = translateInfo.formTitle || res.advancedSetting.title;
-          res.advancedSetting.sub = translateInfo.formSub || res.advancedSetting.sub;
-          res.advancedSetting.continue = translateInfo.formContinue || res.advancedSetting.continue;
-        }
         if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
           res.allowAdd = false;
-        }
-        let queryRes;
-        if (res.isWorksheetQuery) {
-          queryRes = await worksheetAjax.getQueryBySheetId({ worksheetId }, { silent: true });
         }
 
         if (![1, 4].includes(res.resultCode)) {
@@ -183,34 +180,79 @@ export function loadWorksheet(worksheetId, setRequest) {
         if (_.get(res, 'template.controls')) {
           res.template.controls = replaceControlsTranslateInfo(appId, worksheetId, res.template.controls);
         }
-        if (!res.isWorksheetQuery || queryRes) {
+        dispatch({
+          type: 'WORKSHEET_INIT',
+          value: Object.assign(
+            !chartId
+              ? res
+              : {
+                  ...res,
+                  views: res.views.map(v => ({ ...v, viewType: 0 })),
+                },
+            {
+              isRequestingRelationControls: true,
+            },
+          ),
+        });
+        worksheetRequest = worksheetAjax.getWorksheetInfo({ ...args, resultType: undefined });
+        worksheetRequest.then(async infoRes => {
+          let queryRes;
+          if (infoRes.isWorksheetQuery) {
+            queryRes = await worksheetAjax.getQueryBySheetId({ worksheetId }, { silent: true });
+          }
+          if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
+            infoRes.allowAdd = false;
+          }
+          if (queryRes) {
+            dispatch({
+              type: 'WORKSHEET_SEARCH_CONFIG_INIT',
+              value: formatSearchConfigs(_.get(queryRes, 'searchConfig') || []),
+            });
+          }
+          const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));
+          infoRes.entityName = translateInfo.recordName || infoRes.entityName;
+          if (infoRes.advancedSetting) {
+            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(appId, worksheetId, res.advancedSetting);
+          }
+          if (infoRes.rules && infoRes.rules.length) {
+            infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, res.rules);
+          }
+          if (_.isEmpty(newControls)) {
+            return;
+          }
           dispatch({
-            type: 'WORKSHEET_INIT',
-            value: Object.assign(
+            type: 'WORKSHEET_UPDATE_VIEWS',
+            views: infoRes.views,
+          });
+          infoRes.template.controls = newControls;
+          dispatch(updateWorksheetSomeControls(newControls));
+          dispatch({
+            type: 'WORKSHEET_UPDATE_WORKSHEETINFO',
+            info: Object.assign(
               !chartId
-                ? res
+                ? infoRes
                 : {
-                    ...res,
-                    views: res.views.map(v => ({ ...v, viewType: 0 })),
+                    ...infoRes,
+                    views: infoRes.views.map(v => ({ ...v, viewType: 0 })),
                   },
             ),
           });
-          const currentView = find(res.views, { viewId });
+          const currentView = find(infoRes.views, { viewId });
           if (currentView) {
-            dispatch(fireWhenViewLoaded(currentView, { controls: res.template.controls }));
+            dispatch(fireWhenViewLoaded(currentView, { controls: infoRes.template.controls }));
           }
           dispatch(setViewLayout(viewId));
+          if (worksheetId) {
+            dispatch({
+              type: 'WORKSHEET_PERMISSION_INIT',
+              value: infoRes.switches,
+            });
+          }
           dispatch({
-            type: 'WORKSHEET_SEARCH_CONFIG_INIT',
-            value: formatSearchConfigs(_.get(queryRes, 'searchConfig') || []),
+            type: 'WORKSHEET_UPDATE_IS_REQUESTING_RELATION_CONTROLS',
+            value: false,
           });
-        }
-        if (worksheetId) {
-          dispatch({
-            type: 'WORKSHEET_PERMISSION_INIT',
-            value: res.switches,
-          });
-        }
+        });
       })
       .catch(err => {
         if (!get(err, 'errorCode') === 1) {
@@ -753,12 +795,8 @@ export function updateSearchRecord(view = {}, record) {
 }
 
 // 初始化移动端甘特图所需要的数据
-export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
+export function initMobileGunter({ appId, worksheetId, viewId }) {
   return function (dispatch) {
-    if (access_token) {
-      window.access_token = access_token;
-    }
-
     const base = {
       appId,
       worksheetId,

@@ -75,7 +75,7 @@ const Empty = styled.span`
 `;
 export default function Users(props) {
   const { projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
-  const [values, setValues] = useState(props.values);
+  const [values, setValues] = useState(props.values || []);
   const cache = useRef({ values });
   const { shownullitem, nullitemname, navshow, navfilters } = advancedSetting;
   const [active, setActive] = useState();
@@ -174,7 +174,7 @@ export default function Users(props) {
   };
 
   useEffect(() => {
-    if (!isEqual(props.values, cache.current.values)) {
+    if (!isEqual(props.values, cache.current.values) && props.values) {
       setValues(props.values);
       cache.current.values = props.values;
     }
@@ -185,7 +185,7 @@ export default function Users(props) {
       <UsersCon ref={conRef}>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
         {!isMultiple && !!values.length ? (
-          <SingleUserItem>
+          <SingleUserItem className="singleUserItem">
             <UserHead
               className="userHead"
               user={{

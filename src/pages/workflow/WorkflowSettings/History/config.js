@@ -169,8 +169,8 @@ export const NODE_TYPE = {
   30: { type: 'return', text: _l('中止') },
   31: { type: 'aigc', text: _l('AIGC') },
   32: { type: 'plugin', text: _l('插件') },
-  1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
-  1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
+  1000: { type: 'singleInfo', text: _l('获取单条信息') },
+  1001: { type: 'moreInfo', text: _l('获取多条信息') },
 };
 
 /**
@@ -420,13 +420,33 @@ export const NODE_ICON = {
     bgColor: '#2196f3',
   },
   singleInfo: {
-    icon: 'person_search',
-    text: _l('获取单条人员/部门信息'),
+    icon: {
+      20: 'person_search',
+      21: 'individual_department',
+      23: 'external_users',
+      24: 'user',
+    },
+    text: {
+      20: _l('获取单条人员'),
+      21: _l('获取单条部门'),
+      23: _l('获取单条外部用户'),
+      24: _l('获取单条组织角色'),
+    },
     bgColor: '#2196f3',
   },
   moreInfo: {
-    icon: 'group-members',
-    text: _l('获取多条人员/部门信息'),
+    icon: {
+      20: 'group-members',
+      21: 'department',
+      23: 'folder-public',
+      24: 'multiple_user',
+    },
+    text: {
+      20: _l('获取多条人员'),
+      21: _l('获取多条部门'),
+      23: _l('获取多条外部用户'),
+      24: _l('获取多条组织角色'),
+    },
     bgColor: '#2196f3',
   },
 };

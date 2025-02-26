@@ -5,6 +5,7 @@ import QuickFilter from './QuickFilter';
 export default function Filters(props) {
   const {
     projectId,
+    isDark,
     appId,
     mode,
     filters,
@@ -17,6 +18,7 @@ export default function Filters(props) {
   } = props;
   return (
     <QuickFilter
+      isDark={isDark}
       projectId={projectId}
       appId={appId}
       mode={mode}
@@ -34,8 +36,8 @@ export default function Filters(props) {
 }
 
 Filters.propTypes = {
-  projectId: propTypes.string,  // 网络 id
-  appId: propTypes.string,  // 应用 id
+  projectId: propTypes.string, // 网络 id
+  appId: propTypes.string, // 应用 id
   mode: propTypes.string, // 为 "config" 时设置模式
   enableBtn: propTypes.bool, // 是否显示查询按钮
   activeFilterId: propTypes.string, // 当前激活筛选器 id

@@ -184,14 +184,12 @@ export default class CreateMerchant extends Component {
   // 获取商户信息
   getMerchant = ({ isPoll, isOpen } = {}) => {
     const { projectId, currentMerchantInfo = {} } = this.props;
-    const { merchantNo } = currentMerchantInfo;
     const { merchantId } = this.state;
     this.setState({ loading: true });
 
     paymentAjax
       .getMerchant({
         projectId,
-        merchantNo,
         merchantId,
       })
       .then(res => {
@@ -405,15 +403,14 @@ export default class CreateMerchant extends Component {
                       '1、启用应用内的支付功能必须要先在组织后台申请商户号并完成签约。商户签约是由第三方支付公司(中投支付)提供。',
                     )}
                   </div>
-                  <div>{_l('2、本平台支付手续费率为0.6%(包括支付渠道费率和 HAP 服务费)。')}</div>
                   <div>
                     {_l(
-                      '3、商户签约是验证收款商户合规性的基本流程，请完成以下四步操作，并依法依规提供真实有效的信息。',
+                      '2、商户签约是验证收款商户合规性的基本流程，请完成以下四步操作，并依法依规提供真实有效的信息。',
                     )}
                   </div>
                   <div>
                     {_l(
-                      '4、已经通过其他支付平台拥有支付宝和微信商户号的企业如果要使用本平台收款依然需要重新完成商户签约。',
+                      '3、已经通过其他支付平台拥有支付宝和微信商户号的企业如果要使用本平台收款依然需要重新完成商户签约。',
                     )}
                   </div>
                 </Fragment>

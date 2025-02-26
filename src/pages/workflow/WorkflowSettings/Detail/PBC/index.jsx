@@ -502,7 +502,7 @@ export default class PBC extends Component {
                 .toString()
                 .padStart(4, '0')
             : value;
-            
+
         if (action === 'type') {
           item.fieldValue = '';
           item.fieldValueId = '';

@@ -101,6 +101,7 @@ export default class Users extends Component {
         unique: this.selectSingle,
         projectId,
         filterResigned: filterResigned,
+        hideResignedTab: true,
         callback(users) {
           _this.addUsers(users);
         },

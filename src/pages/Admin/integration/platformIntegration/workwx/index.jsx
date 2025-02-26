@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Link } from 'react-router-dom';
-import { Switch, Icon, Button, LoadDiv, Checkbox, Support } from 'ming-ui';
+import { Switch, Icon, Button, LoadDiv, Checkbox, MdLink } from 'ming-ui';
 import { Popover, Radio, Input, Select } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
@@ -299,9 +298,9 @@ export default class Workwx extends React.Component {
             ) : (
               <React.Fragment>
                 <p className="mTop16 Font14 Gray_75">{_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}</p>
-                <Link to={`/wxappSyncCourse/${projectId}`} target="_blank" className="mTop16 Font14 howApply stopPropagation">
+                <MdLink to={`/wxappSyncCourse/${projectId}`} target="_blank" className="mTop16 Font14 howApply">
                   {_l('如何获取对接信息？')}
-                </Link>
+                </MdLink>
               </React.Fragment>
             )}
           </div>
@@ -587,13 +586,13 @@ export default class Workwx extends React.Component {
                           </div>
                           <div>
                             <span>{_l('同步到工号字段')}</span>
-                            <Link
+                            <MdLink
                               to={`/wxappSyncCourse/${projectId}#syncField`}
                               target="_blank"
-                              className="mTop16 Font14 howApply mLeft10 stopPropagation"
+                              className="mTop16 Font14 howApply mLeft10"
                             >
                               {_l('如何同步？')}
-                            </Link>
+                            </MdLink>
                           </div>
                         </div>
                       </div>
@@ -677,10 +676,8 @@ export default class Workwx extends React.Component {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="orgManagementWrap workwxMainContent">
-        {!this.state.isPassApply &&
-        !(!this.state.CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)) &&
-        intergrationType !== 2 ? (
+      <div className="orgManagementWrap workwxMainContent platformIntegrationContent">
+        {!this.state.isPassApply && !(!this.state.CorpId && !md.global.Config.IsLocal) && intergrationType !== 2 ? (
           <div className="TxtMiddle">
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (

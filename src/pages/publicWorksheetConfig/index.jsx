@@ -15,7 +15,7 @@ import { NAV_NAME } from './enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import { saveSelectExtensionNavType } from './utils';
+import { saveSelectExtensionNavType } from 'worksheet/util';
 import './index.less';
 import _ from 'lodash';
 

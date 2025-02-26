@@ -261,7 +261,7 @@ export default function FillSettings(props) {
               checked={cacheDraft}
               onClick={checked => setState({ cacheDraft: !checked })}
               name={_l('缓存未提交内容, 下次自动填充')}
-              tip={_l('打开后，可以获取到填写者之前未提交的内容，填写者可继续填写表单。')}
+              tip={_l('打开后，可以获取到填写者之前未提交的内容（不支持关联字段），填写者可继续填写表单。')}
             />
           </div>
           <div>

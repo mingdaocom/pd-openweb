@@ -2,7 +2,6 @@ import './css/mentionsInput.css';
 import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
 import { htmlEncodeReg, getCaretPosition, setCaretPosition } from 'src/util';
 import doT from 'dot';
-import addFriends from 'src/components/addFriends';
 import categoryAjax from 'src/api/category';
 import userAjax from 'src/api/user';
 import _ from 'lodash';
@@ -500,12 +499,12 @@ Modified by Kenneth Auchenberg
         elmAutocompleteList.css({
           bottom: height + 5,
           maxHeight: topGap - 130,
-          minHeight: settings.minHeight
+          minHeight: settings.minHeight,
         });
       } else {
         elmAutocompleteList.css({
           maxHeight: bottomGap - 15,
-          minHeight: settings.minHeight
+          minHeight: settings.minHeight,
         });
       }
       elmAutocompleteList.show();
@@ -541,7 +540,9 @@ Modified by Kenneth Auchenberg
           }
         }
         $noData.find('.invite').on('mousedown', function (evt) {
-          addFriends({ fromType: 0 });
+          import('src/components/addFriends').then(func => {
+            func.default({ fromType: 0 });
+          });
           evt.stopPropagation();
         });
         elmAutocompleteList.append($noData);

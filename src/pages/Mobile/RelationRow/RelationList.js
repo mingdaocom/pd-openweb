@@ -38,7 +38,8 @@ class RelationList extends Component {
   }
 
   onQueryChange = () => {
-    handleReplaceState('page', 'relateRecord', () => this.setState({ previewRecordId: undefined }));
+    const { rowId } = this.props;
+    handleReplaceState('page', `relateRecord-${rowId}`, () => this.setState({ previewRecordId: undefined }));
   };
 
   loadData = props => {
@@ -79,7 +80,7 @@ class RelationList extends Component {
     } else {
       if (permissionInfo.allowLink) {
         addBehaviorLog('worksheetRecord', worksheet.worksheetId, { rowId: record.rowid }); // 埋点
-        handlePushState('page', 'relateRecord');
+        handlePushState('page', `relateRecord-${record.rowid}`);
         this.setState({
           previewRecordId: record.rowid,
         });
@@ -87,15 +88,17 @@ class RelationList extends Component {
     }
   };
   renderRow = item => {
-    const { relationRow, actionParams, permissionInfo, worksheetId } = this.props;
+    const { relationRow, actionParams, permissionInfo, worksheetId, rowInfo, controlId } = this.props;
     const { showControls, selectedRecordIds, coverCid } = actionParams;
     const { controls } = relationRow.template;
     const selected = !!_.find(selectedRecordIds, id => id === item.rowid);
+    const control = _.find(rowInfo.templateControls, { controlId }) || {};
 
     return (
       <div className="mLeft10 mRight10" key={item.rowid}>
         <RecordCard
           from={3}
+          control={control}
           selected={selected}
           controls={controls}
           coverCid={coverCid}

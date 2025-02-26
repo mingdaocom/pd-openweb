@@ -2,7 +2,7 @@ import worksheetAjax from 'src/api/worksheet';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { replaceControlsTranslateInfo, replaceAdvancedSettingTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/util';
@@ -49,6 +49,7 @@ export function getRowDetail(params, controls, options = {}) {
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
+        data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, params.worksheetId, data.advancedSetting);
         data.formData = (
           controls ||
           replaceControlsTranslateInfo(data.appId, params.worksheetId, data.templateControls || []).concat(SYSTEM_CONTROL) ||

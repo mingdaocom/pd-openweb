@@ -285,7 +285,7 @@ function AppCenterHeader(props) {
         </DashboardSearch>
       </Flex>
 
-      <CommonUserHandle type="dashboard" currentProject={currentProject} ref={commonUserHandleRef} />
+      <CommonUserHandle type="dashboard" currentProject={currentProject} />
     </Con>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, createRef } from 'react';
 import { useSetState } from 'react-use';
-import { Input, Checkbox, Tooltip } from 'ming-ui';
+import { Input, LoadDiv } from 'ming-ui';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
@@ -15,7 +15,7 @@ const Wrap = styled.div`
 `;
 export default function DestEdit(props) {
   const inputRef = createRef();
-  const { onChangeInfo, list, state, flowData } = props;
+  const { onChangeInfo, list, state, flowData, loading } = props;
   const { srcIsDb } = flowData;
   const { node = {}, matchedTypes = {}, fileList = [], sheetName } = state;
   const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
@@ -96,6 +96,9 @@ export default function DestEdit(props) {
     return fieldsMapping;
   };
   const showTip = _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.MONGO_DB && fileList.length <= 0;
+  if (loading) {
+    return <LoadDiv />;
+  }
   return (
     <React.Fragment>
       {/* MongoDB为目的地的时候，请求返回数据为空 */}

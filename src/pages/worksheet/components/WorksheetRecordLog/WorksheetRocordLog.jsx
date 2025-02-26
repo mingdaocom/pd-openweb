@@ -581,7 +581,7 @@ function WorksheetRecordLog(props, ref) {
 
   const renderLogCardTitle = item => {
     const content = (
-      <span className="selectTriggerChildAvatar">
+      <span className="selectTriggerChildAvatar WordBreak">
         {isPublicFileDownload(item) ? (
           <span className="worksheetRocordLogCardTitleAvatar">
             <Icon icon="worksheet" className="Gray_9e Font14 TxtMiddle" />
@@ -605,7 +605,7 @@ function WorksheetRecordLog(props, ref) {
     );
 
     return (
-      <div className="worksheetRocordLogCardTitle flex">
+      <div className="worksheetRocordLogCardTitle flex w100">
         {isMobile || !showFilter ? (
           content
         ) : (

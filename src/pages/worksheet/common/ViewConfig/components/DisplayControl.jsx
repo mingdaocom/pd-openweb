@@ -50,6 +50,7 @@ export default class DisplayControl extends React.Component {
       hideShowControlName,
       isShowWorkflowSys,
       canShowCount,
+      disableTypes,
     } = this.props;
     let data = !fromRelative ? view : this.props;
     let { displayControls = [], showControlName = true, controlsSorts } = data;
@@ -57,7 +58,7 @@ export default class DisplayControl extends React.Component {
       ? worksheetControls.map(o => o.controlId).concat([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT])
       : worksheetControls.map(o => o.controlId).concat(NORMAL_SYSTEM_FIELDS_SORT);
     displayControls = displayControls.filter(c => controlIds.includes(c)); //排除已删除的控件
-    const allCanDisplayControls = getCanDisplayControls(worksheetControls);
+    const allCanDisplayControls = getCanDisplayControls(worksheetControls, disableTypes);
     const { appshowtype = '0' } = getAdvanceSetting(view);
     const showControls = maxCount3 ? displayControls.slice(0, 3) : displayControls;
     //有效的配置字段

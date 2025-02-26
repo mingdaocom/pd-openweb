@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { getRequest, verifyPassword, getCurrentProject } from 'src/util';
+import { getRequest, verifyPassword, getCurrentProject, getTranslateInfo } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { Popup, Dialog, ActionSheet, Button } from 'antd-mobile';
@@ -83,6 +83,7 @@ class RecordAction extends Component {
 
   handleTriggerCustomBtn = btn => {
     const {
+      appId,
       worksheetId,
       rowId,
       handleUpdateWorksheetRow,
@@ -139,22 +140,35 @@ class RecordAction extends Component {
     const handleTrigger = () => {
       const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
       function confirm({ onOk, onClose = () => {} } = {}) {
-        const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired, remarktype, remarkoptions } =
+        const translateInfo = getTranslateInfo(appId, worksheetId, btn.btnId);
+        const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired, remarktype } =
           _.get(btn, 'advancedSetting') || {};
         doubleConfirmFunc({
           projectId: !isBatchOperate ? sheetRow.projectId : worksheetInfo.projectId,
-          title: btn.confirmMsg,
-          description: confirmcontent,
+          title: translateInfo.confirmMsg || btn.confirmMsg,
+          description: translateInfo.confirmContent || confirmcontent,
           enableRemark: enableremark,
-          remarkName: remarkname,
-          remarkHint: remarkhint,
+          remarkName: translateInfo.remark || remarkname,
+          remarkHint: translateInfo.hintText || remarkhint,
           remarkRequired: remarkrequired,
           remarktype,
-          remarkoptions,
+          remarkoptions: (() => {
+            const remarkoptions = safeParse(_.get(btn, 'advancedSetting.remarkoptions'));
+            const { template = [] } = remarkoptions;
+            return JSON.stringify({
+              ...remarkoptions,
+              template: template.map((item, index) => {
+                return {
+                  ...item,
+                  value: translateInfo[`templateName_${index}`] || item.value
+                }
+              })
+            })
+          })(),
           verifyPwd: btn.verifyPwd,
           enableConfirm: btn.enableConfirm,
-          okText: btn.sureName,
-          cancelText: btn.cancelName,
+          okText: translateInfo.sureName || btn.sureName,
+          cancelText: translateInfo.cancelName || btn.cancelName,
           btn,
           onOk: onOk ? onOk : btnInfo => run(btnInfo),
           onClose,
@@ -557,6 +571,7 @@ class RecordAction extends Component {
           worksheetId={btnRelateWorksheetId}
           writeControls={activeBtn.writeControls}
           continueFill={this.continueFill}
+          worksheetInfo={worksheetInfo}
           onSubmit={this.fillRecordControls}
           hideDialog={() => {
             this.setState({

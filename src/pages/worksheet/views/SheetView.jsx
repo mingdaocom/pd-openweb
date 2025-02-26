@@ -180,6 +180,7 @@ class TableView extends React.Component {
           'view.moreSort',
           'view.advancedSetting',
           'buttons',
+          'worksheetInfo.isRequestingRelationControls',
         ],
         key => !_.isEqual(get(nextProps, key), get(this.props, key)),
       )
@@ -264,6 +265,10 @@ class TableView extends React.Component {
   };
 
   handleCellClick = (cell, row, rowIndex) => {
+    if (get(this, 'props.worksheetInfo.isRequestingRelationControls')) {
+      return;
+    }
+
     const { setHighLight, worksheetId, view } = this.props;
     handleRecordClick(view, row, () => {
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
@@ -539,7 +544,7 @@ class TableView extends React.Component {
       getWorksheetSheetViewSummary,
       sheetSwitchPermit,
       sheetViewData,
-      isDraft
+      isDraft,
     } = this.props;
     const { projectId } = worksheetInfo;
     const { allWorksheetIsSelected, sheetSelectedRows } = sheetViewConfig;
@@ -819,7 +824,14 @@ class TableView extends React.Component {
     const { readonly } = this;
     const { loading, rows } = sheetViewData;
     const { sheetSelectedRows = [], sheetColumnWidths, fixedColumnCount, defaultScrollLeft } = sheetViewConfig;
-    const { worksheetId, projectId, allowAdd, rules = [], isWorksheetQuery } = worksheetInfo;
+    const {
+      worksheetId,
+      projectId,
+      allowAdd,
+      rules = [],
+      isWorksheetQuery,
+      isRequestingRelationControls,
+    } = worksheetInfo;
     const {
       recordId,
       recordInfoVisible,
@@ -832,7 +844,7 @@ class TableView extends React.Component {
     const showVerticalLine = (get(view, 'advancedSetting.showvertical') || '1') === '1';
     const showAsZebra = (get(view, 'advancedSetting.alternatecolor') || '0') === '1'; // 斑马颜色
     const wrapControlName = (get(view, 'advancedSetting.titlewrap') || '0') === '1';
-    const lineEditable = (get(view, 'advancedSetting.fastedit') || '1') === '1';
+    const lineEditable = (get(view, 'advancedSetting.fastedit') || '1') === '1' && !isRequestingRelationControls;
     const enableRules = (get(view, 'advancedSetting.enablerules') || '1') === '1';
     const navGroupData = (get(worksheetInfo, 'template.controls') || []).find(
       o => o.controlId === get(view, 'navGroup[0].controlId'),

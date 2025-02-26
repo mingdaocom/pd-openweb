@@ -82,6 +82,7 @@ export default class RecordCard extends Component {
     const {
       from = 1,
       disabled,
+      control,
       focused,
       selected,
       controls,
@@ -99,15 +100,20 @@ export default class RecordCard extends Component {
     } = this.props;
     const { cover, cardControls } = this;
     const { forceShowFullValue } = this.state;
-    const titleControl = _.find(controls || [], control => control.attribute === 1) || {};
+    const showTitleId = _.get(control, 'advancedSetting.showtitleid');
+    const titleControl =
+      _.find(controls || [], c => (showTitleId ? c.controlId === showTitleId : c.attribute === 1)) || {};
     const showFullValue = _.isNull(forceShowFullValue)
       ? _.get(titleControl, 'advancedSetting.datamask') !== '1'
       : forceShowFullValue;
 
     const titleText = data.rowid
-      ? getTitleTextFromControls(controls, data, undefined, {
-          noMask: showFullValue,
-        })
+      ? getTitleTextFromControls(
+          controls.map(c => (showTitleId ? { ...c, attribute: showTitleId === c.controlId ? 1 : 0 } : c)),
+          data,
+          undefined,
+          { noMask: showFullValue },
+        )
       : _l('关联当前%0', sourceEntityName);
 
     const isMask =
@@ -168,6 +174,7 @@ export default class RecordCard extends Component {
                     projectId={projectId}
                     isCharge={isCharge}
                     row={data}
+                    rowFormData={() => controls.map(c => Object.assign({}, c, { value: data[c.controlId] }))}
                     worksheetId={worksheetId}
                     appId={appId}
                   />

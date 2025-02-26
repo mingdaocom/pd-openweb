@@ -17,7 +17,7 @@ export default function RelateConfig(props) {
   const searchfilters = getAdvanceSetting(data, 'searchfilters');
   const resultfilters = getAdvanceSetting(data, 'resultfilters');
   const [isHiddenOtherViewRecord] = strDefault.split('');
-  const { loading, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
+  const { loading = true, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
 
   const [{ isRelateView, searchVisible, resultFilterVisible, resultVisible }, setState] = useSetState({
     isRelateView: Boolean(viewId),

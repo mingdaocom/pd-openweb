@@ -89,6 +89,19 @@ var instance = {
     return mdyAPI(controllerName, 'instancegetInstance', args, $.extend(base, options));
   },
   /**
+   * 获取操作历史
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {String} [args.instanceId] *流程实例ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getOperationHistoryList: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/instance/getOperationHistoryList';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'instancegetOperationHistoryList', args, $.extend(base, options));
+  },
+  /**
    * 对应各种操作
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

@@ -240,7 +240,7 @@ export default function ControlsSetting(props) {
 
     //关联表富文本不不显示 分割线 ,OCR ,条码不显示
     liControls = liControls.filter(
-      it => ![...UN_PRINT_CONTROL, 41, 22, 47].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
+      it => ![...UN_PRINT_CONTROL, 41, 22].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let orderNumberList = orderNumber.find(it => it.receiveControlId === list.controlId) || [];
 

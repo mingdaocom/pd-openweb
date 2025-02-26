@@ -47,11 +47,18 @@ export default function Sheet(props) {
   }
 
   const { desc, entityName, advancedSetting = {} } = sheetInfo;
+  const doubleconfirm = JSON.parse(advancedSetting.doubleconfirm || '{}');
   const comparisonLangInfo = getTranslateInfo(app.id, null, selectNode.key, comparisonLangData);
   const formTitle = comparisonLangId ? comparisonLangInfo.formTitle : advancedSetting.title;
   const formSub = comparisonLangId ? comparisonLangInfo.formSub : advancedSetting.sub;
   const formContinue = comparisonLangId ? comparisonLangInfo.formContinue : advancedSetting.continue;
+  const confirmMsg = comparisonLangId ? comparisonLangInfo.confirmMsg : doubleconfirm.confirmMsg;
+  const confirmContent = comparisonLangId ? comparisonLangInfo.confirmContent : doubleconfirm.confirmContent;
+  const sureName = comparisonLangId ? comparisonLangInfo.sureName : doubleconfirm.sureName;
+  const cancelName = comparisonLangId ? comparisonLangInfo.cancelName : doubleconfirm.cancelName;
   const recordName = comparisonLangId ? comparisonLangInfo.recordName : entityName;
+  const defaultTabName = comparisonLangId ? comparisonLangInfo.defaultTabName : advancedSetting.deftabname;
+  const createBtnName = comparisonLangId ? comparisonLangInfo.createBtnName : advancedSetting.btnname;
 
   return (
     <div className="pAll20">
@@ -115,6 +122,54 @@ export default function Sheet(props) {
           />
         </div>
       )}
+      {confirmMsg && (
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">{_l('二次确认标题')}</div>
+          <Input className="flex mRight20" value={confirmMsg} disabled={true} />
+          <EditInput
+            className="flex"
+            disabled={!confirmMsg}
+            value={translateInfo.confirmMsg}
+            onChange={value => handleSave({ confirmMsg: value })}
+          />
+        </div>
+      )}
+      {confirmContent && (
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">{_l('二次确认内容')}</div>
+          <Input className="flex mRight20" value={confirmContent} disabled={true} />
+          <EditInput
+            className="flex"
+            disabled={!confirmContent}
+            value={translateInfo.confirmContent}
+            onChange={value => handleSave({ confirmContent: value })}
+          />
+        </div>
+      )}
+      {sureName && (
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">{_l('二次确认提交按钮')}</div>
+          <Input className="flex mRight20" value={sureName} disabled={true} />
+          <EditInput
+            className="flex"
+            disabled={!sureName}
+            value={translateInfo.sureName}
+            onChange={value => handleSave({ sureName: value })}
+          />
+        </div>
+      )}
+      {cancelName && (
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">{_l('二次确认取消按钮')}</div>
+          <Input className="flex mRight20" value={cancelName} disabled={true} />
+          <EditInput
+            className="flex"
+            disabled={!cancelName}
+            value={translateInfo.cancelName}
+            onChange={value => handleSave({ cancelName: value })}
+          />
+        </div>
+      )}
 
       <div className="Font14 bold mTop20 mBottom20">{_l('记录名称')}</div>
       <div className="flexRow alignItemsCenter nodeItem">
@@ -127,6 +182,35 @@ export default function Sheet(props) {
           onChange={value => handleSave({ recordName: value })}
         />
       </div>
+      {createBtnName && (
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">{_l('新建按钮名称')}</div>
+          <Input className="flex mRight20" value={createBtnName} disabled={true} />
+          <EditInput
+            className="flex"
+            disabled={!createBtnName}
+            value={translateInfo.createBtnName}
+            onChange={value => handleSave({ createBtnName: value })}
+          />
+        </div>
+      )}
+
+      {defaultTabName && (
+        <Fragment>
+          <div className="Font14 bold mTop20 mBottom20">{_l('其他')}</div>
+          <div className="flexRow alignItemsCenter nodeItem">
+            <div className="Font13 mRight20 label">{_l('标签页默认分组名称')}</div>
+            <Input className="flex mRight20" value={defaultTabName} disabled={true} />
+            <EditInput
+              className="flex"
+              disabled={!defaultTabName}
+              value={translateInfo.defaultTabName}
+              onChange={value => handleSave({ defaultTabName: value })}
+            />
+          </div>
+        </Fragment>
+      )}
+
     </div>
   );
 }

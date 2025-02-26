@@ -67,7 +67,7 @@ const VerifySettingItem = styled(SettingItem)`
 export default function WidgetVerify(props) {
   const { data = {}, onChange, fromPortal, globalSheetInfo = {}, from } = props;
   const isSubList = from === 'subList';
-  const { type, options = [], required = false, unique = false } = data;
+  const { type, options = [], required = false, unique = false, enumDefault } = data;
   const Comp = CompConfig[type] || null;
   const {
     max = '',
@@ -236,6 +236,8 @@ export default function WidgetVerify(props) {
           </Checkbox>
         </div>
       )}
+
+      {type === 50 && enumDefault === 2 && <TextVerify {...props} />}
       {Comp && <Comp {...props} />}
     </VerifySettingItem>
   );

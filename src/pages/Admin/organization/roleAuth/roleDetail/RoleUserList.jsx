@@ -118,6 +118,7 @@ export default function RoleUserList(props) {
         filterFriend: true, // 是否过滤好友
         filterOthers: true,
         filterOtherProject: true,
+        filterResigned: false,
         projectId,
         inProject: true,
         callback: users => {

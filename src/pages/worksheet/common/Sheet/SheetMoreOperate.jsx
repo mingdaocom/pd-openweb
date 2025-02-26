@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Menu, MenuItem, Icon } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { setSheetName, openWorkSheetTrash, openResetAutoNumber } from 'worksheet/common';
+import { openWorkSheetTrash, openResetAutoNumber } from 'worksheet/common';
 import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
 import copy from 'copy-to-clipboard';
 import { navigateTo } from 'src/router/navigateTo';
@@ -12,7 +12,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { canEditData, isHaveCharge, canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { saveSelectExtensionNavType } from 'src/pages/publicWorksheetConfig/utils';
+import { saveSelectExtensionNavType } from 'worksheet/util';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 
@@ -61,90 +61,83 @@ export default function SheetMoreOperate(props) {
           onClick={e => e.stopPropagation()}
           onClickAway={() => setMenuVisible(false)}
         >
+          {isCharge && !isLock && (
+            <React.Fragment>
+              <MenuItem
+                data-event="editSheet"
+                icon={<Icon icon="settings" className="Font18" />}
+                onClick={() => {
+                  toEditWidgetPage(
+                    { sourceId: worksheetId, fromURL: `/app/${appId}/${groupId}/${worksheetId}/${viewId}` },
+                    false,
+                  );
+                }}
+              >
+                <span className="text">{_l('编辑表单%02036')}</span>
+              </MenuItem>
+              <Trigger
+                getPopupContainer={() => document.querySelector('.moreOperate .settingSheet .Item-content')}
+                action={['hover']}
+                popupAlign={{ points: ['tl', 'tr'], offset: [0, -41] }}
+                popup={
+                  <Menu className="subMenu sheetHeaderOperate_subMenu">
+                    {[
+                      { type: 'submitForm', text: _l('提交表单') },
+                      { type: 'alias', text: _l('数据名称') },
+                      { type: 'functionalSwitch', text: _l('功能开关%02027') },
+                      { type: 'display', text: _l('业务规则%02028') },
+                      { type: 'customBtn', text: _l('自定义动作%02026') },
+                      { type: 'printTemplate', text: _l('打印模板%02025') },
+                      { type: 'indexSetting', text: _l('检索加速') },
+                    ].map(({ type, text }) => (
+                      <Fragment>
+                        {type === 'customBtn' && <hr className="splitLine" />}
+                        <MenuItem
+                          data-event={type}
+                          key={type}
+                          onClick={() => {
+                            saveSelectExtensionNavType(worksheetId, 'settingNav', type);
+                            navigateTo(`/worksheet/formSet/edit/${worksheetId}/${type}`);
+                          }}
+                        >
+                          <span className="text">{text}</span>
+                        </MenuItem>
+                      </Fragment>
+                    ))}
+                    <hr className="splitLine" />
+                    {[
+                      { type: 'publicform', text: _l('公开发布%02024') },
+                      { type: 'pay', text: _l('支付') },
+                    ].map(({ type, text }) => (
+                      <MenuItem
+                        data-event={type}
+                        key={type}
+                        onClick={() => {
+                          saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
+                          navigateTo(`/worksheet/form/edit/${worksheetId}/${type}`);
+                        }}
+                      >
+                        <span className="text">{text}</span>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                }
+              >
+                <MenuItem
+                  data-event="setSheet"
+                  className="settingSheet"
+                  icon={<Icon icon="table" className="Font18 pLeft3" />}
+                  onClick={clickSettingSheet}
+                >
+                  <span className="text">{_l('设置工作表%02035')}</span>
+                  <Icon className="Font15" icon="arrow-right-tip" />
+                </MenuItem>
+              </Trigger>
+            </React.Fragment>
+          )}
+
           {canEdit && (
-            // 运营者有 修改名称和图标和 编辑工作表说明
             <Fragment>
-              {isCharge && !isLock && (
-                <React.Fragment>
-                  <MenuItem
-                    data-event="editSheet"
-                    icon={<Icon icon="settings" className="Font18" />}
-                    onClick={() => {
-                      toEditWidgetPage(
-                        { sourceId: worksheetId, fromURL: `/app/${appId}/${groupId}/${worksheetId}/${viewId}` },
-                        false,
-                      );
-                    }}
-                  >
-                    <span className="text">{_l('编辑表单%02036')}</span>
-                  </MenuItem>
-                  <Trigger
-                    getPopupContainer={() => document.querySelector('.moreOperate .settingSheet .Item-content')}
-                    action={['hover']}
-                    popupAlign={{ points: ['tl', 'tr'], offset: [0, -41] }}
-                    popup={
-                      <Menu className="subMenu">
-                        {[
-                          { type: 'submitForm', text: _l('提交表单') },
-                          { type: 'alias', text: _l('数据名称') },
-                          { type: 'functionalSwitch', text: _l('功能开关%02027') },
-                          { type: 'display', text: _l('业务规则%02028') },
-                          { type: 'customBtn', text: _l('自定义动作%02026') },
-                          { type: 'printTemplate', text: _l('打印模板%02025') },
-                          { type: 'indexSetting', text: _l('检索加速') },
-                        ].map(({ type, text }) => (
-                          <Fragment>
-                            {type === 'customBtn' && <hr className="splitLine" />}
-                            <MenuItem
-                              data-event={type}
-                              key={type}
-                              onClick={() => {
-                                saveSelectExtensionNavType(worksheetId, 'settingNav', type);
-                                navigateTo(`/worksheet/formSet/edit/${worksheetId}/${type}`);
-                              }}
-                            >
-                              <span className="text">{text}</span>
-                            </MenuItem>
-                          </Fragment>
-                        ))}
-                        <hr className="splitLine" />
-                        {[
-                          { type: 'publicform', text: _l('公开发布%02024') },
-                          { type: 'pay', text: _l('支付') },
-                        ]
-                          .filter(v => (v.type === 'pay' && featureType) || v.type !== 'pay')
-                          .map(({ type, text }) => (
-                            <MenuItem
-                              data-event={type}
-                              key={type}
-                              onClick={() => {
-                                if (type === 'pay' && featureType === '2') {
-                                  buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
-                                  return;
-                                }
-                                saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
-                                navigateTo(`/worksheet/form/edit/${worksheetId}/${type}`);
-                              }}
-                            >
-                              <span className="text">{text}</span>
-                            </MenuItem>
-                          ))}
-                      </Menu>
-                    }
-                  >
-                    <MenuItem
-                      data-event="setSheet"
-                      className="settingSheet"
-                      icon={<Icon icon="table" className="Font18 pLeft3" />}
-                      onClick={clickSettingSheet}
-                    >
-                      <span className="text">{_l('设置工作表%02035')}</span>
-                      <Icon className="Font15" icon="arrow-right-tip" />
-                    </MenuItem>
-                  </Trigger>
-                  <hr className="splitLine" />
-                </React.Fragment>
-              )}
               <MenuItem
                 data-event="editNameIcon"
                 icon={<Icon icon="edit" className="Font18" />}
@@ -165,57 +158,64 @@ export default function SheetMoreOperate(props) {
               >
                 <span className="text">{_l('编辑工作表说明%02033')}</span>
               </MenuItem>
-              {/* //重置自动编号 =>开发者|管理员|运营者 设置记录名称=>开发者|管理员 */}
-              <Fragment>
-                {isCharge && !isLock && (
-                  <MenuItem
-                    data-event="setRecordName"
-                    icon={<Icon icon="button-edit" />}
-                    onClick={() => {
-                      setMenuVisible(false);
-                      setSheetName({
-                        projectId: projectId,
-                        worksheetId: worksheetId,
-                        entityName: entityName,
-                        btnName: btnName,
-                        updateSheetInfo: (id, data) => {
-                          updateWorksheetInfo(data);
-                        },
-                      });
-                    }}
-                  >
-                    <span className="text">{_l('设置记录名称%02032')}</span>
-                  </MenuItem>
-                )}
+            </Fragment>
+          )}
+
+          {canEdit && (
+            <Fragment>
+              {!_.isEmpty(autoNumberControls) && (
                 <MenuItem
-                  data-event="copyID"
-                  icon={<Icon icon="ID" className="Font18" />}
+                  data-event="resetNumber"
+                  icon={<Icon icon="auto_number" className="Font18" />}
                   onClick={() => {
-                    copy(worksheetId);
-                    alert(_l('复制成功'), 1);
                     setMenuVisible(false);
+                    openResetAutoNumber({
+                      worksheetInfo,
+                    });
                   }}
                 >
-                  <span className="text">{_l('复制ID')}</span>
+                  <span className="text">{_l('重置自动编号')}</span>
                 </MenuItem>
-                {!_.isEmpty(autoNumberControls) && (
-                  <MenuItem
-                    data-event="resetNumber"
-                    icon={<Icon icon="auto_number" />}
-                    onClick={() => {
-                      setMenuVisible(false);
-                      openResetAutoNumber({
-                        worksheetInfo,
-                      });
-                    }}
-                  >
-                    <span className="text">{_l('重置自动编号')}</span>
-                  </MenuItem>
-                )}
-              </Fragment>
+              )}
+
+              <hr className="splitLine" />
+
+              <MenuItem
+                data-event="logs"
+                icon={<Icon icon="wysiwyg" className="Font18" />}
+                onClick={() => {
+                  window.open(`/app/${appId}/logs/${projectId}/${worksheetId}`, '__blank');
+                }}
+              >
+                <span className="text">{_l('查看日志')}</span>
+              </MenuItem>
+
+              <MenuItem
+                data-event="workflow"
+                icon={<Icon icon="workflow" className="Font18" />}
+                onClick={() => {
+                  window.open(`/app/${appId}/workflow` + `/${worksheetId}`, '__blank');
+                }}
+              >
+                <span className="text">{_l('查看工作流')}</span>
+              </MenuItem>
+
+              <MenuItem
+                data-event="copyID"
+                icon={<Icon icon="ID" className="Font18" />}
+                onClick={() => {
+                  copy(worksheetId);
+                  alert(_l('复制成功'), 1);
+                  setMenuVisible(false);
+                }}
+              >
+                <span className="text">{_l('复制ID')}</span>
+              </MenuItem>
+
               <hr className="splitLine" />
             </Fragment>
           )}
+
           {/* 导入数据权限 */}
           {canImportSwitch && (
             <MenuItem
@@ -236,17 +236,6 @@ export default function SheetMoreOperate(props) {
               }}
             >
               <span className="text">{_l('从Excel导入数据%02031')}</span>
-            </MenuItem>
-          )}
-          {canEdit && (
-            <MenuItem
-              data-event="logs"
-              icon={<Icon icon="wysiwyg" className="Font16" />}
-              onClick={() => {
-                window.open(`/app/${appId}/logs/${projectId}/${worksheetId}`, '__blank');
-              }}
-            >
-              <span className="text">{_l('日志')}</span>
             </MenuItem>
           )}
           {canSheetTrash && (
@@ -270,6 +259,7 @@ export default function SheetMoreOperate(props) {
               <span className="text">{_l('回收站%02030')}</span>
             </MenuItem>
           )}
+
           {canDelete && (
             <MenuItem
               data-event="delete"

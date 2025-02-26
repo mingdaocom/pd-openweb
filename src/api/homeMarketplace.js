@@ -35,6 +35,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -78,6 +79,19 @@ export default {
    addPrivateProject: function (args, options = {}) {
      
      return mdyAPI('HomeMarketplace', 'AddPrivateProject', args, options);
+   },
+  /**
+  * 移除私有组织信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.projectName 组织名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removePrivateProject: function (args, options = {}) {
+     
+     return mdyAPI('HomeMarketplace', 'RemovePrivateProject', args, options);
    },
   /**
   * 获取精简商品，指定套餐信息
@@ -145,6 +159,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
+  * @param {string} args.buyerId 买家id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

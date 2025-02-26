@@ -10,7 +10,6 @@ import Trigger from 'rc-trigger';
 import { RedMenuItemWrap, ActWrap } from '../style';
 import { TYPENODE } from 'src/pages/integration/config';
 import CodeSnippet from 'src/pages/workflow/components/CodeSnippet/index.jsx';
-import { Base64 } from 'js-base64';
 
 const Wrap = styled.div`
   p {
@@ -328,7 +327,7 @@ export default function Item(props) {
           <CodeSnippet
             projectId={localStorage.getItem('currentProjectId')}
             onSave={({ actionId, inputData, code }) => {
-              addNode(actionId, JSON.stringify({ inputData, code: Base64.encode(code) }));
+              addNode(actionId, JSON.stringify({ inputData, code: btoa(unescape(encodeURIComponent(code))) }));
               setState({ showCodeSnippetDialog: false });
             }}
             onClose={() => setState({ showCodeSnippetDialog: false })}

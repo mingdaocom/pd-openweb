@@ -54,10 +54,7 @@ function NewRecord(props) {
     !window.isPublicApp &&
     !isDraft &&
     (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1');
-  const showDraftList =
-    !window.isPublicApp &&
-    (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1') &&
-    !_.isEmpty(worksheetInfo);
+  const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
 
   const {
     confirmMsg = _l('您确认提交表单？'),

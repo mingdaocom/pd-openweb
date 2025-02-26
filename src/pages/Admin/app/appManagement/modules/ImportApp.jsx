@@ -14,9 +14,10 @@ const ERRORMSG = {
   4: _l('失败次数过多，请于15分钟后尝试'),
   6: _l('导入失败，导入将导致目标网络的工作表总数超过上限'),
   20: _l('业务模块类型错误'),
-  30: _l('当前网络已存在市场安装的应用'),
-  31: _l('市场购买应用不属于该组织'),
+  30: _l('该应用在组织下已存在，请勿重复导入'),
+  31: _l('应用不允许在当前组织下导入'),
   32: _l('不允许导入市场购买的应用'),
+  33: _l('该应用在组织下已存在，如需使用请从回收站内恢复”'),
 };
 
 const ALERTMSG = {
@@ -113,7 +114,7 @@ export default class ImportApp extends React.Component {
         if (errorCode === 5) {
           this.setState({ errTip: _l('解析失败，不是有效的应用文件') });
         } else if (ERRORMSG[errorCode]) {
-          alert(ERRORMSG[errorCode], 2, 4000);
+          this.setState({ errTip: ERRORMSG[errorCode] });
         } else {
           this.setState(
             {
@@ -159,7 +160,7 @@ export default class ImportApp extends React.Component {
         <Fragment>
           <div className="Font17">{file.name}</div>
           {errTip ? (
-            <div className="mTop6 errorColor">
+            <div className="mTop6 errorColor flexRow alignItemsCenter">
               <span className="icon-info TxtMiddle Font15 mRight6"></span>
               <span>{_l(errTip)}</span>
             </div>

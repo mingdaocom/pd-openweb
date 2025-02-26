@@ -270,7 +270,7 @@ class Header extends React.Component {
                       onClick={() => this.setState({ exportLoading: true }, this.exportWord)}
                     >
                       <i className="icon-file_download Gray_9e mRight3 TxtMiddle Font15"></i>
-                      {_l('导出word')}
+                      {_l('导出Word')}
                     </div>
                   ))}
 

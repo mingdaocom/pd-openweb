@@ -39,7 +39,7 @@ RegExpValidator.isUrlRequest = url => {
  * @returns {string} - 文件扩展名
  */
 RegExpValidator.getExtOfFileName = (fileName = '') => {
-  return get(String(fileName).match(/\.([0-9a-zA-Z]+)$/), '1') || '';
+  return get(String(fileName).match(/\.([0-9a-z\_A-Z]+)$/), '1') || '';
 };
 
 /**

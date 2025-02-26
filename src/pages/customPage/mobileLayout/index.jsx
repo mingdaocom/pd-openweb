@@ -130,7 +130,10 @@ export default function MobileLayout(props) {
                 {...props}
                 layoutType="mobile"
                 components={visibleComponents}
-                config={pageConfig}
+                config={{
+                  ...pageConfig,
+                  pageStyleType: 'light'
+                }}
               />
             </div>
           </div>

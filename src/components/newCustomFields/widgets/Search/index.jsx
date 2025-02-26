@@ -10,6 +10,7 @@ import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { checkValueByFilterRegex } from '../../tools/utils';
 
 const SearchBtn = styled.div`
   display: flex;
@@ -254,8 +255,9 @@ export default class Widgets extends Component {
       onVisibleChange = () => {},
       controlName,
       hint = '',
+      formData,
     } = this.props;
-    const { itemtitle = '', clicksearch, searchfirst, min = '0' } = advancedSetting;
+    const { itemtitle = '', clicksearch, searchfirst, min = '0', filterregex } = advancedSetting;
     const { loading, isSuccess, keywords, data, open } = this.state;
 
     let isMobile = browserIsMobile();
@@ -311,6 +313,8 @@ export default class Widgets extends Component {
             // 实时搜索
             if (clicksearch === '1') {
               if (this.state.keywords.length < parseInt(min)) return;
+              console.log(keywords);
+              if (filterregex && checkValueByFilterRegex(this.props, keywords, formData)) return;
               this.realTimeSearch();
             }
           }),

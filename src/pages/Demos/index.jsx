@@ -1,29 +1,31 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import Notification from './pages/Notification';
-import SelectUser from './pages/SelectUser';
-import CardList from './pages/CardList';
-import PrintQr from './pages/PrintQr';
-import Temp from './pages/Temp';
+import RecordCard from 'src/pages/worksheet/components/RelateRecordCards/RecordCard';
+
 const Con = styled.div`
   background: #fff;
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 16px;
+`;
+
+const RecordsCon = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
 `;
 
 export default function Demo(props) {
+  const records = [1, 2, 3, 4, 5];
   return (
     <Con>
-      <Switch>
-        <Route path="/demo/notification" component={Notification} />
-        <Route path="/demo/selectuser" component={SelectUser} />
-        <Route path="/demo/cardlist" component={CardList} />
-        <Route path="/demo/temp" component={Temp} />
-        <Route path="/demo/qr" component={PrintQr} />
-        <Route path="*" component={() => <span>hello</span>} />
-      </Switch>
+      <RecordsCon>
+        {records.map(record => (
+          <RecordCard key={record.rowid} record={record} />
+        ))}
+      </RecordsCon>
     </Con>
   );
 }

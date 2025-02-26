@@ -2,7 +2,7 @@ import React, { Component, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import UseKey from 'react-use/lib/component/UseKey';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import qs from 'query-string';

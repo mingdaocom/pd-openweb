@@ -252,7 +252,7 @@ export default function MobileTable(props) {
                 </div>
                 {!disabled && (
                   <Fragment>
-                    {allowcancel && (
+                    {(allowcancel || /^temp/.test(rowid)) && (
                       <div className="delete pTop3" onClick={() => deleteRecord(rowid)}>
                         <i className="icon icon-task-new-delete Red Font18" />
                       </div>
@@ -314,7 +314,7 @@ export default function MobileTable(props) {
         {showControls.map((c, cIndex) => (
           <div
             key={cIndex}
-            className={cx('mobileTableItem flex Font13', { mRight30: cIndex === showControls.length - 1 })}
+            className={cx('mobileTableItem flex Font13 breakAll', { mRight30: cIndex === showControls.length - 1 })}
           >
             {c.controlName}
           </div>
@@ -376,6 +376,7 @@ export default function MobileTable(props) {
                     from={4}
                     mode="mobileSub"
                     masterData={masterData}
+                    rowFormData={() => controls.map(c => Object.assign({}, c, { value: row[c.controlId] }))}
                     projectId={projectId}
                     worksheetId={worksheetId}
                     canedit={c.type === 36 && controlPermission.editable}

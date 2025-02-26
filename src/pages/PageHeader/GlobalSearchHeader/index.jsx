@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import CommonUserHandle from '../components/CommonUserHandle';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { includes, uniq } from 'lodash';
 import { combineReducers } from 'redux';
 import { browserIsMobile } from 'src/util';
 
@@ -133,6 +133,17 @@ function rows(state = [], action) {
       break;
     case 'UPDATE_ROW':
       newState = state.map(row => (row.rowid === action.rowid ? { ...row, ...action.value } : row));
+      break;
+    case 'UPDATE_ROWS':
+      newState = state.map(row =>
+        includes(action.rowIds, row.rowid)
+          ? {
+              ...row,
+              ...action.value,
+              updatedControlIds: uniq((row.updatedControlIds || []).concat(Object.keys(action.value))),
+            }
+          : row,
+      );
       break;
     case 'DELETE_ROW':
       newState = newState.filter(row => row.rowid !== action.rowid).map(row => handleTreeNodeRow(row, action.rowid));

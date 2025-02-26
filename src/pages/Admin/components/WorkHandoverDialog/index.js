@@ -276,6 +276,7 @@ export default class WorkHandoverDialog extends Component {
         filterFriend: true,
         filterOtherProject: true,
         filterOthers: true,
+        filterResigned: false,
         unique: true,
         filterAccountIds: [transferor.accountId],
         callback: users => {

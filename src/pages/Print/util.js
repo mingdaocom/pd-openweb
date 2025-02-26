@@ -9,7 +9,11 @@ import { RichText } from 'ming-ui';
 import _ from 'lodash';
 import Embed from 'src/components/newCustomFields/widgets/Embed';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
-import { getBarCodeValue, controlState } from 'src/components/newCustomFields/tools/utils';
+import {
+  getBarCodeValue,
+  controlState,
+  getTitleTextFromRelateControl,
+} from 'src/components/newCustomFields/tools/utils';
 import { parseDataSource } from 'src/pages/widgetConfig/util/setting.js';
 import STYLE_PRINT from './components/exportWordPrintTemCssString';
 import RegExpValidator from 'src/util/expression'; /*
@@ -82,6 +86,8 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         : '';
     case 51:
       if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype) !== '2') {
+        const showtitleid = _.get(item, 'advancedSetting.showtitleid');
+
         let records = [];
         try {
           records = JSON.parse(value);
@@ -99,7 +105,10 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
             return '';
           }
 
-          let titleControl = item.relationControls.find(l => l.attribute === 1) || item.relationControls[0] || {};
+          let titleControl =
+            item.relationControls.find(l => (showtitleid ? l.controlId === showtitleid : l.attribute === 1)) ||
+            item.relationControls[0] ||
+            {};
 
           return (
             <span className="relaList">
@@ -117,7 +126,9 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
         item.showControls.map(o => {
-          let data = (item.relationControls || []).find(it => it.controlId === o && it.attribute !== 1);
+          let data = (item.relationControls || []).find(
+            it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
+          );
           if (data) {
             showControlsList.push(data);
           }
@@ -127,7 +138,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           ? (item.relationControls || []).filter(o => item.coverCid === o.controlId)
           : [];
         //平铺的关联表多条显示除了附件外的前三个
-        showControlsList = showControlsList.filter(o => o.type !== 14).splice(0, 3);
+        showControlsList = showControlsList.filter(o => o.type !== 14);
         // 1 卡片 显示关联表名称
         return _.isArray(records) && records.length > 0 ? (
           <table className="relaList" style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
@@ -137,13 +148,18 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                 let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
                 let coverData = cover.length > 0 ? cover[0] : '';
-                let list = (item.relationControls || []).find(o => o.attribute === 1) || {};
+                let list =
+                  (item.relationControls || []).find(o =>
+                    showtitleid ? o.controlId === showtitleid : o.attribute === 1,
+                  ) || {};
 
                 return (
                   <tr>
                     <td className="listTextDiv">
                       {list.type === 38
                         ? renderCellText(item.controls.find(it => it.attribute === 1))
+                        : showtitleid
+                        ? getTitleTextFromRelateControl(dataItem, da)
                         : renderCellText({
                             ...dataItem,
                             type:
@@ -151,6 +167,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                                 ? list.type
                                 : item.sourceControlType,
                             value: data[list.controlId],
+                            advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
                           }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
@@ -229,6 +246,8 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       }
     case 29:
       if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype)) {
+        const showtitleid = _.get(item, 'advancedSetting.showtitleid');
+
         //非列表
         let records = [];
         try {
@@ -261,13 +280,21 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
 
           return (
             <span className="relaList">
-              {item.isRelateMultipleSheet ? (records[0] || {}).name : renderCellText(dataItem)}
+              {item.isRelateMultipleSheet
+                ? (records[0] || {}).name
+                : showtitleid
+                ? safeParse(dataItem.value, 'array')
+                    .map(l => getTitleTextFromRelateControl(dataItem, safeParse(l.sourcevalue)))
+                    .join('、')
+                : renderCellText(dataItem)}
             </span>
           );
         }
+
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
           if (records.length <= 0) return '';
+
           const enumDefault = dataItem.type === 29 ? 1 : dataItem.enumDefault;
 
           return renderCellText({
@@ -282,7 +309,9 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
         item.showControls.map(o => {
-          let data = (item.relationControls || []).find(it => it.controlId === o && it.attribute !== 1);
+          let data = (item.relationControls || []).find(
+            it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
+          );
           if (data) {
             showControlsList.push(data);
           }
@@ -312,6 +341,8 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                     <td className="listTextDiv">
                       {list.type === 38
                         ? renderCellText(item.controls.find(it => it.attribute === 1))
+                        : showtitleid
+                        ? getTitleTextFromRelateControl(dataItem, safeParse(da.sourcevalue))
                         : renderCellText({
                             ...dataItem,
                             type: type,
@@ -319,6 +350,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                               type === 27 && da.name
                                 ? JSON.stringify(safeParse(da.name, 'array').filter(l => !l.isDelete))
                                 : da.name,
+                            advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
                           }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
@@ -363,7 +395,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                         );
                       })}
                     </td>
-                    {coverData && coverData.previewUrl && (
+                    {coverData && coverData.previewUrl && RegExpValidator.fileIsPicture(coverData.ext) && (
                       <td width="100px">
                         <img
                           style={{
@@ -425,6 +457,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       let barCodeData = { ...dataItem, formData: dataItem.controls };
       const { enumDefault, enumDefault2, dataSource, recordId, appId, worksheetId, viewIdForPermit, viewId, isView } =
         barCodeData;
+
       if (
         !getBarCodeValue({
           data: barCodeData.formData,
@@ -754,4 +787,11 @@ export const isRelation = control => {
 export const useUserPermission = control => {
   const [isHiddenOtherViewRecord] = (control.strDefault || '000').split('');
   return !!+isHiddenOtherViewRecord;
+};
+
+export const getFormData = (controls, data) => {
+  return controls.map(it => ({
+    ...it,
+    value: data[it.controlId],
+  }));
 };

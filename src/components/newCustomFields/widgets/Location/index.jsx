@@ -243,6 +243,9 @@ export default class Widgets extends Component {
         icon: 'loading',
         content: _l('正在获取取经纬度，请稍后'),
       });
+
+      if (!window.MDJS || !window.MDJS.getLocation) return;
+
       window.MDJS.getLocation({
         success: res => {
           const { longitude, latitude, address, title } = res;
@@ -257,7 +260,7 @@ export default class Widgets extends Component {
           Toast.clear();
         },
       });
-    } else {
+    } else if (window.MDJS && window.MDJS.chooseLocation) {
       window.MDJS.chooseLocation({
         control,
         success: res => {
@@ -275,6 +278,8 @@ export default class Widgets extends Component {
   };
 
   handleMDAppOpenLocation = location => {
+    if (!window.MDJS || !window.MDJS.openLocation) return;
+
     window.MDJS.openLocation({
       type: location.coordinate,
       longitude: location.x,
@@ -452,10 +457,7 @@ export default class Widgets extends Component {
                   <div className="title breakAll">{location.title || _l('位置')}</div>
                   <div className="address breakAll">{location.address}</div>
                   {(advancedSetting.showxy === '1' || (!location.title && !location.address)) && (
-                    <div className="xy">
-                      <span>{_l('经度：%0', toFixed(location.x, 6))}</span>
-                      <span className="mLeft10">{_l('纬度：%0', toFixed(location.y, 6))}</span>
-                    </div>
+                    <div className="xy">{`${toFixed(location.y, 6)}，${toFixed(location.x, 6)}`}</div>
                   )}
                 </div>
                 {!disabled && !isMobile && !onlyCanAppUse && (

@@ -93,9 +93,10 @@ const TYPE_TO_TEXT = {
 };
 
 export default function AutoNumberConfig(props) {
-  const { rule, onClose, onOk } = props;
+  const { rule, controlId, onClose, onOk } = props;
   const [data, setData] = useSetState(rule);
-  const [editable, setEditable] = useState(!rule.start);
+  const resetValue = window.auto_id_reset[controlId] || false;
+  const [resetAutoId, setReset] = useState(resetValue);
 
   // data.length 为0 代表自然数编号
   const type = data.length ? 'assign' : 'nature';
@@ -181,10 +182,19 @@ export default function AutoNumberConfig(props) {
           </Fragment>
         )}
         <SettingItem className="settingItem">
-          <div className="title">{_l('开始值')}</div>
+          <div className="title">
+            {_l('开始值')}
+            <Tooltip
+              trigger={['hover']}
+              title={_l(
+                '编号=开始值+创建记录数-1。若修改开始值，则之后的编号将根据新的开始值计算。例如，原来的开始值为1，已创建记录数为10，则当前最后一条编号为no.10；若此时将开始值修改为10，则下一条记录的编号为no.20。',
+              )}
+            >
+              <AutoIcon style={{ marginLeft: '6px' }} icon="help" />
+            </Tooltip>
+          </div>
           <div className="content">
             <Input
-              disabled={!editable}
               value={data.start || 1}
               onChange={e =>
                 setData({
@@ -200,22 +210,30 @@ export default function AutoNumberConfig(props) {
             />
           </div>
         </SettingItem>
+
         <div className="hint">
-          <span>{_l('修改后将使用新的初始值重新编号')}</span>
-          {rule.start && (
-            <span
-              className="clickable"
-              onClick={() => {
-                if (editable) {
-                  setData({ start: rule.start });
-                }
-                setEditable(!editable);
-              }}
-            >
-              {editable ? _l('取消修改') : _l('修改')}
-            </span>
-          )}
+          <Checkbox
+            size="small"
+            checked={resetAutoId}
+            onClick={value => {
+              setReset(!value);
+              window.auto_id_reset[controlId] = !value;
+            }}
+          >
+            <Fragment>
+              <span>{_l('下一条记录以修改后的开始值编号')}</span>
+              <Tooltip
+                trigger={['hover']}
+                title={_l(
+                  '勾选时，新的开始值保存后，下一条记录将直接以新开始值作为编号（例如，表中已编号至no.100，修改开始值为5并勾选此配置项，则下一条记录直接以no.5编号）',
+                )}
+              >
+                <AutoIcon style={{ marginLeft: '6px' }} icon="help" />
+              </Tooltip>
+            </Fragment>
+          </Checkbox>
         </div>
+
         <SettingItem className="settingItem">
           <div className="title">{_l('周期重置')}</div>
           <div className="content">

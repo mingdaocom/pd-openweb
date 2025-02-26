@@ -176,12 +176,10 @@ class Commenter extends React.Component {
     if (isEditing !== prevState.isEditing) {
       const height = isEditing || hasAttachment ? textareaExpandHeight : textareaMinHeight;
       if (isEditing) {
-        $textarea
-          .autoTextarea({
-            maxHeight: textareaMaxHeight,
-            minHeight: height,
-          })
-          .height(height);
+        $textarea.autoTextarea({
+          maxHeight: textareaMaxHeight,
+          minHeight: height,
+        });
       } else {
         setTimeout(function () {
           $textarea.height(height);

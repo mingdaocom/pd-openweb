@@ -28,6 +28,7 @@ export default function confirm(props) {
           action={props.onCancel}
           onClose={() => handleClose(!props.onlyClose)}
           type={props.cancelType || 'link'}
+          className={props.cancelClassName}
         >
           {props.cancelText || _l('取消')}
         </ConfirmButton>
@@ -38,6 +39,7 @@ export default function confirm(props) {
           action={props.onOk}
           onClose={() => handleClose(!props.onlyClose, true)}
           type={props.buttonType || 'primary'}
+          className={props.okClassName}
         >
           {props.okText || _l('确认')}
         </ConfirmButton>

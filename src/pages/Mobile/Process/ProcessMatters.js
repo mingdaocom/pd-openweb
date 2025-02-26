@@ -656,7 +656,7 @@ export default class ProcessMatters extends Component {
       rejectVisible,
     } = this.state;
     const currentTabs = bottomTab.tabs;
-    const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
+    const allowApproveList = list.filter(c => _.get(c, 'flowNode.batchApprove'));
     const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const { appId } = getRequest();
     return (

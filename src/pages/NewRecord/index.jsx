@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Button } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';

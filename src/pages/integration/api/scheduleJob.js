@@ -6,7 +6,6 @@ var scheduleJob = {
    * 获得定时任务
    *
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 组织id
    * @param {string} args.id 定时任务id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -22,7 +21,6 @@ var scheduleJob = {
    * 触发定时任务
    *
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 组织id
    * @param {string} args.id 定时任务id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -39,7 +37,7 @@ var scheduleJob = {
    *
    * @param {Object} args 请求参数
    * @param {string} args.id 任务编号", example = "1024"
-   * @param {integer} args.status 状态
+   * @param {integer} args.status 状态<br>{@link com.mingdao.whileflow.schedule.enums.ScheduleJobStatusEnum}
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -89,6 +87,34 @@ var scheduleJob = {
   },
 
   /**
+   * 停止所有运行的任务
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  resumeAll: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'scheduleJob/resumeAll';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'scheduleJobresumeAll', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 停止所有运行的任务
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  pauseAll: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'scheduleJob/pauseAll';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'scheduleJobpauseAll', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 获得定时任务分页
    *
    * @param {Object} args 请求参数
@@ -107,6 +133,20 @@ var scheduleJob = {
     base.ajaxOptions.url = base.server(options) + 'scheduleJob/page';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'scheduleJobpage', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 删除所有运行的任务--没有实现，放出来有点危险
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  deleteAll: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'scheduleJob/deleteAll';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'scheduleJobdeleteAll', JSON.stringify(args), $.extend(base, options));
   },
 
   /**

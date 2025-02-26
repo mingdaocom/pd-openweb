@@ -16,7 +16,8 @@ import {
   getMsgByCode,
   scrollToVisibleRange,
   getChildWidgetsBySection,
-  checkWidgetErrorBySave,
+  checkWidgetBeforeSave,
+  checkWidgetErrorBeforeSave,
 } from './util/data';
 import {
   getUrlPara,
@@ -223,6 +224,8 @@ export default function Container(props) {
     window.subListSheetConfig = {};
     // 自定义事件集成api数据缓存
     window.IntegratedApi = {};
+    // 自动编号重置缓存
+    window.auto_id_reset = {};
     setLoading({ getLoading: true });
     worksheetAjax
       .getWorksheetControls({
@@ -272,10 +275,12 @@ export default function Container(props) {
       return;
     }
 
-    if (checkWidgetErrorBySave(saveControls, $originControls.current)) {
+    if (checkWidgetErrorBeforeSave(saveControls, $originControls.current)) {
       _.isFunction(callback) && callback(true);
       return;
     }
+
+    checkWidgetBeforeSave(saveControls, $originControls.current, globalInfo);
 
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
 
@@ -388,8 +393,15 @@ export default function Container(props) {
     return currentControls.some(item => {
       const prevItem = find(prevControls, ({ controlId }) => item.controlId === controlId);
       return !isEqual(
-        _.omit(prevItem, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount', 'needUpdate']),
-        _.omit(item, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount', 'needUpdate']),
+        _.omit(prevItem, [
+          'half',
+          'relationControls',
+          'sourceEntityName',
+          'sourceBtnName',
+          'deleteAccount',
+          'needUpdate',
+        ]),
+        _.omit(item, ['half', 'relationControls', 'sourceEntityName', 'sourceBtnName', 'deleteAccount', 'needUpdate']),
       );
     });
   };

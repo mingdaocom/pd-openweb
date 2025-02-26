@@ -68,7 +68,7 @@ export default function WidgetDisplay(props) {
         className={cx('controlName', {
           isSplitLine,
           flex: displayRow,
-          breakAll: displayRow,
+          WordBreak: displayRow,
           overflow_ellipsis: !displayRow,
           hideTitle: !showTitle,
         })}

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { ACTION_ID } from '../../enum';
+import { getIcons } from '../../utils';
 
 export default class AIGC extends Component {
   constructor(props) {
@@ -53,10 +53,8 @@ export default class AIGC extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  _.includes([ACTION_ID.AIGC_TEXT, ACTION_ID.AIGC_OBJECT], item.actionId)
-                    ? 'icon-text_ai'
-                    : 'icon-AI_image',
                   item.appId ? 'BGRed' : 'BGGray',
+                  getIcons(item.typeId, item.appType, item.actionId),
                 )}
               />
             </div>

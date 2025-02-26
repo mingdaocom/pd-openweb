@@ -16,6 +16,7 @@
             { "libraryName": "src", "libraryDirectory": "components", "camel2DashComponentName": false },
             {
               "libraryName": "antd",
+              "libraryDirectory": "es",
               "style": "css"
             }
           ]
@@ -54,6 +55,7 @@
             },
             {
               "libraryName": "antd",
+              "libraryDirectory": "es",
               "style": "css"
             }
           ]

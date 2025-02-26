@@ -354,15 +354,11 @@ export default class Link extends Component {
         )}
 
         {data.linkType === 2 && (
-          <Fragment>
-            <div className="Font13 bold mTop25">{_l('按钮名称')}</div>
-            <ButtonName
-              dataKey="submitButtonName"
-              name={data.submitButtonName || _l('提交')}
-              buttonName={_l('提交按钮')}
-              onChange={this.updateSource}
-            />
-          </Fragment>
+          <ButtonName
+            buttons={[{ key: 'submitButtonName', title: _l('提交按钮'), placeholder: _l('提交') }]}
+            data={data}
+            updateSource={this.updateSource}
+          />
         )}
       </Fragment>
     );

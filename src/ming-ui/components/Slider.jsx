@@ -32,7 +32,7 @@ const Bar = styled.div`
   margin: 7px 0;
   border-radius: 3px;
   background: rgba(0, 0, 0, 0.06);
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')}};
+  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   &:hover {
     ${({ disabled }) => (disabled ? '' : 'background: rgba(0, 0, 0, 0.1);')}
   }
@@ -87,6 +87,40 @@ const ScalePoint = styled.span`
     `}
     margin-top: 10px;
     display: inline-block;
+  }
+`;
+
+const ScaleTextWrap = styled.div`
+  display: flex;
+  overflow: hidden;
+  width: ${({ total }) => `${total}%`};
+  .contentItem {
+    flex: 1;
+    text-align: center;
+    transform: translateX(-50%);
+    &:first-child {
+      text-align: right;
+      .scaleText {
+        text-align: left;
+        width: 50%;
+      }
+    }
+    &:last-child {
+      text-align: left;
+      .scaleText {
+        text-align: right;
+        width: 50%;
+      }
+    }
+    .scaleText {
+      display: inline-block;
+      user-select: none;
+      margin: 10px 0 0 1px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-all;
+      overflow: visible;
+    }
   }
 `;
 
@@ -238,6 +272,12 @@ export default function Slider(props) {
     getDefaultValue(showAsPercent ? fixedByStep(props.value * 100, step) : props.value),
   );
   const [valueForInput, setValueForInput] = useState(value);
+  const isMobile = browserIsMobile();
+  const inputAttribute = isMobile
+    ? window.isIphone
+      ? { type: 'number', pattern: '\d' }
+      : { inputmode: 'decimal' }
+    : {};
   const color = getColor(itemcolor, value, showAsPercent);
   const scalePoints = useMemo(
     () =>
@@ -250,6 +290,11 @@ export default function Slider(props) {
         .filter(c => _.isNumber(c.value) && !_.isNaN(c.value) && !_.isUndefined(c.text)),
     [itemnames],
   );
+  let data = scalePoints.filter(scale => scale.value >= min && scale.value <= max);
+  const hasMin = _.findIndex(data, v => v.value === min) !== -1;
+  const scalePointsLength = hasMin ? data.length : data.length + 1;
+  data = hasMin ? data : [{ text: '' }].concat(data);
+
   let valuePercent = Math.ceil(((_.isUndefined(value) ? 0 : value - min) / (max - min)) * 100);
   if (valuePercent > 100) {
     valuePercent = 100;
@@ -390,14 +435,22 @@ export default function Slider(props) {
                     value={scale.value}
                     color={scale.percent < valuePercent ? color : 'rgba(0, 0, 0, 0.06)'}
                     percent={scale.percent}
-                  >
-                    {showScaleText && (
-                      <span style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#151515' }}>{scale.text}</span>
-                    )}
-                  </ScalePoint>
+                  ></ScalePoint>
                 </Tooltip>
               </ScalePointClick>
             ))}
+        {showScale && showScaleText && (
+          <ScaleTextWrap total={(100 / (scalePointsLength - 1)) * scalePointsLength}>
+            {data.map((scale, i) => (
+              <div className="contentItem">
+                <span className="scaleText" style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#151515' }}>
+                  {scale.text}
+                </span>
+              </div>
+            ))}
+          </ScaleTextWrap>
+        )}
+
         {showDrag && (
           <Tooltip
             offset={[0, -2]}
@@ -434,6 +487,7 @@ export default function Slider(props) {
             active={numberIsFocusing}
             ref={inputRef}
             type="text"
+            {...inputAttribute}
             value={
               showAsPercent && !numberIsFocusing && !_.isUndefined(valueForInput) && valueForInput !== ''
                 ? valueForInput + '%'
@@ -457,7 +511,7 @@ export default function Slider(props) {
       )}
       {showNumber && (!showInput || disabled) && (
         <NumberValue
-          style={{ ...numStyle, width: disabled ? 'auto' : numberWidth }}
+          style={{ ...numStyle, width: numberWidth }}
           disabled={props.disabled}
           isMobile={isMobile}
         >

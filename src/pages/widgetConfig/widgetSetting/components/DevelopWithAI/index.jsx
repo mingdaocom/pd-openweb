@@ -341,7 +341,7 @@ export default function DevelopWithAI(props) {
                         }
                         if (isFunction(get(llmRef, 'current.sendMessage'))) {
                           setShowEmptyHolder(false);
-                          llmRef.current.setInput(_l('我在运行组件时出现了如下错误，请帮忙修复。\n ```%0```', error));
+                          llmRef.current.setInput(_l('我在运行组件时出现了如下错误，请帮忙修复。```%0```', error));
                         }
                       }}
                     >

@@ -78,7 +78,11 @@ export default class Widgets extends Component {
   parseValue(value) {
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = this.props.advancedSetting;
     if (!value) return [];
-    if (showtype == RELATE_RECORD_SHOW_TYPE.DROPDOWN && value.indexOf('deleteRowIds') > -1) {
+    if (
+      showtype == RELATE_RECORD_SHOW_TYPE.DROPDOWN &&
+      typeof value === 'string' &&
+      value.indexOf('deleteRowIds') > -1
+    ) {
       return;
     }
     let data = [];

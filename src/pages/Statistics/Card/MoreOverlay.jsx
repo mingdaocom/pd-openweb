@@ -22,6 +22,7 @@ export default class MoreOverlay extends Component {
       shareVisible: false,
       showPageMove: false,
       favorite: props.favorite,
+      placement: 'bottomRight'
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -155,6 +156,16 @@ export default class MoreOverlay extends Component {
     const { report } = this.props;
     this.setState({ dropdownVisible });
     const card = document.querySelector(`.statisticsCard-${report.id}`);
+    if (dropdownVisible) {
+      const container = document.querySelector('#componentsWrap');
+      const elementRect = card.querySelector('.chartCardMoreIcon').getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const elementBottomToContainerTop = elementRect.bottom - containerRect.top;
+      const containerVisibleHeight = container.clientHeight;
+      this.setState({
+        placement: containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight'
+      });
+    }
     if (dropdownVisible) {
       card.classList.add('active');
     } else {
@@ -357,7 +368,7 @@ export default class MoreOverlay extends Component {
     );
   }
   render() {
-    const { shareVisible, showPageMove, dropdownVisible } = this.state;
+    const { shareVisible, showPageMove, dropdownVisible, placement } = this.state;
     const {
       appId,
       worksheetId,
@@ -389,12 +400,12 @@ export default class MoreOverlay extends Component {
         {moreVisible && (
           <Dropdown
             trigger={['click']}
-            placement="bottomRight"
+            placement={placement}
             visible={dropdownVisible}
             onVisibleChange={this.handleUpdateDropdownVisible}
             overlay={this.renderOverlay()}
           >
-            <Icon className={className} icon="more_horiz" />
+            <Icon className={cx(className, 'chartCardMoreIcon')} icon="more_horiz" />
           </Dropdown>
         )}
         {shareVisible && (

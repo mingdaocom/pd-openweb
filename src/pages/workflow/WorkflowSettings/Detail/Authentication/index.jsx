@@ -139,6 +139,7 @@ export default class Authentication extends Component {
       let hasRawError = false;
 
       webHookNodes.forEach(item => {
+        item.url = item.url.trim();
         item.params = item.params.filter(o => o.name || o.value);
         item.headers = item.headers.filter(o => o.name || o.value);
         item.formControls = item.formControls.filter(o => o.name || o.value);
@@ -568,7 +569,7 @@ export default class Authentication extends Component {
           processId,
           nodeId: selectNodeId,
           method,
-          url: formatTestParameters(url, testMap),
+          url: formatTestParameters(url, testMap).trim(),
           params: JSON.parse(formatTestParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
           headers: JSON.parse(formatTestParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
           body: formatTestParameters(body, testMap),

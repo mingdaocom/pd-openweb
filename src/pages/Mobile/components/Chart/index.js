@@ -122,10 +122,12 @@ function ChartWrapper(props) {
   const beforeAllow = (pageComponents.length - index) < pageComponents.length;
   const nextAllow = index < pageComponents.length - 1;
   const translateInfo = getTranslateInfo(props.appId, null, data.reportId);
+  const { showTitle = true } = _.get(data, 'displaySetup') || {};
+
   return (
     <Fragment>
       <div className={cx('mBottom10 flexRow valignWrapper', { mRight20: isHorizontal })}>
-        <div className="Font17 Gray ellipsis name flex">{translateInfo.name || data.name}</div>
+        <div className="Font17 Gray ellipsis name flex">{showTitle ? translateInfo.name || data.name : ''}</div>
         {data.status > 0 && (
           <Fragment>
             {isHorizontal && (

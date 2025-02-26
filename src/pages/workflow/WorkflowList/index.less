@@ -28,7 +28,7 @@
   }
   .workflowHeader {
     width: 240px;
-    padding: 16px 8px;
+    padding: 16px 0;
     border-right: 1px solid #ddd;
     li {
       font-size: 14px;
@@ -45,23 +45,19 @@
       &.active {
         background: #edf7fe;
         font-weight: bold;
+        &::before {
+          position: absolute;
+          content: '';
+          height: 16px;
+          width: 3px;
+          background: #2196f3;
+          top: 12px;
+          left: 0;
+        }
       }
       &:hover:not(.active) {
         background: #f8f8f8;
       }
-      .activeLine {
-        height: 16px;
-        width: 3px;
-        background: #2196f3;
-        position: absolute;
-        top: 12px;
-        left: 0;
-      }
-    }
-    .workflowHeaderLine {
-      height: 1px;
-      background: #eaeaea;
-      margin: 8px 0;
     }
   }
   .manageListContainer {
@@ -226,8 +222,8 @@
     align-items: center;
     justify-content: center;
     .flowEmptyPic {
-      background: url('./empty.png') no-repeat;
-      background-size: 780px 130px;
+      background: url('./images/empty.png') no-repeat;
+      background-size: 1300px 130px;
       width: 130px;
       height: 130px;
       margin-top: -40px;
@@ -249,9 +245,32 @@
       &-pbc {
         background-position: -650px 0;
       }
-      &-approval {
-        background-position: -650px 0;
+      &-webhook {
+        background-position: -780px 0;
       }
+      &-action {
+        background-position: -910px 0;
+      }
+      &-loop {
+        background-position: -1040px 0;
+      }
+      &-approval {
+        background-position: -1170px 0;
+      }
+    }
+    .flowEmptyPicBig {
+      background: url('./images/null.png') no-repeat;
+      background-size: 242px 180px;
+      width: 242px;
+      height: 180px;
+    }
+    .flowEmptyWrapDesc {
+      width: 640px;
+      margin-top: 40px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      color: #757575;
     }
   }
   .workflowListMenu {

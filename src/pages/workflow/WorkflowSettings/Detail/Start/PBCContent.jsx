@@ -26,8 +26,8 @@ const Header = styled.div`
   .w96 {
     width: 96px;
   }
-  .w180 {
-    width: 180px;
+  .w120 {
+    width: 120px;
   }
   .red {
     color: #f44336;
@@ -222,7 +222,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
   };
   const addParameters = ({ type, dataSource, controlId }) => {
     const controls = _.cloneDeep(data.controls);
-    const defaultParameters = getDefaultParameters();
+    let defaultParameters = getDefaultParameters();
     let index = 0;
 
     controls.forEach((item, i) => {
@@ -236,7 +236,8 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
     }
 
     if (type === 10000008 || dataSource) {
-      controls.splice(index + 1, 0, Object.assign({}, defaultParameters, { dataSource: dataSource || controlId }));
+      defaultParameters = Object.assign({}, defaultParameters, { dataSource: dataSource || controlId });
+      controls.splice(index + 1, 0, defaultParameters);
     } else {
       controls.splice(index + 1, 0, defaultParameters);
     }
@@ -299,6 +300,18 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       />
     );
   };
+  const renderControlDesc = item => {
+    return (
+      <input
+        type="text"
+        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        placeholder={_l('说明')}
+        value={item.desc}
+        onChange={evt => updateControls('desc', evt.target.value, item)}
+        onBlur={evt => updateControls('desc', evt.target.value.trim(), item)}
+      />
+    );
+  };
   const renderControlRequired = (item, showText) => {
     return (
       <Checkbox
@@ -319,9 +332,10 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       return (
         <Fragment key={item.controlId}>
           <div className={cx('mTop10 flexRow alignItemsCenter relative', { pLeft20: item.dataSource })}>
-            <div style={{ width: item.dataSource ? 160 : 180 }}>{renderControlType(item)}</div>
+            <div style={{ width: item.dataSource ? 100 : 120 }}>{renderControlType(item)}</div>
             <div className="flex flexRow mLeft10">{renderControlName(item)}</div>
             <div className="flex flexRow mLeft10">{renderControlAlias(item)}</div>
+            <div className="flex flexRow mLeft10">{renderControlDesc(item)}</div>
             <div className="mLeft10">{renderControlRequired(item)}</div>
             <span
               className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft2"
@@ -380,6 +394,14 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
   const updateControlAdvancedSettingDefaultValue = value => {
     updateControlAdvancedSetting(value ? { defsource: JSON.stringify([{ staticValue: value }]) } : { defsource: '[]' });
   };
+  const checkSourceCorrect = () => {
+    if (selectItem.type === 9 && selectItem.options.filter(o => !o.key || !o.value).length) {
+      alert(_l('选项名和选项值不能为空'), 2);
+      return false;
+    }
+
+    return true;
+  };
 
   return (
     <Fragment>
@@ -399,12 +421,13 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
         )}
 
         <Header className="flexRow mTop15">
-          <div className="w180">{_l('类型')}</div>
+          <div className="w120">{_l('类型')}</div>
           <div className="flex mLeft10">
             {_l('字段名')}
             <span className="red">*</span>
           </div>
           <div className="flex mLeft10">{_l('参数名')}</div>
+          <div className="flex mLeft10">{_l('说明')}</div>
           <div className="w96 mLeft10">{_l('必填')}</div>
         </Header>
 
@@ -455,23 +478,22 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
           className="workflowDialogBox"
           style={{ overflow: 'initial' }}
           overlayClosable={false}
+          width={800}
           type="scroll"
           visible
           title={FIELD_TYPE_LIST.find(o => o.value === selectItem.type).text}
-          onCancel={() => {
+          cancelText={_l('提交并继续创建')}
+          handleClose={() => {
             updateSource({
               controls: data.controls.map(item => (item.controlId === selectControlId ? cacheItem : item)),
             });
             setControlId('');
           }}
-          width={800}
+          onCancel={() => {
+            checkSourceCorrect() && addParameters(selectItem);
+          }}
           onOk={() => {
-            if (selectItem.type === 9 && selectItem.options.filter(o => !o.key || !o.value).length) {
-              alert(_l('选项名和选项值不能为空'), 2);
-              return;
-            }
-
-            setControlId('');
+            checkSourceCorrect() && setControlId('');
           }}
         >
           <div className="flexRow">
@@ -621,16 +643,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
           )}
 
           <div className="mTop20 bold">{_l('填写说明')}</div>
-          <div className="mTop10 flexRow">
-            <input
-              type="text"
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
-              placeholder={_l('说明')}
-              value={selectItem.desc}
-              onChange={evt => updateControls('desc', evt.target.value, selectItem)}
-              onBlur={evt => updateControls('desc', evt.target.value.trim(), selectItem)}
-            />
-          </div>
+          <div className="mTop10 flexRow">{renderControlDesc(selectItem)}</div>
           <div className="mTop5 Gray_75">{_l('为用户输入此参数时提供必要的帮助说明')}</div>
 
           {isPlugin && _.includes([9, 36], selectItem.type) && (

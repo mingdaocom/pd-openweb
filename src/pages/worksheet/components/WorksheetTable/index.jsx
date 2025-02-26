@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useMemo, useImperativeHandle, forwardRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import cx from 'classnames';
 import { FixedTable } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
@@ -145,6 +145,7 @@ function WorksheetTable(props, ref) {
     tableType,
     className,
     noRenderEmpty,
+    masterRecord,
     loading,
     isSubList,
     isRelateRecordList,
@@ -376,7 +377,7 @@ function WorksheetTable(props, ref) {
           !e.target.classList.contains('body') &&
           !e.target.classList.contains('mdModalWrap') &&
           !e.target.classList.contains('nano-content'))) &&
-      !(_.includes([26, 27], cell.props.cell.type) && e.key !== 'Enter')
+      !(_.includes([26, 27], get(cell, 'props.cell.type')) && e.key !== 'Enter')
     ) {
       return;
     }
@@ -544,6 +545,7 @@ function WorksheetTable(props, ref) {
         showFoot={showSummary}
         tableData={{
           chatButton,
+          masterRecord,
           isTreeTableView,
           treeTableViewData,
           expandCellAppendWidth,
@@ -613,8 +615,14 @@ function WorksheetTable(props, ref) {
             focusCell(rowIndex * cellColumnCount + columnIndex);
           },
           // 校验
-          checkRulesErrorOfControl: (control, row) => {
-            return checkRulesErrorOfRowControl({ from: 3, rules, controls, control, row });
+          checkRulesErrorOfControl: ({ control, row, validateRealtime } = {}) => {
+            return checkRulesErrorOfRowControl({
+              from: 3,
+              rules: rules.filter(rule => !validateRealtime || rule.hintType !== 1),
+              controls,
+              control,
+              row,
+            });
           },
           cellUniqueValidate,
           scrollTo: ({ left, top } = {}) => {

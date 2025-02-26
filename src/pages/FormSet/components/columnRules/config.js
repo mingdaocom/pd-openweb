@@ -225,11 +225,11 @@ export function getActionLabelByType(type) {
 }
 
 //判断规则是否有效并能否提交
-export function checkConditionCanSave(filters = [], isSingle) {
+export function checkConditionCanSave(filters = []) {
   if (_.isEmpty(filters)) return false;
   const formatFilter = formatOriginFilterGroupValue({ items: filters }) || {};
   return (formatFilter.conditionsGroups || []).every(data => {
-    const tempData = isSingle ? data.conditions : data.groupFilters;
+    const tempData = formatFilter.isGroup ? data.groupFilters : data.conditions;
     if (_.isEmpty(tempData)) return false;
     return tempData.every(i => {
       const conditionGroupKey = getTypeKey(i.dataType);

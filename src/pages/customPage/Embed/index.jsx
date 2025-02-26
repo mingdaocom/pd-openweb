@@ -8,6 +8,7 @@ import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { LoadDiv } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import UnusualContent from 'src/components/UnusualContent';
+import { changeAppColor } from 'src/pages/PageHeader/redux/action';
 import socketInit from 'src/socket';
 import { browserIsMobile } from 'src/util';
 import './index.less';
@@ -34,6 +35,7 @@ export default class EmbedPage extends Component {
         homeAppApi.getApp({ appId }).then(data => {
           this.setState({ loading: false, status });
           window[`timeZone_${this.appId}`] = data.timeZone;
+          store.dispatch(changeAppColor(''));
         });
       })
       .catch(() => {

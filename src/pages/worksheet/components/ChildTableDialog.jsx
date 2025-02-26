@@ -321,7 +321,12 @@ export default function ChildTableDialog(props) {
             onChange={changedValues => {
               if (openFrom === 'cell') {
                 const { rows, lastAction = {} } = changedValues;
-                if (!_.includes(['DELETE_ROW', 'DELETE_ROWS', 'ADD_ROW', 'UPDATE_ROW', 'ADD_ROWS'], lastAction.type)) {
+                if (
+                  !_.includes(
+                    ['DELETE_ROW', 'DELETE_ROWS', 'ADD_ROW', 'UPDATE_ROW', 'UPDATE_ROWS', 'ADD_ROWS'],
+                    lastAction.type,
+                  )
+                ) {
                   return;
                 }
                 if (lastAction.type === 'ADD_ROWS' && find(lastAction.rows, row => row.isAddByTree)) {
@@ -336,6 +341,8 @@ export default function ChildTableDialog(props) {
                   }
                   if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
                     updated = _.uniqBy(updated.concat(lastAction.rowid));
+                  } else if (lastAction.type === 'UPDATE_ROWS') {
+                    updated = _.uniqBy(updated.concat(lastAction.rowIds));
                   } else if (lastAction.type === 'ADD_ROWS') {
                     updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
                   }

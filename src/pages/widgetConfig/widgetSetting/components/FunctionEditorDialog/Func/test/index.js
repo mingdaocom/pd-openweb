@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
-const { Base64 } = require('js-base64');
 
 const bundleFilePath = path.join(__dirname, '../../../../../../../../build/dist/mdfunction.bundle.js');
 const { run } = require(bundleFilePath);
@@ -12,7 +11,7 @@ function runAndOutput(description = '', data) {
 }
 function runInSwift(description = '', data) {
   return new Promise((resolve, reject) => {
-    const runner = spawn('swift', ['test.swift', Base64.encode(JSON.stringify(data))]);
+    const runner = spawn('swift', ['test.swift', btoa(unescape(encodeURIComponent(JSON.stringify(data))))]);
     console.log(`calculate ${description} in swift:`);
     runner.stdout.on('data', out => console.log(String(out)));
     runner.stderr.on('data', err => console.log('\x1b[31m%s\x1b[0m', String(err)));

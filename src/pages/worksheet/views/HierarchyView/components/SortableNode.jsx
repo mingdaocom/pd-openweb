@@ -137,7 +137,7 @@ export default class SortableRecordItem extends Component {
     }
   };
   handleRecordVisible = rowId => {
-    if (window.isMingDaoApp && !window.shareState.shareId) {
+    if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
       const { appId, treeData } = this.props;
       const curInfo = treeData[rowId];
       window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;

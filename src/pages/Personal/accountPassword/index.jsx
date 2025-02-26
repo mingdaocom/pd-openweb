@@ -14,6 +14,7 @@ import { captcha } from 'ming-ui/functions';
 import common from '../common';
 import { encrypt } from 'src/util';
 import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
+import googleImg from '../images/google.png';
 
 let accountList = [
   { key: 'weiXinBind', icon: 'wechat', color: 'weiBindColor', label: _l('微信') },
@@ -24,6 +25,12 @@ let accountList = [
     color: 'workBindColor',
     label: _l('企业微信'),
     needHide: true,
+  },
+  {
+    key: 'googleBind',
+    iconIsImage: true,
+    color: 'googleBindColor',
+    label: _l('谷歌'),
   },
 ];
 
@@ -44,6 +51,7 @@ const ERROR_MESSAGE = {
 const TPType = {
   weiXinBind: 1,
   qqBind: 2,
+  googleBind: 13,
 };
 
 const WORKBINDOPTION = state => {
@@ -98,6 +106,7 @@ export default class AccountChart extends React.Component {
         qqBind: account.qqBind,
         weiXinBind: account.weiXinBind,
         workBind: account.workBind,
+        googleBind: account.googleBind,
         needInit: account.isIntergration && !account.mobilePhone,
         joinFriendMode: info.joinFriendMode,
         isPrivateMobile: info.isPrivateMobile,
@@ -121,20 +130,26 @@ export default class AccountChart extends React.Component {
     const currentType = this.state[type] || {};
     if (!currentType.state) {
       if (type === 'weiXinBind') {
-        var url = '/qrcode';
+        var url = md.global.Config.WebUrl + 'orgsso/weixin/auth';
         var wWidth = 400;
         var wHeight = 400;
         var positionObj = this.getWindowPosition(wWidth, wHeight);
         this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
+      } else if (type === 'googleBind') {
+        var url = md.global.Config.WebUrl + 'orgsso/google/auth';
+        var wWidth = 750;
+        var wHeight = 500;
+        var positionObj = this.getWindowPosition(wWidth, wHeight);
+        this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
       } else {
-        var url = 'http://tp.mingdao.com/qq/authRequest';
+        var url = md.global.Config.WebUrl + 'orgsso/qq/auth';
         var wWidth = 750;
         var wHeight = 500;
         var positionObj = this.getWindowPosition(wWidth, wHeight);
         this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
       }
     } else {
-      const text = type === 'weiXinBind' ? _l('微信') : 'QQ';
+      const text = type === 'googleBind' ? _l('谷歌') : type === 'weiXinBind' ? _l('微信') : 'QQ';
       Dialog.confirm({
         title: _l('解绑%0', text),
         description: _l('确认解绑%0，解绑之后不能通过%1登录？', text, text),
@@ -536,7 +551,7 @@ export default class AccountChart extends React.Component {
           </div>
         )}
 
-        {!md.global.Config.IsLocal && (
+        {(
           <Fragment>
             <div className="Font17 Bold Gray mBottom4 mTop20">{_l('第三方账户')}</div>
             <div className="Gray_75 mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
@@ -549,7 +564,10 @@ export default class AccountChart extends React.Component {
                 return (
                   <span className="bingingItem" key={`bingingItem-${key}`}>
                     {iconIsImage ? (
-                      <img src={workwxImg} className="mRight8 iconImg" />
+                      <img
+                        src={key === 'googleBind' ? googleImg : workwxImg}
+                        className={cx('mRight8 iconImg', { googleImg: key === 'googleBind' })}
+                      />
                     ) : (
                       <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
                     )}

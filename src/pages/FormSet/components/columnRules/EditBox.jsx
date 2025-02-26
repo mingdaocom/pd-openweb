@@ -172,6 +172,7 @@ class EditBox extends React.Component {
               ) : (
                 <ActionDropDown
                   actionError={actionError}
+                  showSelectAll={true}
                   actionType={actionItem.type}
                   values={actionItem.controls}
                   dropDownData={filterControls}

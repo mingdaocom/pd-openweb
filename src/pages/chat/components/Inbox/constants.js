@@ -273,7 +273,12 @@ export const DROPDOWN_GROUPLIST = {
   [INBOXTYPES.SYSTEM]: [TYPES.SystemMessage],
   [INBOXTYPES.KC]: [TYPES.KCAll],
   [INBOXTYPES.WORKSHEET]: [TYPES.WorkSheetAll, TYPES.WorkSheetMentioned, TYPES.WorkSheetReply, TYPES.WorkSheetMessage],
-  [INBOXTYPES.WORKFLOW]: [TYPES.WorkFlowAll, TYPES.WorkFlowUserTaskMessage, TYPES.WorkFlowTaskMessage, TYPES.WorkFlowSendTaskMessage],
+  [INBOXTYPES.WORKFLOW]: [
+    TYPES.WorkFlowAll,
+    TYPES.WorkFlowUserTaskMessage,
+    TYPES.WorkFlowTaskMessage,
+    TYPES.WorkFlowSendTaskMessage,
+  ],
 };
 
 export const APPID = {
@@ -281,3 +286,8 @@ export const APPID = {
 };
 
 export { SOURCE_TYPE } from 'src/components/comment/config';
+
+export const MSG_DONE_TEXT = {
+  [MSGTYPES.WorkFlowSendTaskMessage]: _l('已查看'),
+  [MSGTYPES.WorkFlowTaskMessage]: _l('已填写'),
+};

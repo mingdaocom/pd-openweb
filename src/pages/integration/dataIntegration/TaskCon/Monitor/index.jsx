@@ -105,8 +105,8 @@ const WrapCon = styled.div`
 `;
 //配置
 let lineChart = null;
-let g2plotComponent = null;
 function Monitor(props) {
+  const g2plotComponent = useRef({});
   const { currentProjectId: projectId } = props;
   const [
     {
@@ -148,7 +148,7 @@ function Monitor(props) {
   useEffect(() => {
     getG2plotComponent();
     () => {
-      g2plotComponent = null;
+      g2plotComponent.current.value = null;
       lineChart && lineChart.destroy();
     };
   }, []);
@@ -159,13 +159,16 @@ function Monitor(props) {
   }, [jobId]);
 
   useEffect(() => {
+    chantRef.current && g2plotComponent.current.value && renderChart(history);
+  }, [chantRef.current, g2plotComponent.current.value, history]);
+
+  useEffect(() => {
     getLog();
   }, [pageIndex]);
 
   const getG2plotComponent = (initChartData = history) => {
     import('@antv/g2plot').then(data => {
-      g2plotComponent = data;
-      renderChart(initChartData);
+      g2plotComponent.current.value = data;
     });
   };
 
@@ -204,7 +207,7 @@ function Monitor(props) {
           },
         );
       });
-      !g2plotComponent ? getG2plotComponent(initChartData) : renderChart(initChartData);
+      !g2plotComponent.current.value ? getG2plotComponent(initChartData) : renderChart(initChartData);
       setState({
         history: initChartData,
       });
@@ -229,9 +232,11 @@ function Monitor(props) {
   const dateArr = [
     { text: _l('最近1小时'), value: 1 },
     { text: _l('最近1天'), value: 2 },
+    { text: _l('最近1个月'), value: 3 },
+    { text: _l('最近6个月'), value: 4 },
   ];
   const renderChart = (initChartData = []) => {
-    const { Line } = g2plotComponent;
+    const { Line } = g2plotComponent.current.value;
     lineChart && lineChart.destroy();
     lineChart = new Line(chantRef.current, {
       data: initChartData,
@@ -246,7 +251,7 @@ function Monitor(props) {
             fill: '#2C3542',
             opacity: 0.45,
           },
-          formatter: date => moment(date).format('HH:mm'),
+          formatter: date => moment(date).format([3, 4].includes(showDate) ? 'YYYY-MM-DD HH:mm' : 'HH:mm'),
         },
         line: {
           style: {
@@ -371,7 +376,7 @@ function Monitor(props) {
                 <div className={cx('trCon flexRow alignItemsCenter')}>
                   <div className="item flex">{moment(Number(o.createTime)).format('YYYY-MM-DD HH:mm')}</div>
                   <div className="item flex">{!o.ip ? o.operator : `${o.operator}（${o.ip}）`}</div>
-                  <div className="item flex2">{o.center}</div>
+                  <div className="item flex2 WordBreak">{o.center}</div>
                   <div
                     className={cx('item width100 ThemeColor3', { Hand: !!o.errorDetail })}
                     onClick={() => {

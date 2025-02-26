@@ -20,7 +20,10 @@
             </span>
         </div>
         <div>
-            <span data-tip="{{= _l('未完成任务逾期的总时间向下取整，不足1天的显示0天。如：3个未完成任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}" class="fixWidth">
+            <span
+                data-tip="{{= _l('未完成任务逾期的总时间向下取整，不足1天的显示0天。如：3个未完成任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}"
+                class="fixWidth"
+            >
                 <span class="charBarNum4">{{=Math.floor(it.data.timespan_Und / 24)}}</span>天
                 <span class="block">{{= _l('逾期时间')}}</span>
             </span>
@@ -38,7 +41,10 @@
             </span>
         </div>
         <div>
-            <span data-tip="{{= _l('已完成任务逾期的总时间向下取整，不足1天的显示0天。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}" class="fixWidth">
+            <span
+                data-tip="{{= _l('已完成任务逾期的总时间向下取整，不足1天的显示0天。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}"
+                class="fixWidth"
+            >
                 <span class="charBarNum7">{{=Math.floor(it.data.timespan_Com / 24)}}</span>天
                 <span class="block">{{= _l('逾期时间')}}</span>
             </span>
@@ -68,132 +74,187 @@
     </ul>
     <ul class="folderChartTime">
         <span class="folderChartTimeTxt">{{=it.timeTxt}}</span>
-        <li class="activeClass ThemeBorderColor3 ThemeBGColor3" data-type='6'>{{= _l('%0天',7)}}</li>
-        <li data-type='13'>{{= _l('%0天',14)}}</li>
-        <li data-type='29'>{{= _l('%0天',30)}}</li>
-        <li data-type='custom'>{{= _l('自定义')}}</li>
+        <li class="activeClass ThemeBorderColor3 ThemeBGColor3" data-type="6">{{= _l('%0天',7)}}</li>
+        <li data-type="13">{{= _l('%0天',14)}}</li>
+        <li data-type="29">{{= _l('%0天',30)}}</li>
+        <li data-type="custom">{{= _l('自定义')}}</li>
     </ul>
     <div class="folderChartChargeBox Hidden">
         <i class="icon-descending-order folderChartChargeSort"></i>
-        <span class="folderChartChargeBtn"><span class="folderChartChargeTxt">{{= _l('所有负责人')}}</span><i class="icon-arrow-down-border"></i></span>
+        <span class="folderChartChargeBtn"
+            ><span class="folderChartChargeTxt">{{= _l('所有负责人')}}</span><i class="icon-arrow-down-border"></i
+        ></span>
     </div>
 </div>
 <div class="folderChartBox">
-{{?}}
-    {{?it.type === 1}}
+    {{?}} {{?it.type === 1}}
     <div class="folderChartBoxModel flexRow">
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{= _l('任务总数（个）')}}<span data-tip="{{= _l('截止到指定日期对项目下所有未完成和已完成的任务总数统计')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('任务总数（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期对项目下所有未完成和已完成的任务总数统计')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts1">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts1">{{=it.loading}}</div>
         </div>
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{= _l('未完成（个）')}}<span data-tip="{{= _l('截止到指定日期对项目下所有未完成的任务总数统计，包括正常未完成（未设置截止时间的任务视为正常未完成的任务）和逾期任务')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('未完成（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期对项目下所有未完成的任务总数统计，包括正常未完成（未设置截止时间的任务视为正常未完成的任务）和逾期任务')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts2">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts2">{{=it.loading}}</div>
         </div>
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{= _l('未开始（个）')}}<span data-tip="{{= _l('截止到指定日期，统计项目下所有未开始的任务数，包括未开始和延期未开始的任务')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('未开始（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期，统计项目下所有未开始的任务数，包括未开始和延期未开始的任务')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts14">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts14">{{=it.loading}}</div>
         </div>
     </div>
     <div class="folderChartBoxModel flexRow">
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{= _l('进行中（个）')}}<span data-tip="{{= _l('截止到指定日期，统计项目下所有进行中的任务数（起止时间都未设置的视为进行中），包括未设置的、正常和逾期未完成的任务')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('进行中（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期，统计项目下所有进行中的任务数（起止时间都未设置的视为进行中），包括未设置的、正常和逾期未完成的任务')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts15">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts15">{{=it.loading}}</div>
         </div>
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{= _l('已完成（个）')}}<span data-tip="{{= _l('截止到指定日期对项目下所有已完成的任务总数统计，包括按时完成（未设置截止时间的任务视为按时完成）和已逾期任务')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('已完成（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期对项目下所有已完成的任务总数统计，包括按时完成（未设置截止时间的任务视为按时完成）和已逾期任务')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts3">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts3">{{=it.loading}}</div>
         </div>
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{= _l('逾期时间（天）')}}<span data-tip="{{= _l('截止到指定日期对项目下所有任务的总逾期时间统计，包含：总逾期/进行中/已完成3个维度。时间向下取整，不足1天的显示0天。例如：3个任务分别逾期 20、40、60小时，各个任务中分别显示其逾期 20小时、1天、2天，累计逾期120小时，显示为总逾期5天')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('逾期时间（天）')}}<span
+                    data-tip="{{= _l('截止到指定日期对项目下所有任务的总逾期时间统计，包含：总逾期/进行中/已完成3个维度。时间向下取整，不足1天的显示0天。例如：3个任务分别逾期 20、40、60小时，各个任务中分别显示其逾期 20小时、1天、2天，累计逾期120小时，显示为总逾期5天')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts4">{{=LoadDiv()}}</div>
-        </div>
-
-    </div>
-    <div class="folderChartBoxModel flexRow">
-        <div class="flex">
-            <div class="folderChartBoxTitle">
-                {{= _l('项目趋势（个）')}}<span data-tip="{{= _l('截止到指定日期对项目下新增任务与已完成任务的对比统计')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
-            </div>
-            <div class="folderChartModel" id="folderCharts5">{{=LoadDiv()}}</div>
-        </div>
-        <div class="flex">
-            <div class="folderChartBoxTitle">
-                {{= _l('项目参与人员（个）')}}<span data-tip="{{= _l('截止到指定日期对项目下所有任务的参与人数变化的统计')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
-            </div>
-            <div class="folderChartModel" id="folderCharts6">{{=LoadDiv()}}</div>
-        </div>
-        <div class="flex">
-            <div class="folderChartBoxTitle">
-                {{= _l('未完成任务剩余时间（小时）')}}<span data-tip="{{= _l('截止到指定日期项目下所有未完成任务的剩余时间总和')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
-            </div>
-            <div class="folderChartModel" id="folderCharts13">{{=LoadDiv()}}</div>
-        </div>
-    </div>
-    {{?}}
-
-    {{?it.type === 2}}
-    <div class="folderChartBoxModel flexRow">
-        <div class="flex">
-            <div class="folderChartBoxTitle">
-                {{=_l('任务数量（个）')}}<span data-tip="{{= _l('截止到目前为止任务负责人负责的所有任务总数统计，包括未完成和已完成的任务')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
-            </div>
-            <div class="folderChartModel" id="folderCharts7">{{=LoadDiv()}}</div>
-        </div>
-        <div class="flex">
-            <div class="folderChartBoxTitle">
-                {{=_l('按时完成（个）')}}<span data-tip="{{= _l('截止到目前为止任务负责人按时完成任务数统计')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
-            </div>
-            <div class="folderChartModel" id="folderCharts8">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts4">{{=it.loading}}</div>
         </div>
     </div>
     <div class="folderChartBoxModel flexRow">
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{=_l('逾期任务数（个）')}}<span data-tip="{{= _l('截止到目前为止任务负责人负责的任务逾期数统计，包含未完成和已完成的任务')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('项目趋势（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期对项目下新增任务与已完成任务的对比统计')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts9">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts5">{{=it.loading}}</div>
         </div>
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{=_l('逾期时间（天）')}}<span data-tip="{{= _l('截止到目前为止任务负责人负责的任务逾期时间统计，包含进行中和已完成的逾期时间，向下取整。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{= _l('项目参与人员（个）')}}<span
+                    data-tip="{{= _l('截止到指定日期对项目下所有任务的参与人数变化的统计')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts10">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts6">{{=it.loading}}</div>
+        </div>
+        <div class="flex">
+            <div class="folderChartBoxTitle">
+                {{= _l('未完成任务剩余时间（小时）')}}<span
+                    data-tip="{{= _l('截止到指定日期项目下所有未完成任务的剩余时间总和')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
+            </div>
+            <div class="folderChartModel" id="folderCharts13">{{=it.loading}}</div>
+        </div>
+    </div>
+    {{?}} {{?it.type === 2}}
+    <div class="folderChartBoxModel flexRow">
+        <div class="flex">
+            <div class="folderChartBoxTitle">
+                {{=_l('任务数量（个）')}}<span
+                    data-tip="{{= _l('截止到目前为止任务负责人负责的所有任务总数统计，包括未完成和已完成的任务')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
+            </div>
+            <div class="folderChartModel" id="folderCharts7">{{=it.loading}}</div>
+        </div>
+        <div class="flex">
+            <div class="folderChartBoxTitle">
+                {{=_l('按时完成（个）')}}<span
+                    data-tip="{{= _l('截止到目前为止任务负责人按时完成任务数统计')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
+            </div>
+            <div class="folderChartModel" id="folderCharts8">{{=it.loading}}</div>
         </div>
     </div>
     <div class="folderChartBoxModel flexRow">
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{=_l('平均完成任务时间（天）')}}<span data-tip="{{= _l('截止到目前为止任务负责人平均完成任务的时间统计，向下取整。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}" class="fixWidth"><i class="icon-task-folder-message"></i></span>
+                {{=_l('逾期任务数（个）')}}<span
+                    data-tip="{{= _l('截止到目前为止任务负责人负责的任务逾期数统计，包含未完成和已完成的任务')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts11">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts9">{{=it.loading}}</div>
+        </div>
+        <div class="flex">
+            <div class="folderChartBoxTitle">
+                {{=_l('逾期时间（天）')}}<span
+                    data-tip="{{= _l('截止到目前为止任务负责人负责的任务逾期时间统计，包含进行中和已完成的逾期时间，向下取整。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
+            </div>
+            <div class="folderChartModel" id="folderCharts10">{{=it.loading}}</div>
+        </div>
+    </div>
+    <div class="folderChartBoxModel flexRow">
+        <div class="flex">
+            <div class="folderChartBoxTitle">
+                {{=_l('平均完成任务时间（天）')}}<span
+                    data-tip="{{= _l('截止到目前为止任务负责人平均完成任务的时间统计，向下取整。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}"
+                    class="fixWidth"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
+            </div>
+            <div class="folderChartModel" id="folderCharts11">{{=it.loading}}</div>
         </div>
         <div class="flex nullSource"></div>
     </div>
-    {{?}}
-
-    {{?it.type === 3}}
+    {{?}} {{?it.type === 3}}
     <div class="folderChartBoxModel flexRow">
         <div class="flex">
             <div class="folderChartBoxTitle">
-                {{=_l('当前看板任务情况（个）')}}<span data-tip="{{= _l('截止到目前为止各个项目看板下未完成和已完成的任务数量统计')}}" class="tip-bottom-right"><i class="icon-task-folder-message"></i></span>
+                {{=_l('当前看板任务情况（个）')}}<span
+                    data-tip="{{= _l('截止到目前为止各个项目看板下未完成和已完成的任务数量统计')}}"
+                    class="tip-bottom-right"
+                    ><i class="icon-task-folder-message"></i
+                ></span>
             </div>
-            <div class="folderChartModel" id="folderCharts12">{{=LoadDiv()}}</div>
+            <div class="folderChartModel" id="folderCharts12">{{=it.loading}}</div>
         </div>
     </div>
-    {{?}}
-{{?it.isFirst}}
+    {{?}} {{?it.isFirst}}
 </div>
 {{?}}

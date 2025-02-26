@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
-import { Dialog, Switch, Icon } from 'ming-ui';
-import { Button, Select, Tooltip, Input, Divider } from 'antd';
+import { Dialog, Switch, Icon, Radio } from 'ming-ui';
+import { Button, Select, Tooltip, Input, Divider, Checkbox, InputNumber } from 'antd';
 import PasswordRuleDialog from './components/PasswordRuleDialog';
 import { formatNumberFromInput } from 'src/util';
 import { updateSysSettings } from '../common';
@@ -14,6 +14,7 @@ const Register = props => {
   const [enableTwoFactorAuthentication, setEnableTwoFactorAuthentication] = useState(
     SysSettings.enableTwoFactorAuthentication,
   );
+  const [enableMultipleDevicesUse, setEnableMultipleDevicesUse] = useState(SysSettings.enableMultipleDevicesUse);
 
   const handleChangeEnableTwoFactorAuthentication = () => {
     const value = !enableTwoFactorAuthentication;
@@ -68,9 +69,39 @@ const Register = props => {
     );
   };
 
+  const renderAllowLoginSameTime = () => {
+    return (
+      <div className="flexRow valignWrapper">
+        <div className="flex flexColumn mRight60">
+          <div className="Font14 bold mBottom8">{_l('允许同时登录')}</div>
+          <div className="Gray_9e">
+            {_l(
+              '开启时，平台账户可自行配置设备登录限制(账户管理-->安全设置)；关闭后，平台用户仅可在同设备类型登录一个终端，例如在Web浏览器登录后，将会使其他Web浏览器登录的同一账号强制退出登录，以确保账户登录安全，手机APP同理',
+            )}
+          </div>
+        </div>
+        <Switch
+          checked={enableMultipleDevicesUse}
+          onClick={value => {
+            value = !value;
+            updateSysSettings(
+              {
+                enableMultipleDevicesUse: value,
+              },
+              () => {
+                setEnableMultipleDevicesUse(value);
+                md.global.SysSettings.enableMultipleDevicesUse = value;
+              },
+            );
+          }}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="privateCardWrap flexColumn">
-      <div className="Font17 bold mBottom25">{_l('登录验证')}</div>
+      <div className="Font17 bold mBottom25">{_l('登录')}</div>
       <div className="flexRow valignWrapper">
         <div className="flex flexColumn mRight60">
           <div className="Font14 bold mBottom8">{_l('二次验证')}</div>
@@ -97,6 +128,160 @@ const Register = props => {
         <Tooltip title={_l('登录时优先采用设置的验证方式进行验证')} placement="bottom">
           <Icon className="Font16 Gray_bd pointer" icon="info_outline" />
         </Tooltip>
+      </div>
+      <Divider className="mTop20 mBottom20" />
+      <LoginSession {...props} />
+      <Divider className="mTop20 mBottom20" />
+      {renderAllowLoginSameTime()}
+    </div>
+  );
+};
+
+const LoginSession = props => {
+  const [isEdit, setIsEdit] = useState(false);
+  const { SysSettings } = md.global;
+  const [sysSettings, setSysSetting] = useState(_.pick(SysSettings, ['sessionWeb', 'sessionApp', 'sessionWebPortal']));
+  const minMinutes = 10;
+  const sessionList = [
+    {
+      title: _l('Web 系统账号'),
+      key: 'sessionWeb',
+    },
+    {
+      title: _l('Web 外部门户'),
+      key: 'sessionWebPortal',
+    },
+    {
+      title: _l('APP'),
+      key: 'sessionApp',
+    },
+  ];
+
+  return (
+    <div className="">
+      <div className="flex flexColumn mRight60">
+        <div className="Font14 bold mBottom8">{_l('登录有效期')}</div>
+        <div className="Gray_9e mBottom5">
+          {_l('有效期不能小于%0分钟。当勾选活跃时自动延长有效期时，有效期将从活跃时刻重新计时', minMinutes)}
+        </div>
+      </div>
+      <div className="">
+        {sessionList.map(o => {
+          const data = safeParse(sysSettings[o.key] || '');
+          if (!data.v && !isEdit) return '';
+          const saveSession = value => {
+            const info = JSON.stringify({ ...data, ...value });
+            setSysSetting({ ...sysSettings, [o.key]: info });
+          };
+          //输入非负整数，单位支持分钟、小时、天，默认用小时
+          const handleValue = value => {
+            let num = parseInt(value);
+            if (data.t === 1) {
+              num = isNaN(num) || num < minMinutes ? minMinutes : num;
+            }
+            saveSession({ v: num });
+          };
+
+          let text = '';
+          if (!isEdit) {
+            let v = data.v || minMinutes;
+            if (data.r) {
+              text =
+                data.t === 1
+                  ? _l('%0分钟，活跃时自动延长有效期', v)
+                  : data.t === 2
+                    ? _l('%0小时，活跃时自动延长有效期', v)
+                    : _l('%0天，活跃时自动延长有效期', v);
+            } else {
+              text = data.t === 1 ? _l('%0分钟', v) : data.t === 2 ? _l('%0小时', v) : _l('%0天', v);
+            }
+          }
+
+          return (
+            <div className="settingItem ">
+              {isEdit ? (
+                <React.Fragment>
+                  <div className="settingLabel Gray_75 Bold mTop8">{o.title}</div>
+                  <div className="flexRow valignWrapper mTop8">
+                    <InputNumber
+                      className="Width120"
+                      min={0}
+                      value={data.v}
+                      onBlur={e => handleValue(e.target.value)}
+                      placeholder={_l('请输入')}
+                      type="number"
+                    />
+                    <Select
+                      style={{ width: 80 }}
+                      className="mLeft10"
+                      value={data.t || 2}
+                      suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                      onChange={value => saveSession({ t: value })}
+                    >
+                      <Select.Option value={1}>{_l('分钟')}</Select.Option>
+                      <Select.Option value={2}>{_l('小时')}</Select.Option>
+                      <Select.Option value={3}>{_l('天%250125')}</Select.Option>
+                    </Select>
+                    <Checkbox checked={data.r} className="mLeft10" onChange={() => saveSession({ r: !data.r })}>
+                      {_l('活跃时自动延长有效期')}
+                    </Checkbox>
+                  </div>
+                </React.Fragment>
+              ) : (
+                <div className="flexRow valignWrapper mTop8">
+                  <span className="settingLabel Gray_75" style={{ width: 200 }}>
+                    {o.title}
+                  </span>
+                  <span className="settingValue className='mLeft10'">{text}</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        <div className="mTop10">
+          {isEdit ? (
+            <React.Fragment>
+              <Button
+                type="primary"
+                onClick={() => {
+                  let isErr = false;
+                  let info = sysSettings;
+                  sessionList.map(o => {
+                    let data = safeParse(info[o.key] || '');
+                    if (data.v) {
+                      info = { ...info, [o.key]: JSON.stringify({ ...data, t: data.t || 2, r: !!data.r }) };
+                    } else {
+                      if (data.r || (data.t && data.t !== 2)) {
+                        isErr = true;
+                      } else {
+                        info = { ...info, [o.key]: undefined };
+                      }
+                    }
+                  });
+                  if (isErr) {
+                    alert(_l('请输入有效时间'), 3);
+                    return;
+                  }
+                  updateSysSettings(info, () => {
+                    sessionList.map(o => {
+                      md.global.SysSettings[o.key] = info[o.key];
+                    });
+                    setIsEdit(false);
+                  });
+                }}
+              >
+                {_l('保存')}
+              </Button>
+              <Button className="mLeft16" onClick={() => setIsEdit(false)}>
+                {_l('取消')}
+              </Button>
+            </React.Fragment>
+          ) : (
+            <Button ghost type="primary" onClick={() => setIsEdit(true)}>
+              {_l('设置')}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -240,7 +425,6 @@ const UserPassword = props => {
   const [passwordRegex, setPasswordRegex] = useState(SysSettings.passwordRegex);
   const [passwordRegexTip, setPasswordRegexTip] = useState(SysSettings.passwordRegexTip);
   const [passwordRuleDialogVisible, setPasswordRuleDialogVisible] = useState(false);
-  const [enableMultipleDevicesUse, setEnableMultipleDevicesUse] = useState(SysSettings.enableMultipleDevicesUse);
 
   const passwordRule = () => {
     const style = { width: 100 };
@@ -299,36 +483,6 @@ const UserPassword = props => {
     );
   };
 
-  const renderAllowLoginSameTime = () => {
-    return (
-      <div className="flexRow valignWrapper">
-        <div className="flex flexColumn mRight60">
-          <div className="Font14 bold mBottom8">{_l('允许同时登录')}</div>
-          <div className="Gray_9e">
-            {_l(
-              '开启时，平台账户可自行配置设备登录限制(账户管理-->安全设置)；关闭后，平台用户仅可在同设备类型登录一个终端，例如在Web浏览器登录后，将会使其他Web浏览器登录的同一账号强制退出登录，以确保账户登录安全，手机APP同理',
-            )}
-          </div>
-        </div>
-        <Switch
-          checked={enableMultipleDevicesUse}
-          onClick={value => {
-            value = !value;
-            updateSysSettings(
-              {
-                enableMultipleDevicesUse: value,
-              },
-              () => {
-                setEnableMultipleDevicesUse(value);
-                md.global.SysSettings.enableMultipleDevicesUse = value;
-              },
-            );
-          }}
-        />
-      </div>
-    );
-  };
-
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom25">{_l('用户密码')}</div>
@@ -337,8 +491,6 @@ const UserPassword = props => {
       {renderFirstLoginResetPassword()}
       <Divider className="mTop20 mBottom20" />
       {passwordRule()}
-      <Divider className="mTop20 mBottom20" />
-      {renderAllowLoginSameTime()}
     </div>
   );
 };
@@ -358,11 +510,7 @@ const RequiredStrictVerification = props => {
               '平台中部分接口需在未鉴权的情况下被调用，如：全局固定的配置信息；关联表字段结构；对外公开分享、查询和填写等。如果需要接口严格鉴权或响应体加密返回，可开启此配置。',
             )}
           </div>
-          <div className="mTop5">
-            {_l(
-              '注意：存在多访问地址时，仅主地址下有效',
-            )}
-          </div>
+          <div className="mTop5">{_l('注意：存在多访问地址时，仅主地址下有效')}</div>
         </div>
         <Switch
           checked={enableRequiredStrictVerification}
@@ -384,12 +532,52 @@ const RequiredStrictVerification = props => {
   );
 };
 
+const LogOutAction = props => {
+  const { SysSettings } = md.global;
+  const [sessionExpireRedirectType = 1, setSessionExpireRedirectType] = useState(SysSettings.sessionExpireRedirectType);
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="Font17 bold">{_l('账号退出时，已打开页面的处理方式')}</div>
+      <div className="mTop10">
+        {[
+          { text: _l('停留在原页面，重新登录后可继续使用'), value: 1 },
+          { text: _l('自动刷新到登录页'), value: 2 },
+        ].map((item, index) => (
+          <div className="mTop10">
+            <Radio
+              key={`sessionExpireRedirectType_${index}`}
+              text={item.text}
+              checked={sessionExpireRedirectType === item.value}
+              onClick={() => {
+                if (item.value === sessionExpireRedirectType) return;
+                updateSysSettings(
+                  {
+                    sessionExpireRedirectType: item.value,
+                  },
+                  () => {
+                    setSessionExpireRedirectType(item.value);
+                    md.global.SysSettings.sessionExpireRedirectType = item.value;
+                  },
+                );
+              }}
+            />
+            <span className="Block Gray_75 mTop10 mLeft30">
+              {item.value === 1 ? _l('常规，不影响页面中正在操作的内容') : _l('更安全，但页面中正在编辑的内容将会丢失')}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default props => {
   return (
     <Fragment>
       <Register {...props} />
       <UserPassword {...props} />
       <RequiredStrictVerification {...props} />
+      <LogOutAction {...props} />
     </Fragment>
   );
 };

@@ -223,7 +223,7 @@ export default class XAxis extends Component {
                     }}
                   >
                     <div className="flex">{item.text}</div>
-                    <div className="Gray_75 Font12">{item.getTime()}</div>
+                    <div className="Gray_75 Font12">{item.getTime(xaxes.showFormat)}</div>
                   </Menu.Item>
                 ))}
               </Menu.ItemGroup>

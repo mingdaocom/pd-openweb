@@ -12,7 +12,8 @@ import addOtherUserTpl from './tpl/addOtherUser.html';
 import ClassificationCalendarHtml from './tpl/ClassificationCalendar.html';
 import { dialogSelectUser } from 'ming-ui/functions';
 import calendarAjax from 'src/api/calendar';
-import { Dialog, UserHead, UserCard } from 'ming-ui';
+import { Dialog, UserHead, UserCard, LoadDiv } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
 
 Toolbar.settings = {
   oldCategoryList: [],
@@ -437,7 +438,7 @@ Toolbar.Method = {
   init: function () {
     // 往页面上添加右边模块元素
     $('#calendarTypeList').html(Toolbar.Comm.doT.template(toolbarTpl)(Toolbar.Comm.settings));
-    $('#sortable').append(LoadDiv());
+    $('#sortable').append(renderToString(<LoadDiv />));
     // 查找用户所有分类
     Toolbar.Comm.getUserAllCalCategories(function (categorys) {
       if (categorys) {

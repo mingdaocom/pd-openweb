@@ -103,10 +103,7 @@ function NewRecord(props) {
     !isDraft &&
     (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1') &&
     showDraftsEntry;
-  const showDraftList =
-    !window.isPublicApp &&
-    (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1') &&
-    !_.isEmpty(worksheetInfo);
+  const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
   const ua = window.navigator.userAgent.toLowerCase();
   const isHonor = ua.match(/honor/i) == 'honor';
 
@@ -352,6 +349,7 @@ function NewRecord(props) {
       onSubmitBegin={() => setLoading(true)}
       onSubmitEnd={() => setLoading(false)}
       viewId=""
+      handleAdd={handleAdd}
     />
   );
 

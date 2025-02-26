@@ -154,7 +154,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     .then(result => {
       if (pageIndex === 1) {
         const { controls } = result.template;
-        const titleControl = _.find(controls, { attribute: 1 });
+        const titleControl = _.find(controls, { attribute: 1 }) || {};
         const fileControls = controls.filter(item => item.type === 14);
         dispatch({
           type: 'MOBILE_RELATION_ROW',

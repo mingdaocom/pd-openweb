@@ -140,7 +140,6 @@ export default class Template extends Component {
             >
               {_l('门户设置')}
             </a>
-            {_l('操作')}
           </div>
         )}
       </Fragment>

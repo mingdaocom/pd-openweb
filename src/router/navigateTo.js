@@ -1,8 +1,9 @@
 import login from 'src/api/login';
 import { getAppFeaturesPath, browserIsMobile } from 'src/util';
-import { getSuffix } from 'src/pages/accountLogin/portalAccount/util';
+import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import _ from 'lodash';
 import project from 'src/api/project';
+import { Dialog } from 'ming-ui';
 
 export function fillUrl(url) {
   const hash = url.split('#')[1] || '';
@@ -75,8 +76,7 @@ export function navigateTo(url, isReplace = false, noRedirect = false) {
 }
 
 /** 获取登录地址  */
-const getLoginUrl = (redirectUrl) => {
-
+const getLoginUrl = redirectUrl => {
   if (redirectUrl) return redirectUrl;
 
   if (_.get(md, 'global.Account.isSSO') && _.get(md, 'global.SysSettings.enableSso')) {
@@ -87,8 +87,10 @@ const getLoginUrl = (redirectUrl) => {
 };
 
 /** 跳转到 登录页 */
+let pendingCheckLogin;
+
 export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirectUrl } = {}) {
-  function handleNavigate() {
+  const handleNavigate = (newTab = false) => {
     const host = location.host;
     const link = needReturnUrl ? `?ReturnUrl=${encodeURIComponent(location.href)}` : ``;
     let isSubDomain = true;
@@ -98,21 +100,54 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
     //}
 
     let loginUrl = getLoginUrl(redirectUrl);
-    location.href = loginUrl
+    const url = loginUrl
       ? loginUrl
       : isSubDomain
       ? `${window.subPath || ''}/network${link}`
       : `${window.subPath || ''}/login${link}`;
-    window.isWaiting = true;
-  }
+
+    if (newTab) {
+      window.open(url + '#autoClose=true');
+    } else {
+      location.href = url;
+      window.isWaiting = true;
+    }
+  };
+  const checkLogin = newTab => {
+    login.checkLogin().then(isLogin => {
+      if (!isLogin) {
+        browserIsMobile() || _.get(md, 'global.SysSettings.sessionExpireRedirectType') === 2
+          ? handleNavigate()
+          : newTab
+          ? handleNavigate(true)
+          : loginFailDialog();
+      }
+
+      pendingCheckLogin = '';
+    });
+  };
+  const loginFailDialog = () => {
+    if (document.getElementsByClassName('loginFailDialog').length) return;
+
+    Dialog.confirm({
+      className: 'loginFailDialog',
+      title: _l('登录已失效'),
+      description: _l('重新登录以继续使用'),
+      width: 360,
+      onlyClose: true,
+      closable: false,
+      removeCancelBtn: true,
+      buttonType: 'link',
+      okText: _l('登录'),
+      okClassName: 'pLeft0 pRight0 ThemeColor3 ThemeHoverColor2 minWidth0',
+      onOk: () => checkLogin(true),
+    });
+  };
+
   if (needSecondCheck) {
-    setTimeout(() => {
-      login.checkLogin().then(isLogin => {
-        if (!isLogin) {
-          handleNavigate();
-        }
-      });
-    }, 2000);
+    if (pendingCheckLogin) return;
+
+    pendingCheckLogin = setTimeout(checkLogin, 2000);
   } else {
     handleNavigate();
   }

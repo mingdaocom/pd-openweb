@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Icon, Tooltip, SvgIcon } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, ProcessParameters, SelectAuthAccount } from '../components';
+import { DetailHeader, DetailFooter, ProcessParameters, SelectAuthAccount, FindResult } from '../components';
 import cx from 'classnames';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
@@ -78,7 +78,7 @@ export default class Api extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, appId, fields, hasAuth, authId } = data;
+    const { name, appId, fields, hasAuth, authId, executeType } = data;
     const subProcessVariables = _.cloneDeep(data.subProcessVariables);
     let hasError = 0;
 
@@ -87,8 +87,12 @@ export default class Api extends Component {
     }
 
     subProcessVariables.forEach(item => {
-      if (item.type === 10000008 && fields.find(o => o.fieldId === item.controlId).nodeId) {
-        _.remove(subProcessVariables, o => o.dataSource === item.controlId);
+      if (item.type === 10000008) {
+        const { fieldValueId, nodeId, required } = fields.find(o => o.fieldId === item.controlId);
+
+        if ((fieldValueId && nodeId) || !required) {
+          _.remove(subProcessVariables, o => o.dataSource === item.controlId);
+        }
       }
     });
 
@@ -121,6 +125,7 @@ export default class Api extends Component {
         appId,
         fields,
         authId,
+        executeType,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -134,6 +139,7 @@ export default class Api extends Component {
    * 渲染内容
    */
   renderContent() {
+    const { selectNodeType } = this.props;
     const { data } = this.state;
 
     return (
@@ -220,6 +226,14 @@ export default class Api extends Component {
             <div className="mTop20 bold">{_l('传递参数')}</div>
             <ProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
           </Fragment>
+        )}
+
+        {data.appId && (
+          <FindResult
+            nodeType={selectNodeType}
+            executeType={data.executeType}
+            switchExecuteType={executeType => this.updateSource({ executeType })}
+          />
         )}
       </Fragment>
     );

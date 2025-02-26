@@ -6,9 +6,10 @@ import cx from 'classnames';
 import { Icon, Dropdown, Tooltip, Support, SortableList } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getSortData } from 'src/pages/worksheet/util';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { filterSysControls, getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
+import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
 
 const ConditionsWrap = styled.div`
   .operateBtn {
@@ -88,8 +89,8 @@ const Item = props => {
           {...(isOtherShowFeild(control)
             ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
             : !control
-              ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
-              : {})}
+            ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
+            : {})}
         />
         <Dropdown
           border
@@ -152,12 +153,15 @@ export default class SortConditions extends React.Component {
 
   getNewState = props => {
     props = props || this.props;
-    const { showSystemControls, sortConditions, isSubList } = props;
+    const { showSystemControls, sortConditions, isSubList, onlyShowSystemDateControl } = props;
     let { columns } = props;
     if (showSystemControls) {
       columns = columns
         .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
         .concat(SYSTEM_CONTROLS);
+    }
+    if (onlyShowSystemDateControl) {
+      columns = filterSysControls(columns).concat(SYSTEM_DATE_CONTROL);
     }
     return {
       columns,

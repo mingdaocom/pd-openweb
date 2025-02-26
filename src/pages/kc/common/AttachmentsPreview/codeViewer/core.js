@@ -51,10 +51,23 @@ export function renderMarkdown(src, cb = () => {}) {
     .catch(cb);
 }
 
+function decode(arrayBuffer) {
+  const encodings = ['utf-8', 'gbk', 'iso-8859-1']; // 常见的编码列表
+  for (let encoding of encodings) {
+    try {
+      const decoder = new TextDecoder(encoding, { fatal: true });
+      const text = decoder.decode(arrayBuffer);
+      return { encoding, text };
+    } catch (e) {}
+  }
+  return null;
+}
+
 export function renderTxt(src, cb = () => {}) {
   fetch(src)
-    .then(res => res.text())
-    .then(text => {
-      cb(null, text);
+    .then(res => res.arrayBuffer())
+    .then(arrayBuffer => {
+      const result = decode(arrayBuffer);
+      cb(null, result.text);
     });
 }

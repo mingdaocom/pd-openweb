@@ -6,16 +6,15 @@ import styled from 'styled-components';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
 import { Icon, Button } from 'ming-ui';
-import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import SheetRows, { WithoutRows } from '../../SheetRows';
-import { SpinLoading, Dialog, Popup } from 'antd-mobile';
+import { SpinLoading, Popup } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
 import RecordAction from 'mobile/components/RecordInfo/RecordAction';
 import processAjax from 'src/pages/workflow/api/process';
 import { replaceBtnsTranslateInfo } from 'worksheet/util';
-import _, { pick } from 'lodash';
+import _ from 'lodash';
 
 const BatchOptBtn = styled.div`
   display: flex;
@@ -78,7 +77,17 @@ class SheetView extends Component {
     this.props.changeBatchOptVisible(false);
   }
   renderWithoutRows() {
-    const { appId, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view, activeSavedFilter = {} } = this.props;
+    const {
+      appId,
+      worksheetInfo,
+      sheetSwitchPermit,
+      filters,
+      quickFilter,
+      view,
+      activeSavedFilter = {},
+      hasGroupFilter,
+      mobileNavGroupFilters,
+    } = this.props;
     const handlePullToRefresh = () => {
       this.props.updateIsPullRefreshing(true);
       this.props.changePageIndex(1);
@@ -90,6 +99,16 @@ class SheetView extends Component {
 
     if (quickFilter.length || !_.isEmpty(activeSavedFilter)) {
       return <WithoutRows text={_l('没有符合条件的记录')} />;
+    }
+
+    const navGroupToSearch =
+      hasGroupFilter &&
+      _.get(view, 'advancedSetting.appnavtype') === '3' &&
+      _.get(view, 'advancedSetting.showallitem') === '1' &&
+      !_.get(view, 'navGroup[0].viewId');
+
+    if (navGroupToSearch && _.isEmpty(mobileNavGroupFilters)) {
+      return <WithoutRows text={_l('请从左侧选择一个')} />;
     }
 
     return (
@@ -167,11 +186,7 @@ class SheetView extends Component {
       showButtons: !this.state.showButtons,
     });
   };
-  // 批量操作全选
-  selectedAll = () => {
-    const { batchCheckAll } = this.props;
-    this.props.updateBatchCheckAll(!batchCheckAll);
-  };
+
   comfirmDelete = () => {
     const {
       batchOptCheckedData = [],
@@ -365,28 +380,18 @@ class SheetView extends Component {
   render() {
     const {
       view,
-      filters,
       worksheetInfo,
-      quickFilter,
       batchOptCheckedData,
       batchOptVisible,
       sheetSwitchPermit,
-      appDetail,
       appId,
       worksheetId,
       viewId,
       changeActionSheetModalIndex,
-      quickFilterWithDefault,
-      savedFilters,
       batchCheckAll,
-      activeSavedFilter,
-      updateFilters = () => {},
-      updateActiveSavedFilter = () => {},
     } = this.props;
-    const { detail } = appDetail;
+
     let { customBtns = [], showButtons, customButtonLoading, deleteVisible } = this.state;
-    const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const isFilter = quickFilter.length;
     let checkedCount = batchOptCheckedData.length;
     const canDelete =
       isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
@@ -394,34 +399,6 @@ class SheetView extends Component {
       isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
     return (
       <Fragment>
-        {batchOptVisible && (
-          <div className="batchOptBar flexRow Font16">
-            <a
-              onClick={() => {
-                this.props.changeBatchOptVisible(false);
-                this.props.changeBatchOptData([]);
-              }}
-            >
-              {_l('完成')}
-            </a>
-            {_.isEmpty(batchOptCheckedData) && <span>{_l('请选择')}</span>}
-            {!_.isEmpty(batchOptCheckedData) && <span>{_l(`已选中%0条`, checkedCount)}</span>}
-            <a onClick={this.selectedAll}>{batchCheckAll ? _l('取消全选') : _l('全选')}</a>
-          </div>
-        )}
-        <QuickFilterSearch
-          isFilter={isFilter}
-          filters={filters}
-          detail={detail}
-          view={view}
-          worksheetInfo={worksheetInfo}
-          sheetControls={sheetControls}
-          updateFilters={updateFilters}
-          quickFilterWithDefault={quickFilterWithDefault}
-          savedFilters={savedFilters}
-          activeSavedFilter={activeSavedFilter}
-          updateActiveSavedFilter={updateActiveSavedFilter}
-        />
         {this.renderContent()}
         {batchOptVisible && (canDelete || showCusTomBtn) && (
           <BatchOptBtn>
@@ -536,8 +513,8 @@ export default connect(
         'quickFilterWithDefault',
         'isPullRefreshing',
         'batchCheckAll',
-        'savedFilters',
         'activeSavedFilter',
+        'mobileNavGroupFilters',
       ]),
       sheetViewConfig: sheet.sheetview.sheetViewConfig,
       navGroupFilters: sheet.navGroupFilters,
@@ -549,11 +526,8 @@ export default connect(
       {
         ..._.pick(actions, [
           'fetchSheetRows',
-          'updateFilters',
           'changeBatchOptVisible',
           'changeBatchOptData',
-          'updateBatchCheckAll',
-          'updateActiveSavedFilter',
           'changePageIndex',
           'updateIsPullRefreshing',
         ]),

@@ -30,7 +30,7 @@ var custom = {
   /**
    * 保存自定义页面
    * @param {Object} args 请求参数
-   * @param {保存自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),components:组件列表(array),config:参数，仅供前端使用(object),version:版本(integer),}*savePageRequest
+   * @param {保存自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),components:组件列表(array),config:参数，仅供前端使用(object),urlParams:链接参数(array),version:版本(integer),}*savePageRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -54,7 +54,7 @@ var custom = {
   /**
    * 保存自定义页面配置说明和强转适应屏幕
    * @param {Object} args 请求参数
-   * @param {更新自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),config:参数，仅供前端使用(object),desc:页面说明(string),}*updatePageRequest
+   * @param {更新自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),config:参数，仅供前端使用(object),desc:页面说明(string),urlParams:链接参数(array),}*updatePageRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

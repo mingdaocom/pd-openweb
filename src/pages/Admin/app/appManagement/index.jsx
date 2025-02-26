@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import './index.less';
-import { Link } from 'react-router-dom';
 import {
   LoadDiv,
   Dropdown,
@@ -14,6 +13,7 @@ import {
   Tooltip,
   UserHead,
   UpgradeIcon,
+  MdLink,
 } from 'ming-ui';
 import cx from 'classnames';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
@@ -614,6 +614,7 @@ export default class AppManagement extends Component {
         filterFriend: true,
         filterOthers: true,
         filterOtherProject: true,
+        filterResigned: false,
         selectedAccountIds: [accountId],
         projectId: this.props.match.params.projectId,
         unique: true,
@@ -779,14 +780,14 @@ export default class AppManagement extends Component {
             {!md.global.Config.IsLocal && (_.isEmpty(version) || version.versionIdV2 === '1') && (
               <Fragment>
                 {licenseType === 1 ? (
-                  <Link
-                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline stopPropagation"
+                  <MdLink
+                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
                     to={`/admin/upgradeservice/${this.props.match.params.projectId}${
                       vertionType ? '/' + vertionType : ''
                     }`}
                   >
                     {_l('升级版本')}
-                  </Link>
+                  </MdLink>
                 ) : (
                   <a
                     href="javascript:void(0);"

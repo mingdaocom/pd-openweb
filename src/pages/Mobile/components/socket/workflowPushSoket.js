@@ -22,7 +22,7 @@ export default () => {
   md.global.Config.pushUniqueId = (+new Date()).toString();
 
   IM.socket.on('workflow_push', result => {
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && window.MDJS && window.MDJS.workflowPushMessage) {
       window.MDJS.workflowPushMessage({
         message: result,
       });

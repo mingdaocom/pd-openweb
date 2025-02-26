@@ -188,6 +188,16 @@ function Edit(params) {
     }
     updateCurrentView(Object.assign(view, param));
   };
+
+  const getShowTypeForDataRange = () => {
+    const controlData = worksheetControls.find(item => item.controlId === control.controlId) || {};
+    const { type } = controlData;
+    if (type === 38) {
+      return _.get(controlData, 'unit');
+    }
+    return _.get(controlData, 'advancedSetting.showtype');
+  };
+
   return (
     <React.Fragment>
       <div className="con flex">
@@ -388,10 +398,7 @@ function Edit(params) {
           <DateTimeDataRange
             daterange={getDaterange()}
             dateRangeType={_.get(control, 'dateRangeType')}
-            showType={_.get(
-              worksheetControls.find(item => item.controlId === control.controlId) || {},
-              'advancedSetting.showtype',
-            )}
+            showType={getShowTypeForDataRange()}
             key={`${advancedSetting.daterange}_${_.get(control, 'dateRangeType')}`}
             onChange={data => {
               updateViewSet({

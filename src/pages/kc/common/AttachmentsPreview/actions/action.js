@@ -233,6 +233,7 @@ export function getAttachmentEditDetail(params) {
         parentWorksheetId: masterWorksheetId,
         parentRowId: masterRecordId,
         foreignControlId: masterControlId,
+        editType: 1, // 1:表单内附件 2:打印模板
       })
       .then(res => {
         dispatch({ type: 'ATTACHMENT_EDIT_DETAIL', wpsEditUrl: res.wpsEditUrl });

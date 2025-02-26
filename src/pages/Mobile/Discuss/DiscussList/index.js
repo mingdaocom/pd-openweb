@@ -99,7 +99,7 @@ class DiscussList extends Component {
     return (
       <List.Item key={item.discussionId} prefix={<img src={item.createAccount.avatar} />}>
         <div className="flexRow alignItemsCenter">
-          <div className="flex Font14 Gray bold">
+          <div className="flex Font14 Gray bold breakAll">
             <span>{item.createAccount.fullname}</span>
             {!!item.replyId && (
               <Fragment>

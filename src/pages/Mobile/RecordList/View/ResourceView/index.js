@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import ResourceView from 'src/pages/worksheet/views/ResourceView';
 import ViewErrorPage from '../components/ViewErrorPage';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { isRelateRecordTableControl } from 'worksheet/util';
@@ -32,14 +31,23 @@ function MobileResourceView(props) {
         sheetSwitchPermit,
       ) || []
     ).find(it => it.controlId === view.viewControl) || {};
+  const [Component, setComponent] = useState(null);
+
+  useEffect(() => {
+    import('src/pages/worksheet/views/ResourceView').then(component => {
+      setComponent(component.default);
+    });
+  }, []);
 
   if (!viewControlInfo.controlId) {
     return <ViewErrorPage icon="arrows_square" viewName={view.name + _l('视图')} color="#4caf50" />;
   }
 
+  if (!Component) return;
+
   return (
     <ResourceViewWrap>
-      <ResourceView {...props} />;
+      <Component {...props} />;
     </ResourceViewWrap>
   );
 }

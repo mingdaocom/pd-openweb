@@ -9,6 +9,7 @@ import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum
 import sheetAjax from 'src/api/worksheet';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { getDepartmentName } from '../util';
 import '../WorksheetRecordLogValue.less';
 
 function MaskCell(props) {
@@ -143,7 +144,7 @@ function WorksheetRecordLogSubTable(props) {
                     value2: value,
                   };
 
-                  let content = renderText(cell);
+                  let content = cell.type === 27 ? null : renderText(cell);
 
                   if (content) {
                     return <MaskCell cell={cell} />;
@@ -235,17 +236,25 @@ function WorksheetRecordLogSubTable(props) {
           );
         });
       }
-      if (type === 36) {
-        _value = String(_value) === '1' ? '☑' : '☐';
-      }
-      if (type === 35) {
-        const titleControl = cell.relationControls.find(l => l.controlId === cell.sourceTitleControlId);
-        _value = titleControl
-          ? renderText({
-              ...titleControl,
-              value: [11].includes(titleControl.type) ? JSON.stringify([value]) : value,
-            }) || value
-          : value;
+
+      switch (type) {
+        case 36:
+          _value = String(_value) === '1' ? '☑' : '☐';
+          break;
+        case 35:
+          const titleControl = cell.relationControls.find(l => l.controlId === cell.sourceTitleControlId);
+          _value = titleControl
+            ? renderText({
+                ...titleControl,
+                value: [11].includes(titleControl.type) ? JSON.stringify([value]) : value,
+              }) || value
+            : value;
+          break;
+        case 27:
+          _value = _value.map(l => getDepartmentName(cell, l)).join('、');
+          break;
+        default:
+          break;
       }
 
       return typeof _value === 'string' ? (
@@ -270,7 +279,7 @@ function WorksheetRecordLogSubTable(props) {
         value: typeof item !== 'string' ? JSON.stringify([item]) : item,
         value2: [42, 11, 10].includes(control.type) ? item : [item],
       };
-      let content = renderText(cell);
+      let content = cell.type === 27 ? null : renderText(cell);
 
       if (content) {
         return (

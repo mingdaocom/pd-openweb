@@ -29,13 +29,14 @@ import { emitter, KVGet } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { emitter as ViewEmitter } from 'src/util';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
+import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import cx from 'classnames';
 
 const Con = styled.div`
   height: 100%;
   margin: 0 -24px;
   .newRecordTitle {
-    padding: 0 24px;
+    padding: 0 32px;
     flex-shrink: 0;
   }
   .customFieldsCon {
@@ -43,7 +44,7 @@ const Con = styled.div`
     .recordInfoForm {
       flex: 1;
       min-width: 0;
-      padding: 0 24px;
+      padding: ${({ isMobile }) => (isMobile ? '0 20px' : ' 0 32px')};
       overflow-x: ${({ isMobile }) => (isMobile ? 'hidden' : 'unset')};
     }
   }
@@ -296,6 +297,11 @@ function NewRecordForm(props) {
 
             alert('保存成功', 1, 1000);
             isSubmitting.current = false;
+
+            // APP集成H5前置扫码继续扫码提交下一条
+            if (isContinue) {
+              handleAPPScanCodeFunc(originFormdata);
+            }
             let dataForAutoFill = [...formdata];
             if (advancedSetting.reservecontrols) {
               const controlIds = safeParse(advancedSetting.reservecontrols, 'array');
@@ -379,7 +385,7 @@ function NewRecordForm(props) {
     }
   }
   registerFunc({ newRecord, setRestoreVisible });
-  const RecordCon = notDialog || isMobile ? React.Fragment : ScrollView;
+  const RecordCon = notDialog ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
   const fillTempRecordValue = (tempNewRecord, formData) => {
     setIsSettingTempData(true);
@@ -403,6 +409,7 @@ function NewRecordForm(props) {
     removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
   };
   function handleRestoreTempRecord(newFormdata) {
+    if (window.isMingDaoApp) return;
     if (needCache) {
       if (window.isWxWork) {
         KVGet(`${md.global.Account.accountId}${worksheetId}-tempNewRecord`).then(data => {
@@ -418,6 +425,31 @@ function NewRecordForm(props) {
       }
     }
   }
+
+  const handleAPPScanCodeFunc = controls => {
+    const cloneControls = _.clone(controls);
+
+    handleAPPScanCode({
+      controls,
+      worksheetInfo,
+      updateData: control => {
+        const index = _.findIndex(cloneControls, c => c.controlId === control.controlId);
+        cloneControls[index] = { ...cloneControls[index], ...control };
+        setFormdata(cloneControls);
+        setRandom(Math.random());
+      },
+      handleSubmit: isContinueNext => {
+        props.handleAdd(isContinueNext);
+      },
+      handleReStart: () => {
+        setFormdata(originFormdata);
+        setRandom(Math.random().toString());
+        handleAPPScanCodeFunc(controls);
+      },
+      onCancel,
+    });
+  };
+
   useEffect(() => {
     async function load() {
       if (_.isEmpty(formdata)) {
@@ -434,6 +466,7 @@ function NewRecordForm(props) {
 
         setFormdata(newFormdata);
         setOriginFormdata(newFormdata);
+        handleAPPScanCodeFunc(newFormdata);
         setFormLoading(false);
         cache.current.focusTimer = setTimeout(() => focusInput(formcon.current), 300);
         handleRestoreTempRecord(newFormdata);
@@ -548,7 +581,7 @@ function NewRecordForm(props) {
               onClose={() => setShareVisible(false)}
             />
           )}
-          {showTitle && <div className="newRecordTitle ellipsis Font19 mBottom10 Bold">{recordTitle}</div>}
+          {showTitle && <div className="newRecordTitle ellipsis Font20 mBottom10 Bold">{recordTitle}</div>}
           <div className="customFieldsCon" ref={formcon}>
             <RecordForm
               from={2}

@@ -237,7 +237,8 @@ class TaskNode extends Component {
     if (pathIds.length <= 0) {
       return;
     }
-    const featureType = getFeatureStatus(currentProjectId, VersionProductType.datantergration);
+    const featureType = getFeatureStatus(currentProjectId, VersionProductType.dataIntegrationETL);
+
     return (
       <WrapAct>
         <ul>
@@ -249,7 +250,7 @@ class TaskNode extends Component {
                   onClick={() => {
                     //公有云的旗舰版可用
                     if (featureType === '2') {
-                      buriedUpgradeVersionDialog(currentProjectId, VersionProductType.datantergration);
+                      buriedUpgradeVersionDialog(currentProjectId, VersionProductType.dataIntegrationETL);
                       return;
                     }
                     this.onAddNode({
@@ -341,7 +342,7 @@ class TaskNode extends Component {
   };
 
   render() {
-    const { scale, nodeData = {}, currentId, onChangeCurrentNode, onUpdate, flowData } = this.props;
+    const { scale, nodeData = {}, currentId, onChangeCurrentNode, onUpdate, flowData, currentProjectId } = this.props;
     const { visible, popupVisible, showChangeName, showDel } = this.state;
     let yN = 0;
     let svgH = 0;
@@ -354,6 +355,8 @@ class TaskNode extends Component {
         (Math.abs(nodeData.pathIds[0].fromDt.x - nodeData.pathIds[0].toDt.x) - 1) * tW;
     }
     const isAct = ACTION_LIST.map(o => o.type).includes(nodeData.nodeType);
+    const featureType = getFeatureStatus(currentProjectId, VersionProductType.dataIntegrationETL);
+
     return (
       <Wrap
         className="flexRow alignItemsCenter"
@@ -438,7 +441,7 @@ class TaskNode extends Component {
           )}
         </div>
         {/*目的地后不能添加操作 */}
-        {nodeData.nodeType !== 'DEST_TABLE' && (
+        {nodeData.nodeType !== 'DEST_TABLE' && !!featureType && (
           <Trigger
             popupVisible={visible}
             action={['click']}

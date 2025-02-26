@@ -51,7 +51,7 @@ export default class XAxis extends Component {
             </Tooltip>
           </div>
         )}
-        {[reportTypes.LineChart, reportTypes.BarChart].includes(reportType) && (
+        {([reportTypes.LineChart].includes(reportType) || [reportTypes.BarChart].includes(reportType) && displaySetup.showChartType === 1) && (
           <div className="flexRow valignWrapper mLeft0 mBottom16">
             <Checkbox
               checked={style.showXAxisSlider}

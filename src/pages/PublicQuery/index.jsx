@@ -11,7 +11,7 @@ import PublicQuery from './publicquery';
 import './index.less';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
-import { getAppLangDetail } from 'src/util';
+import { shareGetAppLangDetail } from 'src/util';
 import _ from 'lodash';
 
 class WorksheetSahre extends React.Component {
@@ -51,12 +51,11 @@ class WorksheetSahre extends React.Component {
   getShareInfo = id => {
     publicWorksheetAjax
       .getPublicQueryById({
-        queryId: id,
-        langType: getCurrentLangCode(),
+        queryId: id
       })
       .then(async (res = {}) => {
         const { appId = '', worksheetId = '', projectId, template } = res.worksheet || {};
-        const { viewId = '', rowId = '', exported = false, shareAuthor, clientId, langInfo = {} } = res;
+        const { viewId = '', rowId = '', exported = false, shareAuthor, clientId } = res;
         shareAuthor && (window.shareAuthor = shareAuthor);
 
         if (clientId) {
@@ -69,10 +68,9 @@ class WorksheetSahre extends React.Component {
         shareAuthor && (window.shareAuthor = shareAuthor);
         localStorage.setItem('currentProjectId', projectId);
 
-        const lang = await getAppLangDetail({
-          langInfo,
+        const lang = await shareGetAppLangDetail({
           projectId,
-          id: appId,
+          appId,
         });
 
         if (template.controls) {

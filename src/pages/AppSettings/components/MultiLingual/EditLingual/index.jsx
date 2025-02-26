@@ -29,13 +29,14 @@ const Drag = styled.div(
 );
 
 export default function Edit(props) {
-  const { app, langs, langInfo, onBack } = props;
+  const { app, currentLangKey, langs, allLangList, langInfo, onBack } = props;
   const [selectNode, setSelectNode] = useState({ ...app, type: 'app' });
   const [expandedKeys, setExpandedKeys] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState(['app']);
   const [loading, setLoading] = useState(true);
   const [translateData, setTranslateData] = useState([]);
   const [translateStatus, setTranslateStatus] = useState(false);
+  const [machineTranslationLoading, setMachineTranslationLoading] = useState(false);
   const [comparisonLangData, setComparisonLangData] = useState([]);
   const [fillType, setFillType] = useState(1);
   const [comparisonLangId, setComparisonLangId] = useState('');
@@ -107,6 +108,10 @@ export default function Edit(props) {
   };
 
   const handleRunTranslation = () => {
+    if (machineTranslationLoading) {
+      return
+    }
+    setMachineTranslationLoading(true);
     appManagementApi
       .machineTranslation({
         appId: app.id,
@@ -118,8 +123,10 @@ export default function Edit(props) {
         if (data.message) {
           alert(data.message, 3);
         }
-        document.querySelector('.translateWrap').click();
+      }).finally(() => {
+        setMachineTranslationLoading(false);
       });
+    document.querySelector('.translateWrap').click();
   };
 
   if (loading) {
@@ -134,13 +141,18 @@ export default function Edit(props) {
     const originalText = _l('原始文本');
     const comparisonLang = _.find(langs, { id: comparisonLangId });
     const original = comparisonLangId ? _.find(langConfig, { code: comparisonLang.type }).value : originalText;
+    const currentLangInfo = _.find(allLangList, { langCode: langInfo.langCode });
+    const langInfoText = currentLangInfo ? `${currentLangInfo[currentLangKey]} (${currentLangInfo.localLang})` : '';
     return (
       <div className="header flexRow">
         <div className="flexRow alignItemsCenter Font15">
           <span className="bold mRight5 pointer ThemeColor backHome" onClick={onBack}>
-            {_l('多语言')}
+            {_l('语言')}
           </span>
-          /<span className="bold mLeft5">{_.find(langConfig, { code: langInfo.type }).value}</span>
+          /
+          <span className="bold mLeft5">
+            {langInfoText}
+          </span>
         </div>
         <div className="flexRow alignItemsCenter">
           {!md.global.SysSettings.hideAIBasicFun && (
@@ -153,7 +165,7 @@ export default function Edit(props) {
                   <div className="flexRow alignItemsCenter">
                     <Icon className="Font26 ThemeColor mRight5" icon="translate_language" />
                     <div className="Font17 bold">
-                      {_l('将本应用的%0翻译为 %1', original, _.find(langConfig, { code: langInfo.type }).value)}
+                      {_l('将本应用的%0翻译为 %1', original, langInfoText)}
                     </div>
                   </div>
                   <div className="mTop40 mBottom40">
@@ -193,7 +205,7 @@ export default function Edit(props) {
           )}
           <div className="mRight10">{_l('对照语言')}</div>
           <Select
-            style={{ width: 180 }}
+            style={{ width: 260 }}
             value={comparisonLangId}
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
@@ -204,10 +216,11 @@ export default function Edit(props) {
               {originalText}
             </Select.Option>
             {langs
-              .filter(data => data.type !== langInfo.type)
+              .filter(data => data.langCode !== langInfo.langCode)
               .map(data => (
                 <Select.Option key={data.id} value={data.id}>
-                  {_.find(langConfig, { code: data.type }).value}
+                  {_.find(allLangList, { langCode: data.langCode })[currentLangKey]} 
+                  ({_.find(allLangList, { langCode: data.langCode }).localLang})
                 </Select.Option>
               ))}
           </Select>

@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useRef } from 'react';
-import { Textarea, Dropdown, Menu, MenuItem } from 'ming-ui';
+import { Textarea, Dropdown, Menu, MenuItem, Checkbox } from 'ming-ui';
 import CustomTextarea from '../CustomTextarea';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
@@ -59,6 +59,8 @@ export default ({
   showType = false,
   onlyFile = false,
   flowNodeList = [],
+  showIgnoreEmpty = false,
+  ignoreValueEmpty,
 }) => {
   const [fieldsVisible, setFieldsVisible] = useState('');
   const [selectIndex, setIndex] = useState(-1);
@@ -307,7 +309,7 @@ export default ({
       })}
 
       {btnText && (
-        <div className="mTop10">
+        <div className="mTop10 flexRow alignItemsCenter">
           <span
             className="ThemeHoverColor3 pointer Gray_75"
             onClick={() =>
@@ -320,6 +322,15 @@ export default ({
           >
             {btnText}
           </span>
+
+          {showIgnoreEmpty && (
+            <Checkbox
+              className="mLeft20"
+              text={_l('忽略空值')}
+              checked={ignoreValueEmpty === 1}
+              onClick={checked => updateSource({ ignoreValueEmpty: checked ? 0 : 1 })}
+            />
+          )}
         </div>
       )}
     </Fragment>

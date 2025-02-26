@@ -279,13 +279,13 @@
   text-decoration: none;
 }
 .postOperatorList .parent {
-  background-image: url(/images/check_to.gif);
+  background-image: url(../../images/check_to.gif);
   background-position: 165px center;
   background-repeat: no-repeat;
   position: relative;
 }
 .postOperatorList .parent:hover {
-  background-image: url(/images/check_to2.gif);
+  background-image: url(../../images/check_to2.gif);
 }
 
 .moreOperateDiv_child {

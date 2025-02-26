@@ -27,11 +27,13 @@ const NUMBER_TYPE = [
   { text: _l('在范围内'), value: FILTER_CONDITION_TYPE.BETWEEN },
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
 ];
-// 数值筛选方式
+// 日期 日期时间筛选方式
 const DATE_FILTER_TYPE_ENUM = [
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.DATEENUM },
   { text: _l('早于'), value: FILTER_CONDITION_TYPE.DATE_LT },
   { text: _l('晚于'), value: FILTER_CONDITION_TYPE.DATE_GT },
+  { text: _l('早于等于'), value: FILTER_CONDITION_TYPE.DATE_LTE },
+  { text: _l('晚于等于'), value: FILTER_CONDITION_TYPE.DATE_GTE },
   { text: _l('在范围内'), value: FILTER_CONDITION_TYPE.DATE_BETWEEN },
 ];
 // 多选的筛选方式

@@ -531,6 +531,7 @@ export const DEFAULT_DATA = {
       searchrange: '1',
       scanlink: '1',
       scancontrol: '1',
+      showtype: '3',
     },
     size: 12,
     strDefault: '000',
@@ -706,13 +707,11 @@ export const DEFAULT_DATA = {
     controlName: _l('查询记录'),
     size: 12,
     advancedSetting: {
-      allowlink: '1',
       searchrange: '1',
-      showtype: '5',
       sorts: '[{"controlId":"ctime","isAsc":true}]',
     },
     strDefault: '000',
-    enumDefault: 2,
+    enumDefault: 1,
     enumDefault2: 1,
   },
   SECTION: {
@@ -906,11 +905,6 @@ export const EXPAND_ITEMS = [
     key: 'option',
     label: _l('操作设置'),
     name: 'WidgetOperate',
-  },
-  {
-    key: 'style',
-    label: _l('表格设置'),
-    name: 'WidgetStyle',
   },
   {
     key: 'highsetting',

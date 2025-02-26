@@ -61,6 +61,7 @@ export default class RecordInfo extends Component {
       currentTab: {},
       restoreVisible: false,
       payConfig: {}, // 支付相关
+      currentRecordIndex: 0, //  当前记录在列表中第几条
     };
     this.submitType = '';
     this.refreshEvents = {};
@@ -151,6 +152,7 @@ export default class RecordInfo extends Component {
       needUpdateControlIds,
       enablePayment,
       disableOpenRecordFromRelateRecord,
+      currentSheetRows,
     } = this.props;
     const { recordId, tempFormData } = this.state;
     let { switchPermit } = this.state;
@@ -234,6 +236,9 @@ export default class RecordInfo extends Component {
           workId,
           recordId,
         },
+        currentRecordIndex: _.findIndex(currentSheetRows, record => {
+          return record && record.rowid === recordId;
+        }),
         tempFormData: data.formData,
         loading: false,
         refreshBtnNeedLoading: false,
@@ -387,7 +392,11 @@ export default class RecordInfo extends Component {
       submitLoading: true,
     });
     this.submitOptions = { ignoreError: draftType === 'save' };
-    this.customwidget.current.submitFormData({ ignoreAlert: true, ignoreError: draftType === 'save' });
+    this.customwidget.current.submitFormData({
+      ignoreAlert: true,
+      ignoreError: draftType === 'save',
+      verifyAllControls: draftType === 'submit',
+    });
   };
   handleSave = (error, { data, updateControlIds }) => {
     const { allowEmptySubmit, updateEditStatus = () => {}, onClose = () => {} } = this.props;
@@ -661,7 +670,7 @@ export default class RecordInfo extends Component {
     return this.renderRecordBtns();
   }
   renderChatCount() {
-    const { isEditRecord, currentTab, externalPortalConfig, recordBase, recordInfo } = this.state;
+    const { isEditRecord, currentTab, externalPortalConfig, recordBase, recordInfo, tempFormData } = this.state;
     const { getDataType, isModal, isSubList, chartEntryStyle = {}, canLoadSwitchRecord } = this.props;
     const { allowExAccountDiscuss, exAccountDiscussEnum } = externalPortalConfig;
     const { appId, worksheetId, viewId, recordId } = recordBase;
@@ -697,6 +706,7 @@ export default class RecordInfo extends Component {
                 ref={this.chatCountRef}
                 allowExAccountDiscuss={allowExAccountDiscuss}
                 exAccountDiscussEnum={exAccountDiscussEnum}
+                formData={tempFormData}
                 recordDiscussSwitch={isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)}
                 recordLogSwitch={isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId)}
                 worksheetId={worksheetId}
@@ -728,13 +738,22 @@ export default class RecordInfo extends Component {
       if (!loadedRecordsOver && currentSheetRows.length >= 20) {
         loadNextPageRecords();
       } else {
-        alert(isNextRecord ? _l('暂无下一条') : _l('暂无上一条'), 3);
+        this.setState({ currentRecordIndex: index });
       }
       return;
     }
     const newRecordId = currentSheetRows[newIndex].rowid;
 
-    this.setState({ recordId: newRecordId, loading: true }, this.loadRecord);
+    this.setState(
+      {
+        recordId: newRecordId,
+        loading: true,
+        currentRecordIndex: _.findIndex(currentSheetRows, record => {
+          return record && record.rowid === newRecordId;
+        }),
+      },
+      this.loadRecord,
+    );
   };
 
   handleDeleteSuccess = rowid => {
@@ -755,21 +774,40 @@ export default class RecordInfo extends Component {
   };
 
   renderSwitchRecord = () => {
-    const { getDataType, isSubList } = this.props;
-    const { isEditRecord } = this.state;
-    if (getDataType === 21 || isEditRecord || isSubList) return null;
+    const { getDataType, isSubList, currentSheetRows = [], loadedRecordsOver } = this.props;
+    const { isEditRecord, currentTab, currentRecordIndex, isNextRecord } = this.state;
+    if (
+      getDataType === 21 ||
+      isEditRecord ||
+      isSubList ||
+      _.isEmpty(currentSheetRows) ||
+      _.includes(['approve', 'pay'], currentTab.id) ||
+      _.includes([29, 51], currentTab.type)
+    )
+      return null;
+
+    const needLoad = !loadedRecordsOver && currentSheetRows.length >= 20;
+    const hidePre = !needLoad && !currentSheetRows[currentRecordIndex - 1];
+    const hideNext = !needLoad && !currentSheetRows[currentRecordIndex + 1];
 
     return (
       <Fragment>
-        <div className="switchRecordEntryWrap" onClick={() => this.setState({ isNextRecord: false }, this.loadSwitchRecord)}>
-          <i className="icon icon-arrow-up-border Font20 LineHeight44" />
-        </div>
-        <div
-          className="switchRecordEntryWrap mLeft10"
-          onClick={() => this.setState({ isNextRecord: true }, this.loadSwitchRecord)}
-        >
-          <i className="icon icon-arrow-down-border Font20 LineHeight44" />
-        </div>
+        {!hidePre && (
+          <div
+            className="switchRecordEntryWrap"
+            onClick={() => this.setState({ isNextRecord: false }, this.loadSwitchRecord)}
+          >
+            <i className="icon icon-arrow-up-border Font20 LineHeight44" />
+          </div>
+        )}
+        {!hideNext && (
+          <div
+            className="switchRecordEntryWrap mLeft10"
+            onClick={() => this.setState({ isNextRecord: true }, this.loadSwitchRecord)}
+          >
+            <i className="icon icon-arrow-down-border Font20 LineHeight44" />
+          </div>
+        )}
       </Fragment>
     );
   };

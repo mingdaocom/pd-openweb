@@ -87,7 +87,7 @@ class SetOrgNameMultipleLanguages extends Component {
     const { loading, settingLanguageData = [] } = this.state;
 
     return (
-      <Dialog title={_l('设置多语言')} visible onCancel={onCancel} okText={_l('保存')} onOk={this.onOk}>
+      <Dialog title={_l('设置语言')} visible onCancel={onCancel} okText={_l('保存')} onOk={this.onOk}>
         {loading ? (
           <LoadDiv />
         ) : (

@@ -4,9 +4,8 @@ import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
 import flowNode from '../api/flowNode';
-import { Link } from 'react-router-dom';
 import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, Dialog, Switch, Tooltip, UserHead } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Dialog, Switch, Tooltip, UserHead, MdLink } from 'ming-ui';
 import MsgTemplate from './components/MsgTemplate';
 import Search from '../components/Search';
 import PublishBtn from './components/PublishBtn';
@@ -16,7 +15,6 @@ import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import Config from 'src/pages/Admin/config';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
@@ -316,11 +314,11 @@ export default class AdminWorkflowList extends Component {
           />
           <div className="mLeft12 ellipsis flex mRight20">{item.createdBy.fullName}</div>
         </div>
-        <Link to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter stopPropagation">
+        <MdLink to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">
           <span data-tip={_l('历史')}>
             <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_75" />
           </span>
-        </Link>
+        </MdLink>
       </div>
     );
   }

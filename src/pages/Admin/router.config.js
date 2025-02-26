@@ -283,6 +283,10 @@ export const menuList = [
             path: '/admin/withdrawalsrecord/:projectId',
             component: () => import('./pay/Merchant'),
           },
+          {
+            path: '/admin/expansionservice/(.*)/(merchant)+',
+            component: () => import('./organization/billCenter/expansionService'),
+          },
         ],
       },
     ],

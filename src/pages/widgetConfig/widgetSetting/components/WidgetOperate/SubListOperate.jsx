@@ -146,7 +146,7 @@ export default function SubListOperate(props) {
           checked={allowedit === '1'}
           onClick={checked => onChange(handleAdvancedSettingChange(data, { allowedit: checked ? '0' : '1' }))}
         />
-      </div>{' '}
+      </div>
       <div className="labelWrap">
         <Checkbox
           size="small"

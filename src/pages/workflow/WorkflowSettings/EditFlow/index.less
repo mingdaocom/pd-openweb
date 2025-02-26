@@ -566,7 +566,7 @@
 }
 
 .createNodeDialog {
-  width: 640px;
+  width: 840px;
   background: #fff;
   box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   .createNodeDialogHeader {
@@ -582,13 +582,6 @@
       transition: all 250ms ease-out;
       &:hover {
         transform: rotate(90deg);
-      }
-    }
-    .createNodeExplain {
-      cursor: pointer;
-      color: rgba(255, 255, 255, 0.7) !important;
-      &:hover {
-        color: rgba(255, 255, 255, 0.9) !important;
       }
     }
     .copyNodeBtn {
@@ -617,25 +610,22 @@
     padding: 16px;
   }
   .nodeList {
-    margin: 0 9px;
+    margin: 0 16px 20px;
     li {
       width: 50%;
       box-sizing: border-box;
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
-      padding: 6px 12px;
-      border-width: 1px 5px;
-      border-style: solid;
-      border-color: rgb(2555, 255, 255);
+      padding: 12px 16px;
       cursor: pointer;
       float: left;
-      height: 56px;
+      min-height: 66px;
       &:hover {
-        background: #f8f8f8;
+        background: #f5f5f5;
       }
       .nodeListIcon {
-        margin-right: 10px;
+        margin-right: 12px;
         min-width: 40px;
         width: 40px;
         height: 40px;
@@ -692,30 +682,25 @@
     }
   }
   .createNodeSearch {
-    height: 36px;
+    height: 40px;
     position: relative;
-    margin: 20px 20px 0;
     input {
       padding: 8px 32px;
-      height: 36px;
+      height: 40px;
       background: #f5f5f5;
       border-radius: 18px;
       border: none;
       width: 100%;
     }
-    .icon {
+    .icon-search {
       position: absolute;
-      top: 9px;
-      left: 9px;
+      top: 11px;
+      left: 11px;
     }
-  }
-  .createNodeTabs {
-    margin: 10px 20px 0;
-    li {
-      padding: 12px 15px;
-      border-bottom: 3px solid transparent;
-      margin-right: 24px;
-      font-weight: bold;
+    .icon-cancel {
+      position: absolute;
+      top: 11px;
+      right: 11px;
       cursor: pointer;
     }
   }
@@ -738,17 +723,68 @@
     width: 100%;
     justify-content: center;
   }
-  .nodeListContainer {
-    > div {
+  .createNodeDialogNav {
+    width: 200px;
+    height: 100%;
+    padding: 20px 16px 0;
+    background: #f5f6f7;
+  }
+  .createNodeDialogNavList {
+    li {
+      cursor: pointer;
+      height: 40px;
+      border-radius: 4px;
       &:hover {
-        .nodeListIconBG {
-          background: #f8f8f8;
+        background: rgba(0, 0, 0, 0.03);
+      }
+      &.active {
+        color: #2196f3;
+        background: #FFFFFF !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        i {
+          color: #2196f3;
         }
       }
+      i {
+        color: #757575;
+      }
     }
-    .nodeListIconBG {
+  }
+  .createNodeDialogNavLine {
+    background: #ddd;
+    height: 1px;
+    margin: 12px 0;
+  }
+  .createNodeDialogNavTags {
+    font-size: 13px;
+    li {
+      height: 40px;
+      line-height: 40px;
+      padding-left: 12px;
+      color: #515151;
+    }
+  }
+  .createNodeSearchLine {
+    background: #ddd;
+    width: 1px;
+    height: 14px;
+  }
+  .createNodeDialogMode {
+    margin-left: 20px;
+    width: 60px;
+    height: 32px;
+    background: #F5F5F5;
+    border-radius: 3px;
+    padding: 2px;
+    li {
       border-radius: 3px;
-      padding: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &.active {
+        background: #fff;
+      }
     }
   }
 }

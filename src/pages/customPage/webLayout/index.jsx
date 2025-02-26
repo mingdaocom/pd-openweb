@@ -5,6 +5,16 @@ import { EditWidget, WidgetList, WidgetContent } from '../components';
 import cx from 'classnames';
 import _ from 'lodash';
 import { replaceColor, isLightColor } from 'src/pages/customPage/util';
+import { ReactSVG } from 'react-svg';
+import { bgImages } from '../components/ConfigSideWrap/BgConfig';
+import { TinyColor } from '@ctrl/tinycolor';
+
+const BgImageWrap = styled(ReactSVG)`
+  >div, >div>svg {
+    height: 100%;
+    width: 100%;
+  }
+`;
 
 const ContentWrap = styled.div`
   box-sizing: border-box;
@@ -15,9 +25,6 @@ const ContentWrap = styled.div`
   height: 100%;
   flex: 1;
   overflow: auto;
-  &.darkTheme .componentTitle {
-    color: rgba(255, 255, 255, 1) !important;
-  }
   &.componentsEmpty {
     display: flex;
     align-items: center;
@@ -29,7 +36,7 @@ const ContentWrap = styled.div`
       height: 130px;
       border-radius: 50%;
       margin: 0 auto;
-      background-color: #e6e6e6;
+      background-color: var(--bg-color);
       text-align: center;
       padding-top: 35px;
       i {
@@ -40,7 +47,7 @@ const ContentWrap = styled.div`
     p {
       text-align: center;
       font-size: 15px;
-      color: #757575;
+      color: var(--title-color);
     }
   }
 
@@ -55,21 +62,55 @@ function webLayout(props) {
   const [editingWidget, setWidget] = useState({});
   const $ref = useRef(null);
   const { adjustScreen } = rest;
-  const pageConfig = replaceColor(config || {}, appPkg.iconColor || rest.apk.iconColor);
+  const iconColor = appPkg.iconColor || rest.apk.iconColor;
+  const pageConfig = replaceColor(config || {}, iconColor);
   const components = props.components || [];
+  const bgIsDark = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
+  const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
+  const backgroundColor = appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
+  const lowAlphaIconColor = new TinyColor(iconColor).setAlpha(0.25).toRgbString();
+  const isSetHeaderBg = [1, 2].includes(pageConfig.titleStyle) && pageConfig.pageStyleType === 'light';
+  const renderPageBgImage = () => {
+    return (
+      <BgImageWrap
+        className="Absolute w100"
+        style={{ pointerEvents: 'none', top: editable ? 0 : -44, height: `calc(100% + ${editable ? 0 : 44}px)` }}
+        src={_.get(_.find(bgImages, { name: pageConfig.pageBgImage }), 'value')}
+        beforeInjection={svg => {
+          svg.setAttribute('fill', lowAlphaIconColor);
+          svg.setAttribute('preserveAspectRatio', 'none');
+        }}
+      />
+    );
+  }
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
+      {pageConfig.pageBgImage && !editable && (
+        renderPageBgImage()
+      )}
       <ContentWrap
         ref={$ref}
         className={cx(className, {
           componentsEmpty: components <= 0,
-          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor),
+          Relative: components <= 0 && editable,
           adjustScreen
         })}
         id="componentsWrap"
-        style={{ backgroundColor: appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor }}
+        style={{
+          backgroundColor,
+          '--title-color': bgIsDark ? '#ffffffcc' : '#333',
+          '--icon-color': bgIsDark ? '#ffffffcc' : '#9e9e9e',
+          '--bg-color': bgIsDark ? '#e6e6e633' : '#e6e6e6',
+          '--widget-color': pageConfig.widgetBgColor,
+          '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
+          '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
+          '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#2196f3',
+        }}
       >
+        {pageConfig.pageBgImage && editable && (
+          renderPageBgImage()
+        )}
         {components.length > 0 ? (
           <div className="componentsWrap">
             <WidgetContent

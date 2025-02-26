@@ -375,42 +375,44 @@ export default class Widgets extends Component {
     const { mingdaoAppError } = this.state;
     const { projectId, appId, worksheetId, controlId, formData } = this.props;
     const control = _.find(formData, { controlId }) || {};
-    if (mingdaoAppError) {
+    if (mingdaoAppError && window.MDJS && window.MDJS.showUploadingImage) {
       window.MDJS.showUploadingImage({
         sessionId: this.sessionId,
       });
       return;
     }
-    window.MDJS.chooseImage({
-      sessionId: this.sessionId,
-      knowledge: false,
-      worksheetId,
-      appId,
-      projectId,
-      control,
-      checkValueByFilterRegex: this.checkValueByFilterRegex,
-      success: res => {
-        // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
-        this.sessionId = res.sessionId;
-        const { error, uploading, completed } = res;
-        // 上传中数量
-        this.setState({ mingdaoAppUploading: uploading });
-        // 出错数量
-        this.setState({ mingdaoAppError: error });
-        // 有成功上传的文件就会返回
-        if (completed) {
-          this.setState(
-            {
-              mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
-            },
-            () => {
-              this.handleMobileChangeFiles();
-            },
-          );
-        }
-      },
-      cancel: function (res) {},
-    });
+    if (window.MDJS && window.MDJS.chooseImage) {
+      window.MDJS.chooseImage({
+        sessionId: this.sessionId,
+        knowledge: false,
+        worksheetId,
+        appId,
+        projectId,
+        control,
+        checkValueByFilterRegex: this.checkValueByFilterRegex,
+        success: res => {
+          // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
+          this.sessionId = res.sessionId;
+          const { error, uploading, completed } = res;
+          // 上传中数量
+          this.setState({ mingdaoAppUploading: uploading });
+          // 出错数量
+          this.setState({ mingdaoAppError: error });
+          // 有成功上传的文件就会返回
+          if (completed) {
+            this.setState(
+              {
+                mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
+              },
+              () => {
+                this.handleMobileChangeFiles();
+              },
+            );
+          }
+        },
+        cancel: function (res) {},
+      });
+    }
   };
 
   handleMobileChangeFiles = () => {

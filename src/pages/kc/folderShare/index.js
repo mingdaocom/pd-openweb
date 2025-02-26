@@ -1,4 +1,5 @@
-﻿import preall from 'src/common/preall';
+﻿import React from 'react';
+import preall from 'src/common/preall';
 import './css/style.less';
 import shareajax from 'src/api/share';
 import qs from 'query-string';
@@ -14,8 +15,12 @@ import shareFolderAjax from 'src/api/shareFolder';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import _ from 'lodash';
-import Dialog from 'ming-ui/components/Dialog';
 import RegExpValidator from 'src/util/expression';
+import { LoadDiv, Dialog } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
+
 var ShareFolder = function (options) {
   var SF = this;
   var DEFAULTS = {
@@ -137,7 +142,7 @@ ShareFolder.prototype = {
         if (!SF.data.isLoadingMore && renderedCount < listCount) {
           SF.loadMoreNodes();
           var $loadingCon = $(
-            '<div id="loadingCon"><div class="scaleBox"></div>' + LoadDiv() + '<div class="scaleBox"></div></div>',
+            '<div id="loadingCon"><div class="scaleBox"></div>' + loading + '<div class="scaleBox"></div></div>',
           );
           SF.$fileList.append($loadingCon);
         }
@@ -381,7 +386,7 @@ ShareFolder.prototype = {
     if (SF.$globalLoading) {
       SF.$globalLoading.remove();
     }
-    SF.$globalLoading = $('<div class="globalLoading">' + LoadDiv() + '</div>');
+    SF.$globalLoading = $('<div class="globalLoading">' + loading + '</div>');
     SF.$fileList.append(SF.$globalLoading);
   },
   renderStatus: function (status) {

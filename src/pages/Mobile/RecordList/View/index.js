@@ -11,6 +11,7 @@ import CalendarView from './CalendarView';
 import GunterView from './GunterView';
 import DetailView from './DetailView';
 import GroupFilter from '../GroupFilter';
+import GroupFilterList from '../GroupFilter/GroupFilterList';
 import CustomWidgetView from './CustomWidgetView';
 import ResourceView from './ResourceView';
 import MobileMapView from './MapView';
@@ -21,6 +22,7 @@ import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { emitter } from 'worksheet/util';
+import { mdAppResponse, getRequest } from 'src/util';
 import _ from 'lodash';
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
@@ -44,6 +46,19 @@ class View extends Component {
   }
   componentDidMount() {
     const { view, base = {} } = this.props;
+    const { getFilters, openMode } = getRequest();
+    if (openMode) {
+      window.APP_OPEN_NEW_PAGE = openMode === 'tab'; // 导航模式下记录详情、新建记录等在APP内新开页打开
+    } else {
+      window.APP_OPEN_NEW_PAGE = base.type === 'single';
+    }
+    if (getFilters === 'true') {
+      mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
+        const { value = [] } = data;
+        this.props.updateFilterControls(value);
+        this.props.changeMobileGroupFilters([]);
+      });
+    }
 
     if (_.includes([0, 6], view.viewType)) {
       if (this.props.mobileNavGroupFilters.length) {
@@ -64,6 +79,7 @@ class View extends Component {
     }
   }
   componentWillUnmount() {
+    window.APP_OPEN_NEW_PAGE = undefined;
     if (!window.IM) return;
     IM.socket.off('workflow_push');
   }
@@ -114,6 +130,9 @@ class View extends Component {
       quickFilterWithDefault,
       savedFilters,
       activeSavedFilter,
+      batchOptVisible,
+      batchOptCheckedData,
+      batchCheckAll,
       updateFilters = () => {},
       updateActiveSavedFilter = () => {},
     } = this.props;
@@ -137,16 +156,6 @@ class View extends Component {
       return null;
     }
 
-    const Component = TYPE_TO_COMP[String(view.viewType)];
-    const viewProps = {
-      ...base,
-      isCharge,
-      view,
-      hasDebugRoles,
-      appNaviStyle,
-      controls,
-      sheetSwitchPermit,
-    };
     const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
       o => o.controlId === _.get(view, 'navGroup[0].controlId'),
     );
@@ -158,6 +167,18 @@ class View extends Component {
       _.includes([sheet, gallery, map], String(view.viewType)) &&
       navData; // 是否存在分组列表
 
+    const Component = TYPE_TO_COMP[String(view.viewType)];
+    const viewProps = {
+      ...base,
+      isCharge,
+      view,
+      hasDebugRoles,
+      appNaviStyle,
+      controls,
+      sheetSwitchPermit,
+      hasGroupFilter,
+    };
+
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
 
     const quickFilter = _.includes([customize, board], String(viewType))
@@ -166,8 +187,12 @@ class View extends Component {
     const isFilter = quickFilter.length;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
     const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航
+    let checkedCount = batchOptCheckedData.length;
 
-    if (hasGroupFilter) {
+    if (
+      hasGroupFilter &&
+      ((String(view.viewType) === sheet && advancedSetting.appnavtype === '1') || String(view.viewType) !== sheet)
+    ) {
       return (
         <div className="overflowHidden flex Relative mobileView">
           <GroupFilter
@@ -181,7 +206,24 @@ class View extends Component {
 
     return (
       <div className="overflowHidden flex mobileView flexColumn Relative">
-        {(_.includes([gallery, resource, board], String(viewType)) ||
+        {batchOptVisible && (
+          <div className="batchOptBar flexRow Font16">
+            <a
+              onClick={() => {
+                this.props.changeBatchOptVisible(false);
+                this.props.changeBatchOptData([]);
+              }}
+            >
+              {_l('完成')}
+            </a>
+            {_.isEmpty(batchOptCheckedData) && <span>{_l('请选择')}</span>}
+            {!_.isEmpty(batchOptCheckedData) && <span>{_l(`已选中%0条`, checkedCount)}</span>}
+            <a onClick={() => this.props.updateBatchCheckAll(!batchCheckAll)}>
+              {batchCheckAll ? _l('取消全选') : _l('全选')}
+            </a>
+          </div>
+        )}
+        {(_.includes([gallery, resource, board, sheet], String(viewType)) ||
           (String(viewType) === detail && view.childType !== 1) ||
           (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
           <QuickFilterSearch
@@ -198,6 +240,7 @@ class View extends Component {
             savedFilters={savedFilters}
             activeSavedFilter={activeSavedFilter}
             updateActiveSavedFilter={updateActiveSavedFilter}
+            base={base}
           />
         )}
         {_.includes(
@@ -207,6 +250,20 @@ class View extends Component {
         needClickToSearch &&
         _.isEmpty(quickFilter) ? (
           <WithoutRows text={_l('执行查询后显示结果')} />
+        ) : hasGroupFilter &&
+          String(view.viewType) === sheet &&
+          advancedSetting.appnavtype === '3' &&
+          !_.includes([29, 35], navData.type) ? (
+          <div className="flexRow h100">
+            <GroupFilterList
+              className="columnGroupFilter"
+              style={{ width: advancedSetting.appnavwidth ? +advancedSetting.appnavwidth : 60 }}
+              showSearch={false}
+            />
+            <div className="flex">
+              <Component {...viewProps} />
+            </div>
+          </div>
         ) : (
           <Component {...viewProps} />
         )}
@@ -236,6 +293,8 @@ export default connect(
       'quickFilterWithDefault',
       'savedFilters',
       'activeSavedFilter',
+      'batchCheckAll',
+      'batchOptCheckedData',
     ]),
   }),
   dispatch =>
@@ -255,6 +314,9 @@ export default connect(
           'updateGroupFilter',
           'updateFilters',
           'updateActiveSavedFilter',
+          'changeBatchOptData',
+          'updateBatchCheckAll',
+          'updateFilterControls',
         ]),
       },
       dispatch,

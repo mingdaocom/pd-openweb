@@ -645,6 +645,11 @@ export default class UploadFiles extends Component {
   }
   resetFileName(id, newName) {
     newName = newName.trim();
+
+    if ((/[\/\\:\*\?"<>\|]/g).test(newName)) {
+      alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
+      return;
+    }
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;

@@ -59,7 +59,7 @@ export default function SelectProcess(props) {
         processApi.getProcessApiInfo({
           processId: btnSetting.processId
         }).then(data => {
-          data.inputs = data.inputs.filter(item => [2, 6, 9, 16, 26, 27, 36, 48].includes(item.type));
+          data.inputs = data.inputs.filter(item => [2, 6, 9, 16, 26, 27, 36, 48].includes(item.type) && !item.dataSource);
           if (data.relationId !== appId) {
             homeAppApi.getApp({
               appId: data.relationId

@@ -95,8 +95,6 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -106,7 +104,7 @@ export default class extends Component {
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -222,8 +220,9 @@ export default class extends Component {
     });
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, displaySetup, yaxisList, split, xaxes } = reportData;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
@@ -267,6 +266,9 @@ export default class extends Component {
           offset: 23,
           autoHide: false,
           autoEllipsis: true,
+          style: {
+            fill: isDark ? '#ffffffcc' : undefined
+          }
         },
         verticalLimitLength: 120
       },
@@ -286,6 +288,9 @@ export default class extends Component {
           formatter: value => {
             return formatrChartAxisValue(Number(value), false, newYaxisList);
           },
+          style: {
+            fill: isDark ? '#ffffffcc' : undefined
+          }
         },
         minLimit: ydisplay.minValue || null,
         maxLimit: ydisplay.maxValue || (data.length ? null : 5)
@@ -293,9 +298,7 @@ export default class extends Component {
       limitInPlot: true,
       area: {},
       theme: {
-        styleSheet: {
-          backgroundColor: '#fff'
-        }
+        background: isDark ? widgetBgColor : '#ffffffcc',
       },
       color: colors,
       tooltip: {
@@ -313,6 +316,16 @@ export default class extends Component {
             value: _.isNumber(originalValue) ? style.tooltipValueType ? labelValue : originalValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
+        domStyles: isDark ? {
+          'g2-tooltip': {
+            color: '#ffffffcc',
+            backgroundColor: widgetBgColor,
+            boxShadow: `${widgetBgColor} 0px 0px 10px`
+          },
+          'g2-tooltip-list-item': {
+            color: '#ffffffcc',
+          }
+        } : undefined
       },
       legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId)
         ? {
@@ -320,6 +333,11 @@ export default class extends Component {
             flipPage: true,
             itemHeight: 20,
             radio: { style: { r: 6 } },
+            itemName: {
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
+            }
           }
         : false,
       point: displaySetup.showNumber
@@ -334,6 +352,9 @@ export default class extends Component {
               const id = split.controlId ? newYaxisList[0].controlId : controlId;
               return formatrChartValue(originalValue, false, newYaxisList, originalValue ? undefined : id);
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : false,
     };
@@ -386,7 +407,7 @@ export default class extends Component {
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>
         {displaySetup.showTotal ? (
-          <div>
+          <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>

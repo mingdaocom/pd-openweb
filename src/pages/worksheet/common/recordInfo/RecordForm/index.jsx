@@ -90,7 +90,7 @@ const StickyBar = styled.div`
 const PayWrap = styled.div`
   padding: 12px 25px;
   background: #f2fcf2;
-  z-index: 3;
+  z-index: 4;
   position: sticky;
   top: 0;
 `;
@@ -137,6 +137,7 @@ function mergeTabData(tabData = [], eventData = [], dealFrom) {
 function RecordForm(props) {
   const {
     formWidth,
+    iseditting,
     ignoreLock,
     hideFormHeader,
     type = 'edit',
@@ -405,7 +406,7 @@ function RecordForm(props) {
   };
 
   return (
-    <RecordFormContext.Provider value={{ width, recordbase }}>
+    <RecordFormContext.Provider value={{ width, recordbase, iseditting }}>
       {isFixedLeft && renderFormSection()}
       <div className="recordInfoForm flex flexColumn" ref={recordForm}>
         {(from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND || from === RECORD_INFO_FROM.WORKFLOW) && recordTitle && (

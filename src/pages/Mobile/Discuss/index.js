@@ -22,11 +22,12 @@ export default props => {
             projectId={projectId}
             discussionCount={discussionCount}
             getDiscussionsCount={getDiscussionsCount}
+            {...props}
           />
         )}
       </Popup>
     );
   } else {
-    return <DiscussInfo match={match} isModal={false} onAddCount={onAddCount} />;
+    return <DiscussInfo match={match} isModal={false} onAddCount={onAddCount} {...props} />;
   }
 };

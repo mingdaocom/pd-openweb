@@ -14,17 +14,19 @@ import {
 } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
+import { getVisibleControls } from '../TableComp';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getFilter, formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM, SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { replaceByIndex, replaceControlsTranslateInfo } from 'worksheet/util';
+import { replaceByIndex, replaceControlsTranslateInfo, replaceAdvancedSettingTranslateInfo } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { updateRecordControl, updateRelateRecords, deleteRecord } from 'src/pages/worksheet/common/recordInfo/crtl';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleRowData } from 'src/util/transControlDefaultValue';
-import { parseNumber } from 'src/util';
+import { parseNumber, getTranslateInfo } from 'src/util';
 import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
 
 export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getNewRows, updateRows } = {}) {
@@ -55,8 +57,9 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
             pageSize: 50,
           })
           .then(res => {
-            const newRows = res.data.map(r => ({ ...r, pid: row.rowid }));
-            dispatch(appendRecords(newRows));
+            const newRecords = res.data.map(r => ({ ...r, rowid: r.rowid }));
+            const newRows = newRecords.map(r => ({ ...r, pid: row.rowid }));
+            dispatch(appendFakeRecords(newRows));
             return newRows;
           }));
     dispatch(
@@ -90,7 +93,7 @@ export const updateTreeTableViewData = () => (dispatch, getState) => {
   });
 };
 
-function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksheet } = {}) {
+export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksheet } = {}) {
   return async (dispatch, getState) => {
     const state = getState();
     const { base = {}, tableState = {}, changes = {} } = state;
@@ -145,6 +148,14 @@ export function updatePageIndex(pageIndex) {
       value: { pageIndex },
     });
     dispatch(loadRecords({ pageIndex }));
+  };
+}
+
+export function updateRowsWithChanges(rowIds, changes) {
+  return {
+    type: 'UPDATE_ROWS_WITH_CHANGES',
+    rowIds,
+    changes,
   };
 }
 
@@ -239,7 +250,7 @@ export function init() {
       if (relateWorksheetInfo && relateWorksheetInfo.resultCode !== 1) {
         dispatch({
           type: 'UPDATE_TABLE_STATE',
-          value: { error: _l('没有权限') },
+          value: { error: _l('没有可查询内容') },
         });
         return;
       }
@@ -258,7 +269,7 @@ export function init() {
         .catch(err => {
           dispatch({
             type: 'UPDATE_TABLE_STATE',
-            value: { error: _l('没有权限') },
+            value: { error: _l('没有可查询内容') },
           });
         });
       if (!res) return;
@@ -305,9 +316,16 @@ export function init() {
             : replaceByIndex(control.controlPermissions || '111', 0, '1'),
         }).visible,
     );
+    const translateInfo = getTranslateInfo(relateWorksheetInfo.appId, null, relateWorksheetInfo.worksheetId);
+    relateWorksheetInfo.entityName = translateInfo.recordName || relateWorksheetInfo.entityName;
+    relateWorksheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
+      relateWorksheetInfo.appId,
+      relateWorksheetInfo.worksheetId,
+      relateWorksheetInfo.advancedSetting,
+    );
     dispatch({
       type: 'UPDATE_CONTROLS',
-      controls: replaceControlsTranslateInfo(base.appId, get(relateWorksheetInfo, 'worksheetId'), controls),
+      controls: replaceControlsTranslateInfo(relateWorksheetInfo.appId, relateWorksheetInfo.worksheetId, controls),
     });
     if (control.type === 51) {
       dispatch(updateFilter());
@@ -400,6 +418,13 @@ export function appendRecords(records = [], { afterRecordId } = {}) {
       afterRecordId,
     });
     dispatch(updateTreeTableViewData());
+  };
+}
+
+export function appendFakeRecords(records) {
+  return {
+    type: 'APPEND_FAKE_RECORDS',
+    records,
   };
 }
 
@@ -768,5 +793,48 @@ export function updateFilter() {
         records: [],
       });
     }
+  };
+}
+
+export function batchUpdateRecords({ selectedRowIds = [], records = [], activeControl } = {}) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const { isCharge, base = {}, controls } = state;
+    const { control, relateWorksheetInfo } = base;
+    if (!selectedRowIds.length) {
+      return;
+    }
+    const selectedRows = selectedRowIds
+      .map(rowId => find(records, { rowid: rowId }))
+      .filter(_.identity)
+      .filter(row => row.allowedit);
+    if (!selectedRows.length) {
+      return;
+    }
+    const columns = getVisibleControls(control, controls);
+    batchEditRecord({
+      appId: relateWorksheetInfo.appId,
+      worksheetId: control.dataSource,
+      projectId: relateWorksheetInfo.projectId,
+      isCharge,
+      selectedRows,
+      activeControl,
+      defaultWorksheetInfo: {
+        entityName: _l('记录'),
+        template: { controls: columns },
+      },
+      onUpdate: ({ needUpdateControls } = {}) => {
+        const changes = needUpdateControls.reduce((acc, control) => {
+          acc[control.controlId] = control.sourceValue || control.value;
+          return acc;
+        }, {});
+        dispatch(
+          updateRowsWithChanges(
+            selectedRows.map(r => r.rowid),
+            changes,
+          ),
+        );
+      },
+    });
   };
 }

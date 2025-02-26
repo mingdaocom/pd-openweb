@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Icon } from 'ming-ui';
 import { Popup, Button } from 'antd-mobile';
@@ -69,8 +69,9 @@ class ModalWrap extends Component {
     );
   }
   render() {
-    const { visible, onSelect, onClose, onCustom, opinions = [], inputType } = this.props;
+    const { visible, onSelect, onClose, onCustom, opinions = [], inputType, opinionList = [] } = this.props;
     const { searchValue } = this.state;
+
     return (
       <Popup visible={visible} onClose={onClose} className="mobileModal full">
         <Wrap className="flexColumn leftAlign h100">
@@ -87,19 +88,39 @@ class ModalWrap extends Component {
                 {_l('清除选择')}
               </div>
             )}
+
             {opinions
               .filter(data => data.value.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()))
               .map((data, index) => (
-                <div
-                  key={index}
-                  className="opinionItem Gray"
-                  onClick={() => {
-                    onSelect(data.value);
-                    onClose();
-                  }}
-                >
-                  {data.value}
-                </div>
+                <Fragment key={index}>
+                  {index === 0 && <div className="opinionItem bold Font14">{_l('选择预设')}</div>}
+                  <div
+                    className="opinionItem Gray"
+                    onClick={() => {
+                      onSelect(data.value);
+                      onClose();
+                    }}
+                  >
+                    {data.value}
+                  </div>
+                </Fragment>
+              ))}
+
+            {opinionList
+              .filter(data => data.opinion.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()))
+              .map((data, index) => (
+                <Fragment key={index}>
+                  {index === 0 && <div className="opinionItem bold Font14">{_l('上次输入')}</div>}
+                  <div
+                    className="opinionItem Gray"
+                    onClick={() => {
+                      onSelect(data.opinion);
+                      onClose();
+                    }}
+                  >
+                    {data.opinion}
+                  </div>
+                </Fragment>
               ))}
           </div>
           {inputType === 1 && (

@@ -170,6 +170,7 @@ class DialogSelectUser extends Component {
       showTabs: settings.showTabs,
       extraTabs: settings.extraTabs,
       selectedAccountIds: settings.selectedAccountIds,
+      hideResignedTab: settings.hideResignedTab,
       callback: (users, departments, group) => {
         settings.callback && settings.callback(users, departments, group);
         this.props.onCancel();

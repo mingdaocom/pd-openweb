@@ -3,6 +3,7 @@ import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
+import attachmentAjax from 'src/api/attachment';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import { selectDateList, dateDimension, formatter, formatChartData } from '../../util';
 import { formatValue } from 'src/pages/Admin/homePage/config.js';
@@ -17,11 +18,10 @@ import { formatFileSize } from 'src/util';
 
 const { Option } = Select;
 const Summary = styled.div`
-  height: 230px;
   background-color: #fff;
   padding: 20px 32px 0;
+  margin-bottom: 32px;
   .summaryItem {
-    flex: 1;
     height: 133px;
     flex-direction: column;
     display: flex;
@@ -29,9 +29,24 @@ const Summary = styled.div`
     border-radius: 3px;
     justify-content: center;
     align-items: center;
+    min-width: 220px;
+    width: calc((100% - 72px) / 4);
+    &.summaryCol3 {
+      width: calc((100% - 48px) / 3);
+    }
+    @media screen and (max-width: 1351px) {
+      width: calc((100% - 48px) / 3) !important;
+    }
+    @media screen and (max-width: 1107px) {
+      width: calc(50% - 12px) !important;
+    }
     &.linkHover:hover {
       background-color: #f5f5f5;
     }
+  }
+  .summaryWrap {
+    gap: 24px;
+    flex-wrap: wrap;
   }
 `;
 
@@ -136,8 +151,11 @@ export default class Overview extends Component {
       loading: false,
       departmentInfo: {},
       depFlag: false,
+      wrapWidth: undefined,
     };
+    this.summaryRef = React.createRef();
   }
+
   componentDidMount() {
     if (this.props.appId) {
       return;
@@ -145,34 +163,65 @@ export default class Overview extends Component {
     this.getOverviewData();
     this.getChartData();
   }
+
   getOverviewData = () => {
     const { projectId } = this.props;
+
     Promise.all([
       projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: true }),
       processVersionAjax.getProcessUseCount({ companyId: projectId }),
-    ]).then(([data1, data2]) => {
+      attachmentAjax.getAttachmentTotal({ projectId, noCache: true }),
+    ]).then(([data1, data2, data3]) => {
       const { effectiveApkCount = 0, effectiveWorksheetCount = 0, effectiveWorksheetRowCount = 0 } = data1;
       const { useProcessCount: effectiveWorkflowCount } = data2;
+      const { code, total } = data3;
       this.setState({
         effectiveApkCount,
         effectiveWorksheetCount,
         effectiveWorksheetRowCount,
         effectiveWorkflowCount,
+        effectiveAttachmentTotal: total,
+        effectiveAttachmentCode: code,
       });
     });
   };
+
   formatStastics = value => {
     const isEnLang = md.global.Account.lang === 'en';
-    let result =
+    let result = undefined;
+
+    result =
       value >= 10000 && !isEnLang ? (
         <span>
-          {parseFloat(value / 10000)}
-          <span className="Gray_9e Font16 mLeft3">{_l('万')}</span>
+          {value >= 100000000 ? _.floor(parseFloat(value / 100000000), 4) : parseFloat(value / 10000)}
+          <span className="Gray_9e Font16 mLeft3">{value >= 100000000 ? _l('亿+') : _l('万')}</span>
         </span>
       ) : (
         formatValue(value)
       );
+
     return result === 'undefined' ? '-' : result;
+  };
+
+  formatFileSize = value => {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    if (value === undefined) return '-';
+
+    let num = 0;
+    let suffix = units[0];
+
+    if (value) {
+      const i = Math.floor(Math.log(value) / Math.log(1024));
+      num = (value / Math.pow(1024, i)).toFixed(2) * 1;
+      suffix = units[i];
+    }
+
+    return (
+      <Fragment>
+        {num}
+        <span className="Font16 Gray_9e mLeft3">{suffix}</span>
+      </Fragment>
+    );
   };
 
   getChartData = () => {
@@ -427,6 +476,7 @@ export default class Overview extends Component {
     const { projectId } = this.props;
     location.assign(`/admin/${type}/${projectId}`);
   };
+
   renderLoading = () => {
     return (
       <div className="loadingChart h100 GrayBGFA">
@@ -434,6 +484,7 @@ export default class Overview extends Component {
       </div>
     );
   };
+
   render() {
     const { projectId } = this.props;
     let {
@@ -462,43 +513,60 @@ export default class Overview extends Component {
       appStatisticsResult,
       isMoreApp,
       subTypeTotal,
+      effectiveAttachmentTotal,
+      effectiveAttachmentCode,
     } = this.state;
+    const showEffectiveAttachment = effectiveAttachmentCode === 1;
+
     return (
       <Fragment>
-        <Summary>
+        <Summary ref={this.summaryRef}>
           <div className="Font17 fontWeight600 mBottom20 Black">{_l('汇总概览')}</div>
           {this.props.appId ? (
-            <div className="flexRow">
-              <div className="summaryItem mRight24">
+            <div className="flexRow summaryWrap">
+              <div className="summaryItem summaryCol3">
                 <div className="Gray_75 fontWeight600">{_l('工作表总数')}</div>
                 <div className="Font30 ">{this.formatStastics(workSheetCount)}</div>
               </div>
-              <div className="summaryItem mRight24">
+              <div className="summaryItem summaryCol3">
                 <div className="Gray_75 fontWeight600">{_l('行记录总数')}</div>
                 <div className="Font30 ">{this.formatStastics(rowCount)}</div>
               </div>
-              <div className="summaryItem mRight24">
+              <div className="summaryItem summaryCol3">
                 <div className="Gray_75 fontWeight600">{_l('工作流总数')}</div>
                 <div className="Font30 ">{this.formatStastics(workFlowCount)}</div>
               </div>
             </div>
           ) : (
-            <div className="flexRow">
-              <div className="summaryItem mRight24 Hand linkHover" onClick={() => this.linkHref('app')}>
+            <div className="flexRow summaryWrap">
+              <div className="summaryItem Hand linkHover" onClick={() => this.linkHref('app')}>
                 <div className="Gray_75 fontWeight600 ">{_l('应用数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveApkCount) || '-'}</div>
               </div>
-              <div className="summaryItem mRight24">
+              <div className="summaryItem">
                 <div className="Gray_75 fontWeight600">{_l('工作表总数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveWorksheetCount) || '-'}</div>
               </div>
-              <div className="summaryItem mRight24">
+              <div className="summaryItem">
                 <div className="Gray_75 fontWeight600">{_l('行记录总数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveWorksheetRowCount) || '-'}</div>
               </div>
               <div className="summaryItem Hand linkHover" onClick={() => this.linkHref('workflows')}>
                 <div className="Gray_75 fontWeight600 ">{_l('工作流总数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveWorkflowCount) || '-'}</div>
+              </div>
+              <div className="summaryItem Hand linkHover">
+                <div className="Gray_75 fontWeight600 ">
+                  {_l('附件累计存储量')}
+                  <Tooltip text={_l('指应用下字段、讨论等附件，此数据每天统计一次，第二天自动重新计算')}>
+                    <Icon icon="info" className="Gray_9e mLeft4 Hand" />
+                  </Tooltip>
+                </div>
+                <div className={showEffectiveAttachment ? 'Font30' : 'Font14 Gray_9e mTop6'}>
+                  {showEffectiveAttachment
+                    ? this.formatFileSize(effectiveAttachmentTotal)
+                    : _l('数据计算中，请稍候...')}
+                </div>
               </div>
             </div>
           )}

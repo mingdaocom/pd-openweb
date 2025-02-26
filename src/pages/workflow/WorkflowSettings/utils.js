@@ -190,17 +190,25 @@ export const getIcons = (type, appType, actionId) => {
       }
       break;
     case NODE_TYPE.FIND_SINGLE_MESSAGE:
-      if (appType === APP_TYPE.EXTERNAL_USER) {
+      if (appType === APP_TYPE.USER) {
+        icon = 'icon-person_search';
+      } else if (appType === APP_TYPE.DEPARTMENT) {
+        icon = 'icon-individual_department';
+      } else if (appType === APP_TYPE.EXTERNAL_USER) {
         icon = 'icon-external_users';
       } else {
-        icon = 'icon-person_search';
+        icon = 'icon-user';
       }
       break;
     case NODE_TYPE.FIND_MORE_MESSAGE:
-      if (appType === APP_TYPE.EXTERNAL_USER) {
+      if (appType === APP_TYPE.USER) {
+        icon = 'icon-group-members';
+      } else if (appType === APP_TYPE.DEPARTMENT) {
+        icon = 'icon-department';
+      } else if (appType === APP_TYPE.EXTERNAL_USER) {
         icon = 'icon-folder-public';
       } else {
-        icon = 'icon-group-members';
+        icon = 'icon-multiple_user';
       }
       break;
     default:

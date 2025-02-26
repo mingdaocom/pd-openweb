@@ -20,7 +20,8 @@ import { openAddRecord } from 'mobile/Record/addRecord';
 import alreadyDelete from './State/assets/alreadyDelete.png';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
-import { getViewActionInfo } from './util';
+import SlideGroupFilter from './GroupFilter/SlideGroupFilter';
+import { getViewActionInfo, getDefaultValueInCreate } from './util';
 import _ from 'lodash';
 
 @withRouter
@@ -36,7 +37,8 @@ class RecordList extends Component {
     this.hideAddRecord = hideAddRecord;
   }
   componentDidMount() {
-    if (window.isMingDaoApp) {
+    const { getFilters } = getRequest();
+    if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
         const { value = [] } = data;
         this.props.updateFilterControls(value);
@@ -141,6 +143,7 @@ class RecordList extends Component {
       history,
       appDetail,
       debugRoles,
+      mobileNavGroupFilters,
     } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
@@ -179,6 +182,18 @@ class RecordList extends Component {
       isHideTabBar,
       hasDebugRoles,
     });
+    const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
+      o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+    );
+    const appNavType = _.get(view, 'advancedSetting.appnavtype');
+    let hasGroupFilter =
+      view.viewId === base.viewId &&
+      !_.isEmpty(view.navGroup) &&
+      view.navGroup.length > 0 &&
+      !location.search.includes('chartId') &&
+      _.includes(['0'], String(view.viewType)) &&
+      navData &&
+      (appNavType === '2' || !appNavType || (appNavType === '3' && _.includes([29, 35], navData.type))); // 是否存在分组列表
 
     return (
       <Fragment>
@@ -211,6 +226,7 @@ class RecordList extends Component {
               </Tabs>
             </div>
           )}
+          {hasGroupFilter && <SlideGroupFilter {...this.props} />}
           <View
             view={view}
             key={worksheetInfo.worksheetId}
@@ -245,7 +261,21 @@ class RecordList extends Component {
                 backgroundColor={appColor}
                 className="Static mTop10"
                 onClick={() => {
+                  if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
+                    window.location.href = `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`;
+                    return;
+                  }
+
+                  let defaultFormData = getDefaultValueInCreate(mobileNavGroupFilters);
+                  let param =
+                    _.get(view, 'advancedSetting.usenav') === '1'
+                      ? {
+                          defaultFormData,
+                          defaultFormDataEditable: true,
+                        }
+                      : {};
                   openAddRecord({
+                    ...param,
                     className: 'full',
                     worksheetInfo,
                     appId: params.appId,
@@ -338,6 +368,7 @@ export default connect(
       'isCharge',
       'appDetail',
       'debugRoles',
+      'mobileNavGroupFilters',
     ),
     calendarview: state.sheet.calendarview,
   }),

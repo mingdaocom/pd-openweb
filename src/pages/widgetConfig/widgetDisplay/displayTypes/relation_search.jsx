@@ -42,7 +42,7 @@ export default function RelationSearch({ data = {}, fromType, isTab }) {
 
   const getDisplay = () => {
     // 卡片显示
-    if (showtype === '1' || showtype === '3') {
+    if (showtype === '1' || showtype === '3' || enumDefault === 1) {
       return <CommonDisplay></CommonDisplay>;
     }
 

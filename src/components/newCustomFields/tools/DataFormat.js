@@ -13,7 +13,6 @@ import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/en
 import {
   Validator,
   getRangeErrorType,
-  formatFiltersValue,
   getCurrentValue,
   specialTelVerify,
   compareWithTime,
@@ -39,6 +38,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import generateSubListStore from 'worksheet/components/ChildTable/redux/store';
 import generateRelateRecordTableStore from 'worksheet/components/RelateRecordTable/redux/store.js';
 import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 
 export const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
@@ -60,6 +60,13 @@ export const initIntlTelInput = () => {
   return window.initIntlTelInput;
 };
 
+// 合并筛选filter
+const getItemFilters = (items = []) => {
+  return items.reduce((total, cur) => {
+    return total.concat(cur.isGroup ? cur.groupFilters : [cur]);
+  }, []);
+};
+
 // 时间字段处理
 const formatTimeValue = (control = {}, isCurrent = false, value) => {
   // 汇总输出格式unit为9
@@ -75,7 +82,12 @@ const formatTimeValue = (control = {}, isCurrent = false, value) => {
  *
  * 查询出来的值映射前需要异化处理格式
  */
-const formatSearchResultValue = ({ targetControl = {}, currentControl = {}, controls = [], searchResult = '' }) => {
+export const formatSearchResultValue = ({
+  targetControl = {},
+  currentControl = {},
+  controls = [],
+  searchResult = '',
+}) => {
   if (_.includes([9, 10, 11], currentControl.type)) {
     return getControlValue(controls, currentControl, targetControl.controlId, searchResult);
   } else if (currentControl.type === 2) {
@@ -168,14 +180,14 @@ const parseStaticValue = (item, staticValue) => {
 
 // 获取动态默认值
 export const getDynamicValue = (data, currentItem, masterData, embedData) => {
+  if (currentItem.isQueryWorksheetFill && !checkCellIsEmpty(currentItem.value)) {
+    return currentItem.value;
+  }
   let value = safeParse(currentItem.advancedSetting.defsource).map(item => {
     if (item.isAsync) return '';
 
     // 关联他表字段
     if (item.rcid) {
-      if (currentItem.isQueryWorksheetFill && !checkCellIsEmpty(currentItem.value)) {
-        return currentItem.value;
-      }
       try {
         if (masterData && item.rcid === masterData.worksheetId) {
           const targetControl = _.find(masterData.formData, c => c.controlId === item.cid);
@@ -1042,6 +1054,7 @@ export default class DataFormat {
     abortController,
     data = [],
     rules = [],
+    forceSync = false,
     isCreate = false,
     disabled = false,
     ignoreLock = false,
@@ -1111,6 +1124,34 @@ export default class DataFormat {
     const isInit = true;
     this.storeCenter = storeCenter || {};
 
+    const initStore = () => {
+      this.data.forEach(item => {
+        if (item.hidden) return;
+
+        if (item.type === 53 && item.dataSource) {
+          item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
+        }
+
+        if (item.storeFromDefault) {
+          item.store = item.storeFromDefault;
+          delete item.storeFromDefault;
+        } else if (item.type === 34 && setSubListStore && !item.store) {
+          item.store = this.getControlStore(item);
+        } else if (
+          !this.isMobile &&
+          item.type === 29 &&
+          includes(['2', '5', '6'], get(item, 'advancedSetting.showtype')) &&
+          !item.store
+        ) {
+          item.store = this.getControlStore(item);
+        }
+      });
+    };
+
+    if (forceSync) {
+      initStore();
+    }
+
     // 新建初始化
     if (isCreate) {
       function isRelateRecordWithStaticValue(control) {
@@ -1158,7 +1199,7 @@ export default class DataFormat {
           if (this.isMobile && item.type === 29 && _.isString(value) && _.isEmpty(JSON.parse(value))) {
             this.updateDataSource({ controlId: item.controlId, value: null, isInit });
           } else if (value) {
-            if (item.type === 29 && isRelateRecordTableControl(item)) {
+            if (item.type === 29 && isRelateRecordTableControl(item) && !forceSync) {
               setTimeout(() => {
                 this.updateDataSource({ controlId: item.controlId, value, isInit });
               }, 0);
@@ -1221,27 +1262,9 @@ export default class DataFormat {
     }
 
     // store 挂载
-    this.data.forEach(item => {
-      if (item.hidden) return;
-
-      if (item.type === 53 && item.dataSource) {
-        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
-      }
-
-      if (item.storeFromDefault) {
-        item.store = item.storeFromDefault;
-        delete item.storeFromDefault;
-      } else if (item.type === 34 && setSubListStore && !item.store) {
-        item.store = this.getControlStore(item);
-      } else if (
-        !this.isMobile &&
-        item.type === 29 &&
-        includes(['2', '5', '6'], get(item, 'advancedSetting.showtype')) &&
-        !item.store
-      ) {
-        item.store = this.getControlStore(item);
-      }
-    });
+    if (!forceSync) {
+      initStore();
+    }
 
     if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data, _.get(this.embedData, 'recordId'))) {
       disabled = true;
@@ -1427,6 +1450,7 @@ export default class DataFormat {
                     type: 'DELETE_ALL',
                   });
                 }
+                item.value = '';
               } else if (typeof value === 'string' && !_.isEmpty(safeParse(value))) {
                 const parsedRows = safeParse(value);
                 params.staticRows = parsedRows;
@@ -1722,6 +1746,11 @@ export default class DataFormat {
             }
           }
 
+          // 触发子表条码更新
+          if (currentItem.type === 47 && currentItem.isSubList) {
+            value = Math.random();
+          }
+
           // 汇总
           if (currentItem.type === 37) {
             if (
@@ -1764,6 +1793,7 @@ export default class DataFormat {
                 } else {
                   records = sourceSheetControl.value.rows || [];
                 }
+                records = filterEmptyChildTableRows(records);
               }
             } catch (err) {
               console.error(err);
@@ -2059,25 +2089,32 @@ export default class DataFormat {
     this.setLoadingInfo(ids, true);
 
     departmentAjax
-      .getDepartmentsByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] })
+      .getDepartmentsByAccountId({
+        projectId: this.projectId,
+        accountIds: [md.global.Account.accountId],
+        includePath: true,
+      })
       .then(result => {
-        let departments = [];
         this.setLoadingInfo(ids, false);
 
-        result.maps.forEach(item => {
-          item.departments.forEach(obj => {
-            departments.push({
-              departmentId: obj.id,
-              departmentName: obj.name,
+        const getDepartments = controlId => {
+          const { enumDefault, advancedSetting: { allpath } = {} } =
+            this.data.find(item => item.controlId === controlId) || {};
+          let departments = [];
+          result.maps.forEach(item => {
+            item.departments.forEach(obj => {
+              departments.push({
+                departmentId: obj.id,
+                departmentName: allpath === '1' ? obj.departmentPath : obj.name,
+              });
             });
           });
-        });
-
-        departments = _.uniqBy(departments, 'departmentId');
+          departments = _.uniqBy(departments, 'departmentId');
+          return enumDefault === 0 ? JSON.stringify(departments.slice(0, 1)) : JSON.stringify(departments);
+        };
 
         ids.forEach(controlId => {
-          const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
-          const value = enumDefault === 0 ? JSON.stringify(departments.slice(0, 1)) : JSON.stringify(departments);
+          const value = getDepartments(controlId);
 
           this.updateDataSource({
             controlId,
@@ -2157,7 +2194,7 @@ export default class DataFormat {
 
     if (!ids.length) return;
 
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && window.MDJS && window.MDJS.getLocation) {
       window.MDJS.getLocation({
         success: res => {
           const { cLongitude, cLatitude, longitude, latitude, address, title } = res;
@@ -2310,6 +2347,9 @@ export default class DataFormat {
 
     Object.keys(this.asyncControls).forEach(id => {
       (this.asyncControls[id] || []).forEach(item => {
+        if (item.isImportFromExcel && !checkCellIsEmpty(item.value)) {
+          return;
+        }
         // 部门 | 组织角色
         if (item.type === 27 || item.type === 48) {
           const accounts = safeParse(
@@ -2400,7 +2440,7 @@ export default class DataFormat {
   getSearchStatus = (filters = [], controls = []) => {
     const splitFilters = getArrBySpliceType(filters);
     return _.some(splitFilters, (items = []) => {
-      return _.every(items, item => {
+      return _.every(getItemFilters(items), item => {
         // 固定值|字段值
         const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
         //筛选值字段
@@ -2417,10 +2457,12 @@ export default class DataFormat {
   /**
    * 查询记录
    */
-  getFilterRowsData = (filters = [], para, controlId, effectControlId) => {
-    const formatFilters = formatFiltersValue(filters, this.data, _.get(this.embedData, 'recordId'));
+  getFilterRowsData = (searchControl, para, controlId, effectControlId) => {
+    const formatFilters = getFilter({ control: searchControl, formData: this.data });
     // 增加查询条件对比，由于一些异步更新，未完成时已被记录id,导致更新完被循环拦截(纯id拦截不准确)
-    const tempFilterValue = formatFilters.map(i => _.pick(i, ['controlId', 'value', 'values', 'maxValue', 'minValue']));
+    const tempFilterValue = getItemFilters(formatFilters).map(i =>
+      _.pick(i, ['controlId', 'value', 'values', 'maxValue', 'minValue']),
+    );
     const existFilters = this.loopList.filter(i => i.loopId === `${effectControlId}-${controlId}`);
     if (_.some(existFilters, e => _.isEqual(tempFilterValue, e.loopFilter))) {
       return Promise.reject();
@@ -2448,7 +2490,7 @@ export default class DataFormat {
   getFilterConfigs = (control = {}, searchType) => {
     switch (searchType) {
       case 'init':
-        return this.searchConfig.filter(({ items = [], controlId }) => {
+        return this.searchConfig.filter(({ items, controlId }) => {
           const curValue = _.get(
             _.find(this.data, d => d.controlId === controlId),
             'value',
@@ -2457,7 +2499,7 @@ export default class DataFormat {
 
           return (
             _.every(
-              items,
+              getItemFilters(items),
               item =>
                 _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
                 (item.dynamicSource || []).length === 0,
@@ -2467,9 +2509,19 @@ export default class DataFormat {
       case 'onBlur':
         return this.searchConfig
           .filter(({ controlId }) => controlId !== control.controlId)
-          .filter(({ items = [] }) =>
-            _.some(items, item => _.get(item.dynamicSource[0] || {}, 'cid') === control.controlId),
-          );
+          .filter(({ controlId, items }) => {
+            const curValue = _.get(
+              _.find(this.data, d => d.controlId === controlId),
+              'value',
+            );
+            if (control.isImportFromExcel && curValue) {
+              return;
+            }
+            return _.some(
+              getItemFilters(items),
+              item => _.get(item.dynamicSource[0] || {}, 'cid') === control.controlId,
+            );
+          });
       default:
         return [];
     }
@@ -2521,6 +2573,12 @@ export default class DataFormat {
         const canSearchMore =
           !_.includes([29, 34], currentControl.type) ||
           (currentControl.type === 29 && currentControl.enumDefault === 1);
+        const searchControl = {
+          ...currentControl,
+          advancedSetting: { filters: JSON.stringify(items) },
+          recordId: this.recordId,
+          relationControls: controls,
+        };
         //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
         if (
           templates.length > 0 &&
@@ -2533,7 +2591,7 @@ export default class DataFormat {
           if (_.includes([29], controlType) || (controlType === 35 && currentControl.dataSource === sourceId)) {
             this.debounceGetFilterRowsData(
               id,
-              items,
+              searchControl,
               {
                 worksheetId: sourceId,
                 pageSize: currentControl.enumDefault === 1 ? 1 : queryCount,
@@ -2585,7 +2643,7 @@ export default class DataFormat {
             if (canMapConfigs.length > 0) {
               this.debounceGetFilterRowsData(
                 id,
-                items,
+                searchControl,
                 {
                   worksheetId: sourceId,
                   pageSize: controlType === 34 ? queryCount : 1,

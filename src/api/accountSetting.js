@@ -58,4 +58,17 @@ export default {
      
      return mdyAPI('AccountSetting', 'EditSign', args, options);
    },
+  /**
+  * 修改用户加入的组织排序
+  * @param {Object} args 请求参数
+  * @param {array} args.projectIds 所有的排序组织ID
+从开始到最后排序
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editJoinedProjectSort: function (args, options = {}) {
+     
+     return mdyAPI('AccountSetting', 'EditJoinedProjectSort', args, options);
+   },
 };

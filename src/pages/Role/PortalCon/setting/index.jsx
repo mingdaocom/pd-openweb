@@ -186,7 +186,7 @@ class PortalSetting extends React.Component {
     const { closeSet, appPkg = {} } = this.props;
     const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {}, epDiscussWorkFlow = {} } = portalSet;
     let {
-      pageTitle = appPkg.name,
+      pageTitle,
       smsSignature,
       emailSignature,
       allowUserType,
@@ -271,7 +271,7 @@ class PortalSetting extends React.Component {
           allowUserType,
           noticeScope,
           wxAppId: authorizerInfo.appId,
-          pageTitle,
+          pageTitle: pageTitle || appPkg.name,
           logoImageBucket: 4,
           logoImagePath,
           pageMode,

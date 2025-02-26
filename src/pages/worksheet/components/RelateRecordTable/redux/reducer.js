@@ -122,11 +122,14 @@ function records(state = [], action) {
   switch (action.type) {
     case 'UPDATE_RECORDS':
       return action.records;
+    case 'UPDATE_ROWS_WITH_CHANGES':
+      return state.map(r => (includes(action.rowIds, r.rowid) ? assign({}, r, action.changes) : r));
     case 'UPDATE_RECORD':
       return state.map(r => (r.rowid === get(action, 'newRecord.rowid') ? action.newRecord : r));
     case 'UPDATE_RECORD_BY_RECORD_ID':
       return state.map(r => (r.rowid === action.recordId ? assign({}, r, action.changes) : r));
     case 'APPEND_RECORDS':
+    case 'APPEND_FAKE_RECORDS':
       newRecords = action.records;
       if (!action.saveSync && !!action.recordId) {
         return state;

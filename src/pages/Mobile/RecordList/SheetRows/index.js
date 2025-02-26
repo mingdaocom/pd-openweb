@@ -65,19 +65,18 @@ class SheetRows extends Component {
           if (clicktype === '2') return;
           if (clicktype === '1') {
             let value = item[clickcid];
-            if (RegExpValidator(value)) {
+            if (RegExpValidator.isURL(value)) {
               window.open(value);
             }
             return;
           }
 
-          // if (window.isMingDaoApp && !window.shareState.shareId) {
-          //   const { appId, worksheetId, viewId } = this.props;
-          //   window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
-          //     item.rowid
-          //   }`;
-          //   return;
-          // }
+          if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
+            window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
+              item.rowid
+            }`;
+            return;
+          }
           if (browserIsMobile()) {
             handlePushState('page', 'recordDetail');
             this.setState({

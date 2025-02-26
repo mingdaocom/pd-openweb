@@ -21,6 +21,7 @@ export default function SelectUser(props) {
         filterFriend: true,
         filterOthers: true,
         filterOtherProject: true,
+        filterResigned: false,
         unique: unique,
         callback: data => {
           setUserInfo(data);

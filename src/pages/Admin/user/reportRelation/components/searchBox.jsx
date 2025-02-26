@@ -16,6 +16,7 @@ export default ({ onChange = () => {} }) => {
         filterFriend: true, // 是否过滤好友
         filterOthers: true,
         filterOtherProject: true,
+        filterResigned: false,
         projectId: Config.projectId,
         inProject: true,
         unique: true,

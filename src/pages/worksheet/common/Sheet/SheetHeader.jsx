@@ -446,7 +446,7 @@ function SheetHeader(props) {
                 </Tooltip>
               )}
             {/* 草稿箱入口 */}
-            {canNewRecord && advancedSetting.closedrafts !== '1' && (
+            {canNewRecord && (
               <WorksheetDraft
                 className="actionWrap"
                 showFillNext={true}
@@ -462,16 +462,14 @@ function SheetHeader(props) {
               />
             )}
             {/* 显示创建按钮 */}
-            {canNewRecord && (
+            {canNewRecord && !worksheetInfo.isRequestingRelationControls && (
               <span
                 style={{ backgroundColor: appPkg.iconColor || '#2196f3' }}
-                className="addRow mLeft8"
+                className="addRow mLeft8 overflow_ellipsis WordBreak"
                 onClick={openNewRecord}
               >
                 <span className="Icon icon icon-plus Font13 mRight5 White" />
-                <span className="White bold">
-                  {getTranslateInfo(appId, null, worksheetId).recordName || entityName}
-                </span>
+                <span className="White bold">{advancedSetting.btnname || entityName}</span>
               </span>
             )}
           </VerticalCenter>

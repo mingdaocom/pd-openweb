@@ -11,7 +11,7 @@ import './index.less';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import _ from 'lodash';
 import cx from 'classnames';
-import { getRequest, getAppLangDetail } from 'src/util';
+import { getRequest, shareGetAppLangDetail } from 'src/util';
 
 const { hideHeader } = getRequest();
 
@@ -33,8 +33,7 @@ export default class PublicShareChart extends Component {
     appManagementApi
       .getEntityShareById({
         id,
-        sourceType: 31,
-        langType: getCurrentLangCode(),
+        sourceType: 31
       })
       .then(async data => {
         localStorage.setItem('currentProjectId', _.get(data, 'data.projectId'));
@@ -46,11 +45,10 @@ export default class PublicShareChart extends Component {
           },
         );
         window.clientId = _.get(data, 'data.clientId');
-        const { projectId, appId, langInfo } = data.data;
-        const lang = await getAppLangDetail({
-          langInfo,
+        const { projectId, appId } = data.data;
+        const lang = await shareGetAppLangDetail({
           projectId,
-          id: appId,
+          appId,
         });
         window.appInfo = { id: appId };
         this.setState({ data, loading: false });

@@ -3,7 +3,6 @@ import { ScrollView, LoadDiv, Icon, Dialog, Dropdown, Checkbox, TagTextarea } fr
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter, ChatGPT } from '../components';
 import { ACTION_ID } from '../../enum';
-import { Base64 } from 'js-base64';
 import _ from 'lodash';
 import cx from 'classnames';
 import CodeSnippet, { CodeSnippetEdit } from '../../../components/CodeSnippet';
@@ -122,7 +121,7 @@ export default class Code extends Component {
           actionId,
           name: name.trim(),
           inputDatas: inputDatas.filter(item => item.name),
-          code: Base64.encode(code.replace(/\t/g, '    ')),
+          code: btoa(unescape(encodeURIComponent(code.replace(/\t/g, '    ')))),
           testMap,
           version,
           maxRetries,
@@ -207,7 +206,7 @@ export default class Code extends Component {
           <CodeSnippetEdit
             projectId={companyId}
             codeName={_.includes(['JavaScript', 'Python'], data.name) ? '' : data.name}
-            code={Base64.encode(data.code.replace(/\t/g, '    '))}
+            code={btoa(unescape(encodeURIComponent(data.code.replace(/\t/g, '    '))))}
             inputDatas={data.inputDatas}
             type={data.actionId}
             onSave={() => {
@@ -239,7 +238,7 @@ export default class Code extends Component {
           processId,
           nodeId: selectNodeId,
           actionId,
-          code: Base64.encode(code.replace(/\t/g, '    ')),
+          code: btoa(unescape(encodeURIComponent(code.replace(/\t/g, '    ')))),
           inputDatas: inputDatas
             .filter(item => item.name)
             .map(item => {

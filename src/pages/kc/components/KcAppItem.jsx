@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import { getClassNameByExt } from 'src/util';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -11,6 +10,7 @@ import ExtIcon from './ExtIcon';
 import { humanFileSize, humanDateTime } from '../utils';
 import { NODE_TYPE, NODE_STATUS, NODE_VIEW_TYPE } from '../constant/enum';
 import { getIconNameByExt } from 'src/util';
+import { MdLink } from 'ming-ui';
 
 const HoverState = createDecoratedComponent(withHoverState);
 
@@ -155,8 +155,8 @@ export default class KcAppItem extends React.Component {
           {!isUrl ? (
             item.type === NODE_TYPE.FOLDER ? (
               !isRecycle ? (
-                <Link
-                  className="listName ellipsis stopPropagation"
+                <MdLink
+                  className="listName ellipsis"
                   title={item.name}
                   to={encodeURI(
                     (keywords
@@ -166,7 +166,7 @@ export default class KcAppItem extends React.Component {
                   )}
                 >
                   {item.name}
-                </Link>
+                </MdLink>
               ) : (
                 <span
                   className="listName ellipsis"
@@ -295,13 +295,13 @@ export default class KcAppItem extends React.Component {
             {!isUrl ? (
               item.type === NODE_TYPE.FOLDER ? (
                 !isRecycle ? (
-                  <Link
-                    className="listName ellipsis stopPropagation"
+                  <MdLink
+                    className="listName ellipsis"
                     title={item.name}
                     to={encodeURI(`${baseUrl}/${path}/${item.name}`)}
                   >
                     {item.name}
-                  </Link>
+                  </MdLink>
                 ) : (
                   <span
                     className="listName ellipsis"

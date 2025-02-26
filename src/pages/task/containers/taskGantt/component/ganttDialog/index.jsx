@@ -15,7 +15,6 @@ import ErrorState from 'src/components/errorPage/errorState';
 import moment from 'moment';
 import html2canvas from 'html2canvas';
 import qiniuAjax from 'src/api/qiniu';
-import { Base64 } from 'js-base64';
 import { downloadFile, getToken } from 'src/util';
 import axios from 'axios';
 import _ from 'lodash';
@@ -191,7 +190,7 @@ export default class GanttDialog extends Component {
       if (res.error) {
         alert(res.error);
       } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
         axios
           .post(url, base64.replace('data:image/png;base64,', ''), {
             headers: {

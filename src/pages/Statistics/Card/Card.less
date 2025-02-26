@@ -16,16 +16,18 @@
     font-size: 15px;
     display: flex;
     align-items: center;
-    height: 32px;
     position: relative;
+    height: 42px;
+    padding: 0 10px 0;
+
     .operateIconWrap {
       display: none;
     }
     .dragWrap {
-      font-size: 15px !important;
+      font-size: 17px !important;
       position: absolute;
-      left: -15px;
-      top: 6px;
+      left: -3px;
+      top: 10px;
       opacity: 0;
     }
     .iconItem {
@@ -42,10 +44,6 @@
     .filterCriteriaIcon .icon:hover {
       color: #2196f3 !important;
     }
-  }
-
-  &.padding {
-    padding: 10px 15px 16px;
   }
 
   &.disableChart {
@@ -81,6 +79,7 @@
     box-sizing: border-box;
     height: 100%;
     overflow: hidden;
+    padding: 0 15px 16px;
     .count {
       line-height: inherit;
       font-weight: 500;

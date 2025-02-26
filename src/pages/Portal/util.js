@@ -1,4 +1,4 @@
-import { getSuffix } from 'src/pages/accountLogin/portalAccount/util';
+import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import api from 'src/api/homeApp';
 import { browserIsMobile } from 'src/util';
 import { navigateToLogout } from 'src/router/navigateTo';

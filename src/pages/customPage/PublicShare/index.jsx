@@ -11,7 +11,7 @@ import DocumentTitle from 'react-document-title';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import styled from 'styled-components';
 import { syncAppDetail, changeAppColor } from 'src/pages/PageHeader/redux/action';
-import { getRequest, getTranslateInfo, getAppLangDetail, browserIsMobile } from 'src/util';
+import { getRequest, getTranslateInfo, shareGetAppLangDetail, browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import './index.less';
 
@@ -41,8 +41,7 @@ const Entry = props => {
     window.clientId = clientId;
 
     getEntityShareById({
-      clientId,
-      langType: getCurrentLangCode(),
+      clientId
     }).then(async result => {
       const { data } = result;
       const { appId, projectId, langInfo } = data;
@@ -54,16 +53,7 @@ const Entry = props => {
           requestParams: { projectId },
         },
       );
-      const info = await getAppLangDetail({
-        langInfo,
-        id: appId,
-        projectId,
-      });
-      if (info) {
-        window.appInfo = { id: appId };
-        data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
-        data.customerPageName = getTranslateInfo(appId, null, data.sourceId).name || data.customerPageName;
-      }
+
       store.dispatch(syncAppDetail({
         name: data.appName,
         projectId: data.projectId
@@ -87,8 +77,20 @@ const Entry = props => {
     return new Promise(async (resolve, reject) => {
       const result = await appManagementApi.getEntityShareById({ id, sourceType: 21, ...data });
       const clientId = _.get(result, 'data.clientId');
+      const { appId, projectId } = result.data;
       window.clientId = clientId;
       clientId && sessionStorage.setItem(id, clientId);
+      if (result.resultCode === 1) {
+        const info = await shareGetAppLangDetail({
+          appId,
+          projectId,
+        });
+        if (info) {
+          window.appInfo = { id: appId };
+          data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
+          data.customerPageName = getTranslateInfo(appId, null, data.sourceId).name || data.customerPageName;
+        }
+      }
       resolve(result);
     });
   };
@@ -146,7 +148,7 @@ const Entry = props => {
         ) : (
           <Components.default
             id={share.data.sourceId}
-            ids={{ worksheetId: share.data.sourceId }}
+            ids={{ appId: share.data.appId, worksheetId: share.data.sourceId }}
             className={cx({ hideHeader: hideHeader === 'true' })}
           />
         )}

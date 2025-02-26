@@ -398,6 +398,6 @@ class ContractCom extends Component {
 }
 
 const WrappedComp = preall(ContractCom, { allowNotLogin: true });
-const root = createRoot(document.querySelector('#contractWrap'));
+const root = createRoot(document.querySelector('#app'));
 
 root.render(<WrappedComp />);

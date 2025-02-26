@@ -188,7 +188,9 @@ export default class Approval extends Component {
       condition,
       multipleLevelType,
       multipleLevel,
-      batch,
+      batchApprove,
+      fastApprove,
+      allowUploadAttachment,
       schedule,
       passSendMessage,
       passMessage,
@@ -249,7 +251,9 @@ export default class Approval extends Component {
         overruleBtnName: overruleBtnName.trim(),
         returnBtnName: returnBtnName.trim(),
         auth,
-        batch,
+        batchApprove,
+        fastApprove,
+        allowUploadAttachment,
         schedule,
         passSendMessage,
         passMessage,
@@ -994,38 +998,45 @@ export default class Approval extends Component {
    */
   renderSeniorSettings() {
     const { data } = this.state;
+    const seniorSettings = [
+      {
+        key: 'ignoreRequired',
+        text: _l('否决/退回时，无需填写表单字段'),
+      },
+      {
+        key: 'batchApprove',
+        text: _l('允许批量审批'),
+        tips: _l(
+          '允许审批人批量处理审批任务(在移动端可以直接点击待审批列表上的按钮进行审批)。在批量处理审批时将忽略表单中的必填字段。',
+        ),
+      },
+      {
+        key: 'fastApprove',
+        text: _l('允许快速审批'),
+        tips: _l('允许审批人在记录详情页、邮件及钉钉内快速处理审批任务。在快速处理审批时将忽略表单中的必填字段。'),
+      },
+    ];
 
     return (
       <Fragment>
-        <Checkbox
-          className="mTop15 flexRow"
-          text={_l('否决/退回时，无需填写表单字段')}
-          checked={data.ignoreRequired}
-          onClick={checked => this.updateSource({ ignoreRequired: !checked })}
-        />
-
-        <Checkbox
-          className="mTop15 flexRow"
-          text={
-            <span>
-              {_l('允许批量 / 快速审批')}
-              <Tooltip
-                popupPlacement="bottom"
-                text={
-                  <span>
-                    {_l(
-                      '允许审批人批量、快速处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填字段。',
-                    )}
-                  </span>
-                }
-              >
-                <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
-              </Tooltip>
-            </span>
-          }
-          checked={data.batch}
-          onClick={checked => this.updateSource({ batch: !checked })}
-        />
+        {seniorSettings.map(o => (
+          <Checkbox
+            key={o.key}
+            className="mTop15 flexRow"
+            text={
+              <span>
+                {o.text}
+                {o.tips && (
+                  <Tooltip popupPlacement="bottom" text={<span>{o.tips}</span>}>
+                    <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+                  </Tooltip>
+                )}
+              </span>
+            }
+            checked={data[o.key]}
+            onClick={checked => this.updateSource({ [o.key]: !checked })}
+          />
+        ))}
 
         <EmailApproval
           {...this.props}
@@ -1055,6 +1066,13 @@ export default class Approval extends Component {
             <Schedule {...this.props} schedule={data.schedule} updateSource={this.updateSource} />
           </Fragment>
         )}
+
+        <Checkbox
+          className="mTop15 flexRow"
+          text={_l('允许审批时上传附件')}
+          checked={data.allowUploadAttachment}
+          onClick={checked => this.updateSource({ allowUploadAttachment: !checked })}
+        />
       </Fragment>
     );
   }
@@ -1284,27 +1302,15 @@ export default class Approval extends Component {
                     updateSource={this.updateSource}
                   />
 
-                  <div className="Font13 bold mTop25">{_l('按钮名称')}</div>
                   <ButtonName
-                    dataKey="passBtnName"
-                    name={data.passBtnName}
-                    buttonName={_l('通过按钮')}
-                    onChange={this.updateSource}
+                    buttons={[
+                      { key: 'passBtnName', title: _l('通过按钮'), placeholder: _l('通过') },
+                      { key: 'overruleBtnName', title: _l('否决按钮'), placeholder: _l('否决') },
+                      { key: 'returnBtnName', title: _l('退回按钮'), placeholder: _l('退回') },
+                    ]}
+                    data={data}
+                    updateSource={this.updateSource}
                   />
-                  <ButtonName
-                    dataKey="overruleBtnName"
-                    name={data.overruleBtnName}
-                    buttonName={_l('否决按钮')}
-                    onChange={this.updateSource}
-                  />
-                  {data.isCallBack && (
-                    <ButtonName
-                      dataKey="returnBtnName"
-                      name={data.returnBtnName}
-                      buttonName={_l('退回按钮')}
-                      onChange={this.updateSource}
-                    />
-                  )}
 
                   <PromptSoundDialog
                     {...this.props}

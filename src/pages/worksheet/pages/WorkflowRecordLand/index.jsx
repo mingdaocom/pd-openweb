@@ -22,7 +22,16 @@ export default function WorkflowRecordLand(props) {
   const { id, workId } = props.match.params;
   return (
     <Con>
-      <ExecDialog isLand id={id} workId={workId} onClose={() => location.reload()} />
+      <ExecDialog
+        isLand
+        id={id}
+        workId={workId}
+        onClose={() => {
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        }}
+      />
     </Con>
   );
 }

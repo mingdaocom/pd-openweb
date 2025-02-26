@@ -70,7 +70,8 @@ export default class ChatCount extends Component {
       autoOpenDiscuss,
       originalData,
       className,
-      recordDiscussSwitch
+      recordDiscussSwitch,
+      ...rest
     } = this.props;
     const { discussionCount, visible } = this.state;
     return (
@@ -84,14 +85,13 @@ export default class ChatCount extends Component {
           }}
         >
           <Icon icon={recordDiscussSwitch ? 'chat' : 'assignment'} className="TxtMiddle Font20" />
-          {recordDiscussSwitch && (
-            <span className="mLeft5">{discussionCount}</span>
-          )}
+          {recordDiscussSwitch && <span className="mLeft5">{discussionCount}</span>}
         </ChartCountWrap>
         <DiscussInfo
           isModal
           className="full"
           visible={visible}
+          {...rest}
           appId={appId}
           worksheetId={worksheetId}
           rowId={rowId}

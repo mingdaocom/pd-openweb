@@ -5,6 +5,7 @@ import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { RecordInfoModal } from 'mobile/Record';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { handlePushState, handleReplaceState } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import moment from 'moment';
@@ -30,7 +31,19 @@ class ScheduleModal extends Component {
   }
   componentDidMount() {
     safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventAll');
+    window.addEventListener('popstate', this.onQueryChange);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => {
+      this.setState({ previewRecordId: undefined, wsid: undefined });
+    });
+  };
+
   renderListEvent = () => {
     const { calendarview, getInitType } = this.props;
     const { calenderEventList } = calendarview;
@@ -111,6 +124,7 @@ class ScheduleModal extends Component {
                   window.location.href = `/mobile/record/${base.appId}/${wsid}/${base.viewId}/${rowid}`;
                   return;
                 }
+                handlePushState('page', 'recordDetail');
                 this.setState({ previewRecordId: rowid, wsid });
               }}
             >

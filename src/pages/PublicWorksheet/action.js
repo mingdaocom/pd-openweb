@@ -18,8 +18,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { setPssId } from 'src/util/pssId';
 import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
 import preall from 'src/common/preall';
-import { getTranslateInfo, getAppLangDetail } from 'src/util';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/util';
+import {
+  replaceControlsTranslateInfo,
+  replaceRulesTranslateInfo,
+  replaceAdvancedSettingTranslateInfo,
+} from 'worksheet/util';
 import { isSheetDisplay } from '../widgetConfig/util';
 import localForage from 'localforage';
 
@@ -438,15 +442,6 @@ export function getPublicWorksheet(params, cb = info => {}) {
       localStorage.setItem('currentProjectId', data.projectId);
       preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId: data.projectId } });
 
-      const lang = await getAppLangDetail({
-        langInfo: data.langInfo,
-        projectId: data.projectId,
-        id: data.appId,
-      });
-
-      data.name = getTranslateInfo(data.appId, null, data.worksheetId).name || data.name;
-      data.originalControls = replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls);
-
       const status = await getStatus(data, params.shareId);
 
       if (!data || data.visibleType !== 2 || status === FILL_STATUS.FIXED) {
@@ -491,6 +486,15 @@ export function getPublicWorksheet(params, cb = info => {}) {
         return;
       }
 
+      const lang = await shareGetAppLangDetail({
+        projectId: data.projectId,
+        appId: data.appId,
+      });
+
+      data.name = getTranslateInfo(data.appId, null, data.worksheetId).name || data.name;
+      data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, data.worksheetId, data.advancedSetting);
+      data.originalControls = replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls);
+
       data.shareAuthor && (window.shareAuthor = data.shareAuthor);
       worksheetAjax
         .getControlRules({
@@ -507,7 +511,7 @@ export function getPublicWorksheet(params, cb = info => {}) {
               coverUrl: data.cover,
             },
             formData: await getFormData(data, status),
-            rules,
+            rules: replaceRulesTranslateInfo(data.appId, data.worksheetId, rules),
             status,
           });
         });

@@ -95,6 +95,7 @@ export const getEnv = (reference, { isDisabled = false, isMobile = false } = {})
 
 export function getMessageList({ worksheetId, messageStoreId } = {}) {
   return codeAjax.getGenerateCodeRecord({
+    isCustomField: true,
     workflowId: worksheetId,
     nodeId: messageStoreId,
   });
@@ -187,17 +188,23 @@ export function getDefaultPrompt(control) {
     case WIDGETS_TO_API_TYPE_ENUM.TEXT:
       return {
         title: _l('生成一个颜色选择器'),
-        content: `生成一个 颜色选择器，用户选择颜色后将颜色以"#XXXXXX"的格式保存，加载时如果字段有值，将颜色回显到颜色选择器，当组件参数 env 中的 isDisabled 为 true 时，禁用颜色选择器。`,
+        content: _l(
+          `生成一个 颜色选择器，用户选择颜色后将颜色以"#XXXXXX"的格式保存，加载时如果字段有值，将颜色回显到颜色选择器，当组件参数 env 中的 isDisabled 为 true 时，禁用颜色选择器。`,
+        ),
       };
     case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
       return {
         title: _l('生成一个随机数发生器'),
-        content: `生成一个随机数发生器，包含一个数值输入框和一个按钮，点击按钮后，数值输入框内以100ms 的速度变化显示不同的1~100内的随机数，并最终缓慢停下。数字停止变化后，将最终的数值保存。如果载入时有值，将值回显到数值输入框内。当组件参数 env 中的 isDisabled 为 true 时，禁用数值输入框，并隐藏按钮。`,
+        content: _l(
+          `生成一个随机数发生器，包含一个数值输入框和一个按钮，点击按钮后，数值输入框内以100ms 的速度变化显示不同的1~100内的随机数，并最终缓慢停下。数字停止变化后，将最终的数值保存。如果载入时有值，将值回显到数值输入框内。当组件参数 env 中的 isDisabled 为 true 时，禁用数值输入框，并隐藏按钮。`,
+        ),
       };
     case WIDGETS_TO_API_TYPE_ENUM.DATE:
       return {
         title: _l('生成一个胶囊日期选择器'),
-        content: `生成一个从本周周一开始的7天的日期选择器，日期以胶囊的形式展示，用户选中日期后保存。如果载入时有值，则显示为值所在的那一周的7天，并默认选中值。当组件参数 env 中的 isDisabled 为 true 时，禁用日期选择器。`,
+        content: _l(
+          `生成一个从本周周一开始的7天的日期选择器，日期以胶囊的形式展示，用户选中日期后保存。如果载入时有值，则显示为值所在的那一周的7天，并默认选中值。当组件参数 env 中的 isDisabled 为 true 时，禁用日期选择器。`,
+        ),
       };
     case WIDGETS_TO_API_TYPE_ENUM.TIME:
       return {
@@ -207,17 +214,21 @@ export function getDefaultPrompt(control) {
     case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU:
       return {
         title: _l('生成一个仓库选择器'),
-        content: `生成一个仓库的平面示意图，在平面图上从左至右排列可以点击选择的仓库，每个仓库的左上角有一个小的出入口。仓库的数据来自本字段 options 数组下的内容，value 是名称，color 是它的颜色。用户只能点击选择一个仓库，选中后以 JSON 数组格式字符串保存选中的仓库的 key值。如果载入时有值，将值回显到仓库上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止选择仓库，只能查看。`,
+        content: _l(
+          `生成一个仓库的平面示意图，在平面图上从左至右排列可以点击选择的仓库，每个仓库的左上角有一个小的出入口。仓库的数据来自本字段 options 数组下的内容，value 是名称，color 是它的颜色。用户只能点击选择一个仓库，选中后以 JSON 数组格式字符串保存选中的仓库的 key值。如果载入时有值，将值回显到仓库上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止选择仓库，只能查看。`,
+        ),
       };
     case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT:
       return {
         title: _l('生成一个仓库选择器'),
-        content: `生成一个仓库的平面示意图，在平面图上从左至右排列可以点击选择的仓库，每个仓库的左上角有一个小的出入口。仓库的数据来自本字段 options 数组下的内容，value 是名称，color 是它的颜色。用户可以点击选中多个仓库，选中后以 JSON 数组格式字符串保存选中的仓库的 key值。如果载入时有值，将值回显到仓库上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止选择仓库，只能查看。`,
+        content: _l(
+          `生成一个仓库的平面示意图，在平面图上从左至右排列可以点击选择的仓库，每个仓库的左上角有一个小的出入口。仓库的数据来自本字段 options 数组下的内容，value 是名称，color 是它的颜色。用户可以点击选中多个仓库，选中后以 JSON 数组格式字符串保存选中的仓库的 key值。如果载入时有值，将值回显到仓库上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止选择仓库，只能查看。`,
+        ),
       };
     default:
       return {
         title: _l('生成一个组件，实时显示当前时间'),
-        content: `生成一个组件，实时显示当前时间`,
+        content: _l(`生成一个组件，实时显示当前时间`),
       };
   }
 }

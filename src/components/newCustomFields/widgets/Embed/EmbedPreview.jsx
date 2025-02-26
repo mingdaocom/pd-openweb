@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { View } from 'src/pages/customPage/components/editWidget/view/Preview';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -23,12 +22,15 @@ const Wrap = styled.div`
 
 export default function EmbedPreview(props) {
   const { needUpdate } = props;
+  const [ViewComponent, setComponent] = useState(null);
+
+  useEffect(() => {
+    import('src/pages/customPage/components/editWidget/view/Preview').then(component => {
+      setComponent(component);
+    });
+  }, []);
 
   return useMemo(() => {
-    return (
-      <Wrap>
-        <View {...props} />
-      </Wrap>
-    );
-  }, [needUpdate]);
+    return <Wrap>{ViewComponent ? <ViewComponent.View {...props} /> : null}</Wrap>;
+  }, [needUpdate, ViewComponent]);
 }

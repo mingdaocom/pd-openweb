@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import moment from 'moment';
 import { ScrollView, LoadDiv, Checkbox, WaterMark, Icon, Tooltip } from 'ming-ui';
@@ -55,7 +55,7 @@ export default class GlobalSearch extends Component {
 
     this.initParam();
 
-    if (urlParam.appId && urlParam.appId!=='undefined') {
+    if (urlParam.appId && urlParam.appId !== 'undefined') {
       this.setState({ appId: urlParam.appId });
     }
   }
@@ -108,13 +108,13 @@ export default class GlobalSearch extends Component {
       (getFeatureStatus(proId, VersionProductType.globalSearch) !== '1' || proObj.licenseType === 2)
     ) {
       this.setState({
-        filterCount: 0
-      })
+        filterCount: 0,
+      });
       return;
     }
 
-    if(!proId) {
-      alert(_l('请先加入组织'), 2)
+    if (!proId) {
+      alert(_l('请先加入组织'), 2);
       return;
     }
 
@@ -149,7 +149,6 @@ export default class GlobalSearch extends Component {
     this.setState({ loading: true, otherLoading: true });
 
     const proId = projectId === 'all' || !projectId ? getCurrentProjectId() : projectId;
-
 
     const searchAppParam = {
       keywords: searchKey,
@@ -364,7 +363,8 @@ export default class GlobalSearch extends Component {
 
     if (
       searchType === 'record' &&
-      (getFeatureStatus(currentProject.projectId, VersionProductType.globalSearch) !== '1' || currentProject.licenseType === 2)
+      (getFeatureStatus(currentProject.projectId, VersionProductType.globalSearch) !== '1' ||
+        currentProject.licenseType === 2)
     )
       return null;
 
@@ -428,7 +428,7 @@ export default class GlobalSearch extends Component {
             this.updateSearchParam({ pageIndex: this.state.pageIndex + 1 });
           }}
           update={() => {
-            this.updateSearchParam({ pageIndex: 1 })
+            this.updateSearchParam({ pageIndex: 1 });
             this.getFilterCount();
           }}
         />

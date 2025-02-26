@@ -106,7 +106,7 @@ function DetailView(props) {
     isOpenGroup ? window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
   );
   const [flag, setFlag] = useState(+new Date());
-  const isLoading = detailViewLoading && detailPageIndex === 1;
+  const isLoading = (detailViewLoading && detailPageIndex === 1) || worksheetInfo.isRequestingRelationControls;
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

@@ -311,7 +311,7 @@ class UserCard extends React.Component {
   getUserLink = () => {
     const { sourceId = '', type } = this.props;
     const { data } = this.state;
-    const isPortal = sourceId.includes('#');
+    const isPortal = _.includes(sourceId, '#');
 
     return data.status === USER_STATUS.INACTIVE || md.global.Account.isPortal || isPortal || type !== 1
       ? 'javascript:void(0);'
@@ -334,7 +334,7 @@ class UserCard extends React.Component {
   renderContent() {
     const { type, sourceId = '', accountId, groupId, chatButton, projectId } = this.props;
     const { data, isSourceValid } = this.state;
-    const isPortal = sourceId.includes('#');
+    const isPortal = _.includes(sourceId, '#');
     const url = this.getUserLink();
     const isSecret = !sourceId && !accountId && !groupId;
     const noInfo = md.global.Account.accountId.includes('#') && !isPortal;

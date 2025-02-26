@@ -20,6 +20,7 @@ const ButtonDisplayWrap = styled.div`
   .explain {
     text-align: center;
     margin-bottom: 12px;
+    color: var(--title-color);
   }
 `;
 const BtnWrap = styled.div`

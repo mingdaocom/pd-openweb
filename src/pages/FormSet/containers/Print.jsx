@@ -88,14 +88,14 @@ class CreatePrintDrawer extends React.Component {
               <span className="iconbox">
                 <Icon icon="new_word" className="printTempDrawerListItemIcon" />
               </span>
-              {_l('上传 Word 模板')}
+              {_l('新建 Word 模板')}
               {featureType === '2' && <UpgradeIcon />}
             </div>
             <div className="printTempDrawerListItem" onClick={addExcelPrintTemp}>
               <span className="iconbox">
                 <Icon icon="new_excel" className="printTempDrawerListItemIcon" />
               </span>
-              {_l('上传 Excel 模板')}
+              {_l('新建 Excel 模板')}
               {featureType === '2' && <UpgradeIcon />}
             </div>
           </React.Fragment>
@@ -345,13 +345,15 @@ class Print extends React.Component {
               downLoadUrl={worksheetInfo.downLoadUrl}
               onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
               onClose={() => this.setState({ showEditPrint: false, type: '' })}
-              printData={printData}
               templateId={templateId}
               worksheetId={worksheetId}
+              templateData={printData.find(it => it.id === templateId)}
               fileType={fileType}
+              roleType={_.get(worksheetInfo, 'roleType')}
+              projectId={_.get(worksheetInfo, 'projectId')}
               updatePrint={this.updatePrint}
-              refreshFn={() => {
-                this.setState({ showEditPrint: false, type: '' });
+              refreshFn={(showEditPrint = false, id) => {
+                this.setState({ showEditPrint, type: '', templateId: id || templateId });
                 this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
               }}
             />
@@ -371,7 +373,7 @@ class Print extends React.Component {
   };
 
   render() {
-    const { loading } = this.state;
+    const { loading, previewRowId = '' } = this.state;
     const { worksheetInfo = {}, worksheetId } = this.props;
 
     return (
@@ -385,7 +387,7 @@ class Print extends React.Component {
             isDefault={this.state.isDefault}
             worksheetId={worksheetId}
             projectId={worksheetInfo.projectId}
-            rowId={''}
+            rowId={previewRowId}
             viewId={''}
             appId={worksheetInfo.appId}
             getType={1}

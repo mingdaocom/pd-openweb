@@ -368,7 +368,7 @@ export default class extends Component {
         ? data.filter(({ name }) => !!name)
         : data.map(item => (item.name ? item : { ...item, name: _l('未命名分组') }));
 
-    const renderContent = (count, onClick) => {
+    const renderContent = ({ count, waitingExamine }, onClick) => {
       return (
         <VCenterIconText
           data-tip={_l('流程待办')}
@@ -379,11 +379,14 @@ export default class extends Component {
           textSize={14}
           iconStyle={{ margin: 0 }}
           text={
-            !!count && (
-              <div className="flexRow alignItemsCenter mLeft6">
-                <div className="count">{count}</div>
-              </div>
-            )
+            <Fragment>
+              {!!count && (
+                <div className="flexRow alignItemsCenter mLeft6">
+                  <div className="count">{count}</div>
+                </div>
+              )}
+              {!!waitingExamine && !count && <div className="weakCount"></div>}
+            </Fragment>
           }
         />
       );
@@ -471,12 +474,10 @@ export default class extends Component {
             {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
               <AppExtension
                 appId={appId}
+                appPkg={appPkg}
                 permissionType={permissionType}
                 isLock={isLock}
-                navColor={appPkg.navColor}
-                iconColor={appPkg.iconColor}
                 showRoleDebug={showRoleDebug}
-                debugRole={appPkg.debugRole}
                 roleSelectValue={roleSelectValue}
                 otherAllShow={otherAllShow}
               />

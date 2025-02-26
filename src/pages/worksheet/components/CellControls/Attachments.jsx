@@ -286,8 +286,7 @@ function previewAttachment({
   masterControlId,
   sourceControlId,
 }) {
-  const recordAttachmentSwitch =
-    !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
+  const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
   let hideFunctions = ['editFileName', 'saveToKnowlege'];
   const allowDownload = advancedSetting.allowdownload || '1';
   if (!recordAttachmentSwitch || disableDownload || allowDownload === '0') {
@@ -522,9 +521,7 @@ function Attachment(props) {
         style={{ maxWidth: cellWidth }}
         onClick={e => {
           e.stopPropagation();
-          if (_.get(window.shareState, 'shareId')) {
-            return;
-          }
+
           if (attachment && !!attachment.refId && !attachment.shareUrl) {
             alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
             return;

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import codeAjax from 'src/api/code';
-import { getPssId } from 'src/util/pssId';
 import { MESSAGE_TYPE } from './enum';
 import { findLast, get, omit } from 'lodash';
 import { createParser } from 'eventsource-parser';
@@ -76,9 +75,22 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
     setLoading(false);
   };
 
-  const sendMessage = async (content, { noCode = false } = {}) => {
+  const sendMessage = async (content, { noCode = false, imageUrl } = {}) => {
     if (!content.trim()) return;
-
+    if (imageUrl) {
+      content = [
+        {
+          type: 'text',
+          text: content,
+        },
+        {
+          type: 'image_url',
+          image_url: {
+            url: imageUrl,
+          },
+        },
+      ];
+    }
     await abortRequest();
     abortControllerRef.current = new AbortController();
 
@@ -131,7 +143,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
         return result;
       }
 
-      const response = await codeAjax.generateCodeBlock(
+      const response = await codeAjax.setupCustomField(
         {
           codeType: 3,
           params,

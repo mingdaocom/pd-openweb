@@ -63,6 +63,8 @@ export const ACTION_VALUE_ENUM = {
   LINK: '11',
   CREATE: '12',
   OPERATION_FLOW: '13',
+  SEARCH_WORKSHEET: '14',
+  ACTIVATE_TAB: '15',
 };
 
 // 事件动作类型
@@ -72,10 +74,12 @@ export const ACTION_VALUE_TYPE = [
   { text: _l('设置字段值'), value: ACTION_VALUE_ENUM.SET_VALUE },
   { text: _l('刷新字段值'), value: ACTION_VALUE_ENUM.REFRESH_VALUE },
   // { text: _l('提示错误'), value: ACTION_VALUE_ENUM.ERROR },
+  { text: _l('查询工作表'), value: ACTION_VALUE_ENUM.SEARCH_WORKSHEET },
   { text: _l('调用封装业务流程'), value: ACTION_VALUE_ENUM.OPERATION_FLOW },
   { text: _l('调用已集成 API'), value: ACTION_VALUE_ENUM.API },
   { text: _l('提示消息'), value: ACTION_VALUE_ENUM.MESSAGE },
   { text: _l('播放声音'), value: ACTION_VALUE_ENUM.VOICE },
+  { text: _l('激活标签页'), value: ACTION_VALUE_ENUM.ACTIVATE_TAB },
   { text: _l('打开链接'), value: ACTION_VALUE_ENUM.LINK },
   { text: _l('创建新纪录'), value: ACTION_VALUE_ENUM.CREATE },
 ];
@@ -173,7 +177,7 @@ export const FILTER_SPLICE_TYPE = [
 
 //支持配默认值的字段
 export const HAS_DYNAMIC_TYPE = [
-  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 35, 36, 41, 46, 48,
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 41, 46, 48,
 ];
 
 export const VOICE_FILE_LIST = [

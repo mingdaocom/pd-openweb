@@ -11,7 +11,7 @@
         <style>
             html,
             body,
-            #mobileGunter {
+            #app {
                 height: 100%;
                 overflow: hidden;
             }
@@ -23,34 +23,8 @@
                 box-shadow: unset;
             }
         </style>
-        <style>
-            ::-webkit-scrollbar {
-                width: 10px;
-                height: 10px;
-            }
-            ::-webkit-scrollbar-thumb {
-                width: 6px;
-                height: 6px;
-                border-radius: 6px;
-                background: rgba(187, 187, 187, 0.8);
-                background-clip: padding-box;
-                border: 2px solid transparent;
-            }
-            ::-webkit-scrollbar-thumb:active,
-            ::-webkit-scrollbar-thumb:hover {
-                background: rgba(125, 125, 125, 0.8);
-                background-clip: padding-box;
-            }
-        </style>
-        <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
-        <script src="/src/common/mdjs/freestyle.js"></script>
     </head>
     <body>
-        <div id="mobileGunter"></div>
-        <script>
-            var __api_server__ = <%- apiServer %>;
-            var __webpack_public_path__ = '<%= publicPath %>';
-        </script>
-        <script src="webpack[single]?src/pages/mobileGunter"></script>
+        <script src="webpack[singleExtractModules]?src/pages/mobileGunter"></script>
     </body>
 </html>

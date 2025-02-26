@@ -12,15 +12,17 @@ import AddFields from '../AddFields';
 import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
 
 export default function SetValue(props) {
-  const { actionData = {}, handleOk, allControls = [] } = props;
-  const [{ actionItems, visible }, setState] = useSetState({
+  const { actionData = {}, handleOk, allControls = [], updateQueryConfigs = () => {} } = props;
+  const [{ actionItems, visible, customQueryConfig = [] }, setState] = useSetState({
     actionItems: actionData.actionItems || [],
     visible: true,
+    customQueryConfig: props.customQueryConfig || [],
   });
 
   useEffect(() => {
     setState({
       actionItems: actionData.actionItems || [],
+      customQueryConfig: props.customQueryConfig || [],
     });
   }, []);
 
@@ -63,6 +65,7 @@ export default function SetValue(props) {
             {actionItems.map((item, index) => {
               const { icon, currentControl } = getDetail(item.controlId);
               const isDelete = !_.get(currentControl, 'controlName');
+              const queryId = item.type === '2' && _.get(safeParse(item.value), 'id');
               return (
                 <div className="setItem">
                   <div className="itemFiled itemFiledTitle ">
@@ -78,19 +81,32 @@ export default function SetValue(props) {
                       <DynamicDefaultValue
                         {...props}
                         data={handleAdvancedSettingChange(currentControl, {
-                          [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
+                          [item.type === '1' ? 'defaultfunc' : item.type === '2' ? 'dynamicsrc' : 'defsource']:
+                            item.value,
                           defaulttype: item.type,
                         })}
                         hideTitle={true}
                         fromCustomEvent={true}
                         from={DYNAMIC_FROM_MODE.CUSTOM_EVENT}
                         showEmpty={true}
+                        {...(queryId ? { queryConfig: _.find(customQueryConfig, c => c.id === queryId) || {} } : {})}
+                        updateQueryConfigs={newConfig => {
+                          const index = _.findIndex(customQueryConfig, item => item.id === newConfig.id);
+                          const newQueryConfigs =
+                            index > -1
+                              ? customQueryConfig.map(item => {
+                                  return item.id === newConfig.id ? newConfig : item;
+                                })
+                              : customQueryConfig.concat([newConfig]);
+                          setState({ customQueryConfig: newQueryConfigs });
+                          updateQueryConfigs(newConfig);
+                        }}
                         onChange={newData => {
-                          const { defsource, defaulttype, defaultfunc } = getAdvanceSetting(newData);
+                          const { defsource, defaulttype, defaultfunc, dynamicsrc } = getAdvanceSetting(newData);
                           const tempValue = {
                             ...item,
                             type: defaulttype,
-                            value: defaulttype === '1' ? defaultfunc : defsource,
+                            value: defaulttype === '1' ? defaultfunc : defaulttype === '2' ? dynamicsrc : defsource,
                           };
                           setState({
                             actionItems: actionItems.map((i, idx) => (idx === index ? tempValue : i)),

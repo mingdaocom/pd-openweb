@@ -46,31 +46,28 @@ export default class Entry extends Component {
   }
   render() {
     const { countData, onClick, type, renderContent, className } = this.props;
-    const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
+    const count = countData ? (countData.waitingDispose > 99 ? '99+' : countData.waitingDispose) : 0;
+    const { waitingExamine = 0 } = countData || {};
     const isNative = type === 'native';
     const { iconColor } = store.getState().appPkg;
     if (_.isFunction(renderContent)) {
-      return renderContent(count, onClick);
+      return renderContent({ count, waitingExamine }, onClick);
     }
-    return type ? (
+    return (
       <Tooltip text={<span>{_l('流程待办')}</span>}>
-        <div className={`myProcessHeader pointer mRight10 ${isNative ? 'Gray_75' : 'White'} ${className}`} onClick={onClick}>
+        <div
+          className={`myProcessHeader pointer mRight10 ${isNative ? 'Gray_75' : 'White'} ${className}`}
+          onClick={onClick}
+        >
           <Icon icon={cx('task_alt', { appIcon: !isNative })} className="mRight5 Font20" />
-          {count ? (
+          {!!count && (
             <span className={`count ${isNative ? 'native' : 'app'}`} style={{ color: isNative ? '' : iconColor }}>
               {count}
             </span>
-          ) : null}
+          )}
+          {!!waitingExamine && !count && <span className="weakCount"></span>}
         </div>
       </Tooltip>
-    ) : (
-      <ul className="mTop10">
-        <li className="myProcess" onClick={onClick}>
-          <Icon icon="task_alt" />
-          <span className="Gray_75 bold">{_l('流程待办')}</span>
-          {count ? <span className="count">{count}</span> : null}
-        </li>
-      </ul>
     );
   }
 }

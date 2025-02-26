@@ -115,7 +115,13 @@ const Operation = ({
             getTableData();
           }
         }}
-      />
+      >
+        <span>
+          <Tooltip title={_l('排序')} placement="bottom">
+            <Icon icon="swap_vert" className="Font20 pointer Bold mLeft16 Gray_9e hoverHighlight" />
+          </Tooltip>
+        </span>
+      </Sort>
     </div>
   );
 };

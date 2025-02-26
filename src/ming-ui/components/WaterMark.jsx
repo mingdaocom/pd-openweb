@@ -185,6 +185,9 @@ const WaterMark: React.FC<WaterMarkProps> = props => {
 };
 
 export default props => {
+  const currentProject =
+    md.global.Account.accountId && props.projectId !== 'external' ? getCurrentProject(props.projectId, true) : {};
+
   useEffect(() => {
     window.hadWaterMark = true;
     return () => {
@@ -192,21 +195,36 @@ export default props => {
     };
   }, []);
 
+  const getValue = key => {
+    switch (key) {
+      case 'mobilePhone':
+        return (_.get(md, 'global.Account.mobilePhone') || '').substr(-4, 4);
+      case 'email':
+        return (_.get(md, 'global.Account.email') || '').replace(/@.*/g, '');
+      case 'companyName':
+        return currentProject.companyName || '';
+      default:
+        return _.get(md, `global.Account.${key}`) || '';
+    }
+  };
+
+  const getContent = () => {
+    if (!!currentProject.enabledWatermarkTxt) {
+      return currentProject.enabledWatermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
+    }
+
+    return md.global.Account.fullname + '/' + (getValue('mobilePhone') || getValue('email'));
+  };
+
   if (
     (md.global.Account.accountId &&
       props.projectId !== 'external' &&
-      (getCurrentProject(props.projectId, true).enabledWatermark ||
-        (md.global.Account.watermark == 1 && md.global.Account.isPortal))) ||
+      (currentProject.enabledWatermark || (md.global.Account.watermark == 1 && md.global.Account.isPortal))) ||
     props.showWaterMark
   ) {
     return (
       <WaterMark
-        content={
-          md.global.Account.fullname +
-          '/' +
-          ((_.get(md, 'global.Account.mobilePhone') || '').substr(-4, 4) ||
-            (_.get(md, 'global.Account.email') || '').replace(/@.*/g, ''))
-        }
+        content={getContent()}
         className="w100 h100"
         rotate={45}
         fontSize={18}

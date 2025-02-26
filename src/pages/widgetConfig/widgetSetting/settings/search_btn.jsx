@@ -61,7 +61,7 @@ export default function SearchBtn(props) {
             // 按钮
             if (!value) {
               onChange({
-                ...handleAdvancedSettingChange(data, { itemsource: '', itemtitle: '', itemdesc: '' }),
+                ...handleAdvancedSettingChange(data, { itemsource: '', itemtitle: '', itemdesc: '', filterregex: '' }),
                 hint: _l('查询'),
                 enumDefault: value,
                 type: 49,
@@ -70,7 +70,7 @@ export default function SearchBtn(props) {
             } else {
               onChange({
                 ...(value === 1
-                  ? handleAdvancedSettingChange(data, { clicksearch: '', searchfirst: '', min: '' })
+                  ? handleAdvancedSettingChange(data, { clicksearch: '', searchfirst: '', min: '', filterregex: '' })
                   : handleAdvancedSettingChange(data, { clicksearch: '0', searchfirst: '0', min: '1' })),
                 enumDefault: value,
                 type: 50,

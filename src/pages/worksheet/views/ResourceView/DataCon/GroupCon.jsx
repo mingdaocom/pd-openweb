@@ -581,7 +581,13 @@ export default function GroupCon(props) {
                     >
                       <CellControl
                         row={row}
-                        cell={{ ...it, value }}
+                        cell={{
+                          ...it,
+                          value,
+                          ...(it.type === 30 && [9, 10, 11].includes(it.sourceControlType)
+                            ? { options: _.get(it, 'sourceControl.options') }
+                            : {}),
+                        }}
                         from={4}
                         // appId={appId}
                         projectId={worksheetInfo.projectId}

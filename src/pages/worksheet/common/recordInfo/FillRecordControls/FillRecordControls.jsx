@@ -75,6 +75,7 @@ class FillRecordControls extends React.Component {
           }
           const defaultFormData = hasDefaultControls.length
             ? new DataFormat({
+                forceSync: true,
                 data: formDataForDataFormat
                   .filter(c => {
                     return _.find(
@@ -301,7 +302,7 @@ class FillRecordControls extends React.Component {
       continueFill,
       viewId,
       sheetSwitchPermit,
-      isDraft
+      isDraft,
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
 

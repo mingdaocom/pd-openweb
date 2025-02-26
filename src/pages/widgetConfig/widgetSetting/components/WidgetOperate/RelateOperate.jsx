@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import { useSetState } from 'react-use';
-import { Checkbox, Dropdown } from 'ming-ui';
+import { Checkbox, Dropdown, Dialog } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { formatViewToDropdown } from '../../../util';
 import { SettingItem, SheetViewWrap } from '../../../styled';
@@ -10,9 +10,65 @@ import { SYSTEM_CONTROL } from '../../../config/widget';
 import { FilterItemTexts, FilterDialog } from '../../components/FilterData';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 
+const BATCH_OPTIONS = [
+  {
+    text: _l('取消关联'),
+    key: 'batchcancel',
+    disabledKey: 'allowcancel',
+  },
+  {
+    text: _l('编辑'),
+    key: 'batchedit',
+  },
+  {
+    text: _l('删除'),
+    key: 'batchdelete',
+    disabledKey: 'allowdelete',
+  },
+  {
+    text: _l('导出'),
+    key: 'batchexport',
+    disabledKey: 'allowexport',
+  },
+];
+
+function OperateDialog(props) {
+  const { data, onClose, onOk } = props;
+  const { batchcancel, batchdelete, batchedit = '1', batchexport } = getAdvanceSetting(data);
+
+  const [batchInfo, setBatchInfo] = useSetState({
+    batchcancel,
+    batchdelete,
+    batchedit,
+    batchexport,
+  });
+
+  return (
+    <Dialog width={480} visible={true} title={_l('批量操作设置')} onCancel={onClose} onOk={() => onOk(batchInfo)}>
+      <div className="flexColumn pTop8">
+        {BATCH_OPTIONS.map(item => {
+          const defaultValue = getAdvanceSetting(data)[item.disabledKey] || '1';
+          return (
+            <div className="labelWrap mBottom10">
+              <Checkbox
+                size="small"
+                text={item.text}
+                {...(item.disabledKey ? { disabled: getAdvanceSetting(data, [item.disabledKey]) === 0 } : {})}
+                checked={(batchInfo[item.key] || defaultValue) === '1'}
+                onClick={checked => setBatchInfo({ [item.key]: String(+!checked) })}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </Dialog>
+  );
+}
+
 // 高级设置
 export default function RelateOperate(props) {
   const { data, allControls, globalSheetControls, onChange } = props;
+  const [visible, setVisible] = useState(false);
   const { enumDefault, enumDefault2 = 1, controlId, dataSource, viewId } = data;
 
   let {
@@ -25,9 +81,12 @@ export default function RelateOperate(props) {
     allowexport = '1',
     showquick = '1',
     allowbatch = '0',
+    batchexport,
+    batchdelete,
+    batchcancel,
   } = getAdvanceSetting(data);
   const filters = getAdvanceSetting(data, 'filters');
-  const { loading, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
+  const { loading = true, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
   const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
   const isList = enumDefault === 2 && _.includes(['2', '5', '6'], showtype);
@@ -166,7 +225,14 @@ export default function RelateOperate(props) {
             size="small"
             text={_l('允许取消关联')}
             checked={allowcancel !== '0'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowcancel: checked ? '0' : '1' }))}
+            onClick={checked =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowcancel: checked ? '0' : '1',
+                  ...(checked && batchcancel === '1' ? { batchcancel: '0' } : {}),
+                }),
+              )
+            }
           />
         </div>
       )}
@@ -176,7 +242,14 @@ export default function RelateOperate(props) {
             size="small"
             text={_l('允许删除记录')}
             checked={allowdelete !== '0'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowdelete: String(+!checked) }))}
+            onClick={checked =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowdelete: String(+!checked),
+                  ...(checked && batchdelete === '1' ? { batchdelete: '0' } : {}),
+                }),
+              )
+            }
           />
         </div>
       )}
@@ -223,7 +296,14 @@ export default function RelateOperate(props) {
             <Checkbox
               size="small"
               checked={allowexport === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowexport: String(+!checked) }))}
+              onClick={checked =>
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    allowexport: String(+!checked),
+                    ...(checked && batchexport === '1' ? { batchexport: '0' } : {}),
+                  }),
+                )
+              }
             >
               <span style={{ marginRight: '4px' }}>{_l('允许导出')}</span>
               <Tooltip placement="bottom" title={_l('勾选后支持在主记录详情中将已关联的记录导出为 Excel')}>
@@ -231,13 +311,35 @@ export default function RelateOperate(props) {
               </Tooltip>
             </Checkbox>
           </div>
-          <div className="labelWrap">
+          <div className="labelWrap labelBetween">
             <Checkbox
               size="small"
               text={_l('允许批量操作')}
               checked={allowbatch === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowbatch: String(+!checked) }))}
+              onClick={checked => {
+                if (checked) {
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      allowbatch: '0',
+                      batchcancel: '0',
+                      batchedit: '0',
+                      batchdelete: '0',
+                      batchexport: '0',
+                    }),
+                  );
+                  return;
+                }
+                onChange(handleAdvancedSettingChange(data, { allowbatch: '1', batchedit: '1' }));
+              }}
             />
+            {allowbatch === '1' && (
+              <Tooltip placement="bottom" title={_l('批量设置')}>
+                <i
+                  className="icon-settings Gray_9e Font16 Hand Right ThemeHoverColor3"
+                  onClick={() => setVisible(true)}
+                ></i>
+              </Tooltip>
+            )}
           </div>
           <div className="labelWrap">
             <Checkbox
@@ -252,6 +354,16 @@ export default function RelateOperate(props) {
             </Checkbox>
           </div>
         </SettingItem>
+      )}
+      {visible && (
+        <OperateDialog
+          data={data}
+          onClose={() => setVisible(false)}
+          onOk={info => {
+            onChange(handleAdvancedSettingChange(data, info));
+            setVisible(false);
+          }}
+        />
       )}
     </Fragment>
   );

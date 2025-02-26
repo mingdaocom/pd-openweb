@@ -1,4 +1,3 @@
-import { Base64 } from 'js-base64';
 import exec from './exec';
 
 function runWithParams(control, formData) {
@@ -21,7 +20,7 @@ function runWithParams(control, formData) {
 }
 
 function mobileRun(base64Str) {
-  const params = JSON.parse(Base64.decode(base64Str));
+  const params = JSON.parse(atob(base64Str));
   return runWithParams(params.control, params.formData);
 }
 

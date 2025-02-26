@@ -4,7 +4,7 @@ import { Motion, spring } from 'react-motion';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon, SvgIcon, Tooltip, LoadDiv } from 'ming-ui';
+import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon, SvgIcon, Tooltip, LoadDiv, Dialog, Input } from 'ming-ui';
 import { connect } from 'react-redux';
 import { navigateTo } from 'src/router/navigateTo';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
@@ -35,8 +35,10 @@ import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { setFavicon, getTranslateInfo } from 'src/util';
 import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import RoleSelect from './RoleSelect';
+import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
 import appManagementApi from 'src/api/appManagement';
 import marketplacePaymentApi from 'src/api/marketplacePayment';
+import marketplaceApi from 'src/api/marketplace';
 import copy from 'copy-to-clipboard';
 
 const APP_STATUS_TEXT = {
@@ -93,6 +95,8 @@ export default class AppInfo extends Component {
       lockAppVisisble: false,
       roleDebugVisible: false,
       createOrderLoading: false,
+      updateSocketVisible: false,
+      socket: '',
     };
   }
 
@@ -113,12 +117,7 @@ export default class AppInfo extends Component {
     if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
       this.getData(nextProps);
     }
-    /*
-    if (
-      ((this.ids.appId === getIds(this.props).appId && checkRecordInfo(nextProps.location.pathname)) ||
-      checkRecordInfo(this.props.location.pathname)) &&
-      data.id
-    ) {
+    if (data.id === getIds(this.props).appId) {
       const isRowInfo = checkRecordInfo(nextProps.location.pathname);
       const currentPcNaviStyle = isRowInfo ? 0 : data.pcNaviStyle;
       const appStatus = isRowInfo ? 0 : nextProps.appStatus;
@@ -132,7 +131,6 @@ export default class AppInfo extends Component {
       this.props.setAppStatus(appStatus);
       this.checkNavigationStyle(currentPcNaviStyle);
     }
-    */
     if (
       this.ids.appId === getIds(this.props).appId &&
       compareProps(nextProps.match.params, this.props.match.params, ['worksheetId'])
@@ -457,6 +455,19 @@ export default class AppInfo extends Component {
                 <div className={cx('licenseStatus', { valid: data.isGoodsStatus })}>
                   {data.isGoodsStatus ? _l('生效中') : _l('已过期')}
                 </div>
+                {license.projectType === 2 && (
+                  <div
+                    className="ThemeColor ThemeHoverColor2 pointer mLeft8"
+                    onClick={() => {
+                      this.setState({ updateSocketVisible: true });
+                      setTimeout(() => {
+                        this.setState({ appConfigVisible: false });
+                      }, 0);
+                    }}
+                  >
+                    {_l('更新密钥')}
+                  </div>
+                )}
               </div>
               {[2, 3].includes(license.planType) && data.isGoodsStatus && data.endTime && (
                 <div
@@ -588,9 +599,17 @@ export default class AppInfo extends Component {
     this.props.refreshSheetList();
   };
 
+  openGlobalSearch = () => {
+    this.setState({ globalSearchVisible: true });
+    GlobalSearch({
+      match: this.props.match,
+      onClose: () => this.setState({ globalSearchVisible: false }),
+    });
+  };
+
   renderAppInfoWrap = showName => {
     const { appStatus, ...props } = this.props;
-    const { appConfigVisible, modifyAppIconAndNameVisible, data } = this.state;
+    const { appConfigVisible, modifyAppIconAndNameVisible, data, updateSocketVisible, socket } = this.state;
     const {
       id: appId,
       iconUrl,
@@ -611,7 +630,7 @@ export default class AppInfo extends Component {
     } = data;
     const isUpgrade = _.includes([10, 11], appStatus);
     const isNormalApp = _.includes([1, 5], appStatus);
-    const { s, tb, td } = getAppFeaturesVisible();
+    const { s, ss, tb, td } = getAppFeaturesVisible();
     let list = getAppConfig(DROPDOWN_APP_CONFIG, permissionType) || [];
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const canLock = _.includes(
@@ -773,17 +792,57 @@ export default class AppInfo extends Component {
               }
             />
           )}
+          {updateSocketVisible && (
+            <Dialog
+              visible={true}
+              width={480}
+              title={_l('更新密钥')}
+              showCancel={false}
+              overlayClosable={false}
+              onCancel={() => this.setState({ updateSocketVisible: false, socket: '' })}
+              onOk={() => {
+                if (!socket) {
+                  alert(_l('密钥不能为空'), 3);
+                  return;
+                }
+                marketplaceApi.setSecretKeyForApp({ key: socket, appId }).then(data => {
+                  const alertMessage = {
+                    1: _l('更新成功'),
+                    2: _l('密钥错误'),
+                    3: _l('应用已删除'),
+                    4: _l('安装的应用和授权的应用不一致'),
+                    5: _l('授权密钥组织不匹配'),
+                    6: _l('授权已更新'),
+                  };
+                  alert(alertMessage[data], data === 1 ? 1 : 2);
+                  if (data === 1) {
+                    this.setState({ updateSocketVisible: false, socket: '' });
+                    location.reload();
+                  }
+                });
+              }}
+            >
+              <div className="mBottom16 Font14">{_l('密钥')}</div>
+              <Input
+                className="w100"
+                placeholder={_l('通过填入密钥更新授权信息，密钥可在应用详情中查看')}
+                value={socket}
+                onChange={socket => this.setState({ socket })}
+              />
+            </Dialog>
+          )}
         </Fragment>
       );
     };
 
     if ([1, 3].includes(currentPcNaviStyle)) {
-      const renderContent = (count, onClick) => {
+      const renderContent = ({ count, waitingExamine }, onClick) => {
         return (
           <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={onClick}>
             <Icon icon="task_alt" className="Font18" />
             <div className="mLeft5 mRight5 bold">{_l('待办')}</div>
             {!!count && <div className="count">{count}</div>}
+            {!!waitingExamine && !count && <div className="weakCount"></div>}
           </div>
         );
       };
@@ -793,6 +852,13 @@ export default class AppInfo extends Component {
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
+            {ss && (
+              <Tooltip text={_l('超级搜索(F)')}>
+                <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={this.openGlobalSearch}>
+                  <Icon icon="search" className="Font18" />
+                </div>
+              </Tooltip>
+            )}
             {!(md.global.Account.isPortal || window.isPublicApp) && td && (
               <MyProcessEntry type="appPkg" renderContent={renderContent} />
             )}
@@ -1007,6 +1073,8 @@ export default class AppInfo extends Component {
           {md.global.Account.isPortal ? (
             <PortalUserSet
               appId={md.global.Account.appId}
+              projectId={projectId}
+              originalLang={data.originalLang}
               worksheetId={this.props.match.params.worksheetId}
               name={showName}
               iconColor={data.iconColor}

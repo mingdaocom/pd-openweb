@@ -20,6 +20,7 @@ import privateSysSettingApi from 'src/api/privateSysSetting';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import cx from 'classnames';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
+import LanguageList from '../LanguageList';
 import Trigger from 'rc-trigger';
 import HapAiDialog from './HapAiDialog';
 import hapAI from './images/hapAI.png';
@@ -360,16 +361,15 @@ export class LeftCommonUserHandle extends Component {
   }
 
   render() {
-    const { globalSearchVisible, userVisible, roleEntryVisible, popupVisible } = this.state;
-    const { isAuthorityApp, type, data, sheet, match } = this.props;
-    const { projectId, id, permissionType, isLock, appStatus, fixed, pcDisplay } = data;
+    const { userVisible, roleEntryVisible, popupVisible } = this.state;
+    const { data, sheet, match } = this.props;
+    const { projectId, id, permissionType, isLock, appStatus, sourceType } = data;
     const isUpgrade = appStatus === 4;
     // 获取url参数
     const { tr, ss, ac } = getAppFeaturesVisible();
     if (window.isPublicApp || !tr) {
       return null;
     }
-
     return (
       <div className="commonUserHandleWrap leftCommonUserHandleWrap w100">
         {!isUpgrade && (
@@ -401,15 +401,36 @@ export class LeftCommonUserHandle extends Component {
             )}
           </Fragment>
         )}
-        {ss && type === 'appPkg' && (
+        {/*ss && type === 'appPkg' && (
           <div className="headerColorSwitch tip-top pointer" data-tip={_l('超级搜索(F)')}>
             <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
           </div>
-        )}
-        {/* <div
-          className="headerColorSwitch tip-top pointer"
-          data-tip={_l('帮助')}
-          onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
+        )*/}
+        <LanguageList
+          placement={canEditApp(permissionType, isLock) ? 'top' : 'topLeft'}
+          app={data}
+          isCharge={canEditApp(permissionType, sourceType === 60 ? false : isLock)}
+        >
+          <div className="headerColorSwitch tip-top pointer" data-tip={_l('应用语言')}>
+            <Icon icon="language" className="Font20" />
+          </div>
+        </LanguageList>
+        {/*
+        <Trigger
+          action={['click']}
+          popupVisible={popupVisible}
+          onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+          popup={
+            <HelpCollection
+              hapAIPosition="bottom"
+              updatePopupVisible={popupVisible => this.setState({ popupVisible })}
+            />
+          }
+          popupAlign={{
+            points: ['tr', 'br'],
+            offset: [-30, -30],
+            overflow: { adjustX: true, adjustY: true },
+          }}
         >
           <Icon icon="workflow_help" className="Font20" />
         </div> */}

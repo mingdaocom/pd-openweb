@@ -23,15 +23,6 @@ export default function DropCom(props) {
       ? FILTER_CONDITION_TYPE.DATE_BETWEEN //兼容老数据的默认值
       : control[data.key]
     : JSON.parse(advancedSetting[data.key]) || data.default;
-  // const getDaterange = () => {
-  //   let { daterange } = advancedSetting;
-  //   try {
-  //     daterange = JSON.parse(daterange);
-  //   } catch (error) {
-  //     daterange = [];
-  //   }
-  //   return daterange;
-  // };
   return (
     <React.Fragment>
       <div className="title">{data.txt}</div>
@@ -42,14 +33,10 @@ export default function DropCom(props) {
         onChange={newValue => {
           let dataNew = { [data.key]: newValue };
           if (data.keys.includes(type) && [15, 16].includes(type)) {
-            // let daterange = getDaterange();
             if (['dateRangeType'].includes(data.key)) {
               dataNew.daterange = '[]'; //新增默认不勾选
               if ([15, 16].includes(type) && _.includes([4, 5, 3, 2, 1], newValue) && control.value) {
                 dataNew.value = moment(control.value).format(DATE_FORMAT_BY_DATERANGETYPE[newValue]);
-              }
-              if ([15, 16, 17, 18].includes(type)) {
-                dataNew.dateRange = 18;
               }
             }
             if (['filterType'].includes(data.key)) {
@@ -71,9 +58,6 @@ export default function DropCom(props) {
               minValue: '',
               value: '',
             };
-            if ([15, 16, 17, 18].includes(type)) {
-              dataNew.dateRange = 18;
-            }
           }
           updateViewSet({
             ...dataNew,

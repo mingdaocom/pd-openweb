@@ -1,17 +1,29 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import GalleryView from 'src/pages/worksheet/views/GalleryView';
 import * as actions from 'mobile/RecordList/redux/actions';
 import * as galleryActions from 'src/pages/worksheet/redux/actions/galleryview.js';
 
 class MobileGalleryView extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      Component: null,
+    };
+  }
+
+  componentDidMount() {
+    import('src/pages/worksheet/views/GalleryView').then(component => {
+      this.setState({ Component: component.default });
+    });
   }
 
   render() {
-    return <GalleryView {...this.props} />;
+    const { Component } = this.state;
+
+    if (!Component) return null;
+
+    return <Component {...this.props} />;
   }
 }
 

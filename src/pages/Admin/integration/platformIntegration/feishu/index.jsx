@@ -1,17 +1,18 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Link } from 'react-router-dom';
-import { Switch, Icon, Button, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
+import { Switch, Icon, Button, LoadDiv, MdLink } from 'ming-ui';
 import { Popover } from 'antd';
 import Ajax from 'src/api/workWeiXin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
 import EnableScanLogin from '../components/EnableScanLogin';
+import SettingLinkOpen from '../components/SettingLinkOpen';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
 import fsImg from './feishuSyncCourse/img/8.png';
 import './style.less';
-import _ from 'lodash';
+
 export default class FeiShu extends React.Component {
   constructor(props) {
     super(props);
@@ -69,7 +70,7 @@ export default class FeiShu extends React.Component {
           show1: !(res.appId && res.appSecret && res.status != 2),
           show2: !(res.appId && res.appSecret && res.status != 2),
           integrationScanEnabled: res.intergrationScanEnabled,
-          ..._.pick(res, ['customNameIcon', 'status', 'isLark']),
+          ..._.pick(res, ['customNameIcon', 'status', 'isLark', 'ddMessagUrlPcSlide']),
         });
       }
     });
@@ -224,13 +225,13 @@ export default class FeiShu extends React.Component {
                 {!isLark ? _l('从飞书开放平台获取对接信息，') : _l('从Lark开放平台获取对接信息，')}
                 {_l('即可开始集成以及同步通讯录')}
               </p>
-              <Link
+              <MdLink
                 to={`/feishuSyncCourse/${this.props.projectId}?type=${isLark ? 'lark' : 'feishu'}`}
                 target="_blank"
-                className="mTop16 Font14 howApply stopPropagation"
+                className="mTop16 Font14 howApply"
               >
                 {_l('如何获取对接信息？')}
-              </Link>
+              </MdLink>
             </React.Fragment>
           )}
         </div>
@@ -332,15 +333,24 @@ export default class FeiShu extends React.Component {
   };
   render() {
     const { projectId } = this.props;
-    const { currentTab, AppId, AppSecret, integrationScanEnabled, isCloseDing, customNameIcon, isLark, isEditing } =
-      this.state;
+    const {
+      currentTab,
+      AppId,
+      AppSecret,
+      integrationScanEnabled,
+      isCloseDing,
+      customNameIcon,
+      isLark,
+      isEditing,
+      ddMessagUrlPcSlide,
+    } = this.state;
 
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
 
     return (
-      <div className="orgManagementWrap feishuMainContent">
+      <div className="orgManagementWrap feishuMainContent platformIntegrationContent">
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
             {!(!this.state.isCloseDing && AppId && AppSecret) && !isEditing && (
@@ -353,7 +363,7 @@ export default class FeiShu extends React.Component {
             >
               {[
                 { key: 'base', label: isLark ? _l('Lark集成') : _l('飞书集成') },
-                { key: 'other', label: _l('扫码登录') },
+                { key: 'other', label: _l('其他') },
               ].map(({ key, label }) => {
                 if (key === 'other' && !(this.state.status === 1 && !this.state.isCloseDing)) return;
 
@@ -384,16 +394,18 @@ export default class FeiShu extends React.Component {
           {currentTab === 'base' && this.stepRender()}
           {currentTab === 'other' && (
             <Fragment>
-              <EnableScanLogin
-                integrationType={isLark ? 7 : 6}
-                projectId={projectId}
-                scanEnabled={integrationScanEnabled}
-                disabled={isCloseDing}
-                href={`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}`}
-                updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
-                customNameIcon={customNameIcon}
-                updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
-              />
+              <div className="stepItem">
+                <EnableScanLogin
+                  integrationType={isLark ? 7 : 6}
+                  projectId={projectId}
+                  scanEnabled={integrationScanEnabled}
+                  disabled={isCloseDing}
+                  href={`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}`}
+                  updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+                  customNameIcon={customNameIcon}
+                  updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
+                />
+              </div>
               {md.global.Config.IsLocal && (
                 <IntegrationSetPassword
                   password={this.state.password}
@@ -405,6 +417,12 @@ export default class FeiShu extends React.Component {
                   }
                 />
               )}
+              <SettingLinkOpen
+                projectId={projectId}
+                disabled={isCloseDing}
+                value={ddMessagUrlPcSlide}
+                onChange={value => this.setState({ ddMessagUrlPcSlide: value })}
+              />
             </Fragment>
           )}
         </div>

@@ -22,7 +22,7 @@ import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/component
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { handleGlobalVariableName, getControlTypeName } from '../../utils';
+import { handleGlobalVariableName, getControlTypeName, getIcons } from '../../utils';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { getSummaryInfo } from 'src/pages/worksheet/util';
 
@@ -991,6 +991,7 @@ export default class Formula extends Component {
   }
 
   render() {
+    const { selectNodeType } = this.props;
     const { data, showOtherWorksheet } = this.state;
 
     if (_.isEmpty(data)) {
@@ -1002,14 +1003,7 @@ export default class Formula extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon={
-            _.includes(
-              [ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL],
-              data.actionId,
-            )
-              ? 'icon-sigma'
-              : 'icon-workflow_function'
-          }
+          icon={getIcons(selectNodeType, data.appType, data.actionId)}
           bg="BGGreen"
           updateSource={this.updateSource}
         />

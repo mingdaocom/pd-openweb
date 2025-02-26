@@ -1,23 +1,19 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Link } from 'react-router-dom';
-import { Switch, Icon, Button, LoadDiv, Radio, Support } from 'ming-ui';
+import _ from 'lodash';
+import { Switch, Icon, Button, LoadDiv, Radio, MdLink, Input, Support } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
 import EnableScanLogin from '../components/EnableScanLogin';
+import SettingLinkOpen from '../components/SettingLinkOpen';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
 import './style.less';
-import _ from 'lodash';
 
 const optionTypes = [
   { label: _l('新开浏览器打开'), key: 1 },
   { label: _l('钉钉内打开'), key: 2 },
-];
-const messageLinkTypes = [
-  { label: _l('独立窗口'), key: 2 },
-  { label: _l('侧边栏打开'), key: 1 },
 ];
 
 const TABS = [
@@ -81,12 +77,16 @@ export default class Ding extends React.Component {
           AgentIdFormat: this.formatStr(res.agentId),
           show1: !(res.corpId && res.agentId && res.appKey && res.appSecret && res.status != 2),
           show2: !(res.corpId && res.agentId && res.appKey && res.appSecret && res.status != 2),
-          intergrationClientWorkingPattern: res.intergrationClientWorkingPattern,
-          intergrationTodoMessageEnabled: res.intergrationTodoMessageEnabled,
-          ddMessagUrlPcSlide: res.ddMessagUrlPcSlide,
-          status: res.status,
-          integrationScanEnabled: res.intergrationScanEnabled,
-          customNameIcon: res.customNameIcon,
+          ..._.pick(res, [
+            'intergrationClientWorkingPattern',
+            'intergrationTodoMessageEnabled',
+            'ddMessagUrlPcSlide',
+            'status',
+            'intergrationScanEnabled',
+            'customNameIcon',
+            'isEnableRobot',
+            'robotCode',
+          ]),
         });
       }
     });
@@ -217,9 +217,9 @@ export default class Ding extends React.Component {
           ) : (
             <React.Fragment>
               <p className="mTop16 Font14 Gray_75">{_l('从钉钉开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
-              <Link to={`/dingSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply stopPropagation">
+              <MdLink to={`/dingSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply">
                 {_l('如何获取对接信息？')}
-              </Link>
+              </MdLink>
             </React.Fragment>
           )}
         </div>
@@ -381,6 +381,69 @@ export default class Ding extends React.Component {
       this.getInitialPassword();
     }
   };
+
+  editDDAppNoticeSetting = param => {
+    const { AgentId } = this.state;
+
+    Ajax.editDDAppNoticeSetting({
+      projectId: this.props.projectId,
+      agentId: AgentId,
+      ...param,
+    }).then(info => {
+      if (!info.item1) {
+        alert(info.item2, 2);
+      }
+    });
+  };
+
+  handleRobotSwitch = () => {
+    const { robotCode, isEnableRobot } = this.state;
+
+    if (!robotCode) {
+      alert(_l('请填写RobotCode'), 2);
+      return;
+    }
+
+    this.setState({ isEnableRobot: !isEnableRobot });
+    this.editDDAppNoticeSetting({ isEnableRobot: !isEnableRobot, robotCode });
+  };
+
+  handleRobotCode = e => {
+    const { isEnableRobot } = this.state;
+    const value = (e.target.value || '').trim();
+
+    if (!value && isEnableRobot) {
+      alert(_l('请填写RobotCode'), 2);
+      return;
+    }
+
+    this.editDDAppNoticeSetting({ robotCode: value, isEnableRobot });
+  };
+
+  renderRobotSendMsg = () => {
+    const { isEnableRobot, robotCode = '', isCloseDing } = this.state;
+
+    return (
+      <div className="stepItem">
+        <h3 className="stepTitle Font16 Gray mBottom24">{_l('机器人发送消息')}</h3>
+        <Switch className="mBottom20" disabled={isCloseDing} checked={isEnableRobot} onClick={this.handleRobotSwitch} />
+        <div className="Font13 Gray mBottom16">
+          <span className="mRight12">RobotCode：</span>
+          <Input
+            className="Width400"
+            value={robotCode}
+            onChange={value => this.setState({ robotCode: value })}
+            onBlur={this.handleRobotCode}
+          />
+        </div>
+        <div className="Font13 Gray valignWrapper">
+          {_l('开启后，平台应用消息会通过钉钉机器人发送给已同步到平台的钉钉用户。')}
+          <Support className="supportLink" type={3} href="https://help.mingdao.com/dingtalk/notification-integration" text={_l('如何配置?')} />
+        </div>
+      </div>
+    );
+  };
+
   render() {
     const { projectId } = this.props;
     const { currentTab, CorpId, AppKey, AppSecret, AgentId, integrationScanEnabled, isCloseDing, customNameIcon } =
@@ -390,7 +453,7 @@ export default class Ding extends React.Component {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="orgManagementWrap dingMainContent">
+      <div className="orgManagementWrap dingMainContent platformIntegrationContent">
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
             {!(!this.state.isCloseDing && CorpId && AppKey && AppSecret && AgentId) && (
@@ -460,20 +523,12 @@ export default class Ding extends React.Component {
                   );
                 })}
               </div>
-              <div className="stepItem">
-                <h3 className="stepTitle Font16 Gray pBottom5">{_l('消息链接')}</h3>
-                {messageLinkTypes.map(item => {
-                  return (
-                    <Radio
-                      className="Block mTop20"
-                      disabled={this.state.isCloseDing}
-                      checked={this.state.ddMessagUrlPcSlide === item.key}
-                      text={item.label}
-                      onClick={e => this.handleChangeMessageLinkWay(item.key)}
-                    />
-                  );
-                })}
-              </div>
+              <SettingLinkOpen
+                projectId={this.props.projectId}
+                disabled={this.state.isCloseDing}
+                value={this.state.ddMessagUrlPcSlide}
+                onChange={value => this.setState({ ddMessagUrlPcSlide: value })}
+              />
               <div className="stepItem flexRow valignWrapper">
                 <div className="flexColumn flex">
                   <h3 className="stepTitle Font16 Gray mBottom24">{_l('流程待办同步至钉钉待办任务')}</h3>
@@ -494,6 +549,7 @@ export default class Ding extends React.Component {
                   </div>
                 </div>
               </div>
+              {this.renderRobotSendMsg()}
             </Fragment>
           )}
         </div>

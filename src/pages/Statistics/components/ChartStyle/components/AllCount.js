@@ -89,7 +89,7 @@ export default function allCountPanelGenerator(props) {
               key={item.controlId}
               yAxis={item}
               isCollectMode={true}
-              isCalculateMode={false}
+              isCalculateMode={true}
               extra={
                 <Checkbox
                   className="mLeft0 mBottom15"

@@ -1,8 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { Icon } from 'ming-ui';
+import { Icon, MdLink } from 'ming-ui';
 import { sideNavList } from './config';
 import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
@@ -123,11 +122,11 @@ class SideNav extends React.Component {
                             isDisabled: item.disabled,
                           })}
                         >
-                          <Link className="overflow_ellipsis pRight10 stopPropagation" to={`/plugin/${item.type}`}>
+                          <MdLink className="overflow_ellipsis pRight10" to={`/plugin/${item.type}`}>
                             <Icon icon={item.icon} />
                             <span>{item.text}</span>
                             {item.type === 'node' && <Icon icon="beta1" className="betaIcon" />}
-                          </Link>
+                          </MdLink>
                         </li>
                       );
                     })}

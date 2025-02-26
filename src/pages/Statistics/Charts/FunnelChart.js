@@ -177,8 +177,6 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { map, displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -189,7 +187,7 @@ export default class extends Component {
       style.funnelShape !== oldStyle.funnelShape ||
       style.funnelCurvature !== oldStyle.funnelCurvature ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -294,9 +292,10 @@ export default class extends Component {
     });
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, xaxes } = reportData;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatChartData(map, displaySetup, xaxes, yaxisList);
@@ -340,13 +339,21 @@ export default class extends Component {
             value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
+        domStyles: isDark ? {
+          'g2-tooltip': {
+            color: '#ffffffcc',
+            backgroundColor: widgetBgColor,
+            boxShadow: `${widgetBgColor} 0px 0px 10px`
+          },
+          'g2-tooltip-list-item': {
+            color: '#ffffffcc',
+          }
+        } : undefined
       },
       isTransposed: displaySetup.showChartType === 2,
       shape: style.funnelShape,
       theme: {
-        styleSheet: {
-          backgroundColor: '#fff'
-        }
+        background: isDark ? widgetBgColor : '#ffffffcc',
       },
       color: ({ name }) => {
         const index = _.findIndex(data, { name });
@@ -370,6 +377,11 @@ export default class extends Component {
             flipPage: true,
             itemHeight: 20,
             radio: { style: { r: 6 } },
+            itemName: {
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
+            }
           }
         : false,
       conversionTag: displaySetup.showNumber && style.funnelCurvature !== 1
@@ -388,6 +400,9 @@ export default class extends Component {
               }
               return _l('转化率%0', `${toFixed(percentage, 2)}%`);
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : false,
       label: {
@@ -460,7 +475,7 @@ export default class extends Component {
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>
         {displaySetup.showTotal ? (
-          <div>
+          <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
             <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
           </div>

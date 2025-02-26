@@ -5,7 +5,7 @@ import { DetailHeader, DetailFooter, CustomTextarea, TestParameter, JSONAnalysis
 import { ACTION_ID } from '../../enum';
 import _ from 'lodash';
 import cx from 'classnames';
-import { formatTestParameters } from '../../utils';
+import { formatTestParameters, getIcons } from '../../utils';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -151,11 +151,11 @@ export default class AIGC extends Component {
 
     flowNode
       .saveNode({
+        ..._.omit(data, ['appList', 'promptTemplate', 'result', 'systemTemplate']),
         processId: this.props.processId,
         nodeId: this.props.selectNodeId,
         flowNodeType: this.props.selectNodeType,
         name: name.trim(),
-        ...data,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -462,6 +462,7 @@ export default class AIGC extends Component {
   };
 
   render() {
+    const { selectNodeType } = this.props;
     const { data } = this.state;
 
     if (_.isEmpty(data)) {
@@ -473,9 +474,7 @@ export default class AIGC extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon={
-            _.includes([ACTION_ID.AIGC_TEXT, ACTION_ID.AIGC_OBJECT], data.actionId) ? 'icon-text_ai' : 'icon-AI_image'
-          }
+          icon={getIcons(selectNodeType, data.appType, data.actionId)}
           bg="BGRed"
           updateSource={this.updateSource}
         />

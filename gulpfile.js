@@ -45,6 +45,14 @@ gulp.task(
 gulp.task('webpack:watch', webpackTaskFactory(merge(webpackConfig(), { entry: findEntryMap() }), true));
 
 gulp.task(
+  'singleEntryExtractModulesWebpack',
+  webpackTaskFactory(
+    merge(webpackConfig('singleExtractModules'), { entry: findEntryMap('singleExtractModules') }),
+    false,
+  ),
+);
+
+gulp.task(
   'singleEntryWebpack',
   webpackTaskFactory(merge(webpackConfig('single'), { entry: findEntryMap('single') }), false),
 );
@@ -138,7 +146,7 @@ gulp.task('dev:main', done => {
 });
 
 /** 构建 ->  webpack 编译 js 代码，生成至 ./build/dist */
-gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryWebpack'));
+gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryExtractModulesWebpack', 'singleEntryWebpack'));
 
 /** 清理 sourceMap, LICENSE 文件 */
 gulp.task('clean-file', done => {

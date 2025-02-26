@@ -50,7 +50,7 @@ export const VersionProductType = {
   encapsulatingBusinessProcess: 23, // 封装业务流程API响应
   filterGroup: 24, // 筛选条件分组
   globalSearch: 25, // 全局搜索
-  datantergration: 26, // 数据集成
+  dataIntegrationETL: 26, // 数据集成ETL
   userExtensionInformation: 27, // 用户扩展信息
   batchDownloadFiles: 28, // 批量下载文件
   dataEnctypt: 29, // 数据加密

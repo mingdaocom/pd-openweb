@@ -53,14 +53,16 @@ const Con = styled.div`
   &.active {
     border-color: #2196f3;
   }
-  &:hover {
+  &:not(.isEmpty):hover {
+    .icon-event {
+      display: none;
+    }
     .clearIcon {
       display: inline-block;
     }
     .backIcon {
       cursor: pointer;
       display: inline-block;
-      background: #fff;
       &:hover {
         color: #777;
       }
@@ -113,7 +115,6 @@ const Icon = styled.i`
     display: none;
     position: absolute;
     right: 0;
-    background: #fff;
   }
 `;
 
@@ -219,7 +220,7 @@ export default function DateTime(props) {
     }
   }
   return (
-    <Con className={cx({ active })}>
+    <Con className={cx({ active, isEmpty })}>
       <Content className={cx({ isEmpty })}>
         {pickerComp || (
           <Dropdown

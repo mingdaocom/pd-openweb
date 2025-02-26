@@ -401,16 +401,21 @@ export default class UploadFiles extends Component {
   resetFileName(id, newName) {
     const { checkValueByFilterRegex } = this.props;
     newName = newName.trim();
+
+    if ((/[\/\\:\*\?"<>\|]/g).test(newName)) {
+      alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
+      return;
+    }
+    if (_.isEmpty(newName)) {
+      alert(_l('名称不能为空'), 2);
+      return;
+    }
     if (checkValueByFilterRegex) {
       const error = checkValueByFilterRegex(newName);
       if (error) {
         alert(error, 2);
         return;
       }
-    }
-    if (_.isEmpty(newName)) {
-      alert(_l('名称不能为空'), 2);
-      return;
     }
     const newTemporaryData = this.state.temporaryData.map(item => {
       if (item.fileID === id) {

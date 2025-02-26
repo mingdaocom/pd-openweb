@@ -353,7 +353,11 @@ export default class CommonInfo extends Component {
                       projectId={Config.projectId}
                       onUpdateCertStatus={authType => this.setState({ authType })}
                     />
-                    <div className="set-describe mTop4">{_l('试用、免费版组织需要完成身份认证后才能充值余额')}</div>
+                    <div className="set-describe mTop4">
+                      {_l(
+                        '试用、免费版需组织完成身份认证后可充值余额；自定义短信签名需组织完成企业身份认证（注意：非个人身份）',
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

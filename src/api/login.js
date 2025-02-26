@@ -149,6 +149,20 @@ export default {
      return mdyAPI('Login', 'TPLogin', args, options);
    },
   /**
+  * 获取第三方登录用户信息
+  * @param {Object} args 请求参数
+  * @param {string} args.unionId 用户标识id
+  * @param {string} args.state 授权随机字符串
+  * @param {string} args.tpType 类型（微信，QQ，小米）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTPUserInfo: function (args, options = {}) {
+     
+     return mdyAPI('Login', 'GetTPUserInfo', args, options);
+   },
+  /**
   * 第三方使用明道云账号SSO登录
   * @param {Object} args 请求参数
   * @param {string} args.account 账号

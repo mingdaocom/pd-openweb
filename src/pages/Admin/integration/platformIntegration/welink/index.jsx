@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Link } from 'react-router-dom';
-import { Switch, Icon, Button, LoadDiv } from 'ming-ui';
+import { Switch, Icon, Button, LoadDiv, MdLink } from 'ming-ui';
 import { Popover } from 'antd';
 import Ajax from 'src/api/workWeiXin';
 import Dialog from 'ming-ui/components/Dialog';
@@ -238,9 +237,13 @@ export default class Welink extends React.Component {
           ) : (
             <React.Fragment>
               <p className="mTop16 Font14 Gray_75">{_l('从Welink开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
-              <Link to={`/welinkSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply stopPropagation">
+              <MdLink
+                to={`/welinkSyncCourse/${this.props.projectId}`}
+                target="_blank"
+                className="mTop16 Font14 howApply"
+              >
                 {_l('如何获取对接信息？')}
-              </Link>
+              </MdLink>
             </React.Fragment>
           )}
         </div>
@@ -431,7 +434,7 @@ export default class Welink extends React.Component {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="orgManagementWrap welinkMainContent">
+      <div className="orgManagementWrap welinkMainContent platformIntegrationContent">
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
             {!(!this.state.isCloseDing && CorpId && Secret) && (

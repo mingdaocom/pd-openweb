@@ -37,6 +37,20 @@ export default {
      return mdyAPI('Code', 'GenerateCodeBlock', args, options);
    },
   /**
+  * 对话配置自定义字段
+  * @param {Object} args 请求参数
+  * @param {array} args.messageList 消息列表
+  * @param {} args.lang
+  * @param {array} args.params 自定义提示参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setupCustomField: function (args, options = {}) {
+     
+     return mdyAPI('Code', 'SetupCustomField', args, options);
+   },
+  /**
   * 获取AI聊天历史记录
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数

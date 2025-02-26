@@ -695,25 +695,44 @@ export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
         { text: _l('去年同期'), value: 2 }
       ];
       break;
+    // 本周
     case 4:
+      if (today) {
+        base.push({ text: _l('上周'), value: 3, ignoreToday: true });
+        base.push({ text: _l('上周同期'), value: 3 });
+        base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+      }
     case 5:
     case 6:
       base.push({ text: _l('去年同期'), value: 2 });
       break;
+    // 本月
     case 8:
       if (today) {
+        base.push({ text: _l('上月'), value: 4, ignoreToday: true });
         base.push({ text: _l('上月同期'), value: 4 });
+        base.push({ text: _l('去年'), value: 2, ignoreToday: true });
       }
     case 9:
     case 10:
       base.push({ text: _l('去年同期'), value: 2 });
       break;
+    // 本季度
     case 11:
+      if (today) {
+        base.push({ text: _l('上一季度'), value: 6, ignoreToday: true });
+        base.push({ text: _l('与上一季度同期'), value: 6 });
+        base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+      }
     case 12:
     case 13:
       base.push({ text: _l('去年同期'), value: 2 });
       break;
+    // 本年
     case 15:
+      if (today) {
+        base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+      }
     case 16:
     case 17:
       base.push({ text: _l('去年同期'), value: 2 });
@@ -767,7 +786,7 @@ export const formatLineChartContrastTypes = ({ rangeType, rangeValue, today }) =
     case 12:
     case 13:
       // 季度
-      base.push({ text: _l('与上个季度相比'), value: 1 }, last);
+      base.push({ text: _l('与上个季度相比'), value: 6 }, last);
       break;
     case 15:
     case 16:
@@ -800,17 +819,23 @@ export const formatLineChartContrastTypes = ({ rangeType, rangeValue, today }) =
  * 获取至今天计算方式的文案
  */
 export const getTodayTooltip = ({ rangeType, rangeValue }) => {
+  if (rangeType === 4) {
+    return _l('未勾选时, 表示统计从本周星期一开始到星期日的数据, 勾选时, 表示统计从本周星期一开始到今天的数据。');
+  }
   if (rangeType === 8) {
-    return _l('未勾选时，表示统计从本月1日开始到31日的数据，勾选时，表示统计从本月1日开始到今天的数据。');
+    return _l('未勾选时, 表示统计从本月1日开始到31日的数据, 勾选时, 表示统计从本月1日开始到今天的数据。');
+  }
+  if (rangeType === 11) {
+    return _l('未勾选时, 表示统计从本季度1月1日开始到3月31日的数据, 勾选时, 表示统计从本季度1月1日开始到今天的数据。');
   }
   if (rangeType === 15) {
-    return _l('未勾选时，表示统计从本年1月1日开始到12月31日的数据，勾选时，表示统计从本年1月1日开始到今天的数据。');
+    return _l('未勾选时, 表示统计从本年1月1日开始到12月31日的数据, 勾选时,表示统计从本年1月1日开始到今天的数据。');
   }
   if (rangeType === 18) {
-    return _l('未勾选时，表示统计从过去%0天开始到昨天数据，勾选时，表示统计从过去%0天开始到今天的数据。', rangeValue);
+    return _l('未勾选时, 表示统计从过去%0天开始到昨天数据, 勾选时, 表示统计从过去%0天开始到今天的数据。', rangeValue);
   }
   if (rangeType === 19) {
-    return _l('未勾选时，表示统计从明天开始到将来%0天数据，勾选时，表示统计从今天开始到将来%0天的数据。', rangeValue);
+    return _l('未勾选时, 表示统计从明天开始到将来%0天数据, 勾选时, 表示统计从今天开始到将来%0天的数据。', rangeValue);
   }
 }
 
@@ -1097,7 +1122,7 @@ export const getAxisText = (reportType, showChartType) => {
   ) {
     return {
       x: _l('维度'),
-      y: _l('数值'),
+      y: _l('数值%'),
     };
   }
   if (reportTypes.DualAxes === reportType) {
@@ -1132,7 +1157,7 @@ export const getAxisText = (reportType, showChartType) => {
   if (reportTypes.CountryLayer === reportType) {
     return {
       x: _l('地理区域(维度)'),
-      y: _l('数值')
+      y: _l('数值%')
     }
   }
   if (reportTypes.TopChart === reportType) {
@@ -1337,8 +1362,8 @@ export const fillMapKey = result => {
 /**
  * 把 valueMap 的 key 填充到 map 和 contrastMap
  */
-export const fillValueMap = result => {
-  const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = fillTranslate(result);
+export const fillValueMap = (result, pageId) => {
+  const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = fillTranslate(result, pageId);
   const splitId = split ? split.controlId : '';
 
   if (status <= 0) {
@@ -1441,32 +1466,33 @@ export const fillValueMap = result => {
 };
 
 
-const fillTranslate = result => {
+const fillTranslate = (result, pageId) => {
   const appId = _.get(window.appInfo, 'id');
   if (!appId) {
     return result;
   }
+  const parentId = pageId ? pageId : result.appId;
   if (result.xaxes && result.xaxes.controlId) {
-    result.xaxes.controlName = getTranslateInfo(appId, result.appId, result.xaxes.controlId).name || result.xaxes.controlName;
+    result.xaxes.controlName = getTranslateInfo(appId, parentId, result.xaxes.controlId).name || result.xaxes.controlName;
     if (result.map && result.map.length) {
       result.map.forEach(item => {
-        item.key = getTranslateInfo(appId, result.appId, item.c_id).name || item.key;
+        item.key = getTranslateInfo(appId, parentId, item.c_id).name || item.key;
       });
     }
     if (result.contrastMap && result.contrastMap.length) {
       result.contrastMap.forEach(item => {
-        item.key = getTranslateInfo(appId, result.appId, item.c_id).name || item.key;
+        item.key = getTranslateInfo(appId, parentId, item.c_id).name || item.key;
       });
     }
   }
   if (result.yaxisList && result.yaxisList.length) {
     result.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.dataSource || result.appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, item.dataSource || parentId, item.controlId).name || item.controlName;
     });
   }
   if (result.rightY && _.get(result.rightY, 'yaxisList.length')) {
     result.rightY.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.dataSource || result.appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, item.dataSource || parentId, item.controlId).name || item.controlName;
     });
   }
   if (result.lines && result.lines.length) {
@@ -1475,23 +1501,23 @@ const fillTranslate = result => {
         item.fields = item.fields.map(f => {
           return {
             ...f,
-            controlName: getTranslateInfo(appId, item.dataSource || result.appId, f.controlId).name || f.controlName
+            controlName: getTranslateInfo(appId, item.dataSource || parentId, f.controlId).name || f.controlName
           }
         });
       }
-      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, parentId, item.controlId).name || item.controlName;
     });
   }
   if (result.columns && result.columns.length) {
     result.columns.forEach(item => {
-      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, parentId, item.controlId).name || item.controlName;
     });
   }
   if (result.name) {
-    result.name = getTranslateInfo(appId, result.appId, result.reportId).name || result.name;
+    result.name = getTranslateInfo(appId, parentId, result.reportId).name || result.name;
   }
   if (result.desc) {
-    result.desc = getTranslateInfo(appId, result.appId, result.reportId).description || result.desc;
+    result.desc = getTranslateInfo(appId, parentId, result.reportId).description || result.desc;
   }
   if (_.get(result, 'split.dataSource')) {
     const valueMapTranslateInfo = getTranslateInfo(appId, null, result.split.dataSource);
@@ -1506,7 +1532,7 @@ const fillTranslate = result => {
   }
   if (result.valueMap) {
     for(let controlId in result.valueMap) {
-      const valueMapTranslateInfo = getTranslateInfo(appId, result.appId, controlId);
+      const valueMapTranslateInfo = getTranslateInfo(appId, parentId, controlId);
       if (!_.isEmpty(valueMapTranslateInfo)) {
         const map = result.valueMap[controlId];
         for(let key in map) {
@@ -1749,12 +1775,72 @@ export const formatTimeFormats = particleSizeType => {
 export const timeDataParticle = [
   { text: _l('年'), value: 5, getTime: () => moment().year() },
   { text: _l('季'), value: 4, getTime: () => moment().format('YYYY[Q]Q') },
-  { text: _l('月'), value: 3, getTime: () => moment().format('YYYY/MM') },
-  { text: _l('周'), value: 2, getTime: () => moment().format('YYYY[W]WW') },
-  { text: _l('日'), value: 1, getTime: () => moment().format('YYYY/MM/DD') },
-  { text: _l('时'), value: 6, getTime: () => moment().format('YYYY/MM/DD HH') + _l('时')  },
-  { text: _l('分'), value: 7, getTime: () => moment().format('YYYY/MM/DD HH:mm') },
-  { text: _l('秒'), value: 13, getTime: () => moment().format('YYYY/MM/DD HH:mm:ss') },
+  {
+    text: _l('月'),
+    value: 3,
+    getTime: (showFormat) => {
+      if (showFormat === '0') {
+        return moment().format('YYYY-MM');
+      }
+      if (showFormat === '1') {
+        return moment().format(_l('YYYY年MM'));
+      }
+      return moment().format('YYYY/MM');
+    }
+  },
+  { text: _l('周'), value: 2, getTime: (showFormat) => moment().format('YYYY[W]WW') },
+  {
+    text: _l('日'),
+    value: 1,
+    getTime: (showFormat) => {
+      if (showFormat === '0') {
+        return moment().format('YYYY-MM-DD');
+      }
+      if (showFormat === '1') {
+        return moment().format(_l('YYYY年MM月DD日'));
+      }
+      return moment().format('YYYY/MM/DD');
+    }
+  },
+  {
+    text: _l('时'),
+    value: 6,
+    getTime: (showFormat) => {
+      if (showFormat === '0') {
+        return moment().format('YYYY-MM-DD HH') + _l('时');
+      }
+      if (showFormat === '1') {
+        return moment().format(_l('YYYY年MM月DD日 HH')) + _l('时');
+      }
+      return moment().format('YYYY/MM/DD HH') + _l('时');
+    }
+  },
+  {
+    text: _l('分'),
+    value: 7,
+    getTime: (showFormat) => {
+      if (showFormat === '0') {
+        return moment().format('YYYY-MM-DD HH:mm');
+      }
+      if (showFormat === '1') {
+        return moment().format(_l('YYYY年MM月DD日 HH:mm'));
+      }
+      return moment().format('YYYY/MM/DD HH:mm');
+    }
+  },
+  {
+    text: _l('秒'),
+    value: 13,
+    getTime: (showFormat) => {
+      if (showFormat === '0') {
+        return moment().format('YYYY-MM-DD HH:mm:ss');
+      }
+      if (showFormat === '1') {
+        return moment().format(_l('YYYY年MM月DD日 HH:mm:ss'));
+      }
+      return moment().format('YYYY/MM/DD HH:mm:ss');
+    }
+  },
 ];
 
 /**
@@ -1879,7 +1965,7 @@ export const normTypes = [
     value: 4,
   },
   {
-    text: _l('计算'),
+    text: _l('计数'),
     value: 5,
   },
   {
@@ -1999,7 +2085,7 @@ export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter, tod
     const [year, month] = rangeValue.split(':');
     return _.find(fiscalYearData, { value: Number(year) }).text;
   } else {
-    return [8, 15, 18, 19].includes(rangeType) && today ? `${text}${_l('至今天')}` : text;
+    return [4, 8, 11, 15, 18, 19].includes(rangeType) && today ? `${text}${_l('至今天')}` : text;
   }
 };
 

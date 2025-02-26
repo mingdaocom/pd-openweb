@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView, Checkbox } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, Checkbox, MdLink } from 'ming-ui';
 import { Switch } from 'antd';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -10,7 +10,6 @@ import OptionColumn from './OptionColumn';
 import { TASK_STATUS_TYPE, TASK_STATUS_TAB_LIST, SORT_TYPE } from '../../../constant';
 import syncTaskApi from '../../../../api/syncTask';
 import { formatDate } from '../../../../config';
-import { Link } from 'react-router-dom';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import dataSourceApi from '../../../../api/datasource';
 import ToolTip from 'ming-ui/components/Tooltip';
@@ -527,10 +526,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       title: _l('任务'),
       render: item => {
         return (
-          <Link
-            className="flexRow alignItemsCenter pRight8 pointer stopPropagation"
-            to={`/integration/taskCon/${item.flowId}`}
-          >
+          <MdLink className="flexRow alignItemsCenter pRight8 pointer" to={`/integration/taskCon/${item.flowId}`}>
             <div className="flexRow alignItemsCenter pLeft8 titleColumn">
               <ToolTip text={item.sourceTypeName}>
                 <TaskIcon>
@@ -553,7 +549,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             <span title={item.name} className="titleText overflow_ellipsis">
               {item.name}
             </span>
-          </Link>
+          </MdLink>
         );
       },
     },
@@ -872,7 +868,9 @@ export default function TaskList({ projectId, onRefreshComponents }) {
           </div>
         </TaskListBox>
         <ScrollView className="flex" onScrollEnd={onScrollEnd}>
-          {taskList && taskList.length > 0 ? (
+          {fetchState.loading && fetchState.pageNo === 0 ? (
+            <LoadDiv className="mTop10" />
+          ) : taskList && taskList.length > 0 ? (
             <TaskListBox>
               {taskList.map((sourceItem, index) => {
                 return (
@@ -890,7 +888,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
                 );
               })}
             </TaskListBox>
-          ) : !fetchState.loading ? (
+          ) : (
             <NoDataWrapper>
               <span className="iconCon InlineBlock TxtCenter ">
                 <i className="icon-synchronization Font64 TxtMiddle" />
@@ -899,9 +897,9 @@ export default function TaskList({ projectId, onRefreshComponents }) {
                 {fetchState.searchKeyWords ? _l('无搜索结果，换一个关键词试试吧') : _l('暂无数据')}
               </p>
             </NoDataWrapper>
-          ) : null}
+          )}
 
-          {fetchState.loading && <LoadDiv className="mTop10" />}
+          {fetchState.loading && fetchState.pageNo !== 0 && <LoadDiv className="mTop10" />}
         </ScrollView>
       </div>
     </Fragment>

@@ -438,6 +438,14 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
         // 今天、昨天、明天，对比单位天
         if (_.includes([1, 2, 3, 10, 11], dateRange)) {
           timeLevel = 'day';
+        } else if (_.includes([4, 5, 6], dateRange)) {
+          timeLevel = 'week';
+        } else if (_.includes([7, 8, 9], dateRange)) {
+          timeLevel = 'month';
+        } else if (_.includes([12, 13, 14], dateRange)) {
+          timeLevel = 'quarter';
+        } else if (_.includes([15, 16, 17], dateRange)) {
+          timeLevel = 'year';
         } else if (dateRange === 18) {
           timeLevel = dateRangeType === '3' ? timeLevel : timeModeByDateRangeType(dateRangeType);
         }
@@ -1541,7 +1549,7 @@ export const replaceStr = (str, index, value) => {
 };
 
 // 更新业务规则权限属性
-export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item = {} }) => {
+export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item = {}, verifyAllControls = false }) => {
   //子表或关联记录
   const isSubList = _.includes([29, 34], item.type);
   let fieldPermission = it.fieldPermission || '111';
@@ -1569,13 +1577,13 @@ export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item 
     if (_.includes(attrs, 5)) {
       required = true;
       fieldPermission = replaceStr(fieldPermission, 1, '1');
-      const { errorText } = onValidator({ item: { ...it, required, fieldPermission } });
+      const { errorText } = onValidator({ item: { ...it, required, fieldPermission }, verifyAllControls });
       item.type !== 34 && checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
     } else {
       //编辑
       if (_.includes(attrs, 3) || eventPermissions[1] === '1') {
         fieldPermission = replaceStr(fieldPermission, 1, '1');
-        const { errorType, errorText } = onValidator({ item: { ...it, fieldPermission } });
+        const { errorType, errorText } = onValidator({ item: { ...it, fieldPermission }, verifyAllControls });
         checkRuleValidator(it.controlId, errorType, errorText);
       }
     }
@@ -1636,6 +1644,7 @@ export const updateRulesData = ({
   checkAllUpdate = false,
   updateControlIds = [],
   ignoreHideControl = false,
+  verifyAllControls = false,
 }) => {
   let formatData = data.map(item => {
     return {
@@ -1709,12 +1718,14 @@ export const updateRulesData = ({
           it: re,
           checkRuleValidator,
           item: it,
+          verifyAllControls,
         });
       });
       updateDataPermission({
         attrs: relateRuleType['parent'][it.controlId],
         it,
         checkRuleValidator,
+        verifyAllControls,
       });
     });
 

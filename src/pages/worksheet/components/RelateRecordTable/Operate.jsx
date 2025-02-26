@@ -1,19 +1,21 @@
-import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
+import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react';
 import { bool, func, shape, string } from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Motion, spring } from 'react-motion';
 import { Input, Dialog } from 'ming-ui';
-import { get, last, find, isUndefined } from 'lodash';
+import { get, last, find, isUndefined, isEmpty } from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { emitter } from 'worksheet/util';
 import moment from 'moment';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
+import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
+import { getVisibleControls } from './TableComp';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
-import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import ExportSheetButton from 'worksheet/components/ExportSheetButton';
 import Pagination from 'worksheet/components/Pagination';
 import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
@@ -28,7 +30,20 @@ const Con = styled.div`
   flex-direction: row;
   align-items: center;
   line-height: 36px;
+  min-height: 38px;
   ${({ smallMode }) => smallMode && 'display: block;'}
+  .worksheetFilterTrigger {
+    line-height: 1em;
+    min-width: 28px;
+    margin-right: 6px;
+    text-align: center;
+  }
+  .selectedFilter {
+    margin-right: 0px;
+  }
+  .filterTrigger {
+    line-height: 1em;
+  }
   .searchIcon {
     position: relative;
     z-index: 2;
@@ -167,6 +182,7 @@ function Operate(props) {
   const {
     mode,
     cache,
+    tableId,
     smallMode,
     style,
     className,
@@ -176,23 +192,28 @@ function Operate(props) {
     formData,
     changes = {},
     records,
+    iseditting,
     appendRecords,
     handleAddRelation,
     handleRemoveRelation,
     updatePageIndex,
     updatePageSize,
     refresh,
+    loadRecords,
     search,
     updateTableState,
     handleOpenRecordInfo,
     updateWorksheetControls,
     deleteOriginalRecords,
     updateBase,
+    batchUpdateRecords,
     isDraft,
+    controls,
   } = props;
   const { addedRecords } = changes;
   const {
     from,
+    isCharge,
     appId,
     viewId,
     control,
@@ -200,8 +221,10 @@ function Operate(props) {
     searchMaxCount,
     worksheetId,
     recordId,
+    isTreeTableView,
     addVisible,
     relateWorksheetInfo,
+    sheetSwitchPermit,
     selectVisible,
     allowRemoveRelation,
     allowDeleteFromSetting,
@@ -219,24 +242,46 @@ function Operate(props) {
     filterControls = [],
   } = tableState;
   const allowBatchEdit = base.allowBatchEdit && !!records.length;
+  const cacheStore = useRef({});
+  const workSheetFilterContainerRef = useRef(null);
+  const worksheetFilterRef = useRef(null);
+  const columns = getVisibleControls(control, controls);
+  const { batchcancel = '1', batchdelete = '1', batchedit = '1', batchexport = '1' } = control.advancedSetting;
+  const handleBatchUpdateRecords = useCallback(
+    ({ activeControl } = {}) => {
+      batchUpdateRecords({ selectedRowIds, records, activeControl });
+    },
+    [selectedRowIds],
+  );
+  useEffect(() => {
+    if (!isEmpty(cacheStore.current.oldFilterControls) && isEmpty(filterControls)) {
+      if (worksheetFilterRef.current) {
+        worksheetFilterRef.current.reset();
+      }
+    }
+    cacheStore.current.oldFilterControls = filterControls;
+  }, [filterControls]);
   useEffect(() => {
     emitter.emit(`relationSearchCount:${recordId}:${control.controlId}`, count);
   }, [count]);
   return (
-    <Con className={className} style={style} smallMode={smallMode}>
+    <Con className={className} style={style} smallMode={smallMode} ref={workSheetFilterContainerRef}>
       {(addVisible || selectVisible || allowBatchEdit) && (
         <RelateRecordBtn
           btnVisible={{
             enterBatchEdit: allowBatchEdit,
-            removeRelation: allowRemoveRelation,
-            deleteRecords: !!recordId && allowDeleteFromSetting,
+            edit: allowEdit && batchedit === '1',
+            removeRelation: allowRemoveRelation && batchcancel === '1',
+            deleteRecords: !!recordId && allowDeleteFromSetting && batchdelete === '1',
             exportRecords:
               allowExportFromSetting &&
               !!recordId &&
               from !== RECORD_INFO_FROM.DRAFT &&
-              control.recordInfoFrom !== RECORD_INFO_FROM.WORKFLOW,
+              control.recordInfoFrom !== RECORD_INFO_FROM.WORKFLOW &&
+              batchexport === '1',
           }}
           isBatchEditing={isBatchEditing}
+          btnName={_.get(relateWorksheetInfo, 'advancedSetting.btnname')}
           entityName={
             getTranslateInfo(appId, null, control.dataSource).recordName ||
             relateWorksheetInfo.entityName ||
@@ -373,115 +418,153 @@ function Operate(props) {
                   rowIds: selectedRowIds,
                 });
                 break;
+              case 'edit':
+                handleBatchUpdateRecords();
+                break;
             }
           }}
         />
       )}
       <div className="flex"></div>
-      <div className={cx('operateButtons flexRow alignItemsCenter', { isInForm: base.isInForm && mode !== 'dialog' })}>
-        {!!recordId && <AnimatedInput className="mRight6" keywords={keywords} control={control} onSearch={search} />}
-        {from !== RECORD_INFO_FROM.DRAFT &&
-          allowExportFromSetting &&
-          !!recordId &&
-          !get(window, 'shareState.shareId') && (
-            <ExportSheetButton
-              className="mRight6"
-              style={{
-                height: 28,
-              }}
-              exportSheet={cb => {
-                if (!records.length) {
-                  cb();
-                  alert(_l('数据为空，暂不支持导出！'), 3);
-                  return;
-                }
-                return exportRelateRecordRecords({
-                  worksheetId,
-                  rowId: recordId,
-                  controlId: control.controlId,
-                  filterControls: control.type === 51 ? filterControls : [],
-                  fileName:
-                    `${recordTitle ? recordTitle + '_' : ''}${control.controlName}_${moment().format(
-                      'YYYYMMDDHHmmss',
-                    )}`.trim() + '.xlsx',
-                  onDownload: cb,
-                });
-              }}
-            />
-          )}
-        {!isBatchEditing &&
-          from !== 21 &&
-          !!recordId &&
-          (base.isTab || _.isEqual(changes, initialChanges) || _.isEmpty(changes)) && (
+      {!isBatchEditing && (
+        <div
+          className={cx('operateButtons flexRow alignItemsCenter', { isInForm: base.isInForm && mode !== 'dialog' })}
+        >
+          {!!recordId && <AnimatedInput className="mRight6" keywords={keywords} control={control} onSearch={search} />}
+          {!isTreeTableView &&
+            !control.isCustomButtonFillRecord &&
+            !get(window, 'shareState.shareId') &&
+            control.type !== 51 &&
+            recordId && (
+              <WorkSheetFilter
+                style={{ paddingTop: 8 }}
+                disableAdd={iseditting}
+                filterCompId={tableId}
+                ref={worksheetFilterRef}
+                className="actionWrap"
+                isCharge={isCharge}
+                // appPkg={appPkg}
+                getPopupContainer={() => document.body}
+                zIndex={1000}
+                sheetSwitchPermit={sheetSwitchPermit}
+                appId={relateWorksheetInfo.appId}
+                viewId={control.viewId}
+                projectId={relateWorksheetInfo.projectId}
+                worksheetId={control.dataSource}
+                columns={columns.map(c => ({ ...c, controlPermissions: '111' }))}
+                filterResigned={false}
+                showSavedFilters={false}
+                onChange={({ searchType, filterControls }) => {
+                  updateTableState({
+                    filterControls,
+                  });
+                  loadRecords({ pageIndex: 1 });
+                }}
+              />
+            )}
+          {from !== RECORD_INFO_FROM.DRAFT &&
+            allowExportFromSetting &&
+            !!recordId &&
+            !get(window, 'shareState.shareId') && (
+              <ExportSheetButton
+                className="mRight6"
+                style={{
+                  height: 28,
+                }}
+                exportSheet={cb => {
+                  if (!records.length) {
+                    cb();
+                    alert(_l('数据为空，暂不支持导出！'), 3);
+                    return;
+                  }
+                  return exportRelateRecordRecords({
+                    worksheetId,
+                    rowId: recordId,
+                    controlId: control.controlId,
+                    filterControls: control.type === 51 ? filterControls : [],
+                    fileName:
+                      `${recordTitle ? recordTitle + '_' : ''}${control.controlName}_${moment().format(
+                        'YYYYMMDDHHmmss',
+                      )}`.trim() + '.xlsx',
+                    onDownload: cb,
+                  });
+                }}
+              />
+            )}
+          {!isBatchEditing &&
+            from !== 21 &&
+            !!recordId &&
+            (base.isTab || _.isEqual(changes, initialChanges) || _.isEmpty(changes)) && (
+              <span
+                className="mRight6"
+                data-tip={_l('刷新')}
+                style={{ height: 28 }}
+                onClick={() => {
+                  refresh();
+                }}
+              >
+                <IconBtn className="Hand ThemeHoverColor3">
+                  <i className="icon icon-task-later" />
+                </IconBtn>
+              </span>
+            )}
+          {mode === 'recordForm' && !!recordId && from !== RECORD_INFO_FROM.DRAFT && (
             <span
-              className="mRight6"
-              data-tip={_l('刷新')}
-              style={{ height: 28 }}
-              onClick={() => {
-                refresh();
-              }}
+              data-tip={_l('全屏')}
+              style={{ height: 28, marginRight: 6 }}
+              onClick={() =>
+                openRelateRelateRecordTable({
+                  appId,
+                  viewId,
+                  worksheetId,
+                  recordId,
+                  control: { ...control, ...(base.isTab ? { store: undefined } : {}) },
+                  allowEdit,
+                  formdata: formData,
+                  reloadTable: base.isTab ? refresh : () => {},
+                  updateWorksheetControls: updatedControls => {
+                    updateBase({ control: updatedControls[0] });
+                    updateWorksheetControls(updatedControls);
+                  },
+                })
+              }
             >
               <IconBtn className="Hand ThemeHoverColor3">
-                <i className="icon icon-task-later" />
+                <i className="icon icon-worksheet_enlarge" />
               </IconBtn>
             </span>
           )}
-        {mode === 'recordForm' && !!recordId && from !== RECORD_INFO_FROM.DRAFT && (
-          <span
-            data-tip={_l('全屏')}
-            style={{ height: 28, marginRight: 6 }}
-            onClick={() =>
-              openRelateRelateRecordTable({
-                appId,
-                viewId,
-                worksheetId,
-                recordId,
-                control: { ...control, ...(base.isTab ? { store: undefined } : {}) },
-                allowEdit,
-                formdata: formData,
-                reloadTable: base.isTab ? refresh : () => {},
-                updateWorksheetControls: updatedControls => {
-                  updateBase({ control: updatedControls[0] });
-                  updateWorksheetControls(updatedControls);
-                },
-              })
-            }
-          >
-            <IconBtn className="Hand ThemeHoverColor3">
-              <i className="icon icon-worksheet_enlarge" />
-            </IconBtn>
-          </span>
-        )}
 
-        {(!!recordId || control.type === 51) && (
-          <Pagination
-            allowChangePageSize={base.isTab}
-            disabled={tableLoading}
-            className="pagination"
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            allCount={
-              control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count
-            }
-            countForShow={countForShow}
-            changePageIndex={value => {
-              updatePageIndex(value);
-            }}
-            changePageSize={value => {
-              updatePageSize(value);
-              localStorage.setItem('relateRecordTablePageSize', value);
-            }}
-            onPrev={() => {
-              updatePageIndex(pageIndex - 1 < 0 ? 0 : pageIndex - 1);
-            }}
-            onNext={() => {
-              updatePageIndex(
-                pageIndex + 1 > Math.ceil(count / pageSize) ? Math.ceil(count / pageSize) : pageIndex + 1,
-              );
-            }}
-          />
-        )}
-      </div>
+          {(!!recordId || control.type === 51) && (
+            <Pagination
+              allowChangePageSize={base.isTab}
+              disabled={tableLoading}
+              className="pagination"
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              allCount={
+                control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count
+              }
+              countForShow={countForShow}
+              changePageIndex={value => {
+                updatePageIndex(value);
+              }}
+              changePageSize={value => {
+                updatePageSize(value);
+                localStorage.setItem('relateRecordTablePageSize', value);
+              }}
+              onPrev={() => {
+                updatePageIndex(pageIndex - 1 < 0 ? 0 : pageIndex - 1);
+              }}
+              onNext={() => {
+                updatePageIndex(
+                  pageIndex + 1 > Math.ceil(count / pageSize) ? Math.ceil(count / pageSize) : pageIndex + 1,
+                );
+              }}
+            />
+          )}
+        </div>
+      )}
     </Con>
   );
 }
@@ -514,6 +597,8 @@ export default connect(
     updatePageIndex: bindActionCreators(actions.updatePageIndex, dispatch),
     updatePageSize: bindActionCreators(actions.updatePageSize, dispatch),
     refresh: bindActionCreators(actions.refresh, dispatch),
+    loadRecords: bindActionCreators(actions.loadRecords, dispatch),
+    batchUpdateRecords: bindActionCreators(actions.batchUpdateRecords, dispatch),
     updateBase: bindActionCreators(actions.updateBase, dispatch),
     search: bindActionCreators(actions.search, dispatch),
     handleAddRelation: bindActionCreators(actions.handleAddRelation, dispatch),

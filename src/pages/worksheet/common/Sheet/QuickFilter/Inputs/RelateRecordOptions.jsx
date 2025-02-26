@@ -76,7 +76,7 @@ export default function RelateRecordOptions(props) {
           const checked = _.find(selected, { rowid: record.rowid });
           return (
             <Option
-              className={cx('ellipsis', { multiple, checked })}
+              className={cx('relateRecordOption ellipsis', { multiple, checked })}
               title={title}
               key={i}
               onClick={() => {

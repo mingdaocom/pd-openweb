@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { initIntlTelInput } from '../../../../pages/accountLogin/util';
+import { initIntlTelInput } from '../../../../pages/AuthService/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -186,7 +186,7 @@ export default class Widgets extends Component {
     }
   };
 
-  onChange = () => {
+  onChange = _.debounce(() => {
     const countryData = this.iti.getSelectedCountryData();
     let value;
     if (!_.keys(countryData).length) {
@@ -196,8 +196,9 @@ export default class Widgets extends Component {
     }
 
     this.setState({ hideCountry: !_.keys(countryData).length, itiWidth: $(this.input).css('padding-left') });
+
     this.props.value !== value && this.props.onChange(value);
-  };
+  }, 300);
 
   getItiInputValue = tempValue => {
     const value = tempValue || '';

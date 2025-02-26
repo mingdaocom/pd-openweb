@@ -260,6 +260,11 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/integration/dataIntegration/dataMirror/Preview'),
     title: _l('工作表数据镜像'),
   },
+  stats: {
+    path: '/stats/:id?',
+    component: () => import('src/pages/integration/dataIntegration/stats'),
+    title: _l('统计'),
+  },
   plugin: {
     path: '/plugin/:type?',
     component: () => import('src/pages/plugin'),

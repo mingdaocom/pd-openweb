@@ -92,7 +92,7 @@ export default class Level extends React.Component {
           _.find(itemnames, i => i.key === `${value}`),
           'value',
         ) || _l('%0 级', value);
-      return currentName;
+      return <span>{currentName}</span>;
     }
     return (
       <div

@@ -4,17 +4,131 @@ export const HomePageWrap = styled.div`
   flex-direction: column;
   height: 100%;
   padding: 24px;
-  padding-top: 0;
+  padding-top: 19px;
   box-sizing: border-box;
   overflow-y: auto;
   background: #f5f5f5;
+  .Red_f00 {
+    color: #ff0000;
+  }
+  .Yellow_de9 {
+    color: #de9000;
+  }
+  .Hover_theme:hover {
+    color: #0063b2 !important;
+  }
+  .Hover_theme.Normal.Bold {
+    font-weight: bold !important;
+  }
+  .mul2_overflow_ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+  .basicInfo {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    .infoCard {
+      background: #fff;
+      border-radius: 6px;
+      min-height: 187px;
+      padding: 20px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .renewTag {
+        color: #4caf50;
+        .doneIcon {
+          margin-right: 4px;
+        }
+      }
+      .helpIcon {
+        color: #d0d0d0 !important;
+        &:hover {
+          color: #2196f3 !important;
+        }
+      }
+      .buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .greenBtn {
+        padding: 6px 21px;
+        font-size: 14px;
+        color: #fff;
+        border-radius: 16px;
+        background: #4caf59;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        img {
+          width: 20px;
+          height: 20px;
+        }
+        &:hover {
+          color: #fff;
+          background: #1d660e;
+        }
+      }
+      .blueBtn {
+        padding: 6px 21px;
+        font-size: 14px;
+        color: #fff;
+        border-radius: 16px;
+        background: #2196f3;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        img {
+          width: 20px;
+          height: 20px;
+        }
+        &:hover {
+          color: #fff;
+          background: #1565c0;
+        }
+      }
+      .whiteBtn {
+        padding: 6px 16px;
+        font-size: 14px;
+        color: #333;
+        border-radius: 16px;
+        border: 1px solid #dddddd;
+        cursor: pointer;
+        &:hover {
+          color: #1565c0;
+          border: 1px solid #1565c0;
+          cursor: pointer;
+        }
+      }
+      .trialTag {
+        padding: 4px 8px;
+        background: #FEF5EA;
+        color: #DE9000;
+        margin-left: 10px;
+        display: inline-block;
+        border-radius: 50px;
+      }
+    }
+    @media screen and (max-width: 1320px) {
+      .infoCard.row1 {
+        width: 100%;
+        min-height: 140px;
+        flex: auto;
+        flex-direction: row;
+      }
+    }
+  }
   .infoWrap {
     display: flex;
     @media (max-width: 1320px) {
       display: block;
-      .infoBox {
-        width: 100%;
-      }
     }
   }
   .Hidden {
@@ -38,36 +152,10 @@ export const HomePageWrap = styled.div`
   .infoWrapCopy {
     display: flex;
     .content {
-      padding: 32px 24px !important;
-      ul li {
-        padding-top: 32px !important;
-      }
+      padding: 28px 16px !important;
     }
     @media screen and (max-width: 1920px) {
       display: block;
-      .infoBox {
-        width: 100%;
-        padding: 0 !important;
-        &.pTitle {
-          padding-top: 16px !important;
-        }
-      }
-    }
-    @media screen and (max-width: 1367px) {
-      .content {
-        height: unset !important;
-        padding: 30px 20px !important;
-        ul {
-          flex-wrap: wrap;
-          li {
-            width: calc((100% - 40px) / 3);
-            flex: unset !important;
-            padding: 30px 0 30px 30px !important;
-            text-align: left !important;
-            margin-bottom: 8px;
-          }
-        }
-      }
     }
   }
   .infoWrap,
@@ -75,7 +163,6 @@ export const HomePageWrap = styled.div`
     flex-shrink: 0;
     .content {
       background-color: #fff;
-      height: 210px;
       box-sizing: border-box;
       padding: 24px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -115,7 +202,7 @@ export const HomePageWrap = styled.div`
     }
   }
   .infoBox {
-    width: 50%;
+    width: 100%;
     padding: 0 12px 0 0;
     &.pTitle {
       padding-top: 56px !important;
@@ -131,7 +218,7 @@ export const HomePageWrap = styled.div`
     padding: 32px 24px 50px 24px;
     position: relative;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    border-radius: 3px;
+    border-radius: 6px;
     .computeMethod {
       position: absolute;
       top: 12px;
@@ -156,40 +243,27 @@ export const HomePageWrap = styled.div`
       display: flex;
       flex: 1;
       align-items: center;
-      height: 100%;
+      flex-wrap: wrap;
+      gap: 8px;
       li {
-        flex: 1;
-        height: 100%;
-        padding-top: 20px;
-        margin-right: 10px;
-        padding-left: 15px;
-        @media screen and (max-width: 1367px) {
-          padding-left: 10px;
+        width: calc((100% - 16px) / 3);
+        min-height: 132px;
+        padding: 10px 20px;
+        @media screen and (max-width: 1391px) {
+          width: calc(50% - 4px);
+          min-width: 320px;
         }
-        &:last-child {
-          margin-right: 0;
+        @media screen and (max-width: 1367px) {
+          padding: 10px;
+        }
+        .detailBtn {
+          display: none;
         }
         &:hover {
           border-radius: 15px;
           background-color: #f5f5f5;
-        }
-        &.useAnalysis:hover {
-          background-color: #fff;
-        }
-        &.useAnalysisHover {
-          cursor: pointer;
-        }
-        &.useAnalysisHover:hover {
-          border-radius: 16px;
-          background-color: #f5f5f5;
-          .limitUser {
-            color: #9e9e9e;
-          }
-        }
-        &.effectiveDataPipelineRowCount {
-          &:hover {
-            cursor: auto;
-            background-color: #fff;
+          .detailBtn {
+            display: inline-block;
           }
         }
       }
@@ -203,20 +277,18 @@ export const HomePageWrap = styled.div`
 
   .purchaseUser,
   .recharge {
-    position: absolute;
-    right: 24px;
-    bottom: 16px;
-    padding: 0 24px;
-    line-height: 32px;
+    padding: 6px 16px;
     transition: background-color 0.25s;
     background: rgba(18, 148, 247, 0.1);
     font-weight: 600;
+    color: rgba(18, 148, 247);
+    border-radius: 16px;
+    cursor: pointer;
+    order: 2;
+    font-size: 14px;
     &:hover {
       background: rgba(18, 148, 247, 0.2);
     }
-    color: rgba(18, 148, 247);
-    border-radius: 24px;
-    cursor: pointer;
   }
   .trialAuthenticate {
     background-color: #fef5e9;
@@ -433,13 +505,14 @@ export const HomePageWrap = styled.div`
       padding: 16px;
       background-color: #fff;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-      border-radius: 3px;
+      border-radius: 6px;
     }
     ul {
       display: flex;
       flex-wrap: wrap;
       li {
         width: 25%;
+        min-width: 276px;
         padding: 8px;
         box-sizing: border-box;
         cursor: pointer;
@@ -470,6 +543,11 @@ export const HomePageWrap = styled.div`
             margin-top: 8px;
             color: #bdbdbd;
           }
+        }
+      }
+      @media screen and (max-width: 1519px) {
+        li {
+          width: calc(100% / 3);
         }
       }
     }
@@ -551,6 +629,34 @@ export const FreeTrialWrap = styled.div`
         color: #fff;
         font-size: 20px;
       }
+    }
+  }
+`;
+
+export const TitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 22px;
+  margin-bottom: 16px;
+  height: 32px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333333;
+  .titleBtn {
+    padding: 0 16px;
+    height: 32px;
+    background: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 32px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid #fff;
+    &:hover {
+      color: #1565c0;
+      border: 1px solid #1565c0;
+      cursor: pointer;
     }
   }
 `;

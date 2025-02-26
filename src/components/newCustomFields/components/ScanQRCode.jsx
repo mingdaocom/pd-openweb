@@ -146,7 +146,7 @@ export default class Widgets extends Component {
   handleScanCode = () => {
     const { projectId, control } = this.props;
 
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && window.MDJS && window.MDJS.scanQRCode) {
       window.MDJS.scanQRCode({
         control,
         success: res => {

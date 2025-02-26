@@ -110,7 +110,7 @@ export default function Header(props) {
         !isPublicLink() && (
           <EmbedAddRecord className="addRecord flexCenter Block" onClick={() => openNewRecord({ isDraft })}>
             <Icon icon="plus" className="Font14 mRight2" />
-            <span className="Bold Font14">{_l('添加%0', entityName)}</span>
+            <span className="Bold Font14">{_.get(worksheetInfo, 'advancedSetting.btnname') || entityName}</span>
           </EmbedAddRecord>
         )}
       {headerLeft}
@@ -179,7 +179,7 @@ export default function Header(props) {
           icon={<Icon icon="plus" className="mRight2" />}
           onClick={openNewRecord}
         >
-          {entityName}
+          {_.get(worksheetInfo, 'advancedSetting.btnname') || entityName}
         </Button>
       )}
       {headerRight}

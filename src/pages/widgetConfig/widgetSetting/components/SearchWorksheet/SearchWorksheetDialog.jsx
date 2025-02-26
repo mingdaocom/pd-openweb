@@ -195,22 +195,6 @@ export default class SearchWorksheetDialog extends Component {
       });
   };
 
-  renderSearchCom = () => {
-    return (
-      <span
-        onClick={e => {
-          if (!this.state.sheetId) {
-            alert(_l('请选择工作表'), 3);
-            return;
-          }
-        }}
-      >
-        <i className="icon icon-plus mRight8"></i>
-        {_l('查询条件')}
-      </span>
-    );
-  };
-
   handleSubmit = () => {
     const {
       globalSheetInfo = {},
@@ -220,7 +204,7 @@ export default class SearchWorksheetDialog extends Component {
       onChange,
       onClose,
       updateQueryConfigs,
-      fromCustom,
+      eventKey,
     } = this.props;
     const {
       id = '',
@@ -247,13 +231,18 @@ export default class SearchWorksheetDialog extends Component {
       sourceId: sheetId,
       sourceName: sheetName,
       sourceType,
-      items: items.map(i => ({ ...i, emptyRule })),
+      items: items.map(i => {
+        if (i.isGroup) {
+          return { ...i, groupFilters: (i.groupFilters || []).map(g => ({ ...g, emptyRule })) };
+        }
+        return { ...i, emptyRule };
+      }),
       configs,
       moreType,
       resultType,
       moreSort,
       queryCount,
-      eventType: fromCustom ? 1 : 0,
+      eventType: eventKey ? 1 : 0,
     };
     worksheetAjax.saveQuery(params).then(res => {
       const value = {
@@ -411,7 +400,7 @@ export default class SearchWorksheetDialog extends Component {
       globalSheetInfo = {},
       allControls = [],
       queryControls = [],
-      fromCustom,
+      eventKey,
     } = this.props;
     const totalControls = (from === 'subList' ? queryControls : allControls).map(redefineComplexControl);
     // 同源级联
@@ -427,15 +416,16 @@ export default class SearchWorksheetDialog extends Component {
 
     const viewId = _.get(views, '0.viewId');
 
-    const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items, true);
+    const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items);
     const checkConfigs = _.isEmpty(configs) || !_.every(configs, con => !!con.cid);
-    const okDisabled = fromCustom
-      ? !sheetId || checkFilters
-      : normalField
-      ? !sheetId || checkFilters || _.isEmpty(configs)
-      : selfRelate
-      ? checkFilters
-      : !sheetId || checkFilters || checkConfigs;
+    const okDisabled =
+      eventKey === 'filters'
+        ? !sheetId || checkFilters
+        : normalField
+        ? !sheetId || checkFilters || _.isEmpty(configs)
+        : selfRelate
+        ? checkFilters
+        : !sheetId || checkFilters || checkConfigs;
 
     const isDelete =
       _.get(configs[0] || {}, 'subCid') &&
@@ -573,30 +563,27 @@ export default class SearchWorksheetDialog extends Component {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('查询条件')}</div>
-            {sheetId ? (
-              <div className="searchWorksheetFilter">
-                <FilterConfig
-                  canEdit
-                  feOnly
-                  version={sheetId}
-                  projectId={globalSheetInfo.projectId}
-                  appId={globalSheetInfo.appId}
-                  columns={dealRelationControls(controls)}
-                  conditions={filterItems}
-                  sheetSwitchPermit={sheetSwitchPermit}
-                  viewId={viewId}
-                  from="relateSheet"
-                  filterResigned={false}
-                  showCustom={true}
-                  currentColumns={totalControls}
-                  onConditionsChange={conditions => {
-                    this.setState({ items: conditions });
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="addFilterIcon pointer">{this.renderSearchCom()}</div>
-            )}
+            <div className="searchWorksheetFilter">
+              <FilterConfig
+                canEdit
+                feOnly
+                supportGroup
+                version={sheetId}
+                projectId={globalSheetInfo.projectId}
+                appId={globalSheetInfo.appId}
+                columns={dealRelationControls(controls)}
+                conditions={filterItems}
+                sheetSwitchPermit={sheetSwitchPermit}
+                viewId={viewId}
+                from="relateSheet"
+                filterResigned={false}
+                showCustom={true}
+                currentColumns={totalControls}
+                onConditionsChange={conditions => {
+                  this.setState({ items: conditions });
+                }}
+              />
+            </div>
           </SettingItem>
 
           <EmptyRuleConfig
@@ -605,7 +592,7 @@ export default class SearchWorksheetDialog extends Component {
             handleChange={value => this.setState({ emptyRule: value })}
           />
 
-          {fromCustom ? (
+          {eventKey === 'filters' ? (
             <SettingItem className="mTop12">
               <div className="settingItemTitle">{_l('查询到以下结果时条件成立')}</div>
               <RadioGroup

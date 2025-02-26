@@ -21,7 +21,6 @@ import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import { toFixed } from 'src/util';
 import { TinyColor } from '@ctrl/tinycolor';
-import _ from 'lodash';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
   const result = _.toArray(_.groupBy(data, 'originalId'));
@@ -124,8 +123,6 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -149,7 +146,7 @@ export default class extends Component {
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -269,8 +266,9 @@ export default class extends Component {
     });
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, displaySetup, xaxes, yaxisList, split, reportId, summary } = reportData;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
@@ -279,7 +277,6 @@ export default class extends Component {
       isPerPile,
       showPileTotal,
       hideOverlapText,
-      fontStyle,
       legendType,
       showChartType,
       showLegend,
@@ -336,22 +333,20 @@ export default class extends Component {
       xField: isVertical ? 'originalId' : 'value',
       yField: isVertical ? 'value' : 'originalId',
       xAxis: isVertical
-        ? this.getxAxis(displaySetup, xaxes)
-        : this.getyAxis(displaySetup, newYaxisList),
+        ? this.getxAxis(displaySetup, xaxes, isDark)
+        : this.getyAxis(displaySetup, newYaxisList, isDark),
       yAxis: isVertical
-        ? this.getyAxis(displaySetup, newYaxisList)
-        : this.getxAxis(displaySetup, xaxes),
+        ? this.getyAxis(displaySetup, newYaxisList, isDark)
+        : this.getxAxis(displaySetup, xaxes, isDark),
       animation: true,
-      slider: style.showXAxisSlider ? {
+      slider: style.showXAxisSlider && isVertical ? {
         start: 0,
         end: 0.5,
         formatter: () => null
       } : undefined,
       rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
       theme: {
-        styleSheet: {
-          backgroundColor: '#fff'
-        }
+        background: isDark ? widgetBgColor : '#ffffffcc',
       },
       color: data => {
         const controlId = formatControlInfo(data.groupName).id;
@@ -394,6 +389,11 @@ export default class extends Component {
             flipPage: true,
             itemHeight: 20,
             radio: { style: { r: 6 } },
+            itemName: {
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
+            }
           }
         : false,
       tooltip: {
@@ -443,14 +443,24 @@ export default class extends Component {
               value: _.isNumber(value) ? style.tooltipValueType ? labelValue : `${value.toLocaleString('zh', { minimumFractionDigits: dot })} ${getLabelPercent(value)}` : '--'
             }
           }
-        }
+        },
+        domStyles: isDark ? {
+          'g2-tooltip': {
+            color: '#ffffffcc',
+            backgroundColor: widgetBgColor,
+            boxShadow: `${widgetBgColor} 0px 0px 10px`
+          },
+          'g2-tooltip-list-item': {
+            color: '#ffffffcc',
+          }
+        } : undefined
       },
       label: showNumber || showPercent
         ? {
             position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
             layout: [
               hideOverlapText ? { type: 'hide-overlap' } : null,
-              { type: 'adjust-color' },
+              isPile || isPerPile ? { type: 'adjust-color' } : null,
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
             content: (labelData) => {
@@ -485,6 +495,9 @@ export default class extends Component {
                 return labelValue;
               }
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : false,
       annotations: [
@@ -521,7 +534,7 @@ export default class extends Component {
       BarChartConfig: baseConfig,
     };
   }
-  getyAxis(displaySetup, yaxisList) {
+  getyAxis(displaySetup, yaxisList, isDark) {
     const { isPerPile, ydisplay } = displaySetup;
     return {
       minLimit: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
@@ -530,6 +543,9 @@ export default class extends Component {
         ydisplay.showTitle && ydisplay.title
           ? {
               text: ydisplay.title,
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
             }
           : null,
       label: ydisplay.showDial
@@ -537,12 +553,16 @@ export default class extends Component {
             formatter: (value) => {
               return value ? formatrChartAxisValue(Number(value), isPerPile, yaxisList) : null;
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : null,
       grid: {
         line: ydisplay.showDial
           ? {
               style: {
+                stroke: isDark ? '#ffffffcc' : undefined,
                 lineDash: ydisplay.lineStyle === 1 ? [] : [4, 5],
               },
             }
@@ -550,13 +570,16 @@ export default class extends Component {
       },
     };
   }
-  getxAxis(displaySetup, { particleSizeType, showFormat = '0' }) {
+  getxAxis(displaySetup, { particleSizeType, showFormat = '0' }, isDark) {
     const { fontStyle, xdisplay, ydisplay } = displaySetup;
     return {
       title:
         xdisplay.showTitle && xdisplay.title
           ? {
               text: xdisplay.title,
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
             }
           : null,
       label: xdisplay.showDial
@@ -567,6 +590,9 @@ export default class extends Component {
             formatter: (name, item) => {
               return particleSizeType === 6 && showFormat === '0' ? _l('%0时', name) : name;
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : null,
       line: ydisplay.lineStyle === 1 ? {} : null,
@@ -623,7 +649,7 @@ export default class extends Component {
     if ('all' in summary) {
       const { all, controlList = [] } = summary;
       return (
-        <div className="flexRow" style={{ flexWrap: 'wrap' }}>
+        <div className="flexRow summaryWrap" style={{ flexWrap: 'wrap' }}>
           {all && (
             <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
               {renderItem(summary)}
@@ -649,7 +675,7 @@ export default class extends Component {
   }
   render() {
     const { dropdownVisible, offset } = this.state;
-    const { summary, displaySetup = {} } = this.props.reportData;
+    const { displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown

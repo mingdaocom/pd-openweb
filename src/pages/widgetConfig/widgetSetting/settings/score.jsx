@@ -80,7 +80,6 @@ export default function Score({ data, onChange }) {
           />
           {itemcolor.type !== 2 ? (
             <WidgetColor
-              type="normal"
               color={getColor(data)}
               handleChange={color => {
                 onChange(handleAdvancedSettingChange(data, { itemcolor: JSON.stringify({ ...itemcolor, color }) }));
@@ -117,6 +116,7 @@ export default function Score({ data, onChange }) {
             {colors.map((item, index) => {
               return (
                 <WidgetColor
+                  isNormal={false}
                   color={item.value}
                   text={`${index + 1}`}
                   handleChange={color => {

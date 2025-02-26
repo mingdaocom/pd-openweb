@@ -515,7 +515,7 @@ export default class Push extends Component {
         value={pushType}
         border
         onChange={pushType => {
-          const obj = { pushType, openMode: 2, appId: '', content: '', viewId: '', selectNodeId: '' };
+          const obj = { pushType, openMode: 2, appId: '', content: '', viewId: '', selectNodeId: '', duration: 5 };
 
           if (buttonIndex === undefined) {
             this.updateSource(Object.assign(obj, { promptType: 1, buttons: [] }));

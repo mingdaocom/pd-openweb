@@ -414,7 +414,7 @@
     box-shadow: none;
     margin-top: 6px;
     .columnsFilter {
-      margin: 0 28px;
+      margin: 0 20px;
       padding: 0px;
       .Input {
         padding: 0 7px;
@@ -631,6 +631,12 @@
         margin: 4px;
       }
     }
+    &.customDate {
+      height: inherit;
+    }
+    .customFormControlBox:not(.ant-picker) {
+      height: 34px;
+    }
   }
 
   .dateValue input {
@@ -661,7 +667,7 @@
   }
 
   .customDate {
-    line-height: 36px;
+    line-height: 34px;
 
     .mui-datetime-picker {
       width: 100%;
@@ -820,9 +826,9 @@
 }
 
 .worksheetFilterCascaderCondition {
-    .cascaderDropdown {
-      margin-top: 0px !important;
-    }
+  .cascaderDropdown {
+    margin-top: 0px !important;
+  }
 }
 
 // .worksheetFilterCascaderPopup {

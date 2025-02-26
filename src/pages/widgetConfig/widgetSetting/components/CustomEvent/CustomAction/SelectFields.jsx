@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { SettingItem } from '../../../../styled';
 import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
 import ActionDropDown from 'src/pages/FormSet/components/columnRules/actionDropdown/ActionDropDown.jsx';
+import { ACTION_VALUE_ENUM } from '../config';
 
 export default function SelectFields(props) {
   const { allControls, actionType, actionItems = [], onSelectField = () => {}, disabled } = props;
@@ -13,6 +14,7 @@ export default function SelectFields(props) {
       <ActionDropDown
         disabled={disabled}
         actionType={Number(actionType)}
+        showSelectAll={actionType !== ACTION_VALUE_ENUM.ACTIVATE_TAB}
         values={actionItems}
         dropDownData={filterSysControls}
         onChange={(key, value) => {

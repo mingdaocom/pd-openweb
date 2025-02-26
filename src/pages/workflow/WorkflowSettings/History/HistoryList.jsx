@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { string, number, arrayOf, shape, bool, func, any, array } from 'prop-types';
+import { string, bool, func, any, array } from 'prop-types';
 import cx from 'classnames';
 import HistoryListItem from './components/HistoryListItem';
 import { STATUS2COLOR } from './config';
 import styled from 'styled-components';
-import { Menu, MenuItem, Support, Dialog, Checkbox } from 'ming-ui';
+import { Menu, MenuItem, Support, Dialog, Checkbox, LoadDiv } from 'ming-ui';
 import { SUPPORT_HREF } from '../enum';
 import _ from 'lodash';
 import moment from 'moment';
@@ -39,15 +39,7 @@ const Box = styled.div`
 export default class HistoryList extends Component {
   static propTypes = {
     processId: string,
-    data: arrayOf(
-      shape({
-        createDate: string,
-        id: string,
-        instanceLog: shape({ cause: number, nodeName: string }),
-        status: number,
-        title: string,
-      }),
-    ),
+    data: any,
     accumulation: any,
     getMore: func,
     hasMoreData: bool,
@@ -58,7 +50,7 @@ export default class HistoryList extends Component {
     onUpdateBatchIds: func,
   };
   static defaultProps = {
-    data: [],
+    data: null,
     batchIds: [],
     getMore: () => {},
     onRecovery: () => {},
@@ -197,8 +189,44 @@ export default class HistoryList extends Component {
     );
   }
 
-  render() {
+  /**
+   * 渲染内容
+   */
+  renderContent() {
     const { data, getMore, hasMoreData, requestPending, accumulation, ...res } = this.props;
+
+    return (
+      <Fragment>
+        {!_.isEmpty(accumulation) && accumulation.difference > 0 && this.renderAccumulation()}
+        {data.length ? (
+          <ul className={cx('historyList', { littleData: data.length < 20 })}>
+            {data.map((item, index) => (
+              <HistoryListItem key={index} index={index} {...item} {...res} />
+            ))}
+            {!hasMoreData && data.length > 20 && (
+              <div className="noMoreDataText Font16 Gray_75">{_l('没有更多数据')}</div>
+            )}
+          </ul>
+        ) : (
+          <div className="emptyListWrap">
+            <div className="imgWrap" />
+            <div className="text Gray_75 Font16">{_l('暂无数据运行记录')}</div>
+          </div>
+        )}
+        {hasMoreData && (
+          <div className="moreDataWrap">
+            <div className="moreData" onClick={getMore}>
+              {requestPending ? _l('加载中...') : _l('更多')}
+            </div>
+          </div>
+        )}
+      </Fragment>
+    );
+  }
+
+  render() {
+    const { data, ...res } = this.props;
+
     return (
       <div className="historyListWrap">
         <ul className="historyListTitle">
@@ -207,11 +235,11 @@ export default class HistoryList extends Component {
               <span className="InlineBlock" style={{ width: 18 }}>
                 <Checkbox
                   checked={!!res.batchIds.length}
-                  clearselected={!!res.batchIds.length && res.batchIds.length !== data.length}
+                  clearselected={!!res.batchIds.length && res.batchIds.length !== (data || []).length}
                   onClick={checked => {
                     res.onUpdateBatchIds(
-                      !checked || (checked && res.batchIds.length !== data.length)
-                        ? data.map(o => {
+                      !checked || (checked && res.batchIds.length !== (data || []).length)
+                        ? (data || []).map(o => {
                             return {
                               id: o.id,
                               status: o.status,
@@ -240,29 +268,8 @@ export default class HistoryList extends Component {
             );
           })}
         </ul>
-        {!_.isEmpty(accumulation) && accumulation.difference > 0 && this.renderAccumulation()}
-        {data.length ? (
-          <ul className={cx('historyList', { littleData: data.length < 20 })}>
-            {data.map((item, index) => (
-              <HistoryListItem key={index} index={index} {...item} {...res} />
-            ))}
-            {!hasMoreData && data.length > 20 && (
-              <div className="noMoreDataText Font16 Gray_75">{_l('没有更多数据')}</div>
-            )}
-          </ul>
-        ) : (
-          <div className="emptyListWrap">
-            <div className="imgWrap" />
-            <div className="text Gray_75 Font16">{_l('暂无数据运行记录')}</div>
-          </div>
-        )}
-        {hasMoreData && (
-          <div className="moreDataWrap">
-            <div className="moreData" onClick={getMore}>
-              {requestPending ? _l('加载中...') : _l('更多')}
-            </div>
-          </div>
-        )}
+
+        {data === null ? <LoadDiv className="mTop15" /> : this.renderContent()}
       </div>
     );
   }

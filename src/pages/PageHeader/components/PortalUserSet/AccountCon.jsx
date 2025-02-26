@@ -4,7 +4,7 @@ import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import { captcha } from 'ming-ui/functions';
 import cx from 'classnames';
-import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
+import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
 import styled from 'styled-components';
 import { browserIsMobile, encrypt } from 'src/util';
 import externalPortalAjax from 'src/api/externalPortal';

@@ -99,6 +99,7 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
         filterFriend: true, // 是否过滤好友
         filterOthers: true, // 是否过滤其他协作关系
         filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
+        filterResigned: false,
         dataRange: 2, // reference to dataRangeTypes 和 projectId 配合使用
         allowSelectNull: false, // 是否允许选择列表为空
         callback: function (data) {

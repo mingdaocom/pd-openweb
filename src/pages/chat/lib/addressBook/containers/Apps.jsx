@@ -16,7 +16,7 @@ export default function Apps(props) {
         <span className="contacts-apps-icon">
           <span className={cx(APPLICATION_ICON['worksheet'], 'circle large')} />
         </span>
-        <span className="Font16">{_l('应用')}</span>
+        <span className="Font14">{_l('应用')}</span>
       </div>
       <div
         className="contacts-apps-item"
@@ -27,7 +27,7 @@ export default function Apps(props) {
         <span className="contacts-apps-icon">
           <span className={cx(APPLICATION_ICON['workflow'], 'circle large')} />
         </span>
-        <span className="Font16">{_l('工作流')}</span>
+        <span className="Font14">{_l('工作流')}</span>
       </div>
       {!forbidSuites.includes('1') && (
         <div
@@ -39,7 +39,7 @@ export default function Apps(props) {
           <span className="contacts-apps-icon">
             <span className={cx(APPLICATION_ICON['post'], 'circle large')} />
           </span>
-          <span className="Font16">{_l('动态')}</span>
+          <span className="Font14">{_l('动态')}</span>
         </div>
       )}
       {!forbidSuites.includes('2') && (
@@ -52,7 +52,7 @@ export default function Apps(props) {
           <span className="contacts-apps-icon">
             <span className={cx(APPLICATION_ICON['task'], 'circle large')} />
           </span>
-          <span className="Font16">{_l('任务')}</span>
+          <span className="Font14">{_l('任务')}</span>
         </div>
       )}
       {!forbidSuites.includes('3') && (
@@ -65,7 +65,7 @@ export default function Apps(props) {
           <span className="contacts-apps-icon">
             <span className={cx(APPLICATION_ICON['calendar'], 'circle large')} />
           </span>
-          <span className="Font16">{_l('日程')}</span>
+          <span className="Font14">{_l('日程')}</span>
         </div>
       )}
       {!forbidSuites.includes('4') && (
@@ -78,7 +78,7 @@ export default function Apps(props) {
           <span className="contacts-apps-icon">
             <span className={cx(APPLICATION_ICON['knowledge'], 'circle large')} />
           </span>
-          <span className="Font16">{_l('知识')}</span>
+          <span className="Font14">{_l('知识')}</span>
         </div>
       )}
       {!forbidSuites.includes('5') && (
@@ -91,7 +91,7 @@ export default function Apps(props) {
           <span className="contacts-apps-icon">
             <span className={cx(APPLICATION_ICON['hr'], 'circle large')} />
           </span>
-          <span className="Font16">{_l('人事')}</span>
+          <span className="Font14">{_l('人事')}</span>
         </div>
       )}
       <div
@@ -103,7 +103,7 @@ export default function Apps(props) {
         <span className="contacts-apps-icon">
           <span className={cx(APPLICATION_ICON['system'], 'circle large')} />
         </span>
-        <span className="Font16">{_l('系统')}</span>
+        <span className="Font14">{_l('系统')}</span>
       </div>
       <div
         className="contacts-apps-item"
@@ -114,7 +114,7 @@ export default function Apps(props) {
         <span className="contacts-apps-icon">
           <span className={cx(APPLICATION_ICON['uploadhelper'], 'circle large')} />
         </span>
-        <span className="Font16">{_l('文件传输助手')}</span>
+        <span className="Font14">{_l('文件传输助手')}</span>
       </div>
     </div>
   );

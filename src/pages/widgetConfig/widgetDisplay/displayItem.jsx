@@ -214,7 +214,7 @@ export default function DisplayItem(props) {
       // 行内拖拽
       if (mode === DRAG_MODE.INSERT_TO_COL) {
         setWidgets(insertToCol({ widgets, dropPath, location, srcPath: path, srcItem: newData }));
-        setActiveWidget({ ...newData, size: WHOLE_SIZE / (widgets[dropPath[0]].length + 1) });
+        setActiveWidget({ ...newData, size: WHOLE_SIZE / ((widgets[dropPath[0]] || []).length + 1) });
       }
     },
     collect(monitor) {

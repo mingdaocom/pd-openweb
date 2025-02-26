@@ -120,7 +120,7 @@ var syncTask = {
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo No comments found.
    * @param {integer} args.pageSize No comments found.
-   * @param {string} args.jobId No comments found.
+   * @param {string} args.jobIdOrTaskName No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -175,6 +175,20 @@ var syncTask = {
     base.ajaxOptions.url = base.server(options) + 'syncTask/createAggTableSyncTaskPreCheck';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'syncTaskcreateAggTableSyncTaskPreCheck', args, $.extend(base, options));
+  },
+
+  /**
+   * 
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  findTaskCountByType: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'syncTask/findTaskCountByType';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'syncTaskfindTaskCountByType', args, $.extend(base, options));
   },
 
   /**
@@ -238,7 +252,8 @@ var syncTask = {
    * @param {string} args.searchBody 搜索内容：任务名称、创建者
    * @param {string} args.status 任务状态(See: 数据同步任务状态)
    * @param {integer} args.taskType 同步任务类型 0-DATA_INTEGRATE 1-AGG_TABLE 2-AGG_PREVIEW :默认DATA_INTEGRATE<br>{@link TaskTypeEnum.DATA_INTEGRATE}<br>{@link TaskTypeEnum.AGG_TABLE}
-   * @param {integer} args.type 0-聚合表类型的同步任务列表在应用下(查询数据源中所有工作表名称)，<br>1-聚合表类型同步任务列表在组织下(查询应用名称和用户头像)<br>区分主要是两个地方接口获取的数据有一部分差异，分开减少不想关查询
+   * @param {integer} args.type 0-聚合表类型的同步任务列表在应用下的情况(查询数据源中所有工作表名称)，<br>1-聚合表类型同步任务列表在组织下的情况(组织管理-应用管理-聚合表列表查询)(查询应用名称和用户头像)<br>区分主要是两个地方接口获取的数据有一部分差异，分开减少不想关查询
+   * @param {array} args.createrIds 需求：聚合表支持按创建人/拥有者筛选<br>创建者ids:应该是creatorIds来的，这边参数跟工作表保持一致
    * @param {string} args.sourceType 源类型
    * @param {string} args.destType 目的地类型
    * @param {object} args.sort 排序参数(object)
@@ -270,6 +285,8 @@ var syncTask = {
    * 
    *
    * @param {Object} args 请求参数
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

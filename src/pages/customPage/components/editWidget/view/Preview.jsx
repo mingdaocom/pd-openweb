@@ -39,11 +39,17 @@ const ViewWrap = styled.div`
     padding: 10px 16px;
     align-items: center;
     border-bottom: 1px solid #eaeaea;
+    .searchInputComp {
+      background-color: transparent;
+    }
     &.mobile {
       font-size: 14px;
       height: 44px;
       background-color: #f8f8f8;
     }
+  }
+  .SingleViewName {
+    color: var(--title-color);
   }
   .SingleViewName + div {
     display: none;
@@ -140,7 +146,7 @@ export function View(props) {
   }
 
   return (
-    <ViewWrap className={cx(className, { hideAddRecord: !config.isAddRecord, hideSearchRecord: !config.searchRecord })}>
+    <ViewWrap className={cx(className, { hideAddRecord: window.shareState.shareId ? true : !config.isAddRecord, hideSearchRecord: !config.searchRecord })}>
       <Component
         showHeader
         ref={singleViewRef}
@@ -155,7 +161,7 @@ export function View(props) {
         headerLeft={
           <div className="SingleViewName flex ellipsis">
             <span
-              className={cx('Font15 bold Gray', { pointer: config.openView })}
+              className={cx('Font15 bold', { pointer: config.openView })}
               onClick={() => {
                 if (config.openView) {
                   navigateToView(value, viewId);

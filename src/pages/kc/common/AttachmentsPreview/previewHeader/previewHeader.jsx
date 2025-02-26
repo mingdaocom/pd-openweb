@@ -1,10 +1,7 @@
 import PropTypes from 'prop-types';
-import React, { Fragment } from 'react';
+import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Menu, MenuItem, Icon, Popup, Dialog } from 'ming-ui';
 import {
   renameFile,
   saveToKnowlwdge,
@@ -12,15 +9,13 @@ import {
   updateAllowDownload,
   changePreviewService,
 } from '../actions/action';
-import UploadNewVersion from '../../../components/UploadNewVersion';
 import { validateFileName, isWpsPreview, defaultWpsPreview } from '../../../utils';
 import * as previewUtil from '../constant/util';
 import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
-import EditableBlock from '../editableBlock';
 import _ from 'lodash';
 import 'rc-trigger/assets/index.css';
-import VersionList from '../versionList';
-import { getFeatureStatus, buriedUpgradeVersionDialog, addToken, browserIsMobile } from 'src/util';
+import CommonHeader from './CommonHeader';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 
 class PreviewHeader extends React.Component {
@@ -91,17 +86,6 @@ class PreviewHeader extends React.Component {
     });
   };
 
-  handleLogin = () => {
-    Dialog.confirm({
-      title: _l('保存到'),
-      children: <div>{_l('请先登录')}</div>,
-      okText: _l('登录'),
-      onOk: () => {
-        window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
-      },
-    });
-  };
-
   downloadAttachment = () => {
     const { attachment, logExtend } = this.props;
     const { canDownload } = previewUtil.getPermission(attachment, {
@@ -148,7 +132,6 @@ class PreviewHeader extends React.Component {
         });
     const isWps = previewService === 'wps';
     const featureType = getFeatureStatus(projectId, VersionProductType.editAttachment);
-    const isMobile = browserIsMobile();
     const isRecordFileNewTab =
       location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1; // 记录内附件新开页
     const showEdit =
@@ -159,327 +142,110 @@ class PreviewHeader extends React.Component {
       isWpsPreview(ext, true) &&
       !isDraft; // （编辑授权指标||新开页）&可编辑权限&可编辑文档类型&非草稿箱
 
-    const renderAttachmentAction = () => {
-      return (
-        <div className={cx('flexRow flex justifyContentCenter', { mobileAttachmentAction: isMobile })}>
-          {!md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext)) ? (
-            <Fragment>
-              {!isWps ? (
-                <div
-                  className={cx('setWPSPreview', { wpsPreview: !showEdit && !isMobile })}
-                  onClick={() => {
-                    this.props.changePreviewService('wps');
-                  }}
-                >
-                  <span className="bold">{_l('预览失败？使用WPS预览')}</span>
-                </div>
-              ) : (
-                <Trigger
-                  popupVisible={this.state.showSavePreviewService}
-                  onPopupVisibleChange={visible => {
-                    this.setState({
-                      showSavePreviewService: visible,
-                    });
-                  }}
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    offset: [76, 0],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
-                  popup={
-                    <Menu style={{ width: 237 }}>
-                      <MenuItem
-                        onClick={() => {
-                          this.setState({
-                            isPreferred: false,
-                            showSavePreviewService: false,
-                          });
-                          this.props.changePreviewService('original');
-                        }}
-                      >
-                        {_l('使用默认方式预览')}
-                      </MenuItem>
-                    </Menu>
-                  }
-                >
-                  <div
-                    className="setWPSPreview usingWPS"
-                    onClick={() => {
-                      this.setState({ showSavePreviewService: true, wpsPreviewUrl: 'https://www.mingdao.com/' });
-                    }}
-                  >
-                    <span className="bold">{_l('正在使用WPS服务预览')}</span>
-                    <i className="icon icon-arrow-down White mLeft5"></i>
-                  </div>
-                </Trigger>
-              )}
-            </Fragment>
-          ) : (
-            ''
-          )}
-          {isMobile && showEdit && <div className="flex"></div>}
-          {/* 编辑 草稿箱内不支持附件在线编辑 */}
-          {showEdit && (
-            <div
-              className={cx('setWPSPreview editFileBtn bold centerBtn', {})}
-              onClick={() => {
-                if (featureType === '2') {
-                  buriedUpgradeVersionDialog(projectId, VersionProductType.editAttachment);
-                  return;
-                }
-                if (this.props.onClose) {
-                  this.props.onClose();
-                  window.open(wpsEditUrl);
-                } else {
-                  location.href = wpsEditUrl;
-                }
-              }}
-            >
-              <i className="icon icon-hr_edit mRight5 Font18" />
-              {_l('在线编辑')}
-            </div>
-          )}
-        </div>
-      );
-    };
-
     return (
-      <div className={cx('previewHeader flexRow Relative', className, { isMobile, Relative: !showEdit && !isMobile })}>
-        <div className="flexRow">
-          <EditableBlock
-            onChange={value => {
-              this.props.renameFile(value);
-            }}
-            validateFileName={value => validateFileName(value, true, {}, { extLength: ext.length })}
-            ext={'.' + ext}
-            className="editName"
-            value={name}
-            canEdit={canEditFileName}
-          />
-          {showKcVersionPanel && (
-            <div className="historyPanel historyVersion relative">
-              <span className="normal" data-tip={_l('查看历史版本')}>
-                <Icon
-                  icon="restore2"
-                  className="Hand Font16"
-                  ref={list => {
-                    this.eleKcVersionList = list;
-                  }}
-                  onClick={() => {
-                    this.setState({ showKcVersionList: !this.state.showKcVersionList });
-                  }}
-                />
-              </span>
-              {this.state.showKcVersionList && (
-                <Popup
-                  withMask
-                  style={{ left: -36, top: 54 }}
-                  onClickAwayExceptions={[this.eleKcVersionList]}
-                  onClickAway={() => {
-                    this.setState({ showKcVersionList: false });
-                  }}
-                >
-                  <div className="versionListCon">
-                    <VersionList
-                      attachment={attachment.sourceNode}
-                      download={this.downloadAttachment}
-                      callback={item => {
-                        this.props.replaceAttachment(item, this.props.index, 'kc');
-                        this.setState({ showKcVersionList: false });
-                      }}
-                      onClose={this.props.onClose}
-                      performRemoveItems={this.props.performRemoveItems}
-                      replaceAttachment={(item, outerItem) => {
-                        this.props.replaceAttachment(item, this.props.index, 'kc');
-                        if (outerItem) {
-                          this.props.performUpdateItem(outerItem);
-                        }
-                      }}
-                    />
-                  </div>
-                </Popup>
-              )}
-            </div>
-          )}
-        </div>
-        {!isMobile ? renderAttachmentAction() : <div className="flex"></div>}
-        <div className="flexRow btns">
-          {showKcVersionPanel && attachment.sourceNode.canEdit && (
-            <div className="historyPanel">
-              <span className="normal" data-tip={_l('上传新版本')}>
-                <UploadNewVersion
-                  item={attachment.sourceNode}
-                  callback={item => {
-                    this.props.replaceAttachment(item, this.props.index, 'kc');
-                    this.props.performUpdateItem(item);
-                    const mdReplaceAttachment = this.props.extra.mdReplaceAttachment;
-                    if (typeof mdReplaceAttachment === 'function') {
-                      const originAttachment = this.props.originAttachments[this.props.index];
-                      if (originAttachment) {
-                        mdReplaceAttachment(
-                          Object.assign({}, originAttachment, {
-                            originalFilename: item.name,
-                            filesize: item.size,
-                            downloadUrl: item.downloadUrl,
-                          }),
-                        );
-                      }
-                    }
-                  }}
-                />
-                <i
-                  className="icon-upload_file Hand"
-                  onClick={() => {
-                    this.handleShareNode(attachment);
-                  }}
-                />
-              </span>
-            </div>
-          )}
-          {showSaveToKnowlege &&
-            md.global.Account.accountId &&
-            !md.global.Account.isPortal &&
-            !_.get(window, 'shareState.shareId') && (
-              <Trigger
-                popupVisible={this.state.showSaveTo}
-                onPopupVisibleChange={visible => {
-                  this.setState({
-                    showSaveTo: visible,
-                  });
-                }}
-                action={['click']}
-                popupPlacement="bottom"
-                builtinPlacements={{
-                  bottom: {
-                    points: ['tc', 'bc'],
-                  },
-                }}
-                popup={
-                  <Menu className="selectOptions" width={{ width: 120 }}>
-                    <MenuItem
-                      icon={<Icon icon="attachment" />}
-                      onClick={() => {
-                        this.setState({ showSaveTo: false });
-                        if (!md.global.Account || !md.global.Account.accountId) {
-                          this.handleLogin();
-                          return;
-                        }
-                        if (canSaveToKnowlege) {
-                          this.props.saveToKnowlwdge(1);
-                        } else {
-                          alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
-                        }
-                      }}
-                    >
-                      {_l('我的文件')}
-                    </MenuItem>
-                    <MenuItem
-                      icon={<Icon icon="task-folder-solid" />}
-                      onClick={() => {
-                        this.setState({ showSaveTo: false });
-                        if (!md.global.Account || !md.global.Account.accountId) {
-                          this.handleLogin();
-                          return;
-                        }
-                        if (canSaveToKnowlege) {
-                          this.props.saveToKnowlwdge(2);
-                        } else {
-                          alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
-                        }
-                      }}
-                    >
-                      {_l('选择文件夹')}
-                    </MenuItem>
-                  </Menu>
-                }
-                popupAlign={{ offset: [-80, -5] }}
-              >
-                <div className="saveTo">
-                  <span className="normal" data-tip={_l('添加到知识文件')}>
-                    <Icon
-                      icon="add-files"
-                      className="Hand"
-                      onClick={() => {
-                        this.setState({
-                          showSaveTo: !this.state.showSaveTo,
-                        });
-                      }}
-                    />
-                  </span>
-                </div>
-              </Trigger>
-            )}
-          {_.isFunction(extra.openControlAttachmentInNewTab) &&
-            attachment.previewAttachmentType !== 'QINIU' &&
-            canDownload &&
-            showDownload &&
-            ((attachment.originNode || attachment.sourceNode || {}).fileID ||
-              (attachment.originNode || attachment.sourceNode || {}).fileId) &&
-            !_.get(window, 'shareState.shareId') &&
-            !(
-              _.get(window, 'shareState.isPublicQuery') ||
-              _.get(window, 'shareState.isPublicForm') ||
-              _.get(window, 'shareState.isPublicView') ||
-              _.get(window, 'shareState.isPublicPage') ||
-              _.get(window, 'shareState.isPublicRecord') ||
-              _.get(window, 'shareState.isPublicWorkflowRecord')
-            ) && (
-              <div className="openNewPage">
-                <span className="normal" data-tip={_l('新页面打开')}>
-                  <i
-                    className="icon-launch Font20 Hand"
-                    onClick={() => {
-                      extra.openControlAttachmentInNewTab(
-                        (attachment.originNode || attachment.sourceNode).fileID ||
-                          (attachment.originNode || attachment.sourceNode).fileId,
-                        this.props,
-                      );
-                    }}
-                  />
-                </span>
-              </div>
-            )}
-          {canDownload &&
-            showShare &&
-            !md.global.Account.isPortal &&
-            !_.get(window, 'shareState.shareId') &&
-            !_.get(window, 'shareState.isPublicForm') &&
-            !_.get(window, 'shareState.isPublicQuery') &&
-            !_.get(window, 'shareState.isPublicWorkflowRecord') && (
-              <div className="shareNode">
-                <span className="normal" data-tip={_l('分享')}>
-                  <i
-                    className="icon-share Hand"
-                    onClick={() => {
-                      this.handleShareNode(attachment);
-                    }}
-                  />
-                </span>
-              </div>
-            )}
-          {!deleted && showDownload && !window.isMiniProgram && !_.get(window, 'shareState.isPublicForm') && (
-            <div className="download relative Hand" onClick={this.downloadAttachment} data-tip={_l('下载')}>
-              <Icon icon="download" className="valignWrapper mTop1" />
-            </div>
-          )}
-          {this.props.onClose && (
-            <div
-              className="close Hand"
-              onClick={evt => {
-                evt.nativeEvent.stopImmediatePropagation();
-                this.props.onClose();
-              }}
-            >
-              <span className="normal" data-tip={_l('关闭')}>
-                <i className="icon-delete" />
-              </span>
-            </div>
-          )}
-        </div>
-
-        {isMobile && renderAttachmentAction()}
-      </div>
+      <CommonHeader
+        className={className}
+        editNameInfo={{
+          name,
+          ext,
+          canEditFileName,
+          changeEditName: value => this.props.renameFile(value),
+          validateFileName: value => validateFileName(value, true, {}, { extLength: ext.length }),
+        }}
+        showKcVersionPanel={showKcVersionPanel}
+        attachment={attachment}
+        historyPanelInfo={{
+          performRemoveItems: this.props.performRemoveItems,
+          downloadAttachment: this.downloadAttachment,
+          callback: item => this.props.replaceAttachment(item, this.props.index, 'kc'),
+          replaceAttachment: (item, outerItem) => {
+            this.props.replaceAttachment(item, this.props.index, 'kc');
+            if (outerItem) {
+              this.props.performUpdateItem(outerItem);
+            }
+          },
+        }}
+        attachmentActionInfo={{
+          cauUseWpsPreview: isWpsPreview(ext) || defaultWpsPreview(ext),
+          userWps: isWps,
+          showEdit,
+          changePreview: type => this.props.changePreviewService(type),
+          clickEdit: () => {
+            if (featureType === '2') {
+              buriedUpgradeVersionDialog(projectId, VersionProductType.editAttachment);
+              return;
+            }
+            if (this.props.onClose) {
+              this.props.onClose();
+              window.open(wpsEditUrl);
+            } else {
+              location.href = wpsEditUrl;
+            }
+          },
+        }}
+        uploadNewVersion={item => {
+          this.props.replaceAttachment(item, this.props.index, 'kc');
+          this.props.performUpdateItem(item);
+          const mdReplaceAttachment = this.props.extra.mdReplaceAttachment;
+          if (typeof mdReplaceAttachment === 'function') {
+            const originAttachment = this.props.originAttachments[this.props.index];
+            if (originAttachment) {
+              mdReplaceAttachment(
+                Object.assign({}, originAttachment, {
+                  originalFilename: item.name,
+                  filesize: item.size,
+                  downloadUrl: item.downloadUrl,
+                }),
+              );
+            }
+          }
+        }}
+        clickShare={() => this.handleShareNode(attachment)}
+        addKc={
+          showSaveToKnowlege &&
+          md.global.Account.accountId &&
+          !md.global.Account.isPortal &&
+          !_.get(window, 'shareState.shareId')
+        }
+        canSaveToKnowlege={canSaveToKnowlege}
+        saveToKnowlwdge={type => this.props.saveToKnowlwdge(type)}
+        showOpenNewPage={
+          _.isFunction(extra.openControlAttachmentInNewTab) &&
+          attachment.previewAttachmentType !== 'QINIU' &&
+          canDownload &&
+          showDownload &&
+          ((attachment.originNode || attachment.sourceNode || {}).fileID ||
+            (attachment.originNode || attachment.sourceNode || {}).fileId) &&
+          !_.get(window, 'shareState.shareId') &&
+          !(
+            _.get(window, 'shareState.isPublicQuery') ||
+            _.get(window, 'shareState.isPublicForm') ||
+            _.get(window, 'shareState.isPublicView') ||
+            _.get(window, 'shareState.isPublicPage') ||
+            _.get(window, 'shareState.isPublicRecord') ||
+            _.get(window, 'shareState.isPublicWorkflowRecord')
+          )
+        }
+        clickOpenNewPage={() => {
+          extra.openControlAttachmentInNewTab(
+            (attachment.originNode || attachment.sourceNode).fileID ||
+              (attachment.originNode || attachment.sourceNode).fileId,
+            this.props,
+          );
+        }}
+        showShare={
+          canDownload &&
+          showShare &&
+          !md.global.Account.isPortal &&
+          !_.get(window, 'shareState.shareId') &&
+          !_.get(window, 'shareState.isPublicForm') &&
+          !_.get(window, 'shareState.isPublicQuery') &&
+          !_.get(window, 'shareState.isPublicWorkflowRecord')
+        }
+        showDownload={!deleted && showDownload && !window.isMiniProgram && !_.get(window, 'shareState.isPublicForm')}
+        clickDownLoad={this.downloadAttachment}
+        onClose={this.props.onClose}
+      />
     );
   }
 }

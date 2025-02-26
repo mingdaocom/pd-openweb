@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import Trigger from 'rc-trigger';
 import { Menu, MenuItem, Icon, Dropdown, Checkbox, Dialog } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { EVENT_MORE_OPTIONS, ADD_EVENT_DISPLAY, getEventDisplay, dealEventDisplay } from '../config';
+import { EVENT_MORE_OPTIONS, getEventDisplay, dealEventDisplay } from '../config';
 import { IconWrap } from '../style';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
@@ -15,95 +15,73 @@ import { v4 as uuidv4 } from 'uuid';
 import { getPathById } from '../../../../util/widgets';
 
 function CopyCustomEvent(props) {
-  const { data, allControls = [], index, widgets = [], onCancel, setWidgets } = props;
-  const [{ copyId, copyEventId, copyAction }, setData] = useSetState({
+  const { data, allControls = [], index, widgets = [], onCancel, setWidgets, eventId, onChange } = props;
+  const [{ copyId, copyEventType, copyAction }, setData] = useSetState({
     copyId: '',
-    copyEventId: '',
+    copyEventType: '',
     copyAction: false,
   });
 
   const filterControls = filterSysControls(allControls)
-    .filter(i => i.controlId !== data.controlId)
     .filter(i => !_.includes([34], i.type))
     .map(i => ({ value: i.controlId, text: i.controlName }));
 
   const currentControl = _.find(allControls, a => a.controlId === copyId);
   const customEvent = getAdvanceSetting(data, 'custom_event') || [];
   const getEventData = () => {
-    if (currentControl) {
-      const supportEvent = getEventDisplay(currentControl);
-      return customEvent
-        .filter(c => _.find(supportEvent, s => s.value === c.eventType))
-        .map(c => {
-          return {
-            value: c.eventId,
-            text: _.get(
-              _.find(dealEventDisplay(data, ADD_EVENT_DISPLAY), e => e.value === c.eventType),
-              'text',
-            ),
-          };
-        });
-    }
-    return [];
+    return currentControl ? dealEventDisplay(currentControl, getEventDisplay(currentControl)) : [];
   };
 
   const handleOk = () => {
-    const currentEvent = _.find(customEvent, c => c.eventId === copyEventId);
-    const currentEventActions = _.get(currentEvent, ['eventActions', index]) || {};
-
     if (currentControl) {
-      const copyEvent = copyAction ? currentEventActions : { ...currentEventActions, actions: [] };
-      let newControlEvent = getAdvanceSetting(currentControl, 'custom_event') || [];
-      // 有相同事件叠加
-      if (newControlEvent.some(n => n.eventType === currentEvent.eventType)) {
-        newControlEvent = newControlEvent.map(newItem => {
-          if (newItem.eventType === currentEvent.eventType) {
-            return {
-              ...newItem,
-              eventActions: (newItem.eventActions || []).concat(copyEvent),
-            };
+      // 当前复制的事件
+      const copyEvent = _.find(customEvent, c => c.eventId === eventId);
+      let currentCopyEventActions = _.get(copyEvent, ['eventActions', index]) || {};
+      currentCopyEventActions = copyAction ? currentCopyEventActions : { ...currentCopyEventActions, actions: [] };
+
+      // 复制到新控件
+      const targetControlEvent = getAdvanceSetting(currentControl, 'custom_event') || [];
+
+      let newEvent = [];
+      if (targetControlEvent.some(t => t.eventType === copyEventType)) {
+        newEvent = targetControlEvent.map(item => {
+          if (item.eventType === copyEventType) {
+            return { ...item, eventActions: (item.eventActions || []).concat([currentCopyEventActions]) };
           }
-          return newItem;
+          return item;
         });
       } else {
-        newControlEvent.push({
-          eventId: uuidv4(),
-          eventType: currentEvent.eventType,
-          eventActions: [{ ...copyEvent }],
-        });
+        newEvent = targetControlEvent.concat([
+          {
+            eventId: uuidv4(),
+            eventType: copyEventType,
+            eventActions: [currentCopyEventActions],
+          },
+        ]);
       }
 
-      const [row, col] = getPathById(widgets, currentControl.controlId);
-      const newWidgets = update(widgets, {
-        [row]: {
-          [col]: {
-            $set: handleAdvancedSettingChange(currentControl, { custom_event: JSON.stringify(newControlEvent) }),
+      if (copyId === data.controlId) {
+        onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newEvent) }));
+      } else {
+        const [row, col] = getPathById(widgets, currentControl.controlId);
+        const newWidgets = update(widgets, {
+          [row]: {
+            [col]: {
+              $set: handleAdvancedSettingChange(currentControl, { custom_event: JSON.stringify(newEvent) }),
+            },
           },
-        },
-      });
-      setWidgets(newWidgets);
+        });
+        setWidgets(newWidgets);
+      }
       alert(_l('复制成功'));
     }
-
-    let newCurrentEvent = update(currentEvent, {
-      eventActions: {
-        $apply: (item = []) => {
-          const currentItem = item[index] || {};
-          if (!copyAction) {
-            return [_.omit(currentItem, ['actions'])];
-          }
-          return [currentItem];
-        },
-      },
-    });
-    newCurrentEvent.eventId = uuidv4();
   };
 
   return (
     <Dialog
       width={480}
       visible={true}
-      okDisabled={!(copyId && copyEventId)}
+      okDisabled={!(copyId && copyEventType)}
       title={_l('复制条件')}
       onCancel={onCancel}
       className="SearchWorksheetDialog"
@@ -121,7 +99,10 @@ function CopyCustomEvent(props) {
           openSearch
           value={copyId || undefined}
           placeholder={_l('选择字段')}
-          onChange={value => setData({ copyId: value })}
+          onChange={value => {
+            if (copyId === value) return;
+            setData({ copyId: value, copyEventType: '' });
+          }}
         />
       </SettingItem>
       <SettingItem>
@@ -131,9 +112,9 @@ function CopyCustomEvent(props) {
           border
           isAppendToBody
           openSearch
-          value={copyEventId || undefined}
+          value={copyEventType || undefined}
           placeholder={_l('选择事件')}
-          onChange={value => setData({ copyEventId: value })}
+          onChange={value => setData({ copyEventType: value })}
         />
       </SettingItem>
       <Checkbox

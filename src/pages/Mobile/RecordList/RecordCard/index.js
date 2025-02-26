@@ -38,7 +38,22 @@ export default class RecordCard extends Component {
     this.state = {
       checked: data[view.advancedSetting.checkradioid] === '1',
       coverError: false,
+      appshowtype: view.viewType === 6 ? '1' : _.get(view, 'advancedSetting.appshowtype') || '0',
     };
+  }
+  componentDidMount() {
+    if (this.cardWrap) {
+      const { view } = this.props;
+
+      if (_.get(view, 'advancedSetting.appnavtype') !== '3') return;
+      const appnavwidth = _.get(view, 'advancedSetting.appnavwidth') || 60;
+
+      const width = document.documentElement.clientWidth - 16 - appnavwidth;
+
+      if (width < 320) {
+        this.setState({ appshowtype: '1' });
+      }
+    }
   }
   get cover() {
     const { view, data } = this.props;
@@ -159,11 +174,11 @@ export default class RecordCard extends Component {
       });
   };
   renderCover() {
-    const { coverType, advancedSetting } = this.props.view;
-    const { coverError } = this.state;
+    const { coverType } = this.props.view;
+    const { coverError, appshowtype } = this.state;
     const { url } = this;
     return (
-      <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${advancedSetting.appshowtype || '0'}`)}>
+      <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${appshowtype || '0'}`)}>
         {url && !coverError ? (
           coverType ? (
             <img
@@ -184,7 +199,7 @@ export default class RecordCard extends Component {
     );
   }
   renderControl(id, nameVisible = false) {
-    const { data, view, projectId } = this.props;
+    const { data, view, projectId, controls } = this.props;
     const { cardControls } = this;
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
     const cell = Object.assign({}, visibleControl, { value: data[visibleControl.controlId] });
@@ -225,11 +240,12 @@ export default class RecordCard extends Component {
           </div>
         )}
         <div className="controlContent">
-          {data[visibleControl.controlId] ? (
+          {data[visibleControl.controlId] || visibleControl.type === 47 ? (
             <CellControl
               className={`control-val-${visibleControl.controlId} w100`}
               worksheetId={view.worksheetId}
               projectId={projectId}
+              rowFormData={() => controls.map(c => Object.assign({}, c, { value: data[c.controlId] }))}
               row={data}
               rowHeight={34}
               cell={cell}
@@ -248,8 +264,7 @@ export default class RecordCard extends Component {
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let titleControl = _.find(controls, control => control.attribute === 1) || {};
     const titleText = getTitleTextFromControls(controls, data);
-    const { checked } = this.state;
-    const appshowtype = viewType === 6 ? '1' : advancedSetting.appshowtype || '0';
+    const { checked, appshowtype } = this.state;
     const displayControls = view.displayControls.filter(id => {
       const itControl = controls.find(l => l.controlId === id);
 
@@ -283,7 +298,7 @@ export default class RecordCard extends Component {
         className="recordCardContent flex"
         style={{
           backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
-          border: `1px solid ${recordColor && recordColorConfig.showBg ? recordColor.lightColor : '#fff'}`,
+          border: recordColor && recordColorConfig.showBg ? `1px solid ${recordColor.lightColor}` : undefined,
         }}
       >
         {recordColor && recordColorConfig.showLine && (
@@ -345,6 +360,7 @@ export default class RecordCard extends Component {
       );
     return (
       <Con
+        ref={node => (this.cardWrap = node)}
         controlStyles={controlStyles}
         className={cx('mobileWorksheetRecordCard', className, {
           coverRight: [undefined, '0'].includes(advancedSetting.coverposition),

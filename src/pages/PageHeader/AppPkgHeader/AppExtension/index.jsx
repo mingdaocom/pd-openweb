@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { TinyColor } from '@ctrl/tinycolor';
 import localForage from 'localforage';
+import LanguageList from 'src/pages/PageHeader/components/LanguageList';
 
 const RoleDebugSelectWrap = styled.div(
   ({ navColor, borderColor }) => `
@@ -42,17 +43,17 @@ const RoleDebugSelectWrap = styled.div(
 `,
 );
 
-export default ({
-  appId,
-  permissionType,
-  isLock,
-  navColor,
-  iconColor,
-  showRoleDebug,
-  debugRole = { canDebug: false },
-  roleSelectValue = [],
-  otherAllShow = true,
-}) => {
+export default (props) => {
+  const {
+    appId,
+    permissionType,
+    isLock,
+    showRoleDebug,
+    roleSelectValue = [],
+    otherAllShow = true,
+    appPkg
+  } = props;
+  const { projectId, navColor, iconColor, debugRole = { canDebug: false }, sourceType } = appPkg;
   const [roleEntryVisible, setRoleEntryVisible] = useState(true);
   const [loading, setLoading] = useState(false);
   const canDebug = (debugRole || {}).canDebug || false;
@@ -148,6 +149,17 @@ export default ({
         </MdLink>
       )}
       {(roleEntryVisible || canDebug) && renderRoleDebugSelect()}
+      <LanguageList
+        placement="bottom"
+        app={appPkg}
+        isCharge={canEditApp(permissionType, sourceType === 60 ? false : isLock)}
+      >
+        <Tooltip placement="bottom" text={_l('应用语言')}>
+          <div className="mLeft4 appExtensionItem mRight10">
+            <Icon icon="language" className="Font20" />
+          </div>
+        </Tooltip>
+      </LanguageList>
     </div>
   );
 };

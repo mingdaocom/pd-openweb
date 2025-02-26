@@ -32,7 +32,7 @@ import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import './RecordInfo.less';
 import externalPortalAjax from 'src/api/externalPortal';
 import { addBehaviorLog, getTranslateInfo } from 'src/util';
-import _, { get } from 'lodash';
+import _, { find, get } from 'lodash';
 import SheetContext from '../Sheet/SheetContext';
 import paymentAjax from 'src/api/payment.js';
 
@@ -633,7 +633,10 @@ export default class RecordInfo extends Component {
   handleFormChange = (data, ids = []) => {
     const { from, allowAdd } = this.props;
     const { viewId, recordinfo, updateControlIds } = this.state;
-
+    let doNotTriggerEditing = false;
+    if (!this.state.iseditting && ids.length === 1 && get(find(data, { controlId: ids[0] }), 'type') === 37) {
+      doNotTriggerEditing = true;
+    }
     const tempRecordValue = getRecordTempValue(data, undefined, { updateControlIds: ids });
     if (viewId) {
       this.tempSaving = saveTempRecordValueToLocal(
@@ -653,7 +656,7 @@ export default class RecordInfo extends Component {
     this.setState({
       restoreVisible: false,
       tempFormData: data.map(c => (c.type === 34 ? { ...c, value: undefined } : c)),
-      iseditting: !isDraftChildTableDefault && allowEdit,
+      iseditting: doNotTriggerEditing ? false : !isDraftChildTableDefault && allowEdit,
       updateControlIds: _.uniqBy(updateControlIds.concat(ids)),
     });
   };
@@ -1337,6 +1340,7 @@ export default class RecordInfo extends Component {
                 />
               )}
               <RecordForm
+                iseditting={iseditting}
                 payConfig={payConfig}
                 updatePayConfig={async () => {
                   const payConfig = await this.getPayConfig(

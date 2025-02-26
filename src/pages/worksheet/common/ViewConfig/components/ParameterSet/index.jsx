@@ -179,6 +179,7 @@ export default function ParameterSet(params) {
   const [{ paramSettings }, setState] = useSetState({
     paramSettings: [],
   });
+  const cache = useRef({});
   useEffect(() => {
     const paramSettings = _.get(params, 'view.pluginInfo.paramSettings') || [];
     let data = paramSettings.map((o, i) => {
@@ -260,9 +261,13 @@ export default function ParameterSet(params) {
     });
   }, [_.get(params, 'view.advancedSetting.plugin_map'), _.get(params, 'view.pluginInfo.paramSettings')]);
 
+  useEffect(() => {
+    cache.current.paramSettings = paramSettings;
+  }, [paramSettings]);
+
   const handleUpdate = data => {
     let newData = {};
-    (data || paramSettings).map(item => {
+    (data || cache.current.paramSettings).map(item => {
       newData[item.fieldId] =
         item.type === 36 ? item.value === '1' : [9, 10, 11].includes(item.type) ? safeParse(item.value) : item.value;
     });
@@ -307,9 +312,8 @@ export default function ParameterSet(params) {
             if (!controlId) {
               return;
             }
-            setState({
-              paramSettings: data,
-            });
+            setState({ paramSettings: data });
+            cache.current.paramSettings = data;
             const info = data.find(o => o.controlId === controlId);
             if (info && isUnTextWidget(info)) {
               handleUpdate(data);

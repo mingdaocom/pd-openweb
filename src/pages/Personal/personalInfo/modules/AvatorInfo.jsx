@@ -1,7 +1,6 @@
 ﻿import React, { Component } from 'react';
 import Avatar from 'react-avatar-edit';
 import { Button } from 'ming-ui';
-import { Base64 } from 'js-base64';
 import accountAjax from 'src/api/account';
 import { getToken } from 'src/util';
 import { browserIsMobile } from 'src/util';
@@ -83,7 +82,7 @@ export default class AvatarEditor extends Component {
       if (res.error) {
         alert(res.error);
       } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
         const xhr = new XMLHttpRequest();
 
         xhr.onreadystatechange = () => {

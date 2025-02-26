@@ -40,8 +40,11 @@ import {
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { LoadDiv as MingUiLoadDiv, UserHead } from 'ming-ui';
+import { LoadDiv, UserHead } from 'ming-ui';
 import styled from 'styled-components';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
 
 const taskNavigationSettings = {
   globalEvent: null,
@@ -189,7 +192,7 @@ function SearchFolder(props) {
       popup={
         <SearchFolderCon>
           {loading ? (
-            <MingUiLoadDiv size="middle" />
+            <LoadDiv size="middle" />
           ) : (
             <React.Fragment>
               <li
@@ -371,7 +374,7 @@ class TaskNavigation extends Component {
 
     if (!$taskNavigator.find('#folderLoading').length) {
       const $navContent = $taskNavigator.find('.navContent');
-      $navContent.before('<div id="folderLoading"> ' + LoadDiv() + '</div>');
+      $navContent.before('<div id="folderLoading"> ' + loading + '</div>');
     }
 
     // 左侧任务计数

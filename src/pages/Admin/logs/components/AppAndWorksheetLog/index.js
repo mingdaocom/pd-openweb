@@ -18,7 +18,7 @@ import appManagementAjax from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import downloadAjax from 'src/api/download';
 import sheetAjax from 'src/api/worksheet';
-import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage, dateConvertToUserZone } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage, dateConvertToUserZone, getTranslateInfo } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import styled from 'styled-components';
@@ -311,7 +311,7 @@ export default class AppAndWorksheetLog extends Component {
       let newWorksheetList = [];
       appIds.forEach(item => {
         newWorksheetList = newWorksheetList.concat(
-          (res[item] || []).map(it => ({ label: it.worksheetName, value: it.worksheetId })),
+          (res[item] || []).map(it => ({ label: getTranslateInfo(item, null, it.worksheetId).name || it.worksheetName, value: it.worksheetId })),
         );
       });
 
@@ -535,7 +535,15 @@ export default class AppAndWorksheetLog extends Component {
         this.props.appId && this.getWorksheetList([this.props.appId]);
 
         this.setState({
-          dataSource: res.list,
+          dataSource: res.list.map(item => {
+            return {
+              ...item,
+              appItem: {
+                ...item.appItem,
+                name: getTranslateInfo(appId, null, _.get(item.appItem, 'id')).name || _.get(item.appItem, 'name')
+              }
+            }
+          }),
           count: res.allCount,
           loading: false,
           disabledExportBtn: _.isEmpty(res.list),

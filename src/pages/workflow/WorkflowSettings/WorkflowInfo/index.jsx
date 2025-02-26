@@ -135,7 +135,7 @@ class WorkflowInfo extends Component {
             <Textarea
               minHeight={100}
               maxHeight={300}
-              maxLength={600}
+              maxLength={10000}
               name="explain"
               value={explain}
               onChange={explain => this.setState({ explain })}

@@ -6,6 +6,15 @@ import 'prismjs/components/prism-javascript';
 import MarkdownWithCSS from './MarkdownWithCSS';
 import { v4 as uuidv4 } from 'uuid';
 
+function genContentFromWithImage(content) {
+  const imageUrl = content.filter(item => item.type === 'image_url').map(item => item.image_url.url);
+  const text = content
+    .filter(item => item.type === 'text')
+    .map(item => item.text)
+    .join('\n');
+  return `![image](${imageUrl})\n${text}`;
+}
+
 // 使用 React.memo 包装组件，只在 content 发生变化时重新渲染
 const Markdown = React.memo(
   function Markdown(props) {
@@ -63,7 +72,13 @@ const Markdown = React.memo(
 
       return md;
     }, [isStreaming, codeIsClosed, id]);
-    return <MarkdownWithCSS dangerouslySetInnerHTML={{ __html: markdown.render(content) }} />;
+    return (
+      <MarkdownWithCSS
+        dangerouslySetInnerHTML={{
+          __html: markdown.render(typeof content === 'string' ? content : genContentFromWithImage(content)),
+        }}
+      />
+    );
   },
   (prevProps, nextProps) => {
     return prevProps.content === nextProps.content;

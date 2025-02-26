@@ -30,7 +30,7 @@ export default function DropdownWrapper(props) {
     if (iconAtEnd) {
       return (
         <Fragment>
-          <div className="text">{text}</div>
+          <div className="text overflow_ellipsis">{text}</div>
           {icon && <i className={`icon-${icon} Font16`}></i>}
         </Fragment>
       );
@@ -38,7 +38,7 @@ export default function DropdownWrapper(props) {
     if (isCheckMode) {
       return (
         <Fragment>
-          <div className="text">{text}</div>
+          <div className="text overflow_ellipsis">{text}</div>
           {icon && _.includes(value || [], item.value) && <i className={`icon-${icon} Font16`}></i>}
         </Fragment>
       );
@@ -46,7 +46,7 @@ export default function DropdownWrapper(props) {
     return (
       <Fragment>
         {icon && <i className={`icon-${icon} Font16`}></i>}
-        <div className="text">{text}</div>
+        <div className="text overflow_ellipsis">{text}</div>
       </Fragment>
     );
   };
@@ -75,7 +75,8 @@ export default function DropdownWrapper(props) {
                 return (
                   <div
                     {..._.pick(item, ['style'])}
-                    className={`${item.className || 'item'}`}
+                    className={`overflow_ellipsis ${item.className || 'item'}`}
+                    title={item.text}
                     onClick={() => onChange(item.value)}
                   >
                     {getItem(item)}

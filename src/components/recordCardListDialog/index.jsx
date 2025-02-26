@@ -11,6 +11,7 @@ import RecordCard from 'src/components/recordCard';
 import { checkIsTextControl, fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getTranslateInfo } from 'src/util';
 import Header from './Header';
 import './recordCardListDialog.less';
 import _, { find } from 'lodash';
@@ -285,6 +286,9 @@ export default class RecordCardListDialog extends Component {
           _.get(control, 'advancedSetting.searchcontrol') &&
           searchControl &&
           find(filteredList, c => c[searchControl.controlId] === keyWords);
+        const worksheet = res.worksheet || {};
+        const translateInfo = getTranslateInfo(worksheet.appId, null, worksheet.worksheetId);
+        worksheet.entityName = translateInfo.recordName || worksheet.entityName;
         if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
           filteredList = filteredList.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
         }
@@ -295,10 +299,8 @@ export default class RecordCardListDialog extends Component {
             list: filteredList,
             loading: false,
             loadouted: res.data.length < pageSize,
-            controls: res.template
-              ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
-              : [],
-            worksheet: res.worksheet || {},
+            controls: res.template ? replaceControlsTranslateInfo(worksheet.appId, null, res.template.controls) : [],
+            worksheet,
           },
           () => {
             if (!this.state.loadouted && filteredList.length < 8) {
@@ -561,6 +563,7 @@ export default class RecordCardListDialog extends Component {
                         <RecordCard
                           key={i}
                           from={2}
+                          control={control}
                           coverCid={coverCid}
                           isCharge={isCharge}
                           projectId={worksheet.projectId}
@@ -629,7 +632,7 @@ export default class RecordCardListDialog extends Component {
                   }}
                 >
                   <i className="icon icon-plus mRight3"></i>
-                  <span className="bold">{_l('新建%0', worksheet.entityName || '')}</span>
+                  {_.get(worksheet, 'advancedSetting.btnname') || worksheet.entityName || ''}
                 </span>
               )}
               {showNewRecord && (

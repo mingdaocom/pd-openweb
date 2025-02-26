@@ -5,27 +5,34 @@ import { Dialog } from 'antd-mobile';
 import { getAppLangDetail, getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
-export const getAppDetail = (appId, cb, isPullRefresh = false) => (dispatch, getState) => {
-  if (!isPullRefresh) {
-    dispatch({
-      type: 'MOBILE_FETCH_START',
-    });
-  }
-  Promise.all([
+export const getAppDetail =
+  (appId, cb, isPullRefresh = false) =>
+  dispatch => {
+    if (!isPullRefresh) {
+      dispatch({ type: 'MOBILE_FETCH_START' });
+    }
+
     homeAppApi
-      .getApp({
-        appId,
-        getSection: true,
-        getLang: true,
-        isMobile: true
+      .checkApp({ appId }, { silent: true })
+      .then(res => {
+        if (res === 1) {
+          dispatch({ type: 'UPDATE_APP_DETAIL', data: { status: res } });
+          dispatch(getApp(appId, cb));
+          dispatch(getTodoCount(appId));
+        } else {
+          dispatch({ type: 'UPDATE_APP_DETAIL', data: { status: res } });
+          dispatch({ type: 'MOBILE_FETCH_SUCCESS' });
+        }
       })
-      .then(),
-    homeAppApi.checkApp({ appId }, { silent: true }).then(),
-    window.isPublicApp ? undefined : instanceVersion.getTodoListFilter({ type: -1 }).then(),
-  ]).then(
-    result => {
-      let [detail, status, processTodoList] = result;
-      const processData = _.find(processTodoList, { app: { id: appId } });
+      .catch(err => {
+        dispatch({ type: 'MOBILE_FETCH_SUCCESS' });
+      });
+  };
+
+const getApp = (appId, cb) => dispatch => {
+  homeAppApi
+    .getApp({ appId, getSection: true, getLang: true, isMobile: true })
+    .then(detail => {
       const appExpandGroupInfo =
         (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
           JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
@@ -36,7 +43,6 @@ export const getAppDetail = (appId, cb, isPullRefresh = false) => (dispatch, get
       ) {
         localStorage.removeItem(`appExpandGroupInfo-${detail.id}`);
       }
-      const { langInfo } = detail;
       const run = () => {
         dispatch({
           type: 'UPDATE_APP_DETAIL',
@@ -44,8 +50,6 @@ export const getAppDetail = (appId, cb, isPullRefresh = false) => (dispatch, get
             appName: getTranslateInfo(appId, null, appId).name || detail.name,
             detail: detail,
             appSection: detail.sections,
-            status: status,
-            processCount: processData ? processData.count : 0,
           },
         });
         dispatch({
@@ -60,8 +64,8 @@ export const getAppDetail = (appId, cb, isPullRefresh = false) => (dispatch, get
         type: 'DEBUG_ROLE_LIST',
         data: (detail.debugRole || {}).selectedRoles || [],
       });
-    },
-    () => {
+    })
+    .catch(err => {
       dispatch({
         type: 'UPDATE_APP_DETAIL',
         data: {
@@ -74,8 +78,15 @@ export const getAppDetail = (appId, cb, isPullRefresh = false) => (dispatch, get
       dispatch({
         type: 'MOBILE_FETCH_SUCCESS',
       });
-    },
-  );
+    });
+};
+
+const getTodoCount = appId => dispatch => {
+  if (window.isPublicApp) return;
+  instanceVersion.getTodoListFilter({ type: -1 }).then(processTodoList => {
+    const processData = _.find(processTodoList, { app: { id: appId } });
+    dispatch({ type: 'UPDATE_APP_DETAIL', data: { processCount: processData ? processData.count : 0 } });
+  });
 };
 
 export const addAppApply =

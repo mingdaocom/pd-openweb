@@ -266,6 +266,10 @@ export default function MobileDraft(props) {
     loadDraftDataCount();
   }, []);
 
+  if (_.get(worksheetInfo, 'advancedSetting.closedrafts') === '1' && !Number(total)) {
+    return null;
+  }
+
   return (
     <Fragment>
       {total ? (

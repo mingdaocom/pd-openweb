@@ -265,7 +265,7 @@ export default class DropDownItem extends Component {
   renderContent(dropDownData) {
     return (
       <Fragment>
-        {!this.state.keyword && (
+        {!this.state.keyword && this.props.showSelectAll && (
           <div className="quickOperate">
             <button
               className="ThemeHoverColor3"

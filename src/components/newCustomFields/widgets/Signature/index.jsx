@@ -12,7 +12,6 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { browserIsMobile, getToken } from 'src/util';
 import accountSettingAjax from 'src/api/accountSetting';
-import { Base64 } from 'js-base64';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import _ from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
@@ -205,7 +204,7 @@ export default class Signature extends Component {
       if (res.error) {
         alert(res.error);
       } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${Base64.encode(res[0].key)}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
         axios
           .post(url, data.split(',')[1], {
             headers: {
@@ -275,9 +274,9 @@ export default class Signature extends Component {
     e.nativeEvent.stopImmediatePropagation();
     const { value } = this.props;
 
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewSignature) {
       window.MDJS.previewSignature({
-        url: value
+        url: value,
       });
       return;
     }
@@ -301,20 +300,21 @@ export default class Signature extends Component {
   openSignature = () => {
     const { controlId, formData } = this.props;
     const control = _.find(formData, { controlId }) || {};
+    if (!window.MDJS || !window.MDJS.signature) return;
     window.MDJS.signature({
       control,
-      success: (res) => {
+      success: res => {
         var { url } = res.signature;
         this.props.onChange(url);
       },
-      cancel: (res) => {
+      cancel: res => {
         const { errMsg } = res;
         if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
           window.nativeAlert(JSON.stringify(res));
         }
-      }
+      },
     });
-  }
+  };
 
   componentWillUnmount() {
     if (_.isFunction(this.props.triggerCustomEvent)) {

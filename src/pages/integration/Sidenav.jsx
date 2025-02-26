@@ -1,12 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import { list, dataIntegrationList } from './config';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { VersionProductType } from 'src/util/enum';
 import { getFeatureStatus } from 'src/util';
+import { MdLink } from 'ming-ui';
 
 const Wrap = styled.div`
   width: 241px;
@@ -78,9 +78,9 @@ class Sidenav extends React.Component {
                 key={index}
                 className={cx('Bold Font14', { cur: o.type === type || (!type && o.type === 'connect') })}
               >
-                <Link className="pLeft18 overflow_ellipsis pRight10 stopPropagation" to={`/integration/${o.type}`}>
+                <MdLink className="pLeft18 overflow_ellipsis pRight10" to={`/integration/${o.type}`}>
                   <i className={`icon-${o.icon} mRight8 Font20 TxtMiddle`} /> {o.txt}
-                </Link>
+                </MdLink>
               </li>
             );
           })}
@@ -103,9 +103,9 @@ class Sidenav extends React.Component {
 
                 return (
                   <li key={index} className={cx('Bold', { cur: o.type === type || (!type && o.type === 'connect') })}>
-                    <Link className="pLeft18 overflow_ellipsis pRight10 stopPropagation" to={`/integration/${o.type}`}>
+                    <MdLink className="pLeft18 overflow_ellipsis pRight10" to={`/integration/${o.type}`}>
                       <i className={`icon-${o.icon} mRight8 Font20 TxtMiddle`} /> {o.txt}
-                    </Link>
+                    </MdLink>
                   </li>
                 );
               })}

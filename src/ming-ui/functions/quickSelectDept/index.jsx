@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useSetState } from 'react-use';
 import departmentController from 'src/api/department';
@@ -148,7 +148,11 @@ export function DeptSelect(props) {
   }, []);
 
   useEffect(() => {
-    search();
+    debouncedSearch();
+
+    return () => {
+      debouncedSearch.cancel();
+    };
   }, [keywords]);
 
   useEffect(() => {
@@ -318,7 +322,7 @@ export function DeptSelect(props) {
       });
   };
 
-  const search = _.debounce(fetchData, 500);
+  const debouncedSearch = useCallback(_.debounce(fetchData, 500), [fetchData]);
 
   const getDepartmentById = (departmentTree, id) => {
     for (let i = 0; i < departmentTree.length; i++) {
@@ -628,7 +632,14 @@ export function DeptSelect(props) {
     <DeptSelectWrap id="quickSelectDept" ref={conRef}>
       <div className="searchRoleWrap valignWrapper">
         <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
-        <input type="text" className="flex" ref={inputRef} value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
+        <input
+          type="text"
+          className="flex"
+          ref={inputRef}
+          value={keywords}
+          placeholder={_l('搜索')}
+          onChange={handleSearch}
+        />
         {keywords && (
           <Icon
             icon="closeelement-bg-circle"

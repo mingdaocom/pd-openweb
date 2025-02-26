@@ -11,6 +11,7 @@ import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import { redefineComplexControl, formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import sheetAjax from 'src/api/worksheet';
+import { selectRecord } from 'src/components/recordCardListDialog';
 
 export default function PrintSortableItem(props) {
   const { item, worksheetInfo = {}, worksheetControls = [], updatePrint, changeState, loadPrint, DragHandle } = props;
@@ -26,10 +27,10 @@ export default function PrintSortableItem(props) {
   const [showDropOption, setShowDropOption] = useState(false);
   const [isChangeDrop, setIsChangeDrop] = useState(false);
 
-  const onPreview = (isEdit = false) => {
-    if ($('.printTemplatesList-tr .name input')[0] && !isEdit) return;
+  const onPreview = (isEdit = false, options) => {
+    if ($('.printTemplatesList-tr .name input')[0] && isEdit) return;
 
-    isEdit && setIsRename(false);
+    !isEdit && setIsRename(false);
 
     if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], item.type)) {
       printQrBarCode({
@@ -45,7 +46,7 @@ export default function PrintSortableItem(props) {
         },
       });
     } else {
-      let params = null;
+      let params = {};
 
       if (!isEdit) {
         params = { name: item.name, fileTypeNum: item.type, isDefault: item.type === PRINT_TYPE.SYS_PRINT };
@@ -60,6 +61,7 @@ export default function PrintSortableItem(props) {
         type: isEdit ? 'edit' : 'preview',
         [isEdit && isCustom ? 'showEditPrint' : 'showPrintTemDialog']: true,
         ...params,
+        ...options,
       });
     }
   };
@@ -172,6 +174,23 @@ export default function PrintSortableItem(props) {
     setShowMoreOption(showMoreOption);
   };
 
+  const onClickPreview = () => {
+    selectRecord({
+      canSelectAll: false,
+      pageSize: 25,
+      multiple: false,
+      singleConfirm: true,
+      onText: _l('开始预览'),
+      allowNewRecord: true,
+      allowAdd: true,
+      relateSheetId: worksheetId,
+      onOk: selectedRecords => {
+        const rowId = _.get(selectedRecords, '[0].rowid');
+        onPreview(false, { previewRowId: rowId });
+      },
+    });
+  };
+
   const renderMoreOption = () => {
     return (
       <Trigger
@@ -182,7 +201,7 @@ export default function PrintSortableItem(props) {
           overflow: { adjustX: true, adjustY: true },
         }}
         getPopupContainer={() => document.body}
-        onPopupVisibleChange={value => showMoreOption(value)}
+        onPopupVisibleChange={value => setShowMoreOption(value)}
         popup={
           <MoreOption
             isRename={isRename}
@@ -280,14 +299,14 @@ export default function PrintSortableItem(props) {
   };
 
   return (
-    <div className="printTemplatesList-tr" onClick={() => onPreview(false)}>
+    <div className="printTemplatesList-tr" onClick={() => onPreview(true)}>
       <DragHandle>
         <Icon className="Font14 Hand Gray_9e Hover_21 dragIcon" icon="drag" />
       </DragHandle>
       <div className="name flex mRight20 valignWrapper overflowHidden">
         <Icon
           icon={PRINT_TYPE_STYLE[item.type] ? PRINT_TYPE_STYLE[item.type].icon : printInfo.icon}
-          className={`iconTitle mRight13 ${
+          className={`iconTitle mRight8 ${
             [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(item.type) || printInfo.icon !== 'doc'
               ? 'Font24'
               : 'Font22'
@@ -297,7 +316,7 @@ export default function PrintSortableItem(props) {
           {isRename ? (
             <input
               type="text"
-              className="Font13"
+              className="Font13 renameInput"
               ref={inputRef}
               value={inputName}
               onChange={e => {
@@ -324,6 +343,9 @@ export default function PrintSortableItem(props) {
         {renderFilter()}
         <span className="Hand Bold" onClick={() => onPreview(true)}>
           {_l('编辑')}
+        </span>
+        <span className="Hand Bold" onClick={onClickPreview}>
+          {_l('预览')}
         </span>
       </div>
       <div className="more w80px TxtCenter">{renderMoreOption()}</div>

@@ -747,7 +747,7 @@ export const RelateDetail = styled.div`
 export const AnimationWrap = styled.div`
   display: flex;
   padding: 2px;
-  background: #f8f8f8;
+  background: #f0f0f0;
   border-radius: 3px;
   .animaItem {
     height: 32px;

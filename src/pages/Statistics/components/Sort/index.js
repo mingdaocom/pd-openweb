@@ -252,7 +252,7 @@ export default class Sort extends Component {
     const { reportType, currentReport } = this.props;
     const { xaxes, yaxisList, split = {}, sorts, displaySetup } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
-    const isExclusion = _.isEmpty(split.controlId) || isDualAxes;
+    const isExclusion = _.isEmpty(split.controlId);
 
     if (sorts.length) {
       const currentEmpty = _.isEmpty(_.find(sorts, controlId));
@@ -291,7 +291,7 @@ export default class Sort extends Component {
     const { yaxisList, split, pivotTable, sorts, xaxes, displaySetup } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const isPivotTable = reportType === reportTypes.PivotTable;
-    const isExclusion = _.isEmpty(split && split.controlId) || isDualAxes;
+    const isExclusion = _.isEmpty(split && split.controlId);
     const xaxesId = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
 
     if (sorts.length) {
@@ -341,7 +341,6 @@ export default class Sort extends Component {
   };
   handleChangePivotTableSort = (value, { controlId }) => {
     const { pivotTable, yaxisList, sorts } = this.props.currentReport;
-    const { lines } = pivotTable;
 
     if (sorts.length) {
       const lineItem = _.findLast(pivotTable.lines) || {};
@@ -511,25 +510,32 @@ export default class Sort extends Component {
       </SortContent>
     );
   }
+  getIsSort = () => {
+    const { reportType, currentReport } = this.props;
+    const { yaxisList = [], xaxes = {} } = currentReport;
+    if (reportTypes.NumberChart === reportType) {
+      return yaxisList.length > 1 || xaxes.cid;
+    }
+    return [
+      reportTypes.LineChart,
+      reportTypes.BarChart,
+      reportTypes.PieChart,
+      reportTypes.RadarChart,
+      reportTypes.FunnelChart,
+      reportTypes.DualAxes,
+      reportTypes.PivotTable,
+      reportTypes.BidirectionalBarChart,
+      reportTypes.TopChart,
+      reportTypes.CountryLayer,
+    ].includes(reportType);
+  }
   render() {
     const { visible, currentCustomSort, customSortValue, sortList, customSortLoading } = this.state;
-    const { reportType } = this.props;
+    const { children } = this.props;
     const sortListHeight = sortList.length * 38;
     return (
       <Fragment>
-        {[
-          reportTypes.LineChart,
-          reportTypes.BarChart,
-          reportTypes.PieChart,
-          reportTypes.RadarChart,
-          reportTypes.FunnelChart,
-          reportTypes.DualAxes,
-          reportTypes.PivotTable,
-          reportTypes.NumberChart,
-          reportTypes.BidirectionalBarChart,
-          reportTypes.TopChart,
-          reportTypes.CountryLayer,
-        ].includes(reportType) && (
+        {this.getIsSort() && (
           <Dropdown
             visible={visible}
             onVisibleChange={this.handleChangeVisible}
@@ -537,9 +543,7 @@ export default class Sort extends Component {
             trigger={['click']}
             placement="bottomRight"
           >
-            <Tooltip title={_l('排序')} placement="bottom">
-              <Icon icon="swap_vert" className="Font20 pointer Gray_9e Bold mLeft16 hoverHighlight" />
-            </Tooltip>
+            {children}
           </Dropdown>
         )}
         <Modal

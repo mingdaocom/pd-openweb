@@ -21,7 +21,7 @@ const DialogWrap = styled(Dialog)`
       top: 10px !important;
     }
     .mui-dialog-body {
-      padding: 0px 24px 32px !important;
+      padding: 0px 24px 56px !important;
     }
     .cancelPay {
       min-width: 120px;

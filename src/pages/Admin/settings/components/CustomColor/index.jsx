@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import cx from 'classnames';
-import { Icon, ColorPicker, Button } from 'ming-ui';
+import { Icon, Button } from 'ming-ui';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { TinyColor } from '@ctrl/tinycolor';
@@ -10,6 +10,7 @@ import ChartColorSetting from './ChartColorSetting';
 import projectAjax from 'src/api/projectSetting';
 import ChartSettingDialog from './ChartSettingDialog';
 import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
+import IllustrationTrigger from './IllustrationTrigger';
 import '../index.less';
 
 const ColorBox = styled.div(
@@ -315,10 +316,13 @@ export default class CustomColor extends Component {
             </div>
             <div className="Font14 Gray Bold mBottom16">{_l('系统预设')}</div>
             {this.renderColorList(system_color, 'system_color', false)}
-            <div className="Font14 Gray Bold mBottom16">
-              {_l('自定义')}
-              <span className="Gray_9 Font13 Normal mLeft8">{_l('对比度大于%0', '70%')}</span>
-            </div>
+            <IllustrationTrigger type="theme">
+              <div className="Font14 Gray Bold mBottom16 valignWrapper fitContent">
+                {_l('自定义')}
+                <span className="Gray_9 Font13 Normal mLeft8">{_l('对比度大于%0', '70%')}</span>
+                <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
+              </div>
+            </IllustrationTrigger>
             {this.renderColorList(custom_color, 'custom_color', true)}
           </div>
           <div className="chartColorSetting">
@@ -336,7 +340,7 @@ export default class CustomColor extends Component {
                   this.setState({ customChartDialog: { visible: true, data: null, editable: true } });
                 }}
               >
-                <span className="mLeft6">{_l('创建颜色')}</span>
+                <span className="mLeft6">{_l('创建自定义颜色')}</span>
               </Button>
             </div>
             <div className="Font14 Gray Bold mBottom16">{_l('系统预设')}</div>

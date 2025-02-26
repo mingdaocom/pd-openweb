@@ -667,6 +667,7 @@ export default class RecordCardListDialog extends Component {
                 <div key={i} className="mLeft8 mRight8">
                   <RecordCard
                     from={3}
+                    control={control}
                     coverCid={coverCid}
                     showControls={cardControls.map(c => c.controlId)}
                     controls={controls}

@@ -227,7 +227,7 @@ const AuthorizationInfo = props => {
                 </div>
                 <div className="flexColumn valignWrapper flex">
                   <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('工作流总数上限/单月')}</div>
-                  <div className="Font17 mBottom5 bold">{platformLicenseInfo.workflowNum >= 1000000 ? _l('不限') : platformLicenseInfo.workflowNum * 1000 }</div>
+                  <div className="Font17 mBottom5 bold">{platformLicenseInfo.workflowNum >= 1000000 ? _l('不限') : platformLicenseInfo.workflowNum * 1000}</div>
                 </div>
                 <div className="flex" />
               </div>
@@ -251,41 +251,23 @@ const AppreciationServer = props => {
   const { loading, platformLicenseInfo, setPlatformLicenseInfo } = props;
   const [serverInfo, setServerInfo] = useState(null);
   const [trialServer, setTrialServer] = useState(null);
+
   const renderDpState = () => {
-    if (platformLicenseInfo.dp && platformLicenseInfo.dp.isTrial) {
-      const current = moment().format('YYYY-MM-DD');
-      const diff = moment(platformLicenseInfo.dp.expirationDate).diff(moment(current), 'd') + 1;
-      if (diff >= 1) {
-        return (
-          <div style={{ color: '#FF9D2E' }}>{_l('试用还剩 %0 天', diff)}</div>
-        )
-      } else {
-        return (
-          <div
-            className="ThemeColor pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              setTrialServer(2);
-            }}
-          >
-            {_l('更新试用密钥')}
-          </div>
-        );
-      }
+    if (platformLicenseInfo.dp) {
+      return null;
     }
-    if (!platformLicenseInfo.dp) {
-      return (
-        <div
-          className="ThemeColor pointer"
-          onClick={(e) => {
-            e.stopPropagation();
-            setTrialServer(2);
-          }}
-        >
-          {_l('试用')}
-        </div>
-      );
-    }
+
+    return (
+      <div
+        className="ThemeColor pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setTrialServer(2);
+        }}
+      >
+        {_l('绑定密钥')}
+      </div>
+    );
   }
   const renderDiCiState = () => {
     if (platformLicenseInfo.dici) {
@@ -322,41 +304,23 @@ const AppreciationServer = props => {
     );
   }
   const renderSseState = () => {
-    if (platformLicenseInfo.sse && platformLicenseInfo.sse.isTrial) {
-      const current = moment().format('YYYY-MM-DD');
-      const diff = moment(platformLicenseInfo.sse.expirationDate).diff(moment(current), 'd') + 1;
-      if (diff >= 1) {
-        return (
-          <div style={{ color: '#FF9D2E' }}>{_l('试用还剩 %0 天', diff)}</div>
-        )
-      } else {
-        return (
-          <div
-            className="ThemeColor pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              setTrialServer(1);
-            }}
-          >
-            {_l('更新试用密钥')}
-          </div>
-        );
-      }
+    if (platformLicenseInfo.sse) {
+      return null;
     }
-    if (!platformLicenseInfo.sse) {
-      return (
-        <div
-          className="ThemeColor pointer"
-          onClick={(e) => {
-            e.stopPropagation();
-            setTrialServer(1);
-          }}
-        >
-          {_l('试用')}
-        </div>
-      );
-    }
+
+    return (
+      <div
+        className="ThemeColor pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setTrialServer(1);
+        }}
+      >
+        {_l('绑定密钥')}
+      </div>
+    );
   }
+
   const renderServerInfoDialog = () => {
     const current = moment().format('YYYY-MM-DD');
     const expirationDateDiff = moment(serverInfo.expirationDate).diff(moment(current), 'd') + 1;
@@ -371,7 +335,6 @@ const AppreciationServer = props => {
             <div className="valignWrapper flex">
               <Icon className="Font30 ThemeColor" icon={serverInfo.icon} />
               <div className="Font17 Gray bold mLeft5">{serverInfo.title}</div>
-              {serverInfo.isTrial && <Trial className="Font12 mLeft10">{_l('试用中')}</Trial>}
             </div>
             {(serverInfo.isTrial || serverInfo.type === 'dici' || serverInfo.type === 'didb') && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新密钥')}</div>}
           </div>
@@ -398,15 +361,21 @@ const AppreciationServer = props => {
           </div>
           {serverInfo.type === 'dp' && (
             <div className="flexColumn flex">
-              <div className="Gray_9e mBottom2">{_l('数据同步任务数')}</div>
-              <div className="Gray">{serverInfo.dataPipelineJobNum.toLocaleString()}</div>
+              <div className="Gray_9e mBottom2">{_l('直接同步任务数')}</div>
+              <div className="Gray">{serverInfo.dataPipelineJobNum === 2147483647 ? _l('不限') : serverInfo.dataPipelineJobNum.toLocaleString()}</div>
             </div>
           )}
         </div>
         {serverInfo.type === 'dp' && (
-          <div className="flexColumn flex mTop20">
-            <div className="Gray_9e mBottom2">{_l('数据同步算力数')}</div>
-            <div className="Gray">{serverInfo.dataPipelineRowNum.toLocaleString()}</div>
+          <div className="flexRow mTop20">
+            <div className="flexColumn flex">
+              <div className="Gray_9e mBottom2">{_l('数据同步算力数')}</div>
+              <div className="Gray">{serverInfo.dataPipelineRowNum === 2147483647 ? _l('不限') : _l('%0万行/月', serverInfo.dataPipelineRowNum.toLocaleString())}</div>
+            </div>
+            <div className="flexColumn flex">
+              <div className="Gray_9e mBottom2">{_l('ETL处理任务数')}</div>
+              <div className="Gray">{serverInfo.dataPipelineEtlJobNum === 2147483647 ? _l('不限') : serverInfo.dataPipelineEtlJobNum.toLocaleString()}</div>
+            </div>
           </div>
         )}
         {['dici', 'didb'].includes(serverInfo.type) && (
@@ -520,6 +489,7 @@ const AppreciationServer = props => {
             if (result.extendFunType === 2) {
               platformLicenseInfo.dp = data;
               platformLicenseInfo.dp.dataPipelineJobNum = result.trialInfo.dptq;
+              platformLicenseInfo.dp.dataPipelineEtlJobNum = result.trialInfo.dpetltq;
               platformLicenseInfo.dp.dataPipelineRowNum = result.trialInfo.dpsd;
             }
             if (result.extendFunType === 3) {

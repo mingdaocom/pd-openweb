@@ -117,6 +117,7 @@ export default function EditControlItem(props) {
           {type === 'modify' ? (
             <WidgetCon>
               <CustomFields
+                from={3}
                 hideControlName
                 disableRules
                 isCharge={isCharge}

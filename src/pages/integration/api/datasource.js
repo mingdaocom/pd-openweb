@@ -101,12 +101,28 @@ var datasource = {
   },
 
   /**
+   * fixbug:每重新发布一次，同步任务数会+1,其实没有新增任务修复数据源任务计数
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId No comments found.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  repair: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'datasource/repair';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'datasourcerepair', args, $.extend(base, options));
+  },
+
+  /**
    * 按照字段匹配可选的目标类型列表
    *
    * @param {Object} args 请求参数
    * @param {string} args.dataDestType 目的地类型
    * @param {boolean} args.isCreate 是否新建表
    * @param {array} args.sourceFields 源字段列表
+   * @param {object} args.any object any object.(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -336,6 +352,7 @@ var datasource = {
    * @param {Object} args 请求参数
    * @param {string} args.worksheetId 工作表id
    * @param {array} args.fields 映射字段
+   * @param {object} args.any object any object.(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

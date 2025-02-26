@@ -13,6 +13,8 @@ import IntegratedApi from './actionTypes/IntegratedApi';
 import PlayVoice from './actionTypes/PlayVoice';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import OperationFlow from './actionTypes/OperationFlow ';
+import ActivateTab from './actionTypes/ActivateTab';
+import SearchWorksheet from './actionTypes/SearchWorksheet';
 
 const CustomActionConfig = props => {
   const { actionData = {} } = props;
@@ -53,6 +55,11 @@ const CustomActionConfig = props => {
     // 封装业务流程
     case ACTION_VALUE_ENUM.OPERATION_FLOW:
       return <OperationFlow {...props} />;
+    // 激活标签页
+    case ACTION_VALUE_ENUM.ACTIVATE_TAB:
+      return <ActivateTab {...props} />;
+    case ACTION_VALUE_ENUM.SEARCH_WORKSHEET:
+      return <SearchWorksheet {...props} />;
   }
 };
 

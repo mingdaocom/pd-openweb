@@ -4,6 +4,20 @@ import base, { controllerName } from './base';
 */
 var instanceVersion = {
   /**
+   * 用扩展表覆盖
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {string} [args.id] *流程实例id
+   * @param {string} [args.workId] *工作Id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  cover: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v2/instance/cover';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'v2instancecover', args, $.extend(base, options));
+  },
+  /**
    * 获取流程实例流转详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

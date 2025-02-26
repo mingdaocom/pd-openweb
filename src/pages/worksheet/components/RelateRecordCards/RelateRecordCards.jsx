@@ -20,12 +20,22 @@ import RecordTag from './RecordTag';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
+import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { Icon } from 'ming-ui';
 import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
 import { browserIsMobile, addBehaviorLog, getTranslateInfo, handlePushState, handleReplaceState } from 'src/util';
-import _ from 'lodash';
+import _, { identity, isEmpty } from 'lodash';
 import RegExpValidator from 'src/util/expression';
 const MAX_COUNT = 200;
+
+const CARD_MIN_WIDTH = 360;
+const CARDS_GAP = 16;
+
+const RecordsCon = styled.div`
+  ${({ width }) => (width > 700 ? 'display: grid;' : '')}
+  grid-gap: ${CARDS_GAP}px;
+  grid-template-columns: repeat(auto-fit, minmax(${CARD_MIN_WIDTH}px, 1fr));
+`;
 
 export const Button = styled.div`
   cursor: pointer;
@@ -67,16 +77,20 @@ export const LoadingButton = styled.div`
   }
 `;
 
-const Con = styled.div(({ isMobile, autoHeight, isCard }) =>
-  isMobile
-    ? `
-      ${autoHeight ? 'height: auto !important;' : ''}
-      ${isCard ? '' : 'align-items: center;'}
-    `
-    : `
+const Con = styled.div(
+  ({ isMobile, autoHeight, isCard, showAddAsDropdown }) =>
+    `${showAddAsDropdown ? 'width: 100% !important;' : ''}
+  ${
+    isMobile
+      ? `
     ${autoHeight ? 'height: auto !important;' : ''}
-    padding: 0px !important;
-  `,
+    ${isCard && !showAddAsDropdown ? '' : 'align-items: center;'}
+  `
+      : `
+  ${autoHeight ? 'height: auto !important;' : ''}
+  padding: 0px !important;
+`
+  }`,
 );
 
 const OperateCon = styled.div`
@@ -125,29 +139,15 @@ const WithoutRowsWrap = styled.div`
   background-color: #f8f8f8;
 `;
 
-export function getCardWidth({ width, isMobile, enumDefault, records }) {
-  let cardWidth;
+export function getCardColNum({ width, isMobile, enumDefault, records }) {
   let colNum = 1;
-  if (width) {
-    const containerWidth = width - 2;
-    if (isMobile) {
-      cardWidth = '100%';
-    } else if (enumDefault === 1 || (records && records.length === 1)) {
-      cardWidth = containerWidth - 14;
-    } else if (containerWidth >= 1200) {
-      cardWidth = Math.floor(containerWidth / 3) - 14;
-      colNum = 3;
-    } else if (containerWidth >= 800) {
-      cardWidth = Math.floor(containerWidth / 2) - 14;
-      colNum = 2;
-    } else {
-      cardWidth = containerWidth - 14;
-      colNum = 1;
-    }
-  } else {
-    cardWidth = '100%';
+  if (!isMobile || enumDefault === 1) {
+    colNum = Math.floor((width + CARDS_GAP) / (CARD_MIN_WIDTH + CARDS_GAP));
   }
-  return { cardWidth, colNum };
+  if (colNum === 0 || isMobile) {
+    colNum = 1;
+  }
+  return colNum;
 }
 
 class RelateRecordCards extends Component {
@@ -186,9 +186,12 @@ class RelateRecordCards extends Component {
   constructor(props) {
     super(props);
     const {
-      control: { relationControls = [], showControls = [], worksheetId },
+      control: { relationControls = [], showControls = [], worksheetId, advancedSetting = {} },
     } = this.props;
-    const hasRelateControl = this.hasRelateControl(relationControls, showControls);
+    const hasRelateControl = this.hasRelateControl(
+      relationControls,
+      this.mobileShowAddAsDropdown ? safeParse(advancedSetting.chooseshowids, 'array') : showControls,
+    );
     let showLoadMore = true;
     try {
       if ((props.records || []).length >= props.count) {
@@ -288,11 +291,14 @@ class RelateRecordCards extends Component {
   }
 
   get controls() {
-    const {
-      control: { showControls },
+    let {
+      control: { showControls, advancedSetting },
     } = this.props;
     const { controls } = this.state;
-    return showControls.map(scid => _.find(controls, c => c.controlId === scid)).filter(c => c && c.attribute !== 1);
+    if (this.mobileShowAddAsDropdown) {
+      showControls = safeParse(advancedSetting.chooseshowids, 'array');
+    }
+    return showControls.map(scid => _.find(controls, c => c.controlId === scid)).filter(identity);
   }
 
   get onlyRelateByScanCode() {
@@ -313,6 +319,24 @@ class RelateRecordCards extends Component {
     );
   }
 
+  get showAddAsDropdown() {
+    const { control = {} } = this.props;
+    const { choosetype = '2' } = control.advancedSetting || {};
+    const { enumDefault2 } = control;
+    return choosetype === '1' && enumDefault2 !== 10 && enumDefault2 !== 11;
+  }
+
+  get mobileShowAddAsDropdown() {
+    const { control = {} } = this.props;
+    const { showtype = '2', enumDefault } = control.advancedSetting || {};
+    const chooseShowIds = safeParse(control.advancedSetting.chooseshowids, 'array');
+    const multiple = enumDefault === 2;
+    let showCards = !multiple && !!chooseShowIds.length;
+    const isMobile = browserIsMobile();
+
+    return isMobile && showtype === '3' && showCards;
+  }
+
   get addRelationButtonVisible() {
     const { control = {} } = this.props;
     const { from, disabled, enumDefault, enumDefault2 } = control;
@@ -320,7 +344,7 @@ class RelateRecordCards extends Component {
     const controlPermission = controlState(control, from);
 
     return (
-      (!records.length || enumDefault === 2) &&
+      (!records.length || enumDefault === 2 || this.showAddAsDropdown) &&
       from !== FROM.SHARE &&
       enumDefault2 !== 11 &&
       (this.isCard ? !this.disabledManualWrite : true) &&
@@ -350,7 +374,8 @@ class RelateRecordCards extends Component {
 
   onQueryChange = () => {
     if (!this.state.previewRecord) return;
-    handleReplaceState('page', 'relateRecord', () => this.setState({ previewRecord: undefined }));
+    const recordId = _.get(this.props, 'control.recordId');
+    handleReplaceState('page', `relateRecord-${recordId}`, () => this.setState({ previewRecord: undefined }));
   };
 
   getCoverUrl(coverId, record) {
@@ -382,7 +407,7 @@ class RelateRecordCards extends Component {
       .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, relationWorksheetId: worksheetId })
       .then(data => {
         this.setState({
-          controls: replaceControlsTranslateInfo((nextProps || this.props).appId, worksheetId, data.template.controls),
+          controls: replaceControlsTranslateInfo((nextProps || this.props).appId, dataSource, data.template.controls),
           sheetTemplateLoading: false,
           enablePayment: data.enablePayment,
         });
@@ -622,7 +647,7 @@ class RelateRecordCards extends Component {
   }
 
   renderRecordsCon() {
-    const { width, control, allowOpenRecord } = this.props;
+    const { width, control, allowOpenRecord, hideTitle, cardClassName } = this.props;
     const {
       appId,
       viewId,
@@ -646,32 +671,31 @@ class RelateRecordCards extends Component {
     const allowRemove =
       (control.advancedSetting.allowcancel !== '0' || enumDefault === 1) && controlPermission.editable;
     const isMobile = browserIsMobile();
-    const { cardWidth, colNum } = getCardWidth({ width, isMobile, enumDefault, records });
-    if (isCard) {
+    const colNum = getCardColNum({ width, isMobile, enumDefault, records });
+    if (isCard || this.mobileShowAddAsDropdown) {
       return (
-        <div
+        <RecordsCon
+          width={width}
           className={cx('recordsCon mBottom6', {
             'pLeft10 pRight10':
               isMobile &&
               _.includes([FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], from) &&
               advancedSetting.showtype === '2',
+            Block: isMobile,
           })}
         >
           {!!records.length &&
-            (showAll ||
-            _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ||
-            (isMobile && from === FROM.RECORDINFO) ||
-            records.length <= colNum * 3
-              ? records
-              : records.slice(0, colNum * 3)
-            ).map((record, i) => (
+            (showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)).map((record, i) => (
               <RecordCoverCard
+                className={cardClassName}
+                hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
+                showAddAsDropdown={this.showAddAsDropdown}
+                containerWidth={width}
                 from={from}
                 projectId={projectId}
                 viewId={viewId}
                 allowReplaceRecord={allowReplaceRecord}
                 disabled={disabled || (!allowRemove && !record.isNewAdd)}
-                width={cardWidth}
                 isCharge={isCharge}
                 key={i}
                 controls={this.controls}
@@ -683,13 +707,14 @@ class RelateRecordCards extends Component {
                 sourceEntityName={sourceEntityName}
                 onClick={
                   !allowOpenRecord ||
+                  (this.mobileShowAddAsDropdown && !disabled && advancedSetting.allowlink === '1') ||
                   (control.isSubList && _.get(window, 'shareState.shareId')) ||
                   allowlink === '0' ||
                   !record.rowid ||
                   /^temp/.test(record.rowid)
                     ? () => {}
                     : () => {
-                        handlePushState('page', 'relateRecord');
+                        handlePushState('page', `relateRecord-${recordId}`);
                         addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
                         this.setState({ previewRecord: { recordId: record.rowid } });
                       }
@@ -698,36 +723,48 @@ class RelateRecordCards extends Component {
                 onReplaceRecord={() => this.handleReplaceRecord(record)}
               />
             ))}
-          {records.length > colNum * 3 &&
-            (isMobile ? !_.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) : true) && (
-              <div>
-                {recordId && showLoadMore && showAll && (
-                  <LoadingButton
-                    onClick={() => {
-                      if (!isLoadingMore) {
-                        this.loadMoreRecords(pageIndex + 1);
-                      }
-                    }}
-                  >
-                    {isLoadingMore && (
-                      <span className="loading">
-                        <i className="icon icon-loading_button"></i>
-                      </span>
-                    )}
-                    {_l('加载更多')}
-                  </LoadingButton>
-                )}
+          {records.length > colNum * 3 && (
+            <div>
+              {recordId && showLoadMore && showAll && (
                 <LoadingButton
-                  className="ThemeColor3 Hand mBottom10 InlineBlock"
-                  onClick={() => this.setState({ showAll: !showAll })}
+                  onClick={() => {
+                    if (!isLoadingMore) {
+                      this.loadMoreRecords(pageIndex + 1);
+                    }
+                  }}
                 >
-                  {showAll ? _l('收起') : _l('展开更多')}
+                  {isLoadingMore && (
+                    <span className="loading">
+                      <i className="icon icon-loading_button"></i>
+                    </span>
+                  )}
+                  {_l('加载更多')}
                 </LoadingButton>
-              </div>
-            )}
-        </div>
+              )}
+              <LoadingButton
+                className="ThemeColor3 Hand mBottom10 InlineBlock"
+                onClick={() => this.setState({ showAll: !showAll })}
+              >
+                {showAll ? _l('收起') : _l('展开更多')}
+              </LoadingButton>
+            </div>
+          )}
+        </RecordsCon>
       );
     }
+
+    return this.renderDropDownRecordsCon();
+  }
+
+  renderDropDownRecordsCon = () => {
+    const { control, allowOpenRecord } = this.props;
+    const { appId, viewId, from, recordId, dataSource, disabled, enumDefault, openRelateSheet } = control;
+    const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
+    const { records } = this.state;
+    const controlPermission = controlState(control, from);
+    const allowRemove =
+      (control.advancedSetting.allowcancel !== '0' || enumDefault === 1) && controlPermission.editable;
+    const isMobile = browserIsMobile();
 
     return (
       <div className="recordsCon">
@@ -743,7 +780,7 @@ class RelateRecordCards extends Component {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {
                       openRelateSheet('', record.wsid, record.rowid, viewId);
                     } else if (isMobile) {
-                      handlePushState('page', 'relateRecord');
+                      handlePushState('page', `relateRecord-${recordId}`);
                       disabled && this.setState({ previewRecord: { recordId: record.rowid } });
                     } else {
                       this.setState({ previewRecord: { recordId: record.rowid } });
@@ -755,7 +792,7 @@ class RelateRecordCards extends Component {
         ))}
       </div>
     );
-  }
+  };
 
   render() {
     const { control, editable, allowOpenRecord, showCoverAndControls } = this.props;
@@ -767,6 +804,7 @@ class RelateRecordCards extends Component {
       from,
       recordId,
       controlId,
+      relationControls,
       controlName,
       dataSource,
       disabled,
@@ -783,10 +821,19 @@ class RelateRecordCards extends Component {
       openRelateSheet,
       showRelateRecordEmpty,
       isDraft,
+      sourceBtnName,
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { records, previewRecord, showNewRecord, sheetTemplateLoading, enablePayment } = this.state;
-    const { onlyRelateByScanCode, disabledManualWrite, addRelationButtonVisible, isCard, allowNewRecord } = this;
+    const {
+      onlyRelateByScanCode,
+      disabledManualWrite,
+      addRelationButtonVisible,
+      isCard,
+      allowNewRecord,
+      showAddAsDropdown,
+      mobileShowAddAsDropdown,
+    } = this;
     const isMobile = browserIsMobile();
     const isScanQR = getIsScanQR();
     const multiple = enumDefault === 2;
@@ -795,6 +842,7 @@ class RelateRecordCards extends Component {
     }
     const filterControls = getFilter({ control, formData });
     const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
+    const controlPermission = controlState(control, from);
     const allowRemove = control.advancedSetting.allowcancel !== '0' || enumDefault === 1;
     const { searchcontrol } = advancedSetting;
     const renderHint = () => {
@@ -810,7 +858,7 @@ class RelateRecordCards extends Component {
       }
     };
 
-    if (showRelateRecordEmpty && !addRelationButtonVisible && _.isEmpty(records)) {
+    if (showRelateRecordEmpty && !addRelationButtonVisible && disabled && _.isEmpty(records)) {
       return (
         <WithoutRowsWrap className="withoutRowsWrapper flexColumn valignWrapper h100">
           <WithoutRows text={_l('暂无记录')} />
@@ -832,27 +880,66 @@ class RelateRecordCards extends Component {
           <Con
             className={cx(
               'customFormControlBox flexRow relateRecordBtn',
-              { formBoxNoBorder: isCard },
+              { formBoxNoBorder: isCard && !(isMobile && showAddAsDropdown) },
               {
                 controlDisabled:
                   disabled || (addRelationButtonVisible && !isCard && !records.length && disabledManualWrite),
+                pTop0: isMobile,
               },
             )}
             isMobile={isMobile}
             autoHeight={!!records.length}
             isCard={isCard}
-            onClick={e => !disabled && !isCard && !disabledManualWrite && this.handleClick(e)}
+            showAddAsDropdown={showAddAsDropdown}
+            onClick={e =>
+              !disabled &&
+              (!isCard || (isCard && isMobile && showAddAsDropdown)) &&
+              !disabledManualWrite &&
+              this.handleClick(e)
+            }
           >
             <div className="flex content" style={{ minWidth: 0 }}>
               {addRelationButtonVisible && (
                 <Fragment>
                   {isCard ? (
-                    ((enumDefault2 !== 10 && enumDefault2 !== 11) || allowNewRecord) && (
+                    ((enumDefault2 !== 10 && enumDefault2 !== 11) || allowNewRecord) &&
+                    (showAddAsDropdown && !isMobile && !multiple && records.length <= 1 ? (
+                      <RelateRecordDropdown
+                        appId={appId}
+                        control={control}
+                        formData={formData}
+                        disabled={disabled || !controlPermission.editable}
+                        selected={records}
+                        from={from}
+                        viewId={viewId}
+                        recordId={recordId}
+                        dataSource={dataSource}
+                        entityName={sourceEntityName}
+                        enumDefault2={enumDefault2}
+                        parentWorksheetId={worksheetId}
+                        controlId={controlId}
+                        controls={relationControls}
+                        multiple={multiple}
+                        coverCid={advancedSetting.choosecoverid}
+                        showControls={safeParse(advancedSetting.chooseshowids, 'array')}
+                        allowOpenRecord={advancedSetting.allowlink === '1'}
+                        showCoverAndControls={advancedSetting.chooseddset === '1'}
+                        onChange={newRecords => {
+                          if (isEmpty(newRecords)) {
+                            this.handleDelete(records[0]);
+                          } else {
+                            this.handleAdd(newRecords);
+                          }
+                        }}
+                      />
+                    ) : isMobile && showAddAsDropdown ? (
+                      this.renderDropDownRecordsCon()
+                    ) : (
                       <Button className="relateRecordBtn" onClick={this.handleClick}>
                         <i className="icon icon-plus mRight5 Font16"></i>
-                        {sourceEntityName || ''}
+                        {sourceBtnName || sourceEntityName || ''}
                       </Button>
-                    )
+                    ))
                   ) : !records.length ? (
                     <span className="Gray_bd">{renderHint()}</span>
                   ) : null}
@@ -861,7 +948,7 @@ class RelateRecordCards extends Component {
               {disabledManualWrite && !isScanQR && (
                 <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
               )}
-              {!isCard && this.renderRecordsCon()}
+              {!isCard && (mobileShowAddAsDropdown ? this.renderDropDownRecordsCon() : this.renderRecordsCon())}
               {from !== FROM.PUBLIC_ADD &&
                 !!previewRecord &&
                 (isMobile ? (
@@ -934,7 +1021,7 @@ class RelateRecordCards extends Component {
                 />
               )}
             </div>
-            {!disabled && !isCard && !onlyRelateByScanCode && (
+            {!disabled && (!isCard || (isCard && isMobile && showAddAsDropdown)) && !onlyRelateByScanCode && (
               <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
             )}
           </Con>
@@ -1006,7 +1093,7 @@ class RelateRecordCards extends Component {
             />
           )}
         </OperateCon>
-        {isCard && this.renderRecordsCon()}
+        {(isCard || mobileShowAddAsDropdown) && this.renderRecordsCon()}
       </Fragment>
     );
   }

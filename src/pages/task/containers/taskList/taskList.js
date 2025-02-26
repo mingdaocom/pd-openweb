@@ -1021,7 +1021,7 @@ class TaskList extends Component {
 
     // 按项目
     if (listSort == 4) {
-      const folderId = source.data.folderID;
+      const folderId = (source.data || {}).folderID;
       if (source.isExists) {
         $(".taskListFolderName[data-folderid='" + folderId + "']")
           .next()

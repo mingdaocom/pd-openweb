@@ -22,6 +22,7 @@ export const getViewActionInfo = ({
   isGroupFilter,
 }) => {
   const { navGroup = [], childType, advancedSetting = {}, viewControl, viewControls = [] } = view;
+  const { appnavtype } = advancedSetting;
   const { appNaviStyle, debugRole } = appDetail;
   const { allowAdd, template = {} } = worksheetInfo;
   const { controls = [] } = template;
@@ -40,7 +41,10 @@ export const getViewActionInfo = ({
   switch (viewType) {
     case sheet:
       showBatchBtn =
-        !hideAddRecord && (canDelete || showCusTomBtn) && !batchOptVisible && (_.isEmpty(navGroup) || isGroupFilter);
+        !hideAddRecord &&
+        (canDelete || showCusTomBtn) &&
+        !batchOptVisible &&
+        (_.isEmpty(navGroup) || isGroupFilter || appnavtype !== '1');
       break;
     case board:
       isHaveSelectControl =
@@ -124,4 +128,31 @@ export const getViewActionInfo = ({
     showBackBtn, // 返回按钮
     showBatchBtn, // 批量操作（仅表视图）
   };
+};
+
+export const getDefaultValueInCreate = (mobileNavGroupFilters = []) => {
+  if (_.isEmpty(mobileNavGroupFilters)) return;
+  let data = mobileNavGroupFilters[0];
+  if ([9, 10, 11, 28].includes(data.dataType)) {
+    return { [data.controlId]: JSON.stringify([data.values[0]]) };
+  } else if ([26, 27, 48].includes(data.dataType)) {
+    let value = '';
+    const id = _.get(data, 'values[0]');
+    const name = _.get(data, 'navNames[0]');
+    if (id && name) {
+      value = JSON.stringify([safeParse(name)]);
+    } else {
+      value = '[]';
+    }
+    return { [data.controlId]: value };
+  } else if ([29, 35]) {
+    return {
+      [data.controlId]: JSON.stringify([
+        {
+          sid: data.values[0],
+          name: data.navNames[0] || '',
+        },
+      ]),
+    };
+  }
 };

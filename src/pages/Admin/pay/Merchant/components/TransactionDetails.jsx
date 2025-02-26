@@ -98,19 +98,21 @@ export default class TransactionDetails extends Component {
         },
       },
       {
-        title: (
-          <Fragment>
-            {_l('结算手续费') + '（0.6%）'}
-            <Tooltip text={_l('手续费包含渠道费率和HAP服务费')}>
-              <Icon icon="info" className="Gray_9e Font16" />
-            </Tooltip>
-          </Fragment>
-        ),
+        title: _l('结算手续费'),
         dataIndex: 'taxAmount',
         width: 200,
         render: (text, record) => {
           const { status } = record;
           return _.includes([1, 2, 3, 5], status) ? text : '-';
+        },
+      },
+      {
+        title: _l('结算手续费率'),
+        dataIndex: 'taxRate',
+        width: 200,
+        render: (text, record) => {
+          const { status } = record;
+          return _.includes([1, 2, 3, 5], status) ? text + '%' : '-';
         },
       },
       {
@@ -370,6 +372,7 @@ export default class TransactionDetails extends Component {
       worksheetIds,
       merchantNo,
       sourceType,
+      merchantOrderId,
     } = searchValues;
     const { startDate, endDate } = payTimeInfo;
 
@@ -379,6 +382,7 @@ export default class TransactionDetails extends Component {
       .getPayOrderList({
         projectId, //组织Id
         orderId: _.trim(orderId), //订单Id
+        merchantOrderId: _.trim(merchantOrderId), //交易单号
         merchantNo, // 商户编号
         sourceInfo: {
           appId: appIds,
@@ -585,6 +589,12 @@ export default class TransactionDetails extends Component {
         maxTagCount: 'responsive',
         options: ORDER_SOURCE,
       },
+      {
+        key: 'merchantOrderId',
+        type: 'input',
+        label: _l('交易单号'),
+        placeholder: _l('输入交易单号'),
+      },
       // {
       //   key: 'type',
       //   type: 'select',
@@ -653,6 +663,7 @@ export default class TransactionDetails extends Component {
       worksheetIds,
       merchantNo,
       sourceType,
+      merchantOrderId,
     } = searchValues;
     const { startDate, endDate } = payTimeInfo;
 
@@ -665,6 +676,7 @@ export default class TransactionDetails extends Component {
       .exportOrder({
         projectId, //组织Id
         orderId: _.trim(orderId), //订单Id
+        merchantOrderId: _.trim(merchantOrderId), //交易单号
         merchantNo, // 商户编号
         sourceInfo: {
           appId: appIds,

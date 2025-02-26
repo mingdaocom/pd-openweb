@@ -293,8 +293,9 @@ export default {
      return mdyAPI('Account', 'ExitAccount', args, options);
    },
   /**
-  * 获取我加入的网络
+  * 根据类型获取我相关的组织，包括我正常加入的；等待审核加入的
   * @param {Object} args 请求参数
+  * @param {} args.userStatus
   * @param {string} args.pageIndex 页码
   * @param {string} args.pageSize 页大小
   * @param {Object} options 配置参数
@@ -419,7 +420,7 @@ export default {
      return mdyAPI('Account', 'SendSystemMessageToAdmin', args, options);
    },
   /**
-  * 退出网络（密码验证）
+  * 退出组织（密码验证）
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串

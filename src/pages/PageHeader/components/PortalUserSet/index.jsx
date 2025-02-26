@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
-import { Icon, Menu, Dialog } from 'ming-ui';
+import { Icon, Menu, Dialog, Tooltip } from 'ming-ui';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
@@ -19,7 +19,8 @@ import ChangeAccountDialog from './ChangeAccountDialog';
 import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
 import PortalMessage from './PortalMessage';
-import { getAppId } from 'src/pages/accountLogin/portalAccount/util.js';
+import LanguageList from 'src/pages/PageHeader/components/LanguageList';
+import { getAppId } from 'src/pages/AuthService/portalAccount/util.js';
 import _ from 'lodash';
 import { WrapHeader, Wrap, ModalWrap, RedMenuItemWrap } from './style';
 import Trigger from 'rc-trigger';
@@ -187,7 +188,7 @@ export default class PortalUserSet extends Component {
       showMenu,
       showModel,
     } = this.state;
-    const { isMobile, match = {}, appStatus, noAvatar, currentPcNaviStyle } = this.props;
+    const { isMobile, match = {}, appStatus, noAvatar, currentPcNaviStyle, appId, projectId, originalLang } = this.props;
     const info = currentData.filter(
       o =>
         !['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status', 'openid', 'portal_email'].includes(
@@ -201,6 +202,7 @@ export default class PortalUserSet extends Component {
         .value ||
       (currentData.find(o => ['portal_mobile'].includes(o.controlId)) || {}).value ||
       (currentData.find(o => ['portal_email'].includes(o.controlId)) || {}).value;
+
     return (
       <WrapHeader className={cx({ isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
         <div className={cx('appNameHeaderBoxPortal appNameHeaderBox flexRow noBorder', { isMobile })}>
@@ -214,6 +216,21 @@ export default class PortalUserSet extends Component {
               </div>
             </div>
             <PortalMessage color={color} isMobile={isMobile} />
+            <LanguageList
+              placement={[1, 3].includes(currentPcNaviStyle) ? 'topLeft' : 'bottomRight'}
+              app={{
+                id: appId,
+                projectId,
+                originalLang
+              }}
+              isCharge={false}
+            >
+              <Tooltip placement="bottom" text={_l('应用语言')}>
+                <div className={cx('h100 flexColumn justifyContentCenter', [1, 3].includes(currentPcNaviStyle) ? 'mLeft20 mRight20' : 'mRight20')}>
+                  <Icon icon="language" className="Font20 White pointer" />
+                </div>
+              </Tooltip>
+            </LanguageList>
             {!noAvatar && (
               <div
                 className={cx('InlineBlock mRight16 Hand', { avatarM: isMobile })}

@@ -113,7 +113,7 @@ export default class RelateRecord extends React.Component {
             {records.length ? (
               records.map((record, index) => (
                 <div className="recordItem" key={index}>
-                  <span className="recordname ellipsis">{record.name}</span>
+                  <span className="recordname">{record.name}</span>
                   <span
                     className="remove"
                     onClick={e => {

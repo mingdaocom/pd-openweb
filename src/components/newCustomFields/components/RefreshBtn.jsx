@@ -4,10 +4,13 @@ import cx from 'classnames';
 import { isPublicLink } from '../tools/utils';
 import { FROM } from '../tools/config';
 import _ from 'lodash';
+import { browserIsMobile } from 'src/util';
+import { Tooltip } from 'antd';
 
 export default props => {
   const { disabledFunctions = [], from, recordId, item, worksheetId, disabled, onChange } = props;
   const [isRefresh, setRefresh] = useState(false);
+  const isMobile = browserIsMobile();
 
   const showRefreshBtn =
     !disabledFunctions.includes('controlRefresh') &&
@@ -22,23 +25,27 @@ export default props => {
   if (!showRefreshBtn) return null;
 
   return (
-    <span
-      data-tip={isRefresh ? _l('刷新中...') : _l('刷新')}
-      className="tip-top Font14 mLeft5 Gray_9e ThemeHoverColor3 pointer RefreshBtn"
-      onClick={() => {
-        if (isRefresh) return;
+    <Tooltip title={isMobile ? '' : isRefresh ? _l('刷新中...') : _l('刷新')} placement="top">
+      <span
+        className={cx('Font14 mLeft5 Gray_9e pointer RefreshBtn', { ThemeHoverColor3: !isMobile })}
+        onClick={() => {
+          if (isRefresh) return;
 
-        setRefresh(true);
+          setRefresh(true);
 
-        sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId: item.controlId }).then(data => {
-          if (item.value !== data) {
-            onChange(data, item.controlId, item);
-          }
-          setRefresh(false);
-        });
-      }}
-    >
-      <i className={cx('icon-workflow_cycle', { isLoading: isRefresh })} />
-    </span>
+          sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId: item.controlId }).then(data => {
+            if (item.value !== data) {
+              onChange(data, item.controlId, item);
+            }
+            if (isMobile) {
+              alert(_l('刷新成功'));
+            }
+            setRefresh(false);
+          });
+        }}
+      >
+        <i className={cx('icon-workflow_cycle', { isLoading: isRefresh })} />
+      </span>
+    </Tooltip>
   );
 };

@@ -38,7 +38,7 @@ export default ({ data, onChange }) => {
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">
-          {_l('限制移动端输入')}
+          {_l('移动端输入')}
           <Tooltip
             placement={'bottom'}
             title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}

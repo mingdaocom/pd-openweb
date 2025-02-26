@@ -48,6 +48,7 @@ const rules = isProduction
       },
       { test: /\.js$/, enforce: 'pre', use: ['source-map-loader'] },
     ];
+const minChunks = isProduction ? 2 : 1;
 
 module.exports = function (alonePath = '') {
   return {
@@ -120,47 +121,63 @@ module.exports = function (alonePath = '') {
         }),
         ...(alonePath ? [] : [new CssMinimizerPlugin()]),
       ],
-      splitChunks: alonePath
-        ? undefined
-        : {
-            chunks: 'all',
-            minSize: 2000000,
-            cacheGroups: {
-              common: {
-                name: 'common',
-                minChunks: 2,
-                priority: -10,
-                reuseExistingChunk: true,
-                minSize: 30000,
-              },
-              core: {
-                name: 'core',
-                minChunks: isProduction ? 2 : 1,
-                minSize: 30000,
-                test(module) {
-                  return (
-                    module.resource &&
-                    !!module.resource.match(
-                      /src\/pages\/(worksheet|Statistics|customPage|workflow|Role|Portal|integration)/,
-                    )
-                  );
+      splitChunks:
+        alonePath === 'single'
+          ? undefined
+          : alonePath === 'singleExtractModules'
+          ? {
+              chunks: 'initial',
+              minSize: 2000000,
+              cacheGroups: {
+                common: {
+                  name: 'common',
+                  minChunks,
+                  priority: -10,
+                  reuseExistingChunk: true,
+                  minSize: 30000,
                 },
+                node_modules: {
+                  minSize: 30000,
+                  name: 'node_modules',
+                  minChunks,
+                  test: /[\\/]node_modules[\\/]/,
+                },
+                default: false,
               },
-              modules_a: {
-                minSize: 30000,
-                name: 'modules_a',
-                minChunks: isProduction ? 2 : 1,
-                test: /[\\/]node_modules[\\/](?!hot-formula-parser|@mdfe|html5-qrcode|antd|@antv|mapbox-gl|lodash|@fullcalendar|react-dom|@sentry|codemirror|jspdf)/,
+            }
+          : {
+              chunks: 'initial',
+              minSize: 2000000,
+              cacheGroups: {
+                common: {
+                  name: 'common',
+                  minChunks: 2,
+                  priority: -10,
+                  reuseExistingChunk: true,
+                  minSize: 30000,
+                },
+                core: {
+                  name: 'core',
+                  minChunks,
+                  minSize: 30000,
+                  test(module) {
+                    return (
+                      module.resource &&
+                      !!module.resource.match(
+                        /src\/pages\/(worksheet|Statistics|customPage|workflow|Role|Portal|integration)/,
+                      )
+                    );
+                  },
+                },
+                node_modules: {
+                  minSize: 30000,
+                  name: 'node_modules',
+                  minChunks,
+                  test: /[\\/]node_modules[\\/]/,
+                },
+                default: false,
               },
-              modules_b: {
-                minSize: 30000,
-                name: 'modules_b',
-                minChunks: isProduction ? 2 : 1,
-                test: /[\\/]node_modules[\\/](hot-formula-parser|@mdfe|html5-qrcode|antd|@antv|mapbox-gl|lodash|@fullcalendar|react-dom|@sentry|codemirror|jspdf)/,
-              },
-              default: false,
             },
-          },
     },
     cache: true,
     devtool: alonePath || isProduction ? undefined : 'eval',

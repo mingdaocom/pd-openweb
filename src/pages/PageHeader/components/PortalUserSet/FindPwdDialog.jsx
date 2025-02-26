@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { Button, Dialog } from 'ming-ui';
 import { browserIsMobile, encrypt } from 'src/util';
 import cx from 'classnames';
-import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
+import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
 import externalPortalAjax from 'src/api/externalPortal';
-import { setAutoLoginKey } from 'src/pages/accountLogin/portalAccount/util';
+import { setAutoLoginKey } from 'src/pages/AuthService/portalAccount/util';
 import RegExpValidator from 'src/util/expression';
 
 const AccountWrap = styled.div`

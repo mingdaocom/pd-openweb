@@ -333,8 +333,8 @@ export default class Card extends Component {
   }
   renderCheckBox() {
     const { item, approveChecked, onAddApproveRecord, onRemoveApproveRecord } = this.props;
-    const { batch } = item.flowNode || {};
-    const disabled = !batch;
+    const { batchApprove } = item.flowNode || {};
+    const disabled = !batchApprove;
     return (
       <div
         className="mLeft10"

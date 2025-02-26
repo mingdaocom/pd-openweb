@@ -558,22 +558,24 @@ const RichText = ({
             // 通过检查特定的 Word 样式或标记来判断
             return html.toLowerCase().startsWith('<html xmlns:o="urn:schemas-microsoft-com:office:office"');
           }
-          editorDom.current.editor.editing.view.document.on('clipboardInput', (evt, data) => {
-            const clipboardData = data.dataTransfer.getData('text/html'); // 获取粘贴的 HTML 内容
-            if (clipboardData && isWordContent(clipboardData)) {
-              // 弹出提示框，询问用户是否去掉格式
-              const userChoice = window.confirm(
-                '正在粘贴来自 word 文档的内容。确定后，将清除格式以纯文本粘贴；取消后，将保留格式粘贴（由于格式兼容问题可能导致内容丢失）。',
-              );
+          if (get(editorDom, 'current.editor.editing.view.document')) {
+            editorDom.current.editor.editing.view.document.on('clipboardInput', (evt, data) => {
+              const clipboardData = data.dataTransfer.getData('text/html'); // 获取粘贴的 HTML 内容
+              if (clipboardData && isWordContent(clipboardData)) {
+                // 弹出提示框，询问用户是否去掉格式
+                const userChoice = window.confirm(
+                  '正在粘贴来自 word 文档的内容。确定后，将清除格式以纯文本粘贴；取消后，将保留格式粘贴（由于格式兼容问题可能导致内容丢失）。',
+                );
 
-              if (userChoice) {
-                // 转换为纯文本
-                const newData = new DataTransfer();
-                newData.setData('text/plain', data.dataTransfer.getData('text/plain'));
-                data.dataTransfer = newData;
+                if (userChoice) {
+                  // 转换为纯文本
+                  const newData = new DataTransfer();
+                  newData.setData('text/plain', data.dataTransfer.getData('text/plain'));
+                  data.dataTransfer = newData;
+                }
               }
-            }
-          });
+            });
+          }
           if (editor && editor.plugins) {
             editor.plugins.get('FileRepository').createUploadAdapter = loader => {
               return new MyUploadAdapter(loader, tokenArgs);

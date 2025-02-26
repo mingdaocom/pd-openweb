@@ -1,6 +1,5 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import GunterView from 'src/pages/worksheet/views/GunterView';
 import ViewErrorPage from '../components/ViewErrorPage';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/util';
@@ -10,8 +9,19 @@ import _ from 'lodash';
 class MobileGunterView extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      Component: null,
+    };
   }
-  render() { 
+
+  componentDidMount() {
+    import('src/pages/worksheet/views/GunterView').then(component => {
+      this.setState({ Component: component.default });
+    });
+  }
+
+  render() {
+    const { Component } = this.state;
     const { currentSheetRows = [], view = {}, controls = [] } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
     const timeControls = controls.filter(
@@ -31,24 +41,16 @@ class MobileGunterView extends Component {
       isIllegal(controls.find(item => item.controlId === begindate) || {}) ||
       isIllegal(controls.find(item => item.controlId === enddate) || {})
     ) {
-      return (
-        <ViewErrorPage
-          icon="gantt"
-          viewName={_l('甘特图')}
-          color="#01BCD5"
-        />
-      );
+      return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="#01BCD5" />;
     }
 
-    return (
-      <GunterView {...this.props} layoutType="mobile" />
-    );
+    if (!Component) return null;
+
+    return <Component {...this.props} layoutType="mobile" />;
   }
 }
 
-export default connect(
-  state => ({
-    controls: state.sheet.controls,
-    currentSheetRows: state.mobile.currentSheetRows
-  })
-)(MobileGunterView);
+export default connect(state => ({
+  controls: state.sheet.controls,
+  currentSheetRows: state.mobile.currentSheetRows,
+}))(MobileGunterView);

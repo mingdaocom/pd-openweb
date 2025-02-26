@@ -5,6 +5,7 @@ import { Input, SvgIcon, LoadDiv } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp.js';
 import WorksheetLog from './WorksheetLog';
 import cx from 'classnames';
+import { getTranslateInfo } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -27,7 +28,12 @@ export default function WorksheetLogDrawer(props) {
         const list = res.filter(v => v.type === 0);
         setData({
           worksheetLoading: false,
-          worksheetList: list,
+          worksheetList: list.map(item => {
+            return {
+              ...item,
+              workSheetName: getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName,
+            };
+          }),
           selectWorksheetId: props.selectWorksheetId || _.get(list, '[0].workSheetId'),
         });
       })

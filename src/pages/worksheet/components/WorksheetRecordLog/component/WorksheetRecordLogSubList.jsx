@@ -10,8 +10,8 @@ function WorksheetRecordLogSubList(props) {
   const { prop } = props;
   const { newValue, oldValue, name } = prop;
   const isMobile = browserIsMobile();
-  const newData = safeParse(newValue, 'array');
-  const oldData = safeParse(oldValue, 'array');
+  const newData = _.union(safeParse(newValue, 'array'));
+  const oldData = _.union(safeParse(oldValue, 'array'));
   const [dialog, setDialog] = useState(false);
   const [listCount, setListCount] = useState({
     add: [],
@@ -20,15 +20,19 @@ function WorksheetRecordLogSubList(props) {
   });
 
   useEffect(() => {
-    setListCount(prop.editType===2 ? {
-      add: [],
-      update: [],
-      remove: _.difference(newData, oldData),
-    } :{
-      add: _.difference(newData, oldData),
-      update: _.intersection(newData, oldData),
-      remove: _.difference(oldData, newData),
-    });
+    setListCount(
+      prop.editType === 2
+        ? {
+            add: [],
+            update: [],
+            remove: _.difference(newData, oldData),
+          }
+        : {
+            add: _.difference(newData, oldData),
+            update: _.intersection(newData, oldData),
+            remove: _.difference(oldData, newData),
+          },
+    );
   }, []);
 
   const getSummary = () => {

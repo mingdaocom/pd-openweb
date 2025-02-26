@@ -280,7 +280,7 @@ export default class SourceDest extends Component {
       this.getSheetListByAppId(appId);
     }
   };
-  onChangeConfig = (options, cb) => {
+  onChangeConfig = (options, cb, nextCb) => {
     const { onUpdate, node = {} } = this.props;
     let config = {
       ...(_.get(node, 'nodeConfig.config') || {}),
@@ -299,7 +299,7 @@ export default class SourceDest extends Component {
         config,
       },
     };
-    onUpdate(nodeData);
+    onUpdate(nodeData, nextCb);
     cb && cb();
   };
   getAllSource = () => {
@@ -413,11 +413,8 @@ export default class SourceDest extends Component {
           scheduleConfig: null,
           scheduleConfigId: '',
         },
-        () => {
-          setTimeout(() => {
-            showEdit();
-          }, 500);
-        },
+        null,
+        () => showEdit(),
       );
     } else if (!value) {
       this.onChangeConfig(
@@ -468,10 +465,8 @@ export default class SourceDest extends Component {
             worksheetInfo:
               dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? sheetList.find(it => it.value === value) || {} : {},
           });
-          setTimeout(() => {
-            !!value && showEdit();
-          }, 500);
         },
+        () => !!value && showEdit(),
       );
     }
   };

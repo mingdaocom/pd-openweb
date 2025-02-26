@@ -58,6 +58,16 @@ const Icon = styled.i`
   line-height: 36px;
 `;
 
+function getControlType(control) {
+  if (control.type === 30) {
+    return control.sourceControlType;
+  } else if (control.type === 53) {
+    return control.enumDefault2;
+  } else {
+    return control.type;
+  }
+}
+
 export default function ControlList(props) {
   const { keywords, controls, controlGroups, insertTagToEditor } = props;
   const [visibleControls, setVisibleControls] = useState(
@@ -118,7 +128,7 @@ export default function ControlList(props) {
               });
             }}
           >
-            <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
+            <Icon className={`icon icon-${getIconByType(getControlType(c) || 6)}`} />
             <span className="ellipsis" title={c.controlName}>
               {c.controlName}
             </span>

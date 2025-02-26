@@ -130,9 +130,10 @@ class SessionList extends Component {
   }
   getChatSessionList(pageIndex) {
     const { loading, isMore } = this.state;
-    if (loading || !isMore) {
+    if (this.loading || loading || !isMore) {
       return;
     }
+    this.loading = true;
     this.setState({
       loading: true,
     });
@@ -156,6 +157,7 @@ class SessionList extends Component {
           pageIndex: pageIndex + 1,
           loading: false,
         });
+        this.loading = false;
         // 页面刚加加载完看是否存在未读消息，有的话加新消息提醒
         if (pageIndex === 1 && sessionList.length) {
           for (let i = 0; i < sessionList.length; i++) {

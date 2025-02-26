@@ -21,7 +21,7 @@ const Wrap = styled.div`
   .UpgradeSelectAppItem {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: start;
     .box {
       width: 310px;
       height: 72px;
@@ -50,6 +50,12 @@ const Wrap = styled.div`
         }
       }
     }
+    .icon-arrow_down {
+      line-height: 72px;
+    }
+    .tips {
+      width: 310px;
+    }
     .selectAppBtn {
       &:hover {
         border: 1px solid #2196f3;
@@ -73,9 +79,13 @@ const SelectWrap = styled.ul`
   li {
     padding: 10px 20px;
     cursor: pointer;
-    &:hover {
+    &:not(.disabled):hover {
       color: #2196f3;
       background: #e6f2fd;
+    }
+    &.disabled {
+      color: #bdbdbd;
+      cursor: not-allowed;
     }
   }
 `;
@@ -129,11 +139,18 @@ export default function UpgradeSelectApp(props) {
   const renderPopup = item => {
     return (
       <SelectWrap>
-        {SelectOptions.map(l => (
-          <li key={`UpgradeSelectApp-SelectOptions-${l.value}`} onClick={() => onSelectOption(item.fileName, l.value)}>
-            {l.label}
-          </li>
-        ))}
+        {SelectOptions.map(l => {
+          const disabled = l.value === 1 && !!item.tradeRecordId;
+          return (
+            <li
+              key={`UpgradeSelectApp-SelectOptions-${l.value}`}
+              onClick={() => !disabled && onSelectOption(item.fileName, l.value)}
+              className={cx({ disabled })}
+            >
+              {l.label}
+            </li>
+          );
+        })}
       </SelectWrap>
     );
   };
@@ -187,15 +204,22 @@ export default function UpgradeSelectApp(props) {
               icon="arrow_down"
               className={cx('Font26 rotate90', item.type === undefined ? 'Gray_bd' : 'ThemeColor')}
             />
-            {item.type === undefined
-              ? renderSelectBtn(
-                  item,
-                  <div className="box Hand selectAppBtn rightBox">
-                    <Icon icon="add-member2" className="Gray_bd Font18 mRight10" />
-                    <span className="flex name overflow_ellipsis Font15 Gray_bd">{_l('选择')}</span>
-                  </div>,
-                )
-              : renderBox(item, 'rightBox')}
+            <div>
+              {item.type === undefined
+                ? renderSelectBtn(
+                    item,
+                    <div className="box Hand selectAppBtn rightBox">
+                      <Icon icon="add-member2" className="Gray_bd Font18 mRight10" />
+                      <span className="flex name overflow_ellipsis Font15 Gray_bd">{_l('选择')}</span>
+                    </div>,
+                  )
+                : renderBox(item, 'rightBox')}
+              {!!item.tradeRecordId && (
+                <div className="Gray_75 mTop8 tips">
+                  {_l('从市场购买的应用在组织下已存在/在回收站中，不允许生成为新的应用')}
+                </div>
+              )}
+            </div>
           </div>
         );
       })}

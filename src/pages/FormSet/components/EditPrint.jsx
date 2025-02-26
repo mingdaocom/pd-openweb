@@ -1,16 +1,26 @@
 import React from 'react';
-import { Icon, Checkbox } from 'ming-ui';
+import { Icon, Checkbox, Menu, MenuItem, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './editPrint.less';
 import createUploader from 'src/library/plupload/createUploader';
-import { getUrlByBucketName } from 'src/util';
+import { getUrlByBucketName, getFeatureStatus } from 'src/util';
 import appManagementAjax from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
 import RegExpValidator from 'src/util/expression';
+import { VersionProductType } from 'src/util/enum';
+import attachmentAjax from 'src/api/attachment';
+import { createEditFileLink } from 'src/pages/UploadTemplateSheet/utils';
+
 const SUFFIX = {
   Word: 'docx',
   Excel: 'xlsx',
+};
+
+const AJAX_URL = {
+  Word: 'Word',
+  Excel: 'Xlsx',
 };
 
 const EXPORT_URL = {
@@ -19,6 +29,17 @@ const EXPORT_URL = {
   CreateWord: '/ExportWord/CreateWord',
   CreateExcel: '/ExportXlsx/CreateXlsx',
 };
+
+const EDIT_OPTIONS = [
+  {
+    label: _l('从空白创建'),
+    value: 1,
+  },
+  {
+    label: _l('从模版创建'),
+    value: 2,
+  },
+];
 
 @withClickAway
 class EditPrint extends React.Component {
@@ -37,6 +58,10 @@ class EditPrint extends React.Component {
       hasChange: false,
       allowDownloadPermission: 0,
       allowDownloadChange: false,
+      popupVisible: false,
+      error: false,
+      createEditLoading: false,
+      featureType: getFeatureStatus(props.projectId, VersionProductType.editAttachment),
     };
     this.con = React.createRef();
   }
@@ -63,13 +88,12 @@ class EditPrint extends React.Component {
   }
 
   setData = nextProps => {
-    const { printData = [], templateId, fileType } = nextProps || this.props;
-    let templatedata = printData.find(it => it.id === templateId) || [];
+    const { fileType, templateData = {} } = nextProps || this.props;
     this.setState({
-      templateName: templatedata.name,
-      fileName: templatedata.formName,
+      templateName: templateData.name,
+      fileName: templateData.formName,
       hasChange: false,
-      allowDownloadPermission: templatedata.allowDownloadPermission || 0,
+      allowDownloadPermission: templateData.allowDownloadPermission || 0,
     });
 
     this.createUploader(fileType);
@@ -106,13 +130,22 @@ class EditPrint extends React.Component {
       filters: {
         mime_types: [{ extensions: SUFFIX[fileType] }],
       },
+      type: 33,
       init: {
         BeforeUpload: (up, file) => {
           if (RegExpValidator.getExtOfFileName(file.name) != SUFFIX[fileType]) {
             alert(_l('上传失败，文件错误'), 3, 1000);
             return false;
           }
-          this.setState({ loading: true, suc: false, loadPer: 0, fileName: file.name, file: file, hasChange: true });
+          this.setState({
+            loading: true,
+            suc: false,
+            loadPer: 0,
+            fileName: file.name,
+            file: file,
+            hasChange: true,
+            error: false,
+          });
         },
         FilesAdded: (up, file) => {
           up.setOption('auto_start', true);
@@ -122,14 +155,19 @@ class EditPrint extends React.Component {
         },
         FileUploaded: (up, file, info) => {
           const { bucket, key, fsize } = info.response;
-          this.setState({
-            loading: false,
-            suc: true,
-            loadPer: file.percent,
-            url: getUrlByBucketName(bucket) + key,
-            key: key,
-            file: file,
-          });
+          this.setState(
+            {
+              loading: false,
+              suc: true,
+              loadPer: file.percent,
+              url: getUrlByBucketName(bucket) + key,
+              key: key,
+              file: file,
+            },
+            () => {
+              this.onOk();
+            },
+          );
         },
         Error: (up, err, errTip) => {
           this.setState({
@@ -139,9 +177,10 @@ class EditPrint extends React.Component {
             fileName: '',
             url: '',
             key: '',
+            error: true,
           });
           if (errTip) {
-            alert(errTip);
+            alert(errTip, 2);
           }
         },
       },
@@ -151,16 +190,22 @@ class EditPrint extends React.Component {
   }
 
   editDownload = () => {
-    const { allowDownloadPermission } = this.state;
-    this.setState({
-      allowDownloadPermission: !allowDownloadPermission,
-      allowDownloadChange: true,
-    });
+    const { allowDownloadPermission, hasChange } = this.state;
+    this.setState(
+      {
+        allowDownloadPermission: !allowDownloadPermission,
+        allowDownloadChange: true,
+      },
+      () => {
+        if (!hasChange && !!this.props.templateId) this.onOk(false);
+      },
+    );
   };
 
-  onOk = async () => {
+  onOk = async (closeFlag = true) => {
     const { fileName, hasChange, allowDownloadPermission, allowDownloadChange } = this.state;
     const { onClose, worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word', updatePrint } = this.props;
+
     if (allowDownloadChange && templateId) {
       sheetAjax
         .editTemplateDownloadPermission({
@@ -169,7 +214,7 @@ class EditPrint extends React.Component {
         })
         .then(res => {
           if (!hasChange) {
-            onClose();
+            closeFlag && onClose();
             updatePrint(templateId, { allowDownloadPermission: allowDownloadPermission });
           }
         });
@@ -216,8 +261,13 @@ class EditPrint extends React.Component {
       .then(res => {
         if (res.status !== 1) {
           alert(res.message, 2);
+          this.setState({ error: true });
+          this.uploaderDestroy();
+          this.createUploader(this.props.fileType);
         } else {
           if (!templateId && res.data) {
+            this.setState({ templateId: res.data });
+
             sheetAjax
               .editTemplateDownloadPermission({
                 id: res.data,
@@ -238,9 +288,110 @@ class EditPrint extends React.Component {
       });
   };
 
+  onCreateEdit = item => {
+    const { worksheetId, downLoadUrl, fileType = 'Word', refreshFn } = this.props;
+    const { allowDownloadPermission } = this.state;
+
+    this.setState({ createEditLoading: true, popupVisible: false });
+    createEditFileLink({
+      worksheetId,
+      downLoadUrl,
+      allowDownloadPermission,
+      fileType: AJAX_URL[fileType],
+      type: item.value,
+      editTemplateDownloadPermission: true,
+      createCompleted: id => {
+        this.setState({ createEditLoading: false });
+        refreshFn(true, id);
+      },
+    });
+  };
+
+  onEdit = () => {
+    const { templateId, worksheetId, createEditLoading } = this.props;
+
+    if (createEditLoading) return;
+
+    this.setState({ createEditLoading: true });
+    attachmentAjax
+      .getAttachmentEditDetail({
+        fileId: templateId,
+        editType: 2,
+        worksheetId,
+      })
+      .then(res => {
+        if (res.wpsEditUrl) window.open(res.wpsEditUrl);
+        this.setState({ createEditLoading: false });
+      });
+  };
+
+  renderEditFileBtn = () => {
+    const { popupVisible, createEditLoading, featureType } = this.state;
+    const { templateId, roleType, fileType } = this.props;
+    const isAdmin = roleType === 2;
+
+    if (!isAdmin || featureType !== '1' || md.global.Config.EnableDocEdit === false || fileType === 'Excel')
+      return null;
+
+    if (templateId)
+      return (
+        <span className={cx('editBtn mLeft10', { disable: createEditLoading })} onClick={this.onEdit}>
+          <Icon icon="edit" className="mRight2 Font14" />
+          {createEditLoading ? _l('请稍等...') : _l('在线编辑')}
+        </span>
+      );
+
+    return (
+      <Trigger
+        popupVisible={popupVisible}
+        onPopupVisibleChange={visible => this.setState({ popupVisible: visible })}
+        action={createEditLoading ? [] : ['click']}
+        popup={() => {
+          return (
+            <Menu style={{ left: 'initial', right: 0, width: 180 }}>
+              {EDIT_OPTIONS.map((item, index) => (
+                <MenuItem className="TxtLeft" key={index} onClick={() => this.onCreateEdit(item)}>
+                  <span>{item.label}</span>
+                </MenuItem>
+              ))}
+            </Menu>
+          );
+        }}
+        popupAlign={{
+          points: ['tr', 'br'],
+          offset: [0, 10],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        getPopupContainer={triggerNode => triggerNode.parentElement}
+      >
+        <span className={cx('editBtn mLeft10', { disable: createEditLoading })}>
+          {createEditLoading ? (
+            <LoadDiv size={12} className="mRight2" />
+          ) : (
+            <Icon icon="edit" className="mRight2 Font14" />
+          )}
+          {createEditLoading ? _l('创建中...') : _l('在线新建')}
+        </span>
+      </Trigger>
+    );
+  };
+
   render() {
-    const { loading, loadPer, fileName, file, templateName, hasChange, allowDownloadPermission } = this.state;
-    const { onClose, worksheetId, downLoadUrl, templateId, fileType = 'Word' } = this.props;
+    const {
+      loading,
+      loadPer,
+      fileName,
+      file,
+      templateName,
+      hasChange,
+      allowDownloadPermission,
+      error,
+      createEditLoading,
+      featureType,
+    } = this.state;
+    const { onClose, worksheetId, downLoadUrl, templateId, fileType = 'Word', roleType } = this.props;
+
+    const isAdmin = roleType === 2;
 
     return (
       <div className="editPrint upload flexColumn h100">
@@ -256,10 +407,7 @@ class EditPrint extends React.Component {
         </h5>
         <div className="uploadBoxCon flex">
           <div className="uploadCon">
-            <p className="tiTop">
-              <span className="num">1</span>
-              {_l('制作模板')}
-            </p>
+            <p className="tiTop">{_l('1.下载示范模板')}</p>
             <p className="desc mTop20">
               <span className="Font13 Gray_9e">
                 {_l(
@@ -278,13 +426,10 @@ class EditPrint extends React.Component {
               <Icon icon="navigate_next" className="mLeft8" />
             </p>
             <div className="tiTop mTop50 valignWrapper">
-              <div>
-                <span className="num">2</span>
-                {_l('上传制作好的模板')}
-              </div>
+              <div>{_l('2.制作模板')}</div>
               <div className="flex"></div>
               <Checkbox className="Font14" onClick={this.editDownload} checked={!allowDownloadPermission}>
-                {_l('允许下载打印文件')}
+                {_l('允许成员下载打印文件')}
               </Checkbox>
             </div>
             <p
@@ -293,13 +438,13 @@ class EditPrint extends React.Component {
                 this.con = con;
               }}
             >
-              {fileName ? (
+              {fileName && !error ? (
                 <span className={fileType === 'Excel' ? 'icon-new_excel Font50 excelIcon' : 'wordIcon'}></span>
               ) : (
                 <Icon icon="file" className="LightGray" />
               )}
               <p className="mTop15 TxtCenter">
-                {fileName ? (
+                {(fileName && !error) || templateId ? (
                   <React.Fragment>
                     <span className="form">{fileName}</span>
                     {templateId && !hasChange && (
@@ -330,20 +475,30 @@ class EditPrint extends React.Component {
                     )}
                   </React.Fragment>
                 ) : (
-                  <span className="Gray_9e">{_l('请选择%0格式的%1文件', SUFFIX[fileType], fileType)}</span>
+                  <span className="Gray_9e">
+                    {_l('若选择本地上传，请选择%0格式的%1文件；', SUFFIX[fileType], fileType)}
+                    <br />
+                    {isAdmin &&
+                      featureType === '1' &&
+                      md.global.Config.EnableDocEdit !== false &&
+                      fileType !== 'Excel' &&
+                      _l('您也可以在线新增模板')}
+                  </span>
                 )}
               </p>
               {!loading ? (
-                <React.Fragment>
+                <div className="valignWrapper mTop32 justifyContentCenter">
                   <span
                     id="editorFiles"
                     onClick={() => {
                       $('#fileDemo').click();
                     }}
                   >
-                    {!fileName ? _l('上传模板') : _l('重新上传')}
+                    <Icon icon="file_upload" className="mRight2 Font14" />
+                    {!fileName && !error ? _l('本地上传') : _l('重新上传')}
                   </span>
-                </React.Fragment>
+                  {this.renderEditFileBtn()}
+                </div>
               ) : (
                 <React.Fragment>
                   <span className="lineBox">
@@ -373,24 +528,6 @@ class EditPrint extends React.Component {
               )}
             </p>
           </div>
-        </div>
-        <div className="activeBox">
-          <span
-            className={cx('sure', {
-              disa: templateId ? !this.state.hasChange && !this.state.allowDownloadChange : !this.state.hasChange,
-            })}
-            onClick={this.onOk}
-          >
-            {_l('确定')}
-          </span>
-          <span
-            className="cancle"
-            onClick={() => {
-              onClose();
-            }}
-          >
-            {_l('取消')}
-          </span>
         </div>
       </div>
     );

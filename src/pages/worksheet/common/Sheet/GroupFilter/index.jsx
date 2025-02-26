@@ -487,7 +487,6 @@ function GroupFilter(props) {
             onClick={() => {
               updateFilter(d.value);
               setNavName(keywords && type === 35 ? d.text : nStr);
-              setNavAvatar(d.a);
             }}
           >
             <div className={cx('gListDiv', { hasCount: showCount })}>

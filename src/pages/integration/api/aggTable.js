@@ -37,23 +37,6 @@ var aggTable = {
   },
 
   /**
-   * 后续看是否需要导出对应projectId和appId所有的配置导出聚合表配置规则-json格式导出.
-   *
-   * @param {Object} args 请求参数
-   * @param {string} args.projectId 组织id
-   * @param {string} args.appId 应用id
-   * @param {string} args.aggTableId 聚合表配置id
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  export: function (args, options) {
-    base.ajaxOptions.url = base.server(options) + 'aggTable/export';
-    base.ajaxOptions.type = 'POST';
-    return mdyAPI(controllerName, 'aggTableexport', JSON.stringify(args), $.extend(base, options));
-  },
-
-  /**
    * 发布聚合表同步任务
    *
    * @param {Object} args 请求参数
@@ -97,6 +80,7 @@ var aggTable = {
    * @param {string} args.aggTableId 聚合表id
    * @param {boolean} args.updateFlag 是否作为更新标识：20240527沟通：修改名称、顺序、字段显示配置(小数位、百分比等这些)，同步到到保存发布的聚合表<br>更新节点配置中(产品交互中)：<br>1、更新数据源，过滤条件，归组，添加聚合字段，更改聚合方式时：需要重新预览 (true)<br>2、修改名称、顺序、字段显示配置，增删改计算字段：直接更新预览配置并刷新，无需重新预览 (false)
    * @param {array} args.nodeConfigs 多节点配置
+   * @param {object} args.any object any object.(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -157,6 +141,21 @@ var aggTable = {
     base.ajaxOptions.url = base.server(options) + 'aggTable/move';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'aggTablemove', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 获取聚合表来源信息
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.aggTableId No comments found.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAggTableSources: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'aggTable/getAggTableSources';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'aggTablegetAggTableSources', args, $.extend(base, options));
   }
 };
 

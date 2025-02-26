@@ -17,17 +17,20 @@ import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.
 import { navigateTo } from 'src/router/navigateTo';
 import { htmlEncodeReg } from 'src/util';
 import moment from 'moment';
-import { Dialog, DeleteReconfirm, Score, Checkbox } from 'ming-ui';
+import { Dialog, DeleteReconfirm, Score, Checkbox, LoadDiv } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
 
 // 加载loading
 export const listLoadingContent = pageIndex => {
   if (pageIndex == 1) {
     if ($('#taskList').find('#taskFilterLoading').length === 0) {
-      $('#taskList').append('<div id="taskFilterLoading"><div class="loadingCenter"> ' + LoadDiv() + ' </div></div>');
+      $('#taskList').append('<div id="taskFilterLoading"><div class="loadingCenter"> ' + loading + ' </div></div>');
     }
   } else {
     if ($('#taskList').find('#taskFilterLoadingBottom').length === 0) {
-      $('#taskList').append('<div id="taskFilterLoadingBottom">' + LoadDiv() + '</div>');
+      $('#taskList').append('<div id="taskFilterLoadingBottom">' + loading + '</div>');
     }
   }
 };

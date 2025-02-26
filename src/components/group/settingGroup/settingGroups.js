@@ -25,9 +25,12 @@ import addFriends from 'src/components/addFriends';
 import moment from 'moment';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Dropdown, UserHead } from 'ming-ui';
+import { Dropdown, UserHead, LoadDiv } from 'ming-ui';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { renderToString } from 'react-dom/server';
+
+const loading = renderToString(<LoadDiv />);
 
 var tips = {
   MDGroup: _l('个人群组'),
@@ -217,7 +220,7 @@ $.extend(SettingGroup.prototype, {
             if (_this.options.isPost) {
               _this.initGroupTab();
             } else {
-              _this.$groupInfo.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+              _this.$groupInfo.removeClass('Hidden').html(loading).siblings().addClass('Hidden');
               _this.renderGroupInfo(_this.$groupInfo);
             }
           }, 200);
@@ -771,7 +774,7 @@ $.extend(SettingGroup.prototype, {
     var options = _this.options;
     var $groupInfo = _this.$groupInfo;
 
-    $groupInfo.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+    $groupInfo.removeClass('Hidden').html(loading).siblings().addClass('Hidden');
     // 是否重新获取 新的数据
     if (options.isRefresh.info || !options.isPost) {
       groupController
@@ -806,7 +809,7 @@ $.extend(SettingGroup.prototype, {
     var options = _this.options;
     var $groupMember = _this.$groupMember;
 
-    $groupMember.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+    $groupMember.removeClass('Hidden').html(loading).siblings().addClass('Hidden');
     // 是否重新获取 新的数据
     if (options.isRefresh.member) {
       options.isLoadingUser = false;
@@ -828,7 +831,7 @@ $.extend(SettingGroup.prototype, {
     if (options.isLoadingUser || !options.isMoreUsers) return;
     options.isLoadingUser = true;
     if (!isReload && options.pageIndex === 1) {
-      _this.$groupMember.find('.groupUserList').html(LoadDiv());
+      _this.$groupMember.find('.groupUserList').html(loading);
     }
     groupController
       .getGroupUsers({
@@ -880,7 +883,7 @@ $.extend(SettingGroup.prototype, {
     var options = _this.options;
     var $groupSettings = _this.$groupSettings;
 
-    $groupSettings.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+    $groupSettings.removeClass('Hidden').html(loading).siblings().addClass('Hidden');
     // 是否重新获取 新的数据
     if (options.isRefresh.info) {
       groupController

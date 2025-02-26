@@ -15,6 +15,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import cx from 'classnames';
 import _ from 'lodash';
+import moment from 'moment';
 
 const checkIsDeleted = (value, data = []) => !value || _.findIndex(data, v => v.controlId === value) === -1;
 
@@ -31,6 +32,7 @@ const filterDeleteFields = (fieldMaps, controls) => {
         refundFee: '',
         settleFee: '',
         tradeFee: '',
+        tradeFeeRate: '',
         mchId: '',
         sourceType: '',
         payAccount: '',
@@ -122,9 +124,11 @@ export default class PayConfig extends Component {
       const controls = _.get(worksheetInfo, 'template.controls') || [];
       const list = merchantList
         .filter(v => v.status === 3)
-        .map(({ shortName, merchantNo }) => ({
+        .map(({ shortName, merchantNo, subscribeMerchant, planExpiredTime }) => ({
           text: shortName || merchantNo,
           value: merchantNo,
+          subscribeMerchant,
+          disabled: !planExpiredTime || moment().isAfter(planExpiredTime),
         }));
       const initSettings = {
         ..._.pick(settings, [
@@ -555,13 +559,27 @@ export default class PayConfig extends Component {
                   </div>
                 ) : (
                   <Dropdown
-                    disabled={merchantList.length === 1 && mchid === merchantList[0].value}
-                    className="w100"
+                    className={cx('w100 merchantList', {
+                      valueDisable: (_.find(merchantList, l => l.value === mchid) || {}).disabled,
+                    })}
                     menuClass="w100"
                     border
                     value={mchid}
                     data={merchantList}
                     onChange={value => this.setState({ mchid: value })}
+                    renderItem={item => (
+                      <div className="valignWrapper">
+                        <span className="flex overflow_ellipsis">{item.text}</span>
+                        {!item.subscribeMerchant && (
+                          <span
+                            className="Hand ThemeColor option"
+                            onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
+                          >
+                            {_l('去开通收款')}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   />
                 )}
                 <div className="subTitle required">{_l('支付内容')}</div>

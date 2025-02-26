@@ -132,21 +132,6 @@ export default ({
     return (
       <div className="mTop10 flexRow alignItemsCenter">
         <div>{_l('在截止时刻')}</div>
-        <Dropdown
-          className={cx('mLeft10', { flex: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass })}
-          style={{ width: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass ? 'auto' : 110 }}
-          data={EXECUTE_TIME_TYPE_LIST.filter(o => o.value !== EXEC_TIME_TYPE.BEFORE || !autoPass)}
-          value={item.executeTimeType}
-          border
-          onChange={executeTimeType => {
-            changeAction(item.id, {
-              executeTimeType,
-              executeTime: { fieldValue: executeTimeType === EXEC_TIME_TYPE.CURRENT ? '' : '2' },
-              unit: executeTimeType === EXEC_TIME_TYPE.CURRENT ? undefined : 2,
-              repeat: { repeatType: 0 },
-            });
-          }}
-        />
         {item.executeTimeType !== EXEC_TIME_TYPE.CURRENT && (
           <Fragment>
             <div className="flex mLeft10">
@@ -174,6 +159,21 @@ export default ({
             />
           </Fragment>
         )}
+        <Dropdown
+          className={cx('mLeft10', { flex: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass })}
+          style={{ width: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass ? 'auto' : 110 }}
+          data={EXECUTE_TIME_TYPE_LIST.filter(o => o.value !== EXEC_TIME_TYPE.BEFORE || !autoPass)}
+          value={item.executeTimeType}
+          border
+          onChange={executeTimeType => {
+            changeAction(item.id, {
+              executeTimeType,
+              executeTime: { fieldValue: executeTimeType === EXEC_TIME_TYPE.CURRENT ? '' : '2' },
+              unit: executeTimeType === EXEC_TIME_TYPE.CURRENT ? undefined : 2,
+              repeat: { repeatType: 0 },
+            });
+          }}
+        />
         {autoPass && (
           <div className="mLeft10">
             {item.type === 3

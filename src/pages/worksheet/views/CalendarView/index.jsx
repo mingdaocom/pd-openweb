@@ -1242,7 +1242,7 @@ class RecordCalendar extends Component {
           />
         )}
         {!this.browserIsMobile() && this.state.canNew && <div id="mytips">{_l('双击创建记录')}</div>}
-        <CurrentDateInfo visible={this.props.mobileMoreClickVisible} />
+        {this.props.mobileMoreClickVisible && <CurrentDateInfo visible={this.props.mobileMoreClickVisible} />}
       </div>
     );
   }

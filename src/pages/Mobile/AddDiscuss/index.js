@@ -47,6 +47,7 @@ class AddDiscuss extends Component {
   componentWillUnmount() {
     this.actionSheetHandler && this.actionSheetHandler.close();
   }
+
   getPortalConfigSet = () => {
     const { params } = this.props.match;
     const { appId } = params;
@@ -160,7 +161,7 @@ class AddDiscuss extends Component {
 
   render() {
     const { value, files, showSelectUser, temporaryDiscuss } = this.state;
-    const { projectId, handleTemporaryDiscuss } = this.props;
+    const { projectId, handleTemporaryDiscuss, recordPartner = [] } = this.props;
     const { appId, discussionInfo } = this.props.match.params;
     const { replyId, replyName } = discussionInfo;
 
@@ -168,7 +169,7 @@ class AddDiscuss extends Component {
       <div className="addDiscuss flexColumn h100">
         <div className="discussHeader valignWrapper pLeft10 pRight10">
           {replyName ? (
-            <div className="flex ThemeColor">{_l('回复%0 :', replyName)}</div>
+            <div className="flex ThemeColor ellipsis">{_l('回复%0 :', replyName)}</div>
           ) : (
             <div className="flex Gray_75">{_l('发表讨论')}</div>
           )}
@@ -226,8 +227,11 @@ class AddDiscuss extends Component {
           <SelectUser
             visible={true}
             type="user"
+            userType={1}
             appId={appId}
             projectId={this.props.projectId}
+            recordPartner={recordPartner}
+            filterAccountIds={[md.global.Account.accountId]}
             onSave={members => {
               const { value = '' } = this.state;
               // 当前光标所在位置
@@ -265,7 +269,16 @@ class AddDiscuss extends Component {
 
 export default props => {
   const { appId, worksheetId, viewId, rowId, discussionInfo } = props;
-  const { className, visible, onClose, onAdd, projectId, temporaryDiscuss, handleTemporaryDiscuss = () => {} } = props;
+  const {
+    className,
+    visible,
+    onClose,
+    onAdd,
+    projectId,
+    temporaryDiscuss,
+    handleTemporaryDiscuss = () => {},
+    recordPartner,
+  } = props;
 
   return (
     <Popup closeOnMaskClick className={cx('mobileModal', className)} onClose={onClose} visible={visible}>
@@ -276,6 +289,7 @@ export default props => {
           onClose={onClose}
           projectId={projectId}
           handleTemporaryDiscuss={handleTemporaryDiscuss}
+          recordPartner={recordPartner}
         />
       )}
     </Popup>

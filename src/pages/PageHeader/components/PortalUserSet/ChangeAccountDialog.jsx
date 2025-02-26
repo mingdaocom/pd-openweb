@@ -4,7 +4,7 @@ import { Icon, Button, Dialog } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import AccountCon from './AccountCon';
 import cx from 'classnames';
-import { ActionResult } from 'src/pages/accountLogin/config';
+import { ActionResult } from 'src/pages/AuthService/config';
 
 const AccountDialogWrap = styled.div``;
 export default function TelDialog(props) {

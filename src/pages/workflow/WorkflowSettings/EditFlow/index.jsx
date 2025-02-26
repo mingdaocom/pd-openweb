@@ -101,6 +101,24 @@ class EditFlow extends Component {
     }
   }
 
+  setElementVisibleInView(nodeId) {
+    if (!nodeId) return;
+
+    const $el = $(`.workflowBox[data-id=${nodeId}]`)[0];
+
+    if (!$el) return;
+
+    const { x } = $el.getBoundingClientRect();
+    const leftVisibleWidth = window.innerWidth - 1150;
+    const $content = $('.workflowEdit');
+
+    if (x < 0) {
+      $content.scrollLeft($content[0].scrollLeft + x);
+    } else if (x > leftVisibleWidth) {
+      $content.scrollLeft($content[0].scrollLeft - (leftVisibleWidth - x));
+    }
+  }
+
   /**
    * 选择添加节点的id
    */
@@ -128,6 +146,8 @@ class EditFlow extends Component {
       this.closeDetail();
       this.setState({ nodeId, selectProcessId, isCopy: false });
     }
+
+    this.setElementVisibleInView(nodeId);
   };
 
   /**
@@ -396,6 +416,8 @@ class EditFlow extends Component {
         switchDetail();
       }
     }
+
+    this.setElementVisibleInView(id);
   };
 
   /**
@@ -574,8 +596,8 @@ class EditFlow extends Component {
           <div
             className="workflowEditContent"
             style={{
-              paddingLeft: 800,
-              paddingRight: 800,
+              paddingLeft: 1000,
+              paddingRight: 1000,
               transform: `scale(${scale / 100})`,
               transformOrigin: 'center 48px',
             }}

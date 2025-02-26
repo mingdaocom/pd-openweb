@@ -133,7 +133,7 @@ export default class Widgets extends Component {
     }
 
     if (advancedSetting.prefix || advancedSetting.suffix) {
-      content = (advancedSetting.prefix || '') + content + (advancedSetting.suffix || '');
+      content = `${advancedSetting.prefix || ''} ` + content + ` ${advancedSetting.suffix || ''}`;
     }
 
     return (

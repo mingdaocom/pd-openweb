@@ -198,6 +198,7 @@ export default function VarLog(props) {
         unique: true,
         projectId,
         filterAccountIds: filterIds,
+        filterResigned: false,
         selectedAccountIds: (selectUser || []).map(item => item.accountId),
         callback: selectUserCallback,
       },

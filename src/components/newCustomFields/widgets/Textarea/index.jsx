@@ -7,6 +7,30 @@ import { getIsScanQR } from '../../components/ScanQRCode';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/util';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import styled from 'styled-components';
+
+const TextareaWrap = styled.div`
+  position: relative;
+  width: ${props => (props.startTextScanCode ? 'calc(100% - 42px)' : '100%')};
+  .customFormControlBox {
+    padding: 6px 12px !important;
+    ${props => (props.isEditing ? 'display: none;' : '')}
+    ${props => (props.isSingleLine ? '' : 'line-height: 1.5;')}
+    ${props =>
+      props.disabled
+        ? 'padding: 6px 0px !important;'
+        : props.isMask || props.hint
+        ? ''
+        : 'position: absolute;top: 0;right: 0;left: 0;bottom: 0;pointer-events: none; padding: 6px 12px !important;'}
+    span a {
+      pointer-events: all;
+    }
+  }
+  .customFormTextarea {
+    ${props => (props.disabled || props.isMask || (props.hint && !props.isEditing) ? 'display: none;' : '')}
+    ${props => (props.isEditing ? '' : 'border-color: transparent !important;color: transparent;')}
+  }
+`;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -27,25 +51,50 @@ export default class Widgets extends Component {
 
   isOnComposition = false;
 
+  get isMask() {
+    const { maskPermissions, enumDefault, value } = this.props;
+    return maskPermissions && enumDefault === 2 && value && this.state.maskStatus;
+  }
+
   componentDidMount() {
+    if (this.text) {
+      this.text.value = this.getEditValue();
+    }
     if (_.isFunction(this.props.triggerCustomEvent)) {
       this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
+
+    if (this.props.enumDefault === 1 && this.text) {
+      this.text.addEventListener('scroll', this.syncScroll);
+    }
   }
+
+  // 穿透pointer-events：none;禁用滚动事件
+  syncScroll = event => {
+    const coverLayer = document.querySelector(`#textareaPointEvents-${this.props.controlId} .customFormTextareaBox`);
+    coverLayer.scrollTop = event.target.scrollTop;
+  };
 
   componentWillReceiveProps(nextProps) {
     if (
       this.text &&
       (!_.isEqual(nextProps.enumDefault, this.props.enumDefault) || !_.isEqual(nextProps.value, this.props.value))
     ) {
-      this.text.value =
-        nextProps.enumDefault === 2 ? (nextProps.value || '').replace(/\r\n|\n/g, ' ') : nextProps.value || '';
+      this.text.value = this.getEditValue(nextProps);
     }
+  }
+
+  getEditValue(nextProps) {
+    const { enumDefault, value = '' } = nextProps || this.props;
+    return enumDefault === 2 ? value.replace(/\r\n|\n/g, ' ') : value;
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
-      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(
+        _.pick(nextProps, ['value', 'disabled', 'controlId']),
+        _.pick(this.props, ['value', 'disabled', 'controlId']),
+      ) ||
       !_.isEqual(_.pick(nextState, ['isEditing', 'maskStatus']), _.pick(this.state, ['isEditing', 'maskStatus']))
     ) {
       return true;
@@ -54,17 +103,15 @@ export default class Widgets extends Component {
   }
 
   onFocus = e => {
+    // 只读不激活输入框
+    if (this.props.disabled) return;
+
     // 单多行均有此问题
     // 文本框 tab键聚焦或shift+tab键聚焦 值不写入问题
-    if ((!this.text && this.props.value) || (this.text && this.text.value !== this.props.value)) {
-      // 客户配置出现enumDefault为0的情况，统一按单行来
-      if (!_.includes([0, 2], this.props.enumDefault)) {
-        this.joinTextareaEdit(e);
-      } else {
-        e.target.value = this.props.value || '';
-      }
+    if (this.text && this.text.value !== this.props.value) {
+      e.target.value = this.getEditValue();
     }
-    this.setState({ originValue: e.target.value.trim() });
+    this.setState({ originValue: e.target.value.trim(), isEditing: true });
     if (_.isFunction(this.props.triggerCustomEvent)) {
       this.props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
     }
@@ -75,16 +122,48 @@ export default class Widgets extends Component {
   };
 
   onBlur = newValue => {
-    const { onBlur } = this.props;
+    const { onBlur, advancedSetting = {} } = this.props;
     const { originValue } = this.state;
 
-    this.setState({ isEditing: false });
+    this.setState({ isEditing: false, maskStatus: advancedSetting.datamask === '1' });
     if (window.isWeiXin) {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);
     }
     onBlur(originValue, newValue);
   };
+
+  getShowValue = hint => {
+    const { advancedSetting } = this.props;
+    const isUnLink = advancedSetting.analysislink !== '1';
+    const value = this.getEditValue();
+
+    if (value) {
+      if (this.state.maskStatus) {
+        return dealMaskValue({ ...this.props, value });
+      }
+      return isUnLink ? (
+        value
+      ) : (
+        <Linkify properties={{ target: '_blank' }} unLimit={true}>
+          {value}
+        </Linkify>
+      );
+    } else {
+      return hint;
+    }
+  };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+
+    // 穿透pointer-events禁用滚动
+    if (this.props.enumDefault === 1 && this.text) {
+      this.text.removeEventListener('scroll', this.syncScroll);
+    }
+  }
 
   /**
    * 多行文本进入编辑
@@ -104,40 +183,11 @@ export default class Widgets extends Component {
       a.click();
       evt.preventDefault();
     } else if (!disabled && advancedSetting.dismanual !== '1') {
-      this.setState({ isEditing: true }, () => {
-        if (this.text) {
-          this.text.value = value || '';
-          this.text.focus();
-        }
+      this.setState({ isEditing: true, maskStatus: false }, () => {
+        this.text && this.text.focus();
       });
     }
   };
-
-  getShowValue = hint => {
-    const { value = '', advancedSetting } = this.props;
-    const isUnLink = advancedSetting.analysislink !== '1';
-
-    if (value) {
-      if (this.state.maskStatus) {
-        return dealMaskValue(this.props);
-      }
-      return isUnLink ? (
-        value
-      ) : (
-        <Linkify properties={{ target: '_blank' }} unLimit={true}>
-          {value}
-        </Linkify>
-      );
-    } else {
-      return hint;
-    }
-  };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   render() {
     const {
@@ -148,12 +198,10 @@ export default class Widgets extends Component {
       strDefault = '10',
       advancedSetting,
       projectId,
-      maskPermissions,
       formData,
     } = this.props;
     let { hint } = this.props;
-    const { isEditing, maskStatus } = this.state;
-    const isMask = maskPermissions && enumDefault === 2 && value && maskStatus;
+    const { isEditing } = this.state;
     const disabledInput = advancedSetting.dismanual === '1';
     const isMobile = browserIsMobile();
     const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
@@ -185,7 +233,15 @@ export default class Widgets extends Component {
 
     return (
       <Fragment>
-        {!isEditing ? (
+        <TextareaWrap
+          id={`textareaPointEvents-${controlId}`}
+          isEditing={isEditing}
+          isSingleLine={isSingleLine}
+          startTextScanCode={startTextScanCode}
+          disabled={disabled}
+          isMask={this.isMask}
+          hint={!value && hint}
+        >
           <div
             className={cx(
               'customFormControlBox customFormTextareaBox',
@@ -195,69 +251,37 @@ export default class Widgets extends Component {
             )}
             style={{
               minHeight: enumDefault === 1 ? minHeight : 36,
-              width: startTextScanCode ? 'calc(100% - 42px)' : '100%',
-              lineHeight: 1.5,
               ...(disabled ? { wordBreak: 'break-all' } : {}),
               ...(enumDefault === 1 ? { maxHeight, overflowX: 'hidden' } : {}),
             }}
             onClick={this.joinTextareaEdit}
           >
             <span
-              className={cx('WordBreak', { maskHoverTheme: disabled && isMask })}
+              className={cx('WordBreak', { maskHoverTheme: disabled && this.isMask })}
               style={isMobile ? { wordWrap: 'break-word' } : {}}
               onClick={() => {
-                if (disabled && isMask) this.setState({ maskStatus: false });
+                if (disabled && this.isMask) this.setState({ maskStatus: false });
               }}
             >
               {this.getShowValue(hint)}
-              {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
+              {this.isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
             </span>
-
-            {!disabled && !disabledInput && (
-              <input type="text" className="smallInput" onFocus={() => this.setState({ isEditing: true })} />
-            )}
           </div>
-        ) : isSingleLine ? (
-          <input
-            type="text"
-            className="customFormControlBox escclose"
-            style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%', padding: '7px 12px 6px' }}
-            ref={text => {
-              this.text = text;
-            }}
-            autoFocus={isEditing}
-            placeholder={hint}
-            onFocus={this.onFocus}
-            onChange={event => {
-              if (!this.isOnComposition) {
-                this.onChange(event.target.value);
-              }
-            }}
-            onBlur={event => {
-              const trimValue = event.target.value.trim();
-              if (trimValue !== value) {
-                this.onChange(trimValue);
-              }
-              this.onBlur(trimValue);
-            }}
-            {...compositionOptions}
-          />
-        ) : (
+
           <Textarea
-            isFocus
+            isFocus={isEditing}
             className="customFormTextarea escclose"
-            style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%' }}
             minHeight={enumDefault === 1 ? minHeight : 36}
-            maxHeight={maxHeight}
+            {...(isSingleLine ? {} : { maxHeight })}
             manualRef={text => {
               this.text = text;
             }}
-            placeholder={hint}
+            placeholder={isEditing ? hint : ''}
             spellCheck={false}
             onFocus={this.onFocus}
             onChange={value => {
               if (!this.isOnComposition) {
-                this.onChange(value);
+                _.debounce(() => this.onChange(value), 500);
               }
             }}
             onBlur={event => {
@@ -269,7 +293,7 @@ export default class Widgets extends Component {
             }}
             {...compositionOptions}
           />
-        )}
+        </TextareaWrap>
 
         {startTextScanCode && (
           <TextScanQRCode

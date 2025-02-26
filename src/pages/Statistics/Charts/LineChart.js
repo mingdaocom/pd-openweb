@@ -154,8 +154,6 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -178,7 +176,7 @@ export default class extends Component {
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(style.chartShowLabelIds, oldStyle.chartShowLabelIds) ||
-      !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -302,8 +300,9 @@ export default class extends Component {
     });
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, contrastMap, displaySetup, xaxes, yaxisList, split } = reportData;
     const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
     const styleConfig = reportData.style || {};
@@ -321,12 +320,9 @@ export default class extends Component {
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
     const colors = getChartColors(style, themeColor, projectId);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, { yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList, colors });
-    const yAxisLabel = {
-      formatter: (value, obj) => {
-        return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
-      }
-    };
+  
     this.setState({ newYaxisList });
+  
     const baseConfig = {
       appendPadding: [15, 15, 5, 0],
       seriesField: 'groupName',
@@ -349,9 +345,7 @@ export default class extends Component {
         },
       },
       theme: {
-        styleSheet: {
-          backgroundColor: '#fff'
-        }
+        background: isDark ? widgetBgColor : '#ffffffcc',
       },
       connectNulls: xaxes.emptyType !== 3,
       smooth: displaySetup.showChartType,
@@ -367,6 +361,11 @@ export default class extends Component {
             flipPage: true,
             itemHeight: 20,
             radio: { style: { r: 6 } },
+            itemName: {
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
+            }
           }
         : false,
       yAxis: {
@@ -376,13 +375,24 @@ export default class extends Component {
           ydisplay.showTitle && ydisplay.title
             ? {
                 text: ydisplay.title,
+                style: {
+                  fill: isDark ? '#ffffffcc' : undefined
+                }
               }
             : null,
-        label: ydisplay.showDial ? yAxisLabel : null,
+        label: ydisplay.showDial ? {
+          formatter: (value, obj) => {
+            return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
+          },
+          style: {
+            fill: isDark ? '#ffffffcc' : undefined
+          }
+        } : null,
         grid: {
           line: ydisplay.showDial
             ? {
                 style: {
+                  stroke: isDark ? '#ffffffcc' : undefined,
                   lineDash: ydisplay.lineStyle === 1 ? [] : [4, 5],
                 },
               }
@@ -394,6 +404,9 @@ export default class extends Component {
           xdisplay.showTitle && xdisplay.title
             ? {
                 text: xdisplay.title,
+                style: {
+                  fill: isDark ? '#ffffffcc' : undefined
+                }
               }
             : null,
         label: xdisplay.showDial
@@ -403,6 +416,9 @@ export default class extends Component {
               formatter: (name, item) => {
                 return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined
+              }
             }
           : null,
         line: ydisplay.lineStyle === 1 ? {} : null,
@@ -426,7 +442,17 @@ export default class extends Component {
               value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
             }
           }
-        }
+        },
+        domStyles: isDark ? {
+          'g2-tooltip': {
+            color: '#ffffffcc',
+            backgroundColor: widgetBgColor,
+            boxShadow: `${widgetBgColor} 0px 0px 10px`
+          },
+          'g2-tooltip-list-item': {
+            color: '#ffffffcc',
+          }
+        } : undefined
       },
       point: displaySetup.showNumber
         ? {
@@ -453,6 +479,9 @@ export default class extends Component {
               }
               return render();
             },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined
+            }
           }
         : false,
       annotations: [
@@ -574,7 +603,7 @@ export default class extends Component {
     if ('all' in summary) {
       const { all, controlList = [] } = summary;
       return (
-        <div className="flexRow" style={{ flexWrap: 'wrap' }}>
+        <div className="flexRow summaryWrap" style={{ flexWrap: 'wrap' }}>
           {all && (
             <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
               {renderItem(summary)}

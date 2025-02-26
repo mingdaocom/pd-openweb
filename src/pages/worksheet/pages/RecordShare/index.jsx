@@ -4,7 +4,7 @@ import { LoadDiv } from 'ming-ui';
 import preall from 'src/common/preall';
 import sheetApi from 'src/api/worksheet';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
-import { getAppLangDetail } from 'src/util';
+import { shareGetAppLangDetail } from 'src/util';
 import RecordShare from './RecordShare';
 import _ from 'lodash';
 
@@ -27,11 +27,10 @@ const Entry = props => {
     window.clientId = clientId;
     getShareInfoByShareId({
       clientId,
-      printId,
-      langType: getCurrentLangCode(),
+      printId
     }).then(async result => {
       const { data } = result;
-      const { appId, projectId, langInfo } = data;
+      const { appId, projectId } = data;
       if (!data.rowId) {
         location.href = `/public/view/${shareId}`;
         return;
@@ -44,11 +43,6 @@ const Entry = props => {
           requestParams: { projectId },
         },
       );
-      const lang = await getAppLangDetail({
-        langInfo,
-        projectId,
-        id: appId,
-      });
       window.appInfo = { id: appId };
       setShare(result);
       setLoading(false);
@@ -60,14 +54,19 @@ const Entry = props => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
       const clientId = _.get(result, 'data.identity');
       const printClientId = _.get(result, 'data.clientId');
+      const { appId, projectId } = result.data;
       window.clientId = printClientId;
       clientId && sessionStorage.setItem(shareId, clientId);
-
       if (printClientId) {
         window.clientId = printClientId;
         !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
       }
-
+      if (result.resultCode === 1) {
+        await shareGetAppLangDetail({
+          projectId,
+          appId,
+        });
+      }
       resolve(result);
     });
   };

@@ -1,14 +1,11 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Switch, Button, Divider, Tooltip } from 'antd';
+import { Button, Divider } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { defaultFilterData } from './index';
-import FilterListSort from './FilterListSort';
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
 import { formatFilters } from './util';
 import _ from 'lodash';
 
@@ -116,44 +113,7 @@ export default function Preview(props) {
     <Wrap className="flexColumn">
       <div className="flexRow valignWrapper header">
         <div className="flex valignWrapper">
-          <label className="flexRow valignWrapper mRight20">
-            <Switch
-              size="small"
-              checked={filter.enableBtn}
-              onChange={(checked) => {
-                setFilter({
-                  ...filter,
-                  enableBtn: checked
-                });
-              }}
-            />
-            <div className="mLeft5 pointer">{_l('启用筛选按钮')}</div>
-          </label>
-          <label className="flexRow valignWrapper mRight5">
-            <Switch
-              size="small"
-              checked={advancedSetting.clicksearch == '1'}
-              onChange={(checked) => {
-                setFilter({
-                  ...filter,
-                  advancedSetting: {
-                    ...advancedSetting,
-                    clicksearch: checked ? '1' : '0'
-                  }
-                });
-              }}
-            />
-            <div className="mLeft5 pointer">{_l('在执行筛选查询后显示数据')}</div>
-          </label>
-          <Tooltip title={_l('勾选后，进入页面初始不显示数据，查询后显示符合筛选条件的数据。')} placement="bottom">
-            <Icon className="Font17 pointer Gray_9e" icon="workflow_help" />
-          </Tooltip>
-          <FilterListSort
-            filters={filters}
-            onSortEnd={(filters) => {
-              setFilters(filters);
-            }}
-          />
+          <div className="Font13 Gray_9e">{_l('选择下方预览卡片中的筛选器进行设置')}</div>
         </div>
         <Button className="addFilterItem" onClick={add}>
           <Icon icon="add" />
@@ -161,7 +121,6 @@ export default function Preview(props) {
         </Button>
       </div>
       <Divider className="mTop15 mBottom15" />
-      <div className="TxtCenter Font13 Gray_9e mBottom20">{_l('选择下方预览卡片中的筛选器进行设置')}</div>
       <div className="body">
         <div className="container">
           <ErrorBoundary>

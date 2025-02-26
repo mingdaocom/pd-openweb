@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Trigger from 'rc-trigger';
-import { Icon, SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon, Tooltip } from 'ming-ui';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
@@ -8,12 +8,23 @@ import cx from 'classnames';
 import SettingMenu from './SettingMenu';
 
 export default function HideItem(props) {
-  const { appId, item = {}, currentViewId, type, toView, isCharge, updateAdvancedSetting, updateViewName } = props;
+  const {
+    appId,
+    item = {},
+    currentViewId,
+    type,
+    toView,
+    isCharge,
+    updateAdvancedSetting,
+    updateViewName,
+    onRecycle,
+  } = props;
 
   const [visible, setVisible] = useState(false);
   const [edit, setEdit] = useState(false);
   const nameRef = useRef(null);
   let focusFlag = false;
+  const isSimple = type === 'recycle';
 
   const clickEditName = () => {
     setEdit(true);
@@ -70,10 +81,12 @@ export default function HideItem(props) {
       style={{ zIndex: 999999 }}
       className={cx('drawerWorksheetShowListItem', {
         active: item.viewId === currentViewId,
+        pLeft16: isSimple,
+        pRight12: isSimple,
       })}
       onClick={clickHandle}
     >
-      <Icon icon="drag_indicator" className="Font16" style={isCharge ? {} : { opacity: 0 }} />
+      {!isSimple && <Icon icon="drag_indicator" className="Font16" style={isCharge ? {} : { opacity: 0 }} />}
       {isCustomize ? (
         <SvgIcon
           url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
@@ -110,7 +123,7 @@ export default function HideItem(props) {
             className="Font17 hideicon"
           />
         )}
-      {isCharge && (
+      {isCharge && !isSimple && (
         <Trigger
           popupVisible={visible}
           onPopupVisibleChange={value => setVisible(value)}
@@ -121,6 +134,14 @@ export default function HideItem(props) {
         >
           <Icon className="Font20 Gray_9e more" icon="more_horiz" />
         </Trigger>
+      )}
+      {isSimple && (
+        <span className="recycleWrap">
+          <span className="time Gray_9e Font13">{createTimeSpan(item.deleteTime)}</span>
+          <Tooltip text={_l('还原')}>
+            <Icon icon="back" className="recycleIcon Font18 Gray_9d Hover_21 mTop3" onClick={() => onRecycle(item.viewId)} />
+          </Tooltip>
+        </span>
       )}
     </li>
   );

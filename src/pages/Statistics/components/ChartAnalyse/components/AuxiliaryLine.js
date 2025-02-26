@@ -10,7 +10,7 @@ import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetC
 import _ from 'lodash';
 
 const AddLine = styled.div`
-  color: #2196F3;
+  color: #2196f3;
   &:hover {
     color: #0484fb;
   }
@@ -19,7 +19,7 @@ const AddLine = styled.div`
 const InputWrap = styled.div`
   &:hover {
     .ant-input {
-      background-color: #F5F5F5 !important;
+      background-color: #f5f5f5 !important;
     }
     .icon-edit {
       display: block;
@@ -70,40 +70,48 @@ const ModalContent = styled(Form)`
   }
 `;
 
-const auxiliaryLineTypes = [{
-  name: _l('恒定线'),
-  type: 'constantLine',
-}, {
-  name: _l('最小值线'),
-  type: 'minLine',
-}, {
-  name: _l('最大值线'),
-  type: 'maxLine',
-}, {
-  name: _l('平均线'),
-  type: 'averageLine',
-}, {
-  name: _l('中值线'),
-  type: 'medianLine',
-}, {
-  name: _l('百分位数线'),
-  type: 'percentLine',
-}, {
-  name: _l('趋势线'),
-  type: 'tendencyLine',
-}];
+const auxiliaryLineTypes = [
+  {
+    name: _l('恒定线'),
+    type: 'constantLine',
+  },
+  {
+    name: _l('最小值线'),
+    type: 'minLine',
+  },
+  {
+    name: _l('最大值线'),
+    type: 'maxLine',
+  },
+  {
+    name: _l('平均线'),
+    type: 'averageLine',
+  },
+  {
+    name: _l('中值线'),
+    type: 'medianLine',
+  },
+  {
+    name: _l('百分位数线'),
+    type: 'percentLine',
+  },
+  {
+    name: _l('趋势线'),
+    type: 'tendencyLine',
+  },
+];
 
 class LineConfigModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      lineConfig: {}
-    }
+      lineConfig: {},
+    };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible && !this.props.visible) {
       this.setState({
-        lineConfig: nextProps.lineConfig
+        lineConfig: nextProps.lineConfig,
       });
     }
   }
@@ -111,25 +119,22 @@ class LineConfigModal extends Component {
     const { lineConfig } = this.state;
     this.props.onSave(lineConfig);
     this.props.onCancel();
-  }
-  handleChangeConfig = (data) => {
+  };
+  handleChangeConfig = data => {
     const { lineConfig } = this.state;
     this.setState({
       lineConfig: {
         ...lineConfig,
-        ...data
-      }
+        ...data,
+      },
     });
-  }
+  };
   renderFooter() {
     const { onCancel } = this.props;
     return (
       <div className="mTop32 mBottom20 footer flexRow">
         <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={onCancel}
-          >
+          <Button type="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button type="primary" htmlType="submit">
@@ -157,10 +162,7 @@ class LineConfigModal extends Component {
         footer={null}
         onCancel={onCancel}
       >
-        <ModalContent
-          layout="vertical"
-          onFinish={this.handleSave}
-        >
+        <ModalContent layout="vertical" onFinish={this.handleSave}>
           <Form.Item
             initialValue={lineConfig.name}
             label={_l('名称')}
@@ -168,12 +170,12 @@ class LineConfigModal extends Component {
             name="name"
             rules={[
               { required: true, message: _l('请输入名称') },
-              { max: 12, message: _l('名称字符数量不能超过 12 个') }
+              { max: 12, message: _l('名称字符数量不能超过 12 个') },
             ]}
           >
             <Input
               className="chartInput"
-              onChange={(e) => {
+              onChange={e => {
                 this.handleChangeConfig({ name: e.target.value });
               }}
             />
@@ -186,14 +188,12 @@ class LineConfigModal extends Component {
                   label={_l('固定值')}
                   className="requiredItem"
                   name="value"
-                  rules={[
-                    { required: true, message: _l('请输入固定值') },
-                  ]}
+                  rules={[{ required: true, message: _l('请输入固定值') }]}
                 >
                   <Input
                     className="chartInput"
                     placeholder={_l('请输入数值')}
-                    onChange={(e) => {
+                    onChange={e => {
                       const value = formatNumberFromInput(e.target.value);
                       this.handleChangeConfig({ value: Number(value) });
                     }}
@@ -228,7 +228,13 @@ class LineConfigModal extends Component {
                 <div className="mBottom12">{_l('参考字段')}</div>
                 <Select
                   className="chartSelect w100"
-                  value={_.find(allYaxisList, { controlId: lineConfig.controlId }) ? lineConfig.controlId : <span className="Red">{_l('当前字段已删除')}</span>}
+                  value={
+                    _.find(allYaxisList, { controlId: lineConfig.controlId }) ? (
+                      lineConfig.controlId
+                    ) : (
+                      <span className="Red">{_l('当前字段已删除')}</span>
+                    )
+                  }
                   suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
                   onChange={value => {
                     this.handleChangeConfig({ controlId: value });
@@ -248,7 +254,7 @@ class LineConfigModal extends Component {
                     className="chartInput percentInput"
                     value={lineConfig.percent}
                     suffix="%"
-                    onChange={(e) => {
+                    onChange={e => {
                       const { value } = e.target;
                       let count = parseInt(value);
                       count = isNaN(count) ? 0 : count;
@@ -287,7 +293,6 @@ class LineConfigModal extends Component {
                 <div className="mBottom12">{_l('颜色')}</div>
                 <div className="valignWrapper">
                   <WidgetColor
-                    type="normal"
                     color={lineConfig.color}
                     handleChange={color => {
                       this.handleChangeConfig({ color });
@@ -303,7 +308,7 @@ class LineConfigModal extends Component {
               <Checkbox
                 className="mRight10"
                 checked={lineConfig.showName}
-                onChange={(e) => {
+                onChange={e => {
                   this.handleChangeConfig({ showName: event.target.checked });
                 }}
               >
@@ -311,7 +316,7 @@ class LineConfigModal extends Component {
               </Checkbox>
               <Checkbox
                 checked={lineConfig.showValue}
-                onChange={(e) => {
+                onChange={e => {
                   this.handleChangeConfig({ showValue: event.target.checked });
                 }}
               >
@@ -330,10 +335,10 @@ export default class AuxiliaryLine extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      editLineConfig: null
-    }
+      editLineConfig: null,
+    };
   }
-  handleAddLine = (data) => {
+  handleAddLine = data => {
     const { displaySetup } = this.props.currentReport;
     const { auxiliaryLines } = displaySetup;
 
@@ -345,25 +350,25 @@ export default class AuxiliaryLine extends Component {
           } else {
             return item;
           }
-        })
+        }),
       });
     } else {
       const line = {
         ...data,
-        id: uuidv4()
-      }
+        id: uuidv4(),
+      };
       this.props.onChangeDisplaySetup({
-        auxiliaryLines: auxiliaryLines.concat(line)
+        auxiliaryLines: auxiliaryLines.concat(line),
       });
     }
-  }
-  handleRemoveLine = (id) => {
+  };
+  handleRemoveLine = id => {
     const { displaySetup } = this.props.currentReport;
     const { auxiliaryLines } = displaySetup;
     this.props.onChangeDisplaySetup({
-      auxiliaryLines: auxiliaryLines.filter(l => l.id !== id)
+      auxiliaryLines: auxiliaryLines.filter(l => l.id !== id),
     });
-  }
+  };
   renderMenu = () => {
     const { yaxisList, displaySetup } = this.props.currentReport;
     const { isPile, isPerPile, isAccumulate } = displaySetup;
@@ -373,33 +378,35 @@ export default class AuxiliaryLine extends Component {
       style: 1,
       showName: false,
       value: undefined,
-    }
+    };
     return (
       <Menu>
-        {auxiliaryLineTypes.filter(item => {
-          return (isPile || isPerPile || isAccumulate) ? item.type === 'constantLine' : true;
-        }).map(item => (
-          <Menu.Item
-            key={item.type}
-            className="pTop7 pBottom7 pLeft20"
-            onClick={() => {
-              this.setState({
-                editLineConfig: {
-                  ...item,
-                  ...defaultConfig,
-                  showValue: item.type === 'tendencyLine' ? false : true,
-                  location: item.type === 'constantLine' ? 'left' : null,
-                  percent: item.type === 'percentLine' ? 50 : 0
-                }
-              });
-            }}
-          >
-            {item.name}
-          </Menu.Item>
-        ))}
+        {auxiliaryLineTypes
+          .filter(item => {
+            return isPile || isPerPile || isAccumulate ? item.type === 'constantLine' : true;
+          })
+          .map(item => (
+            <Menu.Item
+              key={item.type}
+              className="pTop7 pBottom7 pLeft20"
+              onClick={() => {
+                this.setState({
+                  editLineConfig: {
+                    ...item,
+                    ...defaultConfig,
+                    showValue: item.type === 'tendencyLine' ? false : true,
+                    location: item.type === 'constantLine' ? 'left' : null,
+                    percent: item.type === 'percentLine' ? 50 : 0,
+                  },
+                });
+              }}
+            >
+              {item.name}
+            </Menu.Item>
+          ))}
       </Menu>
     );
-  }
+  };
   render() {
     const { currentReport } = this.props;
     const { displaySetup, yaxisList, rightY, reportType } = currentReport;
@@ -409,17 +416,25 @@ export default class AuxiliaryLine extends Component {
     return (
       <div className="mBottom16">
         {auxiliaryLines.map(item => (
-          <div className="valignWrapper flex mBottom12" key={item.id} >
+          <div className="valignWrapper flex mBottom12" key={item.id}>
             <InputWrap className="valignWrapper w100 Relative">
-              <Input
-                readOnly
-                value={item.name}
-                className="chartInput flex mRight5"
+              <Input readOnly value={item.name} className="chartInput flex mRight5" />
+              <Icon
+                className="Gray_9e pointer"
+                icon="edit"
+                onClick={() => {
+                  this.setState({ editLineConfig: item });
+                }}
               />
-              <Icon className="Gray_9e pointer" icon="edit" onClick={() => { this.setState({ editLineConfig: item }) }} />
             </InputWrap>
             <DeleteWrap data-tip={_l('删除')}>
-              <Icon className="Gray_9e pointer Font19" icon="task-new-delete" onClick={() => { this.handleRemoveLine(item.id) }} />
+              <Icon
+                className="Gray_9e pointer Font19"
+                icon="task-new-delete"
+                onClick={() => {
+                  this.handleRemoveLine(item.id);
+                }}
+              />
             </DeleteWrap>
           </div>
         ))}

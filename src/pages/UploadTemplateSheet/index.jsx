@@ -1,15 +1,28 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
+import Trigger from 'rc-trigger';
 import sheetAjax from 'src/api/worksheet';
-import { Icon, Support, Dialog } from 'ming-ui';
+import { Icon, Support, Dialog, Menu, MenuItem } from 'ming-ui';
 import copy from 'copy-to-clipboard';
 import './index.less';
 import _ from 'lodash';
 import { FILTER_SYS, APPROVAL_SYS } from 'src/pages/Print/config';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import { createEditFileLink } from './utils';
 
 let controlNo = [22, 10010, 43, 45, 21]; //分割线、备注、OCR、嵌入字段、自由链接/
 const qrcodeField = ['sharelink', 'privatelink', 'recordid'];
+
+const OPTIONS = [
+  {
+    label: _l('下载到本地'),
+    value: 0,
+  },
+  {
+    label: _l('在线创建'),
+    value: 1,
+  },
+];
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
     super(props);
@@ -73,6 +86,7 @@ export default class UploadTemplateSheet extends React.Component {
       // 页面是否支持滑动
       scroll: true,
       approvalList: [],
+      popupVisible: false,
     };
   }
 
@@ -170,14 +184,6 @@ export default class UploadTemplateSheet extends React.Component {
         approvalList: (approval.find(l => l.groupId === worksheetId) || { processList: [] }).processList.map(l => {
           return { ...l, expandControls: false };
         }),
-      });
-
-      // 下载功能
-      $('.urlForTel').on('click', () => {
-        this.downTem();
-      });
-      $('.urlForExcelTel').on('click', () => {
-        this.downTem('Xlsx');
       });
     })().catch(console.error);
   }
@@ -662,7 +668,8 @@ export default class UploadTemplateSheet extends React.Component {
     const { match } = this.props;
     const { worksheetId } = match.params;
     const words = text || 'Word';
-    let ajaxUrl = `${downLoadUrl}/Export${words}/DownloadDefault${words}`;
+    let ajaxUrl =
+      downLoadUrl + (words === 'Word' ? '/ExportWord/DownloadDefaultWord' : '/ExportXlsx/DownloadDefaultXlsx');
     let str = `<form action=${ajaxUrl} method="get" id="forms">
         <input type="hidden" name="worksheetId" value=${worksheetId} />
         <input type="hidden" name="accountId" value=${md.global.Account.accountId} />
@@ -670,6 +677,61 @@ export default class UploadTemplateSheet extends React.Component {
     </form>`;
     $('body').append(str);
     $('#forms').submit().remove();
+  };
+
+  onEdit = type => {
+    const { popupVisible, downLoadUrl } = this.state;
+    this.setState({ popupVisible: false });
+
+    if (type === 0) {
+      this.downTem(popupVisible);
+    } else {
+      createEditFileLink({
+        worksheetId: _.get(this.props, 'match.params.worksheetId'),
+        downLoadUrl,
+        fileType: popupVisible,
+      });
+    }
+  };
+
+  renderDownloadBtn = () => {
+    const { popupVisible } = this.state;
+
+    return (
+      <Trigger
+        popupVisible={!!popupVisible}
+        onPopupVisibleChange={visible => !visible && this.setState({ popupVisible: visible })}
+        action={['click']}
+        popup={() => {
+          return (
+            <Menu style={{ left: 'initial', right: 0, width: 180 }}>
+              {(md.global.Config.EnableDocEdit === false || popupVisible === 'Xlsx'
+                ? OPTIONS.slice(0, 1)
+                : OPTIONS
+              ).map((item, index) => (
+                <MenuItem key={index} onClick={() => this.onEdit(item.value)}>
+                  <span>{item.label}</span>
+                </MenuItem>
+              ))}
+            </Menu>
+          );
+        }}
+        popupAlign={{
+          points: ['tr', 'br'],
+          offset: [0, 10],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+      >
+        <span>
+          <span className="urlForTel mLeft5 mRight5" onClick={() => this.setState({ popupVisible: 'Word' })}>
+            {_l('Word 模板')}
+          </span>
+          <span className="urlForExcelTel mLeft5 mRight5" onClick={() => this.setState({ popupVisible: 'Xlsx' })}>
+            {_l('Excel 模板')}
+          </span>
+        </span>
+      </Trigger>
+    );
   };
 
   render() {
@@ -765,10 +827,8 @@ export default class UploadTemplateSheet extends React.Component {
                 />
               </span>
               {_l('了解更多制作技巧和注意事项。')}
-              {_l('或下载')}
-              <span className="urlForTel mLeft5 mRight5">{_l('系统 Word 模板')}</span>、
-              <span className="urlForExcelTel mLeft5 mRight5">{_l('系统 Excel 模板')}</span>
-              {_l('示范模板快速开始')}
+              {_l('或从系统范例模版快速开始创建')}
+              {this.renderDownloadBtn()}
             </p>
           </div>
           <h5 className="mTop50 Font20 Gray">{_l('字段代码对照表')}</h5>

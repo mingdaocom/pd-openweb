@@ -461,11 +461,7 @@ export default class Options extends React.Component {
                   <span
                     className="cellOption ellipsis"
                     key={index}
-                    style={Object.assign(
-                      {},
-                      { ...getOptionStyle(option, cell), maxWidth: style.width - 14 },
-                      from === FROM.CARD ? { margin: '0px 4px 0px 0px' } : {},
-                    )}
+                    style={Object.assign({}, { ...getOptionStyle(option, cell), maxWidth: style.width - 14 })}
                   >
                     {this.getShowValue(option)}
                   </span>

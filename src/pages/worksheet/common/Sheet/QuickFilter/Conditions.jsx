@@ -17,6 +17,19 @@ const Con = styled.div`
   flex-wrap: wrap;
   flex: 1;
   padding: ${({ isConfigMode }) => (isConfigMode ? '0 10px' : '0 10px 0 20px')};
+  &.isDark {
+    .buttons {
+      .Button--ghostgray {
+        color: rgba(255, 255, 255, 0.6) !important;
+        border-color: rgba(255, 255, 255, 0.6) !important;
+      }
+      .Button--ghostgray:hover {
+        color: rgba(255, 255, 255, 1) !important;
+        border-color: rgba(255, 255, 255, 1) !important;
+        background: inherit !important;
+      }
+    }
+  }
 `;
 
 const Item = styled.div(
@@ -45,6 +58,37 @@ const Item = styled.div(
     max-width: ${maxWidth};
     .content {
       width: auto;
+    }
+  }
+  &.isDark {
+    .content,
+    .ant-select,
+    .departmentsText,
+    .singleUserItem,
+    .relateRecordOption,
+    .label {
+      color: #fff !important;
+    }
+    .ant-select.ant-select-open .ant-select-selector {
+      background-color: transparent !important;
+      color: #9e9e9e !important;
+    }
+    input {
+      background: transparent !important;
+      color: #fff !important;
+    }
+    .ant-picker,
+    .customFormControlBox,
+    .customAntPicker {
+        background: transparent !important;
+    }
+    .Checkbox:not(.checked) {
+      .Checkbox-box {
+        background-color: transparent !important;
+      }
+    }
+    .RelateRecordDropdown-selected .normalSelectedItem {
+      color: #fff !important;
     }
   }
 `,
@@ -78,6 +122,7 @@ const Operate = styled.div`
     isConfigMode
       ? `
       padding: 10px 0;
+      height: 52px;
       `
       : ''}
   ${({ isFilterComp }) =>
@@ -159,6 +204,7 @@ function getDefaultValues(items) {
 export default function Conditions(props) {
   const {
     from,
+    isDark,
     worksheetId,
     isConfigMode,
     isFilterComp,
@@ -317,7 +363,7 @@ export default function Conditions(props) {
     );
   store.current.values = values;
   return (
-    <Con className={className} isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
+    <Con className={cx(className, { isDark })} isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
       {visibleItems.map((item, i) => (
         <Item
           isConfigMode={isConfigMode}
@@ -334,6 +380,7 @@ export default function Conditions(props) {
           className={cx(
             'conditionItem ' + (i === 0 && firstIsFullLine && !fullShow ? 'isFirstFullLine' : ''),
             item.className,
+            { isDark },
           )}
           maxWidth={
             isFullLine(item)
@@ -357,6 +404,7 @@ export default function Conditions(props) {
               projectId={projectId}
               worksheetId={worksheetId}
               appId={appId}
+              isDark={isDark}
               {...item}
               {...values[`${item.control.controlId}-${i}`]}
               filtersData={filtersData}

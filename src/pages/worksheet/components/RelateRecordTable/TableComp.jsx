@@ -27,7 +27,7 @@ function overrideControls(control, controls) {
   });
 }
 
-function getVisibleControls(control, controls, sheetHiddenColumnIds = [], disableMaskDataControls = {}) {
+export function getVisibleControls(control, controls, sheetHiddenColumnIds = [], disableMaskDataControls = {}) {
   const overriddenControls = overrideControls(control, controls)
     .filter(c => !find(sheetHiddenColumnIds, id => c.controlId === id))
     .map(c =>
@@ -94,6 +94,7 @@ function getPageRecords({ records = [], pageSize = PAGE_SIZE, pageIndex = 1, isT
 
 function TableComp(props) {
   const {
+    iseditting,
     tableId,
     cache,
     control,
@@ -114,10 +115,12 @@ function TableComp(props) {
     updateSort,
     handleRemoveRelation,
     handleSaveSheetLayout,
+    batchUpdateRecords,
     updateTreeNodeExpansion = () => {},
     onUpdateCell = () => {},
     isDraft,
   } = props;
+  const { isCustomButtonFillRecord } = control || {};
   const { addedRecords = [] } = changes;
   let { records } = props;
   const { updateWorksheetControls } = props;
@@ -168,6 +171,7 @@ function TableComp(props) {
     }
     return visibleControls;
   }, [controls, control, sheetHiddenColumnIds, records, treeTableViewData.maxLevel]);
+  const isRelationRecord = control.type === 51;
   const columnWidthsOfSetting = useMemo(() => getCellWidths(control, controls), [control, controls]);
   const tableConfig = getTableConfig(control);
   const { showQuickFromSetting, allowOpenRecord, allowDeleteFromSetting } = tableConfig;
@@ -242,6 +246,7 @@ function TableComp(props) {
       tableId={tableId}
       scrollBarHoverShow
       isRelateRecordList
+      wrapControlName={get(control, 'advancedSetting.titlewrap') === '1'}
       disablePanVertical
       {...tableConfig}
       ref={worksheetTableRef}
@@ -254,6 +259,15 @@ function TableComp(props) {
         worksheetId,
         formData,
       })}
+      masterRecord={
+        base.saveSync
+          ? {
+              rowId: recordId,
+              controlId: control.controlId,
+              worksheetId,
+            }
+          : undefined
+      }
       rowCount={!useHeight ? rowCount : undefined}
       defaultScrollLeft={defaultScrollLeft}
       allowlink={get(control, 'advancedSetting.allowlink')}
@@ -386,6 +400,9 @@ function TableComp(props) {
         return (
           <ColumnHead
             {...rest}
+            iseditting={iseditting}
+            hideFilter={isTreeTableView}
+            isCustomButtonFillRecord={isCustomButtonFillRecord}
             control={
               disableMaskDataControls[control.controlId]
                 ? {
@@ -396,8 +413,13 @@ function TableComp(props) {
                   }
                 : control
             }
+            visibleControls={columns}
+            isRelationRecord={isRelationRecord}
             disabled={isNewRecord || from === RECORD_INFO_FROM.DRAFT}
+            isNewRecord={isNewRecord}
             sheetHiddenColumnIds={sheetHiddenColumnIds}
+            tableId={tableId}
+            selectedRowIds={selectedRowIds}
             isAsc={rest.control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
             isDraft={isDraft}
             changeSort={newIsAsc => {
@@ -437,6 +459,9 @@ function TableComp(props) {
               updateTableState({
                 disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true },
               });
+            }}
+            handleBatchUpdateRecords={activeControl => {
+              batchUpdateRecords({ selectedRowIds, records, activeControl });
             }}
           />
         );
@@ -509,6 +534,7 @@ export default connect(
     updateRecordByRecordId: bindActionCreators(actions.updateRecordByRecordId, dispatch),
     deleteRecords: bindActionCreators(actions.deleteRecords, dispatch),
     handleRecreateRecord: bindActionCreators(actions.handleRecreateRecord, dispatch),
+    batchUpdateRecords: bindActionCreators(actions.batchUpdateRecords, dispatch),
     updateCell: bindActionCreators(actions.updateCell, dispatch),
     updateSort: bindActionCreators(actions.updateSort, dispatch),
     handleRemoveRelation: bindActionCreators(actions.handleRemoveRelation, dispatch),

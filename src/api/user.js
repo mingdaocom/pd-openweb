@@ -36,6 +36,7 @@ export default {
   * @param {integer} args.pageIndex pageIndex
   * @param {integer} args.pageSize pageSize
   * @param {string} args.keywords 关键词
+  * @param {integer} args.keywordsType 关键词查询 类型（多字段[默认]=0、名称=1、工号=2）
   * @param {} args.userStatus
   * @param {} args.sortField
   * @param {} args.sortType
@@ -54,6 +55,7 @@ export default {
   * @param {integer} args.pageIndex pageIndex
   * @param {integer} args.pageSize pageSize
   * @param {string} args.keywords 关键词
+  * @param {integer} args.keywordsType 关键词查询 类型（多字段[默认]=0、名称=1、工号=2）
   * @param {integer} args.sort 排序字段（默认 0=离职时间 倒序）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

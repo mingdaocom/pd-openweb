@@ -4,9 +4,9 @@ import { useSetState } from 'react-use';
 import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { FilterContent, AddRelate } from './styled';
-import SelectSheetFromApp from '../SelectSheetFromApp';
+import SelectSearchSheetFromApp from './SelectSearchSheetFromApp';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
-import { enumWidgetType, toEditWidgetPage, isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { enumWidgetType, toEditWidgetPage, isSheetDisplay, filterSysControls } from 'src/pages/widgetConfig/util';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
@@ -15,6 +15,7 @@ import _ from 'lodash';
 import { BrowserRouter } from 'react-router-dom';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import EmptyRuleConfig from '../EmptyRuleConfig';
+import { handleAdvancedSettingChange } from 'src/util';
 
 const RELATE_SEARCH_TYPE = [
   { key: 'new', text: _l('新建查询') },
@@ -38,6 +39,7 @@ function FilterRelateSearch(props) {
     data,
     setEmptyRule,
     globalSheetInfo = {},
+    queryType,
   } = props;
 
   const isRelate = _.find(relationControls, r => _.includes([29, 34], r.type) && r.dataSource === worksheetId);
@@ -87,7 +89,10 @@ function FilterRelateSearch(props) {
             filterResigned={false}
             sourceControlId={sourceControlId}
             conditions={resultFilters}
-            widgetControlData={{ ...data, globalSheetId: globalSheetInfo.worksheetId }}
+            widgetControlData={{
+              ...handleAdvancedSettingChange(data, { querytype: queryType }),
+              globalSheetId: globalSheetInfo.worksheetId,
+            }}
             onConditionsChange={(conditions = []) => {
               const newConditions = conditions.some(item => item.groupFilters)
                 ? conditions
@@ -115,6 +120,7 @@ function FilterRelateSearch(props) {
 export function RelateSearchWorksheet(props) {
   const { globalSheetInfo, data = {}, deleteWidget, allControls, onOk, isDeleteWorksheet } = props;
   const { dataSource, controlId } = data;
+  const { querytype } = getAdvanceSetting(data);
   const { worksheetId, name } = globalSheetInfo;
   const ruleRef = useRef(null);
 
@@ -132,15 +138,18 @@ export function RelateSearchWorksheet(props) {
     selectedControl: {},
   });
 
-  const [{ sheetName, relationControls, sourceControlId, resultFilters, appId, sheetId, projectId }, setInfo] =
-    useSetState({
-      ..._.pick(data, ['relationControls', 'sourceControlId']),
-      resultFilters: getAdvanceSetting(data, 'resultfilters') || '',
-      appId: defaultAppId,
-      sheetId: dataSource,
-      sheetName: props.sheetName || '',
-      projectId: globalSheetInfo.projectId,
-    });
+  const [
+    { sheetName, relationControls, sourceControlId, resultFilters, appId, sheetId, projectId, queryType },
+    setInfo,
+  ] = useSetState({
+    ..._.pick(data, ['relationControls', 'sourceControlId']),
+    resultFilters: getAdvanceSetting(data, 'resultfilters') || '',
+    appId: defaultAppId,
+    sheetId: dataSource,
+    sheetName: props.sheetName || '',
+    projectId: globalSheetInfo.projectId,
+    queryType: querytype,
+  });
 
   const [visible, setVisible] = useState(true);
   const isFilter = relateType === 'filter';
@@ -187,10 +196,11 @@ export function RelateSearchWorksheet(props) {
       worksheetAjax
         .getWorksheetInfo({ worksheetId: sheetId, getTemplate: true })
         .then(res => {
+          const tempControls = _.get(res, 'template.controls') || [];
           setInfo({
             sheetName: res.name,
             appId: res.appId,
-            relationControls: _.get(res, 'template.controls') || [],
+            relationControls: queryType === '1' ? filterSysControls(tempControls) : tempControls,
             projectId: res.projectId,
           });
         })
@@ -237,7 +247,13 @@ export function RelateSearchWorksheet(props) {
     if (relateType === 'new') {
       return (
         <div className="selectSheetWrap">
-          <SelectSheetFromApp onChange={setInfo} globalSheetInfo={globalSheetInfo} appId={appId} sheetId={sheetId} />
+          <SelectSearchSheetFromApp
+            onChange={setInfo}
+            globalSheetInfo={globalSheetInfo}
+            appId={appId}
+            sheetId={sheetId}
+            queryType={queryType}
+          />
           {_.isEmpty(relateFields) ? null : (
             <Fragment>
               <div className={cx('relateWarning', { active: open })}>
@@ -298,6 +314,7 @@ export function RelateSearchWorksheet(props) {
                       setInfo({
                         sourceControlId: item.sourceControlId,
                         sheetId: item.dataSource,
+                        queryType: '0',
                         resultFilters: '',
                         relationControls: [],
                       });
@@ -335,6 +352,7 @@ export function RelateSearchWorksheet(props) {
         resultFilters,
         data,
         globalSheetInfo,
+        queryType,
         setEmptyRule: value => (ruleRef.current = value),
         setFilters: value => setInfo({ resultFilters: value }),
       };
@@ -382,6 +400,7 @@ export function RelateSearchWorksheet(props) {
     <BrowserRouter>
       <Dialog
         width={640}
+        type="scroll"
         visible={visible}
         title={<span className="Bold">{isFilter ? _l('查询条件') : _l('查询记录')}</span>}
         footer={null}
@@ -420,6 +439,7 @@ export function RelateSearchWorksheet(props) {
                     resultFilters: resultFilters.map(formatCondition).filter(_.identity),
                     relationControls,
                     sheetName,
+                    queryType,
                   });
                   setVisible(false);
                 } else {

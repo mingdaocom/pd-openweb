@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Link } from 'react-router-dom';
-import { ScrollView } from 'ming-ui';
+import { withRouter } from 'react-router-dom';
+import { ScrollView, MdLink } from 'ming-ui';
 import HistoryHeader from './HistoryHeader';
 import HistoryList from './HistoryList';
 import HistoryDetail from './HistoryDetail';
@@ -9,7 +9,6 @@ import './index.less';
 import api from '../../api/instance';
 import processVersion from '../../api/processVersion';
 import _ from 'lodash';
-import moment from 'moment';
 import Detail from '../Detail';
 import ArchivedList from 'src/components/ArchivedList';
 
@@ -28,7 +27,7 @@ class History extends Component {
     }
 
     this.state = {
-      data: [],
+      data: null,
       selectActionId: ids.length === 1 ? ids[0] : '',
       workId: ids.length > 1 ? ids[0] : '',
       instanceId: ids.length > 1 ? ids[1] : '',
@@ -101,7 +100,7 @@ class History extends Component {
    */
   handleFilter = para => {
     this.filterPara = para;
-    this.setState({ pageIndex: 1, batchIds: [] }, () => {
+    this.setState({ pageIndex: 1, batchIds: [], data: null }, () => {
       this.getData();
     });
   };
@@ -126,15 +125,15 @@ class History extends Component {
             </span>
             {_l('触发了以下子流程')}
           </div>
-          <Link
-            className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20 stopPropagation"
+          <MdLink
+            className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20"
             to={`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${this.props.flowInfo.id}/2`}
             onClick={() => {
               this.setState({ workId: '', instanceId: '', instanceData: null }, this.handleFilter);
             }}
           >
             <i className="icon-delete" />
-          </Link>
+          </MdLink>
         </div>
       </div>
     );
@@ -228,7 +227,7 @@ class History extends Component {
               archivedItem={archivedItem}
               onChange={archivedItem => {
                 this.filterPara = {};
-                this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date() }, this.getData);
+                this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date(), data: null }, this.getData);
               }}
             />
           ) : (
@@ -257,7 +256,7 @@ class History extends Component {
                 archivedItem={archivedItem}
                 onChange={archivedItem => {
                   this.filterPara = {};
-                  this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date() }, this.getData);
+                  this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date(), data: null }, this.getData);
                 }}
               />
             </Fragment>
@@ -275,7 +274,7 @@ class History extends Component {
             onFilter={this.handleFilter}
             archivedItem={archivedItem}
             onRefresh={callback => {
-              this.setState({ pageIndex: 1, batchIds: [] }, () => {
+              this.setState({ pageIndex: 1, batchIds: [], data: null }, () => {
                 this.getData(callback);
               });
               this.getProcessAccumulation();

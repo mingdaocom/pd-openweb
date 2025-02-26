@@ -1,6 +1,15 @@
-import React from 'react';
-import CustomWidgetView from 'src/pages/worksheet/views/CustomWidgetView';
+import React, { useEffect, useState } from 'react';
 
 export default function MobileCustomWidgetView(props) {
-  return <CustomWidgetView {...props} />;
+  const [Component, setComponent] = useState(null);
+
+  useEffect(() => {
+    import('src/pages/worksheet/views/CustomWidgetView').then(component => {
+      setComponent(component.default);
+    });
+  }, []);
+
+  if (!Component) return null;
+
+  return <Component {...props} />;
 }

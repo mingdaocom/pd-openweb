@@ -47,7 +47,7 @@ export default function WidgetBase(props) {
           {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...props} />}
           {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...props} />}
           {/* 选项其他项必填提示文案 */}
-          {_.includes([9, 10, 11], type) && _.find(options, i => i.key === 'other' && !i.isDeleted) && (
+          {_.includes([9, 10, 11], type) && _.find(options, (i = {}) => i.key === 'other' && !i.isDeleted) && (
             <WidgetOtherExplain {...props} />
           )}
           {/**宽度设置 */}

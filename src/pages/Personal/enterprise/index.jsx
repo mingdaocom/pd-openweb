@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import account from 'src/api/account';
-import { LoadDiv, Dialog } from 'ming-ui';
+import { LoadDiv, Dialog, SortableList } from 'ming-ui';
 import EnterpriseCard from './modules/EnterpriseCard';
 import cx from 'classnames';
 import InvitationList from './modules/InvitationList';
@@ -11,6 +11,8 @@ import { getRequest, getCurrentProject } from 'src/util';
 import registerAjax from 'src/api/register';
 import { upgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
+import common from '../common';
+import accountSettingApi from 'src/api/accountSetting';
 
 export default class AccountChart extends React.Component {
   constructor(props) {
@@ -18,6 +20,7 @@ export default class AccountChart extends React.Component {
     this.state = {
       pageIndex: 1,
       pageSize: 500,
+      unAuthList: [],
       list: [],
       count: 0,
       token: '',
@@ -38,30 +41,35 @@ export default class AccountChart extends React.Component {
   getData() {
     if (getRequest().type === 'enterprise') {
       this.setState({ loading: true });
-      Promise.all([this.getList(), this.getUntreatAuthList()]).then(([project, auth]) => {
-        this.setState({
-          list: (project.list || []).map(v => {
-            return {
+      Promise.all([this.getList(common.USER_STATUS.UNAUDITED), this.getList(), this.getUntreatAuthList()]).then(
+        ([unAuthProject, project, auth]) => {
+          this.setState({
+            unAuthList: (unAuthProject.list || []).map(v => ({
               ...v,
               companyName: getCurrentProject(v.projectId).companyName || v.companyName,
-            };
-          }),
-          count: project.allCount,
-          isEnterprise: project.allCount > 0,
-          authCount: auth.count,
-          loading: false,
-        });
-      });
+            })),
+            list: (project.list || []).map(v => ({
+              ...v,
+              companyName: getCurrentProject(v.projectId).companyName || v.companyName,
+            })),
+            count: project.allCount,
+            isEnterprise: project.allCount > 0,
+            authCount: auth.count,
+            loading: false,
+          });
+        },
+      );
     } else {
       this.setState({ isEnterprise: getRequest().type });
     }
   }
 
   //列表
-  getList() {
+  getList(userStatus = 1) {
     return account.getProjectList({
       pageIndex: this.state.pageIndex,
       pageSize: this.state.pageSize,
+      userStatus,
     });
   }
 
@@ -70,15 +78,28 @@ export default class AccountChart extends React.Component {
     return account.getUntreatAuthList({});
   }
 
-  renderListCard() {
+  renderSortableList() {
     const { list } = this.state;
     return (
-      <Fragment>
-        {list &&
-          list.map(card => {
-            return <EnterpriseCard card={card} key={card.projectId} getData={() => this.getData()} />;
-          })}
-      </Fragment>
+      <SortableList
+        useDragHandle
+        items={list}
+        renderItem={({ item, DragHandle }) => (
+          <EnterpriseCard DragHandle={DragHandle} card={item} getData={() => this.getData()} />
+        )}
+        itemKey="projectId"
+        helperClass="projectCardSortHelper"
+        onSortEnd={newItems => {
+          const sortedProjectIds = newItems.map(item => item.projectId);
+          this.setState({ list: sortedProjectIds.map(projectId => _.find(list, { projectId })) });
+          accountSettingApi.editJoinedProjectSort({ projectIds: sortedProjectIds }).then(res => {
+            res &&
+              (md.global.Account.projects = sortedProjectIds
+                .map(projectId => _.find(md.global.Account.projects, { projectId }))
+                .filter(item => item));
+          });
+        }}
+      />
     );
   }
 
@@ -129,7 +150,7 @@ export default class AccountChart extends React.Component {
   }
 
   renderContent() {
-    const { authCount } = this.state;
+    const { authCount, unAuthList } = this.state;
     if (getRequest().type === 'enterprise') {
       return (
         <div className="enterpriceContainer">
@@ -159,7 +180,18 @@ export default class AccountChart extends React.Component {
               </button>
             </div>
           </div>
-          <div className="enterpriseContent">{this.renderListCard()}</div>
+          <div className="enterpriseContent">
+            {!!unAuthList.length && (
+              <React.Fragment>
+                <div className="groupTitle mTop0">{_l('待审核')}</div>
+                {unAuthList.map((item, index) => (
+                  <EnterpriseCard key={index} card={item} getData={() => this.getData()} />
+                ))}
+                <div className="groupTitle">{_l('已加入')}</div>
+              </React.Fragment>
+            )}
+            {this.renderSortableList()}
+          </div>
         </div>
       );
     } else {

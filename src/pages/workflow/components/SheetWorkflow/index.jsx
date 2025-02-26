@@ -170,7 +170,18 @@ function CurrentWorkItems(props) {
 function WorkflowCard(props) {
   const { data, currentWorkflow, formWidth, appId, projectId } = props;
   const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog, onReset } = props;
-  const { currents, createDate, completeDate, revokeDate, completed, createAccount, flowNode, workItem, process, status } = data;
+  const {
+    currents,
+    createDate,
+    completeDate,
+    revokeDate,
+    completed,
+    createAccount,
+    flowNode,
+    workItem,
+    process,
+    status,
+  } = data;
   const currentWorkItems = data.currentWorkItems || [];
   const receiveTime = _.get(workItem, 'receiveTime') || _.get(currentWorkItems[0], 'receiveTime');
   const isBranch = !!(currents || []).length;
@@ -181,7 +192,7 @@ function WorkflowCard(props) {
   };
   const allowReset = status === 6;
   const handleRevoke = () => {
-    onRevoke(currents[0])
+    onRevoke(currents[0]);
   };
 
   const renderContent = data => {
@@ -307,7 +318,17 @@ function WorkflowCard(props) {
 }
 
 export default function SheetWorkflow(props) {
-  const { isCharge, projectId, worksheetId, recordId, formWidth, refreshBtnNeedLoading, appId, controls = [], reloadRecord } = props;
+  const {
+    isCharge,
+    projectId,
+    worksheetId,
+    recordId,
+    formWidth,
+    refreshBtnNeedLoading,
+    appId,
+    controls = [],
+    reloadRecord,
+  } = props;
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
   const [currentWorkflow, setCurrentWorkflow] = useState({});
@@ -366,6 +387,7 @@ export default function SheetWorkflow(props) {
         ...instance,
         ...param,
         cardData: data,
+        instanceId: data.id,
       });
     });
   };
@@ -397,12 +419,12 @@ export default function SheetWorkflow(props) {
         workId: data.workId,
         opinion: content,
         backNodeId,
-        files
+        files,
       }).then(() => {
         setActionVisible(false);
         handleCloseDrawer();
         getList();
-      })
+      });
     }
   };
 
@@ -424,49 +446,58 @@ export default function SheetWorkflow(props) {
     getWorkflow(data, {
       value,
     }).then(() => {
+      setCurrentWorkflow(currentWorkflow => {
+        return { ...currentWorkflow, instanceId: data.id };
+      });
       setActionVisible(true);
     });
   };
 
   const handleRevoke = data => {
     const { cardData, currentWork } = currentWorkflow;
-    instanceVersion.get2({
-      id: data.id,
-      workId: data.revokeWorkId
-    }).then(instance => {
-      setCurrentWorkflow({
-        ...instance,
-        opinionTemplate: instance.opinionTemplate || {},
-        value: 'revoke',
-        cardData: {
-          ...cardData,
-          id: data.id,
-          workId: data.workId,
-          revokeWorkId: data.revokeWorkId
-        },
-        currentWork
+    instanceVersion
+      .get2({
+        id: data.id,
+        workId: data.revokeWorkId,
+      })
+      .then(instance => {
+        setCurrentWorkflow({
+          ...instance,
+          opinionTemplate: instance.opinionTemplate || {},
+          value: 'revoke',
+          cardData: {
+            ...cardData,
+            id: data.id,
+            workId: data.workId,
+            revokeWorkId: data.revokeWorkId,
+          },
+          currentWork,
+          instanceId: data.id,
+        });
+        setActionVisible(true);
       });
-      setActionVisible(true);
-    });
   };
 
   const handleTaskRevoke = () => {
     const { works, cardData, currentWork } = currentWorkflow;
     const data = _.find(works, { allowTaskRevokeBackNodeId });
-    instanceVersion.get2({
-      id: data.instanceId,
-      workId: data.workId
-    }).then(instance => {
-      setCurrentWorkflow({
-        ...instance,
-        allowTaskRevokeBackNodeId,
-        opinionTemplate: instance.opinionTemplate || {},
-        value: 'taskRevoke',
-        cardData,
-        currentWork
+    instanceVersion
+      .get2({
+        id: data.instanceId,
+        workId: data.workId,
+      })
+      .then(instance => {
+        setCurrentWorkflow({
+          ...instance,
+          allowTaskRevokeBackNodeId,
+          opinionTemplate: instance.opinionTemplate || {},
+          value: 'taskRevoke',
+          cardData,
+          currentWork,
+          instanceId: data.id,
+        });
+        setActionVisible(true);
       });
-      setActionVisible(true);
-    });
   };
 
   const handleUrge = data => {
@@ -565,7 +596,7 @@ export default function SheetWorkflow(props) {
         getList();
       }
     });
-  }
+  };
 
   const handleEndInstance = data => {
     instanceVersion
@@ -625,8 +656,8 @@ export default function SheetWorkflow(props) {
   const renderStepItem = () => {
     const { processId, cardData = {}, processName, works = [], workItem, currentWorkItem, status } = currentWorkflow;
     const { id, workId, flowNode, completed, parentCurrents = [] } = cardData;
-    const allowTaskRevokeWorks = works.filter((_, index) => index).filter(n => (n.allowTaskRevokeBackNodeId && isCharge));
-    const currentWork = function() {
+    const allowTaskRevokeWorks = works.filter((_, index) => index).filter(n => n.allowTaskRevokeBackNodeId && isCharge);
+    const currentWork = (function () {
       if (allowTaskRevokeBackNodeId) {
         return _.find(works, { allowTaskRevokeBackNodeId });
       }
@@ -634,13 +665,13 @@ export default function SheetWorkflow(props) {
         return _.find(parentCurrents, { workId });
       }
       return currentWorkflow.currentWork;
-    }();
-    const stepsCurrents = function() {
+    })();
+    const stepsCurrents = (function () {
       if (parentCurrents.length) {
         return parentCurrents.concat(allowTaskRevokeWorks);
       }
       return allowTaskRevokeWorks.length ? allowTaskRevokeWorks.concat(currentWorkflow.currentWork || []) : [];
-    }();
+    })();
     return (
       <div className="h100 flexColumn">
         <StepHeader
@@ -694,10 +725,7 @@ export default function SheetWorkflow(props) {
           <div className={cx('workflowStepFooter flexColumn justifyContentCenter', isMobile ? 'pLeft10 pRight10' : '')}>
             <div className="mLeft1 Font13 Gray_75">{_.get(currentWork, 'flowNode.name')}</div>
             {allowTaskRevokeBackNodeId ? (
-              <TaskRevokeAction
-                className="mBottom2 mTop5"
-                onClick={handleTaskRevoke}
-              />
+              <TaskRevokeAction className="mBottom2 mTop5" onClick={handleTaskRevoke} />
             ) : (
               <WorkflowAction
                 className="mBottom2 mTop5"
@@ -808,6 +836,7 @@ export default function SheetWorkflow(props) {
             projectId={projectId}
             visible={actionVisible}
             action={currentWorkflow.value}
+            instanceId={currentWorkflow.instanceId}
             selectedUser={{}}
             instance={currentWorkflow}
             onAction={handleAction}
@@ -820,6 +849,7 @@ export default function SheetWorkflow(props) {
             projectId={projectId}
             data={currentWorkflow}
             action={currentWorkflow.value}
+            instanceId={currentWorkflow.instanceId}
             onOk={handleAction}
             onCancel={() => {
               setActionVisible(false);

@@ -6,7 +6,7 @@ import { getPssId, setPssId } from 'src/util/pssId';
 import _ from 'lodash';
 import moment from 'moment';
 import accountSetting from 'src/api/accountSetting';
-import { resetPortalUrl } from 'src/pages/accountLogin/portalAccount/util.js';
+import { resetPortalUrl } from 'src/pages/AuthService/portalAccount/util.js';
 
 /** 存储分发类入口 状态 和 分享id */
 const parseShareId = () => {
@@ -56,7 +56,7 @@ const clearLocalStorage = () => {
       .forEach(item => {
         localStorage.removeItem(item.key);
       });
-  } catch (err) { }
+  } catch (err) {}
 };
 
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
@@ -86,13 +86,6 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
     window.publicAppAuthorization = urlObj.hash.slice(10).replace('#isPrivateBuild', '');
   }
 
-  if (urlObj.searchParams.get('token')) {
-    args.token = urlObj.searchParams.get('token');
-  }
-
-  if (urlObj.searchParams.get('access_token')) {
-    window.access_token = urlObj.searchParams.get('access_token');
-  }
   args.lang = getCurrentLangCode();
 
   // 获取global数据

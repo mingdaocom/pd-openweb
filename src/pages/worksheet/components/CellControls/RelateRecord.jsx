@@ -16,7 +16,7 @@ import EditableCellCon from '../EditableCellCon';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { openChildTable } from '../ChildTableDialog';
 import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
-import _, { includes } from 'lodash';
+import _, { find, includes } from 'lodash';
 import { browserIsMobile } from 'src/util';
 
 const RecordCardCellRelateRecord = styled.div`
@@ -146,7 +146,11 @@ export default class RelateRecord extends React.Component {
   renderSelected() {
     const { isMobileTable, cell = {} } = this.props;
     const { relationControls = [] } = cell;
-    const titleControl = _.find(relationControls, c => c.attribute === 1);
+    let titleControl = _.find(relationControls, c => c.attribute === 1);
+    const matchedTitleControl = find(relationControls, { controlId: cell.advancedSetting.showtitleid });
+    if (cell.advancedSetting.showtitleid && matchedTitleControl) {
+      titleControl = matchedTitleControl;
+    }
     let records = [];
     if (!titleControl) {
       return null;
@@ -162,11 +166,25 @@ export default class RelateRecord extends React.Component {
       try {
         records = JSON.parse(cell.value);
       } catch (err) {}
-      return records.map((record, index) => (
-        <RecordCardCellRelateRecord key={index}>
-          {renderCellText({ ...titleControl, value: record.name })}
-        </RecordCardCellRelateRecord>
-      ));
+      return records.map((record, index) => {
+        let controlValue = record.name;
+        if (record.sourcevalue) {
+          try {
+            controlValue = JSON.parse(record.sourcevalue)[titleControl.controlId];
+          } catch (err) {
+            console.log(err);
+          }
+        } else {
+          titleControl = cell.sourceControl;
+          controlValue = record.name;
+        }
+        return (
+          <RecordCardCellRelateRecord key={index}>
+            {renderCellText({ ...titleControl, value: controlValue }) ||
+              (typeof controlValue === 'undefined' ? _l('未命名') : '')}
+          </RecordCardCellRelateRecord>
+        );
+      });
     }
   }
 
@@ -258,6 +276,7 @@ export default class RelateRecord extends React.Component {
     } = this.props;
     const { addedIds = [], deletedIds = [] } = this.isSubList ? this : {};
     let { records } = this.state;
+    const { isRequestingRelationControls } = this.context || {};
     const { advancedSetting = {} } = cell;
     const isSubList = cell.type === 34;
     const { showtype, allowlink, ddset } = advancedSetting; // 1 卡片 2 列表 3 下拉
@@ -266,6 +285,9 @@ export default class RelateRecord extends React.Component {
     let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
     if (isSubList && recordsLength >= 1000) {
       showCount = 1000;
+    }
+    if (isRequestingRelationControls) {
+      return <div className={className} style={style} onClick={onClick} />;
     }
     if (advancedSetting.showcount === '1') {
       showCount = _l('查看');

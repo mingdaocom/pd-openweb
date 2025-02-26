@@ -2,11 +2,11 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import './index.less';
 import cx from 'classnames';
-import { Tooltip, Popover } from 'antd';
+import { Popover } from 'antd';
 import { updatePublishState } from '../../redux/actions';
 import process from '../../api/process';
 import Switch from '../../components/Switch';
-import { Button, Icon, Checkbox, MenuItem, LoadDiv, SvgIcon, ScrollView } from 'ming-ui';
+import { Button, Icon, Checkbox, MenuItem, LoadDiv, SvgIcon, ScrollView, Tooltip } from 'ming-ui';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
@@ -252,7 +252,7 @@ class Header extends Component {
         location.href = isPlugin
           ? `/plugin/node${featurePath ? '?' + featurePath : ''}`
           : `/app/${flowInfo.relationId}/workflow${location.hash ? '?' + location.hash.replace('#', '') : ''}${
-              (location.hash ? '&' : '?') + featurePath
+              featurePath ? (location.hash ? '&' : '?') + featurePath : ''
             }`;
       };
     }
@@ -794,7 +794,15 @@ class Header extends Component {
             <div className="Font17 ellipsis pointer" onClick={openFlowInfo}>
               {flowInfo.name}
               {flowInfo.explain && (
-                <Tooltip placement="bottomLeft" title={flowInfo.explain}>
+                <Tooltip
+                  themeColor="white"
+                  popupPlacement="bottomLeft"
+                  tooltipStyle={{ maxWidth: 640 }}
+                  offset={[-12, 0]}
+                  text={
+                    <div style={{ maxHeight: 480, overflowY: 'auto', whiteSpace: 'pre-wrap' }}>{flowInfo.explain}</div>
+                  }
+                >
                   <Icon icon="info" className="Gray_9e Font18 mLeft5" />
                 </Tooltip>
               )}

@@ -22,6 +22,16 @@ const TableCon = styled.div`
   }
 `;
 
+const ErrorStatus = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
+  background-color: #f7f7f7;
+  color: #9e9e9e;
+  font-size: 13px;
+`;
+
 function RelateRecordTable(props) {
   const {
     mode = 'recordForm',
@@ -42,7 +52,7 @@ function RelateRecordTable(props) {
   const { isTab, isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
   if (loading) {
     return tableState.error ? (
-      <div className="center Gray_9e pTop100">{tableState.error}</div>
+      <ErrorStatus>{tableState.error}</ErrorStatus>
     ) : (
       <Skeleton
         style={{
@@ -54,7 +64,7 @@ function RelateRecordTable(props) {
   const tableCache = useRef({});
   const tableConRef = useRef();
   const [tableId] = useState(v4());
-  const { width, recordbase = {} } = useContext(RecordFormContext) || {};
+  const { width, recordbase = {}, iseditting } = useContext(RecordFormContext) || {};
   const { recordTitle } = recordbase;
   const smallMode = width < 500;
   const handleOpenRecordInfo = useCallback(
@@ -140,8 +150,10 @@ function RelateRecordTable(props) {
     <Fragment>
       {
         <Operate
+          tableId={tableId}
           isDraft={isDraft}
           mode={mode}
+          iseditting={iseditting}
           formData={formData}
           smallMode={smallMode}
           recordTitle={recordTitle}
@@ -162,6 +174,7 @@ function RelateRecordTable(props) {
         ref={tableConRef}
       >
         <TableComp
+          iseditting={iseditting}
           tableId={tableId}
           control={control}
           useHeight={useHeight}

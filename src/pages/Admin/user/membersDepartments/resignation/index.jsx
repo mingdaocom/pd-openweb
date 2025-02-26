@@ -1,18 +1,28 @@
 ﻿import React from 'react';
 import moment from 'moment';
-import { Tooltip, Dialog, UserHead, UserName } from 'ming-ui';
+import { Tooltip, Dialog, UserHead, UserName, Dropdown } from 'ming-ui';
 import PageTableCon from '../../../components/PageTableCon';
 import userAjax from 'src/api/user';
 import HandOver from './handOver';
 import styled from 'styled-components';
 import SearchInput from './SearchInput';
 import WorkHandoverDialog from '../../../components/WorkHandoverDialog';
-import userController from 'src/api/user';
 import { getCurrentProject } from 'src/util';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import ActionDrop from './ActionDrop';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+
+const KEYWORDS_TYPES = [
+  {
+    text: _l('姓名'),
+    value: 1,
+  },
+  {
+    text: _l('工号'),
+    value: 2,
+  },
+];
 
 const TableWrap = styled(PageTableCon)`
   &.resignTableList {
@@ -36,6 +46,19 @@ const TableWrap = styled(PageTableCon)`
 
 const Wrap = styled.div`
   justify-content: space-between;
+  .actionWrap {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .keywordsTypeOptions.ming.Dropdown {
+    border-right: 1px solid #ddd;
+  }
+  .resignationSearch {
+    background: #fff;
+    input {
+      background: #fff;
+    }
+  }
 `;
 
 export default class extends React.Component {
@@ -46,6 +69,7 @@ export default class extends React.Component {
       activeTab: 'transfer',
       keywords: '',
       columns: [],
+      keywordsType: 1,
     };
     this.getColumns = () => {
       return [
@@ -158,17 +182,20 @@ export default class extends React.Component {
   }
 
   getData = (params = {}) => {
-    this.setState({ loading: true, pageIndex: params.pageIndex || 1 });
-    let { pageIndex = 1 } = params;
-    let requestParams = {
+    const { pageIndex = 1 } = params;
+
+    this.setState({ loading: true, pageIndex });
+
+    const requestParams = {
       projectId: this.props.projectId,
       pageIndex,
       pageSize: 50,
-      userStatus: 4,
       keywords: this.state.keywords,
+      keywordsType: this.state.keywordsType,
     };
+
     userAjax
-      .getUserList(requestParams)
+      .pagedRemovedUsers(requestParams)
       .then(res => {
         this.setState({
           dataSource: res.list || [],
@@ -193,7 +220,7 @@ export default class extends React.Component {
       title: _l('确认框'),
       description: _l('确定恢复[%0]权限吗？', fullName),
       onOk: () => {
-        userController
+        userAjax
           .recoveryUser({
             accountId,
             projectId,
@@ -237,12 +264,26 @@ export default class extends React.Component {
       handoverVisible,
       showWorkHandover,
       transferor,
+      keywordsType,
     } = this.state;
 
     return (
       <div className="flexColumn flex minHeight0 h100">
         <Wrap className="flexRow">
-          <SearchInput placeholder={_l('搜索成员')} onSearch={val => this.setState({ keywords: val }, this.getData)} />
+          <div className="valignWrapper actionWrap">
+            <Dropdown
+              className="keywordsTypeOptions"
+              value={keywordsType === 0 ? undefined : keywordsType}
+              data={KEYWORDS_TYPES}
+              onChange={value => this.setState({ keywordsType: value })}
+            />
+            <SearchInput
+              className="resignationSearch"
+              placeholder={_l('搜索成员')}
+              onSearch={val => this.setState({ keywords: val }, this.getData)}
+            />
+          </div>
+
           {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
             <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
               {_l('交接协作相关数据')}

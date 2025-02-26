@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import './content.less';
-import { getPrintContent, sortByShowControls, isRelation } from '../util';
+import { getPrintContent, sortByShowControls, isRelation, getFormData } from '../util';
 import TableRelation from './relationTable';
 import { ScrollView, Qr } from 'ming-ui';
 import {
@@ -196,7 +196,7 @@ export default class Con extends React.Component {
               return null;
             }
 
-            return this.renderRelations(item[0]);
+            return this.renderRelations(item[0], dataInfo);
           }
           let hideNum = 0;
           if ([22, 52].includes(tableData[0][0].type)) {
@@ -435,7 +435,7 @@ export default class Con extends React.Component {
     );
   }
 
-  renderRelations = tableList => {
+  renderRelations = (tableList, dataInfo) => {
     const { printData, handChange, params } = this.props;
     const { type, from } = params;
     const { showData, relationStyle = [], orderNumber = [], advanceSettings = [] } = printData;
@@ -483,7 +483,7 @@ export default class Con extends React.Component {
     }
     //关联表富文本不不显示 分割线 嵌入不显示 扫码47暂不支持关联表显示(表单配置处隐藏了)
     controls = controls.filter(
-      it => ![41, 22, 45, 47].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
+      it => ![41, 22, 45].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let relationStyleNum = relationStyle.find(it => it.controlId === tableList.controlId) || [];
     let setStyle = type => {
@@ -565,6 +565,7 @@ export default class Con extends React.Component {
             }}
             fileStyle={relationFileStyle}
             user_info={relationUserInfo}
+            dataInfo={_.pick(dataInfo, ['recordId', 'appId', 'worksheetId', 'viewIdForPermit'])}
           />
         ) : (
           // 平铺
@@ -582,8 +583,9 @@ export default class Con extends React.Component {
                     isRelateMultipleSheet: true,
                     showUnit: true,
                     fileStyle: relationFileStyle,
-                    dataSource: tableList.controlId,
+                    dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                     user_info: relationUserInfo,
+                    controls: getFormData(controls, o)
                   };
 
                   return this.isShow(
@@ -626,8 +628,9 @@ export default class Con extends React.Component {
                             isRelateMultipleSheet: true,
                             showUnit: true,
                             fileStyle: relationFileStyle,
-                            dataSource: tableList.controlId,
+                            dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                             user_info: relationUserInfo,
+                            controls: getFormData(controls, o)
                           };
 
                           if ([29].includes(it.type)) {

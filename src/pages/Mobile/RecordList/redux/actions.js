@@ -6,6 +6,8 @@ import { getRequest, getTranslateInfo } from 'src/util';
 import {
   getFilledRequestParams,
   replaceControlsTranslateInfo,
+  replaceAdvancedSettingTranslateInfo,
+  replaceRulesTranslateInfo,
   needHideViewFilters,
   formatQuickFilter,
 } from 'worksheet/util';
@@ -77,7 +79,10 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
     JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
   dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex: 1, isMore: true, count: 0 } });
-  dispatch(updateActiveSavedFilter([]));
+  const { getFilters } = getRequest();
+  if (!window.isMingDaoApp || !getFilters) {
+    dispatch(updateActiveSavedFilter([]));
+  }
   if (appNaviStyle === 2 && currentNavWorksheetInfo) {
     dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
@@ -136,6 +141,12 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         sub: sheetTranslateInfo.formSub || advancedSetting.sub,
         continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
       };
+      workSheetInfo.views = workSheetInfo.views.map(view => {
+        return {
+          ...view,
+          name: getTranslateInfo(base.appId, base.worksheetId, view.viewId).name || view.name
+        }
+      });
       let view = base.viewId ? _.find(workSheetInfo.views, v => v.viewId === base.viewId) : workSheetInfo.views[0];
       if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide')) && base.type !== 'single') {
         view = _.find(
@@ -152,6 +163,12 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
           workSheetInfo.worksheetId,
           template.controls || [],
         );
+      }
+      if (workSheetInfo.advancedSetting) {
+        workSheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(base.appId, workSheetInfo.worksheetId, workSheetInfo.advancedSetting);
+      }
+      if (workSheetInfo.rules && workSheetInfo.rules.length) {
+        workSheetInfo.rules = replaceRulesTranslateInfo(base.appId, workSheetInfo.worksheetId, workSheetInfo.rules);
       }
       dispatch(loadSavedFilters(workSheetInfo.worksheetId));
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
@@ -249,6 +266,18 @@ export const fetchSheetRows =
     let extraParams = param;
     let pageSize = 20;
     if (!worksheetId) {
+      return;
+    }
+
+    // 筛选列表分栏模式下&不显示‘全部’项初始不调用接口
+    if (
+      !_.isEmpty(view.navGroup) &&
+      view.navGroup.length > 0 &&
+      _.get(view, 'advancedSetting.appnavtype') == '3' &&
+      _.get(view, 'advancedSetting.showallitem') === '1' &&
+      _.isEmpty(mobileNavGroupFilters)
+    ) {
+      dispatch(changeMobileSheetRows([]));
       return;
     }
 

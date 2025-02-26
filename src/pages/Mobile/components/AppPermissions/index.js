@@ -28,9 +28,13 @@ const ApplyJoinAppPopup = styled(Popup)`
 const STATUS_TO_TEXT = {
   1: { src: noAppListImg, text: _l('请前往Web端创建工作表，开始构建你的应用') },
   2: { src: noAppImg, text: _l('应用不存在') },
+  3: { src: noAppImg, text: _l('应用已删除') },
   4: { src: noRoleImg, text: _l('你还不是应用成员，无权访问此应用') },
   5: { src: noRoleImg, text: _l('未分配任何工作表，请联系此应用的管理员') },
+  6: { src: noAppImg, text: _l('工作表或自定义页面已删除') },
   20: { src: noRoleImg, text: _l('当前应用已过期') },
+  30: { src: noAppImg, text: _l('应用已删除，如需使用请从回收站内恢复') },
+  31: { src: noAppImg, text: _l('应用已被彻底删除，如需使用请重新安装') },
 };
 
 export class AppPermissionsInfo extends React.Component {

@@ -10,6 +10,7 @@ import SelectUser from 'mobile/components/SelectUser';
 import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import './index.less';
 import _ from 'lodash';
+import instanceAJAX from 'src/pages/workflow/api/instance';
 
 export default class extends Component {
   constructor(props) {
@@ -45,7 +46,8 @@ export default class extends Component {
       entrustList: {},
       customApproveContent: content ? true : false,
       files: [],
-      countersignType: 1
+      countersignType: 1,
+      opinionList: [],
     };
   }
   componentDidMount() {
@@ -61,10 +63,25 @@ export default class extends Component {
         },
       });
     }
+
+    this.getHistoryOpinionList();
   }
+
   componentWillUnmount() {
-    this.actionHandler && this.actionHandler.close()
+    this.actionHandler && this.actionHandler.close();
   }
+
+  /**
+   * 获取历史意见列表
+   */
+  getHistoryOpinionList() {
+    const { instanceId } = this.props;
+
+    instanceAJAX.getOperationHistoryList({ instanceId }).then(res => {
+      this.setState({ opinionList: res });
+    });
+  }
+
   handleAction = () => {
     const { action, instance } = this.props;
     const { content, showPassword, selectedUser, entrustList, files, backNodeId = '', countersignType } = this.state;
@@ -99,10 +116,26 @@ export default class extends Component {
     const submitFun = () => {
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          this.props.onAction({ action, content, forwardAccountId, backNodeId, signature, files: attachments, countersignType });
+          this.props.onAction({
+            action,
+            content,
+            forwardAccountId,
+            backNodeId,
+            signature,
+            files: attachments,
+            countersignType,
+          });
         });
       } else {
-        this.props.onAction({ action, content, forwardAccountId, backNodeId, signature: undefined, files: attachments, countersignType });
+        this.props.onAction({
+          action,
+          content,
+          forwardAccountId,
+          backNodeId,
+          signature: undefined,
+          files: attachments,
+          countersignType,
+        });
       }
       if (this.isNoneVerification) {
         this.setState({ showPassword: false });
@@ -146,20 +179,13 @@ export default class extends Component {
       });
   };
   handleOpenTemplate = data => {
-    const { instance } = this.props;
-    const { opinionTemplate } = instance || {};
     functionTemplateModal({
       ...data,
       onSelect: content => this.setState({ content, customApproveContent: content ? true : false }),
       onCustom: () => {
-        this.setState(
-          {
-            customApproveContent: true,
-          },
-          () => {
-            this.textarea && this.textarea.focus();
-          },
-        );
+        this.setState({ customApproveContent: true }, () => {
+          this.textarea && this.textarea.focus();
+        });
       },
     });
   };
@@ -167,24 +193,27 @@ export default class extends Component {
     e.stopPropagation();
     if (_.isEmpty(data)) return;
     this.actionHandler = ActionSheet.show({
-      actions: [{
-        key: 1,
-        text: (
-          <div className="flexRow alignItemsCenter">
-            <div className="Gray_75 mRight10 Font13">{_l('将委托给')}</div>
-            <img className="mLeft10 boderRadAll_50 selectedUser" style={{ width: 30 }} src={data.trustee.avatar} />
-            <div className="mLeft10 Font15 ellipsis">{data.trustee.fullName}</div>
-          </div>
-        )
-      }, {
-        key: 1,
-        text: (
-          <div className="flexRow alignItemsCenter">
-            <div className="Gray_75 mRight10 Font13">{_l('委托截止')}</div>
-            <div className="mLeft10 Font15">{data.endDate}</div>
-          </div>
-        )
-      }],
+      actions: [
+        {
+          key: 1,
+          text: (
+            <div className="flexRow alignItemsCenter">
+              <div className="Gray_75 mRight10 Font13">{_l('将委托给')}</div>
+              <img className="mLeft10 boderRadAll_50 selectedUser" style={{ width: 30 }} src={data.trustee.avatar} />
+              <div className="mLeft10 Font15 ellipsis">{data.trustee.fullName}</div>
+            </div>
+          ),
+        },
+        {
+          key: 1,
+          text: (
+            <div className="flexRow alignItemsCenter">
+              <div className="Gray_75 mRight10 Font13">{_l('委托截止')}</div>
+              <div className="mLeft10 Font15">{data.endDate}</div>
+            </div>
+          ),
+        },
+      ],
       extra: (
         <div className="flexRow header">
           <span className="Font13">{_l('%0发起了委托', data.principal.fullName)}</span>
@@ -193,9 +222,9 @@ export default class extends Component {
           </div>
         </div>
       ),
-      onAction: (action) => {
+      onAction: action => {
         this.actionHandler.close();
-      }
+      },
     });
   };
   renderBackFlowNodes() {
@@ -272,9 +301,7 @@ export default class extends Component {
         <div className="itemWrap flexRow valignWrapper">
           <div className="Gray Font13 bold">{currentAction.headerText}</div>
           {selectedUser.length ? (
-            <div
-              className="flex flexRow valignWrapper flexEnd mRight10 mLeft30"
-            >
+            <div className="flex flexRow valignWrapper flexEnd mRight10 mLeft30">
               {_l('已选 %0 人', selectedUser.length)}
             </div>
           ) : (
@@ -307,14 +334,14 @@ export default class extends Component {
               text: <span className="Bold">{item.text}</span>,
             };
           }),
-          onAction: (action) => {
+          onAction: action => {
             this.setState({
-              countersignType: action.key
+              countersignType: action.key,
             });
             this.actionSheetHandler.close();
           },
         });
-      }
+      };
       return (
         <div className="itemWrap flexRow valignWrapper" onClick={handleOpen}>
           <div className="Gray Font13 bold flex">{_l('多人审批时采用的审批方式')}</div>
@@ -421,12 +448,12 @@ export default class extends Component {
   }
   renderContent() {
     const { action, instance, projectId } = this.props;
-    const { content, backNodeId, customApproveContent, files } = this.state;
+    const { content, backNodeId, customApproveContent, files, opinionList } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
     const { opinionTemplate, flowNode, app = {} } = instance || {};
     const { inputType } = opinionTemplate || {};
     const opinionTemplateOpinions = _.get(opinionTemplate, 'opinions') || [];
-    const { auth, isCallBack } = flowNode || {};
+    const { auth, allowUploadAttachment } = flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
@@ -435,7 +462,9 @@ export default class extends Component {
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
       (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const isSignature = passSignature || overruleSignature;
-    const isAttachment = _.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action);
+    const isAttachment =
+      _.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&
+      allowUploadAttachment;
     let opinions = [];
     if (_.includes(['after', 'pass'], action)) {
       opinions = opinionTemplateOpinions[4];
@@ -443,7 +472,11 @@ export default class extends Component {
     if (_.includes(['overrule', 'return'], action)) {
       opinions = opinionTemplateOpinions[5];
     }
-    const selectTemplateVisible = (_.includes(['pass', 'after', 'overrule', 'return'], action) && inputType === 2) || (!customApproveContent && !_.isEmpty(opinions));
+    const selectTemplateVisible =
+      !customApproveContent &&
+      _.includes(['pass', 'after', 'overrule', 'return'], action) &&
+      (!_.isEmpty(opinions) || !!opinionList.length);
+
     return (
       <Fragment>
         <div className="flex">
@@ -459,17 +492,22 @@ export default class extends Component {
                     </div>
                   )}
                   <div className="Font13 bold flex Gray">{_l('审批意见')}</div>
-                  {!_.isEmpty(opinions) && inputType === 1 && customApproveContent && (
-                    <div className="ThemeColor Font14" onClick={() => this.handleOpenTemplate({ inputType, opinions })}>
-                      {_l('使用模板')}
-                    </div>
-                  )}
+                  {customApproveContent &&
+                    _.includes(['pass', 'after', 'overrule', 'return'], action) &&
+                    (!_.isEmpty(opinions) || !!opinionList.length) && (
+                      <div
+                        className="ThemeColor Font14"
+                        onClick={() => this.handleOpenTemplate({ inputType, opinions, opinionList })}
+                      >
+                        {_l('使用模板')}
+                      </div>
+                    )}
                 </div>
                 <div className="flexRow" style={{ margin: '10px 15px' }}>
                   {selectTemplateVisible ? (
                     <div
                       className="selectTemplate flexRow valignWrapper flex"
-                      onClick={() => this.handleOpenTemplate({ inputType, opinions })}
+                      onClick={() => this.handleOpenTemplate({ inputType, opinions, opinionList })}
                     >
                       {content ? (
                         <div className="flex Font14 Gray">{content}</div>
@@ -515,7 +553,7 @@ export default class extends Component {
                         top: 0,
                         minHeight: selectTemplateVisible ? 35 : 40,
                         width: selectTemplateVisible ? 35 : 40,
-                        marginLeft: 6
+                        marginLeft: 6,
                       }}
                       projectId={projectId}
                       appId={app.id}

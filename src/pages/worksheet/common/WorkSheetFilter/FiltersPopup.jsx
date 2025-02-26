@@ -39,8 +39,8 @@ const SelectedFilter = styled(FlexCenter)`
 `;
 
 export default function FiltersPopup(props) {
-  const { zIndex, actions, state, onChange, ...rest } = props;
-  const { worksheetId = '', type = '', className } = rest;
+  const { zIndex, actions, state, onChange, getPopupContainer, disableAdd, ...rest } = props;
+  const { worksheetId = '', type = '', filterCompId, className } = rest;
   const filtersRef = useRef();
   const btnRef = useRef();
   const [popupVisible, setPopupVisible] = useState();
@@ -54,9 +54,15 @@ export default function FiltersPopup(props) {
     }, 100);
   }
   useEffect(() => {
-    emitter.addListener('FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type, handleWorksheetHeadAddFilter);
+    emitter.addListener(
+      filterCompId || 'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type,
+      handleWorksheetHeadAddFilter,
+    );
     return () => {
-      emitter.removeListener('FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type, handleWorksheetHeadAddFilter);
+      emitter.removeListener(
+        filterCompId || 'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type,
+        handleWorksheetHeadAddFilter,
+      );
     };
   }, []);
   let filteredText;
@@ -68,6 +74,15 @@ export default function FiltersPopup(props) {
     }
   } else if (activeFilter) {
     filteredText = activeFilter.name + (needSave ? ' *' : '');
+  }
+  let maxHeight = btnRef.current
+    ? window.innerHeight - btnRef.current.getBoundingClientRect().y - 120 - 29 - 6
+    : undefined;
+  if (maxHeight < 300) {
+    maxHeight = 300;
+  }
+  if (!editingFilter && disableAdd) {
+    return null;
   }
   return (
     <Trigger
@@ -108,14 +123,12 @@ export default function FiltersPopup(props) {
             state={state}
             onHideFilterPopup={() => setPopupVisible(false)}
             onChange={onChange}
-            maxHeight={
-              btnRef.current ? window.innerHeight - btnRef.current.getBoundingClientRect().y - 120 - 29 - 6 : undefined
-            }
+            maxHeight={maxHeight}
             {...rest}
           />
         </ClickAway>
       }
-      getPopupContainer={() => document.body}
+      getPopupContainer={getPopupContainer || (() => document.body)}
       popupClassName="filterTrigger"
       popupVisible={popupVisible}
       popupAlign={{
@@ -132,14 +145,14 @@ export default function FiltersPopup(props) {
         }
       }}
     >
-      <div ref={btnRef}>
+      <div ref={btnRef} className="worksheetFilterTrigger">
         {!filteredText && (
           <span data-tip={_l('筛选')} className={className}>
             <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
           </span>
         )}
         {filteredText && (
-          <SelectedFilter>
+          <SelectedFilter className="selectedFilter">
             <i className="icon icon-worksheet_filter filterIcon"></i>
             <span className="text ellipsis">{filteredText}</span>
             <i

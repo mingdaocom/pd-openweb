@@ -1,15 +1,18 @@
 import React, { Component, Fragment } from 'react';
+import moment from 'moment';
 import { Button, LoadDiv, Dialog, UserHead, Icon } from 'ming-ui';
 import CreateMerchant from './CreateMerchant';
 import WithdrawalsRecord from './WithdrawalsRecord';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import { STATUS } from '../config';
 import paymentAjax from 'src/api/payment';
+import orderController from 'src/api/order';
 import merchantEmpty from '../../images/merchantEmpty.png';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 
 const TableWrap = styled(PageTableCon)`
   .ant-table-body {
@@ -60,6 +63,47 @@ const ActivePayment = styled(Button)`
   border-radius: 24px !important;
 `;
 
+const SuccessWrap = styled.div`
+  height: 364px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  .finishIcon {
+    color: #4caf50;
+  }
+`;
+
+const ExplainWrap = styled.div`
+  background: #f2fafe;
+  border-radius: 3px;
+  font-size: 13px;
+  padding: 12px;
+  margin-bottom: 24px;
+`;
+
+function SuccessDialog(props) {
+  const { visible, loading, onCancel } = props;
+
+  return (
+    <Dialog visible={visible} onCancel={onCancel} height={300} footer={null}>
+      <SuccessWrap className="pTop100 pBottom100">
+        {!loading ? (
+          <Fragment>
+            <Icon icon="Finish" className="Font48 finishIcon" />
+            <div className="Font24 Bold Gray mTop28 TxtCenter">{_l('试用开通成功')}</div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <LoadDiv size="big" />
+            <div className="Font24 Bold Gray mTop28 TxtCenter">{_l('开通中')}</div>
+          </Fragment>
+        )}
+      </SuccessWrap>
+    </Dialog>
+  );
+}
+
 function EmptyMerchant(props) {
   const { changeCreateMerchant } = props;
 
@@ -68,7 +112,7 @@ function EmptyMerchant(props) {
       <img src={merchantEmpty} style={{ width: 90 }} />
       <div className="Font24 bold mTop30">{_l('申请商户号，开通组织在线收款')}</div>
       <div className="Gray_75 Font18 mTop12">
-        {_l('在线教育场景中用户购买课程或服务；各类活动报名在线完成报名费支付；电商零售场景中下单购买商品')}
+        {_l('场景举例：在线教育场景中用户购买课程或服务；各类活动报名在线完成报名费支付；电商零售场景中下单购买商品')}
       </div>
       <DescWrap>
         {[
@@ -94,7 +138,7 @@ function EmptyMerchant(props) {
       </DescWrap>
       <ActivePayment
         type="primary"
-        className="activatePayment Font15"
+        className="activatePayment Font15 mBottom20"
         onClick={() => changeCreateMerchant('createMerchantVisible', true)}
       >
         {_l('立即申请')}
@@ -128,10 +172,28 @@ export default class MerchantCom extends Component {
         },
       },
       {
+        title: _l('付费状态'),
+        dataIndex: 'subscribeMerchant',
+        render: (value, record) => {
+          return (
+            <span style={{ color: value ? '#4CAF50' : '#2196f3' }}>
+              {value ? _l('已付费') : record.planType === 0 ? _l('试用中') : _l('待付费')}
+            </span>
+          );
+        },
+      },
+      {
         title: _l('余额'),
         dataIndex: 'banlance',
         render: (text, record) => {
           return <div>{_.isNumber(text) && record.status === 3 ? text : '-'}</div>;
+        },
+      },
+      {
+        title: _l('到期时间'),
+        dataIndex: 'planExpiredTime',
+        render: (value, record) => {
+          return <span>{record.status === 3 && !!value ? moment(value).format('YYYY.MM.DD') : '-'}</span>;
         },
       },
       {
@@ -220,7 +282,7 @@ export default class MerchantCom extends Component {
                     {_l('商户详情')}
                   </span>
                   <span
-                    className="Hand ThemeColor Hover_51"
+                    className="Hand ThemeColor Hover_51 mRight24"
                     onClick={() => {
                       this.props.changeShowHeader(false);
                       this.setState({ showWithdraw: true, currentMerchantInfo: record });
@@ -228,6 +290,20 @@ export default class MerchantCom extends Component {
                   >
                     {_l('提现')}
                   </span>
+                  {!record.isTrialed && !record.subscribeMerchant && (
+                    <span className="Hand ThemeColor Hover_51 mRight24" onClick={() => this.onClickTrial(record)}>
+                      {_l('开通试用')}
+                    </span>
+                  )}
+                  {record.planType !== 1 && (
+                    <PurchaseExpandPack
+                      className="Hand ThemeColor Hover_51"
+                      text={record.subscribeMerchant ? _l('续费') : _l('付费开通')}
+                      type="merchant"
+                      extraParam={record.id}
+                      projectId={props.projectId}
+                    />
+                  )}
                 </Fragment>
               );
           }
@@ -261,6 +337,37 @@ export default class MerchantCom extends Component {
       .catch(err => {
         this.setState({ loading: false });
       });
+  };
+
+  onClickTrial = record => {
+    const { projectId } = this.props;
+
+    Dialog.confirm({
+      width: 560,
+      title: _l('您确定开通试用？'),
+      description: (
+        <span className="Gray Bold">{_l('开通后此商户号有 7 天免费试用期，试用期间单笔订单交易最高1元')}</span>
+      ),
+      okText: _l('下一步'),
+      onOk: () => {
+        this.setState({ successDialogVisible: true });
+        orderController
+          .addMerchantPaymentOrder({
+            projectId,
+            num: 1,
+            productOrderType: 0,
+            productDetailId: record.merchantNo,
+            startDate: moment().format('YYYY-MM-DDTHH:mm:ssZ'),
+            endDate: moment().add(6, 'days').format('YYYY-MM-DDTHH:mm:ssZ'),
+          })
+          .then(data => {
+            if (data) {
+              this.setState({ success: true });
+              this.getDataList();
+            }
+          });
+      },
+    });
   };
 
   changeCreateMerchant = (key, visible) => {
@@ -323,6 +430,42 @@ export default class MerchantCom extends Component {
     });
   };
 
+  // 不翻译
+  renderExplain = () => {
+    return (
+      <ExplainWrap>
+        <div className="mBottom8">
+          从2025年1月22日起，平台将对支付能力进行调整，按照商户号收取功能服务费。具体规则如下：
+        </div>
+        <div className="mLeft8">
+          1.新开通的商户号：
+          <br />
+          <div className="mLeft16">
+            统一按照商户号收费，支付渠道费率为0.25%
+            <br />
+            商户号在填写资料开通后，可申请一周的免费试用。试用期内，单笔订单交易额最高为 1元
+            <br />
+            商户也可以选择直接付费开通。付费开通后，单笔订单交易额不受限制。平台支持按月购买，或购买至与组织版本授权到期的时间
+            <br />
+          </div>
+          2.已开通使用的商户：
+          <br />
+          <div className="mLeft16">
+            平台将提供 3个月的过渡调整期。过渡期内，支付渠道费率仍为0.6%，且平台不收取功能服务费
+            <br />
+            商户切换新的收费方式时必须联系顾问。切换后支付渠道费率为0.25%；调整费率后，之前的订单不支持线上退款
+          </div>
+        </div>
+        <div className="mTop8">功能服务费：</div>
+        <div className="mLeft8">
+          999元/商户/年（年费）
+          <br />
+          199元/商户/月（月费）
+        </div>
+      </ExplainWrap>
+    );
+  };
+
   render() {
     const { projectId, featureType } = this.props;
     const {
@@ -333,6 +476,8 @@ export default class MerchantCom extends Component {
       currentMerchantInfo,
       createStep,
       count,
+      success = false,
+      successDialogVisible = false,
     } = this.state;
 
     if (loading) {
@@ -374,6 +519,7 @@ export default class MerchantCom extends Component {
 
     return (
       <Fragment>
+        {this.renderExplain()}
         {_.isEmpty(merchantList) ? (
           <EmptyMerchant
             changeCreateMerchant={visible => this.changeCreateMerchant('createMerchantVisible', visible)}
@@ -387,6 +533,11 @@ export default class MerchantCom extends Component {
             getDataSource={this.getDataList}
           />
         )}
+        <SuccessDialog
+          visible={successDialogVisible}
+          loading={!success}
+          onCancel={() => this.setState({ successDialogVisible: false, success: false })}
+        />
       </Fragment>
     );
   }

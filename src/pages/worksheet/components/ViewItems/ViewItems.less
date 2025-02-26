@@ -98,7 +98,6 @@
   }
 }
 
-
 .workSheetViewsMenu {
   max-height: 400px;
   overflow-y: scroll;
@@ -242,7 +241,8 @@
       }
     }
   }
-  .drawerWorksheetHiddenListTitle {
+  .drawerWorksheetHiddenListTitle,
+  .drawerWorksheetRecycleListTitle {
     font-size: 12px;
     height: 32px;
     line-height: 32px;
@@ -301,7 +301,8 @@
 .drawerWorksheetShowList {
   pointer-events: bounding-box;
 }
-.drawerWorksheetShowListItem {
+.drawerWorksheetShowListItem,
+.drawerWorksheetRecycleItem {
   padding: 9px 32px 9px 0px;
   display: flex;
   align-items: center;
@@ -346,11 +347,38 @@
     .hideicon {
       right: 44px;
     }
+    .recycleWrap {
+      width: 24px;
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      .recycleIcon {
+        display: inline-block !important;
+      }
+      .time {
+        display: none !important;
+      }
+    }
   }
   .sideEditName {
     border: none;
   }
+  .recycleWrap {
+    width: auto;
+    height: 24px;
+    border-radius: 3px;
+    text-align: center;
+    line-height: 24px;
+    .time {
+      display: inline-block;
+    }
+    .recycleIcon {
+      display: none;
+    }
+  }
 }
+
 .drawerWorksheetShowListItem.active {
   background: #e0f4ff;
   &:hover {

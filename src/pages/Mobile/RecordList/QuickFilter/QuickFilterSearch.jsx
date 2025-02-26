@@ -64,7 +64,9 @@ export default function QuickFilterSearch(props) {
     quickFilterWithDefault = [],
     updateFilters = () => {},
     updateActiveSavedFilter = () => {},
+    base = {},
   } = props;
+  const showSavedFilter = !_.get(window, 'shareState.shareId') && base.type !== 'single';
 
   const filtersControl = quickFilterWithDefault
     .map(filter => ({
@@ -97,7 +99,7 @@ export default function QuickFilterSearch(props) {
   return (
     <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft10 pRight10 pTop10 pBottom10 ${className}`}>
       {showSearch && <Search textFilters={[]} viewType={view.viewType} />}
-      {(!_.isEmpty(filtersControl) || !_.isEmpty(savedFilters)) && (
+      {(!_.isEmpty(filtersControl) || (showSavedFilter && !_.isEmpty(savedFilters))) && (
         <FilterWrapper>
           <Icon
             icon="filter"
