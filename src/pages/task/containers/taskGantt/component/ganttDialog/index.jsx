@@ -190,7 +190,7 @@ export default class GanttDialog extends Component {
       if (res.error) {
         alert(res.error);
       } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${btoa(res[0].key)}`;
         axios
           .post(url, base64.replace('data:image/png;base64,', ''), {
             headers: {

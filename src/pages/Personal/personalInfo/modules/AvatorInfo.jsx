@@ -82,7 +82,7 @@ export default class AvatarEditor extends Component {
       if (res.error) {
         alert(res.error);
       } else {
-        const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
+        const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${btoa(res[0].key)}`;
         const xhr = new XMLHttpRequest();
 
         xhr.onreadystatechange = () => {

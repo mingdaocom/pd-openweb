@@ -263,7 +263,7 @@ export default function Dashboard(props) {
           if (res.error) {
             alert(res.error);
           } else {
-            const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${btoa(res[0].key)}`;
+            const url = `${md.global.FileStoreConfig.uploadHost}/putb64/-1/key/${btoa(res[0].key)}`;
             urlToBase64(theme.bulletinPic).then(base64 => {
               axios
                 .post(url, base64.replace('data:image/jpeg;base64,', ''), {
