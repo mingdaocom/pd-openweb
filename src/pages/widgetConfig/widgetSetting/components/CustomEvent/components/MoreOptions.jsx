@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import Trigger from 'rc-trigger';
 import { Menu, MenuItem, Icon, Dropdown, Checkbox, Dialog } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { EVENT_MORE_OPTIONS, getEventDisplay, dealEventDisplay } from '../config';
+import { EVENT_MORE_OPTIONS, FILTER_VALUE_ENUM, getEventDisplay, dealEventDisplay, ACTION_VALUE_ENUM } from '../config';
 import { IconWrap } from '../style';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
@@ -13,6 +13,21 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 import { filterSysControls } from 'src/pages/widgetConfig/util';
 import { v4 as uuidv4 } from 'uuid';
 import { getPathById } from '../../../../util/widgets';
+
+// 查询工作表不支持复制
+const dealEventActions = eventActions => {
+  const { filters = [], actions = [] } = eventActions || {};
+  const formatFilters = filters.filter(i => i.valueType !== FILTER_VALUE_ENUM.SEARCH_WORKSHEET);
+  function dealActions() {
+    const formatActions = actions.map(i => {
+      const newActionItems = (i.actionItems || []).filter(a => a.type !== '2');
+      return { ...i, actionItems: newActionItems };
+    });
+    return formatActions.filter(i => i.actionType !== ACTION_VALUE_ENUM.SEARCH_WORKSHEET);
+  }
+
+  return { ...eventActions, filters: formatFilters, actions: _.isEmpty(actions) ? [] : dealActions() };
+};
 
 function CopyCustomEvent(props) {
   const { data, allControls = [], index, widgets = [], onCancel, setWidgets, eventId, onChange } = props;
@@ -38,6 +53,7 @@ function CopyCustomEvent(props) {
       const copyEvent = _.find(customEvent, c => c.eventId === eventId);
       let currentCopyEventActions = _.get(copyEvent, ['eventActions', index]) || {};
       currentCopyEventActions = copyAction ? currentCopyEventActions : { ...currentCopyEventActions, actions: [] };
+      currentCopyEventActions = dealEventActions(currentCopyEventActions);
 
       // 复制到新控件
       const targetControlEvent = getAdvanceSetting(currentControl, 'custom_event') || [];

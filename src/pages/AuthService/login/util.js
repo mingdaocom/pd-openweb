@@ -95,6 +95,24 @@ export const loginCallback = ({ data, onChange }) => {
 
       return;
     }
+    if (
+      [
+        LoginResult.passwordOverdue, // 密码过期需要重新设置密码
+        LoginResult.firstLoginResetPassword, //首次登录需修改密码
+      ].includes(data.accountResult)
+    ) {
+      let type = LoginResult.firstLoginResetPassword === data.accountResult ? 1 : 2;
+      //需要重置密码
+      if (request.ReturnUrl) {
+        location.href = `/resetPassword?state=${data.state}&type=${type}&ReturnUrl=${encodeURIComponent(
+          request.ReturnUrl,
+        )}`;
+      } else {
+        location.href = `/resetPassword?state=${data.state}&type=${type}`;
+      }
+      return;
+    }
+
     // 如果登录失败，需要把本地保存的 accountId 和 encryptPassword 清理掉
     window.localStorage.removeItem('LoginCheckList');
 

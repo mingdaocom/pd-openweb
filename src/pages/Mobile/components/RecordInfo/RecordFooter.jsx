@@ -337,7 +337,11 @@ export default class RecordFooter extends Component {
     return (
       <Fragment>
         {(allowEdit || isDraft) && (
-          <Button className="flex mLeft6 mRight6 Font13" onClick={onEditRecord}>
+          <Button
+            className={cx('mRight6 Font13', { flex: !customBtns.length })}
+            style={{ width: customBtns.length ? 100 : 'unset' }}
+            onClick={onEditRecord}
+          >
             <Icon icon="edit" className="Font15 mRight6 ThemeColor" />
             <span className="ThemeColor bold">{_l('编辑')}</span>
           </Button>
@@ -350,7 +354,7 @@ export default class RecordFooter extends Component {
         {!isDraft && !loading && (
           <Fragment>
             <CustomButtons
-              classNames="flex flexShink flexRow ellipsis mLeft6 mRight6 justifyContentCenter"
+              classNames="flex flexShink flexRow ellipsis mLeft3 mRight3 justifyContentCenter"
               customBtns={customBtns}
               isSlice
               btnDisable={this.state.btnDisable}
@@ -365,7 +369,7 @@ export default class RecordFooter extends Component {
               !customBtns.length &&
               !hideOtherOperate && (
                 <Button
-                  className="flex mLeft6 mRight6 Font13"
+                  className="flex mLeft6 Font13"
                   color="primary"
                   onClick={() => this.handleMoreOperation({ allowDelete, allowShare })}
                 >

@@ -180,8 +180,8 @@ export default function SubListSetting(props) {
     });
     return reControls.filter(item =>
       needShow
-        ? !_.includes([22, 43, 45, 49, 51, 52, 10010], item.type)
-        : !(_.includes([22, 34, 43, 45, 49, 51, 52, 10010], item.type) || isSheetDisplay(item)),
+        ? !_.includes([22, 43, 45, 49, 51, 52], item.type)
+        : !(_.includes([22, 34, 43, 45, 49, 51, 52], item.type) || isSheetDisplay(item)),
     );
   };
 

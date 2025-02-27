@@ -232,9 +232,7 @@ class UserItem extends Component {
   // 重置密码
   handleResetPasswordClick = e => {
     this.clickEvent(e);
-    this.setState({
-      resetPasswordShowDialog: !this.state.resetPasswordShowDialog,
-    });
+    this.setState({ resetPasswordShowDialog: !this.state.resetPasswordShowDialog });
   };
 
   renderResetPasswordInfo = () => {
@@ -369,190 +367,193 @@ class UserItem extends Component {
     let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
 
     return (
-      <tr
-        key={user.accountId}
-        className={classNames('userItem Hand', {
-          isChecked: isChecked,
-          bgColor: editCurrentUser.accountId === user.accountId,
-        })}
-        onClick={this.props.clickRow}
-      >
-        <td
-          className={classNames('checkBox', {
-            showCheckBox: isChecked,
-            hasSelectCount: selectCount > 0,
-            // opacity0: typeCursor === 2 || typeCursor === 3,
+      <Fragment>
+        <tr
+          key={user.accountId}
+          className={classNames('userItem Hand', {
+            isChecked: isChecked,
+            bgColor: editCurrentUser.accountId === user.accountId,
           })}
+          onClick={this.props.clickRow}
         >
-          <Checkbox
-            ref="example"
-            key={`checkBox-${user.accountId}`}
-            className="TxtMiddle InlineBlock"
-            checked={isChecked}
-            onClick={(checked, id, e) => {
-              e.stopPropagation();
-              this.handleCheckbox(isChecked, user.accountId);
-            }}
-          />
-        </td>
-        {isHideCurrentColumn('name') && (
           <td
-            className={cx('nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 })}
-            style={{ width: setWidth ? 200 : 'unset' }}
+            className={classNames('checkBox', {
+              showCheckBox: isChecked,
+              hasSelectCount: selectCount > 0,
+              // opacity0: typeCursor === 2 || typeCursor === 3,
+            })}
           >
-            <div className="flexRow">
-              <UserHead
-                className="avatar"
-                user={{
-                  userHead: user.avatar,
-                  accountId: user.accountId,
-                }}
-                size={32}
-                projectId={projectId}
-              />
-              <a className="overflow_ellipsis mLeft10 LineHeight32" title={user.fullname}>
-                {user.fullname}
-              </a>
-              {isDepartmentChargeUser ? (
-                <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
-                  <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
-                </Tooltip>
-              ) : null}
-            </div>
-          </td>
-        )}
-        {isHideCurrentColumn('department') && (
-          <td className="departmentTh">
-            <div
-              className="WordBreak overflow_ellipsis"
-              onMouseEnter={() => {
-                const departmentIds = departmentData.map(item => item.id || item.departmentId);
-                this.props.updateFullDepartmentInfo(projectId, departmentIds);
+            <Checkbox
+              ref="example"
+              key={`checkBox-${user.accountId}`}
+              className="TxtMiddle InlineBlock"
+              checked={isChecked}
+              onClick={(checked, id, e) => {
+                e.stopPropagation();
+                this.handleCheckbox(isChecked, user.accountId);
               }}
+            />
+          </td>
+          {isHideCurrentColumn('name') && (
+            <td
+              className={cx('nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 })}
+              style={{ width: setWidth ? 200 : 'unset' }}
             >
-              <Tooltip
-                action={['hover']}
-                tooltipClass="departmentFullNametip"
-                popupPlacement="bottom"
-                text={
-                  <div>
-                    {(departmentData || []).map((it, depIndex) => {
-                      const fullName = (fullDepartmentInfo[it.id] || fullDepartmentInfo[it.departmentId] || '').split(
-                        '/',
-                      );
-                      return (
-                        <div className={cx({ mBottom8: depIndex < departmentData.length - 1 })}>
-                          {fullName.map((n, i) => (
-                            <span>
-                              {n}
-                              {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
-                            </span>
-                          ))}
-                        </div>
-                      );
-                    })}
-                  </div>
-                }
-                mouseEnterDelay={0.5}
-              >
-                <span className="ellipsis InlineBlock wMax100 space">
-                  {(departmentData || [])
-                    .map(it => {
-                      return `${it.name || it.departmentName}`;
-                    })
-                    .join('；')}
-                </span>
-              </Tooltip>
-            </div>
-          </td>
-        )}
-        {isHideCurrentColumn('role') && (
-          <td className="roleTh">
-            <div className="WordBreak overflow_ellipsis">
-              <span
-                className="ellipsis InlineBlock wMax100 space"
-                title={(orgRoleInfos || []).map(it => it.name).join('；')}
-              >
-                {(orgRoleInfos || []).map(it => it.name).join('；')}
-              </span>
-            </div>
-          </td>
-        )}
-        {isHideCurrentColumn('position') && (
-          <td className="jobTh">
-            {
-              <div
-                className="job WordBreak overflow_ellipsis"
-                title={(jobData || []).map((it, i) => {
-                  if (jobData.length - 1 > i) {
-                    return `${it.name || it.jobName};`;
-                  }
-                  return `${it.name || it.jobName}`;
-                })}
-              >
-                {(jobData || []).map((it, i) => {
-                  if (jobData.length - 1 > i) {
-                    return `${it.name || it.jobName} ; `;
-                  }
-                  return `${it.name || it.jobName}`;
-                })}
+              <div className="flexRow">
+                <UserHead
+                  className="avatar"
+                  user={{
+                    userHead: user.avatar,
+                    accountId: user.accountId,
+                  }}
+                  size={32}
+                  projectId={projectId}
+                />
+                <a className="overflow_ellipsis mLeft10 LineHeight32" title={user.fullname}>
+                  {user.fullname}
+                </a>
+                {isDepartmentChargeUser ? (
+                  <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
+                    <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
+                  </Tooltip>
+                ) : null}
               </div>
-            }
-          </td>
-        )}
-        {isHideCurrentColumn('phone') && (
-          <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
-        )}
-        {!isMinSc && isHideCurrentColumn('email') && (
-          <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>
-        )}
-        {isHideCurrentColumn('jobNum') && <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>}
-        {isHideCurrentColumn('adress') && (
-          <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
-        )}
-        {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
-          <td className="joinDateTh">
-            {user.addProjectTime
-              ? createTimeSpan(dateConvertToUserZone(user.addProjectTime))
-              : createTimeSpan(dateConvertToUserZone(user.createTime))}
-          </td>
-        )}
-        {!isMinSc && typeCursor === 3 ? (
-          <Fragment>
-            {isHideCurrentColumn('applyDate') && (
-              <td className="dateTh overflow_ellipsis WordBreak">
-                {createTimeSpan(dateConvertToUserZone(user.updateTime))}
-              </td>
-            )}
-            {isHideCurrentColumn('operator') && (
-              <td className="actMenTh overflow_ellipsis WordBreak">
-                {!user.lastModifyUser || !user.lastModifyUser.fullname ? '' : user.lastModifyUser.fullname}
-              </td>
-            )}
-          </Fragment>
-        ) : (
-          ''
-        )}
+            </td>
+          )}
+          {isHideCurrentColumn('department') && (
+            <td className="departmentTh">
+              <div
+                className="WordBreak overflow_ellipsis"
+                onMouseEnter={() => {
+                  const departmentIds = departmentData.map(item => item.id || item.departmentId);
+                  this.props.updateFullDepartmentInfo(projectId, departmentIds);
+                }}
+              >
+                <Tooltip
+                  action={['hover']}
+                  tooltipClass="departmentFullNametip"
+                  popupPlacement="bottom"
+                  text={
+                    <div>
+                      {(departmentData || []).map((it, depIndex) => {
+                        const fullName = (fullDepartmentInfo[it.id] || fullDepartmentInfo[it.departmentId] || '').split(
+                          '/',
+                        );
+                        return (
+                          <div className={cx({ mBottom8: depIndex < departmentData.length - 1 })}>
+                            {fullName.map((n, i) => (
+                              <span>
+                                {n}
+                                {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  }
+                  mouseEnterDelay={0.5}
+                >
+                  <span className="ellipsis InlineBlock wMax100 space">
+                    {(departmentData || [])
+                      .map(it => {
+                        return `${it.name || it.departmentName}`;
+                      })
+                      .join('；')}
+                  </span>
+                </Tooltip>
+              </div>
+            </td>
+          )}
+          {isHideCurrentColumn('role') && (
+            <td className="roleTh">
+              <div className="WordBreak overflow_ellipsis">
+                <span
+                  className="ellipsis InlineBlock wMax100 space"
+                  title={(orgRoleInfos || []).map(it => it.name).join('；')}
+                >
+                  {(orgRoleInfos || []).map(it => it.name).join('；')}
+                </span>
+              </div>
+            </td>
+          )}
+          {isHideCurrentColumn('position') && (
+            <td className="jobTh">
+              {
+                <div
+                  className="job WordBreak overflow_ellipsis"
+                  title={(jobData || []).map((it, i) => {
+                    if (jobData.length - 1 > i) {
+                      return `${it.name || it.jobName};`;
+                    }
+                    return `${it.name || it.jobName}`;
+                  })}
+                >
+                  {(jobData || []).map((it, i) => {
+                    if (jobData.length - 1 > i) {
+                      return `${it.name || it.jobName} ; `;
+                    }
+                    return `${it.name || it.jobName}`;
+                  })}
+                </div>
+              }
+            </td>
+          )}
+          {isHideCurrentColumn('phone') && (
+            <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
+          )}
+          {!isMinSc && isHideCurrentColumn('email') && (
+            <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>
+          )}
+          {isHideCurrentColumn('jobNum') && (
+            <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>
+          )}
+          {isHideCurrentColumn('adress') && (
+            <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
+          )}
+          {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
+            <td className="joinDateTh">
+              {user.addProjectTime
+                ? createTimeSpan(dateConvertToUserZone(user.addProjectTime))
+                : createTimeSpan(dateConvertToUserZone(user.createTime))}
+            </td>
+          )}
+          {!isMinSc && typeCursor === 3 ? (
+            <Fragment>
+              {isHideCurrentColumn('applyDate') && (
+                <td className="dateTh overflow_ellipsis WordBreak">
+                  {createTimeSpan(dateConvertToUserZone(user.updateTime))}
+                </td>
+              )}
+              {isHideCurrentColumn('operator') && (
+                <td className="actMenTh overflow_ellipsis WordBreak">
+                  {!user.lastModifyUser || !user.lastModifyUser.fullname ? '' : user.lastModifyUser.fullname}
+                </td>
+              )}
+            </Fragment>
+          ) : (
+            ''
+          )}
 
-        <td className="actTh">
-          <Trigger
-            action={['click']}
-            popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [-20, 0],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            popupVisible={optListVisible}
-            onPopupVisibleChange={optListVisible => this.setState({ optListVisible })}
-            popup={this.renderAction}
-          >
-            <span className="tip-top Hand" onClick={e => e.stopPropagation()}>
-              <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
-            </span>
-          </Trigger>
-          {this.renderResetPasswordInfo()}
-        </td>
-
+          <td className="actTh">
+            <Trigger
+              action={['click']}
+              popupAlign={{
+                points: ['tl', 'bl'],
+                offset: [-20, 0],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              popupVisible={optListVisible}
+              onPopupVisibleChange={optListVisible => this.setState({ optListVisible })}
+              popup={this.renderAction}
+            >
+              <span className="tip-top Hand" onClick={e => e.stopPropagation()}>
+                <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
+              </span>
+            </Trigger>
+          </td>
+        </tr>
+        {this.renderResetPasswordInfo()}
         {showWorkHandover && (
           <WorkHandoverDialog
             visible={showWorkHandover}
@@ -561,7 +562,7 @@ class UserItem extends Component {
             onCancel={() => this.setState({ showWorkHandover: false })}
           />
         )}
-      </tr>
+      </Fragment>
     );
   }
 }

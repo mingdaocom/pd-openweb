@@ -75,7 +75,7 @@ const CoverImgWrap = styled.div`
     height: 100%;
     background-position: 50%;
     background-image: ${props => `url(${props.url})`};
-    ${props => (props.isBgBlur ? 'position: absolute;z-index: 2;' : '')};
+    ${props => (props.isBgBlur ? 'position: absolute;z-index: 3;' : '')};
     ${props =>
       props.coverType === '1' ? 'background-repeat: no-repeat;background-size: contain;' : 'background-size: cover;'}
   }
@@ -169,7 +169,7 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-prev,
   &.slick-slider .slick-prev:hover {
     left: 0;
-    z-index: 2;
+    z-index: 3;
     color: white;
     border-radius: 0px 6px 6px 0px;
   }
@@ -177,7 +177,7 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-next,
   &.slick-slider .slick-next:hover {
     right: 0;
-    z-index: 2;
+    z-index: 3;
     color: white;
     border-radius: 6px 0px 0px 6px;
   }
@@ -187,7 +187,7 @@ const CarouseWrap = styled.div`
   position: relative;
   flex: 1;
   min-width: 0;
-  z-index: 3;
+  z-index: 4;
   .showNumWrap {
     width: 46px;
     height: 24px;
@@ -208,7 +208,7 @@ const CarouseWrap = styled.div`
     bottom: 0px;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
     opacity: 0.1;
-    z-index: 3;
+    z-index: 4;
   }
 `;
 
