@@ -20,7 +20,7 @@ const DEPARTMENT_RANGE = [
 ];
 
 export default function DepartmentConfig(props) {
-  const { globalSheetInfo, data, onChange } = props;
+  const { globalSheetInfo = {}, data, onChange } = props;
   const chooseRange = getAdvanceSetting(data, 'chooserange') || [];
   const { departrangetype = '0' } = getAdvanceSetting(data);
 

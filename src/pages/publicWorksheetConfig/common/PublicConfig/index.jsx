@@ -78,7 +78,6 @@ class PublicConfig extends React.Component {
         receipt: false,
       },
       ..._.pick(settings, [
-        'limitWriteFrequencySetting',
         'ipControlId',
         'browserControlId',
         'deviceControlId',
@@ -102,6 +101,11 @@ class PublicConfig extends React.Component {
       smsSignature: settings.smsSignature || '',
       timeRange: this.getTimeRange(settings),
       settingChanged: false,
+      limitWriteFrequencySetting:
+        _.get(settings, 'limitWriteFrequencySetting.isEnable') &&
+        _.get(settings, 'limitWriteFrequencySetting.limitRangType') === 0
+          ? { ...settings.limitWriteFrequencySetting, limitRangType: 1 }
+          : settings.limitWriteFrequencySetting,
     };
   }
 
@@ -178,6 +182,7 @@ class PublicConfig extends React.Component {
       limitWriteTime,
       timeRange,
       limitWriteCount,
+      limitWriteFrequencySetting,
       limitPasswordWrite,
       cacheFieldData,
       weChatSetting,
@@ -245,6 +250,14 @@ class PublicConfig extends React.Component {
     if (limitWriteCount.isEnable) {
       if (!limitWriteCount.limitWriteCount) {
         alert(_l('请填写收集数量上限'), 3);
+        return false;
+      }
+    }
+
+    //填写次数校验
+    if (limitWriteFrequencySetting.isEnable) {
+      if (!limitWriteFrequencySetting.limitWriteCount) {
+        alert(_l('请填写限制次数'), 3);
         return false;
       }
     }

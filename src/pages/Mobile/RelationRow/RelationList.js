@@ -38,8 +38,9 @@ class RelationList extends Component {
   }
 
   onQueryChange = () => {
-    const { rowId } = this.props;
-    handleReplaceState('page', `relateRecord-${rowId}`, () => this.setState({ previewRecordId: undefined }));
+    const { previewRecordId } = this.state;
+    if (!previewRecordId) return;
+    handleReplaceState('page', `relateRecord-${previewRecordId}`, () => this.setState({ previewRecordId: undefined }));
   };
 
   loadData = props => {

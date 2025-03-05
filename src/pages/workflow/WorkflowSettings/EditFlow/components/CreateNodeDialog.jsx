@@ -1132,7 +1132,8 @@ export default class CreateNodeDialog extends Component {
       !(
         nextProps.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
         nextProps.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
-      )
+      ) &&
+      !md.global.SysSettings.hidePlugin
     ) {
       this.getPluginList();
     }
@@ -1433,13 +1434,15 @@ export default class CreateNodeDialog extends Component {
 
     if (
       !featureType ||
-      (flowInfo.startAppType === APP_TYPE.EXTERNAL_USER && flowInfo.startTriggerId === TRIGGER_ID.DISCUSS)
+      (flowInfo.startAppType === APP_TYPE.EXTERNAL_USER && flowInfo.startTriggerId === TRIGGER_ID.DISCUSS) ||
+      isPlugin ||
+      md.global.SysSettings.hidePlugin
     ) {
       _.remove(LIST, o => o.key === 'plugin');
     }
 
-    if (isPlugin) {
-      _.remove(LIST, o => _.includes(['plugin', 'api'], o.key));
+    if (isPlugin || md.global.SysSettings.hideIntegration) {
+      _.remove(LIST, o => o.key === 'api');
     }
 
     if (

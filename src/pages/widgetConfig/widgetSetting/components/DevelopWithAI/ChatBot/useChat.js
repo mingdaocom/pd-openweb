@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import codeAjax from 'src/api/code';
 import { MESSAGE_TYPE } from './enum';
-import { findLast, get, omit } from 'lodash';
+import { find, findLast, get, omit } from 'lodash';
 import { createParser } from 'eventsource-parser';
 
 // 在文件顶部添加 ChunkLoader 类
@@ -149,7 +149,25 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
           params,
           messageList: getMessageList()
             .filter(message => message.type !== MESSAGE_TYPE.SHOW_NOT_SEND)
-            .map(message => omit(message, ['id', 'type'])),
+            .map(message => omit(message, ['id', 'type']))
+            .map(message => {
+              if (find(message.content, { type: 'image_url' })) {
+                const content = message.content.map(item => {
+                  if (item.type === 'image_url') {
+                    item = {
+                      type: 'image_url',
+                      image_url: {
+                        url: item.image_url.url.replace(/\?.*/, ''),
+                      },
+                    };
+                  }
+                  return item;
+                });
+                return { ...message, content };
+              } else {
+                return message;
+              }
+            }),
         },
         {
           abortController: abortControllerRef.current,

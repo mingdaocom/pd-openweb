@@ -225,10 +225,15 @@ async function getStatus(data, shareId) {
     }
   }
 
-  if (canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting)) {
-    return isWithinLimitWriteTime ? FILL_STATUS.NORMAL : FILL_STATUS.NOT_IN_FILL_TIME;
+  const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
+  if (writeScope === 1 && !wxUserInfo.openId) {
+    if (canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting)) {
+      return isWithinLimitWriteTime ? FILL_STATUS.NORMAL : FILL_STATUS.NOT_IN_FILL_TIME;
+    } else {
+      return FILL_STATUS.COMPLETED;
+    }
   } else {
-    return FILL_STATUS.COMPLETED;
+    return FILL_STATUS.NORMAL;
   }
 }
 

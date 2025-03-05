@@ -21,6 +21,7 @@ import cx from 'classnames';
 import localForage from 'localforage';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
 import { TinyColor } from '@ctrl/tinycolor';
+import { getPublicSubmitStorage } from './utils';
 
 const ImgCon = styled.div`
   position: relative;
@@ -109,6 +110,7 @@ export default class FillWorksheet extends React.Component {
       smsVerificationFiled,
       smsVerification,
       cacheFieldData = {},
+      writeScope,
     } = publicWorksheetInfo;
     let hasError;
     const submit = res => {
@@ -162,17 +164,17 @@ export default class FillWorksheet extends React.Component {
             });
             return;
           }
-          const publicSubmit = localStorage.getItem('publicWorksheetSubmit_' + shareId);
-          const publicWorksheetSubmit = !publicSubmit
-            ? []
-            : publicSubmit.indexOf('[') < 0
-            ? [publicSubmit]
-            : safeParse(publicSubmit);
+
           // 添加成功
-          safeLocalStorageSetItem(
-            'publicWorksheetSubmit_' + publicWorksheetInfo.shareId,
-            JSON.stringify([...publicWorksheetSubmit, new Date().toISOString()]),
-          );
+          const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
+          if (writeScope === 1 && !wxUserInfo.openId) {
+            const submitStorage = getPublicSubmitStorage(shareId);
+            safeLocalStorageSetItem(
+              'publicWorksheetSubmit_' + publicWorksheetInfo.shareId,
+              JSON.stringify([...submitStorage, new Date().toISOString()]),
+            );
+          }
+
           if (cacheFieldData.isEnable) {
             const cacheData = (data || []).map(item => ({
               controlId: item.controlId,

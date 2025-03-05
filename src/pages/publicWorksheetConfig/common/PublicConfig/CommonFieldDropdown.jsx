@@ -78,7 +78,7 @@ export default function CommonFieldDropdown(props) {
         !selectedCount ? (
           <span className="Gray_bd">{_l('选择字段')}</span>
         ) : (
-          <span>{_l(`已选择${selectedCount}个字段`)}</span>
+          <span>{_l('已选择%0个字段', selectedCount)}</span>
         )
       }
       data={data}

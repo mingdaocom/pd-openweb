@@ -27,11 +27,11 @@ export default class UnusualContent extends Component {
   state = {
     remark: '',
     applyJoinAppVisible: false,
-    reinstallLoading: false
+    reinstallLoading: false,
   };
   updateState = (obj, cb) => {
     this.setState({ obj }, cb);
-  }
+  };
   applyJoinApp = () => {
     const { appId } = this.props;
     const { remark } = this.state;
@@ -41,19 +41,20 @@ export default class UnusualContent extends Component {
       }
       this.setState({ applyJoinAppVisible: false });
     });
-  }
+  };
   reinstall = () => {
     const { appId } = this.props;
     this.setState({ reinstallLoading: true });
-    marketplaceApi.reinstall({
-      appId
-    }).then(data => {
-      if (data) {
-        alert(_l('安装成功'));
-        location.href = '/dashboard';
-      }
-    }).finally(() => this.setState({ reinstallLoading: false }));
-  }
+    marketplaceApi
+      .reinstall({ appId })
+      .then(data => {
+        if (data) {
+          alert(_l('安装成功'));
+          location.href = '/dashboard';
+        }
+      })
+      .finally(() => this.setState({ reinstallLoading: false }));
+  };
   renderApply() {
     const { appPkg } = this.props;
     const { name, iconUrl, iconColor, projectId, managers = [], projectName } = appPkg;
@@ -140,7 +141,17 @@ export default class UnusualContent extends Component {
             </Button>
           )}
           {_.includes([20], status) && _.get(appPkg.license, 'status') === 2 && (
-            <Button onClick={() => window.open(`${md.global.Config.MarketUrl}/app/${appPkg.goodsId}?projectId=${appPkg.projectId}&purchaseRecordId=${appPkg.license.id}&buyTypeEnum=1&planType=${appPkg.license.planType}`)}>
+            <Button
+              onClick={() => {
+                if (md.global.Config.IsLocal) {
+                  alert(_l('请前往市场操作续订'), 3);
+                  return;
+                }
+                window.open(
+                  `${md.global.Config.MarketUrl}/app/${appPkg.goodsId}?projectId=${appPkg.projectId}&purchaseRecordId=${appPkg.license.id}&buyTypeEnum=1&planType=${appPkg.license.planType}`,
+                );
+              }}
+            >
               {_l('立即续订')}
             </Button>
           )}

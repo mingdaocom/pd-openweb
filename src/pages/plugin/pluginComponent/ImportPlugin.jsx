@@ -222,10 +222,10 @@ function ImportPlugin(props) {
           setErrorTip('');
           setIsEncrypt(false);
         }}
-        onUploaded={(up, file) => {
+        onUploaded={(up, file, response) => {
           setUploading(false);
           setFile(file);
-          const url = md.global.FileStoreConfig.documentHost + file.key;
+          const url = md.global.FileStoreConfig.documentHost + response.key;
           onCheckFile(url);
         }}
         onError={() => {

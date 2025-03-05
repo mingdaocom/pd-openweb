@@ -87,7 +87,7 @@ export default function SearchParams(props) {
             );
           }}
         />
-        {item.desc && <span className="Gray_9e Font12 mTop5 InlineBlock">{item.desc}</span>}
+        {item.desc && <span className="Gray_9e Font12 mTop5 InlineBlock WordBreak">{item.desc}</span>}
       </div>
     );
   };

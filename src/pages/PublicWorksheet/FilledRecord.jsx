@@ -157,10 +157,10 @@ export default function FilledRecord(props) {
   const onDeleteRecord = rowId => {
     isMobile
       ? MobileDialog.confirm({
-        content: _l('确认删除该填写记录吗?'),
-        confirmText: <span className="Red">{_l('删除')}</span>,
-        onConfirm: () => onDeleteRow(rowId)
-      })
+          content: _l('确认删除该填写记录吗?'),
+          confirmText: <span className="Red">{_l('删除')}</span>,
+          onConfirm: () => onDeleteRow(rowId),
+        })
       : Dialog.confirm({
           title: _l('删除记录'),
           buttonType: 'danger',

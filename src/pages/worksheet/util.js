@@ -563,7 +563,11 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const rulesResult = checkRulesErrorOfRow({
         from,
         rules,
-        controls: controls.filter(c => _.find(showControls, id => id === c.controlId)),
+        controls: controls.filter(
+          c =>
+            _.find(showControls, id => id === c.controlId) ||
+            _.find(rules, rule => JSON.stringify(rule.filters).indexOf(c.controlId) > -1),
+        ),
         row,
       });
       const rulesErrors = rulesResult.errors;

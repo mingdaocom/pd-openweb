@@ -16,6 +16,14 @@ export const getAttachmentData = (control = {}) => {
   return fileData;
 };
 
+const getRelateValue = control => {
+  const value = safeParse(control.value || '[]');
+  if (_.isEmpty(value)) return [];
+  return value.map(i => {
+    return { ...i, ...safeParse(i.sourcevalue) };
+  });
+};
+
 const getValue = (control = {}, type) => {
   if (!control.value) return '';
   switch (control.type) {
@@ -161,7 +169,9 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
       // 对象数组或子表值
       const controlState = curControl.store ? curControl.store.getState() : {};
       const rows = (
-        curControl.type === 29 ? _.get(controlState, 'records') || [] : _.get(controlState, 'rows') || []
+        curControl.type === 29
+          ? _.get(controlState, 'records') || getRelateValue(curControl)
+          : _.get(controlState, 'rows') || []
       ).filter(r => !(r.rowid || '').includes('empty'));
 
       params[item.id] = '';

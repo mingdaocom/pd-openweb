@@ -446,7 +446,7 @@ export default class Ding extends React.Component {
 
   render() {
     const { projectId } = this.props;
-    const { currentTab, CorpId, AppKey, AppSecret, AgentId, integrationScanEnabled, isCloseDing, customNameIcon } =
+    const { currentTab, CorpId, AppKey, AppSecret, AgentId, intergrationScanEnabled, isCloseDing, customNameIcon } =
       this.state;
 
     if (this.state.pageLoading) {
@@ -494,10 +494,10 @@ export default class Ding extends React.Component {
                 <EnableScanLogin
                   integrationType={1}
                   projectId={projectId}
-                  scanEnabled={integrationScanEnabled}
+                  scanEnabled={intergrationScanEnabled}
                   disabled={isCloseDing}
                   href={`/dingSyncCourse/${projectId}`}
-                  updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+                  updateScanEnabled={intergrationScanEnabled => this.setState({ intergrationScanEnabled })}
                   customNameIcon={customNameIcon}
                   updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
                 />

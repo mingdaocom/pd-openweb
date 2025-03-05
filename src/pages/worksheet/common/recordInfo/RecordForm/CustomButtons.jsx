@@ -181,10 +181,10 @@ export default class CustomButtons extends React.Component {
               template: template.map((item, index) => {
                 return {
                   ...item,
-                  value: translateInfo[`templateName_${index}`] || item.value
-                }
-              })
-            })
+                  value: translateInfo[`templateName_${index}`] || item.value,
+                };
+              }),
+            });
           })(),
           remarktype: _.get(btn, 'advancedSetting.remarktype'),
           verifyPwd: btn.verifyPwd,
@@ -692,11 +692,13 @@ export default class CustomButtons extends React.Component {
                     size={18}
                   />
                 ) : (
-                  <i
-                    className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
-                      Gray_bd: !button.icon && (!button.color || button.color === 'transparent'),
-                    })}
-                  />
+                  button.icon && (
+                    <i
+                      className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
+                        Gray_bd: !button.icon && (!button.color || button.color === 'transparent'),
+                      })}
+                    />
+                  )
                 )}
                 <span className="breakAll overflow_ellipsis">{button.name}</span>
               </div>

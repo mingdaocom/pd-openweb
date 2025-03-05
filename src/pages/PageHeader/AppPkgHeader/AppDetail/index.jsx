@@ -346,6 +346,12 @@ export default class AppInfo extends Component {
     if (createOrderLoading) {
       return;
     }
+
+    if (md.global.Config.IsLocal) {
+      alert(_l('请前往市场操作续订'), 3);
+      return;
+    }
+
     const createOrder = () => {
       marketplacePaymentApi
         .createOrder({

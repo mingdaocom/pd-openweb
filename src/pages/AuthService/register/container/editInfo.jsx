@@ -43,6 +43,7 @@ export default function (props) {
 
   // 提交名片信息
   const submitUserCard = () => {
+    if (loading) return;
     const {
       fullName,
       password,
@@ -118,12 +119,11 @@ export default function (props) {
           window.localStorage.removeItem('Referrer');
         }
 
-        setState({ loading: false });
-
         if (location.href.match(/enterpriseRegister(\.htm)?\?type=editInfo/i) || !!regcode) {
           validateEditCard(data);
         } else {
           if (data.actionResult == ActionResult.success) {
+            setState({ loading: false });
             registerSuc(props);
           } else if (data.actionResult == ActionResult.userAccountExists) {
             alert(_l('该手机号已注册，您可以使用已有账号登录'), 3);
@@ -155,10 +155,13 @@ export default function (props) {
 
   const validateEditCard = data => {
     let { dialCode, password = '', emailOrTel = '' } = props;
-
+    if (![1, 2].includes(data.joinProjectResult)) {
+      setState({ loading: false });
+    }
     switch (data.joinProjectResult) {
       case 1:
         alert(_l('您已成功加入该组织'), 1, 2000, function () {
+          setState({ loading: false });
           location.href = '/app';
           if (window.isMingDaoApp) {
             mdAppResponse({
@@ -171,6 +174,7 @@ export default function (props) {
         break;
       case 2:
         alert(_l('您的申请已提交，请等待管理员审批'), 1, 2000, function () {
+          setState({ loading: false });
           location.href = '/personal?type=enterprise';
           if (window.isMingDaoApp) {
             mdAppResponse({

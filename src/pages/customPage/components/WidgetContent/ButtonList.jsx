@@ -177,6 +177,12 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
       const sheetSwitchPermit = await worksheetApi.getSwitchPermit({ appId, worksheetId: value });
       isMobile && Toast.clear();
       const param = { visible: true, value, viewId, appId, name, sheetSwitchPermit };
+      if (window.isMingDaoApp) {
+        const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
+        window.location.href = btnId ? `${url}?btnId=${btnId}` : url;
+        return;
+      }
+
       if (btnId) {
         isMobile && Toast.show({ icon: 'loading', content: _l('加载中，请稍后') });
         const { writeControls } = await worksheetApi.getWorksheetBtnByID({ appId, worksheetId: value, btnId });
@@ -330,7 +336,11 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
       if (config.recordLink) {
         const run = (shareData = {}) => {
           if (shareData.rowId) {
-            setPreviewRecord(shareData);
+            if (window.isMingDaoApp) {
+              window.location.href = `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`;
+            } else {
+              setPreviewRecord(shareData);
+            }
           } else {
             window.open(result);
           }

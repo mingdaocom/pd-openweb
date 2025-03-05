@@ -598,6 +598,7 @@ export default function DataCollectionSettings(props) {
                   limitWriteFrequencySetting: {
                     ...limitWriteFrequencySetting,
                     isEnable: !_.get(limitWriteFrequencySetting, 'isEnable'),
+                    limitRangType: 1,
                   },
                 })
               }

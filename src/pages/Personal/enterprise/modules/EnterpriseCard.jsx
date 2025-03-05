@@ -301,7 +301,7 @@ export default class EnterpriseCard extends Component {
                 <div className="Gray_75 hover_blue mLeft16">
                   <ClipboardButton
                     component="span"
-                    data-clipboard-text={card.projectCode}
+                    data-clipboard-text={card.projectId}
                     onSuccess={this.handleCopyTextSuccess.bind(this)}
                   >
                     <span className="childTag">{_l('组织 ID：%0', card.projectId)}</span>

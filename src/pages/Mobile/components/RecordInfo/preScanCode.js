@@ -82,9 +82,14 @@ export const handleAPPScanCode = ({
             handleRelateRow(currentControl, value, worksheetInfo, updateData);
           } else if (currentControl.type === 14) {
             // 附件
+            const originValue = currentControl.value ? JSON.parse(currentControl.value) : [];
             updateData({
               controlId: cid,
-              value: JSON.stringify({ attachments: JSON.parse(value), knowledgeAtts: [], attachmentData: [] }),
+              value: JSON.stringify({
+                attachments: originValue.concat(JSON.parse(value)),
+                knowledgeAtts: [],
+                attachmentData: [],
+              }),
             });
           } else {
             updateData({ controlId: cid, value });

@@ -107,9 +107,9 @@ function UploadImage(
           },
         }}
         bucket={4}
-        onUploaded={(up, files, res) => {
+        onUploaded={(up, file, res) => {
           setStatus('uploaded');
-          onUploaded(res.serverName + res.key);
+          onUploaded(file.url);
         }}
         onAdd={(up, files) => {
           setStatus('uploading');

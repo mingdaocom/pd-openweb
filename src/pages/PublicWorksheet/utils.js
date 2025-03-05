@@ -82,16 +82,21 @@ export function getInfo() {
   };
 }
 
-export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) => {
+export const getPublicSubmitStorage = shareId => {
   const publicSubmit = localStorage.getItem('publicWorksheetSubmit_' + shareId);
   const publicWorksheetSubmit = !publicSubmit
     ? []
     : publicSubmit.indexOf('[') < 0
     ? [publicSubmit]
     : safeParse(publicSubmit);
+  return publicWorksheetSubmit;
+};
+
+export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) => {
+  const submitStorage = getPublicSubmitStorage(shareId);
   let can = true;
   const limitCount = _.get(limitWriteFrequencySetting, 'limitWriteCount');
-  if (publicWorksheetSubmit.length > 0 && !!_.get(limitWriteFrequencySetting, 'isEnable') && !!limitCount) {
+  if (submitStorage.length > 0 && !!_.get(limitWriteFrequencySetting, 'isEnable') && !!limitCount) {
     let m = null;
     switch (_.get(limitWriteFrequencySetting, 'limitRangType')) {
       case FILLLIMIT_TYPE.SPECIFIEDTIMES:
@@ -112,7 +117,7 @@ export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) =
     }
     can =
       limitCount > 0
-        ? publicWorksheetSubmit.filter(o => (!m ? true : moment(o).isSame(moment(), m))).length < limitCount
+        ? submitStorage.filter(o => (!m ? true : moment(o).isSame(moment(), m))).length < limitCount
         : true;
   }
   return can;
