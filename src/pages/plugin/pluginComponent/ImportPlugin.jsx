@@ -224,7 +224,7 @@ function ImportPlugin(props) {
         }}
         onUploaded={(up, file, response) => {
           setUploading(false);
-          setFile(file);
+          setFile({ ...file, key: response.key });
           const url = md.global.FileStoreConfig.documentHost + response.key;
           onCheckFile(url);
         }}

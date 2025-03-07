@@ -88,7 +88,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
-    dispatch(loadSavedFilters(currentNavWorksheetId));
+    currentNavWorksheetInfo.worksheetId && dispatch(loadSavedFilters(currentNavWorksheetId));
     const views =
       base.type === 'single'
         ? currentNavWorksheetInfo.views

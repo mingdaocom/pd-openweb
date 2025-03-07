@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getDataByFilterXSS, checkReturnUrl } from 'src/pages/AuthService/util.js';
+import { getDataByFilterXSS, checkReturnUrl, toMDPage } from 'src/pages/AuthService/util.js';
 import loginController from 'src/api/login';
 import workWeiXinController from 'src/api/workWeiXin';
 import moment from 'moment';
@@ -72,15 +72,7 @@ export const loginCallback = ({ data, onChange }) => {
       checkReturnUrl(request.ReturnUrl);
       location.replace(getDataByFilterXSS(request.ReturnUrl));
     } else {
-      if (_.get(md, 'global.SysSettings.loginGotoUrl')) {
-        location.href = md.global.SysSettings.loginGotoUrl
-        return
-      }
-      if (_.get(md, 'global.SysSettings.loginGotoAppId')) {
-        window.location.replace(`/app/${md.global.SysSettings.loginGotoAppId}`);
-        return
-      }
-      window.location.replace('/dashboard');
+      toMDPage()
     }
   } else {
     //开启了两步验证

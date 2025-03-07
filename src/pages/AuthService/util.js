@@ -41,7 +41,7 @@ export const registerSuc = (registerData, action) => {
   if (returnUrl.indexOf('type=privatekey') > -1) {
     location.href = returnUrl;
   } else {
-    location.href = '/dashboard';
+    toMDPage()
   }
 
   if (window.isMingDaoApp) {
@@ -51,6 +51,18 @@ export const registerSuc = (registerData, action) => {
       settings: { action: action ? action : 'registerSuccess', account: dialCode + emailOrTel, password },
     });
   }
+};
+
+export const toMDPage = () => {
+  if (_.get(md, 'global.SysSettings.loginGotoUrl')) {
+    location.href = md.global.Config.WebUrl + md.global.SysSettings.loginGotoUrl
+    return
+  }
+  if (_.get(md, 'global.SysSettings.loginGotoAppId')) {
+    window.location.replace(`/app/${md.global.SysSettings.loginGotoAppId}`);
+    return
+  }
+  window.location.replace('/dashboard');
 };
 
 export const toMDApp = ({ emailOrTel = '', dialCode = '' }) => {

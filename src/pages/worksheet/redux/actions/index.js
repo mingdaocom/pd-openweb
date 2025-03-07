@@ -40,7 +40,7 @@ import {
   validate,
 } from 'worksheet/common/Sheet/QuickFilter/utils';
 
-export function fireWhenViewLoaded(view, { forceUpdate, controls } = {}) {
+export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
   return (dispatch, getState) => {
     if (!get(view, 'fastFilters')) return;
     const newFastFilters = handleConditionsDefault(

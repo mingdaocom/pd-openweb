@@ -534,7 +534,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
             </span>
           ) : (
             <Fragment>
-              {((isTrial && data.authType) || !isTrial) && (
+              {!md.global.Config.IsLocal && ((isTrial && data.authType) || !isTrial) && (
                 <span className="blueBtn Bold" onClick={handleClickRecherge}>
                   {_l('充值')}
                 </span>
@@ -544,9 +544,10 @@ export default function HomePage({ match, location: routerLocation, authority, .
                   <span className="whiteBtn Bold" onClick={() => linkHref('billinfo')}>
                     {_l('使用明细')}
                   </span>
-                  <span className="whiteBtn Bold" onClick={() => setData({ balanceManageVisible: true })}>
+                  {/*<span className="whiteBtn Bold" onClick={() => setData({ balanceManageVisible: true })}>
                     {_l('管理')}
                   </span>
+                  */}
                 </Fragment>
               )}
             </Fragment>
@@ -652,7 +653,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
                         percent={percentValue}
                       />
                       {getCountText(key, limit, numUnit)}
-                      {hasBalance && !!autoPurchase && !data[autoPurchase] && (
+                      {!md.global.Config.IsLocal && hasBalance && !!autoPurchase && !data[autoPurchase] && (
                         <span
                           className="mTop10 InlineBlock Gray_75 Font13 Underline Hover_21"
                           onClick={e => {

@@ -600,7 +600,7 @@ export const supportSettingCollapse = (props, key) => {
       if (_.includes([2, 29], type) && isCustom) return false;
       return (
         (_.includes(HAVE_MOBILE_WIDGET, type) ||
-          (type === 14 && _.get(safeParse(advancedSetting.filetype || '{}'), 'type') !== '0')) &&
+          (type === 14 && !_.includes(['2', '3'], _.get(safeParse(advancedSetting.filetype || '{}'), 'type')))) &&
         from !== 'subList'
       );
   }

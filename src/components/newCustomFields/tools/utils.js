@@ -895,8 +895,7 @@ export const checkMobileVerify = (data, smsVerificationFiled) => {
   if (!selectControl) return false;
   // 手机号是否是电话 | 手机号只读 ｜ 手机号隐藏
   if (selectControl.type !== 3) return false;
-  if (!controlState(selectControl, FROM.PUBLIC_ADD).editable || !controlState(selectControl, FROM.PUBLIC_ADD).visible)
-    return false;
+  if (!controlState(selectControl, FROM.PUBLIC_ADD).visible) return false;
   if (!selectControl.value) return false;
   return true;
 };

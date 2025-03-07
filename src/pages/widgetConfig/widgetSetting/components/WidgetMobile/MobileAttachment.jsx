@@ -41,7 +41,7 @@ export default ({ from, data, onChange }) => {
 
   return (
     <Fragment>
-      {from !== 'subList' && (_.includes(['1', '4'], type) || !type) && (
+      {from !== 'subList' && (_.includes(['0', '1', '4'], type) || !type) && (
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('移动端输入')}</div>

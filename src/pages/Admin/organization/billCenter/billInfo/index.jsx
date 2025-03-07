@@ -299,7 +299,7 @@ export default function BillInfo({ match }) {
           <span>{_l('账户余额')}</span>
           <span className="moneySymbol Gray_75">(￥)</span>
           <span className="balance Font24">{loading ? '-' : formatNumberThousand(balance)}</span>
-          {isPaid && (
+          {!md.global.Config.IsLocal && isPaid && (
             <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
               {_l('充值')}
             </span>

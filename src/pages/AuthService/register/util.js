@@ -3,7 +3,7 @@ import { setPssId } from 'src/util/pssId';
 import { getRequest, encrypt } from 'src/util';
 import { ActionResult, AccountNextActions } from 'src/pages/AuthService/config';
 import registerApi from 'src/api/register';
-import { getDataByFilterXSS } from 'src/pages/AuthService/util'
+import { getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util'
 
 export const getTitle = () => {
   const { type } = getRequest();
@@ -256,7 +256,7 @@ export const registerSuc = ({ emailOrTel, dialCode, password }, action) => {
   if (returnUrl.indexOf('type=privatekey') > -1) {
     location.href = returnUrl;
   } else {
-    location.href = '/dashboard';
+    toMDPage()
   }
 
   if (window.isMingDaoApp) {
