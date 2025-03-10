@@ -35,7 +35,7 @@ export default function FormulaDate(props) {
     if ($ref.current) {
       $ref.current.setValue(data.dataSource || '');
     }
-  }, []);
+  }, [data.controlId]);
 
   const getCalcDetail = () => {
     if (enumDefault === 1) {

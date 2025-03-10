@@ -69,7 +69,7 @@ export default function DefCom(props) {
       <DefaultValue
         data={{
           ...dataControls,
-          type: dataType,
+          type: [9, 10, 11].includes(dataType) && _.get(control, 'advancedSetting.allowitem') === '2' ? 10 : dataType,
           enumDefault:
             29 === dataType
               ? _.get(control, 'advancedSetting.allowitem') === '2'

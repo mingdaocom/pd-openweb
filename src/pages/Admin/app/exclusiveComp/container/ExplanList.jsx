@@ -402,7 +402,7 @@ function ExplanList(props) {
             {_l('将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响')}
             <span className="createComputingButton Hand" onClick={goToPurchase}>
               <Icon icon="add" className="mRight3" />
-              {_l('购买')}
+              {_l('创建')}
             </span>
           </div>
           <ul className="exclusiveCompList">
