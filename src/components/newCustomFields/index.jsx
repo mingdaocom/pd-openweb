@@ -434,7 +434,7 @@ export default class CustomFields extends Component {
             width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
             display: item.type === 49 && disabled ? 'none' : 'flex',
           }}
-          id={`formItem-${item.controlId}`}
+          id={`formItem-${worksheetId}-${item.controlId}`}
           key={`item-${item.row}-${item.col}`}
         >
           {item.type === 22 && _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
@@ -936,7 +936,7 @@ export default class CustomFields extends Component {
    * 获取提交数据
    */
   getSubmitData({ silent, ignoreAlert, verifyAllControls } = {}) {
-    const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {} } = this.props;
+    const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {}, worksheetId } = this.props;
     const { errorItems, uniqueErrorItems, rules = [], activeRelateRecordControlId } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
     const data = this.dataFormat.getDataSource();
@@ -1008,7 +1008,7 @@ export default class CustomFields extends Component {
         totalErrors.map(t => _.find(data, d => d.controlId === t.controlId)).sort((a, b) => a.row - b.row),
       );
       if (firstErrorItem) {
-        const ele = document.getElementById(`formItem-${firstErrorItem.controlId}`);
+        const ele = document.getElementById(`formItem-${worksheetId}-${firstErrorItem.controlId}`);
         ele && ele.scrollIntoView({ block: 'center' });
       }
 

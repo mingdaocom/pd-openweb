@@ -52,7 +52,9 @@ function SelectCertification(props) {
 
   const onOk = () => {
     const params =
-      current.authType === 1 ? { certSource: 1, projectId } : { certSource: 1, mapProjectId: current.entityId };
+      current.authType === 1
+        ? { certSource: 1, projectId }
+        : { certSource: 1, mapProjectId: current.entityId, entityId: projectId };
     (current.authType === 1 ? certificationApi.personalCertification : certificationApi.enterpriseCertification)(
       params,
     ).then(data => {

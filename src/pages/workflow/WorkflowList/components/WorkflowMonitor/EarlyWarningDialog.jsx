@@ -94,7 +94,7 @@ class EarlyWarningDialog extends Component {
               value={warningValue}
               onChange={this.changeBalanceWarningValue}
             />
-            <span>{_l('时')}</span>
+            <span>{_l('时%250310')}</span>
           </div>
         );
 

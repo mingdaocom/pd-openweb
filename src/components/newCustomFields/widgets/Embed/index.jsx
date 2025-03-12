@@ -75,8 +75,8 @@ export default class Widgets extends Component {
     this.embedWatch = setInterval(this.setValue, 3000);
   }
 
-  initFunc = () => {
-    const { enumDefault, addRefreshEvents, controlId, triggerCustomEvent } = this.props;
+  initFunc = (nextProps, callback) => {
+    const { enumDefault, addRefreshEvents, controlId, triggerCustomEvent } = nextProps || this.props;
     const isMobile = browserIsMobile();
 
     if (enumDefault === 2) {
@@ -99,6 +99,10 @@ export default class Widgets extends Component {
 
     if (_.isFunction(triggerCustomEvent)) {
       triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+
+    if (_.isFunction(callback)) {
+      callback();
     }
   };
 
@@ -140,7 +144,19 @@ export default class Widgets extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.flag !== this.props.flag || nextProps.recordId !== this.props.recordId) {
-      this.setValue(nextProps);
+      this.initFunc(nextProps, () => {
+        // 嵌入链接无法主动刷新，变更src刷新
+        if (nextProps.enumDefault === 1 && this.iframe && this.iframe.current) {
+          const tmpUrl = _.get(this.iframe, 'current.src');
+          this.iframe.current.src = 'about:blank';
+          const _t = setTimeout(() => {
+            this.iframe.current.src = tmpUrl;
+            clearTimeout(_t);
+          }, 300);
+        } else {
+          this.setState({ needUpdate: Math.random() });
+        }
+      });
     }
   }
 

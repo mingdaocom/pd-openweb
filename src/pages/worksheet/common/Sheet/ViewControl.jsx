@@ -500,6 +500,7 @@ function ViewControl(props) {
             '.ant-picker-dropdown',
             '.TimePicker',
             '.attachmentsPreview',
+            '#quickSelectDept',
           ]}
           showFastFilter={showFastFilter}
           onClickAway={() => {

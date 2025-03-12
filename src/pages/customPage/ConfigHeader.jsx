@@ -151,6 +151,7 @@ export default (props) => {
       return;
     }
     Dialog.confirm({
+      width: 520,
       onlyClose: true,
       className: 'customButtonConfirm',
       title: _l('您是否要保存本次更改'),

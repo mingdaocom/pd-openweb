@@ -62,7 +62,7 @@ export const fetchRows = () => {
       filters.filterControls = filterControls;
     }
 
-    const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
+    const view = base.viewId ? (_.find(views, { viewId: base.viewId }) || views[0]) : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: true });
     sheetAjax
@@ -271,7 +271,7 @@ export const updateViewConfig = view => {
   return (dispatch, getState) => {
     const { base, views, gunterView, controls } = getState().sheet;
     const { advancedSetting, viewControl, displayControls } = base.viewId
-      ? _.find(views, { viewId: base.viewId })
+      ? (_.find(views, { viewId: base.viewId }) || views[0])
       : views[0];
     const { unweekday, begindate, enddate, colorid, calendartype, milepost, clicktype } = advancedSetting;
     const titleControl = _.find(controls, { attribute: 1 }) || {};

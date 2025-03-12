@@ -19,7 +19,7 @@ const validityDateTypes = [
     label: _l('1小时'),
     getSubLabel: () => {
       const current = moment();
-      const date = current.add(1, 'h');
+      const date = moment().add(1, 'h');
       return `${moment(date).isSame(current, 'd') ? _l('今天') : _l('明天')} ${date.format('HH:mm')}`;
     },
     getValidTime: () => moment().add(1, 'h').format('YYYY-MM-DD HH:mm'),
@@ -27,28 +27,19 @@ const validityDateTypes = [
   },
   {
     label: _l('1天'),
-    getSubLabel: () =>
-      moment()
-        .add(1, 'd')
-        .format(`DD${_l('日')} HH:mm`),
+    getSubLabel: () => moment().add(1, 'd').format('Do HH:mm'),
     getValidTime: () => moment().add(1, 'd').format('YYYY-MM-DD HH:mm'),
     value: 2,
   },
   {
     label: _l('3天'),
-    getSubLabel: () =>
-      moment()
-        .add(3, 'd')
-        .format(`DD${_l('日')} HH:mm`),
+    getSubLabel: () => moment().add(3, 'd').format('Do HH:mm'),
     getValidTime: () => moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
     value: 3,
   },
   {
     label: _l('7天'),
-    getSubLabel: () =>
-      moment()
-        .add(7, 'd')
-        .format(`MM${_l('月')}DD${_l('日')} HH:mm`),
+    getSubLabel: () => moment().add(7, 'd').format('MMMDo HH:mm'),
     getValidTime: () => moment().add(7, 'd').format('YYYY-MM-DD HH:mm'),
     value: 4,
   },
@@ -141,7 +132,11 @@ export default function Validity(props) {
               <Select.Option key={data.value} value={data.value} className="validityDateOption pLeft20 pRight20">
                 <div className="Font13 ellipsis">
                   <span>{data.label}</span>
-                  {data.getSubLabel && <span className="Gray_9e mLeft5">( {data.getSubLabel()} )</span>}
+                  {data.getSubLabel && (
+                    <span className="Gray_9e mLeft5">
+                      {data.getSubLabel()}
+                    </span>
+                  )}
                 </div>
               </Select.Option>
             ))}

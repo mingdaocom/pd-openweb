@@ -10,7 +10,17 @@ import _ from 'lodash';
 
 export default function SplitLineSection(props) {
   // fromType = 'display' 表单详情
-  const { data, sectionstyle, widgets = [], activeWidget = {}, from, fromType, renderData = [], setNavVisible } = props;
+  const {
+    data,
+    sectionstyle,
+    widgets = [],
+    activeWidget = {},
+    from,
+    fromType,
+    renderData = [],
+    setNavVisible,
+    worksheetId,
+  } = props;
   const { enumDefault2 = 0, controlName, controlId } = data;
   const { theme = '#2196f3', color = '#151515', icon = '', hidetitle } = getAdvanceSetting(data);
   const isMobile = browserIsMobile();
@@ -50,8 +60,9 @@ export default function SplitLineSection(props) {
           const timer = setTimeout(() => {
             const listItem =
               fromType === 'display'
-                ? ($($ref.current).closest('.customFieldsContainer').find(`.customFormItem#formItem-${tempIds[i]}`) ||
-                    [])[0]
+                ? ($($ref.current)
+                    .closest('.customFieldsContainer')
+                    .find(`.customFormItem#formItem-${worksheetId}-${tempIds[i]}`) || [])[0]
                 : document.getElementById(`widget-${tempIds[i]}`);
             if (listItem) {
               if (currentVisible) {
