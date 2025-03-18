@@ -23,28 +23,6 @@ href={getHelpUrl('worksheet', 'select')}
 
 ## Files that need updating
 
-### src/pages/widgetConfig/widgetSetting/components/WidgetBase/WidgetWarning.jsx
-
-```javascript
-// Original: 'https://help.mingdao.com/worksheet/batch-refresh'
-// No mapping found for path: /worksheet/batch-refresh
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-```javascript
-// Original: 'https://help.mingdao.com/worksheet/event'
-// No mapping found for path: /worksheet/event
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/widgetConfig/widgetSetting/components/FilterData/filterDialog.jsx
-
-```javascript
-// Original: 'https://help.mingdao.com/worksheet/filter-associated-records'
-// No mapping found for path: /worksheet/filter-associated-records
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
 ### src/pages/widgetConfig/widgetSetting/components/WidgetVerify/TextVerify.jsx
 
 ```javascript
@@ -204,14 +182,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Replace with: getHelpUrl('worksheet', 'controls')
 ```
 
-### src/pages/widgetConfig/util/data.js
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/field-property/#syestem-field-alias"
-// No mapping found for path: /worksheet/field-property/#syestem-field-alias
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
 ### src/pages/widgetConfig/widgetList/index.jsx
 
 ```javascript
@@ -337,20 +307,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
-### src/pages/PageHeader/components/CommonUserHandle/index.jsx
-
-```javascript
-// Original: 'https://help.mingdao.com'
-// No mapping found for path: /
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-```javascript
-// Original: 'https://help.mingdao.com'
-// No mapping found for path: /
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
 ### src/pages/Role/PortalCon/setting/TextMessage.jsx
 
 ```javascript
@@ -360,14 +316,6 @@ href={getHelpUrl('worksheet', 'select')}
 ```
 
 ### src/pages/Role/AppRoleCon/OthersCon/EditUserExtendInfo.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/role/extended-info"
-// No mapping found for path: /role/extended-info
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Role/AppRoleCon/OthersCon/UserExtendInfo.jsx
 
 ```javascript
 // Original: "https://help.mingdao.com/role/extended-info"
@@ -680,11 +628,6 @@ href={getHelpUrl('worksheet', 'select')}
 ### src/pages/workflow/WorkflowSettings/EditFlow/components/CreateNodeDialog.jsx
 
 ```javascript
-// Original: "https://help.mingdao.com/workflow/node-code-block#runtime-environment"
-// Replace with: getHelpUrl('product', 'codeBlockNode')
-```
-
-```javascript
 // Original: "https://help.mingdao.com/workflow/introduction"
 // No mapping found for path: /workflow/introduction
 // Add this path to helpUrls.js and then use getHelpUrl()
@@ -695,14 +638,6 @@ href={getHelpUrl('worksheet', 'select')}
 ```javascript
 // Original: "https://help.mingdao.com/workflow/configuration#operation-mode"
 // No mapping found for path: /workflow/configuration#operation-mode
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/workflow/WorkflowSettings/ProcessConfig/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/workflow/configuration"
-// No mapping found for path: /workflow/configuration
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
@@ -770,13 +705,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Replace with: getHelpUrl('integration', 'dataIntegration')
 ```
 
-### src/pages/integration/apiIntegration/APIWrap/Set.jsx
-
-```javascript
-// Original: 'https://help.mingdao.com/integration/api#enter-parameters'
-// Replace with: getHelpUrl('integration', 'api')
-```
-
 ### src/pages/integration/apiIntegration/ConnectWrap/content/ConnectSet.jsx
 
 ```javascript
@@ -812,26 +740,11 @@ href={getHelpUrl('worksheet', 'select')}
 // Replace with: getHelpUrl('integration', 'api')
 ```
 
-### src/pages/integration/apiIntegration/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/integration/api#connection-certification"
-// Replace with: getHelpUrl('integration', 'api')
-```
-
 ### src/pages/publicWorksheetConfig/common/PayConfig/index.js
 
 ```javascript
 // Original: "https://help.mingdao.com/org/payment"
 // No mapping found for path: /org/payment
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/publicWorksheetConfig/common/FillEnablePanel.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/public-form"
-// No mapping found for path: /worksheet/public-form
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
@@ -862,14 +775,6 @@ href={getHelpUrl('worksheet', 'select')}
 ```javascript
 // Original: 'https://help.mingdao.com/extensions/developer/view'
 // No mapping found for path: /extensions/developer/view
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/common/helpUrls.js
-
-```javascript
-// Original: 'https://help.mingdao.com'
-// No mapping found for path: /
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 

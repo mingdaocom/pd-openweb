@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Icon, Checkbox, LoadDiv, Dropdown, Radio, Support, ScrollView, Switch } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import './index.less';
 import process from '../../api/process';
 import SelectWorkflow from '../../components/SelectWorkflow';
@@ -999,7 +1000,7 @@ class ProcessConfig extends Component {
               </span>
               <Support
                 className="pointer Gray_75 mLeft32"
-                href="https://help.mingdao.com/workflow/configuration"
+                href={getHelpUrl('workflow', 'configuration')}
                 type={2}
                 text={_l('帮助')}
               />

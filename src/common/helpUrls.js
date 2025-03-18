@@ -82,6 +82,7 @@ export const helpUrlConfig = {
     nodeGetMultipleDataFromUser: '/workflow/node-get-multiple-data-from-user',
     queueHelp: '/workflow/in-queue',
     fieldFilter: '/worksheet/field-filter',
+    configuration: '/workflow/configuration',
   },
   
   // Worksheet controls and features

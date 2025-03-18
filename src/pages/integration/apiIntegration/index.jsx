@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { Support, ScrollView } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import styled from 'styled-components';
 import cx from 'classnames';
 import bg from 'staticfiles/images/query.png';
@@ -141,7 +142,7 @@ function APILibraryCon(props) {
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}{' '}
               <Support
                 type={3}
-                href="https://help.mingdao.com/integration/api#connection-certification"
+                href={getHelpUrl('integration', 'enterParameters')}
                 text={_l('使用帮助')}
               />
             </p>
