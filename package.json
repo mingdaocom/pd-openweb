@@ -1,8 +1,8 @@
 {
-  "name": "mingdao-web",
+  "name": "niio-web",
   "version": "11.1.0",
   "scripts": {
-    "start": "cross-env API_SERVER=http://127.0.0.1:8880 node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js dev:main",
+    "start": "cross-env API_SERVER=http://125.229.55.38:8880/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js dev:main",
     "release": "cross-env NODE_ENV=production node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js release",
     "remove-unsafe-words": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=20480 node ./node_modules/gulp/bin/gulp.js remove-unsafe-words",
     "publish": "cross-env NODE_ENV=production API_SERVER=/wwwapi/ WEBPACK_PUBLIC_PATH=/dist/pack/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js publish",
