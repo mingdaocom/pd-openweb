@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, LoadDiv, Tooltip, Support } from 'ming-ui';
-import styled from 'styled-components';
-import { Wrap } from '../style.jsx';
-import { isTel } from '../../util.js';
-import _ from 'lodash';
-import { captcha } from 'ming-ui/functions';
 import cx from 'classnames';
-import { removePssId } from 'src/util/pssId';
-import { SupportFindVerifyCodeUrl, CodeTypeEnum } from '../../config.js';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';
-import { loginCallback } from '../util.js';
 import { browserIsMobile, encrypt, getRequest } from 'src/util';
+import { removePssId } from 'src/util/pssId';
+import { CodeTypeEnum } from '../../config.js';
+import { isTel } from '../../util.js';
+import { Wrap } from '../style.jsx';
+import { loginCallback } from '../util.js';
 
 const WrapCon = styled.div`
   .otp-input-container {
@@ -308,7 +308,7 @@ export default function (props) {
             <Support
               className="ThemeColor3 Hand mLeft3"
               type={3}
-              href={SupportFindVerifyCodeUrl}
+              href={'https://help.mingdao.com/faq/sms-emali-service-failure'}
               text={_l('查看帮助')}
             />
           </div>

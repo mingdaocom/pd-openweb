@@ -1,6 +1,9 @@
 import React from 'react';
 
-export const SupportFindVerifyCodeUrl = 'https://help.mingdao.com/faq/sms-emali-service-failure';
+export const SupportFindVerifyCodeUrl = () => {
+  const href = 'https://help.mingdao.com/faq/sms-emali-service-failure';
+  return md.global.Config.HelpUrl ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl) : href;
+};
 
 export const InviteFromType = {
   register: -1, // 主动注册
@@ -96,7 +99,7 @@ export const isInterestedList = [
         style={{ height: 'auto', 'overflow-x': 'auto', 'text-overflow': 'initial' }}
         dangerouslySetInnerHTML={{
           __html: _l(
-            '我是用户，并对HAP %0伙伴政策%1 感兴趣',
+            '我是用户，并对明道云 %0伙伴政策%1 感兴趣',
             `<a class='Bold pLeft5 pRight5 Hand' target="_blank" href="https://www.mingdao.com/partners" >`,
             `</a>`,
           ),

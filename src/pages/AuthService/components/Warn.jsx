@@ -1,8 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import { SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
-import { emitter } from 'src/util';
 import { isTel } from 'src/pages/AuthService/util.js';
+import { emitter } from 'src/util';
 
 // 'code',//验证码计时与报错提示
 export default function (props) {
@@ -16,9 +16,11 @@ export default function (props) {
         GreenWarn: !warn.isError,
       })}
     >
-      <a href={SupportFindVerifyCodeUrl} target="_blank">
-        {_l('收不到验证码？')}
-      </a>
+      {!md.global.SysSettings.hideHelpTip && (
+        <a href={SupportFindVerifyCodeUrl()} target="_blank">
+          {_l('收不到验证码？')}
+        </a>
+      )}
       {(keys.includes('emailOrTel') || keys.includes('tel')) && isTel(emailOrTel) && type !== 'portalLogin' ? (
         <React.Fragment>
           {_l('重新获取或')}

@@ -246,14 +246,14 @@ export default function (props) {
             >
               <Checkbox checked={hasCheckPrivacy} className="InlineBlock" />
               {_l('同意')}
-              <a target="_blank" className="terms Hand mLeft3 mRight3" href="/terms" onClick={e => e.stopPropagation()}>
+              <a target="_blank" className="terms Hand mLeft3 mRight3"  href={`/legalportal/terms`} onClick={e => e.stopPropagation()}>
                 {_l('《使用条款》%14000')}
               </a>
               {_l('和')}
               <a
                 target="_blank"
                 className="terms Hand mLeft3 mRight3"
-                href="/privacy"
+                href={`/legalportal/privacy`}
                 onClick={e => e.stopPropagation()}
               >
                 {_l('《隐私条款》')}

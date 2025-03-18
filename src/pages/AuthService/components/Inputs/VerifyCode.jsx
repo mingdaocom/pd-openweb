@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
 import cx from 'classnames';
-import { CodeTypeEnum, ActionResult, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
-import { validation, isTel } from 'src/pages/AuthService/util.js';
-import { encrypt } from 'src/util';
+import _ from 'lodash';
 import { captcha } from 'ming-ui/functions';
 import RegisterController from 'src/api/register';
+import { ActionResult, CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
+import { isTel, validation } from 'src/pages/AuthService/util.js';
+import { encrypt } from 'src/util';
 import { emitter } from 'src/util';
 
 // 'inputCode',//验证码
@@ -94,11 +94,13 @@ export default function (props) {
             updateWarn([
               {
                 tipDom: 'code',
-                warnTxt: _l(
-                  '验证码发送过于频繁，%0收不到验证码？%1',
-                  '<a href="' + SupportFindVerifyCodeUrl + '" target="_blank">',
-                  '</a>',
-                ),
+                warnTxt: md.global.SysSettings.hideHelpTip
+                  ? _l('验证码发送过于频繁')
+                  : _l(
+                      '验证码发送过于频繁，%0收不到验证码？%1',
+                      '<a href="' + SupportFindVerifyCodeUrl() + '" target="_blank">',
+                      '</a>',
+                    ),
               },
             ]);
           } else if (data.actionResult == ActionResult.userInfoNotFound) {
@@ -176,11 +178,13 @@ export default function (props) {
           updateWarn([
             {
               tipDom: 'code',
-              warnTxt: _l(
-                '验证码发送成功，%0收不到验证码？%1',
-                '<a href="' + SupportFindVerifyCodeUrl + '" target="_blank">',
-                '</a>',
-              ),
+              warnTxt: md.global.SysSettings.hideHelpTip
+                ? _l('验证码发送成功')
+                : _l(
+                    '验证码发送成功，%0收不到验证码？%1',
+                    '<a href="' + SupportFindVerifyCodeUrl() + '" target="_blank">',
+                    '</a>',
+                  ),
             },
           ]);
           hasWarn = true;

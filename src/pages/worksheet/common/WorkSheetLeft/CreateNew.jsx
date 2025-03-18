@@ -48,7 +48,7 @@ export default class CreateNew extends Component {
             alert(_l('请填写名称'), 3);
             return;
           }
-          const protocolReg = configuration.openType === '1' ? /^https:\/\/.+$/ : /^https?:\/\/.+$/;
+          const protocolReg = /^https?:\/\/.+$/;
           if (configuration.customPageType === '2' && !protocolReg.test(urlTemplate)) {
             alert(_l('请输入正确的url'), 3);
             return;

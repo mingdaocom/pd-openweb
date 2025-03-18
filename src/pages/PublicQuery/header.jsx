@@ -3,6 +3,7 @@ import React from 'react';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import moment from 'moment';
+import { browserIsMobile } from 'src/util';
 
 const PublicqueryHeader = styled.div`
   width: 100%;
@@ -119,7 +120,7 @@ class WorksheetShareHeader extends React.Component {
             <div className="btn" onClick={switchSearch}>
               {_l('继续查询')}
             </div>
-            {exported && (
+            {exported && !browserIsMobile() && (
               <div className="download" onClick={() => this.exportExcel()}>
                 <Icon
                   style={{ float: 'right', lineHeight: '100%' }}

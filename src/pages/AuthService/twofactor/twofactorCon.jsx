@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import cx from 'classnames';
-import { CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
+import { CodeTypeEnum } from 'src/pages/AuthService/config.js';
 import loginAjax from 'src/api/login';
 import { getDataByFilterXSS, checkReturnUrl } from 'src/pages/AuthService/util.js';
 import { getRequest } from 'src/util';
@@ -188,12 +188,7 @@ export default function Twofactor(props) {
           <div
             className={cx('warnTxtDiv GreenWarn')}
             dangerouslySetInnerHTML={{
-              __html:
-                seconds > 20
-                  ? _l('验证码发送成功')
-                  : _l(
-                      '验证码发送成功',
-                    ),
+              __html: seconds > 20 ? _l('验证码发送成功') : _l('验证码发送成功'),
             }}
           ></div>
         </div>

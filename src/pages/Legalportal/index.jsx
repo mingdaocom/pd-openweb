@@ -393,6 +393,6 @@ const LegalPortalCon = props => {
 };
 
 const WrappedComp = preall(LegalPortalCon, { allowNotLogin: true });
-const root = createRoot(document.querySelector('#legalportal'));
+const root = createRoot(document.querySelector('#app'));
 
 root.render(<WrappedComp />);
