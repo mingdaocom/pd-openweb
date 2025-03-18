@@ -1,0 +1,13 @@
+{
+  "name": "pd-openweb-dev",
+  "image": "mcr.microsoft.com/devcontainers/universal:latest",
+  "settings": {},
+  "extensions": ["GitHub.copilot"],
+  "forwardPorts": [3000],
+  "features": {
+    "ghcr.io/devcontainers/features/node:latest": {
+      "version": "lts"
+    }
+  },
+  "postCreateCommand": "npm install -g claude-code && npm install && git remote add upstream https://github.com/mingdaocom/pd-openweb.git && git fetch upstream"
+}
