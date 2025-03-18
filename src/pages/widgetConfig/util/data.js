@@ -1,4 +1,5 @@
 import React from 'react';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { CAN_NOT_AS_TEXT_GROUP } from '../config';
 import { DRAG_MODE, WHOLE_SIZE } from '../config/Drag';
 import { navigateTo } from 'src/router/navigateTo';
@@ -74,7 +75,7 @@ export const getMsgByCode = ({ code, data, controls }) => {
           {errorText}
           <Support
             type={3}
-            href="https://help.mingdao.com/worksheet/field-property/#syestem-field-alias"
+            href={getHelpUrl('worksheet', 'fieldProperty', 'syestem-field-alias')}
             text={<span className="Font14 Bold">{_l('查看')}</span>}
           />
         </span>

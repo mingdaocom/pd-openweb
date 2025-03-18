@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getHelpUrl } from 'src/common/helpUrls';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -116,7 +117,7 @@ function EnablePanel(props) {
       <h1>{_l('公开表单')}</h1>
       <div className="description">
         {_l('启用后，将表单公开发布给应用外的用户填写，为你的工作表收集数据')}
-        <Support type={3} href="https://help.mingdao.com/worksheet/public-form" text={_l('帮助')} />
+        <Support type={3} href={getHelpUrl('worksheet', 'publicForm')} text={_l('帮助')} />
       </div>
       <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
       <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>

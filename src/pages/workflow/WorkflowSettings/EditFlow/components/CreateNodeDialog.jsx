@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { Radio, ScrollView, Support, Icon, Tooltip, SvgIcon } from 'ming-ui';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -1339,7 +1340,7 @@ export default class CreateNodeDialog extends Component {
                     type={3}
                     text={_l('运行版本')}
                     className="ThemeColor3 ThemeHoverColor2"
-                    href="https://help.mingdao.com/workflow/node-code-block#runtime-environment"
+                    href={getHelpUrl('workflow', 'nodeCodeBlock', 'runtime-environment')}
                   />
                 </div>
               )}

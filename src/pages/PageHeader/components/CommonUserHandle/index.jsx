@@ -24,6 +24,7 @@ import LanguageList from '../LanguageList';
 import Trigger from 'rc-trigger';
 import HapAiDialog from './HapAiDialog';
 import hapAI from './images/hapAI.png';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -180,7 +181,7 @@ export default class CommonUserHandle extends Component {
                 <div
                   className="workflowHelpIconWrap pointer"
                   data-tip={_l('帮助')}
-                  onClick={() => window.open('https://help.mingdao.com')}
+                  onClick={() => window.open(getHelpUrl('common', 'mainHelp'))}
                 >
                   <Icon icon="workflow_help" className="helpIcon Font20" />
                 </div>
@@ -236,7 +237,7 @@ export default class CommonUserHandle extends Component {
             )}
 
             {md.global.Config.IsLocal && !md.global.SysSettings.hideHelpTip && (
-              <EntryWrap onClick={() => window.open('https://help.mingdao.com')}>
+              <EntryWrap onClick={() => window.open(getHelpUrl('common', 'mainHelp'))}>
                 <Icon icon="workflow_help" className="helpIcon Font20 Gray_75 TxtMiddle" />
                 <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
               </EntryWrap>

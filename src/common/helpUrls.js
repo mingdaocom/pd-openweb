@@ -45,6 +45,7 @@ export const helpUrlConfig = {
   
   // Workflow specific help links
   workflow: {
+    nodeCodeBlock: '/workflow/node-code-block',
     triggerByWorksheet: '/workflow/trigger-by-worksheet',
     triggerByScheduled: '/workflow/trigger-by-scheduled',
     triggerByDateField: '/workflow/trigger-by-date-field',
@@ -85,6 +86,8 @@ export const helpUrlConfig = {
   
   // Worksheet controls and features
   worksheet: {
+    publicForm: '/worksheet/public-form',
+    fieldProperty: '/worksheet/field-property',
     controls: '/worksheet/controls',
     select: '/worksheet/control-select',
     titleField: '/worksheet/title-field',

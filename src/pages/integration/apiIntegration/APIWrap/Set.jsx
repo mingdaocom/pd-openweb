@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getHelpUrl } from 'src/common/helpUrls';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
@@ -44,7 +45,7 @@ function ItemCon(props) {
         {...props}
         title={_l('代码块')}
         icon={'worksheet_API'}
-        support={'https://help.mingdao.com/integration/api#enter-parameters'}
+        support={getHelpUrl('integration', 'enterParameters')}
       />
       <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
     </React.Fragment>
