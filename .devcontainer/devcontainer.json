@@ -9,5 +9,5 @@
       "version": "lts"
     }
   },
-  "postCreateCommand": "npm install -g claude-code && npm install && git remote add upstream https://github.com/mingdaocom/pd-openweb.git && git fetch upstream"
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && npm install && git remote add upstream https://github.com/mingdaocom/pd-openweb.git && git fetch upstream"
 }
