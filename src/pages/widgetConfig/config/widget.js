@@ -1,4 +1,5 @@
 import { isEmpty, head, pick } from 'lodash';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { v4 as uuidv4 } from 'uuid';
 import { WHOLE_SIZE } from './Drag';
 import { NUM_5_SETTINGS } from './score';
@@ -113,19 +114,19 @@ export const DEFAULT_CONFIG = {
     icon: 'arrow_drop_down_circle',
     widgetName: _l('单选'),
     intro: _l('从预设的下拉菜单中选择一项，可设为将选项平铺'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-select',
+    moreIntroLink: getHelpUrl('worksheet', 'select'),
   },
   MULTI_SELECT: {
     icon: 'multi_select',
     widgetName: _l('多选'),
     intro: _l('从预设的选项中选择一项或者多项'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-select',
+    moreIntroLink: getHelpUrl('worksheet', 'select'),
   },
   DROP_DOWN: {
     icon: 'arrow_drop_down_circle',
     widgetName: _l('单选'),
     intro: _l('从预设的下拉菜单中选择一项，可设为将选项平铺'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-select',
+    moreIntroLink: getHelpUrl('worksheet', 'select'),
   },
   ATTACHMENT: {
     icon: 'attachment',
@@ -147,7 +148,7 @@ export const DEFAULT_CONFIG = {
     icon: 'map',
     widgetName: _l('地区'),
     intro: _l('从预设的地址中进行选择'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-region-city',
+    moreIntroLink: getHelpUrl('worksheet', 'regionCity'),
   },
   RELATION: {
     icon: 'device_hub',
@@ -171,25 +172,25 @@ export const DEFAULT_CONFIG = {
     icon: 'map',
     widgetName: _l('地区'),
     intro: _l('从预设的地址中进行选择'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-region-city',
+    moreIntroLink: getHelpUrl('worksheet', 'regionCity'),
   },
   AREA_COUNTY: {
     icon: 'map',
     widgetName: _l('地区'),
     intro: _l('从预设的地址中进行选择'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-region-city',
+    moreIntroLink: getHelpUrl('worksheet', 'regionCity'),
   },
   MONEY_CN: {
     icon: 'amount_capital',
     widgetName: _l('大写金额%04009'),
     intro: _l('关联金额控件后可以自动将填写的金额显示成大写金额'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/controls',
+    moreIntroLink: getHelpUrl('worksheet', 'controls'),
   },
   USER_PICKER: {
     icon: 'account_circle',
     widgetName: _l('成员'),
     intro: _l('加入的成员将收到通知并允许查看记录。还可以通过角色来控制权限'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-members',
+    moreIntroLink: getHelpUrl('worksheet', 'members'),
   },
   DEPARTMENT: { icon: 'department', widgetName: _l('部门'), intro: _l('选择组织中的部门') },
   SCORE: { icon: 'star', widgetName: _l('等级'), intro: _l('可输入1～10的数值') },
@@ -197,7 +198,7 @@ export const DEFAULT_CONFIG = {
     icon: 'link_record',
     widgetName: _l('关联记录%04001'),
     intro: _l('关联相关工作表，可以从中引用或创建记录，如：订单关联商品'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-relationship',
+    moreIntroLink: getHelpUrl('worksheet', 'relationship'),
     tip: _l(
       '关联多个工作表，联动数据，以反映实际业务关系。例如:《订单》表中，每个订单的“客户”字段从关联的《客户》表里选择1条“客户”记录来填入。',
     ),
@@ -206,51 +207,51 @@ export const DEFAULT_CONFIG = {
     icon: 'lookup',
     widgetName: _l('他表字段%04004'),
     intro: _l('从关联的记录中选择字段显示在当前表中'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-foreign',
+    moreIntroLink: getHelpUrl('worksheet', 'foreign'),
   },
   CONCATENATE: {
     icon: 'category',
     widgetName: _l('文本组合%04000'),
     intro: _l('将当前记录中的字段进行组合'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-concat',
+    moreIntroLink: getHelpUrl('worksheet', 'concat'),
   },
   AUTO_ID: {
     icon: 'auto_number',
     widgetName: _l('自动编号'),
     intro: _l('为每条记录生成自定义规则的编号'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-autonumber',
+    moreIntroLink: getHelpUrl('worksheet', 'autoNumber'),
   },
   SUB_LIST: {
     icon: 'table',
     widgetName: _l('子表%04002'),
     intro: _l('支持在表单中一次填入多条信息、比如一次填写多条费用明细'),
     minSize: WHOLE_SIZE,
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-subform',
+    moreIntroLink: getHelpUrl('worksheet', 'subform'),
   },
   SWITCH: { icon: 'checkbox_01', widgetName: _l('检查项'), intro: _l('可以选中或取消选中') },
   SUBTOTAL: {
     icon: 'sigma',
     widgetName: _l('汇总%04005'),
     intro: _l('汇总关联记录或子表中的数据，如：汇总订单明细中的商品总价，最大支持汇总1000行数据。'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-rollup',
+    moreIntroLink: getHelpUrl('worksheet', 'rollup'),
   },
   FORMULA_NUMBER: {
     icon: 'formula',
     widgetName: _l('公式'),
     intro: _l('将当前记录中的字段进行数值或日期计算'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-formula',
+    moreIntroLink: getHelpUrl('worksheet', 'formula'),
   },
   FORMULA_DATE: {
     icon: 'formula',
     widgetName: _l('公式'),
     intro: _l('将当前记录中的字段进行数值或日期计算'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-formula',
+    moreIntroLink: getHelpUrl('worksheet', 'formula'),
   },
   FORMULA_FUNC: {
     icon: 'formula',
     widgetName: _l('公式'),
     intro: _l('将当前记录中的字段进行数值或日期计算'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-formula',
+    moreIntroLink: getHelpUrl('worksheet', 'formula'),
   },
   LOCATION: {
     icon: 'location_on',
@@ -278,13 +279,13 @@ export const DEFAULT_CONFIG = {
     icon: 'cascade_selection',
     widgetName: _l('级联选择%04003'),
     intro: _l('以层级视图作为数据源来选择目标表的记录,仅支持本表关联'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-cascading',
+    moreIntroLink: getHelpUrl('worksheet', 'cascading'),
   },
   OCR: {
     icon: 'ocr',
     widgetName: _l('文本识别'),
     intro: _l('识别输入图片，将识别结果填充到对应字段。'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-ocr',
+    moreIntroLink: getHelpUrl('worksheet', 'ocr'),
   },
   REMARK: {
     widgetName: _l('备注%04007'),
@@ -308,13 +309,13 @@ export const DEFAULT_CONFIG = {
     icon: 'access_time',
     widgetName: _l('时间'),
     intro: _l('可设为小时分钟秒'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/controls#time',
+    moreIntroLink: getHelpUrl('worksheet', 'time'),
   },
   ORG_ROLE: {
     icon: 'user',
     widgetName: _l('组织角色'),
     intro: _l('选择组织中的角色，支持配置选择的组织角色的权限。'),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/control-o-roles',
+    moreIntroLink: getHelpUrl('worksheet', 'oRoles'),
   },
   SEARCH_BTN: {
     icon: 'api',

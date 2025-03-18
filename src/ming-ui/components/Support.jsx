@@ -3,6 +3,22 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
 
+/**
+ * Get the effective help URL, taking into account md.global.Config.HelpUrl for backwards compatibility
+ * @param {string} href - The original help URL
+ * @returns {string} - The effective help URL
+ */
+function getEffectiveHelpUrl(href) {
+  if (!href) return '';
+  
+  // If md.global.Config.HelpUrl is defined, replace the base domain
+  if (typeof md !== 'undefined' && md.global && md.global.Config && md.global.Config.HelpUrl) {
+    return href.replace('https://help.mingdao.com', md.global.Config.HelpUrl);
+  }
+  
+  return href;
+}
+
 export default class Support extends Component {
   static propTypes = {
     /**
@@ -28,7 +44,7 @@ export default class Support extends Component {
   render() {
     const { href, text, type = 2, className, style, title } = this.props;
 
-    if (md.global.SysSettings.hideHelpTip) return null;
+    if (typeof md !== 'undefined' && md.global && md.global.SysSettings && md.global.SysSettings.hideHelpTip) return null;
 
     return (
       <span
@@ -40,9 +56,7 @@ export default class Support extends Component {
         style={Object.assign({}, { alignItems: 'center', display: 'inline-flex' }, style)}
         onClick={e => {
           e.preventDefault();
-          window.open(
-            md.global.Config.HelpUrl ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl) : href,
-          );
+          window.open(getEffectiveHelpUrl(href));
         }}
       >
         {type < 3 && (

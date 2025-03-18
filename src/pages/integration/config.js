@@ -48,27 +48,29 @@ export const integrationConfig = [...list, ...dataIntegrationList];
 
 export const PageSize = 30;
 
+import { getHelpUrl } from 'src/common/helpUrls';
+
 export const CARD_TYE_LIST = [
   {
     typeId: 23,
     title: _l('输入参数'),
     des: _l('输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值'),
     icon: 'input',
-    support: 'https://help.mingdao.com/integration/api#enter-parameters',
+    support: getHelpUrl('integration', 'enterParameters'),
   },
   {
     typeId: 8,
     title: _l('API 请求参数'),
     des: _l('配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数'),
     icon: 'tune',
-    support: 'https://help.mingdao.com/integration/api#api-request',
+    support: getHelpUrl('integration', 'apiRequest'),
   },
   {
     typeId: 21,
     title: _l('输出参数'),
     des: _l('在 API 查询时，可以将输出参数的值绑定到工作表字段或被工作流节点引用'),
     icon: 'output',
-    support: 'https://help.mingdao.com/integration/api#output-parameters',
+    support: getHelpUrl('integration', 'outputParameters'),
   },
 ];
 

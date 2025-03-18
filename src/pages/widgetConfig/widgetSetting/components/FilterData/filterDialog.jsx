@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useRef } from 'react';
 import { Dialog, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { isEmpty, isEqual } from 'lodash';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
@@ -152,7 +153,7 @@ export default function FilterDialog(props) {
           <Support
             type={3}
             style={{ position: 'absolute', bottom: 27 }}
-            href={helpHref || 'https://help.mingdao.com/worksheet/filter-associated-records'}
+            href={helpHref || getHelpUrl('worksheet', 'filterAssociatedRecords')}
             text={_l('帮助')}
           />
         )}

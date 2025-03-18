@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { Dialog, Support, Button } from 'ming-ui';
 import styled from 'styled-components';
 import img from '../../image/setAsTitle.png';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const NoTitleControlWrap = styled.div`
   .closeText {
@@ -41,7 +42,7 @@ export default function NoTitleControlDialog({ onClose }) {
               '标题字段可以快速识别一条记录。用于记录详情、关联记录、和消息通知等功能场景中。在字段上点击下方图标进行设置。',
             )}
           </span>
-          <Support type={3} href="https://help.mingdao.com/worksheet/title-field" text={_l('帮助')} />
+          <Support type={3} href={getHelpUrl('worksheet', 'titleField')} text={_l('帮助')} />
         </Fragment>
         <div className="imgContent">
           <span className="imgText">{_l('点击设为标题字段')}</span>

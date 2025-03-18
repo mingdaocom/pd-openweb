@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { HAS_WARNING_CONTROL } from 'src/pages/widgetConfig/config';
 
 const WarningWrap = styled.div`
@@ -18,7 +19,7 @@ const DEFAULT_TEXT = {
   text: _l(
     '当工作表记录超过10万行时，为保证工作表性能，修改配置后将不再刷新历史数据。如果仍需更新历史数据，请手动进行刷新。',
   ),
-  href: 'https://help.mingdao.com/worksheet/batch-refresh',
+  href: getHelpUrl('worksheet', 'batchRefresh'),
 };
 
 const OTHER_TEXT = {
@@ -26,7 +27,7 @@ const OTHER_TEXT = {
     text: _l(
       '控件事件是指在应用内表单详情页中的字段控件上有交互事件发生时，如果表单内的数据满足条件，则可以根据配置执行不同动作，如显示消息、调用集成API等。',
     ),
-    href: 'https://help.mingdao.com/worksheet/event',
+    href: getHelpUrl('worksheet', 'event'),
   },
   widgetStyle: {
     text: _l(
