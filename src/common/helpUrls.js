@@ -6,7 +6,7 @@
 
 export const helpUrlConfig = {
   // Base URL that can be changed if the domain changes
-  baseUrl: 'https://help.mingdao.com',
+  baseUrl: 'https://niiohelp.apsm.com.tw',
   
   // Main sections
   common: {
