@@ -377,93 +377,11 @@ export const TIME_TYPE_NAME = {
   3: _l('天%250125'),
 };
 
+import { getHelpUrlFromNodeType } from 'src/common/helpUrls';
+
 export const SUPPORT_HREF = {
-  // worksheet
-  '0-1': 'https://help.mingdao.com/workflow/trigger-by-worksheet',
-  // loop
-  '0-5': 'https://help.mingdao.com/workflow/trigger-by-scheduled',
-  // date
-  '0-6': 'https://help.mingdao.com/workflow/trigger-by-date-field',
-  // webhook触发
-  '0-7': 'https://help.mingdao.com/workflow/trigger-by-webhook',
-  // 循环
-  '0-45': 'https://help.mingdao.com/workflow/node-loop',
-  // 分支
-  1: 'https://help.mingdao.com/workflow/node-branch',
-  // 填写节点
-  3: 'https://help.mingdao.com/workflow/node-fill-in',
-  // 审批节点
-  4: 'https://help.mingdao.com/workflow/node-approve',
-  // 通知节点
-  5: 'https://help.mingdao.com/workflow/node-cc-send-internal-notification',
-  // 新增记录
-  '6-1-1': 'https://help.mingdao.com/workflow/node-add-record',
-  // 新增任务
-  '6-1-2': 'https://help.mingdao.com/workflow/node-new-task',
-  // 更新记录
-  '6-2': 'https://help.mingdao.com/workflow/node-update-record',
-  // 更新流程参数
-  '6-2-102': 'https://help.mingdao.com/workflow/node-update-parameters',
-  // 删除记录
-  '6-3': 'https://help.mingdao.com/workflow/node-delete-record',
-  // 获取关联记录
-  '6-20': 'https://help.mingdao.com/workflow/node-get-single-data',
-  // 批量新增
-  '6-21': 'https://help.mingdao.com/workflow/node-add-record',
-  // 从工作表获取一条指定记录
-  '7-406': 'https://help.mingdao.com/workflow/node-get-single-data',
-  // 从多条数据节点获取一条指定记录
-  '7-407': 'https://help.mingdao.com/workflow/node-get-single-data',
-  // 发送API请求
-  8: 'https://help.mingdao.com/workflow/node-send-api-request',
-  // 公式
-  9: 'https://help.mingdao.com/workflow/node-calculation',
-  // 短信
-  10: 'https://help.mingdao.com/workflow/node-send-sms',
-  // 邮件
-  11: 'https://help.mingdao.com/workflow/node-send-email',
-  // 延时
-  12: 'https://help.mingdao.com/workflow/node-delay',
-  // 获取多条
-  13: 'https://help.mingdao.com/workflow/node-get-multiple-data',
-  // 代码块
-  14: 'https://help.mingdao.com/workflow/node-code-block',
-  // 获取链接
-  15: 'https://help.mingdao.com/workflow/node-get-link',
-  // 子流程
-  16: 'https://help.mingdao.com/workflow/node-subflow',
-  // 界面推送
-  17: 'https://help.mingdao.com/workflow/node-interface-push',
-  // 声音播放
-  '17-8': 'https://help.mingdao.com/workflow/node-voice-broadcast',
-  // 获取记录打印文件
-  18: 'https://help.mingdao.com/workflow/node-print-record',
-  // 发送服务号消息
-  19: 'https://help.mingdao.com/node-send-wechat-official-account-template-message',
-  // 调用封装业务流程
-  20: 'https://help.mingdao.com/workflow/node-call-pbp',
-  // JSON解析
-  21: 'https://help.mingdao.com/workflow/node-json-parsing',
-  // 调用已集成 API
-  25: 'https://help.mingdao.com/workflow/node-call-integrated-api',
-  // 发起审批
-  26: 'https://help.mingdao.com/workflow/node-initiate-approval-flow',
-  // 通知
-  27: 'https://help.mingdao.com/workflow/node-cc-send-internal-notification',
-  // 快照
-  28: 'https://help.mingdao.com/workflow/node-get-snapshot',
-  // 循环
-  29: 'https://help.mingdao.com/workflow/node-loop',
-  // AIGC 文本
-  '31-531': 'https://help.mingdao.com/workflow/node-AI-text-generation',
-  // AIGC 对象
-  '31-532': 'https://help.mingdao.com/workflow/node-AI-generates-data-objects',
-  // 获取单条系统信息
-  1000: 'https://help.mingdao.com/workflow/node-get-single-data-from-user',
-  // 获取多条系统信息
-  1001: 'https://help.mingdao.com/workflow/node-get-multiple-data-from-user',
-  // 什么是排队中
-  queue: 'https://help.mingdao.com/workflow/in-queue',
+  // Dynamic function that gets the help URL from the centralized configuration
+  get: (nodeType) => getHelpUrlFromNodeType(nodeType),
 };
 
 export const RELATION_TYPE = {

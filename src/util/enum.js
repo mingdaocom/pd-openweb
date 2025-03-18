@@ -69,32 +69,9 @@ export const VersionProductType = {
   editAttachment: 43, // 附件编辑
 };
 
+import { getHelpUrlFromVersionType } from 'src/common/helpUrls';
+
 export const VersionProductHelpLink = {
-  1: 'https://help.mingdao.com/application/backup-restore',
-  2: 'https://help.mingdao.com/application/import-export',
-  3: 'https://help.mingdao.com/integration/api',
-  4: 'https://help.mingdao.com/workflow/node-call-integrated-api',
-  5: 'https://help.mingdao.com/worksheet/control-api-query',
-  6: 'https://help.mingdao.com/org/security',
-  8: 'https://help.mingdao.com/workflow/node-code-block',
-  10: 'https://help.mingdao.com/dingtalk/integration-guide',
-  11: 'https://help.mingdao.com/portal/introduction',
-  12: 'https://help.mingdao.com/feishu/integration-guide',
-  13: 'https://help.mingdao.com/workflow/node-print-record',
-  14: 'https://help.mingdao.com/workflow/node-interface-push',
-  16: 'https://help.mingdao.com/application/recycle',
-  17: 'https://help.mingdao.com/application/usage-analysis',
-  19: 'https://help.mingdao.com/wecom/integration-note',
-  20: 'https://help.mingdao.com/worksheet/word-print-template',
-  21: 'https://help.mingdao.com/api/introduction',
-  22: 'https://help.mingdao.com/org/security#apiproxy',
-  23: 'https://help.mingdao.com/workflow/pbp',
-  25: 'https://help.mingdao.com/faq/sse',
-  26: 'https://help.mingdao.com/integration/data-integration',
-  27: 'https://help.mingdao.com/role/extended-info',
-  29: 'https://help.mingdao.com/worksheet/data-encryption',
-  30: 'https://help.mingdao.com/application/exclusive-computing-power',
-  31: 'https://help.mingdao.com/application/log',
-  33: '',
-  40: 'https://help.mingdao.com/org/payment',
+  // This function dynamically generates URLs based on the centralized configuration
+  get: (typeId) => getHelpUrlFromVersionType(typeId),
 };
