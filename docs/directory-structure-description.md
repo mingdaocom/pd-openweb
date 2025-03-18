@@ -1,0 +1,67 @@
+### 目錄說明
+
+- **CI** # 持續集成構建配置  
+- **docker** # Docker 配置文件  
+- **locale** # 多語言配置文件  
+- **src** # 開發源代碼  
+  - **api** # API 接口  
+  - **common** # 全局基礎樣式、全局基礎方法、預處理  
+  - **components** # 全局基礎組件  
+  - **html-templates** # 獨立入口頁面  
+  - **library** # 第三方插件合集  
+  - **ming-ui** # UI 元件庫  
+  - **pages** # 各大模組源代碼  
+    - **account** # 登入註冊  
+    - **Admin** # 組織管理後台  
+    - **AppHomepage** # 工作台首頁  
+    - **AppSettings** # 應用管理  
+    - **authFeishu** # 飛書鑒權登入  
+    - **authWelink** # WeLink 鑒權登入  
+    - **authWorkwx** # 企業微信鑒權登入  
+    - **calendar** # 日程管理  
+    - **chat** # 聊天模組  
+    - **customPage** # 自定義頁面  
+    - **emailValidate** # 郵箱驗證  
+    - **feed** # 動態  
+    - **FormSet** # 表單設定  
+    - **globalSearch** # 全局搜索  
+    - **integration** # 集成  
+    - **kc** # 文件管理  
+    - **Mobile** # 移動端代碼  
+    - **NewRecord** # 添加新記錄  
+    - **PageHeader** # 各模組 Header 匯總  
+    - **Personal** # 個人帳戶  
+    - **Print** # 任務列印  
+    - **PublicWorksheet** # 公開表單  
+    - **publicWorksheetConfig** # 公開查詢配置  
+    - **PublicWorksheetPreview** # 公開表單預覽  
+    - **Roles** # 使用者角色管理  
+    - **Statistics** # 統計圖表  
+    - **task** # 任務管理  
+    - **UploadTemplateSheet** # 模板製作  
+    - **UserProfile** # 個人資料  
+    - **ViewLand** # 視圖分享  
+    - **widgetConfig** # 編輯欄位  
+    - **workflow** # 工作流  
+    - **worksheet** # 工作表  
+    - **worksheetApi** # API 開發文檔  
+  - **redux** # Store 創建  
+  - **router** # 路由配置文件  
+  - **socket** # Socket 配置  
+  - **util** # 全局工具函式  
+- **staticfiles** # 靜態頁面與靜態資源  
+
+### 配置文件
+
+- **.babelrc** # Babel 配置文件  
+- **.dockerignore** # Docker 忽略提交文件配置  
+- **.editorconfig** # 代碼編輯風格和規範配置  
+- **.eslintignore** # ESLint 忽略提交文件配置  
+- **.eslintrc.json** # ESLint 代碼規則檢查配置文件  
+- **.gitattributes** # Git 文件屬性設置  
+- **.gitignore** # Git 忽略提交文件配置  
+- **.prettierrc** # Prettier 代碼格式化規則配置文件  
+- **gulpfile.js** # Gulp 構建配置文件  
+- **jsconfig.json** # JavaScript 項目根目錄配置  
+- **package.json** # npm 套件管理配置  
+- **postcss.config.js** # 移動端適配處理配置文件
