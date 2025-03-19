@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Icon, LoadDiv, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { showEditFn, getRulesAll, deleteRules, saveFn } from '../actions/action';
 import { Prompt } from 'react-router-dom';

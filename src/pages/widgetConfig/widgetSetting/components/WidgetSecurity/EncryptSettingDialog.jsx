@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dialog, Dropdown, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { useSetState } from 'react-use';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 
@@ -46,7 +47,7 @@ export default function EncryptSettingDialog(props) {
         {_l(
           '注意：设置后，新保存的字段值将按按照新规则加密，历史值不会自动刷新。之后您需要手动刷新历史数据，未刷新时历史数据可查看，但无法被筛选。',
         )}
-        <Support type={3} text={_l('如何刷新数据？')} href="https://help.mingdao.com/worksheet/batch-refresh" />
+        <Support type={3} text={_l('如何刷新数据？')} href={getHelpUrl('worksheet', 'batchRefresh')} />
       </div>
       <SettingItem>
         <div className="settingItemTitle labelBetween">{encryId ? _l('当前规则') : _l('规则')}</div>

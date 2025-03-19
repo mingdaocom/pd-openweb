@@ -39,20 +39,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
-### src/pages/widgetConfig/widgetSetting/components/sublist/ConfigureControls.jsx
-
-```javascript
-// Original: 'https://help.mingdao.com/worksheet/control-relationship'
-// Replace with: getHelpUrl('worksheet', 'relationship')
-```
-
-### src/pages/widgetConfig/widgetSetting/components/sublist/AddSubList.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/control-subform"
-// Replace with: getHelpUrl('worksheet', 'subform')
-```
-
 ### src/pages/widgetConfig/widgetSetting/components/OptionList/SelectOptions.jsx
 
 ```javascript
@@ -786,6 +772,12 @@ href={getHelpUrl('worksheet', 'select')}
 ```
 
 ### src/ming-ui/components/Support.jsx
+
+```javascript
+// Original: 'https://help.mingdao.com'
+// No mapping found for path: /
+// Add this path to helpUrls.js and then use getHelpUrl()
+```
 
 ```javascript
 // Original: 'https://help.mingdao.com'

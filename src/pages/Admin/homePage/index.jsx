@@ -5,6 +5,7 @@ import moment from 'moment';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import projectAjax from 'src/api/project';
+import { getHelpUrl } from 'src/common/helpUrls';
 import projectSettingAjax from 'src/api/projectSetting';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import certificationApi from 'src/api/certification.js';
@@ -445,7 +446,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
                 className="mLeft6 helpIcon Hover_21"
                 type={1}
                 title={_l('点击查看人数计算规则')}
-                href="https://help.mingdao.com/purchase/user-billing"
+                href={getHelpUrl('product', 'userBilling')}
               />
             )}
           </div>

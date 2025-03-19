@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import DraggableItem from './draggableItem';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
 import ListItemLayer from './ListItemLayer';
@@ -153,7 +154,7 @@ export default function List(props) {
                 <Support
                   className="supportBox"
                   type={2}
-                  href="https://help.mingdao.com/worksheet/controls"
+                  href={getHelpUrl('worksheet', 'controls')}
                   text={_l('帮助')}
                 />
               </div>

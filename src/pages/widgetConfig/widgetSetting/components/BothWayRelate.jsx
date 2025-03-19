@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { useSetState } from 'react-use';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { RELATE_COUNT_TEXT, DISPLAY_TYPE_TEXT } from '../../config/setting';
 import { toEditWidgetPage } from '../../util';
 import _ from 'lodash';
@@ -55,7 +56,7 @@ export default function BothWayRelate(props) {
                   sheetName,
                   name || sourceName,
                 )}
-                <Support type={3} text={_l('什么是双向关联?')} href="https://help.mingdao.com/worksheet/associations" />
+                <Support type={3} text={_l('什么是双向关联?')} href={getHelpUrl('worksheet', 'associations')} />
               </span>
             }
           >

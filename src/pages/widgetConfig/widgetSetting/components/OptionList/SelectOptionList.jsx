@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment, useCallback } from 'react';
 import { Support, Button, Dropdown, Dialog } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import worksheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
@@ -59,7 +60,7 @@ export default function SelectOptionList(props) {
       <Fragment>
         <div className="hint Gray_9e">
           {_l('选项集可以使一组选项在其他工作表中共用。你可以新建选项集或将一个已有的自定义选项转为选项集后再使用。')}
-          <Support href="https://help.mingdao.com/worksheet/option-set" type={3} text={_l('帮助')} />
+          <Support href={getHelpUrl('worksheet', 'optionSet')} type={3} text={_l('帮助')} />
         </div>
         <SettingItem>
           <div className="settingItemTitle">{_l('应用')}</div>

@@ -3,6 +3,7 @@ import DocumentTitle from 'react-document-title';
 import Trigger from 'rc-trigger';
 import sheetAjax from 'src/api/worksheet';
 import { Icon, Support, Dialog, Menu, MenuItem } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import copy from 'copy-to-clipboard';
 import './index.less';
 import _ from 'lodash';
@@ -508,7 +509,7 @@ export default class UploadTemplateSheet extends React.Component {
               <Support
                 className="mRight5 supportVerticalTop"
                 type={3}
-                href="https://help.mingdao.com/worksheet/print-template-rules"
+                href={getHelpUrl('worksheet', 'printTemplateRules')}
                 text={_l('帮助文档')}
               />
               {_l('了解更多')}
@@ -822,7 +823,7 @@ export default class UploadTemplateSheet extends React.Component {
                 <Support
                   className="mRight5 supportVerticalTop"
                   type={3}
-                  href="https://help.mingdao.com/worksheet/word-print-template"
+                  href={getHelpUrl('worksheet', 'wordPrintTemplate')}
                   text={_l('帮助文档')}
                 />
               </span>

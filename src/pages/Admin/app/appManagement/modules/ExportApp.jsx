@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import './index.less';
 import AppSettings from './AppSettings';
 import { Checkbox, Tooltip, Support, Dialog, Icon } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import { generateRandomPassword } from 'src/util';

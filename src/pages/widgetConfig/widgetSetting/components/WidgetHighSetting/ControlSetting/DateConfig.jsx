@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { Dropdown, Tooltip, Input } from 'antd';
 import { Dropdown as MingDropdown, Support, Dialog, Checkbox } from 'ming-ui';
 import cx from 'classnames';
@@ -97,7 +98,7 @@ export function ShowFormatDialog(props) {
         <div className="formatList">
           <div className="title Gray_75">
             {_l('选择下方日期格式或自定义输入')}
-            <Support href="https://help.mingdao.com//worksheet/date-format" type={3} text={_l('帮助')} />
+            <Support href={getHelpUrl('worksheet', 'dateFormat')} type={3} text={_l('帮助')} />
           </div>
           <ul className="list">
             {CUSTOM_SHOW_FORMAT.map(item => (

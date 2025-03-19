@@ -1,4 +1,6 @@
-export const DEFAULT_INTRO_LINK = 'https://help.mingdao.com/worksheet/controls';
+import { getHelpUrl } from 'src/common/helpUrls';
+
+export const DEFAULT_INTRO_LINK = getHelpUrl('worksheet', 'controls');
 export const OPTION_COLORS_LIST = [
   '#C9E6FC',
   '#C3F2F2',

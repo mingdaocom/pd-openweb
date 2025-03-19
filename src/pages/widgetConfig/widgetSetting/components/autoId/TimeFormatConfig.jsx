@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, Button, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -34,7 +35,7 @@ export default function TimeFormatConfig({ rule, onOk, onClose }) {
       <TimeFormatConfigWrap>
         <div className="intro">
           {_l('在下方输入自定义格式，将日期按需要的方式显示')}
-          <Support type={3} href="https://help.mingdao.com//worksheet/date-format" text={_l('查看格式规则')} />
+          <Support type={3} href={getHelpUrl('worksheet', 'dateFormat')} text={_l('查看格式规则')} />
         </div>
         <SettingItem>
           <Input value={data} onChange={handleChange} />

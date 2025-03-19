@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Checkbox } from 'antd';
 import Config from '../../../config';
 import { Icon, Switch, LoadDiv } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import cx from 'classnames';
 import './style.less';
 import orderController from 'src/api/order';
@@ -1224,7 +1225,7 @@ export default class ExpansionService extends Component {
                           <a
                             target="blank"
                             className="mLeft20"
-                            href="https://help.mingdao.com/purchase/external-user-billing"
+                            href={getHelpUrl('product', 'externalUserBilling')}
                           >
                             {_l('计费方式')}
                           </a>

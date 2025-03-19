@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment, useRef } from 'react';
 import cx from 'classnames';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { useSetState } from 'react-use';
 import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
@@ -363,7 +364,7 @@ export function RelateSearchWorksheet(props) {
       <Fragment>
         <div className="intro">
           {_l('根据条件查询目标工作表的记录。如：查询关联客户的订单。')}
-          <Support type={3} href="https://help.mingdao.com/worksheet/control-query-records" text={_l('帮助')} />
+          <Support type={3} href={getHelpUrl('worksheet', 'controlQueryRecords')} text={_l('帮助')} />
         </div>
         <div className="relateWrap">
           <ul className="relateTypeTab">

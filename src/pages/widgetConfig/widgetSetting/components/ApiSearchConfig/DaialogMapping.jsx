@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { dealRequestControls } from '../../../util/data';
 import { Dialog, Support, Icon, Tooltip, ScrollView, Dropdown } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -47,7 +48,7 @@ export default function DialogMapping(props) {
             className="Gray_9e"
             type={2}
             text={_l('映射规则')}
-            href="https://help.mingdao.com/worksheet/control-api-query"
+            href={getHelpUrl('product', 'apiQueryControl')}
           />
         )}
       </div>
@@ -68,7 +69,7 @@ export default function DialogMapping(props) {
               style={{ right: 0 }}
               type={2}
               text={_l('映射规则')}
-              href="https://help.mingdao.com/worksheet/control-api-query"
+              href={getHelpUrl('product', 'apiQueryControl')}
             />
           )}
         </div>
@@ -277,7 +278,7 @@ export default function DialogMapping(props) {
           className="Gray_9e Right"
           type={2}
           text={_l('映射规则')}
-          href="https://help.mingdao.com/worksheet/control-api-query"
+          href={getHelpUrl('product', 'apiQueryControl')}
         />
         <div className="noDataContent">{_l('没有返回参数, 请检查模版配置')}</div>
       </div>

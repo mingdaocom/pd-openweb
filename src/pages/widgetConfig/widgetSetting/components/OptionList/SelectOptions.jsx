@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react';
 import AutoIcon from '../../../components/Icon';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { has } from 'lodash';
 import { Support, Dialog, Dropdown, Menu, MenuItem } from 'ming-ui';
 import styled from 'styled-components';
@@ -233,7 +234,7 @@ export default function SelectOptions(props) {
       description: (
         <span>
           {_l('转为选项集后，在其他工作表也可以使用这组选项。')}
-          <Support href="https://help.mingdao.com/worksheet/option-set" type={3} text={_l('帮助')} />
+          <Support href={getHelpUrl('worksheet', 'optionSet')} type={3} text={_l('帮助')} />
         </span>
       ),
       onOk: () => {

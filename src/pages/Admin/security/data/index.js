@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import { VersionProductType } from 'src/util/enum';

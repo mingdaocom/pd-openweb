@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon, Dropdown, Checkbox, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { Collapse, Input, Tooltip } from 'antd';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
@@ -222,7 +223,7 @@ function WidgetStyleSetting(props) {
                       {_l('- 仅文本类型字段作为标题时支持此功能')}
                       <Support
                         type={3}
-                        href="https://help.mingdao.com/worksheet/field-property/#syestem-field-alias"
+                        href={getHelpUrl('worksheet', 'fieldPropertyAlias')}
                         text={_l('【点击了解更多】')}
                       />
                     </span>

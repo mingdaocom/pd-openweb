@@ -1,5 +1,6 @@
 import React, { useState, Fragment, useEffect } from 'react';
 import { Dialog, Checkbox, Support, Icon, SortableList } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Input } from 'antd';
@@ -299,7 +300,7 @@ export default function TextVerify(props) {
           <div className="formatList">
             <div className="title Gray_75">
               {_l('选择下方常用表达式或自定义输入')}
-              <Support href="https://help.mingdao.com/worksheet/regular-expression" type={3} text={_l('帮助')} />
+              <Support href={getHelpUrl('worksheet', 'regularExpression')} type={3} text={_l('帮助')} />
             </div>
             <ul className="list">
               {FORMAT_CONFIG.map(item => (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { Tooltip } from 'antd';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { Checkbox, Icon, Support, UpgradeIcon } from 'ming-ui';
 import { SettingItem, EditInfo } from 'src/pages/widgetConfig/styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
@@ -115,7 +116,7 @@ export default function ControlMask(props) {
               title={
                 <span>
                   {_l('对字段数据进行加密存储，保护重要信息。注意：字段加密后。一些使用将会受限。')}
-                  <Support type={3} text={_l('了解详情')} href="https://help.mingdao.com/worksheet/data-encryption" />
+                  <Support type={3} text={_l('了解详情')} href={getHelpUrl('worksheet', 'dataEncryption')} />
                 </span>
               }
             >

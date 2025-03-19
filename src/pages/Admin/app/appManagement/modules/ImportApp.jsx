@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { Progress } from 'antd';
 import { Checkbox, Tooltip, Support, SvgIcon } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import createUploader from 'src/library/plupload/createUploader';
 import Config from '../../../config';
 import importActivePng from '../img/import_active.png';

@@ -324,7 +324,7 @@ export default function Subtotal(props) {
                 sheetSwitchPermit={_.get(sheetData, 'info.switches')}
                 relationControls={filterColumns}
                 fromCondition={'subTotal'}
-                helpHref="https://help.mingdao.com/worksheet/control-rollup"
+                helpHref={getHelpUrl('worksheet', 'rollup')}
                 onChange={({ filters }) => {
                   onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));
                   setVisible(false);
