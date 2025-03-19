@@ -60,79 +60,11 @@ href={getHelpUrl('worksheet', 'select')}
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
-### src/pages/Admin/integration/platformIntegration/ding/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/dingtalk/notification-integration"
-// No mapping found for path: /dingtalk/notification-integration
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-```javascript
-// Original: "https://help.mingdao.com/dingtalk/integration-guide#pending"
-// No mapping found for path: /dingtalk/integration-guide#pending
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Admin/integration/platformIntegration/components/EnableScanLogin.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login"
-// No mapping found for path: /wecom/ways-login-HAP#scan-code-login
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Admin/integration/platformIntegration/workwx/index.jsx
-
-```javascript
-// Original: 'https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login'
-// No mapping found for path: /wecom/ways-login-HAP#scan-code-login
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Mobile/Iframe/index.js
-
-```javascript
-// Original: 'https://help.mingdao.com'
-// No mapping found for path: /
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
 ### src/pages/Role/PortalCon/setting/TextMessage.jsx
 
 ```javascript
 // Original: "https://help.mingdao.com/workflow/sms-failure"
 // No mapping found for path: /workflow/sms-failure
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Role/AppRoleCon/OthersCon/EditUserExtendInfo.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/role/extended-info"
-// No mapping found for path: /role/extended-info
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Role/AppRoleCon/OthersCon/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/role/extended-info"
-// No mapping found for path: /role/extended-info
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-```javascript
-// Original: 'https://help.mingdao.com/role/extended-info'
-// No mapping found for path: /role/extended-info
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Role/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/portal/introduction"
-// No mapping found for path: /portal/introduction
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
