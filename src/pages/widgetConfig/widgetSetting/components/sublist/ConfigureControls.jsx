@@ -16,6 +16,7 @@ import { handleAdvancedSettingChange } from '../../../util/setting';
 import worksheetAjax from 'src/api/worksheet';
 import { addCustomDialog } from '../CustomWidget/AddCustomDialog';
 import _ from 'lodash';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const AllWidgetsWrap = styled.div`
   overflow: auto;
@@ -217,7 +218,7 @@ export default function ConfigureControl(props) {
                                 <Support
                                   type={3}
                                   text={_l('帮助')}
-                                  href={'https://help.mingdao.com/worksheet/control-relationship'}
+                                  href={getHelpUrl('worksheet', 'relationship')}
                                 />
                               </div>
                               <SelectSheetFromApp

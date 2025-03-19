@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
+import { getHelpUrl } from '../../common/helpUrls';
 
 /**
  * Get the effective help URL, taking into account md.global.Config.HelpUrl for backwards compatibility
@@ -11,7 +12,12 @@ import { Icon, Tooltip } from 'ming-ui';
 function getEffectiveHelpUrl(href) {
   if (!href) return '';
   
-  // If md.global.Config.HelpUrl is defined, replace the base domain
+  // Handle centralized URL configuration first
+  if (href === 'https://help.mingdao.com' || href === 'https://help.mingdao.com/') {
+    return getHelpUrl('common', 'mainHelp');
+  }
+  
+  // If md.global.Config.HelpUrl is defined, replace the base domain (for backward compatibility)
   if (typeof md !== 'undefined' && md.global && md.global.Config && md.global.Config.HelpUrl) {
     return href.replace('https://help.mingdao.com', md.global.Config.HelpUrl);
   }

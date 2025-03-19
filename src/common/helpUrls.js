@@ -41,6 +41,18 @@ export const helpUrlConfig = {
     exclusiveComputing: '/application/exclusive-computing-power',
     applicationLog: '/application/log',
     payment: '/org/payment',
+    // 新增映射
+    userBilling: '/purchase/user-billing',
+    externalUserBilling: '/purchase/external-user-billing',
+    exclusiveComputingPower: '/application/exclusive-computing-power',
+    language: '/application/language',
+    upgrade: '/application/upgrade',
+    aggregation: '/application/aggregation',
+    billingItems: '/purchase/billing-items',
+    portalIntroduction: '/portal/introduction',
+    dingtalkNotificationIntegration: '/dingtalk/notification-integration',
+    dingtalkIntegrationGuide: '/dingtalk/integration-guide',
+    wecomWaysLoginHAP: '/wecom/ways-login-HAP',
   },
   
   // Workflow specific help links
@@ -83,6 +95,12 @@ export const helpUrlConfig = {
     queueHelp: '/workflow/in-queue',
     fieldFilter: '/worksheet/field-filter',
     configuration: '/workflow/configuration',
+    // 新增映射
+    introduction: '/workflow/introduction',
+    pbp: '/workflow/pbp',
+    create: '/workflow/create',
+    smsFailure: '/workflow/sms-failure',
+    updateGlobalVariables: '/workflow/node-update-global-variables',
   },
   
   // Worksheet controls and features
@@ -122,6 +140,22 @@ export const helpUrlConfig = {
     customWidget: '/worksheet/custom-widget',
     printTemplate: '/worksheet/print-template',
     tableView: '/worksheet/table-view',
+    // 新增映射
+    regularExpression: '/worksheet/regular-expression',
+    defaultFunction: '/worksheet/default-function',
+    optionSet: '/worksheet/option-set',
+    dateFormat: '/worksheet/date-format',
+    dataEncryption: '/worksheet/data-encryption',
+    associations: '/worksheet/associations',
+    controlQueryRecords: '/worksheet/control-query-records',
+    fieldPropertyAlias: '/worksheet/field-property/#syestem-field-alias',
+    printTemplateRules: '/worksheet/print-template-rules',
+    batchPrint: '/worksheet/batch-print',
+    wordPrintTemplate: '/worksheet/word-print-template',
+    importExcelData: '/worksheet/import-Excel-data',
+    importExcelCreate: '/worksheet/import-excel-create',
+    indexAcceleration: '/worksheet/index-acceleration',
+    businessRule: '/worksheet/business-rule',
   },
   
   // Integration related documentation
@@ -131,6 +165,38 @@ export const helpUrlConfig = {
     apiRequest: '/integration/api#api-request',
     outputParameters: '/integration/api#output-parameters',
     dataIntegration: '/integration/data-integration',
+  },
+  
+  // Portal and view related help links
+  portal: {
+    introduction: '/portal/introduction',
+  },
+  
+  // View related help links
+  view: {
+    org: '/view/org/',
+    linkParameter: '/view/link-parameter',
+  },
+  
+  // Extensions and developer documentation
+  extensions: {
+    developerView: '/extensions/developer/view',
+  },
+  
+  // FAQ and troubleshooting
+  faq: {
+    smsEmaliServiceFailure: '/faq/sms-emali-service-failure',
+  },
+  
+  // Role and organization management
+  role: {
+    extendedInfo: '/role/extended-info',
+  },
+  
+  // Organization settings
+  org: {
+    id: '/org/id',
+    payment: '/org/payment',
   },
   
   // External resources (full URLs)

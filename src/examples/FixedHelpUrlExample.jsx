@@ -4,10 +4,11 @@
  */
 
 import React from 'react';
-import { getHelpUrl } from '../common/helpUrls';
+import { getHelpUrl, getHelpUrlFromVersionType, getHelpUrlFromNodeType } from '../common/helpUrls';
 
 // BEFORE MIGRATION:
 // The component uses a hardcoded URL directly
+// This approach is no longer recommended - use getHelpUrl instead
 export function BeforeExample() {
   return (
     <a href="https://help.mingdao.com/worksheet/title-field" target="_blank" rel="noopener noreferrer">
@@ -53,3 +54,42 @@ export function ImprovedSupportComponentExample() {
 
 // This allows the Support component to benefit from the centralized URL system
 // while still maintaining its compatibility with md.global.Config.HelpUrl for backwards compatibility.
+
+// EXAMPLE WITH INTERNATIONAL URLs:
+// Use the same approach regardless of user's language preference
+export function MultiLanguageExample() {
+  return (
+    <>
+      <a href={getHelpUrl('worksheet', 'titleField')} target="_blank" rel="noopener noreferrer">
+        Help URL will be properly localized
+      </a>
+      <p>The base URL is configured in helpUrlConfig.baseUrl in src/common/helpUrls.js</p>
+    </>
+  );
+}
+
+// EXAMPLE USING PRODUCT VERSION TYPE:
+// For integration with version product type IDs
+export function VersionProductTypeExample() {
+  // Product type ID for API integration
+  const productTypeId = 3;
+  
+  return (
+    <a href={getHelpUrlFromVersionType(productTypeId)} target="_blank" rel="noopener noreferrer">
+      Learn more about this product feature
+    </a>
+  );
+}
+
+// EXAMPLE USING WORKFLOW NODE TYPE:
+// For workflow node help documentation
+export function WorkflowNodeTypeExample() {
+  // Node type for approval node
+  const nodeType = 4;
+  
+  return (
+    <a href={getHelpUrlFromNodeType(nodeType)} target="_blank" rel="noopener noreferrer">
+      Learn more about approval nodes
+    </a>
+  );
+}

@@ -3,6 +3,7 @@ import { Dialog, Button, Dropdown, RadioGroup, Support } from 'ming-ui';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import SelectSheetFromApp from '../SelectSheetFromApp';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const AddSubListWrap = styled.div`
   .intro {
@@ -67,7 +68,7 @@ export default function AddSubList(props) {
           {_l(
             '在标签页中显示从属于当前记录的多条记录，并支持在创建时一次填入多个信息。如：在创建订单时一次添加多个订单明细，在客户中显示关联的客户订单等。',
           )}
-          <Support type={3} href="https://help.mingdao.com/worksheet/control-subform" text={_l('帮助')} />
+          <Support type={3} href={getHelpUrl('worksheet', 'subform')} text={_l('帮助')} />
         </div>
         <RadioGroup vertical data={OPTIONS} checkedValue={createType} onChange={setType} />
         <div className="selectSheetWrap">
