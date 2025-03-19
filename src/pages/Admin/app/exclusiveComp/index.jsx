@@ -3,6 +3,7 @@ import { Route } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
 import ExplanList from './container/ExplanList';
@@ -62,7 +63,7 @@ export default class ExclusiveComp extends Component {
         <div className="refresh Hand Font20 mRight24 " onClick={this.onRefresh}>
           <i className="icon-task-later Gray_9" />
         </div>
-        <Support text={_l('帮助')} type={2} href="https://help.mingdao.com/application/exclusive-computing-power" />
+        <Support text={_l('帮助')} type={2} href={getHelpUrl('product', 'exclusiveComputingPower')} />
       </div>
     );
   };

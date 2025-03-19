@@ -278,7 +278,7 @@ export default class ImportApp extends React.Component {
               '将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。',
             )}
           </span>
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
+          <Support text={_l('帮助')} type={3} href={getHelpUrl('product', 'appImportExport')} />
         </div>
         {this.renderStepContent()}
         {step === 3 && (

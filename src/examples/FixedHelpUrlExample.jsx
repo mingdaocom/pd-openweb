@@ -11,7 +11,7 @@ import { getHelpUrl, getHelpUrlFromVersionType, getHelpUrlFromNodeType } from '.
 // This approach is no longer recommended - use getHelpUrl instead
 export function BeforeExample() {
   return (
-    <a href="https://help.mingdao.com/worksheet/title-field" target="_blank" rel="noopener noreferrer">
+    <a href={getHelpUrl('worksheet', 'titleField')} target="_blank" rel="noopener noreferrer">
       Learn more about title fields
     </a>
   );

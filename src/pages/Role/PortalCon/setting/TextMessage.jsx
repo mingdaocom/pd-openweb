@@ -2,6 +2,7 @@ import React, { useEffect, Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
 import { getCurrentProject } from 'src/util';
@@ -140,7 +141,7 @@ export default function TextMessage(props) {
         </h6>
         <div className="mTop6 Gray_9e">
           {_l('此签名适用的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝);')}
-          <Support type={3} href="https://help.mingdao.com/workflow/sms-failure" text={_l('收不到短信？')} />
+          <Support type={3} href={getHelpUrl('workflow', 'smsFailure')} text={_l('收不到短信？')} />
         </div>
         <div className="mTop6 flexRow alignItemsCenter">
           <input

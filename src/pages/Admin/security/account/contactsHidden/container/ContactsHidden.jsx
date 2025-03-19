@@ -246,7 +246,7 @@ class ContactsHidden extends React.Component {
                 <i className="icon-backspace Font22 ThemeHoverColor3 Hand" onClick={this.props.onClose} />
                 <h5 className="Font17 bold mLeft10">{_l('通讯录可见范围')}</h5>
               </div>
-              <Support className="forHelp" type={2} href="https://help.mingdao.com/org/security" text={_l('帮助')} />
+              <Support className="forHelp" type={2} href={getHelpUrl('product', 'orgSecurity')} text={_l('帮助')} />
             </div>
             <div className="orgManagementContent">
               <div className="conBox">{this.renderCon(2)}</div>

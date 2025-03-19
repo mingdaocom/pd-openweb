@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Tooltip, ScrollView, LoadDiv, UserHead, UserName, Icon } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import ExportApp from 'src/pages/Admin/app/appManagement/modules/ExportApp';
 import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
@@ -144,7 +145,7 @@ export default class ExportAppCom extends Component {
           title={_l('导出')}
           addIcon="import"
           addBtnName={_l('导出应用')}
-          link="https://help.mingdao.com/application/import-export"
+          link={getHelpUrl('product', 'appImportExport')}
           description={_l(
             '将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据',
           )}

@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Checkbox, Drawer, Input, Tooltip } from 'antd';
 import { Icon, Button, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import cx from 'classnames';
 import appManagementApi from 'src/api/appManagement';
 import styled from 'styled-components';
@@ -116,7 +117,7 @@ const AddLangModal = props => {
             <div className="Gray bold mTop20">{_l('部分支持')}</div>
             <div className="Gray_75 mBottom10">
               <span>{_l('以下语言仅可对应用内自定义内容配置多语言，系统语言未提供支持')}</span>
-              <Support className="mLeft5" text={_l('帮助')} type={3} href="https://help.mingdao.com/application/language" />
+              <Support className="mLeft5" text={_l('帮助')} type={3} href={getHelpUrl('product', 'language')} />
             </div>
           </Fragment>
         )}

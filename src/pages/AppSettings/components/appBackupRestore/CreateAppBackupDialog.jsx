@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Dialog, Checkbox, Support, SvgIcon, LoadDiv } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import appManagementAjax from 'src/api/appManagement';
 import Beta from '../../components/Beta';
 import styled from 'styled-components';
@@ -204,7 +205,7 @@ export default function CreateBackupModal(props) {
                 {md.global.Config.IsLocal
                   ? _l('每个备份文件仅保留%0天有效期，超过%0天的会自动删除', md.global.SysSettings.appBackupRecycleDays)
                   : _l('备份文件一年有效，占用应用附件存储量')}
-                <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/backup-restore" />
+                <Support text={_l('帮助')} type={3} href={getHelpUrl('product', 'appBackupRestore')} />
               </div>
             </Fragment>
           ) : (
@@ -212,7 +213,7 @@ export default function CreateBackupModal(props) {
               <div className="mTop50"> - {_l('每个应用最多可备份10个文件')}</div>
               <div>
                 - {_l('每个备份文件仅保留60天有效期，超过60天的会自动删除')}
-                <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/backup-restore" />
+                <Support text={_l('帮助')} type={3} href={getHelpUrl('product', 'appBackupRestore')} />
               </div>
             </Fragment>
           )}

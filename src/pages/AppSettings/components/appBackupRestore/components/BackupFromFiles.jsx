@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, QiniuUpload, Button, FunctionWrap, VerifyPasswordConfirm, Support } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { RestoreContent } from './RestoreAppDialog';
@@ -216,7 +217,7 @@ class BackupFromFilesCom extends Component {
         title={
           <Fragment>
             <span className="TxtMiddle">{_l('从文件还原')}</span>
-            <SupportWrap className="customStyle" type={1} href="https://help.mingdao.com/application/backup-restore/" />
+            <SupportWrap className="customStyle" type={1} href={getHelpUrl('product', 'appBackupRestore')} />
           </Fragment>
         }
         footer={null}

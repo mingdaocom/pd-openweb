@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { Drawer } from 'antd';
 import ActionLogs from './components/ActionLogs';
 import BackupFiles from './components/BackupFiles';
@@ -130,7 +131,7 @@ export default function ManageBackupFiles(props) {
             ? _l('支持仅备份应用或者备份应用和数据，备份后的文件可以下载保存')
             : _l('每个应用最多创建10个备份文件，每个文件仅保留60天有效期。')
         }
-        link="https://help.mingdao.com/application/backup-restore"
+        link={getHelpUrl('product', 'appBackupRestore')}
         extraElement={
           <ActionWrap className="flexRow alignItemsCenter">
             <div

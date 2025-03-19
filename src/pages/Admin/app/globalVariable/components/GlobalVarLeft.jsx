@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSetState } from 'react-use';
 import { Icon, ScrollView, LoadDiv, Support, SvgIcon } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import cx from 'classnames';
 import '../index.less';
 import _ from 'lodash';
@@ -53,7 +54,7 @@ export default function GlobalVarLeft(props) {
     <div className="globalVarLeft">
       <div className="leftTitle">
         <div className="Bold Font17">{_l('全局变量')}</div>
-        <Support text={_l('帮助')} type={2} href="https://help.mingdao.com/workflow/node-update-global-variables" />
+        <Support text={_l('帮助')} type={2} href={getHelpUrl('workflow', 'updateGlobalVariables')} />
       </div>
       <div className={cx('listItem', { isActive: activeItem === 'project' })} onClick={() => onSelect('project')}>
         <Icon icon="company" />
