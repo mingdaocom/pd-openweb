@@ -11,6 +11,7 @@ export const helpUrlConfig = {
   // Main sections
   common: {
     mainHelp: '/',
+    root: '/',
   },
   
   // Product versions related help links
@@ -53,8 +54,41 @@ export const helpUrlConfig = {
     dingtalkNotificationIntegration: '/dingtalk/notification-integration',
     dingtalkIntegrationGuide: '/dingtalk/integration-guide',
     wecomWaysLoginHAP: '/wecom/ways-login-HAP',
+    
+    // Additional mappings from the guide
+    optionSet: '/worksheet/option-set', 
+    orgId: '/org/id',
+    feishu: '/feishu/integration-guide',
   },
   
+  // Dingtalk specific help links
+  dingtalk: {
+    notificationIntegration: '/dingtalk/notification-integration',
+    integrationGuide: '/dingtalk/integration-guide',
+  },
+
+  // Wecom specific help links
+  wecom: {
+    waysLoginHAP: '/wecom/ways-login-HAP',
+    integrationNote: '/wecom/integration-note',
+    scanCodeLogin: '/wecom/ways-login-HAP#scan-code-login',
+  },
+  
+  // Feishu specific help links
+  feishu: {
+    integrationGuide: '/feishu/integration-guide',
+  },
+  
+  // Application related help links
+  application: {
+    language: '/application/language',
+    upgrade: '/application/upgrade',
+    aggregation: '/application/aggregation',
+    exclusiveComputingPower: '/application/exclusive-computing-power',
+    importExport: '/application/import-export',
+    backupRestore: '/application/backup-restore',
+  },
+
   // Workflow specific help links
   workflow: {
     nodeCodeBlock: '/workflow/node-code-block',
@@ -101,6 +135,9 @@ export const helpUrlConfig = {
     create: '/workflow/create',
     smsFailure: '/workflow/sms-failure',
     updateGlobalVariables: '/workflow/node-update-global-variables',
+    nodeJsonParsing: '/workflow/node-json-parsing',
+    nodeCcSendInternalNotification: '/workflow/node-cc-send-internal-notification',
+    operationMode: '/workflow/configuration#operation-mode',
   },
   
   // Worksheet controls and features
@@ -156,6 +193,8 @@ export const helpUrlConfig = {
     importExcelCreate: '/worksheet/import-excel-create',
     indexAcceleration: '/worksheet/index-acceleration',
     businessRule: '/worksheet/business-rule',
+    controls: '/worksheet/controls',
+    rollupApplication: '/worksheet/control-rollup-application',
   },
   
   // Integration related documentation
@@ -176,6 +215,7 @@ export const helpUrlConfig = {
   view: {
     org: '/view/org/',
     linkParameter: '/view/link-parameter',
+    developerView: '/extensions/developer/view',
   },
   
   // Extensions and developer documentation
@@ -186,6 +226,14 @@ export const helpUrlConfig = {
   // FAQ and troubleshooting
   faq: {
     smsEmaliServiceFailure: '/faq/sms-emali-service-failure',
+    sse: '/faq/sse',
+  },
+  
+  // Purchase related
+  purchase: {
+    billingItems: '/purchase/billing-items',
+    userBilling: '/purchase/user-billing',
+    externalUserBilling: '/purchase/external-user-billing',
   },
   
   // Role and organization management

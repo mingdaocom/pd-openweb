@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Tooltip, Support } from 'ming-ui';
 import styled from 'styled-components';
 import { browserIsMobile, formatStrZero, formatNumberThousand } from 'src/util';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import moment from 'moment';
 import _ from 'lodash';
@@ -89,7 +90,7 @@ export default class Widgets extends Component {
                 <Support
                   className="customSubtotalMessage"
                   type={3}
-                  href="https://help.mingdao.com/worksheet/control-rollup-application"
+                  href={getHelpUrl('worksheet', 'rollupApplication')}
                   text={_l('【点击查看帮助】')}
                 />
               </Tips>

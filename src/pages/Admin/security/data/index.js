@@ -215,7 +215,7 @@ export default class DataCom extends Component {
                 description: (
                   <span>
                     {_l('在发送API请求时可选择通过设置的代理服务器发送')}
-                    <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/org/security#apiproxy" />
+                    <Support text={_l('帮助')} type={3} href={getHelpUrl('product', 'apiProxy')} />
                   </span>
                 ),
                 showSlideIcon: false,

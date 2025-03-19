@@ -156,7 +156,7 @@ export const DEFAULT_CONFIG = {
     intro: _l(
       '引用项目、任务、日程、审批单等。例：一个“产品更新”记录可以添加多个“需求”任务，由于只是引用，不会影响被引用的对象本身',
     ),
-    moreIntroLink: 'https://help.mingdao.com/worksheet/controls',
+    moreIntroLink: getHelpUrl('worksheet', 'controls'),
     tip: _l(
       '可添加其他项目、任务、文件、审批单等，以卡片(引用链接)形式展示出来。例：一个“产品更新”任务可添加多个“需求”任务卡片，由于只是引用，不会影响被引用的任务本身的子母任务结构',
     ),

@@ -35,7 +35,7 @@ export function SupportComponentExample() {
   return (
     <Support 
       type={3} 
-      href="https://help.mingdao.com/worksheet/title-field" 
+      href={getHelpUrl('worksheet', 'titleField')}
       text="Learn more about title fields" 
     />
   );

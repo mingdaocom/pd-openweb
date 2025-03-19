@@ -813,7 +813,7 @@ export default class UploadTemplateSheet extends React.Component {
                   '8. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
                 )}
               </span>
-              <Support type={3} href="https://help.mingdao.com/worksheet/batch-print" text={_l('这里')} />。
+              <Support type={3} href={getHelpUrl('worksheet', 'batchPrint')} text={_l('这里')} />。
               <span>{_l('Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
             </p>
             <br />
