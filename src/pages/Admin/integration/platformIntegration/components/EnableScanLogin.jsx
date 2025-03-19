@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Switch, Support } from 'ming-ui';
 import workWeiXinAjax from 'src/api/workWeiXin';
+import { getHelpUrl } from 'src/common/helpUrls';
 import SettingIconAndName from '../../../components/SettingIconAndName';
 import workWxIcon from '../images/workwx.png';
 import dingIcon from '../images/ding.png';
@@ -68,7 +69,7 @@ export default function EnableScanLogin(props) {
           className="mTop16 Font14"
           text={_l('如何实现企业微信扫码登录？')}
           type={3}
-          href="https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login"
+          href={getHelpUrl('wecom', 'scanCodeLogin')}
         />
       ) : (
         <a target="_blank" href={href} className="helpEntry">

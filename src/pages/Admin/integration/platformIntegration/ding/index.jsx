@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Switch, Icon, Button, LoadDiv, Radio, MdLink, Input, Support } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
+import { getHelpUrl } from 'src/common/helpUrls';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
@@ -438,7 +439,7 @@ export default class Ding extends React.Component {
         </div>
         <div className="Font13 Gray valignWrapper">
           {_l('开启后，平台应用消息会通过钉钉机器人发送给已同步到平台的钉钉用户。')}
-          <Support className="supportLink" type={3} href="https://help.mingdao.com/dingtalk/notification-integration" text={_l('如何配置?')} />
+          <Support className="supportLink" type={3} href={getHelpUrl('dingtalk', 'notificationIntegration')} text={_l('如何配置?')} />
         </div>
       </div>
     );
@@ -544,7 +545,7 @@ export default class Ding extends React.Component {
                     <span className="Block Gray">
                       <span className="Bold">{_l('注意：')}</span>
                       <span>此功能需要在钉钉中开启添加待办任务接口权限。</span>
-                      <Support text={_l('如何开启？')} type={3} href="https://help.mingdao.com/dingtalk/integration-guide#pending" />
+                      <Support text={_l('如何开启？')} type={3} href={getHelpUrl('dingtalk', 'integrationGuide', 'pending')} />
                     </span>
                   </div>
                 </div>

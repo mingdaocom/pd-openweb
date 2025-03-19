@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon, LoadDiv, Support, WaterMark, Tooltip, Dialog, Switch, SvgIcon } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -496,7 +497,7 @@ class AppRole extends Component {
                         {openLoading ? _l('开启中...') : _l('启用外部门户')}
                       </div>
                       <Support
-                        href="https://help.mingdao.com/portal/introduction"
+                        href={getHelpUrl('portal', 'introduction')}
                         type={3}
                         className="helpPortal"
                         text={_l('了解更多')}

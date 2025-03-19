@@ -1,10 +1,11 @@
 import React, { Fragment, Component } from 'react';
 import Back from '../components/Back';
 import DocumentTitle from 'react-document-title';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const data = {
   help: {
-    url: 'https://help.mingdao.com',
+    url: getHelpUrl('common', 'root'),
     title: _l('帮助中心')
   }
 }

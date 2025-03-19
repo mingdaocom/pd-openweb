@@ -4,6 +4,7 @@ import { Switch, Icon, Button, LoadDiv, Checkbox, MdLink } from 'ming-ui';
 import { Popover, Radio, Input, Select } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
+import { getHelpUrl } from 'src/common/helpUrls';
 import BuildAppNewRules from './BuildAppNewRules';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
@@ -512,7 +513,7 @@ export default class Workwx extends React.Component {
                 href={
                   intergrationType !== 2
                     ? `/wxappSyncCourse/${projectId}#scanWorkwx`
-                    : 'https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login'
+                    : getHelpUrl('wecom', 'scanCodeLogin')
                 }
                 updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
                 customNameIcon={customNameIcon}

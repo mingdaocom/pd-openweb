@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ExplainImg from '../../img/userExtendInfo.png';
 import { Support, LoadDiv } from 'ming-ui';
+import { getHelpUrl } from 'src/common/helpUrls';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import EditUserExtendInfo from './EditUserExtendInfo.jsx';
@@ -154,7 +155,7 @@ function OthersCon(props) {
           </button>
         </div>
         <div className="center mTop30">
-          <Support type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />
+          <Support type={3} href={getHelpUrl('role', 'extendedInfo')} text={_l('帮助')} />
         </div>
       </ExplainCon>
     );
@@ -186,7 +187,7 @@ function OthersCon(props) {
         </div>
         <div className="con mTop10 Gray_75">
           {_l('此过程如下图所示：了解更多前往')}
-          <Support type={3} href={'https://help.mingdao.com/role/extended-info'} text={_l('帮助中心')} />
+          <Support type={3} href={getHelpUrl('role', 'extendedInfo')} text={_l('帮助中心')} />
         </div>
         <div className="imgDes flexRow alignItemsCenter">
           <div className="left">
