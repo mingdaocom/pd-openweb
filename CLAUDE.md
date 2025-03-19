@@ -19,10 +19,36 @@
 
 ## Project Structure
 - `/src` - Source code
-- `/CI` - Build configuration
-- `/locale` - Internationalization
-- `/staticfiles` - Static assets
-- `/docker` - Docker configuration
-- `/html-templates` - HTML templates
+  - `/api` - API client code organized by feature/module
+  - `/common` - Global styles, methods, and preprocessing logic
+  - `/components` - Reusable UI components across the application
+  - `/ming-ui` - Custom UI component library with basic UI elements
+  - `/pages` - Main application modules (admin, worksheets, chat, etc.)
+  - `/redux` - Redux store configuration
+  - `/router` - Application routing
+  - `/socket` - Real-time communication setup
+  - `/util` - Global utility functions
+- `/CI` - Build configuration and continuous integration tools
+- `/locale` - Internationalization files (en, ja, zh_Hans, zh_Hant)
+- `/staticfiles` - Static assets (images, fonts, templates)
+- `/docker` - Docker configuration for containerization
+- `/html-templates` - HTML entry points for different application sections
+
+## Application Features
+- **Worksheet Management**: Form creation, management and sharing
+- **Task Management**: Todo lists and task tracking
+- **Document Management**: File storage and sharing system
+- **Team Communication**: Chat functionality
+- **Calendars**: Scheduling and calendar management
+- **Admin Panel**: User and organization management
+- **Public Forms**: Shareable forms with public access
+- **Mobile Support**: Responsive interfaces for mobile access
+- **Statistics & Reporting**: Data visualization and reporting tools
+
+## Development Notes
+- The application supports multiple languages with translation files in the locale directory
+- Multiple authentication methods are supported (SSO, third-party integrations)
+- Custom widgets can be extended for worksheet functionality
+- Socket integration enables real-time updates throughout the app
 
 Follow the [front-end coding specification](https://github.com/mdfe/style-guide) for more detailed guidelines.
