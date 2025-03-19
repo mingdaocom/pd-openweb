@@ -23,28 +23,6 @@ href={getHelpUrl('worksheet', 'select')}
 
 ## Files that need updating
 
-### src/pages/widgetConfig/config/widget.js
-
-```javascript
-// Original: 'https://help.mingdao.com/worksheet/controls'
-// Replace with: getHelpUrl('worksheet', 'controls')
-```
-
-### src/pages/UploadTemplateSheet/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/batch-print"
-// No mapping found for path: /worksheet/batch-print
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Admin/security/data/index.js
-
-```javascript
-// Original: "https://help.mingdao.com/org/security#apiproxy"
-// Replace with: getHelpUrl('product', 'orgSecurity')
-```
-
 ### src/pages/Admin/security/account/contactsHidden/container/ContactsHidden.jsx
 
 ```javascript
@@ -591,13 +569,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
-### src/components/newCustomFields/widgets/Subtotal/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/control-rollup-application"
-// Replace with: getHelpUrl('worksheet', 'rollup')
-```
-
 ### src/ming-ui/components/Support.jsx
 
 ```javascript
@@ -613,11 +584,6 @@ href={getHelpUrl('worksheet', 'select')}
 ```
 
 ### src/examples/FixedHelpUrlExample.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/title-field"
-// Replace with: getHelpUrl('worksheet', 'titleField')
-```
 
 ```javascript
 // Original: "https://help.mingdao.com/worksheet/title-field"
