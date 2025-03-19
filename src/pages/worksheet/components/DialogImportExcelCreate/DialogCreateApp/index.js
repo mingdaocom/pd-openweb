@@ -5,6 +5,7 @@ import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon/index.jsx';
 import successImg from '../images/succuss.png';
 import congratulationImg from '../images/congratulation.png';
 import { navigateTo } from 'src/router/navigateTo';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 import cx from 'classnames';
 import './index.less';
@@ -95,7 +96,7 @@ export default class DialogCreateApp extends Component {
               <Support
                 type={2}
                 text={_l('帮助')}
-                href="https://help.mingdao.com/worksheet/import-excel-create"
+                href={getHelpUrl('worksheet', 'importExcelCreate')}
                 className="Gray_bd mRight30"
               />
               <Button type="link" className="mRight15 stepLast" onClick={this.props.handleLast}>

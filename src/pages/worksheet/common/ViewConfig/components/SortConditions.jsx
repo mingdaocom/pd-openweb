@@ -10,6 +10,7 @@ import { filterSysControls, getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const ConditionsWrap = styled.div`
   .operateBtn {
@@ -61,7 +62,7 @@ const Item = props => {
                 <Support
                   className="InlineBlock"
                   type={3}
-                  href="https://help.mingdao.com/worksheet/batch-refresh"
+                  href={getHelpUrl('worksheet', 'batchRefresh')}
                   text={_l('点击了解更多')}
                 />
               </span>

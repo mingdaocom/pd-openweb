@@ -6,6 +6,7 @@ import { getWithToken, postWithToken } from 'worksheet/util';
 import convert from './convertData';
 import PreviewTable from './PreviewTable';
 import { arrayOf, func, number, shape, string } from 'prop-types';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const Header = styled.div`
   height: 52px;
@@ -246,7 +247,7 @@ export default function PreviewData(props) {
           <Support
             className="customSubtotalMessage Gray_bd"
             type={2}
-            href="https://help.mingdao.com"
+            href={getHelpUrl('common', 'mainHelp')}
             text={_l('帮助')}
           />
           <Button

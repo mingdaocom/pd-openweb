@@ -17,6 +17,7 @@ import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSett
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import HierarchyViewSetting from './hierarchyViewSetting';
 import { filterHidedControls } from 'src/pages/worksheet/util';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const Wrap = styled.div`
   .topShowCon {
@@ -98,7 +99,7 @@ export default function StructureSet(props) {
             filters={filterData}
             supportGroup
             title={_l('筛选')}
-            helpHref="https://help.mingdao.com/view/org/"
+            helpHref={getHelpUrl('view', 'org')}
             relationControls={relationControls}
             globalSheetControls={globalSheetControls}
             fromCondition={'viewControl'}

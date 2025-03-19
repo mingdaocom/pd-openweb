@@ -10,6 +10,7 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import { refreshRecord } from './dal';
 import worksheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const NewDialog = styled(Dialog)`
   .secTitle {
@@ -363,7 +364,7 @@ export default function RefreshRecordDialog(props) {
             <Support
               className="moreHelp"
               type={3}
-              href="https://help.mingdao.com/worksheet/batch-refresh"
+              href={getHelpUrl('worksheet', 'batchRefresh')}
               text={_l('使用帮助')}
             />
           </div>

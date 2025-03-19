@@ -8,6 +8,7 @@ import AppSettingHeader from '../AppSettingHeader';
 import variableApi from 'src/api/variable';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const tabInfos = [
   { label: _l('应用'), value: 'app' },
@@ -60,7 +61,7 @@ export default function AppGlobalVariable(props) {
         showSearch={true}
         addBtnName={_l('应用变量')}
         needUpgrade={featureType === '2'}
-        link="https://help.mingdao.com/workflow/node-update-global-variables"
+        link={getHelpUrl('workflow', 'updateGlobalVariables')}
         description={_l('使用全局变量实现组织内数据的共享与传递')}
         handleSearch={_.debounce(value => {
           setKeyWord(value);

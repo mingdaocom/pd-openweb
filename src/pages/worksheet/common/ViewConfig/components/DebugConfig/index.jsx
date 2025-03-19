@@ -10,6 +10,7 @@ import Input from 'ming-ui/components/Input';
 import { emitter } from 'src/util';
 import tailwindIcon from './tailwind.svg';
 import vueIcon from './vue.svg';
+import { getHelpUrl } from 'src/common/helpUrls';
 
 const Wrap = styled.div`
   li {
@@ -372,7 +373,7 @@ export default function DebugConfig(params) {
               <Support
                 className="InlineBlock ThemeColor3 mLeft5 Hand"
                 type={3}
-                href="https://help.mingdao.com/extensions/developer/view"
+                href={getHelpUrl('extensions', 'developerView')}
                 text={_l('查看开发文档')}
               />
             </div>
