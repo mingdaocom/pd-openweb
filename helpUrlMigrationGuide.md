@@ -23,51 +23,6 @@ href={getHelpUrl('worksheet', 'select')}
 
 ## Files that need updating
 
-### src/pages/Admin/security/account/contactsHidden/container/ContactsHidden.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/org/security"
-// Replace with: getHelpUrl('product', 'orgSecurity')
-```
-
-### src/pages/Admin/app/appManagement/modules/ImportApp.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/import-export"
-// Replace with: getHelpUrl('product', 'appImportExport')
-```
-
-### src/pages/Admin/app/appManagement/modules/ExportApp.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/import-export"
-// Replace with: getHelpUrl('product', 'appImportExport')
-```
-
-### src/pages/Admin/app/exclusiveComp/index.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/exclusive-computing-power"
-// No mapping found for path: /application/exclusive-computing-power
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Admin/app/globalVariable/components/GlobalVarLeft.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/workflow/node-update-global-variables"
-// No mapping found for path: /workflow/node-update-global-variables
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/Role/PortalCon/setting/TextMessage.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/workflow/sms-failure"
-// No mapping found for path: /workflow/sms-failure
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
 ### src/pages/worksheet/common/ViewConfig/components/StructureSet.jsx
 
 ```javascript
@@ -148,14 +103,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Add this path to helpUrls.js and then use getHelpUrl()
 ```
 
-### src/pages/AppSettings/components/MultiLingual/AddLangModal.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/language"
-// No mapping found for path: /application/language
-// Add this path to helpUrls.js and then use getHelpUrl()
-```
-
 ### src/pages/AppSettings/components/ImportUpgrade/index.js
 
 ```javascript
@@ -200,39 +147,6 @@ href={getHelpUrl('worksheet', 'select')}
 // Original: "https://help.mingdao.com/application/aggregation"
 // No mapping found for path: /application/aggregation
 // Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/pages/AppSettings/components/appBackupRestore/CreateAppBackupDialog.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/backup-restore"
-// Replace with: getHelpUrl('product', 'appBackupRestore')
-```
-
-```javascript
-// Original: "https://help.mingdao.com/application/backup-restore"
-// Replace with: getHelpUrl('product', 'appBackupRestore')
-```
-
-### src/pages/AppSettings/components/appBackupRestore/components/BackupFromFiles.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/backup-restore/"
-// Replace with: getHelpUrl('product', 'appBackupRestore')
-```
-
-### src/pages/AppSettings/components/appBackupRestore/ManageBackupFiles.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/application/backup-restore"
-// Replace with: getHelpUrl('product', 'appBackupRestore')
-```
-
-### src/pages/AppSettings/components/ExportAppCom/index.js
-
-```javascript
-// Original: "https://help.mingdao.com/application/import-export"
-// Replace with: getHelpUrl('product', 'appImportExport')
 ```
 
 ### src/pages/FormSet/containers/Print.jsx
@@ -513,12 +427,5 @@ href={getHelpUrl('worksheet', 'select')}
 // Original: 'https://help.mingdao.com'
 // No mapping found for path: /
 // Add this path to helpUrls.js and then use getHelpUrl()
-```
-
-### src/examples/FixedHelpUrlExample.jsx
-
-```javascript
-// Original: "https://help.mingdao.com/worksheet/title-field"
-// Replace with: getHelpUrl('worksheet', 'titleField')
 ```
 
