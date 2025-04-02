@@ -1,12 +1,18 @@
-import React, { Fragment, Component } from 'react';
+import React, { Fragment, Component, useEffect } from 'react';
 import ProcessRecordInfo from './ProcessRecordInfo';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import Back from 'mobile/components/Back';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 
 export default props => {
   const { isModal, match } = props;
   const { className, visible, onClose } = props;
+
+  useEffect(() => {
+    if (isModal) return;
+    workflowPushSoket();
+  }, []);
 
   if (isModal) {
     if (!visible) return null;

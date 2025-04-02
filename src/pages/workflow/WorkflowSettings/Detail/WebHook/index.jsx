@@ -273,7 +273,7 @@ export default class WebHook extends Component {
         {this.renderHeaders()}
         {!_.includes([1, 4, 5], data.method) && this.renderBody()}
 
-        {!md.global.Config.IsLocal && (
+        {data.realIp && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('可信 IP 地址')}</div>
             <div className="mTop10 Gray_75">

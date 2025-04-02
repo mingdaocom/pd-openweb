@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
+
+import _ from 'lodash';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/worksheet/redux/actions/customWidgetView';
-import WidgetContainer from './WidgetContainer';
-import Abnormal from './Abnormal';
-import _ from 'lodash';
-import styled from 'styled-components';
-import { string, arrayOf, shape, func, bool } from 'prop-types';
 import { browserIsMobile, emitter } from 'src/util';
+import styled from 'styled-components';
 import { CUSTOM_WIDGET_VIEW_STATUS, PLUGIN_INFO_SOURCE, PLUGIN_INFO_STATE } from 'worksheet/constants/enum';
+
+import Abnormal from './Abnormal';
+import WidgetContainer from './WidgetContainer';
 
 const Con = styled.div`
   height: 100%;
@@ -52,7 +54,7 @@ function getViewStatus({ view, scriptUrl }) {
   }
 }
 
-function CustomWidgetView(props) {
+function CustomWidgetViewContent(props) {
   const {
     isCharge,
     appId,
@@ -103,6 +105,7 @@ function CustomWidgetView(props) {
       {(status === CUSTOM_WIDGET_VIEW_STATUS.NORMAL ||
         (status === CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING && scriptUrl)) && (
         <WidgetContainer
+          isCharge={isCharge}
           scriptUrl={scriptUrl}
           isServerUrl={scriptUrl === codeUrl}
           paramsMap={getParamsMap(view)}
@@ -126,6 +129,11 @@ function CustomWidgetView(props) {
       )}
     </Con>
   );
+}
+
+function CustomWidgetView(props) {
+  const { worksheetInfo } = props;
+  return !worksheetInfo.isRequestingRelationControls && <CustomWidgetViewContent {...props} />;
 }
 
 CustomWidgetView.propTypes = {
