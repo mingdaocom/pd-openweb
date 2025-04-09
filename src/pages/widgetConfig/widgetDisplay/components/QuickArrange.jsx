@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import update from 'immutability-helper';
 import { flatten, last, head, isEmpty } from 'lodash';
 import cx from 'classnames';
@@ -27,9 +27,14 @@ const ARRANGE_TYPE = [
   { text: _l('四列'), value: 4 },
 ];
 
-export default function QuickArrange({ widgets, setWidgets }) {
+export default function QuickArrange({ widgets, setWidgets, status }) {
   const $originWidgets = useRef(widgets);
   const [activeColumn, setActive] = useState(-1);
+
+  // 保存后重置originWidgets
+  useEffect(() => {
+    $originWidgets.current = widgets;
+  }, [status.saveIndex]);
 
   const quickArrange = columnNumber => {
     if (activeColumn !== columnNumber) {

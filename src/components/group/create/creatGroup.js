@@ -1,19 +1,17 @@
-﻿import './createGroup.css';
-import { getStringBytes, upgradeVersionDialog, expireDialogAsync } from 'src/util';
+﻿import React from 'react';
+import { createRoot } from 'react-dom/client';
 import doT from 'dot';
-import mainHtml from './tpl/main.html';
-import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
+import { Dialog, Dropdown, QiniuUpload } from 'ming-ui';
 import { dialogSelectDept } from 'ming-ui/functions';
-import 'src/components/uploadAttachment/uploadAttachment';
 import groupController from 'src/api/group';
 import userController from 'src/api/user';
-import { Dialog, Dropdown } from 'ming-ui';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { expireDialogAsync, upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { getStringBytes } from 'src/util';
+import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
+import mainHtml from './tpl/main.html';
+import './createGroup.css';
 
 var CreateGroup = {};
-var projects = $.extend({}, md.global.Account).projects;
-var project = projects && projects.length ? projects[0] : {};
 
 var tips = {
   selectDepartment: _l('选择关联部门'),
@@ -27,13 +25,15 @@ var tips = {
 };
 
 CreateGroup.createInit = function (settings) {
+  var projects = $.extend({}, md.global.Account).projects;
+  var project = projects && projects.length ? projects[0] : {};
   var DEFAULTS = {
     selectedDeptSetting: null,
     defaultAvatar: `${md.global.FileStoreConfig.pictureHost}GroupAvatar/default.png?imageView2/1/w/100/h/100/q/90`,
     settings: {
       projectId: project.projectId || '',
       createGroupInProject: false,
-      openApproval: false,
+      openApproval: true,
       callback: function () {},
     },
   };
@@ -164,6 +164,10 @@ CreateGroup.bindEvent = function () {
       if (getStringBytes(groupName) > 64) {
         return alert(tips.nameTooLongTip, 3);
       }
+      if (CreateGroup.options.isProject && !CreateGroup.options.settings.projectId) {
+        alert(_l('必须选择一个组织'), 3);
+        return false;
+      }
       CreateGroup.createGroupConfirm();
     } else {
       alert(tips.nameNullTip, 3);
@@ -195,8 +199,6 @@ CreateGroup.bindHeadAvatar = function () {
   // 修改头像 event bind
   function bindGroupHeadPlugin() {
     var $groupSelect = $('.createGroupAvatarSelect .settingPictureLayer');
-    var $upload = $groupSelect.find('.uploadGroupAvatar');
-    var $input = $groupSelect.find('.hiddenUploadGroupAvatar');
 
     $('.createGroupAvatarSelect').on('click', '.icon-close', function () {
       $('.createGroupAvatarSelect').hide();
@@ -213,39 +215,39 @@ CreateGroup.bindHeadAvatar = function () {
       $('.createGroupAvatarSelect').hide();
     });
 
-    $input.on('click', function (event) {
-      event.stopPropagation();
-    });
+    const root = createRoot(document.getElementById('uploadGroupAvatarWrap'));
 
-    $input.uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#uploadGroupAvatar',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'GroupAvatar',
-      fileNamePrefix: 'GroupAvatarImage_',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 2,
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
-      },
-      createPicProgressBar: '',
-      callback: function (attachments) {
-        $upload.html(tips.customAvatarTip);
-
-        if (attachments.length > 0) {
-          var attachment = attachments[0];
-          var avatar = attachment.fileName + attachment.fileExt;
-          CreateGroup.options.avatar = avatar;
-
-          $avatar.attr('src', `${srcBasePath + avatar}?imageView2/1/w/100/h/100/q/90`);
+    root.render(
+      <QiniuUpload
+        options={{
+          multi_selection: false,
+          filters: {
+            mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+          },
+          max_file_size: '4m',
+          type: 2,
+        }}
+        bucket={4}
+        onUploaded={(up, file) => {
+          var $upload = $groupSelect.find('#uploadGroupAvatar');
+          $upload.html(tips.customAvatarTip);
+          CreateGroup.options.avatar = file.fileName;
+          $avatar.attr('src', file.url);
           $('.createGroupAvatarSelect').hide();
-        }
-      },
-    });
+          up.disableBrowse(false);
+        }}
+        onAdd={(up, files) => {
+          var $upload = $groupSelect.find('#uploadGroupAvatar');
+          $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
+          up.disableBrowse();
+        }}
+        onError={() => {}}
+      >
+        <a href="javascript:void(0);" id="uploadGroupAvatar">
+          {_l('使用自定义头像')}
+        </a>
+      </QiniuUpload>,
+    );
   }
 
   var $triggers = CreateGroup.$content.find('.groupHead,.modifyGroupAvatar');

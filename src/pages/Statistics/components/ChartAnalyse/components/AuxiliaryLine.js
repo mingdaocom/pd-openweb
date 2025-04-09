@@ -370,7 +370,7 @@ export default class AuxiliaryLine extends Component {
     });
   };
   renderMenu = () => {
-    const { yaxisList, displaySetup } = this.props.currentReport;
+    const { yaxisList, displaySetup, reportType } = this.props.currentReport;
     const { isPile, isPerPile, isAccumulate } = displaySetup;
     const defaultConfig = {
       controlId: (yaxisList[0] || {}).controlId,
@@ -384,6 +384,12 @@ export default class AuxiliaryLine extends Component {
         {auxiliaryLineTypes
           .filter(item => {
             return isPile || isPerPile || isAccumulate ? item.type === 'constantLine' : true;
+          })
+          .filter(item => {
+            if (reportTypes.RadarChart === reportType) {
+              return !['averageLine', 'tendencyLine'].includes(item.type);
+            }
+            return true;
           })
           .map(item => (
             <Menu.Item

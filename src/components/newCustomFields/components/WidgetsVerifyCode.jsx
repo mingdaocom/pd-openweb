@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Button } from 'ming-ui';
+import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
 import { captcha } from 'ming-ui/functions';
-import { specialTelVerify } from '../tools/utils';
-import { initIntlTelInput } from '../tools/DataFormat';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 
 export default class WidgetsVerifyCode extends Component {
@@ -14,10 +13,6 @@ export default class WidgetsVerifyCode extends Component {
       count: 0,
     };
     this.inputRef = React.createRef();
-  }
-
-  componentDidMount() {
-    this.iti = initIntlTelInput();
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -41,8 +36,7 @@ export default class WidgetsVerifyCode extends Component {
     if (!value) {
       isAvailable = false;
     } else {
-      this.iti.setNumber(value);
-      if (!(this.iti.isValidNumber() || specialTelVerify(value))) {
+      if (!telIsValidNumber(value)) {
         isAvailable = false;
       }
     }
@@ -73,7 +67,10 @@ export default class WidgetsVerifyCode extends Component {
           if (data === 1) {
             _this.handleSend();
           } else if (data === 15) {
-            captchaFuc();
+            new captcha(cb, isOk => {
+              if (isOk) return;
+              this.setState({ isSubmit: false });
+            });
           } else {
             alert(
               {
@@ -86,17 +83,6 @@ export default class WidgetsVerifyCode extends Component {
             _this.setState({ isSubmit: false });
           }
         });
-    };
-    const onCancel = isOk => {
-      if (isOk) return;
-      this.setState({ isSubmit: false });
-    };
-    const captchaFuc = () => {
-      if (md.global.getCaptchaType() === 1) {
-        new captcha(cb, onCancel);
-      } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
-      }
     };
 
     // 前3次关闭图像验证

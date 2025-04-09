@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SelectNodeObject,
-  FilterAndSort,
-  SpecificFieldsValue,
-  FindMode,
-  UpdateFields,
-  RefreshFieldData,
-} from '../components';
-import { ACTION_ID, APP_TYPE } from '../../enum';
-import cx from 'classnames';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { checkConditionsIsNull,getIcons } from '../../utils';
-import _ from 'lodash';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Checkbox, Dropdown, LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { ACTION_ID, APP_TYPE } from '../../enum';
+import { checkConditionsIsNull, getIcons } from '../../utils';
+import {
+  DetailFooter,
+  DetailHeader,
+  FilterAndSort,
+  FindMode,
+  RefreshFieldData,
+  SelectNodeObject,
+  SpecificFieldsValue,
+  UpdateFields,
+} from '../components';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -282,6 +282,7 @@ export default class GetMoreRecord extends Component {
    * 渲染内容
    */
   renderContent() {
+    const { isPlugin } = this.props;
     const { data } = this.state;
     const actionTypes = {
       [ACTION_ID.FROM_WORKSHEET]: _l('从工作表获取记录'),
@@ -316,34 +317,39 @@ export default class GetMoreRecord extends Component {
             data.actionId,
           ) && <div className="bold mBottom20">{actionTypes[data.actionId]}</div>}
 
-        <div className="Font14 Gray_75 workflowDetailDesc">
-          {!_.includes(
-            [ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
-            data.actionId,
-          ) &&
-            _l(
-              '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
-              workflowBatchGetDataLimitCount,
-              limitCount,
-            )}
+        {!isPlugin && (
+          <div className="Font14 Gray_75 workflowDetailDesc">
+            {!_.includes(
+              [ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
+              data.actionId,
+            ) &&
+              _l(
+                '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
+                workflowBatchGetDataLimitCount,
+                limitCount,
+              )}
 
-          {data.actionId === ACTION_ID.FROM_RECORD &&
-            _l('注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。')}
+            {data.actionId === ACTION_ID.FROM_RECORD &&
+              _l('注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。')}
 
-          {data.actionId === ACTION_ID.BATCH_UPDATE &&
-            _l(
-              '在本节点内更新最大支持%0行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
-              worktableBatchOperateDataLimitCount,
-            )}
+            {data.actionId === ACTION_ID.BATCH_UPDATE &&
+              _l(
+                '在本节点内更新最大支持%0行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
+                worktableBatchOperateDataLimitCount,
+              )}
 
-          {data.actionId === ACTION_ID.BATCH_DELETE &&
-            _l('在本节点内删除，最大支持%0行。此节点对象不能被流程中其他节点使用', worktableBatchOperateDataLimitCount)}
+            {data.actionId === ACTION_ID.BATCH_DELETE &&
+              _l(
+                '在本节点内删除，最大支持%0行。此节点对象不能被流程中其他节点使用',
+                worktableBatchOperateDataLimitCount,
+              )}
 
-          {data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA &&
-            _l(
-              '校准刷新符合筛选条件的工作表记录的计算结果、选项排序和分值、他表字段和汇总结果，此节点为异步排队执行，一次最多刷新10万行记录。每次校准必须间隔120分钟以上，否则将跳过节点',
-            )}
-        </div>
+            {data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA &&
+              _l(
+                '校准刷新符合筛选条件的工作表记录的计算结果、选项排序和分值、他表字段和汇总结果，此节点为异步排队执行，一次最多刷新10万行记录。每次校准必须间隔120分钟以上，否则将跳过节点',
+              )}
+          </div>
+        )}
 
         {(!data.actionId ||
           _.includes(
@@ -392,7 +398,7 @@ export default class GetMoreRecord extends Component {
                 selectNodeId={this.props.selectNodeId}
                 updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
                 type="number"
-                max={1000000}
+                max={md.global.Config.IsLocal ? 20000 : 10000}
                 allowedEmpty
                 data={data.numberFieldValue}
               />
@@ -422,7 +428,7 @@ export default class GetMoreRecord extends Component {
    * 渲染选择数组类型
    */
   renderSelectArrayType() {
-    const { flowInfo } = this.props;
+    const { flowInfo, isPlugin } = this.props;
     const { data, noAction } = this.state;
     const list = [
       { text: _l('发送API请求数组'), value: ACTION_ID.FROM_ARRAY },
@@ -438,9 +444,17 @@ export default class GetMoreRecord extends Component {
       _.remove(list, item => _.includes([ACTION_ID.FROM_PBC_INPUT_ARRAY], item.value));
     }
 
+    if (isPlugin) {
+      _.remove(
+        list,
+        item =>
+          !_.includes([ACTION_ID.FROM_ARRAY, ACTION_ID.FROM_CODE_ARRAY, ACTION_ID.FROM_JSON_PARSE_ARRAY], item.value),
+      );
+    }
+
     return (
       <Fragment>
-        <div className="mTop20 bold">{_l('选择数据类型')}</div>
+        <div className={cx('bold', { mTop20: !isPlugin })}>{_l('选择数据类型')}</div>
         <Dropdown
           className="flowDropdown mTop10"
           data={list}
@@ -544,13 +558,13 @@ export default class GetMoreRecord extends Component {
             !data.appId
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
-              ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
-              : () => (
-                  <Fragment>
-                    <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
-                  </Fragment>
-                )
+                ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+                : () => (
+                    <Fragment>
+                      <span>{selectAppItem.name}</span>
+                      {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
+                    </Fragment>
+                  )
           }
           border
           openSearch
@@ -614,13 +628,13 @@ export default class GetMoreRecord extends Component {
                 !fieldId
                   ? () => <span className="Gray_75">{_l('请选择')}</span>
                   : fieldId && !item
-                  ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
-                  : () => (
-                      <span>
-                        {item.controlName}
-                        <span className="Gray_75">（{_l('关联表“%0”', item.sourceEntityName)}）</span>
-                      </span>
-                    )
+                    ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
+                    : () => (
+                        <span>
+                          {item.controlName}
+                          <span className="Gray_75">（{_l('关联表“%0”', item.sourceEntityName)}）</span>
+                        </span>
+                      )
               }
               border
               onChange={fieldId => {
@@ -718,8 +732,8 @@ export default class GetMoreRecord extends Component {
                 !fieldId
                   ? () => <span className="Gray_75">{_l('请选择')}</span>
                   : fieldId && !item
-                  ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
-                  : () => <span>{item.controlName}</span>
+                    ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
+                    : () => <span>{item.controlName}</span>
               }
               border
               onChange={fieldId => {

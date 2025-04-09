@@ -2,7 +2,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { getNewRecordPageUrl } from 'worksheet/util';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import appManagementAjax from 'src/api/appManagement';
-import { getRecordLandUrl } from 'src/pages/worksheet/common/recordInfo/crtl';
+import { getRecordLandUrl } from 'worksheet/util';
 import _ from 'lodash';
 
 /**
@@ -50,7 +50,7 @@ export async function getUrl(args) {
 }
 
 export async function getPublicShare(args) {
-  const { from, validTime, password, isEdit } = args;
+  const { from, validTime, password, pageTitle, isEdit } = args;
   let res;
   if (args.isPublic === false) {
     return;
@@ -77,6 +77,7 @@ export async function getPublicShare(args) {
         validTime,
         password,
         isEdit,
+        pageTitle,
       });
       break;
     case 'worksheetApi':
@@ -94,7 +95,7 @@ export async function getPublicShare(args) {
 }
 
 export async function updatePublicShareStatus(args) {
-  const { from, isPublic, onUpdate, validTime, password } = args;
+  const { from, isPublic, onUpdate, validTime, password, pageTitle } = args;
   let res;
   switch (from) {
     case 'recordInfo':
@@ -143,6 +144,7 @@ export async function updatePublicShareStatus(args) {
         status: isPublic ? 1 : 0,
         validTime,
         password,
+        pageTitle,
       });
       if (isPublic) {
         res.shareLink = res.appEntityShare.url;

@@ -5,8 +5,7 @@ import cx from 'classnames';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { quickSelectUser } from 'ming-ui/functions';
 import AppFilter from '../AppFilter';
-import { TABS } from '../index';
-import { getDateScope } from '../config';
+import { TABS } from '../config';
 import './index.less';
 import _ from 'lodash';
 import zh_CN from 'antd/es/date-picker/locale/zh_CN';
@@ -61,8 +60,6 @@ const statusData = [
     value: 4,
   },
 ];
-
-const dateScope = getDateScope();
 
 export default class Filter extends Component {
   constructor(props) {

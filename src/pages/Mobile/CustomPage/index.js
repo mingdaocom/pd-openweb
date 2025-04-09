@@ -14,7 +14,7 @@ import WidgetDisplay from './WidgetDisplay';
 import AppPermissions from '../components/AppPermissions';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import store from 'redux/configureStore';
 import { updateFilterComponents } from './redux/actions';
 import { getTranslateInfo } from 'src/util';
@@ -46,7 +46,7 @@ const LayoutContent = styled.div`
     &.haveTitle {
       height: calc(100% - 40px);
     }
-    &.filter {
+    &.filter, &.tabs {
       overflow: inherit;
       box-shadow: none;
       background-color: transparent;
@@ -102,6 +102,7 @@ export default class CustomPage extends Component {
     const { params } = this.props.match;
     if (newParams.worksheetId !== params.worksheetId) {
       this.getPage(nextProps);
+      this.getPageInfo(nextProps);
     }
   }
   componentWillUnmount() {
@@ -203,7 +204,8 @@ export default class CustomPage extends Component {
   }
   renderContent() {
     const { apk, pageConfig } = this.state;
-    const pageComponents = this.state.pageComponents;
+    const allPageComponents = this.state.pageComponents;
+    const pageComponents = this.state.pageComponents.filter(c => !c.sectionId);
     const { params } = this.props.match;
     const layout = getLayout(pageComponents);
     return (
@@ -228,7 +230,7 @@ export default class CustomPage extends Component {
               {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{translateInfo.mobileTitle || title}</div>}
               <div className={cx('widgetContent', componentType, { haveTitle: titleVisible })}>
                 <WidgetDisplay
-                  pageComponents={pageComponents}
+                  pageComponents={allPageComponents}
                   pageConfig={pageConfig}
                   componentType={componentType}
                   widget={widget}
@@ -237,6 +239,11 @@ export default class CustomPage extends Component {
                     appId: params.appId,
                     groupId: params.groupId,
                     worksheetId: params.worksheetId,
+                  }}
+                  updateComponents={newComponents => {
+                    this.setState({
+                      pageComponents: newComponents
+                    });
                   }}
                 />
               </div>
@@ -286,12 +293,16 @@ export default class CustomPage extends Component {
           ) : (
             loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()
           )}
-          {!window.isMingDaoApp && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && !_.get(window, 'shareState.shareId') && (
+          {!window.isMingDaoApp && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && !_.get(window, 'shareState.shareId') && !location.href.includes('embed/page') && (
             <Back
               style={{ bottom: appNaviStyle === 2 ? '70px' : '20px' }}
               className="low"
               icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
               onClick={() => {
+                if (appNaviStyle === 2 && location.href.includes('mobile/app')) {
+                  window.mobileNavigateTo('/mobile/dashboard');
+                  return;
+                }
                 const { params } = this.props.match;
                 window.mobileNavigateTo(`/mobile/app/${params.appId}`);
               }}

@@ -12,7 +12,7 @@ import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet
 import { getClassNameByExt, formatFileSize, addBehaviorLog, browserIsMobile } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/utils';
+import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils.js';
 import _ from 'lodash';
 import { FROM } from './enum';
 import RegExpValidator from 'src/util/expression';
@@ -71,6 +71,13 @@ const AttachmentImageCon = styled.div`
     vertical-align: middle;
     min-width: 21px;
     object-fit: cover;
+  }
+  &.circle {
+    border-radius: 50%;
+    overflow: hidden;
+    .shadowInset {
+      border-radius: 50%;
+    }
   }
 `;
 
@@ -441,6 +448,11 @@ function HoverPreviewPanel(props, cb = () => {}) {
 }
 
 function AttachmentImage(props) {
+  const { showShape, style = {} } = props;
+  let { width, height, objectFit } = style;
+  if (showShape === 'circle' || showShape === 'rect') {
+    width = height;
+  }
   const imgRef = useRef();
   useEffect(() => {
     return () => {
@@ -448,16 +460,18 @@ function AttachmentImage(props) {
     };
   }, []);
   return (
-    <AttachmentImageCon>
+    <AttachmentImageCon className={showShape}>
       <ImageHoverMask className="hoverMask" />
-      <ShadowInset />
-      <img {...props} ref={imgRef} />
+      <ShadowInset className="shadowInset" />
+      <img {...props} style={{ width, height, objectFit }} ref={imgRef} />
     </AttachmentImageCon>
   );
 }
 
 function Attachment(props) {
   const {
+    showShape,
+    objectFit,
     showFileName,
     isTrash,
     isSubList,
@@ -565,11 +579,12 @@ function Attachment(props) {
       >
         {isPicture ? (
           <AttachmentImage
+            showShape={showShape}
             crossOrigin="anonymous"
             role="presentation"
             src={smallThumbnailUrl}
             onError={() => setIsPicture(false)}
-            style={{ width: 'auto', height: fileHeight }}
+            style={{ width: 'auto', height: fileHeight, objectFit }}
           />
         ) : (
           <AttachmentDoc
@@ -604,6 +619,7 @@ function cellAttachments(props, sourceRef) {
     sheetSwitchPermit,
     isediting,
     error,
+    columnStyle,
     cell = {},
     rowHeight = 34,
     popupContainer,
@@ -614,6 +630,16 @@ function cellAttachments(props, sourceRef) {
   } = props;
   let { editable } = props;
   const { value, strDefault = '', advancedSetting = {}, enumDefault } = cell;
+  const showShape =
+    {
+      4: 'rect',
+      5: 'circle',
+    }[String(columnStyle.showtype)] || '';
+  const objectFit =
+    {
+      0: 'cover',
+      1: 'contain',
+    }[String(columnStyle.coverFillType)] || 'cover';
   const [, onlyAllowMobileInput] = strDefault.split('');
   const allowupload = advancedSetting.allowupload || '1';
   if (cell.type === 14 && onlyAllowMobileInput === '1') {
@@ -709,6 +735,8 @@ function cellAttachments(props, sourceRef) {
   }
   const attachmentsComp = attachments.map((attachment, index) => (
     <Attachment
+      showShape={showShape}
+      objectFit={objectFit}
       showFileName={showFileName}
       isTrash={isTrash}
       isSubList={isSubList}
@@ -746,7 +774,6 @@ function cellAttachments(props, sourceRef) {
         destroyPopupOnHide={!window.isSafari} // 不是 Safari
         popupVisible={editable && (uploadFileVisible || !attachments.length)}
         from={from}
-        isQiniuUpload={true}
         canAddLink={false}
         minWidth={130}
         showAttInfo={false}

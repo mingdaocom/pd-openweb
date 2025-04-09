@@ -1,12 +1,12 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { arrayOf, number, string, func, shape, bool } from 'prop-types';
-import styled from 'styled-components';
+import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Menu, Button } from 'ming-ui';
+import styled from 'styled-components';
+import { Button, Menu } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
-import _ from 'lodash';
-import cx from 'classnames';
 
 const Con = styled.div`
   display: flex;
@@ -97,7 +97,7 @@ function Buttons(props) {
   } = props;
   const cache = useRef({});
   const [popupVisible, setPopupVisible] = useState(false);
-  const hideDisabled = type === 'iconText';
+  const hideDisabled = type === 'iconText' || !viewId;
   const sumWidth = _.sum(buttons.map(button => getButtonWidth(button, type)));
   const moreButtonWidth = getButtonWidth({ name: _l('更多') }, type) - 6;
   let buttonShowNum = 1;

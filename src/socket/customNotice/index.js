@@ -2,7 +2,7 @@ import React from 'react';
 import { antNotification, Icon } from 'ming-ui';
 import { renderBtnList } from 'ming-ui/functions/mdNotification';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
-import { downloadFile } from 'src/util';
+import { downloadFile, emitter } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 import { match } from 'path-to-regexp';
@@ -73,6 +73,13 @@ export default function customNotice() {
       if (status === 2 && type === 102 && !_.isEmpty(params) && params.id === data.id) {
         setTimeout(() => {
           window.location.reload();
+        }, 200);
+      }
+
+      // 引用关系--工作流模块
+      if (status === 2 && type === 201) {
+        setTimeout(() => {
+          emitter.emit('refreshReference');
         }, 200);
       }
 

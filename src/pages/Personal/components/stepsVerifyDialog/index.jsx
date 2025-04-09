@@ -17,6 +17,8 @@ export default class StepsVerifyDialog extends React.Component {
   render() {
     const { mobilePhone, email, isVerify, visible } = this.props;
     const canVerify = mobilePhone && email && isVerify;
+    const msg = _l('请确保手机和邮箱均为可用状态');
+
     return (
       <Dialog
         title={_l('开启两步验证？')}
@@ -31,7 +33,7 @@ export default class StepsVerifyDialog extends React.Component {
             dangerouslySetInnerHTML={{
               __html: _l(
                 '开启后，输入账户和密码后，仍需输入验证码；开启 %0。',
-                `<span class="Gray Bold">请确保手机和邮箱均为可用状态</span>`,
+                `<span class="Gray Bold">${msg}</span>`,
               ),
             }}
           ></div>
@@ -41,9 +43,7 @@ export default class StepsVerifyDialog extends React.Component {
               <div className="mTop24">
                 <div className="Gray_75">{item.title}</div>
                 <div className={cx({ Red: isError })}>
-                  {isError
-                    ? _l('%0不可用，请先绑定或验证', item.errorMsg)
-                    : `${item.label}・${this.props[item.key]}`}
+                  {isError ? _l('%0不可用，请先绑定或验证', item.errorMsg) : `${item.label}・${this.props[item.key]}`}
                 </div>
               </div>
             );

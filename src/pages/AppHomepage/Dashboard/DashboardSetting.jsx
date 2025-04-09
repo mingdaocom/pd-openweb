@@ -8,7 +8,7 @@ import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import BulletinSetting from './BulletinSetting';
 import projectSettingApi from 'src/api/projectSetting';
 import { themeColors } from './utils';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 
 const SettingDrawer = styled(Drawer)`
   .ant-drawer-header {

@@ -457,7 +457,7 @@ class Dropdown extends Component {
 
   displayPointer = () => {
     const { value } = this.state;
-    const { dropIcon, placeholder, data, cancelAble, disabledClickElement } = this.props;
+    const { dropIcon, placeholder, data, cancelAble, disabledClickElement, renderPointer } = this.props;
     const selectedData = _.find(_.flatten(data), item => item.value === value);
     return (
       <div
@@ -474,59 +474,65 @@ class Dropdown extends Component {
           }
         }}
       >
-        {value != undefined ? ( // eslint-disable-line eqeqeq
-          <span
-            className={cx('value', {
-              ThemeHoverColor3: this.props.hoverTheme,
-              ThemeHoverBorderColor3: this.props.hoverTheme,
-            })}
-          >
-            {this.props.renderError && !this.props.data.map(o => o.value).includes(value)
-              ? this.props.renderError()
-              : this.props.renderTitle
-              ? this.props.renderTitle(selectedData)
-              : this.props.renderValue.replace(
-                  /{{value}}/g,
-                  this.getTextFromDataById(this.props.data, this.state.value),
-                )}
-          </span>
+        {renderPointer ? (
+          renderPointer()
         ) : (
-          <span className="Dropdown--placeholder Gray_bd ellipsis InlineBlock">{placeholder}</span>
-        )}
-        {cancelAble && value != undefined ? (
-          <Fragment>
-            <Icon
-              icon="cancel1"
-              className="Gray_9e mLeft8 clearIcon"
-              onClick={e => {
-                e.stopPropagation();
-                if (value != undefined) {
-                  this.setState({
-                    value: undefined,
-                  });
-                }
-                if (this.props.selectClose) {
-                  this.setState({
-                    showMenu: false,
-                  });
-                  this.props.onVisibleChange(false);
-                }
-                if (this.props.onChange) {
-                  this.props.onChange(undefined);
-                }
-              }}
-            />
-            <Icon icon={dropIcon || 'arrow-down-border'} className="Gray_9e mLeft8 dropArrow" />
-          </Fragment>
-        ) : (
-          <Icon icon={dropIcon || 'arrow-down-border'} className="mLeft8 Gray_9e" />
+          <React.Fragment>
+            {value != undefined ? ( // eslint-disable-line eqeqeq
+              <span
+                className={cx('value', {
+                  ThemeHoverColor3: this.props.hoverTheme,
+                  ThemeHoverBorderColor3: this.props.hoverTheme,
+                })}
+              >
+                {this.props.renderError && !this.props.data.map(o => o.value).includes(value)
+                  ? this.props.renderError()
+                  : this.props.renderTitle
+                    ? this.props.renderTitle(selectedData)
+                    : this.props.renderValue.replace(
+                        /{{value}}/g,
+                        this.getTextFromDataById(this.props.data, this.state.value),
+                      )}
+              </span>
+            ) : (
+              <span className="Dropdown--placeholder Gray_bd ellipsis InlineBlock">{placeholder}</span>
+            )}
+            {cancelAble && value != undefined ? (
+              <Fragment>
+                <Icon
+                  icon="cancel1"
+                  className="Gray_9e mLeft8 clearIcon"
+                  onClick={e => {
+                    e.stopPropagation();
+                    if (value != undefined) {
+                      this.setState({
+                        value: undefined,
+                      });
+                    }
+                    if (this.props.selectClose) {
+                      this.setState({
+                        showMenu: false,
+                      });
+                      this.props.onVisibleChange(false);
+                    }
+                    if (this.props.onChange) {
+                      this.props.onChange(undefined);
+                    }
+                  }}
+                />
+                <Icon icon={dropIcon || 'arrow-down-border'} className="Gray_9e mLeft8 dropArrow" />
+              </Fragment>
+            ) : (
+              <Icon icon={dropIcon || 'arrow-down-border'} className="mLeft8 Gray_9e" />
+            )}
+          </React.Fragment>
         )}
       </div>
     );
   };
 
   render() {
-    const { isAppendToBody, className, menuClass, disabled, style, onVisibleChange } = this.props;
+    const { isAppendToBody, className, menuClass, disabled, style, onVisibleChange, points, offset } = this.props;
     return (
       <div className={`ming Dropdown pointer ${className || ''} ${disabled ? 'disabled' : ''}`} style={style}>
         {isAppendToBody ? (
@@ -537,8 +543,8 @@ class Dropdown extends Component {
             popupClassName={cx('dropdownTrigger', menuClass)}
             popupVisible={this.state.showMenu}
             popupAlign={{
-              points: ['tl', 'bl'],
-              offset: [0, 1],
+              points: points || ['tl', 'bl'],
+              offset: offset || [0, 1],
               overflow: {
                 adjustX: true,
                 adjustY: true,

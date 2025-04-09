@@ -27,7 +27,7 @@ import SourceCon from './SourceCon';
 import AddAggregation from './AggregationConForAdd';
 import { getTranslateInfo } from 'src/util';
 import DocumentTitle from 'react-document-title';
-import { systemControls, GROUPMAX } from '../config';
+import { systemControls, GROUPMAX, AGG_CONTROL_MAX } from '../config';
 import AddGroup from './AddGroup';
 
 export default function Info(props) {
@@ -558,7 +558,7 @@ export default function Info(props) {
               <div className="line mTop20" />
               <div className="Bold Font14 Gray mTop24">
                 {_l('聚合字段')}
-                <span className="Gray_75 mLeft10">{`(${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length}/10)`}</span>
+                <span className="Gray_75 mLeft10">{`(${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length}/${AGG_CONTROL_MAX})`}</span>
               </div>
               <AggregationCon
                 flowData={flowData}

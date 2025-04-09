@@ -1,12 +1,12 @@
-import React, { Fragment, Component } from 'react';
-import PropTypes from 'prop-types';
-import { Icon } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
+import { Dialog, Popup } from 'antd-mobile';
 import cx from 'classnames';
-import { Popup, Dialog } from 'antd-mobile';
-import { browserIsMobile } from 'src/util';
-import { bindWeiXin, bindWxWork, bindFeishu, handleTriggerEvent } from '../tools/authentication';
-import styled from 'styled-components';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { browserIsMobile, compatibleMDJS } from 'src/util';
+import { bindFeishu, bindWeiXin, bindWxWork, handleTriggerEvent } from '../tools/authentication';
 
 const ErrorWrap = styled.div`
   justify-content: center;
@@ -88,8 +88,9 @@ export default class Widgets extends Component {
   }
   get formatsToSupport() {
     const { Html5QrcodeSupportedFormats } = this.qrCodeComponent;
-    return [
-      Html5QrcodeSupportedFormats.QR_CODE,
+    const { scantype = '0' } = this.props;
+    const qrCodeType = [Html5QrcodeSupportedFormats.QR_CODE];
+    const barCodeType = [
       Html5QrcodeSupportedFormats.CODE_39,
       Html5QrcodeSupportedFormats.CODE_93,
       Html5QrcodeSupportedFormats.CODE_128,
@@ -102,11 +103,19 @@ export default class Widgets extends Component {
       Html5QrcodeSupportedFormats.RSS_14,
       Html5QrcodeSupportedFormats.RSS_EXPANDED,
     ];
+
+    if (scantype === '0') {
+      return [...qrCodeType, ...barCodeType];
+    }
+    if (scantype === '1') {
+      return barCodeType;
+    }
+    return qrCodeType;
   }
   handleWxScanQRCode = () => {
     window.wx.scanQRCode({
       needResult: 1,
-      scanType: ['qrCode', 'barCode'],
+      scanType: this.getScanType(),
       success: res => {
         this.props.onScanQRCodeResult(formatScanQRCodeResult(res.resultStr));
       },
@@ -119,7 +128,7 @@ export default class Widgets extends Component {
   };
   handleFeishuScanQRCode = () => {
     window.tt.scanCode({
-      scanType: ['barCode', 'qrCode'],
+      scanType: this.getScanType(),
       success: res => {
         this.props.onScanQRCodeResult(res.result);
       },
@@ -146,8 +155,9 @@ export default class Widgets extends Component {
   handleScanCode = () => {
     const { projectId, control } = this.props;
 
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.scanQRCode) {
-      window.MDJS.scanQRCode({
+    compatibleMDJS(
+      'scanQRCode',
+      {
         control,
         success: res => {
           this.props.onScanQRCodeResult(res.resultStr);
@@ -158,72 +168,72 @@ export default class Widgets extends Component {
             window.nativeAlert(JSON.stringify(res));
           }
         },
-      });
-      return;
-    }
-
-    if (isWx) {
-      handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin(), errType => {
-        if (errType) {
-          import('html5-qrcode').then(data => {
-            this.qrCodeComponent = data;
-            this.handleScanQRCode();
+      },
+      () => {
+        if (isWx) {
+          handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin(), errType => {
+            if (errType) {
+              import('html5-qrcode').then(data => {
+                this.qrCodeComponent = data;
+                this.handleScanQRCode();
+              });
+            }
           });
+          return;
         }
-      });
-      return;
-    }
 
-    if (window.isWxWork) {
-      handleTriggerEvent(this.handleWxScanQRCode, bindWxWork(projectId), errType => {
-        if (errType) {
-          import('html5-qrcode').then(data => {
-            this.qrCodeComponent = data;
-            this.handleScanQRCode();
+        if (window.isWxWork) {
+          handleTriggerEvent(this.handleWxScanQRCode, bindWxWork(projectId), errType => {
+            if (errType) {
+              import('html5-qrcode').then(data => {
+                this.qrCodeComponent = data;
+                this.handleScanQRCode();
+              });
+            }
           });
+          return;
         }
-      });
-      return;
-    }
 
-    if (window.isFeiShu) {
-      handleTriggerEvent(this.handleFeishuScanQRCode, bindFeishu(projectId), errType => {
-        if (errType) {
-          import('html5-qrcode').then(data => {
-            this.qrCodeComponent = data;
-            this.handleScanQRCode();
+        if (window.isFeiShu) {
+          handleTriggerEvent(this.handleFeishuScanQRCode, bindFeishu(projectId), errType => {
+            if (errType) {
+              import('html5-qrcode').then(data => {
+                this.qrCodeComponent = data;
+                this.handleScanQRCode();
+              });
+            }
           });
+          return;
         }
-      });
-      return;
-    }
 
-    if (window.isWeLink && window.HWH5) {
-      window.HWH5.scanCode({ needResult: 1 })
-        .then(data => {
-          const { content } = data;
-          this.props.onScanQRCodeResult(content);
-        })
-        .catch(error => {
-          alert(_l('扫码异常'), 3);
-        });
-      return;
-    }
+        if (window.isWeLink && window.HWH5) {
+          window.HWH5.scanCode({ needResult: 1 })
+            .then(data => {
+              const { content } = data;
+              this.props.onScanQRCodeResult(content);
+            })
+            .catch(error => {
+              alert(_l('扫码异常'), 3);
+            });
+          return;
+        }
 
-    if (window.isDingTalk) {
-      window.dd.biz.util.scan({
-        type: 'all',
-        onSuccess: data => {
-          this.props.onScanQRCodeResult(data.text);
-        },
-        onFail: () => {
-          alert(_l('扫码异常'), 3);
-        },
-      });
-      return;
-    }
+        if (window.isDingTalk) {
+          window.dd.biz.util.scan({
+            type: 'all',
+            onSuccess: data => {
+              this.props.onScanQRCodeResult(data.text);
+            },
+            onFail: () => {
+              alert(_l('扫码异常'), 3);
+            },
+          });
+          return;
+        }
 
-    this.handleScanQRCode();
+        this.handleScanQRCode();
+      },
+    );
   };
   handleScanQRCode = () => {
     if (location.protocol === 'http:' && location.hostname !== 'localhost') {

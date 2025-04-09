@@ -16,7 +16,8 @@ import {
 } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { DATE_TIME_DATA_PARTICLE, GROUPLIMITTYPES } from './config';
-import { getSyncLicenseInfo, buriedUpgradeVersionDialog } from 'src/util';
+import { getSyncLicenseInfo } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum.js';
 
 export const getNodeInfo = (flowData, type) => {
@@ -27,8 +28,10 @@ export const getNodeInfo = (flowData, type) => {
 const isEqualControl = (parentControl, control, item, workSheetId) => {
   return parentControl && _.get(item, 'parentFieldInfo.oid')
     ? _.get(item, 'oid') === `${parentControl.dataSource}_${control.controlId}` &&
-    _.get(item, 'parentFieldInfo.oid') === `${workSheetId}_${parentControl.controlId}`
-    : !parentControl && _.get(item, 'oid') === `${workSheetId}_${control.controlId}` && !_.get(item, 'parentFieldInfo.oid');
+        _.get(item, 'parentFieldInfo.oid') === `${workSheetId}_${parentControl.controlId}`
+    : !parentControl &&
+        _.get(item, 'oid') === `${workSheetId}_${control.controlId}` &&
+        !_.get(item, 'parentFieldInfo.oid');
 };
 
 //判断这个字段是否已配置过
@@ -59,7 +62,10 @@ export const getGroupFields = flowData => {
 
 export const canChooseForParent = (flowData, dataSource) => {
   const sourceDtList = getAllSourceList(flowData);
-  return sourceDtList.find(o => o.isRelative && o.dataSource === dataSource) || sourceDtList.length < getSourceMaxCountByVersion(flowData.projectId);
+  return (
+    sourceDtList.find(o => o.isRelative && o.dataSource === dataSource) ||
+    sourceDtList.length < getSourceMaxCountByVersion(flowData.projectId)
+  );
 };
 
 export const canAgg = (control, parentControl, flowData, workSheetId) => {
@@ -72,7 +78,7 @@ export const canAgg = (control, parentControl, flowData, workSheetId) => {
 };
 
 export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggregation) => {
-  let list = (sourceInfos.find(it => it.worksheetId === workSheetId) || {}).controls || []
+  let list = (sourceInfos.find(it => it.worksheetId === workSheetId) || {}).controls || [];
   if (forAggregation) {
     list = list.filter(
       o =>
@@ -119,7 +125,7 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
         if (
           !isInGroup(o) &&
           formatControls(o.relationControls).filter(it => onFilter(it) && canAgg(it, o, flowData, workSheetId)).length >
-          0
+            0
         ) {
           return o;
         }
@@ -202,14 +208,14 @@ export const formatControls = (controls, worksheetId) => {
       o.type === 29
         ? _.get(o, 'advancedSetting.hide') !== '1' && isRuleRelative(o)
         : !(
-          [17, 18, 45, 47, 22, 10010, 52, 21, 41, 51, 49, 43, 25, 40, 42, 14, 53, 37, 54].includes(o.type) ||
-          // (o.type === 30 && (o.strDefault || '').split('')[0] === '1') ||
-          o.type === 30 || // 他表字段 暂时都不支持
-          !!o.encryId ||
-          (o.type === 26 && _.get(o, 'advancedSetting.usertype') === '2')
-        ) &&
-        !([34, 35].includes(o.type) && o.dataSource === worksheetId) &&
-        !(o.type === 38 && [2, 3].includes(o.enumDefault)), //公式字段(距离此刻时长|为日期加减时间) 不支持
+            [17, 18, 45, 47, 22, 10010, 52, 21, 41, 51, 49, 43, 25, 40, 42, 14, 53, 37, 54].includes(o.type) ||
+            // (o.type === 30 && (o.strDefault || '').split('')[0] === '1') ||
+            o.type === 30 || // 他表字段 暂时都不支持
+            !!o.encryId ||
+            (o.type === 26 && _.get(o, 'advancedSetting.usertype') === '2')
+          ) &&
+          !([34, 35].includes(o.type) && o.dataSource === worksheetId) &&
+          !(o.type === 38 && [2, 3].includes(o.enumDefault)), //公式字段(距离此刻时长|为日期加减时间) 不支持
   );
 };
 
@@ -221,16 +227,18 @@ export const filterForFilterDialog = controls => {
   // 嵌入,条码,分段,备注,标签页,自由链接,查询记录,他表字段仅显示,文本识别,api查询(按钮),成员外部门户
   // 大写金额， 附件
   //老字段 17 18
-  return controls.filter(
-    o =>
-      !(
-        [17, 18, 45, 47, 22, 10010, 52, 21, 51, 49, 43, 25, 14, 53].includes(o.type) ||
-        // (o.type === 30 && (o.strDefault || '').split('')[0] === '1') ||
-        o.type === 30 || // 他表字段 暂时都不支持
-        (o.type === 26 && _.get(o, 'advancedSetting.usertype') === '2') ||
-        (o.type === 29 && _.get(o, 'advancedSetting.hide') === '1')
-      ),
-  ).filter(o => !(o.type === 29 && _.get(o, 'enumDefault') === 2));//暂时排除关联多条的筛选
+  return controls
+    .filter(
+      o =>
+        !(
+          [17, 18, 45, 47, 22, 10010, 52, 21, 51, 49, 43, 25, 14, 53].includes(o.type) ||
+          // (o.type === 30 && (o.strDefault || '').split('')[0] === '1') ||
+          o.type === 30 || // 他表字段 暂时都不支持
+          (o.type === 26 && _.get(o, 'advancedSetting.usertype') === '2') ||
+          (o.type === 29 && _.get(o, 'advancedSetting.hide') === '1')
+        ),
+    )
+    .filter(o => !(o.type === 29 && _.get(o, 'enumDefault') === 2)); //暂时排除关联多条的筛选
 };
 
 export const getAggFuncTypes = (aggregateFields, parentControl, control, worksheetId) => {
@@ -714,11 +722,12 @@ export const isDelStatus = (item, source) => {
     const dataControls =
       (source.find(it => (_.get(item, 'parentFieldInfo.oid') || '').split('_')[0] === it.sourceId) || {}).controls ||
       [];
-    const data = dataControls.find(o => o.controlId === _.get(item, 'parentFieldInfo.controlSetting.controlId') && _.get(o, 'advancedSetting.hide') !== '1');
-    if (
-      !data ||
-      ([29, 34, 35].includes(data.type) && (29 === data.type && !isRuleRelative(data)))
-    ) {
+    const data = dataControls.find(
+      o =>
+        o.controlId === _.get(item, 'parentFieldInfo.controlSetting.controlId') &&
+        _.get(o, 'advancedSetting.hide') !== '1',
+    );
+    if (!data || ([29, 34, 35].includes(data.type) && 29 === data.type && !isRuleRelative(data))) {
       isDelete = true;
     }
   }
@@ -738,18 +747,19 @@ export const setGroupFields = (groupDt, sourceInfos, flowData) => {
       let controlSetting = {};
       let parentFieldInfo = it.parentFieldInfo || {};
       if (_.get(parentFieldInfo, 'controlSetting.controlId')) {
-        parentFieldInfo.controlSetting = (_.get(sourceInfos, `[${i}]controls`) || []).find(
-          a => a.controlId === _.get(parentFieldInfo, 'controlSetting.controlId') && _.get(parentFieldInfo, 'controlSetting.dataSource') === a.dataSource,
-        ) || _.get(it, 'parentFieldInfo.controlSetting');
-        controlSetting =
-          (_.get(parentFieldInfo, 'controlSetting.relationControls') || []).find(
-            a => a.controlId === _.get(it, 'controlSetting.controlId'),
-          )
-      } else {
-        controlSetting =
+        parentFieldInfo.controlSetting =
           (_.get(sourceInfos, `[${i}]controls`) || []).find(
-            a => a.controlId === _.get(it, 'controlSetting.controlId'),
-          )
+            a =>
+              a.controlId === _.get(parentFieldInfo, 'controlSetting.controlId') &&
+              _.get(parentFieldInfo, 'controlSetting.dataSource') === a.dataSource,
+          ) || _.get(it, 'parentFieldInfo.controlSetting');
+        controlSetting = (_.get(parentFieldInfo, 'controlSetting.relationControls') || []).find(
+          a => a.controlId === _.get(it, 'controlSetting.controlId'),
+        );
+      } else {
+        controlSetting = (_.get(sourceInfos, `[${i}]controls`) || []).find(
+          a => a.controlId === _.get(it, 'controlSetting.controlId'),
+        );
       }
       return {
         ...it,
@@ -776,8 +786,8 @@ export const formatAggConfig = (it, isAdd) => {
   const dot = ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
     ? undefined
     : isAdd
-      ? 2
-      : _.get(it, 'controlSetting.advancedSetting.dot') || _.get(it, 'controlSetting.dot');
+    ? 2
+    : _.get(it, 'controlSetting.advancedSetting.dot') || _.get(it, 'controlSetting.dot');
 
   const suffix = ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
     ? undefined
@@ -795,10 +805,10 @@ export const formatAggConfig = (it, isAdd) => {
       }, //聚合字段showtype：0
       unit:
         isFormulaResultAsTime(it.controlSetting) || // 公式控件计算为时间的
-          isFormulaResultAsDateTime(it.controlSetting) || // 公式控件计算为日期时间的
-          isFormulaResultAsNumber(it.controlSetting) || //公式计算为数值的
-          _.includes(CAN_AS_TIME_DYNAMIC_FIELD, it.controlSetting.type) ||
-          ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
+        isFormulaResultAsDateTime(it.controlSetting) || // 公式控件计算为日期时间的
+        isFormulaResultAsNumber(it.controlSetting) || //公式计算为数值的
+        _.includes(CAN_AS_TIME_DYNAMIC_FIELD, it.controlSetting.type) ||
+        ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
           ? ''
           : it.controlSetting.unit, //时间类默认把unit都去掉
     },
@@ -886,37 +896,43 @@ export const getSourceIndex = (flowData, o) => {
 };
 
 //根据版本返回数据源数量上限
-export const getSourceMaxCountByVersion = (projectId) => {
-  if (md.global.Config.IsLocal) return 10;//私有部署10个
+export const getSourceMaxCountByVersion = projectId => {
+  if (md.global.Config.IsLocal) return 10; //私有部署10个
   const { version = { versionIdV2: '-1' } } = getSyncLicenseInfo(projectId);
-  const { versionIdV2 } = version
+  const { versionIdV2 } = version;
   switch (versionIdV2) {
-    case '1'://标准版 5 个
-      return 5
-    case '2'://专业版 10个
-    case '3'://旗舰版 10个
-      return 10
+    case '1': //标准版 5 个
+      return 5;
+    case '2': //专业版 10个
+    case '3': //旗舰版 10个
+      return 10;
     default:
-      return 0
+      return 0;
   }
-}
+};
 
 //数据源达到上限提示
-export const sourceIsMax = (projectId) => {
+export const sourceIsMax = projectId => {
   const project = getSyncLicenseInfo(projectId);
   if (!['2', '3'].includes(_.get(project, 'version.versionIdV2')) && !md.global.Config.IsLocal) {
     buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation);
   } else {
     return alert(_l('数据源已达上限'), 3);
   }
-}
+};
 
-export const getLimitControlByRelativeNum = (flowData) => {
+export const getLimitControlByRelativeNum = flowData => {
   const groupDt = getNodeInfo(flowData, 'GROUP');
   let num = 0;
   (_.get(groupDt, 'nodeConfig.config.groupFields') || []).map(o => {
     const { fields = [] } = o;
-    num = num + fields.filter(it => GROUPLIMITTYPES.includes(_.get(it, 'controlSetting.type')) && _.get(it, 'parentFieldInfo.controlSetting.type') === 29).length
+    num =
+      num +
+      fields.filter(
+        it =>
+          GROUPLIMITTYPES.includes(_.get(it, 'controlSetting.type')) &&
+          _.get(it, 'parentFieldInfo.controlSetting.type') === 29,
+      ).length;
   });
-  return num
-}
+  return num;
+};

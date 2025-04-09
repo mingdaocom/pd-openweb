@@ -1,7 +1,9 @@
 @import '../../../common/mdcss/Themes/themeVariables.less';
 @dialog-radius: 3px;
 @dialog-overlay-bg: rgba(0, 0, 0, 0.7);
-@dialog-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+@dialog-shadow:
+  0 4px 20px rgba(0, 0, 0, 0.2),
+  0 2px 6px rgba(0, 0, 0, 0.15);
 @dialog-hr-padding: 24px;
 
 @dialog-base-font: 14px;
@@ -145,6 +147,24 @@
 
         .Button + .Button {
           margin-left: 16px;
+        }
+        .Button--link {
+          color: #757575;
+          background: transparent;
+          &:hover {
+            color: #0063be;
+            background: #f5f5f5;
+          }
+        }
+        .Button--ghostgray {
+          border: 1px solid #0094f1;
+          color: #0094f1;
+          background: transparent;
+          &:hover {
+            border: 1px solid #0094f1;
+            background: #0094f1;
+            color: #ffffff;
+          }
         }
       }
     }

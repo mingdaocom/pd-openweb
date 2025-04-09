@@ -62,7 +62,7 @@ export default function FilterViewRange(props) {
             />
           ))}
           {!isAllView &&
-            views.map(it => {
+            views.filter(l => l.worksheetId !== l.viewId).map(it => {
               return (
                 <div
                   className="mTop15 mLeft25 inputTxt Hand"

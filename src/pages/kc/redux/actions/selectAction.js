@@ -21,7 +21,7 @@ export function selectAllItems(forceSelectAll, cb) {
 }
 
 export function clearSelect() {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({
       type: 'KC_SELECT_ALL_ITEMS',
       value: false,
@@ -70,7 +70,7 @@ export function selectSingleItem(item, extraState) {
     });
     dispatch({
       type: 'KC_CHANGE_SELECT_ALL',
-      value: newSelectedItems.equals(Set(list.filter(i => i))),
+      value: newSelectedItems.equals(Set(list.filter(i => i))) && !kcState.params.get('keywords'),
     });
   };
 }

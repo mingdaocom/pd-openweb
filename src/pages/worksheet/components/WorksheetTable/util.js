@@ -1,6 +1,6 @@
 import { emitter } from 'worksheet/util';
 import _, { get } from 'lodash';
-import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
+import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
 
 const KEY_MAP = {
   DELETE: 8,
@@ -67,11 +67,12 @@ export function handleLifeEffect(
   const $tableElement = $(`.sheetViewTable.id-${tableId}-id`);
   function handleCellEnter(e) {
     const $target = $(e.originalEvent.target).closest('.cell');
-    const classMatch = $target.attr('class').match(/.*(row-[0-9]+) .*/);
+    const classMatch = $target.attr('class').match(/.*(row-([0-9]+|head)) .*/);
     if (classMatch && $tableElement) {
-      $tableElement.find('.cell,.expandCell').removeClass('hover');
-      $tableElement.find('.' + classMatch[1]).addClass('hover');
-      if (tableType === 'classic') {
+      const hoverClassName = classMatch[1] === 'row-head' ? 'row-head-hover' : 'hover';
+      $tableElement.find('.cell,.expandCell').removeClass(hoverClassName);
+      $tableElement.find('.' + classMatch[1]).addClass(hoverClassName);
+      if (tableType === 'classic' && hoverClassName === 'hover') {
         $tableElement.find('.cell').removeClass('grayHover');
         if (!$target[0].classList.contains('col-0')) {
           $target.addClass('grayHover');
@@ -85,7 +86,7 @@ export function handleLifeEffect(
       if (e.relatedTarget.closest('.expandCell')) return;
     } catch (err) {}
     if ($tableElement) {
-      $tableElement.find('.cell,.expandCell').removeClass('hover');
+      $tableElement.find('.cell,.expandCell').removeClass('hover').removeClass('row-head-hover');
       if (tableType === 'classic') {
         $tableElement.find('.cell').removeClass('grayHover');
       }
@@ -247,8 +248,8 @@ export function handleLifeEffect(
     }
   }
   emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
-  $tableElement.on('mouseenter', '.cell:not(.row-head)', handleCellEnter);
-  $tableElement.on('mouseleave', '.cell:not(.row-head)', handleCellLeave);
+  $tableElement.on('mouseenter', '.cell', handleCellEnter);
+  $tableElement.on('mouseleave', '.cell', handleCellLeave);
 
   emitter.addListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);

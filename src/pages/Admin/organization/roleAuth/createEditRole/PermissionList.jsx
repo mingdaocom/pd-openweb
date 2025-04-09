@@ -3,7 +3,8 @@ import { Checkbox, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 
 const PermissionListWrapper = styled.div`

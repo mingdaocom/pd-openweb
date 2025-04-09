@@ -20,7 +20,7 @@ class History extends Component {
     const { operator, operatorId } = props.match.params;
     let ids = [];
 
-    if (!_.includes(['execHistory', 'subprocessHistory'], operator)) {
+    if (operator && !_.includes(['execHistory', 'subprocessHistory'], operator) && operator.length === 24) {
       ids = [operator];
     } else if (operator === 'subprocessHistory') {
       ids = (operatorId || '').split('_');

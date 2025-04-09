@@ -11,7 +11,8 @@ import ControlList from '../components/ControlList';
 import PublicConfig from './PublicConfig';
 import { VISIBLE_TYPE } from '../enum';
 import { getDisabledControls, renderLimitInfo, isDisplayPromptText } from '../utils';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 

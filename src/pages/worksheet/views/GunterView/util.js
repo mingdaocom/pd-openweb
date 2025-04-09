@@ -4,6 +4,7 @@ import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
 
 /**
  * 修改当前视图配置
@@ -621,4 +622,15 @@ export const percentageToTime = (percentage) => {
   return (23.99 * 60 / 100 * percentage) / 60;
 }
 
-
+//甘特图支持的字段
+export const getControlsForGunter = worksheetControls => {
+  return (worksheetControls).filter(
+    item =>
+      !SYS.includes(item.controlId) &&
+      (_.includes([15, 16], item.type) ||
+        (item.type === 38 && item.enumDefault === 2) ||
+        (item.type === 30 &&
+          _.includes([15, 16], item.sourceControlType) &&
+          (item.strDefault || '').split('')[0] !== '1')), //甘特图可以支持他表字段（存储）类型
+  );
+};

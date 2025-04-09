@@ -193,11 +193,7 @@ export default function (props) {
       }
       sendForVerifyCodeLogin(res, codeType);
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+    new captcha(callback);
   };
 
   const onLogin = () => {
@@ -267,11 +263,7 @@ export default function (props) {
       });
     };
     if (isfrequentLogin) {
-      if (md.global.getCaptchaType() === 1) {
-        new captcha(loginFetch);
-      } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), loginFetch, { needFeedBack: false }).show();
-      }
+      new captcha(loginFetch);
     } else {
       loginFetch();
     }

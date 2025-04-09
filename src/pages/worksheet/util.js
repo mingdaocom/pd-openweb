@@ -1,37 +1,34 @@
+import { generate } from '@ant-design/colors';
+import { TinyColor } from '@ctrl/tinycolor';
+import copy from 'copy-to-clipboard';
 import EventEmitter from 'events';
+import _, { get, head, includes, sortBy } from 'lodash';
+import { findLastIndex } from 'lodash';
 import moment from 'moment';
 import filterXss from 'xss';
-import copy from 'copy-to-clipboard';
-import axios from 'axios';
-import { getRequest, isLightColor, toFixed, browserIsMobile } from 'src/util';
-import { generate } from '@ant-design/colors';
-import { UNIT_TYPE } from '../widgetConfig/config/setting';
-import { TinyColor } from '@ctrl/tinycolor';
 import appManagementAjax from 'src/api/appManagement';
 import webCache from 'src/api/webCache';
-import { FROM } from 'src/components/newCustomFields/tools/config';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { FORM_ERROR_TYPE_TEXT, FORM_ERROR_TYPE } from 'src/components/newCustomFields/tools/config';
-import {
-  checkValueByFilterRegex,
-  controlState,
-  getTitleTextFromRelateControl,
-  getValueStyle,
-} from 'src/components/newCustomFields/tools/utils';
-import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
-import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import worksheetAjax from 'src/api/worksheet';
 import renderCellText from 'worksheet/components/CellControls/renderText';
-import { getTranslateInfo } from 'src/util';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import {
-  SYSTEM_CONTROLS,
-  RECORD_INFO_FROM,
   RECORD_COLOR_SHOW_TYPE,
+  RECORD_INFO_FROM,
+  SYSTEM_CONTROLS,
   VIEW_CONFIG_RECORD_CLICK_ACTION,
 } from 'worksheet/constants/enum';
-import _, { get, head } from 'lodash';
-import { HAVE_VALUE_STYLE_WIDGET } from '../widgetConfig/config';
-import { findLastIndex } from 'lodash';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/components/newCustomFields/tools/utils';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { CARD_WIDTH_SETTING } from 'src/pages/worksheet/common/ViewConfig/config';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { browserIsMobile, getAppFeaturesPath, getRequest, isLightColor, toFixed } from 'src/util';
+import { getTranslateInfo } from 'src/util';
+import { UNIT_TYPE } from '../widgetConfig/config/setting';
+import { canSetWidgetStyle } from '../widgetConfig/util/setting';
 import { getSheetViewRows } from './common/TreeTableHelper';
 
 export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs';
@@ -523,118 +520,6 @@ export function formatRecordToRelateRecord(
   });
   return value;
 }
-
-function getControlCompareValue(c, value) {
-  if (c.type === 26) {
-    return safeParse(value, 'array')
-      .map(u => u.accountId)
-      .sort()
-      .join('');
-  } else if (c.type === 29) {
-    return safeParse(value, 'array')
-      .map(u => u.sid)
-      .sort()
-      .join('');
-  } else if (c.type === 27) {
-    return safeParse(value, 'array')
-      .map(u => u.departmentId)
-      .sort()
-      .join('');
-  } else if (c.type === 48) {
-    return safeParse(value, 'array')
-      .map(u => u.organizeId)
-      .sort()
-      .join('');
-  } else {
-    return value;
-  }
-}
-
-/**
- * 记录数据格式化为 关联表控件数据格式
- * @param  {} controls
- * @param  {} data
- */
-
-export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3) {
-  const result = {};
-  try {
-    filterEmptyChildTableRows(rows).forEach(async row => {
-      const rulesResult = checkRulesErrorOfRow({
-        from,
-        rules,
-        controls: controls.filter(
-          c =>
-            _.find(showControls, id => id === c.controlId) ||
-            _.find(rules, rule => JSON.stringify(rule.filters).indexOf(c.controlId) > -1),
-        ),
-        row,
-      });
-      const rulesErrors = rulesResult.errors;
-      const controldata = rulesResult.formData.filter(
-        c => _.find(showControls, id => id === c.controlId) && controlState(c).visible && controlState(c).editable,
-      );
-      const isLock = checkRuleLocked(
-        rules,
-        rulesResult.formData.filter(c => _.find(showControls, id => id === c.controlId) && controlState(c).visible),
-        row.rowid,
-      );
-      if (isLock) {
-        return;
-      }
-      const formdata = new DataFormat({
-        data: controldata.map(c => ({ ...c, isSubList: true })),
-        from: FROM.NEWRECORD,
-      });
-      let errorItems = formdata.getErrorControls();
-      rulesErrors.forEach(errorItem => {
-        if (_.includes(showControls, errorItem.controlId)) {
-          result[row.rowid + '-' + errorItem.controlId] = errorItem.errorMessage;
-        }
-      });
-      errorItems.forEach(errorItem => {
-        const errorControl = _.find(controldata, c => c.controlId === errorItem.controlId);
-        result[row.rowid + '-' + errorItem.controlId] =
-          errorItem.errorType === FORM_ERROR_TYPE.CUSTOM
-            ? checkValueByFilterRegex(errorControl, _.get(errorControl, 'value'), controldata)
-            : typeof FORM_ERROR_TYPE_TEXT[errorItem.errorType] === 'string'
-            ? FORM_ERROR_TYPE_TEXT[errorItem.errorType]
-            : FORM_ERROR_TYPE_TEXT[errorItem.errorType](errorControl);
-      });
-    });
-    const uniqueControls = controls.filter(
-      c => _.find(showControls, id => id === c.controlId) && (c.unique || c.uniqueInRecord),
-    );
-    uniqueControls.forEach(c => {
-      const hadValueRows = rows.filter(
-        row =>
-          typeof row[c.controlId] !== 'undefined' &&
-          !row[c.controlId].startsWith('deleteRowIds') &&
-          !checkCellIsEmpty(row[c.controlId]),
-      );
-      const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));
-      if (hadValueRows.length !== uniqueValueRows.length) {
-        const duplicateValueRows = hadValueRows.filter(vr => !_.find(uniqueValueRows, r => r.rowid === vr.rowid));
-        duplicateValueRows.forEach(row => {
-          const sameValueRows = hadValueRows.filter(
-            r => getControlCompareValue(c, r[c.controlId]) === getControlCompareValue(c, row[c.controlId]),
-          );
-          if (sameValueRows.length > 1) {
-            sameValueRows.forEach(r => {
-              result[r.rowid + '-' + c.controlId] = FORM_ERROR_TYPE_TEXT.UNIQUE(c, true);
-            });
-          }
-        });
-      }
-    });
-    return result;
-  } catch (err) {
-    alert(_l('失败'), 3);
-    console.log(err);
-    throw err;
-  }
-}
-
 export const filterHidedSubList = (data = [], from) => {
   return data.filter(item => item.type === 34 && controlState(item, from).visible && controlState(item, from).editable);
 };
@@ -1158,7 +1043,7 @@ export function validateFnExpression(expression, type = 'mdfunction') {
     expression = expression.replace(/\$(.+?)\$/g, '"1"');
     if (type === 'mdfunction') {
       expression = expression.replace(/[\r\r\n ]/g, '');
-      expression = expression.replace(/([A-Z]+)(?=\()/g, 'test');
+      expression = expression.replace(/([A-Z_]+)(?=\()/g, 'test');
       eval(`function test() {return '-';}${expression}`);
     } else if (type === 'javascript') {
       eval(`function test() {${expression} }`);
@@ -1507,21 +1392,6 @@ export async function getWithToken(url, tokenArgs = {}, body = {}) {
   );
 }
 
-export function download(blob = '', name) {
-  name = name || blob.name || 'file';
-  function down(href) {
-    const downButton = document.createElement('a');
-    downButton.href = href;
-    downButton.download = name;
-    downButton.click();
-  }
-  if (typeof blob === 'string') {
-    down(blob);
-  } else {
-    down(URL.createObjectURL(blob));
-  }
-}
-
 export const moveSheetCache = (appId, groupId) => {
   const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
   const worksheets = storage.worksheets.map(data => {
@@ -1619,7 +1489,9 @@ export function KVGet(key, { needEncode = true } = {}) {
   if (needEncode) {
     newKey = btoa(key);
   }
-  return webCache.get({ key: newKey }).then(res => (get(res, 'data') ? atob(get(res, 'data')) : ''));
+  return webCache
+    .get({ key: newKey })
+    .then(res => (get(res, 'data') ? decodeURIComponent(escape(atob(get(res, 'data')))) : ''));
 }
 
 /**
@@ -1746,7 +1618,7 @@ export function filterEmptyChildTableRows(rows = []) {
   }
 }
 
-export function handleRecordError(resultCode, control) {
+export function handleRecordError(resultCode, control, isNewRecord = false) {
   if (resultCode === 11) {
     alert(_l('编辑失败，%0不允许重复', control ? control.controlName : ''), 2);
   } else if (resultCode === 31) {
@@ -1754,7 +1626,7 @@ export function handleRecordError(resultCode, control) {
   } else if (resultCode === 22) {
     alert(_l('记录提交失败：子表字段存在重复数据'), 2);
   } else {
-    alert(_l('编辑失败！'), 2);
+    alert(isNewRecord ? _l('提交失败！') : _l('编辑失败！'), 2);
   }
 }
 
@@ -1917,7 +1789,7 @@ export function clearSelection() {
 
 export function getControlStyles(controls) {
   return controls
-    .filter(c => _.includes(HAVE_VALUE_STYLE_WIDGET, c.type === 30 ? c.sourceControlType : c.type))
+    .filter(c => canSetWidgetStyle({ ...c, type: c.type === 30 ? c.sourceControlType : c.type }))
     .map(c => ({ controlId: c.controlId, valueStyle: getValueStyle({ ...c, value: '_' }).valueStyle }))
     .filter(c => c.valueStyle)
     .map(
@@ -1938,21 +1810,6 @@ export function needHideViewFilters(view) {
       get(view, 'advancedSetting.hierarchyViewType') === '3') ||
     String(view.viewType) === VIEW_DISPLAY_TYPE.gunter
   );
-}
-
-export function addPrefixForRowIdOfRows(rows = [], prefix = '') {
-  const rowIds = rows.map(row => row.rowid);
-  return rows.map(row => {
-    const newRow = { ...row };
-    rowIds.forEach(rowId => {
-      Object.keys(newRow).forEach(key => {
-        if (_.includes(newRow[key], rowId)) {
-          newRow[key] = newRow[key].replace(rowId, prefix + rowId);
-        }
-      });
-    });
-    return newRow;
-  });
 }
 
 export function appendDataToLocalPushUniqueId(data) {
@@ -2002,7 +1859,7 @@ function parseCardStyle(control, value, type) {
     return {
       ...getValueStyle({
         ...control,
-        type: 2,
+        type: 3,
         value: '_',
         advancedSetting: {
           ...control.advancedSetting,
@@ -2037,6 +1894,20 @@ export function getRecordCardStyle(control) {
   };
 }
 
+export const getHighAuthControls = controls => {
+  return controls.map(l => ({
+    ...l,
+    disabled: false,
+    fieldPermission: '111',
+    controlPermissions: '111',
+    advancedSetting: _.assign({}, l.advancedSetting, { custom_event: '' }),
+  }));
+};
+
+export const getHighAuthSheetSwitchPermit = (sheetSwitchPermit, worksheetId) => {
+  return sheetSwitchPermit.map(l => ({ ...l, state: true, viewIds: (l.viewIds || []).concat(worksheetId) }));
+};
+
 // 本地存储当前选中菜单
 export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
   const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
@@ -2052,3 +1923,88 @@ export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
   }
   localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
 };
+
+export function getListStyle(listStyleStrOfView, listStyleStrOfWorksheet) {
+  let availableListStyle;
+  let listStyleOfWorksheet;
+  let listStyleOfView;
+  if (!listStyleStrOfWorksheet && listStyleStrOfView) {
+    availableListStyle = safeParse(listStyleStrOfView);
+  } else if (listStyleStrOfWorksheet && !listStyleStrOfView) {
+    availableListStyle = safeParse(listStyleStrOfWorksheet);
+  } else {
+    listStyleOfWorksheet = safeParse(listStyleStrOfWorksheet);
+    listStyleOfView = safeParse(listStyleStrOfView);
+    availableListStyle = sortBy([listStyleOfWorksheet, listStyleOfView], 'time').pop();
+  }
+  return availableListStyle;
+}
+
+export function getSheetColumnWidthsOfStyles(columnStyles) {
+  const sheetColumnWidthsMap = new Map();
+  columnStyles.forEach(item => {
+    sheetColumnWidthsMap.set(item.cid, item.width);
+  });
+  return Object.fromEntries(sheetColumnWidthsMap);
+}
+
+export function getSheetColumnWidthsMap(
+  view = { advancedSetting: { liststyle: '' } },
+  worksheetInfo = { advancedSetting: { liststyle: '' }, template: { controls: [] } },
+) {
+  const listStyleStrOfWorksheet = worksheetInfo.advancedSetting.liststyle;
+  const listStyleStrOfView = view.advancedSetting.liststyle;
+  if (!listStyleStrOfView && !listStyleStrOfWorksheet) return {};
+  const { time, styles } = getListStyle(listStyleStrOfView, listStyleStrOfWorksheet);
+  return {
+    time,
+    map: getSheetColumnWidthsOfStyles(styles),
+  };
+}
+
+export function getCardWidth(view) {
+  const cardwidth = _.get(view, 'advancedSetting.cardwidth');
+
+  if (!cardwidth) return undefined;
+
+  const cardWidth = CARD_WIDTH_SETTING[cardwidth] || Number(cardwidth);
+  const positionIsLeftOrRight =
+    Number(cardwidth) < 5 &&
+    ['0', '1'].includes(_.get(getCoverStyle(view), 'coverPosition') || (view.viewType === 3 ? '2' : '1'));
+
+  return positionIsLeftOrRight ? cardWidth + 96 : cardWidth;
+}
+
+export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId }) {
+  if (md.global.Account.isPortal) {
+    appId = md.global.Account.appId;
+  }
+  if (!appId) {
+    const res = await worksheetAjax.getWorksheetInfo({ worksheetId });
+    appId = res.appId;
+  }
+  const appFeaturesPath = getAppFeaturesPath();
+  if (viewId) {
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
+      appFeaturesPath ? '?' + appFeaturesPath : ''
+    }`;
+  } else {
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${
+      appFeaturesPath ? '?' + appFeaturesPath : ''
+    }`;
+  }
+}
+
+export function controlBatchCanEdit(control, view = { controls: [] }) {
+  return (
+    ((control.type < 10000 &&
+      includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
+      !(control.type === 29 && includes(['2', '5', '6'], get(control, 'advancedSetting.showtype'))) &&
+      !(control.type === 14 && includes(['0'], get(control, 'advancedSetting.allowdelete') || '1')) &&
+      !find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
+      !find(view.controls, id => control.controlId === id)) ||
+      control.controlId === 'ownerid') &&
+    ((controlState(control).visible && controlState(control).editable) ||
+      (view.viewId && view.viewId === view.worksheetId))
+  );
+}

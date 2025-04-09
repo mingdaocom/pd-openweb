@@ -8,7 +8,7 @@ import { Dropdown, Input } from 'antd';
 import { keys, includes, isEmpty, findIndex } from 'lodash';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { compareWithTime } from 'src/components/newCustomFields/tools/utils';
+import { compareWithTime } from 'src/components/newCustomFields/tools/formUtils';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 
 const WeekWrap = styled(DropdownContent)`

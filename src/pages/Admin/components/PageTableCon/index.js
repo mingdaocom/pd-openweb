@@ -90,13 +90,24 @@ export default class PageTableCon extends Component {
   };
 
   render() {
-    const { className, loading, dataSource = [], count, moreAction, moreActionContent, fixedShowCols } = this.props;
+    const {
+      className,
+      loading,
+      dataSource = [],
+      count,
+      moreAction,
+      moreActionContent,
+      fixedShowCols,
+      tableSetting = {},
+      hideMoreActionTitle = false,
+      onChange = () => {},
+    } = this.props;
     let { pageSize, pageIndex, columns = [], dropDownVisible, checkedCols = [] } = this.state;
     columns = columns.filter(item => _.includes(checkedCols, item.dataIndex));
     columns =
       moreAction && !fixedShowCols
         ? columns.concat({
-            title: (
+            title: hideMoreActionTitle ? null : (
               <Dropdown
                 overlay={this.renderShowColumns}
                 trigger={['click']}
@@ -151,6 +162,7 @@ export default class PageTableCon extends Component {
               )}
             >
               <Table
+                {...tableSetting}
                 columns={columns.map(item => ({
                   ...item,
                   onCell: () => {
@@ -169,6 +181,7 @@ export default class PageTableCon extends Component {
                 pagination={false}
                 tableLayout="auto"
                 scroll={scroll}
+                onChange={onChange}
               />
             </ConfigProvider>
           )}
@@ -213,4 +226,5 @@ PageTableCon.propTypes = {
   getDataSource: PropTypes.func,
   getShowColumns: PropTypes.func,
   fixedShowCols: PropTypes.bool,
+  hideMoreActionTitle: PropTypes.bool,
 };

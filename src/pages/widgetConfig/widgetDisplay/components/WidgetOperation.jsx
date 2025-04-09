@@ -186,6 +186,7 @@ export default function WidgetOperation(props) {
     return (
       <DeleteConfirm
         visible={deleteConfirmVisible}
+        referenceProps={props}
         onVisibleChange={visible => setVisible(visible)}
         // getPopupContainer={() => parentRef.current}
         hint={

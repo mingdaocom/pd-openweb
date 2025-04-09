@@ -152,6 +152,7 @@ export default {
   * @param {string} args.displayIcon 显示图标,目前只有三级（000，111，，0=不勾选，1=勾选）
   * @param {integer} args.expandType 展开方式  0 = 默认，1 = 手风琴
   * @param {boolean} args.hideFirstSection 隐藏首个分组
+  * @param {array} args.appNavItemIds 移动端导航应用项ids
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -343,6 +344,7 @@ export default {
   * 验证应用有效性
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -735,6 +737,7 @@ export default {
   * 获取应用下应用项
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

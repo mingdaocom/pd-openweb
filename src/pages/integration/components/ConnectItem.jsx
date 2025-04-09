@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Icon, Tooltip } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import { WrapBtn } from 'src/pages/integration/apiIntegration/style.js';
 import Item from 'src/pages/integration/apiIntegration/APIWrap/Item.jsx';

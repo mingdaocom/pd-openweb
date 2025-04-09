@@ -1,30 +1,56 @@
-import React, { Fragment, Component, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Dialog, SpinLoading, Collapse, TabBar, Space, List } from 'antd-mobile';
-import { Icon, WaterMark, SvgIcon, PullToRefreshWrapper } from 'ming-ui';
-import cx from 'classnames';
-import * as actions from './redux/actions';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import Back from '../components/Back';
-import guideImg from './img/guide.png';
 import DocumentTitle from 'react-document-title';
-import { AppPermissionsInfo } from '../components/AppPermissions';
-import RecordList from 'mobile/RecordList';
+import { Collapse, Dialog, List, Space, SpinLoading, TabBar } from 'antd-mobile';
+import cx from 'classnames';
+import _, { create } from 'lodash';
+import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
 import CustomPage from 'mobile/CustomPage';
-import './index.less';
-import FixedPage from './FixedPage';
+import RecordList from 'mobile/RecordList';
+import WorksheetUnNormal from 'mobile/RecordList/State';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import UpgradeContent from 'src/components/UpgradeContent';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
-import DebugInfo from '../components/DebugInfo';
-import WorksheetUnNormal from 'mobile/RecordList/State';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { addBehaviorLog, getAppFeaturesVisible, getTranslateInfo } from 'src/util';
+import { AppPermissionsInfo } from '../components/AppPermissions';
+import Back from '../components/Back';
+import DebugInfo from '../components/DebugInfo';
+import FixedPage from './FixedPage';
+import guideImg from './img/guide.png';
 import MoreAction from './MoreAction';
-import _, { create } from 'lodash';
-import { addBehaviorLog, getTranslateInfo, getAppFeaturesVisible } from 'src/util';
+import * as actions from './redux/actions';
+import './index.less';
 
 let modal = null;
+
+const getWorksheetList = (appSection = [], viewHideNavi, isAuthorityApp) => {
+  let worksheetList = _.flatten(
+    appSection.map(item => {
+      let childData = [];
+      item.workSheetInfo.forEach(sheet => {
+        sheet.appSectionId = item.appSectionId;
+        if (sheet.type === 2) {
+          let temp = (_.find(item.childSections, v => v.appSectionId === sheet.workSheetId) || {}).workSheetInfo;
+          (temp || []).forEach(it => {
+            childData.push(it);
+          });
+        }
+        childData.push(sheet);
+      });
+      return childData;
+    }),
+  );
+
+  worksheetList = worksheetList.filter(
+    item =>
+      item.type !== 2 && (viewHideNavi && isAuthorityApp ? true : [1, 3].includes(item.status) && !item.navigateHide),
+  );
+
+  return worksheetList;
+};
 class App extends Component {
   constructor(props) {
     super(props);
@@ -53,6 +79,7 @@ class App extends Component {
     $('html').addClass('appListMobile');
     const { viewHideNavi } = _.get(this.props, 'appDetail.detail') || {};
     this.setState({ viewHideNavi });
+    window.addEventListener('popstate', this.backDashboard);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -70,6 +97,7 @@ class App extends Component {
     if (!_.isEqual(this.props.appDetail, nextProps.appDetail)) {
       const { appSection = [], detail = {} } = _.get(nextProps, 'appDetail') || {};
       const { viewHideNavi } = _.get(nextProps, 'appDetail.detail') || {};
+      const { appNavItemIds } = detail;
       const appExpandGroupInfo =
         (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
           JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
@@ -94,7 +122,13 @@ class App extends Component {
   componentDidUpdate() {
     const { appSection } = this.props.appDetail;
 
-    if (!this.isSetScrollTop && appSection.length > 0 && this.props.appScrollY > 0 && this.contentRef && this.contentRef.current) {
+    if (
+      !this.isSetScrollTop &&
+      appSection.length > 0 &&
+      this.props.appScrollY > 0 &&
+      this.contentRef &&
+      this.contentRef.current
+    ) {
       this.contentRef.current.scrollTop = this.props.appScrollY;
       this.isSetScrollTop = true;
     }
@@ -111,6 +145,20 @@ class App extends Component {
     this.setState({ appMoreActionVisible: false });
     window.removeEventListener('popstate', this.handleSetScrollTop);
   }
+
+  backDashboard = () => {
+    const previewRecordId = localStorage.getItem('mobilePreviewRecordId');
+    const { appNaviStyle } = _.get(this.props, 'appDetail.detail') || {};
+    if (
+      appNaviStyle === 2 &&
+      location.href.includes('mobile/app') &&
+      !previewRecordId &&
+      !localStorage.getItem('preventBrowserBack') &&
+      !md.global.Account.isPortal
+    ) {
+      window.mobileNavigateTo(`/mobile/dashboard`);
+    }
+  };
 
   handleScroll = e => {
     this.props.dispatch(actions.updateAppScrollY(e.target.scrollTop));
@@ -138,20 +186,36 @@ class App extends Component {
     this.props.history.push(url);
   }
 
-  detectionUrl = ({ permissionType, isLock, appNaviStyle, sections }) => {
+  detectionUrl = ({ permissionType, isLock, appNaviStyle, sections, appNavItemIds = [] }) => {
+    if (localStorage.getItem('preventBrowserBack')) {
+      localStorage.removeItem('preventBrowserBack');
+      return;
+    }
+
     const { params } = this.props.match;
     const { viewHideNavi } = this.state;
+    const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
+
     if (appNaviStyle === 2 && !params.worksheetId && !sessionStorage.getItem('detectionUrl')) {
+      let sheetList = getWorksheetList(sections, viewHideNavi, isAuthorityApp);
       const isCharge = canEditApp(permissionType, isLock);
-      const { appSectionId } = sections[0];
-      const workSheetInfo = this.getWorksheetList(sections).filter(
-        item =>
-          item.type !== 2 && (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide),
+      const bottomNavSheetId = _.find(appNavItemIds, item =>
+        _.find(
+          sheetList,
+          v => (v.workSheetId === item && [1, 3].includes(v.status) && !v.navigateHide) || isAuthorityApp,
+        ),
       );
-      const { workSheetId } = isCharge
+      const { appSectionId } = sections[0];
+      const workSheetInfo = getWorksheetList(sections, viewHideNavi, isCharge);
+      const { workSheetId } = bottomNavSheetId
+        ? { workSheetId: bottomNavSheetId }
+        : isCharge && workSheetInfo.length
         ? workSheetInfo[0]
-        : workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide)[0];
-      window.mobileNavigateTo(`/mobile/app/${params.appId}/${appSectionId}/${workSheetId}`);
+        : workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide).length
+        ? workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide)[0]
+        : {};
+
+      window.mobileNavigateTo(`/mobile/app/${params.appId}/${appSectionId}${workSheetId ? '/' + workSheetId : ''}`);
     }
   };
 
@@ -159,6 +223,10 @@ class App extends Component {
     addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
     const { params } = this.props.match;
     localStorage.removeItem('currentNavWorksheetId');
+    const { appNaviStyle } = _.get(this.props, 'appDetail.detail') || {};
+    if (appNaviStyle === 2) {
+      safeLocalStorageSetItem('preventBrowserBack', true);
+    }
     if (item.type === 0) {
       const storage = localStorage.getItem(`mobileViewSheet-${item.workSheetId}`);
       let viewId = storage || '';
@@ -271,28 +339,34 @@ class App extends Component {
     const { appDetail } = this.props;
     const { detail } = appDetail;
     const { childSections = [], workSheetInfo = [] } = data;
-    const otherData = workSheetInfo.filter(it => it.type !== 2) || [];
     const isCharge = canEditApp(detail.permissionType, detail.isLock);
 
-    let groupData = workSheetInfo
-      .filter(item => item.type === 2)
-      .map(item => ({ ..._.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {}) }));
-
-    groupData.push({
-      workSheetId: 'other',
-      name: _.isEmpty(groupData) ? '' : _l('其他'),
-      type: 2,
-      workSheetInfo: otherData,
-    });
     const screenWidth = $(window).width();
+
+    let noGroupData = [];
+    let groupData = [];
+    workSheetInfo.forEach((item, index) => {
+      if (item.type === 2) {
+        noGroupData.length &&
+          groupData.push({ name: '', workSheetId: noGroupData[0].workSheetId, workSheetInfo: noGroupData });
+        noGroupData = [];
+        groupData.push({ ..._.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {}) });
+      } else {
+        noGroupData = noGroupData.concat(item);
+      }
+      if (index === workSheetInfo.length - 1) {
+        noGroupData.length &&
+          groupData.push({ name: '', workSheetId: noGroupData[0].workSheetId, workSheetInfo: noGroupData });
+      }
+    });
 
     return groupData
       .filter(item => (viewHideNavi ? true : ![2, 4].includes(item.status)))
-      .map(v => {
+      .map((v, index) => {
         if (v.workSheetId === 'other' && _.isEmpty(v.workSheetInfo)) return;
         return (
           <Fragment key={v.workSheetId}>
-            {this.renderHeader(v, 'level2')}
+            {this.renderHeader(v, 'level2', index)}
             <div className="sudokuWrapper flexRow alignItemsCenter">
               {v.workSheetInfo
                 .filter(item => (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide))
@@ -329,7 +403,7 @@ class App extends Component {
       });
   }
 
-  renderHeader(data, level) {
+  renderHeader(data, level, index) {
     const { appDetail } = this.props;
     const { id, appNaviStyle } = appDetail.detail;
     const { expandGroupKeys = [], level2ExpandKeys = [] } = this.state;
@@ -347,7 +421,11 @@ class App extends Component {
       );
     }
     if (appNaviStyle === 1) {
-      return <div className={cx('Gray_75 Font14 pLeft15 ellipsis mTop8', { mBottom12: name })}>{name}</div>;
+      return (
+        <div className={cx('Gray_75 Font14 pLeft15 ellipsis mTop8', { mBottom12: name, mTop28: !name && index !== 0 })}>
+          {name}
+        </div>
+      );
     }
     return (
       <div className="accordionHeaderWrap">
@@ -627,7 +705,16 @@ class App extends Component {
             (fixed && isAuthorityApp)) && (
             <Back
               style={{
-                bottom: detail.appNaviStyle === 2 ? `${hasDebugRoles ? 110 : 70}px` : `${hasDebugRoles ? 60 : 20}px`,
+                bottom:
+                  detail.appNaviStyle === 2
+                    ? `${
+                        appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0
+                          ? 20
+                          : hasDebugRoles
+                          ? 110
+                          : 70
+                      }px`
+                    : `${hasDebugRoles ? 60 : 20}px`,
               }}
               icon="home"
               onClick={() => {
@@ -684,50 +771,39 @@ class App extends Component {
     }
   }
 
-  getWorksheetList = (appSection = []) => {
-    let worksheetList = _.flatten(
-      appSection.map(item => {
-        let childData = [];
-        item.workSheetInfo.forEach(sheet => {
-          sheet.appSectionId = item.appSectionId;
-          if (sheet.type === 2) {
-            let temp = (_.find(item.childSections, v => v.appSectionId === sheet.workSheetId) || {}).workSheetInfo;
-            (temp || []).forEach(it => {
-              childData.push(it);
-            });
-          }
-          childData.push(sheet);
-        });
-        return childData;
-      }),
-    );
-    return worksheetList;
-  };
-
   renderBody() {
     const { debugRoles = [] } = this.props;
     const { appSection = {}, detail, status } = this.props.appDetail;
-    const { fixed, permissionType, webMobileDisplay, debugRole = {} } = detail;
+    const { fixed, permissionType, webMobileDisplay, debugRole = {}, appNavItemIds = [] } = detail;
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     const { batchOptVisible } = this.props;
+    const { selectedTab, viewHideNavi } = this.state;
+    let sheetList = getWorksheetList(appSection, viewHideNavi, isAuthorityApp);
+
+    // 底部导航配置显示工作项是否有权限访问(都无权限访问时按照显示列表导航显示)
+    const bottomNavSheetId = _.find(appNavItemIds, item =>
+      _.find(
+        sheetList,
+        v => (v.workSheetId === item && [1, 3].includes(v.status) && !v.navigateHide) || isAuthorityApp,
+      ),
+    );
 
     if (status && status !== 1) {
       return <AppPermissionsInfo appStatus={status} appId={_.get(this.props, 'match.params.appId')} />;
     }
 
-    if ([0, 1].includes(detail.appNaviStyle) || (fixed && !isAuthorityApp) || webMobileDisplay) {
+    if (
+      [0, 1].includes(detail.appNaviStyle) ||
+      (fixed && !isAuthorityApp) ||
+      webMobileDisplay ||
+      (appNavItemIds.length && !bottomNavSheetId)
+    ) {
       return this.renderContent();
     }
 
-    const { selectedTab, viewHideNavi } = this.state;
-
-    const sheetList = this.getWorksheetList(appSection)
-      .filter(
-        item =>
-          item.type !== 2 &&
-          (viewHideNavi && isAuthorityApp ? true : [1, 3].includes(item.status) && !item.navigateHide),
-      )
-      .slice(0, 4);
+    sheetList = !_.isEmpty(appNavItemIds)
+      ? appNavItemIds.map(id => _.find(sheetList, item => (item || {}).workSheetId === id)).filter(_.identity)
+      : sheetList.slice(0, 4);
 
     const data = _.find(sheetList, { workSheetId: selectedTab });
     const isHideNav = detail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE && sheetList.length === 1 && !!data;
@@ -735,10 +811,10 @@ class App extends Component {
       <div
         className={cx('flexColumn h100', { 'bottomNavWrap pBottom40': debugRole.canDebug && !_.isEmpty(debugRoles) })}
       >
-        <div className={cx('flex overflowHidden flexColumn', { recordListWrapper: !isHideNav })}>
+        <div className={cx('flex overflowHidden flexColumn Relative', { recordListWrapper: !isHideNav })}>
           {/* 外部门户显示头部导航 */}
           {selectedTab !== 'more' && md.global.Account.isPortal && this.renderAppHeader()}
-          {selectedTab === 'more' ? this.renderContent() : this.renderRecordList(data)}
+          {selectedTab === 'more' || !selectedTab ? this.renderContent() : this.renderRecordList(data)}
         </div>
         {sheetList.length > 0 && !batchOptVisible && (
           <TabBar

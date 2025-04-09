@@ -151,7 +151,7 @@ async function getStatus(data, shareId) {
   }
 
   // 微信打开
-  if (window.isWeiXin && returnUrl) {
+  if ((window.isWeiXin && !window.isWxWork) && returnUrl) {
     if (weChatSetting.isCollectWxInfo || writeScope !== 1) {
       // 记录初始的 url 地址，用于微信鉴权
       sessionStorage.setItem('entryUrl', location.href);
@@ -360,7 +360,7 @@ export async function getFormData(data, status) {
   }
 
   //自动填充填写者上次提交内容
-  if (abilityExpand.autoFillField.isAutoFillField && (writeScope !== 1 || window.isWeiXin)) {
+  if (abilityExpand.autoFillField.isAutoFillField && (writeScope !== 1 || (window.isWeiXin && !window.isWxWork))) {
     let formData = controls;
     const queryParams = {
       appId,

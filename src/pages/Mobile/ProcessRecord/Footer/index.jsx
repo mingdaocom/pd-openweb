@@ -10,7 +10,7 @@ import {
   MOBILE_OPERATION_LIST,
 } from 'src/pages/workflow/components/ExecDialog/config';
 import instanceApi from 'src/pages/workflow/api/instance';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import './index.less';
 
@@ -212,7 +212,7 @@ export default class Footer extends Component {
       onSubmit({ callback: saveFunction, ignoreError: isStash, ignoreAlert: isStash, silent: isStash });
     }
   };
-  handleAction = ({ action, content = '', forwardAccountId, backNodeId, signature, files, countersignType }) => {
+  handleAction = ({ action, content = '', forwardAccountId, backNodeId, signature, files, countersignType, nextUserRange }) => {
     const { instance } = this.props;
     const { ignoreRequired } = (instance || {}).flowNode || {};
 
@@ -246,7 +246,7 @@ export default class Footer extends Component {
 
       this.request(
         ACTION_TO_METHOD[action],
-        { opinion: content, backNodeId, signature, files },
+        { opinion: content, backNodeId, signature, files, nextUserRange },
         _.includes(['overrule', 'return'], action) && ignoreRequired,
       );
     }
@@ -386,7 +386,7 @@ export default class Footer extends Component {
   }
   render() {
     const { isRequest, isUrged, submitAction, otherActionVisible } = this.state;
-    const { instance, instanceId } = this.props;
+    const { instance, instanceId, workId } = this.props;
     const { btnMap = {}, works } = instance;
     const { actionList, buttons } = this.getHandleBtnConfig;
 
@@ -455,6 +455,7 @@ export default class Footer extends Component {
             projectId={instance.companyId}
             instance={instance}
             instanceId={instanceId}
+            workId={workId}
             onAction={this.handleAction}
             onHide={() => this.setState({ otherActionVisible: false })}
           />

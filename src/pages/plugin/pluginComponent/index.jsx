@@ -22,7 +22,8 @@ import ImportPlugin from './ImportPlugin';
 import { getPluginOperateText } from '../util';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, getRequest } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 
 const Wrapper = styled.div`
@@ -196,6 +197,7 @@ export default function PluginComponent(props) {
       _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
       'allowPlugin',
     ) || hasPermission(myPermissions, PERMISSION_ENUM.DEVELOP_PLUGIN);
+  const request = getRequest();
 
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
@@ -206,7 +208,7 @@ export default function PluginComponent(props) {
   });
   const [pluginList, setPluginList] = useState([]);
   const [currentTab, setCurrentTab] = useState(
-    hasDevelopPluginAuth ? localStorage.getItem('viewPluginTab') || 'myPlugin' : 'project',
+    hasDevelopPluginAuth ? request.tab || localStorage.getItem('viewPluginTab') || 'myPlugin' : 'project',
   );
   const [pluginConfig, setPluginConfig] = useState({ visible: false });
 
@@ -273,20 +275,11 @@ export default function PluginComponent(props) {
         return;
       }
 
-      pluginApi
-        .create(
-          {
-            projectId: currentProjectId,
-            pluginType: 1,
-            name: _l('未命名'),
-          },
-          API_EXTENDS,
-        )
-        .then(res => {
-          if (res) {
-            window.open(`/workflowplugin/${res.id}`);
-          }
-        });
+      pluginApi.create({ projectId: currentProjectId, pluginType: 1, name: _l('未命名') }, API_EXTENDS).then(res => {
+        if (res) {
+          window.open(`/workflowplugin/${res.id}`);
+        }
+      });
     }
   };
 
@@ -306,6 +299,8 @@ export default function PluginComponent(props) {
               <span title={item.name} className="mLeft8 bold overflow_ellipsis">
                 {item.name}
               </span>
+              <div className="flex" />
+              {item.source === 3 && <Icon icon="merchant" className="Font16 Gray_bd" />}
             </div>
           );
         },
@@ -394,6 +389,7 @@ export default function PluginComponent(props) {
               pluginType={pluginType}
               projectId={currentProjectId}
               pluginId={item.id}
+              license={item.license}
               source={currentTab === 'myPlugin' ? 0 : 1}
               onDeleteSuccess={() => {
                 const newPluginList = pluginList.filter(p => p.id !== item.id);

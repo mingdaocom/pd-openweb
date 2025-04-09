@@ -116,7 +116,7 @@ export const getReportConfigDetail = (data, callBack) => {
 
 let reportConfigRequest = null;
 let reportRequest = null;
-export const getReportData = () => {
+export const getReportData = ({ reload = false } = {}) => {
   return (dispatch, getState) => {
     const { base, currentReport, reportData } = getState().statistics;
     const { permissions, report, pageId, settingVisible, sheetVisible, filters, filtersGroup, linkageFiltersGroup } =
@@ -214,7 +214,7 @@ export const getReportData = () => {
         reportId: report.id,
         pageId,
         version,
-        reload: true,
+        reload,
         filters: [],
         ...getFilledRequestParams({})
       };

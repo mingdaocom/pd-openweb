@@ -1,22 +1,23 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Radio, Checkbox, Dialog } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SingleControlValue,
-  SpecificFieldsValue,
-  SelectNodeObject,
-  SelectOtherPBCDialog,
-  ProcessParameters,
-} from '../components';
-import { ACTION_ID, FIELD_TYPE_LIST } from '../../enum';
-import { v4 as uuidv4, validate } from 'uuid';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { v4 as uuidv4, validate } from 'uuid';
+import { Checkbox, Dialog, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import appManagement from 'src/api/appManagement';
+import { ACTION_ID, FIELD_TYPE_LIST } from '../../enum';
+import {
+  DetailFooter,
+  DetailHeader,
+  ProcessParameters,
+  ProcessVariablesInput,
+  SelectNodeObject,
+  SelectOtherPBCDialog,
+  SingleControlValue,
+  SpecificFieldsValue,
+} from '../components';
 
 const Header = styled.div`
   .w180 {
@@ -70,6 +71,16 @@ export default class PBC extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
       .then(result => {
+        if (result.actionId === ACTION_ID.PBC) {
+          result.subProcessVariables
+            .filter(o => o.processVariableType === 1)
+            .forEach(o => {
+              if (!_.find(result.fields, item => item.fieldId === o.controlId)) {
+                result.fields.push({ ...o, fieldId: o.controlId, fieldName: o.controlName });
+              }
+            });
+        }
+
         if (result.actionId === ACTION_ID.PBC_OUT && !result.fields.length) {
           result.fields = [{ fieldName: '', desc: '', type: 2, fieldId: uuidv4() }];
         }
@@ -219,7 +230,13 @@ export default class PBC extends Component {
 
     return (
       <Fragment>
-        <div className="bold">{_l('输出参数')}</div>
+        <div className="Font14 Gray_75 workflowDetailDesc">
+          {_l(
+            '当输出参数是“对象数组”时，可以在流程中使用“获取数组对象”节点将发送 API 请求、JSON 解析或代码块节点中返回的数组参数转为多条数据对象，之后可以在对象数组输出参数的子元素中设置值为数组中的对象元素字段。当输出参数是“普通数组”时，可以使用“JSON 解析”节点中输出的“普通数组”作为参数值。',
+          )}
+        </div>
+
+        <div className="bold mTop20">{_l('输出参数')}</div>
         <Header className="mTop15 flexRow">
           <div className="w180">{_l('类型')}</div>
           <div className="w180 mLeft10">
@@ -642,12 +659,40 @@ export default class PBC extends Component {
               />
             </div>
             <div className="mLeft25 mTop5 Gray_75">
-              {_l('勾选后，当执行次数为单次时，之后节点可使用业务流程的输出参数')}
+              {_l('勾选后，将等待业务流程执行完毕。如果执行方式为“执行单次”，则之后节点还可使用业务流程的输出参数')}
             </div>
 
-            <div className="mTop20 bold">{_l('传递参数')}</div>
+            <div className="mTop20 bold">{_l('输入参数')}</div>
             <div className="mTop5 Gray_75">{_l('向业务流程的输入参数传递初始值，供其执行时使用')}</div>
-            <ProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
+            <ProcessParameters
+              {...this.props}
+              data={{ ...data, fields: this.splitFields(1) }}
+              updateSource={(obj, callback) => {
+                if (obj.fields) {
+                  obj.fields = obj.fields.concat(this.splitFields(0));
+                }
+
+                this.updateSource(obj, callback);
+              }}
+            />
+
+            <ProcessVariablesInput
+              {...this.props}
+              data={{
+                ...data,
+                fields: this.splitFields(0),
+                subProcessVariables: data.subProcessVariables.filter(o => o.processVariableType === 0),
+              }}
+              selectProcessId={data.appId}
+              desc={_l('向业务流程的流程参数传递初始值，供其执行时使用')}
+              updateSource={(obj, callback) => {
+                if (obj.fields) {
+                  obj.fields = obj.fields.concat(this.splitFields(1));
+                }
+
+                this.updateSource(obj, callback);
+              }}
+            />
           </Fragment>
         )}
       </Fragment>
@@ -686,13 +731,13 @@ export default class PBC extends Component {
           !data.appId
             ? () => <span className="Gray_75">{_l('请选择')}</span>
             : data.appId && !selectAppItem
-            ? () => <span className="errorColor">{_l('业务流程无效或已删除')}</span>
-            : () => (
-                <Fragment>
-                  <span>{selectAppItem.name}</span>
-                  {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
-                </Fragment>
-              )
+              ? () => <span className="errorColor">{_l('业务流程无效或已删除')}</span>
+              : () => (
+                  <Fragment>
+                    <span>{selectAppItem.name}</span>
+                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
+                  </Fragment>
+                )
         }
         border
         openSearch
@@ -785,6 +830,22 @@ export default class PBC extends Component {
       });
   };
 
+  /**
+   * 拆分fields
+   */
+  splitFields(processVariableType) {
+    const { data } = this.state;
+
+    return data.fields.filter(
+      item =>
+        (!item.fieldId && processVariableType === 0) ||
+        _.get(
+          _.find(data.subProcessVariables, o => item.fieldId === o.controlId),
+          'processVariableType',
+        ) === processVariableType,
+    );
+  }
+
   render() {
     const { data, showOtherPBC } = this.state;
     const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
@@ -807,7 +868,13 @@ export default class PBC extends Component {
             <div className="workflowDetailBox">{isPBCOut ? this.renderExportContent() : this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={!!data.appId || isPBCOut} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={!!data.appId || isPBCOut}
+          onSave={() => {
+            setTimeout(this.onSave, 50);
+          }}
+        />
 
         {showOtherPBC && (
           <SelectOtherPBCDialog

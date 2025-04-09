@@ -333,7 +333,8 @@ function AuthorizeToApp(props) {
   const onAddApp = () => {
     dialogSelectApp({
       projectId: projectId,
-      isGetManagerApps: true,
+      ajaxFun: 'getManagerApps',
+      ajaxParam: { projectId: projectId },
       title: _l('选择授权应用'),
       onOk: selectedList => {
         authorizeApp(

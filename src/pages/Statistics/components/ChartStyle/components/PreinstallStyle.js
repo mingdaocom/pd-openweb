@@ -1,9 +1,9 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Checkbox, Select, Tooltip } from 'antd';
 import cx from 'classnames';
-import { defaultPivotTableStyle } from './TitleStyle';
+import { defaultPivotTableStyle } from '../../../enum';
 import store from 'redux/configureStore';
 import { isLightColor } from 'src/pages/customPage/util';
 
@@ -14,67 +14,84 @@ const ColorBlock = styled.div`
   margin-right: 5px;
 `;
 
-const styles = [{
-  value: 1,
-  color: '#E0E0E0',
-  name: _l('简单'),
-  config: {
-    columnTextColor: '#757575',
-    columnBgColor: '#fafafa',
-    lineTextColor: '#151515',
-    lineBgColor: '#fff',
-  }
-}, {
-  value: 2,
-  color: '#2196F3',
-  name: _l('商务'),
-  config: {
-    columnTextColor: '#fff',
-    columnBgColor: '#2196F3',
-    lineTextColor: '#fff',
-    lineBgColor: '#2196F3',
-  }
-}, {
-  value: 3,
-  color: '#3E4662',
-  name: _l('炫酷'),
-  config: {
-    columnTextColor: '#fff',
-    columnBgColor: '#3E4662',
-    lineTextColor: '#fff',
-    lineBgColor: '#3E4662',
-  }
-}];
+const styles = [
+  {
+    value: 1,
+    color: '#E0E0E0',
+    name: _l('简单'),
+    config: {
+      columnTextColor: '#757575',
+      columnBgColor: '#fafafa',
+      lineTextColor: '#151515',
+      lineBgColor: '#fff',
+    },
+  },
+  {
+    value: 2,
+    color: '#2196F3',
+    name: _l('商务'),
+    config: {
+      columnTextColor: '#fff',
+      columnBgColor: '#2196F3',
+      lineTextColor: '#fff',
+      lineBgColor: '#2196F3',
+    },
+  },
+  {
+    value: 3,
+    color: '#3E4662',
+    name: _l('炫酷'),
+    config: {
+      columnTextColor: '#fff',
+      columnBgColor: '#3E4662',
+      lineTextColor: '#fff',
+      lineBgColor: '#3E4662',
+    },
+  },
+];
 
-const widthModels = [{
-  value: 1,
-  name: _l('自动')
-}, {
-  value: 2,
-  name: _l('固定')
-}, {
-  value: 3,
-  name: _l('百分比')
-}];
+const widthModels = [
+  {
+    value: 1,
+    name: _l('自动'),
+  },
+  {
+    value: 2,
+    name: _l('固定'),
+  },
+  {
+    value: 3,
+    name: _l('百分比'),
+  },
+];
 
 const PreinstallStyle = props => {
   const { style, onChangeStyle, customPageConfig } = props;
-  const { pivotTableStyle = defaultPivotTableStyle, paginationVisible, paginationSize = 20, pcWidthModel = 1, mobileWidthModel = 1 } = style;
+  const {
+    pivotTableStyle = defaultPivotTableStyle,
+    paginationVisible,
+    paginationSize = 20,
+    pcWidthModel = 1,
+    mobileWidthModel = 1,
+  } = style;
   const iconColor = _.get(store.getState().appPkg, 'iconColor');
   const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig;
 
   const handleChangePivotTableStyle = (data, isRequest) => {
     const config = {
       ...pivotTableStyle,
-      ...data
-    }
+      ...data,
+    };
     if (pivoTableColor) {
       config.pivoTableColorIndex = pivoTableColorIndex + 1;
     }
-    onChangeStyle({
-      pivotTableStyle: config
-    }, isRequest);
-  }
+    onChangeStyle(
+      {
+        pivotTableStyle: config,
+      },
+      isRequest,
+    );
+  };
 
   return (
     <div className="mBottom16">
@@ -111,7 +128,7 @@ const PreinstallStyle = props => {
       <div className="mBottom10 mTop16 flexRow valignWrapper">
         {_l('列宽模式')}
         <Tooltip
-          title={(
+          title={
             <div className="pTop5 pBottom5">
               <div className="mBottom2">{_l('自动')}</div>
               <div>{_l('根据内容长度自动设置列宽')}</div>
@@ -120,13 +137,13 @@ const PreinstallStyle = props => {
               <div className="mBottom2 mTop10">{_l('百分比')}</div>
               <div>{_l('列宽按百分比，在所有尺寸下始终完整显示所有列，适合列数较少的情况')}</div>
             </div>
-          )}
+          }
           overlayInnerStyle={{
-            width: 300
+            width: 300,
           }}
           placement="bottomRight"
           arrowPointAtCenter
-          >
+        >
           <Icon className="mLeft10 Gray_9e Font16 pointer" icon="knowledge-message" />
         </Tooltip>
       </div>
@@ -162,7 +179,7 @@ const PreinstallStyle = props => {
         <Checkbox
           className="mLeft0"
           checked={paginationVisible}
-          onChange={(e) => {
+          onChange={e => {
             onChangeStyle({ paginationVisible: e.target.checked });
           }}
         >
@@ -194,7 +211,7 @@ const PreinstallStyle = props => {
         <Checkbox
           className="mLeft0"
           checked={style.pivotTableUnilineShow}
-          onChange={(e) => {
+          onChange={e => {
             onChangeStyle({ pivotTableUnilineShow: e.target.checked });
           }}
         >
@@ -203,6 +220,6 @@ const PreinstallStyle = props => {
       </div>
     </div>
   );
-}
+};
 
 export default PreinstallStyle;

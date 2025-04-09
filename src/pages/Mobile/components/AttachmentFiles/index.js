@@ -9,8 +9,40 @@ import moment from 'moment';
 import MapLoader from 'src/ming-ui/components/amap/MapLoader';
 import MapHandler from 'src/ming-ui/components/amap/MapHandler';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';
+
+function getDynamicWrapTxt(dynamicTxt, canvasWidth, ctx, fontSize) {
+  if (!dynamicTxt) return [];
+
+  ctx.font = `${fontSize}px 'Fira Sans'`;
+  var paragraphs = dynamicTxt.split('\n');
+  const txtList = [];
+  paragraphs.forEach(function (paragraph) {
+    paragraph = paragraph.trim();
+
+    var words = paragraph.split('');
+    var line = '';
+
+    for (var n = 0; n < words.length; n++) {
+      var testLine = line + words[n];
+      var metrics = ctx.measureText(testLine);
+      var testWidth = metrics.width;
+      if (testWidth > canvasWidth && n > 0) {
+        txtList.push(line);
+        line = words[n];
+      } else {
+        line = testLine;
+      }
+    }
+
+    txtList.push(line);
+  });
+
+  return txtList;
+}
 
 function compressImage(file, quality) {
   return new Promise((resolve, reject) => {
@@ -50,21 +82,35 @@ function compressImage(file, quality) {
   });
 }
 
-function addWaterMarker(file, watermark, callback) {
-  const { formattedAddress, position } = currentLocation || {};
-  const textLayouts = [];
-  if (md.global.Account.fullname && watermark.includes('user')) {
-    textLayouts.push(md.global.Account.fullname);
+function addWaterMarker(file, watermark, { dynamicControls, advancedSetting }, callback) {
+  const isNew = !!_.get(advancedSetting, 'h5watermark');
+  let textLayouts = [];
+  let dynamicTxt = '';
+  if (!isNew) {
+    const { formattedAddress, position } = currentLocation || {};
+
+    if (md.global.Account.fullname && watermark.includes('user')) {
+      textLayouts.push(md.global.Account.fullname);
+    }
+    if (watermark.includes('time')) {
+      textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
+    }
+    if (formattedAddress && watermark.includes('address')) {
+      textLayouts.push(formattedAddress);
+    }
+    if (position && watermark.includes('xy')) {
+      textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
+    }
+  } else {
+    dynamicTxt = getDynamicValue(dynamicControls, {
+      controlId: 'temp',
+      type: 2,
+      advancedSetting: {
+        defsource: JSON.stringify(transferValue(advancedSetting.h5watermark)),
+      },
+    });
   }
-  if (watermark.includes('time')) {
-    textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
-  }
-  if (formattedAddress && watermark.includes('address')) {
-    textLayouts.push(formattedAddress);
-  }
-  if (position && watermark.includes('xy')) {
-    textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
-  }
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = function (event) {
@@ -78,6 +124,10 @@ function addWaterMarker(file, watermark, callback) {
 
         const fontSize = Math.min(canvas.width, canvas.height) * 0.03;
         const lineSpacing = 6;
+
+        textLayouts = isNew
+          ? getDynamicWrapTxt(dynamicTxt.slice(0, 100), canvas.width - 20, ctx, fontSize)
+          : textLayouts;
 
         // 绘制背景
         const bgColoryOffset = fontSize * textLayouts.length + lineSpacing * textLayouts.length;
@@ -128,7 +178,9 @@ export class UploadFileWrapper extends Component {
   }
   componentDidMount() {
     const { advancedSetting = {} } = this.props;
-    const watermark = JSON.parse(advancedSetting.watermark || null) || [];
+    const h5Watermark = (_.get(advancedSetting, 'h5watermark') || '').split('$').filter(v => !!v);
+    const watermark = h5Watermark.length ? h5Watermark : JSON.parse(advancedSetting.watermark || null) || [];
+
     if (!currentLocation && watermark.length) {
       currentLocation = {};
       new MapLoader().loadJs().then(() => {
@@ -160,6 +212,7 @@ export class UploadFileWrapper extends Component {
       worksheetId,
       customUploadType,
       checkValueByFilterRegex,
+      formData,
     } = self.props;
     const method = {
       onAdd(uploader, files, nextStart) {
@@ -231,7 +284,7 @@ export class UploadFileWrapper extends Component {
           self.props.onChange(newFiles);
           nextStart && nextStart();
         };
-        const watermark = _.get(advancedSetting, 'watermark');
+        const watermark = _.get(advancedSetting, 'h5watermark') || _.get(advancedSetting, 'watermark');
         const isWatermark = customUploadType === 'camara' && watermark;
         const isWebcompress = _.get(advancedSetting, 'webcompress') !== '0';
         if (isWatermark || isWebcompress) {
@@ -246,7 +299,36 @@ export class UploadFileWrapper extends Component {
                   const nativeFile = file.getNative();
                   let newFile = nativeFile;
                   if (isWatermark) {
-                    newFile = await addWaterMarker(newFile, watermark);
+                    const dynamicControlIds = _.get(advancedSetting, 'h5watermark')
+                      ? _.get(advancedSetting, 'h5watermark').split('$')
+                      : JSON.parse(advancedSetting.watermark || null).filter(
+                          v => !!v && !_.includes(['user', 'time', 'address', 'xy'], v),
+                        );
+                    const { formattedAddress, position } = currentLocation || {};
+                    const dynamicControls = _.map(dynamicControlIds, item => {
+                      if (item === 'user' && md.global.Account.fullname) {
+                        return { controlId: 'user', type: 2, value: md.global.Account.fullname };
+                      }
+                      if (item === 'time') {
+                        return { controlId: 'time', type: 2, value: moment().format('YYYY-MM-DD HH:mm:ss') };
+                      }
+                      if (item === 'address' && formattedAddress) {
+                        return { controlId: 'address', type: 2, value: formattedAddress };
+                      }
+                      if (item === 'xy' && position) {
+                        return {
+                          controlId: 'xy',
+                          type: 2,
+                          value: `${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`,
+                        };
+                      }
+
+                      return _.find(formData, v => v.controlId === item);
+                    })
+                      .filter(_.identity)
+                      .filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type)); // 文本、数值、金额、邮箱、日期、时间、电话、座机
+
+                    newFile = await addWaterMarker(newFile, watermark, { dynamicControls, advancedSetting });
                   }
                   if (isWebcompress) {
                     newFile = await compressImage(newFile, 0.3);
@@ -347,7 +429,7 @@ export class UploadFileWrapper extends Component {
     const { advancedSetting = {}, appId, worksheetId, projectId } = this.props;
     const { children, qiniuUploadClassName, className, style } = this.props;
     return (
-      <div className="Relative" style={style} ref={el => (this.uploadContainer = el)}>
+      <div className="Relative mobileUploadTriggerWrap" style={style} ref={el => (this.uploadContainer = el)}>
         <QiniuUpload
           className={qiniuUploadClassName}
           options={{

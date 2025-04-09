@@ -5,15 +5,9 @@ import { Icon, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import * as actions from './redux/actions/columnRules';
 import * as columnRules from './redux/actions/columnRules';
-import {
-  getNameWidth,
-  getTextById,
-  getActionLabelByType,
-  filterData,
-  isRelateMoreList,
-  hasRuleChanged,
-} from './config';
+import { getNameWidth, getTextById, getActionLabelByType, filterData, hasRuleChanged } from './config';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { isRelateMoreList } from 'src/components/newCustomFields/tools/formUtils.js';
 import cx from 'classnames';
 import _ from 'lodash';
 

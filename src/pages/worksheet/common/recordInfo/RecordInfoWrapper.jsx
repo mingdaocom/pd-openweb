@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { LoadDiv, Modal } from 'ming-ui';
+import { emitter } from 'worksheet/util';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import worksheetAjax from 'src/api/worksheet';
 import { RECORD_INFO_FROM } from '../../constants/enum';
 import RecordInfo from './RecordInfo';
-import _ from 'lodash';
+import _, { isFunction } from 'lodash';
 
 const AutoSizeRecordInfo = autoSize(RecordInfo);
 
@@ -133,6 +134,19 @@ export default class RecordInfoWrapper extends Component {
             ...extendsProps,
             sheetSwitchPermit,
             width: !notDialog ? dialogWidth : undefined,
+            hideRecordInfo: (...args) => {
+              if (window.customWidgetViewIsActive) {
+                emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+                  action: 'close-record-info',
+                  value: {
+                    recordId: this.props.recordId,
+                  },
+                });
+              }
+              if (isFunction(this.props.hideRecordInfo)) {
+                this.props.hideRecordInfo(...args);
+              }
+            },
           }}
         />
       );

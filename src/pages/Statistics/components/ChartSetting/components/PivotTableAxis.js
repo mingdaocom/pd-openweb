@@ -7,9 +7,7 @@ import ShowControlModal from './ShowControlModal';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import WithoutFidldItem from './WithoutFidldItem';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
-  normTypes,
   timeFormats,
   formatTimeFormats,
   textNormTypes,
@@ -29,6 +27,7 @@ import {
 } from 'statistics/common';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { normTypes } from '../../../enum';
 
 const SortableItemContent = styled.div`
   position: relative;
@@ -155,18 +154,17 @@ const renderOverlay = ({
       )}
       {isNumber && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {normTypes
-            .map(item => (
-              <Menu.Item
-                style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
-                key={item.value}
-                onClick={() => {
-                  onChangeData(axis.controlId, { normType: item.value });
-                }}
-              >
-                {item.text}
-              </Menu.Item>
-            ))}
+          {normTypes.map(item => (
+            <Menu.Item
+              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              key={item.value}
+              onClick={() => {
+                onChangeData(axis.controlId, { normType: item.value });
+              }}
+            >
+              {item.text}
+            </Menu.Item>
+          ))}
         </Menu.SubMenu>
       )}
       {!isNumberControl(axis.type) && verifyNumber && (
@@ -259,7 +257,7 @@ const renderOverlay = ({
                 key="customShowFormat"
                 onClick={() => {
                   openShowFormatDialog({
-                    showFormat: _.find(timeFormats, { value: showFormat }) ? '' : showFormat,
+                    showformat: _.find(timeFormats, { value: showFormat }) ? '' : showFormat,
                     onOk: value => {
                       document.querySelector('.textRegexpVerifyDialog .Button--link').click();
                       onChangeData(axis.controlId, { showFormat: value });
@@ -427,7 +425,6 @@ export default class PivotTableAxis extends Component {
     return true;
   };
   handleAddControl = data => {
-
     if (!this.handleVerification(data, true)) {
       return;
     }
@@ -539,7 +536,7 @@ export default class PivotTableAxis extends Component {
       onUpdateParticleSizeType: this.handleUpdateParticleSizeType,
       onSelectReNameId: this.handleSelectReNameId,
       onShowControl: this.handleShowControl,
-    }
+    };
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
@@ -547,7 +544,7 @@ export default class PivotTableAxis extends Component {
           useDragHandle
           items={list}
           itemKey="controlId"
-          renderItem={(options) => renderSortableItem({ ...options, ...otherProps })}
+          renderItem={options => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={this.handleSortEnd}
         />
         {<WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />}

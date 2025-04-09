@@ -161,12 +161,19 @@ export default class SelectFields extends Component {
   };
   render() {
     const { searchValue } = this.state;
-    const { onClick, data, dynamicValue } = this.props;
+    const { onClick, data, dynamicValue, from } = this.props;
     const otherList = getOtherSelectField(data, searchValue);
     const { sheetList, filteredList } = this.filterFieldList();
     const filteredControlCount = this.getControlCount(filteredList) + this.getOtherCount(otherList);
     return (
-      <SelectFieldsWrap>
+      <SelectFieldsWrap
+        limitWidth={
+          !_.includes(
+            [DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.H5_WATER_MASK, DYNAMIC_FROM_MODE.WATER_MASK],
+            from,
+          )
+        }
+      >
         <div className="search">
           <i className="icon-search Gray_9e" />
           <input value={searchValue} onChange={this.handleChange} placeholder={_l('搜索字段')} autoFocus></input>

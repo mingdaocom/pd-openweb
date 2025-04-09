@@ -11,6 +11,7 @@ import CreateNew from './CreateNew';
 import { EditExternalLink } from './ExternalLink';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util';
+import WorksheetReference from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
 
 const CopySheetConfirmDescription = props => {
   const { workSheetId, type, workSheetName } = props;
@@ -141,6 +142,18 @@ const handleDeleteWorkSheet = ({ projectId, appId, groupId, appItem, sheetListAc
           ? _l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')
           : _l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
       </div>
+    ),
+    expandBtn: type ? null : (
+      <span className="Left">
+        <WorksheetReference
+          type={2}
+          globalSheetInfo={{
+            appId,
+            worksheetId: appItem.workSheetId,
+            name,
+          }}
+        />
+      </span>
     ),
     data: [{ text: type ? _l('我确认删除自定义页面和所有数据') : _l('我确认删除工作表和所有数据'), value: 1 }],
     onOk: () => {

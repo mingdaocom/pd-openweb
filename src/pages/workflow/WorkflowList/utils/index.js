@@ -158,7 +158,7 @@ export const TYPES = [
   { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
   { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
   { text: _l('封装业务流程%03009'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
-  { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
+  // { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
   { text: _l('事件推送'), value: FLOW_TYPE.EVENT_PUSH, icon: 'icon-sending' },
 ];
 

@@ -8,7 +8,8 @@ import worksheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum'
 import './index.less';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { getRecordColorConfig, getRecordColor, getControlStyles } from 'src/pages/worksheet/util';
@@ -16,6 +17,7 @@ import { isDocument } from 'src/components/UploadFiles/utils';
 import _ from 'lodash';
 import styled from 'styled-components';
 import RegExpValidator from 'src/util/expression';
+
 const Con = styled.div`
   ${({ controlStyles }) => controlStyles || ''}
 `;
@@ -82,9 +84,9 @@ export default class RecordCard extends Component {
   }
   get url() {
     const { coverError } = this.state;
-    const { coverType } = this.props.view;
+    const { coverType, coverFillType = 0 } = getCoverStyle(this.props.view);
     const { cover } = this;
-    const imageView2 = coverType === 1 ? `imageView2/2/w/120` : `imageView2/1/w/120/h/120`;
+    const imageView2 = coverType === 0 && coverFillType === 1 ? `imageView2/2/w/120` : `imageView2/1/w/120/h/120`;
     const url =
       cover && cover.previewUrl
         ? cover.previewUrl.indexOf('imageView2') > -1
@@ -93,7 +95,7 @@ export default class RecordCard extends Component {
         : null;
     if (url && !coverError) {
       const image = new Image();
-      image.onload = () => {};
+      image.onload = () => { };
       image.onerror = () => {
         this.setState({ coverError: true });
       };
@@ -174,7 +176,7 @@ export default class RecordCard extends Component {
       });
   };
   renderCover() {
-    const { coverType } = this.props.view;
+    const { coverType, coverFillType } = getCoverStyle(this.props.view);
     const { coverError, appshowtype } = this.state;
     const { url } = this;
     return (
@@ -183,7 +185,7 @@ export default class RecordCard extends Component {
           coverType ? (
             <img
               onClick={this.handleCoverClick}
-              className={cx('img', { w100: coverType === 1 })}
+              className={cx('img', { w100: coverType === 0 && coverFillType === 1 })}
               src={url}
               role="presentation"
             />
@@ -292,6 +294,7 @@ export default class RecordCard extends Component {
       isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) &&
       data.allowedit &&
       controlState(showCheckItem).editable; // 当前快速编辑检查项字段是否可编辑
+    const { coverPosition } = getCoverStyle(view);
 
     return (
       <div
@@ -303,7 +306,7 @@ export default class RecordCard extends Component {
       >
         {recordColor && recordColorConfig.showLine && (
           <div
-            className={cx('colorTag', { colorTagRight: advancedSetting.coverposition === '1' })}
+            className={cx('colorTag', { colorTagRight: coverPosition === '1' })}
             style={{ backgroundColor: recordColor.color }}
           ></div>
         )}
@@ -346,9 +349,10 @@ export default class RecordCard extends Component {
   };
   render() {
     const { className, view, data, onClick, batchOptVisible, batchOptCheckedData, controls } = this.props;
-    const { advancedSetting, coverCid } = view;
+    const { coverCid } = view;
     let batchOptChecked = batchOptVisible && batchOptCheckedData.includes(data.rowid);
     const showControlStyle = _.get(view, 'advancedSetting.controlstyleapp') === '1';
+    const { coverPosition } = getCoverStyle(view);
 
     const controlStyles =
       showControlStyle &&
@@ -363,8 +367,8 @@ export default class RecordCard extends Component {
         ref={node => (this.cardWrap = node)}
         controlStyles={controlStyles}
         className={cx('mobileWorksheetRecordCard', className, {
-          coverRight: [undefined, '0'].includes(advancedSetting.coverposition),
-          converTop: ['2'].includes(advancedSetting.coverposition),
+          coverRight: [undefined, '0'].includes(coverPosition),
+          converTop: ['2'].includes(coverPosition),
           batchOptStyle: batchOptChecked,
         })}
         onClick={batchOptVisible ? e => this.checkedCurrentRow(e, data) : onClick}

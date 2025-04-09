@@ -1,7 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { browserIsMobile, createLinksForMessage, getTranslateInfo } from 'src/util';
+import { browserIsMobile, getTranslateInfo } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import TriggerSelect from './TriggerSelect';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
 import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';

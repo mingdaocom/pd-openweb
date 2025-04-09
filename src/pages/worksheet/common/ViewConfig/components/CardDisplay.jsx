@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import worksheetAjax from 'src/api/worksheet';
-import { Abstract, CoverSetting, DisplayControl } from './index';
+import TitleControl from './TitleControl';
+import Abstract from './Abstract';
+import CoverSetting from './CoverSettingCon';
+import DisplayControl from './DisplayControl';
 import _ from 'lodash';
 
 const isVisible = control => {
@@ -13,19 +16,10 @@ const isVisible = control => {
 };
 
 export default function CardDisplay(props) {
-  const {
-    visible,
-    worksheetId,
-    coverType,
-    coverCid,
-    showControlName = false,
-    showControls,
-    handleDisplayChange,
-    advancedSetting,
-  } = props;
+  const { visible, worksheetId, showControls, handleDisplayChange, advancedSetting } = props;
   if (!visible) return null;
-  const [{ sheetInfo, availableControls, coverColumns }, setInfo] = useState({
-    sheetInfo: {},
+  const [{ controls, availableControls, coverColumns }, setInfo] = useState({
+    controls: [],
     availableControls: [],
     coverColumns: [],
   });
@@ -44,6 +38,7 @@ export default function CardDisplay(props) {
       const coverColumns = controls.filter(l => isVisible(l)).filter(c => !!c.controlName);
       setInfo({
         sheetInfo: data,
+        controls,
         availableControls: excludedTitle,
         showControls: defaultShowControls,
         controlsSorts: excludedTitle.map(({ controlId }) => controlId),
@@ -53,16 +48,31 @@ export default function CardDisplay(props) {
   }, [worksheetId]);
   return (
     <React.Fragment>
+      <TitleControl
+        {...props}
+        worksheetControls={controls}
+        className="mBottom32"
+        advancedSetting={advancedSetting}
+        isCard
+        handleChange={value => {
+          handleDisplayChange({
+            advancedSetting: {
+              ...advancedSetting,
+              viewtitle: value,
+            },
+          });
+        }}
+      />
       {/* abstract：摘要控件ID */}
       <Abstract
         fromRelative={true} // 关联表的相关设置
-        worksheetControls={availableControls}
+        worksheetControls={controls}
         advancedSetting={advancedSetting}
         handleChange={value => {
           handleDisplayChange({
             advancedSetting: {
               ...advancedSetting,
-              abstract: value,
+              ...value,
             },
           });
         }}
@@ -72,9 +82,9 @@ export default function CardDisplay(props) {
         {...props}
         text={''}
         fromRelative={true} // 关联表的相关设置
-        worksheetControls={availableControls}
+        worksheetControls={controls}
         displayControls={showControls}
-        columns={availableControls}
+        columns={controls}
         // min1msg={_l('至少显示一列')}
         handleChange={data => {
           const { showControlName } = data;
@@ -92,30 +102,13 @@ export default function CardDisplay(props) {
         viewType={'2'} // 层级视图
         fromRelative={true} // 关联表的相关设置
         advancedSetting={advancedSetting}
-        worksheetControls={availableControls}
+        worksheetControls={controls}
         // 是否显示
         handleChangeIsCover={value =>
           handleDisplayChange({
             coverCid: value === 'notDisplay' ? '' : value,
           })
         }
-        // 显示位置
-        handleChangePosition={(value, coverTypeValue) => {
-          handleDisplayChange(
-            {
-              coverType: coverTypeValue,
-              advancedSetting: {
-                ...advancedSetting,
-                coverposition: value,
-              },
-            },
-            false,
-          );
-        }}
-        // 显示方式
-        handleChangeType={value => {
-          handleDisplayChange({ coverType: value }, false);
-        }}
         // 允许点击查看
         handleChangeOpencover={value => {
           handleDisplayChange({
@@ -130,6 +123,14 @@ export default function CardDisplay(props) {
             advancedSetting: {
               ...advancedSetting,
               cardwidth: value,
+            },
+          });
+        }}
+        handleChangeCoverStyle={value => {
+          handleDisplayChange({
+            advancedSetting: {
+              ...advancedSetting,
+              coverstyle: value,
             },
           });
         }}

@@ -8,7 +8,7 @@ import {
   updateTaskErrorDialog,
 } from '../components/updateTimeError/updateTimeError';
 import { emitter } from 'src/util';
-import { updateStageViewControlsSource } from '../utils/taskComm';
+import updateStageViewControlsSource from '../utils/updateStage';
 import _ from 'lodash';
 
 export const addTask = data => (dispatch, getState) => {

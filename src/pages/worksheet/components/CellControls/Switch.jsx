@@ -141,7 +141,7 @@ export default class Switch extends React.Component {
     return (
       <div className={cx('cellSwitch cellControl', className)} style={style} onClick={onClick}>
         <div
-          className="flexCenter"
+          className="InlineBlock flexCenter"
           onClick={e => {
             e.stopPropagation();
             e.preventDefault();

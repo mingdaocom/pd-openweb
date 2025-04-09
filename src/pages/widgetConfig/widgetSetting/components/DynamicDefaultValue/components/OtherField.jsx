@@ -17,6 +17,7 @@ import {
   CUR_EMPTY_TYPES,
   CUSTOM_PHP_TYPES,
   CUR_LOCATION_TYPES,
+  H5_WATER_MASK_TYPES,
 } from '../config';
 import _ from 'lodash';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
@@ -57,6 +58,12 @@ export default function OtherField(props) {
       );
     }
     if (from === DYNAMIC_FROM_MODE.WATER_MASK && fieldId === 'user-self') return WATER_MASK_TYPES[0].text;
+    if (_.includes(['user', 'time', 'address', 'xy'], fieldId)) {
+      return _.get(
+        _.find(_.flatten(Object.values(H5_WATER_MASK_TYPES)), i => i.id === fieldId),
+        'text',
+      );
+    }
     if (
       _.includes(
         [

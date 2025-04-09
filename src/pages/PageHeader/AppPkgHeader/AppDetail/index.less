@@ -84,32 +84,13 @@
   overflow: hidden;
   &.preview {
     overflow-y: auto;
-    .appIntroDialog>div {
-      &:nth-child(1), &:nth-child(3) {
+    .appIntroDialog > div {
+      &:nth-child(1),
+      &:nth-child(3) {
         width: 100% !important;
         height: 40px !important;
       }
     }
-  }
-}
-
-.appLicenseWrap {
-  font-weight: initial;
-  .licenseStatus {
-    padding: 5px 10px;
-    border-radius: 4px;
-    background: #F5F5F5;
-    &.valid {
-      color: #389e0d;
-      background: #f5ffec;
-    }
-  }
-  .renewal {
-    color: #2196f3;
-    text-align: center;
-    padding: 5px 10px;
-    border-radius: 4px;
-    background-color: #e3f0fd;
   }
 }
 
@@ -226,7 +207,7 @@
       top: 0;
       width: 16px;
       height: 15px;
-      background-image: radial-gradient(16px at 16px 16px, transparent 16px, currentColor 17px)
+      background-image: radial-gradient(16px at 16px 16px, transparent 16px, currentColor 17px);
     }
     .bottomRadius {
       position: absolute;
@@ -234,7 +215,7 @@
       bottom: 0;
       width: 16px;
       height: 15px;
-      background-image: radial-gradient(16px at 16px 0, transparent 16px, currentColor 17px)
+      background-image: radial-gradient(16px at 16px 0, transparent 16px, currentColor 17px);
     }
     .topBorderRadius {
       position: absolute;
@@ -264,11 +245,13 @@
     .homepageIconWrap {
       margin-left: 2px !important;
     }
-    .appInfoWrap, .commonUserHandleWrap {
+    .appInfoWrap,
+    .commonUserHandleWrap {
       height: auto;
       width: 100%;
     }
-    .appItemsOuterWrap, .appItemPointerWrap {
+    .appItemsOuterWrap,
+    .appItemPointerWrap {
       display: none;
     }
     .commonUserHandleWrap {
@@ -288,10 +271,8 @@
   .sheetViewTable {
     border-left: none;
   }
-  .worksheet .workSheetLeft, .unusualContentWrap .unusualSkeletonWrap {
+  .worksheet .workSheetLeft,
+  .unusualContentWrap .unusualSkeletonWrap {
     display: none;
   }
 }
-
-
-

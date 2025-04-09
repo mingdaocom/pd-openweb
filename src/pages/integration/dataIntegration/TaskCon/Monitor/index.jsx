@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Tooltip, Dropdown, Dialog } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import moment from 'moment';
 import cx from 'classnames';
-import MonitorAjax from 'src/pages/integration/api/monitor.js';
-import LogAjax from 'src/pages/integration/api/log.js';
-import _ from 'lodash';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Icon, Tooltip } from 'ming-ui';
+import LogAjax from 'src/pages/integration/api/log.js';
+import MonitorAjax from 'src/pages/integration/api/monitor.js';
 
 const Wrap = styled.div`
   flex: 1;
@@ -251,7 +251,7 @@ function Monitor(props) {
             fill: '#2C3542',
             opacity: 0.45,
           },
-          formatter: date => moment(date).format([3, 4].includes(showDate) ? 'YYYY-MM-DD HH:mm' : 'HH:mm'),
+          formatter: date => moment(date).format(3 === showDate ? 'MM-DD' : 4 === showDate ? 'YYYY-MM' : 'HH:mm'),
         },
         line: {
           style: {
@@ -297,7 +297,7 @@ function Monitor(props) {
           return { name: datum.category, value: datum.value };
         },
         showTitle: true,
-        title: v => `${moment(v).format('MMMDo HH:mm')}`,
+        title: v => `${moment(v).format([3, 4].includes(showDate) ? 'MMMDo' : 'MMMDo HH:mm')}`,
         showContent: true,
         domStyles: {
           'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },

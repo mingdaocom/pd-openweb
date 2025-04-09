@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet.js';
-import { controlState, getCurrentValue } from 'src/components/newCustomFields/tools/utils.js';
+import { controlState, getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
 import RegExpValidator from 'src/util/expression';
+import { compatibleMDJS } from 'src/util';
 
 let timer = null;
 
@@ -40,6 +41,7 @@ export const handleAPPScanCode = ({
     });
 
   if (!scanCodeData.length) return;
+  let scanFinishData = _.clone(controls); // 扫码完成后更新数据
 
   // 获取后是否提交表单
   const isSave = _.findIndex(scanCodeData, c => c.advancedSetting.getsave === '1') !== -1;
@@ -51,8 +53,7 @@ export const handleAPPScanCode = ({
     ) !== -1;
   clearTimeout(timer);
   timer = setTimeout(() => {
-    if (!window.MDJS || !window.MDJS.scanWithControls) return;
-    window.MDJS.scanWithControls({
+    compatibleMDJS('scanWithControls', {
       controls: scanCodeData,
       shouldStartWithControl: cid => {
         // 每个字段开始扫码时, App会调用
@@ -61,6 +62,21 @@ export const handleAPPScanCode = ({
         // 返回false 后, App会继续请求下一个字段的情况
         // 如果没有其他字段了, 会调用success
         return true;
+      },
+      updateH5watermark: h5watermark => {
+        // 确认开始后, 如果是附件字段且包含h5watermak
+        // App会调用该方法, H5需要将替换后的h5watermak返回
+        // 将除了4个系统字段外的字段都替换为对应的值
+        let newText = '';
+        const h5watermarkArr = h5watermark.split('$');
+        const data = scanFinishData.filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type));
+        newText = h5watermarkArr
+          .map(item => {
+            const c = _.find(data, v => v.controlId === item);
+            return _.includes(['user', 'time', 'address', 'xy'], item) ? `$${item}$` : c ? c.value : item;
+          })
+          .join('');
+        return newText;
       },
       success: function (res) {
         // 每个字段完成取值后都会执行一次
@@ -86,12 +102,14 @@ export const handleAPPScanCode = ({
             updateData({
               controlId: cid,
               value: JSON.stringify({
-                attachments: originValue.concat(JSON.parse(value)),
+                attachments: JSON.parse(value),
                 knowledgeAtts: [],
-                attachmentData: [],
+                attachmentData: originValue,
               }),
             });
           } else {
+            const index = _.findIndex(scanFinishData, v => v.controlId === cid);
+            scanFinishData[index] = { ...scanFinishData[index], value };
             updateData({ controlId: cid, value });
           }
         }
@@ -265,8 +283,7 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
 
 // 关联记录关联成功将当前关联数据通过js sdk返回给APP
 const handleScanRelationLoaded = ({ controlId, controlName, title, rowId, type, msg }) => {
-  if (!window.MDJS || !window.MDJS.scanRelationLoaded) return;
-  window.MDJS.scanRelationLoaded({
+  compatibleMDJS('scanRelationLoaded', {
     cid: controlId,
     cname: controlName,
     relation: _.includes(['2', '3'], type)

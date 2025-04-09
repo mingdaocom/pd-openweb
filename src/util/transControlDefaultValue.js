@@ -3,7 +3,22 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';
-import { addPrefixForRowIdOfRows } from 'worksheet/util';
+
+const addPrefixForRowIdOfRows = (rows = [], prefix = '') => {
+  const rowIds = rows.map(row => row.rowid);
+  return rows.map(row => {
+    const newRow = { ...row };
+    rowIds.forEach(rowId => {
+      Object.keys(newRow).forEach(key => {
+        if (_.includes(newRow[key], rowId)) {
+          newRow[key] = newRow[key].replace(rowId, prefix + rowId);
+        }
+      });
+    });
+    return newRow;
+  });
+};
+
 const SYSTEM_FIELD_IDS = [
   'rowid',
   'ownerid',

@@ -1,23 +1,23 @@
 import React from 'react';
-import ChangeLang from 'src/components/ChangeLang';
-import RegisterController from 'src/api/register';
-import { ActionResult } from 'src/pages/AuthService/config.js';
-import { encrypt } from 'src/util';
-import { getRequest } from 'src/util';
-import { hasCaptcha, getAccountTypes } from 'src/pages/AuthService/util.js';
-import { captcha } from 'ming-ui/functions';
-import { LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
-import { WrapCom } from 'src/pages/AuthService/style.jsx';
-import Header from 'src/pages/AuthService/components/Header.jsx';
+import { LoadDiv } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import RegisterController from 'src/api/register';
+import ChangeLang from 'src/components/ChangeLang';
 import WrapBg from 'src/pages/AuthService/components/Bg.jsx';
-import { Wrap } from 'src/pages/AuthService/login/style.jsx';
-import { validation } from 'src/pages/AuthService/util.js';
-import From from './Form';
-import 'src/pages/AuthService/components/form.less';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
+import 'src/pages/AuthService/components/form.less';
+import Header from 'src/pages/AuthService/components/Header.jsx';
+import { ActionResult } from 'src/pages/AuthService/config.js';
+import { Wrap } from 'src/pages/AuthService/login/style.jsx';
+import { WrapCom } from 'src/pages/AuthService/style.jsx';
+import { getAccountTypes, hasCaptcha } from 'src/pages/AuthService/util.js';
+import { validation } from 'src/pages/AuthService/util.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { encrypt } from 'src/util';
+import { getRequest } from 'src/util';
+import From from './Form';
 
 const keys = [getAccountTypes(true), 'code', 'setPassword'];
 export default class FindPassword extends React.Component {
@@ -101,7 +101,12 @@ export default class FindPassword extends React.Component {
               return alert('新密码不可与旧密码一样', 3);
             } else if (data.actionResult === actionResult.accountFrequentLoginError) {
               //需要前端图形验证码
-              captchaFuc();
+              new captcha(cb, isOk => {
+                if (isOk) return;
+                _this.setState({
+                  loginDisabled: false,
+                });
+              });
             } else if (data.actionResult === actionResult.fieldRequired) {
               //前端图形验证码校验失败
               return alert('图形验证码校验失败', 3);
@@ -114,19 +119,7 @@ export default class FindPassword extends React.Component {
         }
       });
     };
-    const onCancel = isOk => {
-      if (isOk) return;
-      _this.setState({
-        loginDisabled: false,
-      });
-    };
-    const captchaFuc = () => {
-      if (md.global.getCaptchaType() === 1) {
-        new captcha(cb, onCancel);
-      } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
-      }
-    };
+
     // 前3次关闭图像验证
     cb({ ret: 0 });
   };

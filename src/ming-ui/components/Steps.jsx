@@ -161,6 +161,11 @@ const ScaleBox = styled.div`
       .scaleText {
         display: inline-block;
         user-select: none;
+        margin: 10px 0 0 1px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        word-break: break-all;
+        overflow: visible;
       }
     }
   }
@@ -348,7 +353,10 @@ export default function Steps(props) {
                 {filterOptions.map((option, index) => {
                   return (
                     <span className="portraitContentItem">
-                      <span style={{ color: index <= currentValue ? '#151515' : '#9e9e9e' }} className="portraitScaleText">
+                      <span
+                        style={{ color: index <= currentValue ? '#151515' : '#9e9e9e' }}
+                        className="portraitScaleText"
+                      >
                         {option.value}
                       </span>
                     </span>

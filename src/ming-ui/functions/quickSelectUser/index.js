@@ -1,13 +1,13 @@
-import React, { Fragment, useRef, useEffect, useState, useCallback } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { useClickAway } from 'react-use';
+import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import { createRoot } from 'react-dom/client';
-import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
-import { Con, Content, UserList, Search, Tabs } from './Comps';
-import { getUsers, getAccounts } from './util';
-import { BrowserRouter } from 'react-router-dom';
+import { Con, Content, Search, Tabs, UserList } from './Comps';
+import { getAccounts, getUsers } from './util';
 
 export function UserSelector(props) {
   const {
@@ -248,16 +248,18 @@ export function UserSelector(props) {
         )}
         {
           <UserList
-            keywords={keywords}
+            type={type}
+            appId={appId}
             loading={loading}
+            keywords={keywords}
+            showManageBtn={!isStatic && type === 'normal' && activeTab !== 1}
             activeIndex={
               activeIndex - (hadShowMore ? prefixUsers.length : prefixUsers.length < 2 ? prefixUsers.length : 2)
             }
-            type={type}
             list={usersForUserList}
-            onSelect={handleSelect}
-            appId={appId}
             projectId={baseArgs.projectId}
+            onClose={onClose}
+            onSelect={handleSelect}
           />
         }
         {!isStatic && loading && <LoadDiv />}

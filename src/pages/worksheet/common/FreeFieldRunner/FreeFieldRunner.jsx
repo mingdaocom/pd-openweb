@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { v4 } from 'uuid';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { find, get, pick } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { v4 } from 'uuid';
+import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { MessageHandler } from 'src/util/iframeCommunicate';
 import { getRowsRelation } from './functions';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 
 const Con = styled.div`
   position: relative;
@@ -81,7 +81,7 @@ export default function FreeFieldRunner({
           cache.current.params = undefined;
         }
       } else if (payload.event === 'trigger-on-change') {
-        onChange(payload.value);
+        onChange(...payload.value);
       } else if (payload.event === 'trigger-error') {
         onError(payload.error);
       }

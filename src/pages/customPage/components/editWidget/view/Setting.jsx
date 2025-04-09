@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import sheetApi from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/customPage/util';
 import { getTranslateInfo } from 'src/util';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -42,28 +43,34 @@ function Setting(props) {
   const { views } = dataSource;
   const viewIds = components.map(c => c.viewId).filter(id => id !== currentViewId);
 
-  const changeConfig = (data) => {
+  const changeConfig = data => {
     setSetting({
       config: {
         ...config,
-        ...data
-      }
+        ...data,
+      },
     });
-  }
+  };
 
   useEffect(() => {
     if (value) {
-      sheetApi.getWorksheetInfo({
-        worksheetId: value,
-        getTemplate: true,
-        getViews: true,
-        appId,
-      }).then(res => {
-        const { views = [], template } = res;
-        setDataSource({
-          views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, null, viewId).name || name, value: viewId, viewType }))
+      sheetApi
+        .getWorksheetInfo({
+          worksheetId: value,
+          getTemplate: true,
+          getViews: true,
+          appId,
+        })
+        .then(res => {
+          const { views = [], template } = res;
+          setDataSource({
+            views: getShowViews(views).map(({ viewId, name, viewType }) => ({
+              text: getTranslateInfo(appId, null, viewId).name || name,
+              value: viewId,
+              viewType,
+            })),
+          });
         });
-      });
     }
   }, [value]);
 
@@ -78,7 +85,7 @@ function Setting(props) {
           value={name}
           className="w100 Font13"
           placeholder={_l('输入组件名称')}
-          onChange={(value) => {
+          onChange={value => {
             changeConfig({ name: value });
           }}
         />
@@ -99,8 +106,8 @@ function Setting(props) {
                 viewId: undefined,
                 config: {
                   ...config,
-                  _workSheetName: worksheet.workSheetName
-                }
+                  _workSheetName: worksheet.workSheetName,
+                },
               });
             }}
           />
@@ -118,8 +125,8 @@ function Setting(props) {
                 viewId: value,
                 config: {
                   ...config,
-                  _viewName: view.text
-                }
+                  _viewName: view.text,
+                },
               });
               setTimeout(() => setLoading(false));
             }}
@@ -137,7 +144,7 @@ function Setting(props) {
             className="w100 Font13"
             value={maxCount}
             placeholder={_l('输入最大展示（为空表示不限制）')}
-            onChange={(data) => {
+            onChange={data => {
               const value = parseInt(data);
               const maxCount = isNaN(value) ? '' : value;
               changeConfig({ maxCount: maxCount >= 100 ? 100 : maxCount });
@@ -154,7 +161,7 @@ function Setting(props) {
         <div className="mBottom12">
           <Checkbox
             checked={isAddRecord}
-            onChange={(e) => {
+            onChange={e => {
               changeConfig({ isAddRecord: e.target.checked });
             }}
           >
@@ -164,7 +171,7 @@ function Setting(props) {
         <div className="mBottom12">
           <Checkbox
             checked={searchRecord}
-            onChange={(e) => {
+            onChange={e => {
               changeConfig({ searchRecord: e.target.checked });
             }}
           >
@@ -174,7 +181,7 @@ function Setting(props) {
         <div className="mBottom12">
           <Checkbox
             checked={openView}
-            onChange={(e) => {
+            onChange={e => {
               changeConfig({ openView: e.target.checked });
             }}
           >
@@ -188,5 +195,5 @@ function Setting(props) {
 
 export default connect(state => ({
   appPkg: state.appPkg,
-  components: state.customPage.components.filter(c => [enumWidgetType.view, 'view'].includes(c.type))
+  components: state.customPage.components.filter(c => [enumWidgetType.view, 'view'].includes(c.type)),
 }))(Setting);

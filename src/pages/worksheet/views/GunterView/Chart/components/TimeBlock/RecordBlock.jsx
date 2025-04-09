@@ -10,6 +10,7 @@ import { Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
 import _ from 'lodash';
 import moment from 'moment';
+import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
 
 const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
@@ -170,8 +171,8 @@ export default class RowBlock extends Component {
               ? value
               : startHoursWidth + value
             : startIsDayOff
-            ? value - minDayWidth
-            : startHoursWidth + value - minDayWidth) / minDayWidth;
+              ? value - minDayWidth
+              : startHoursWidth + value - minDayWidth) / minDayWidth;
         const currentStartTime = getNextWorkStartTime(row.startTime, dayOff);
         const starts = getAssignWorkDays(parseInt(startDay), currentStartTime, dayOff);
         const startDayTime = starts[starts.length - 1];
@@ -190,8 +191,8 @@ export default class RowBlock extends Component {
               ? minDayWidth + value
               : endHoursWidth + value
             : endIsDayOff
-            ? value
-            : endHoursWidth + value - minDayWidth) / minDayWidth;
+              ? value
+              : endHoursWidth + value - minDayWidth) / minDayWidth;
         const currentEndTime = getLastWorkEndTime(row.endTime, dayOff);
         const ends = getAssignWorkDays(parseInt(endDay), currentEndTime, dayOff);
         const endDayTime = ends[ends.length - 1];
@@ -252,8 +253,8 @@ export default class RowBlock extends Component {
               ? value
               : startHoursWidth + value
             : startIsDayOff
-            ? value - minDayWidth
-            : startHoursWidth + value - minDayWidth) / minDayWidth;
+              ? value - minDayWidth
+              : startHoursWidth + value - minDayWidth) / minDayWidth;
         const currentStartTime = getNextWorkStartTime(row.startTime, dayOff);
         const starts = getAssignWorkDays(parseInt(startDay), currentStartTime, dayOff);
         const startDayTime = starts[starts.length - 1];
@@ -299,8 +300,8 @@ export default class RowBlock extends Component {
               ? minDayWidth + value
               : endHoursWidth + value
             : endIsDayOff
-            ? value
-            : endHoursWidth + value - minDayWidth) / minDayWidth;
+              ? value
+              : endHoursWidth + value - minDayWidth) / minDayWidth;
         const currentEndTime = getLastWorkEndTime(row.endTime, dayOff);
         const ends = getAssignWorkDays(parseInt(endDay), currentEndTime, dayOff);
         const endDayTime = ends[ends.length - 1];
@@ -490,11 +491,15 @@ export default class RowBlock extends Component {
     );
   }
   renderTitle() {
-    const { row, controls } = this.props;
+    const { row, controls, viewConfig } = this.props;
     const titleControl = _.find(controls, { attribute: 1 });
     const value = row[titleControl.controlId] || row.titleValue;
     const emptyValue = _l('未命名');
-    const title = titleControl ? renderCellText({ ...titleControl, value }) : emptyValue;
+    const title = _.get(viewConfig, 'viewtitle')
+      ? renderTitleByViewtitle(row, controls, { advancedSetting: { viewtitle: _.get(viewConfig, 'viewtitle') } })
+      : titleControl
+        ? renderCellText({ ...titleControl, value })
+        : emptyValue;
     return <span className="recordTitle overflow_ellipsis">{title || emptyValue}</span>;
   }
   render() {

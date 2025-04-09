@@ -1,20 +1,21 @@
 import React, { Fragment, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Menu, MenuItem, Icon } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { openWorkSheetTrash, openResetAutoNumber } from 'worksheet/common';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
 import copy from 'copy-to-clipboard';
-import { navigateTo } from 'src/router/navigateTo';
-import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
-import { canEditData, isHaveCharge, canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { saveSelectExtensionNavType } from 'worksheet/util';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import { Icon, Menu, MenuItem } from 'ming-ui';
+import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
+import { openResetAutoNumber, openWorkSheetTrash } from 'worksheet/common';
+import { getHighAuthSheetSwitchPermit, saveSelectExtensionNavType } from 'worksheet/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
+import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
+import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import { navigateTo } from 'src/router/navigateTo';
+import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 
 export default function SheetMoreOperate(props) {
   const {
@@ -35,8 +36,12 @@ export default function SheetMoreOperate(props) {
   const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
   const autoNumberControls = _.filter(controls, item => item.type === 33);
   const canDelete = isCharge && !isLock;
-  const canSheetTrash = isOpenPermit(permitList.sheetTrash, sheetSwitchPermit);
-  const canImportSwitch = isOpenPermit(permitList.importSwitch, sheetSwitchPermit) && allowAdd;
+  const lastSheetSwitchPermit =
+    viewId === worksheetId && isCharge
+      ? getHighAuthSheetSwitchPermit(sheetSwitchPermit, worksheetId)
+      : sheetSwitchPermit;
+  const canSheetTrash = isOpenPermit(permitList.sheetTrash, lastSheetSwitchPermit);
+  const canImportSwitch = isOpenPermit(permitList.importSwitch, lastSheetSwitchPermit) && allowAdd;
   const canEdit = canEditApp(permissionType) || canEditData(permissionType);
   if (!canEdit && !canImportSwitch && !canSheetTrash && !canDelete) {
     return null;
@@ -49,6 +54,19 @@ export default function SheetMoreOperate(props) {
     const { settingNav = 'submitForm' } = sheetConfigNavInfo[worksheetId] || {};
 
     navigateTo(`/worksheet/formSet/edit/${worksheetId}${settingNav ? '/' + settingNav : ''}`);
+  };
+
+  const openRelation = () => {
+    setMenuVisible(false);
+    renderDialog({
+      globalSheetInfo: {
+        appId,
+        worksheetId,
+        name,
+        controls,
+      },
+      type: 2,
+    });
   };
 
   return (
@@ -91,7 +109,7 @@ export default function SheetMoreOperate(props) {
                       { type: 'indexSetting', text: _l('检索加速') },
                     ].map(({ type, text }) => (
                       <Fragment>
-                        {type === 'customBtn' && <hr className="splitLine" />}
+                        {type === 'display' && <hr className="splitLine" />}
                         <MenuItem
                           data-event={type}
                           key={type}
@@ -212,6 +230,13 @@ export default function SheetMoreOperate(props) {
                 <span className="text">{_l('复制ID')}</span>
               </MenuItem>
 
+              <MenuItem
+                data-event="reference"
+                icon={<Icon icon="db_index" className="Font18" />}
+                onClick={openRelation}
+              >
+                <span className="text">{_l('查看引用')}</span>
+              </MenuItem>
               <hr className="splitLine" />
             </Fragment>
           )}
@@ -282,6 +307,19 @@ export default function SheetMoreOperate(props) {
                       </span>
                       {_l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
                     </div>
+                  ),
+                  expandBtn: (
+                    <span className="Left">
+                      <WorksheetReference
+                        type={2}
+                        globalSheetInfo={{
+                          appId,
+                          worksheetId,
+                          name,
+                          controls,
+                        }}
+                      />
+                    </span>
                   ),
                   data: [{ text: _l('我确认删除工作表和所有数据'), value: 1 }],
                   onOk: () => {

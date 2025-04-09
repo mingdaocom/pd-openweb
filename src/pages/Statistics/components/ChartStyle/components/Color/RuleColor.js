@@ -3,8 +3,7 @@ import cx from 'classnames';
 import { SortableList } from 'ming-ui';
 import { Modal, ConfigProvider, Button, Radio, Input, Select, Checkbox } from 'antd';
 import { Icon, ColorPicker } from 'ming-ui';
-import { colorGroup, reportTypes } from 'statistics/Charts/common';
-import { getIsAlienationColor } from 'statistics/common';
+import { reportTypes } from 'statistics/Charts/common';
 import { formatNumberFromInput } from 'src/util';
 import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
 import './RuleColor.less';
@@ -335,22 +334,26 @@ class ColorScope extends Component {
   constructor(props) {
     super(props);
     const { scopeRules } = props.colorRule;
-    const defaultScopeRules = [{
-      type: 2,
-      and: 6,
-      min: undefined,
-      max: undefined,
-      value: undefined,
-      color: '#0097ef',
-      id: 1
-    }];
+    const defaultScopeRules = [
+      {
+        type: 2,
+        and: 6,
+        min: undefined,
+        max: undefined,
+        value: undefined,
+        color: '#0097ef',
+        id: 1,
+      },
+    ];
     this.state = {
-      scopeRules: scopeRules ? scopeRules.map((n, index) => {
-        return {
-          ...n,
-          id: index + 1
-        }
-      }) : defaultScopeRules,
+      scopeRules: scopeRules
+        ? scopeRules.map((n, index) => {
+            return {
+              ...n,
+              id: index + 1,
+            };
+          })
+        : defaultScopeRules,
     };
   }
   handleAddRule = () => {
@@ -363,7 +366,7 @@ class ColorScope extends Component {
         max: undefined,
         value: undefined,
         color: '#3bb057',
-        id: scopeRules.length + 1
+        id: scopeRules.length + 1,
       }),
     });
   };
@@ -405,8 +408,8 @@ class ColorScope extends Component {
       isPercent,
       rulesLength: scopeRules.length,
       onSetRule: this.handleSetRule,
-      onDeleteRule: this.handleDeleteRule
-    }
+      onDeleteRule: this.handleDeleteRule,
+    };
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop16 mBottom8">
@@ -422,10 +425,12 @@ class ColorScope extends Component {
             dragPreviewImage
             items={scopeRules}
             itemKey="id"
-            renderItem={(options) => renderSortableItem({
-              ...options,
-              otherProps
-            })}
+            renderItem={options =>
+              renderSortableItem({
+                ...options,
+                otherProps,
+              })
+            }
             onSortEnd={this.handleSortEnd}
           />
         </div>

@@ -162,14 +162,13 @@ export default class WorkSheetComment extends React.Component {
       disType === 2
         ? 2
         : disType === 1 && !md.global.Account.isPortal && exAccountDiscussEnum === 1 //当前内部成员，外部门户开放讨论且外部门户设置为不可见内部
-        ? 1
-        : 0;
+          ? 1
+          : 0;
     const commenterProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       scrollToListTop: this.scrollToListTop.bind(this),
       change: (payload, discussion) => {
-        this.setState(payload);
-        this.getAtData();
+        this.setState(payload, () => this.getAtData());
       },
       addCallback,
       projectId,
@@ -182,8 +181,7 @@ export default class WorkSheetComment extends React.Component {
         this.commentList = el;
       },
       change: (payload, discussion) => {
-        this.setState(payload);
-        this.getAtData();
+        this.setState(payload, () => this.getAtData());
       },
       addCallback,
       forReacordDiscussion,

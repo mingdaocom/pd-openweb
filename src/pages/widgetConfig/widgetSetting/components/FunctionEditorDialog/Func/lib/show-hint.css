@@ -34,6 +34,18 @@
   background: #2196f3;
 }
 
+.CodeMirror-hints .hint-item {
+  display: flex;
+  align-items: center;
+}
+
+.CodeMirror-hints .hint-item .icon {
+  color: #9e9e9e;
+}
+
+
+
+
 .CodeMirror-hint {
   margin: 0;
   padding: 0 4px;
@@ -49,5 +61,13 @@
 
 li.CodeMirror-hint-active {
   background: #08f;
+  color: white;
+}
+
+li.CodeMirror-hint:not(.CodeMirror-hint-active):hover {
+  background: #eee;
+}
+
+li.CodeMirror-hint-active .hint-item .icon {
   color: white;
 }

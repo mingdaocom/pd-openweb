@@ -23,10 +23,10 @@ import {
   emitter,
 } from 'worksheet/util';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
+import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
 import { loadRecord, updateRecord, handleSubmitDraft } from 'worksheet/common/recordInfo/crtl';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
-import { MobileRecordRecoverConfirm } from 'worksheet/common/newRecord/MobileNewRecord';
+import MobileRecordRecoverConfirm from 'worksheet/common/newRecord/MobileRecordRecoverConfirm';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getTranslateInfo } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -914,6 +914,7 @@ export default class RecordInfo extends Component {
             onChange={this.handleFormChange}
             onSave={this.handleSave}
             updateRecordDialogOwner={this.updateRecordOwner}
+            updatePayConfig={obj => this.setState({ payConfig: { ...payConfig, ...obj } })}
             onClose={onClose}
           />
           {this.renderFooter()}

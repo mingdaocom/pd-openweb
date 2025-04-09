@@ -6,12 +6,11 @@ import homeAppApi from 'api/homeApp';
 import { routerConfigs } from './routerConfig';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getAppConfig } from './util';
-import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon, getTranslateInfo } from 'src/util';
+import { getFeatureStatus, setFavicon, getTranslateInfo } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'src/router/navigateTo';
-import Beta from './components/Beta';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog, buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 
 function UpgradeCom({ projectId, featureId }) {
   return <Fragment>{buriedUpgradeVersionDialog(projectId, featureId, { dialogType: 'content' })}</Fragment>;
@@ -111,7 +110,10 @@ class AppSettings extends Component {
       })
       .filter(it => {
         // 应用市场
-        if (['options', 'aggregations', 'relationship', 'export', 'recyclebin'].includes(it.type) && sourceType === 60) {
+        if (
+          ['options', 'aggregations', 'relationship', 'export', 'recyclebin'].includes(it.type) &&
+          sourceType === 60
+        ) {
           if (['export'].includes(it.type)) {
             return false;
           }
@@ -224,10 +226,7 @@ class AppSettings extends Component {
                     )}
                     {!collapseAppManageNav && (
                       <Fragment>
-                        <span className="flex">
-                          {text}
-                          {['timezone'].includes(type) && <Beta className="mRight15" />}
-                        </span>
+                        <span className="flex">{text}</span>
                         {item.featureId &&
                           getFeatureStatus(projectId, item.featureId) === '2' &&
                           _.includes(

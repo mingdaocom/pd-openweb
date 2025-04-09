@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { CodeTypeEnum } from 'src/pages/AuthService/config.js';
+import { get } from 'lodash';
 import loginAjax from 'src/api/login';
-import { getDataByFilterXSS, checkReturnUrl } from 'src/pages/AuthService/util.js';
+import { CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
+import { LoginResult } from 'src/pages/AuthService/login/config.js';
+import { checkReturnUrl, getDataByFilterXSS } from 'src/pages/AuthService/util.js';
+import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/util';
 import { setPssId } from 'src/util/pssId';
-import { get } from 'lodash';
-import { LoginResult } from 'src/pages/AuthService/login/config.js';
-import { useSetState } from 'react-use';
-import { navigateTo } from 'src/router/navigateTo';
 
 function useInterval(callback, delay) {
   const savedCallback = useRef(callback);
@@ -137,7 +137,7 @@ export default function Twofactor(props) {
           if (accountResult === userFromError) {
             msg = _l('账号来源类型受限');
           } else if ([accountError, accountNotExist].includes(accountResult)) {
-            msg = _l('该帐号未注册');
+            msg = _l('该账号未注册');
           } else if (accountResult === verifyCodeError) {
             msg = _l('验证码错误');
           } else if (accountResult === invalidVerifyCode) {
@@ -188,7 +188,7 @@ export default function Twofactor(props) {
           <div
             className={cx('warnTxtDiv GreenWarn')}
             dangerouslySetInnerHTML={{
-              __html: seconds > 20 ? _l('验证码发送成功') : _l('验证码发送成功'),
+              __html: _l('验证码发送成功'),
             }}
           ></div>
         </div>

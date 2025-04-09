@@ -20,7 +20,8 @@ import {
   checkWidgetMaxNumErr,
 } from '.';
 import { getPathById, isHaveGap } from './widgets';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { ControlTag } from '../styled';
 import { Tooltip, Dialog, Support } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
@@ -492,19 +493,6 @@ const dealCusTomEventActions = (actionItems = [], controls = []) => {
   });
 };
 
-// 表单保存选项集不校验
-export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
-  for (const c of controls) {
-    if (_.includes([9, 10, 11], c.type) && c.dataSource ? checkCollections : true) {
-      const noDelOptions = (c.options || []).filter(o => !o.isDeleted);
-      const uniqOptions = _.uniqBy(noDelOptions, 'value');
-      if (noDelOptions.length !== uniqOptions.length) {
-        return true;
-      }
-    }
-  }
-};
-
 // 表单保存前校验
 export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) => {
   let errorMsg = '';
@@ -896,6 +884,7 @@ export const scrollToVisibleRange = (data, widgetProps) => {
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
   const { mode, path, location, displayItemType, rowIndex, activePath } = para;
+  data = data.map(item => (item.type === 90000 ? { ...item, type: 24 } : item));
   const tempData = head(data);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
   if (_.includes([49, 50], tempData.type) && featureType === '2') {

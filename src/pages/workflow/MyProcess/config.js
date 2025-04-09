@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 export const ACTION_TYPES = {
   0: {
     id: 'default',
@@ -196,3 +197,11 @@ export const covertTime = (time) => {
     min ? _l('%0分钟', Math.floor(min) || 1) : ''
   }`;
 }
+
+export const TABS = {
+  WAITING_APPROVE: 0, // 待审批
+  WAITING_FILL: 1, // 待填写
+  WAITING_EXAMINE: 2, // 待查看
+  MY_SPONSOR: 3, // 我发起
+  COMPLETE: 4, // 已完成
+};

@@ -1,10 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import { Icon, UserHead, SvgIcon } from 'ming-ui';
-import { TABS } from '../index';
 import cx from 'classnames';
 import { Checkbox, Tooltip } from 'antd';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import { covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
+import { TABS, covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
 import './index.less';
 import _ from 'lodash';
 import moment from 'moment';

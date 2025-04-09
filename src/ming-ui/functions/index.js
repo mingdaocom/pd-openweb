@@ -11,6 +11,5 @@ export { default as dialogSelectUser } from './dialogSelectUser';
 export { default as mdNotification } from './mdNotification';
 export { default as quickSelectRole } from './quickSelectRole';
 export { default as quickSelectUser } from './quickSelectUser';
-export { default as dialogEditWorksheet } from './dialogEditWorksheet';
 export { default as quickSelectDept } from './quickSelectDept';
 export { default as quickSelectGroup } from './quickSelectGroup';

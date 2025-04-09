@@ -37,3 +37,5 @@ export const isUnique = (control) => {
 export const GROUPLIMITTYPES = [9, 10, 11, 26, 27, 48]
 
 export const GROUPMAX = 8
+
+export const AGG_CONTROL_MAX = 20

@@ -97,6 +97,7 @@ export default function Info(props) {
     appColor = '#00bcd4',
     appLogoUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
     isAutoLogin,
+    autoLogin,
     registerMode = {},
   } = props;
   const [sending, setSending] = useState(false); //点击
@@ -146,15 +147,7 @@ export default function Info(props) {
         <LoadDiv className="" style={{ margin: '50px auto' }} />
       ) : (
         <React.Fragment>
-          {logoImageUrl ? (
-            <img src={logoImageUrl} height={48} />
-          ) : appColor && appLogoUrl ? (
-            <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: appColor }}>
-              <SvgIcon url={appLogoUrl} fill={'#fff'} size={28} />
-            </span>
-          ) : (
-            ''
-          )}
+          {logoImageUrl ? <img src={logoImageUrl} height={48} /> : ''}
           <h6 className="Font26 Bold mTop20">{_l('请继续完善信息')}</h6>
           <div className="messageConBox">
             <Components.default data={cells} ref={customwidget} disableRules />
@@ -175,7 +168,7 @@ export default function Info(props) {
                   {
                     state,
                     receiveControls: data.map(formatControlToServer),
-                    autoLogin: isAutoLogin,
+                    autoLogin: autoLogin && isAutoLogin,
                   },
                   props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
                 )
@@ -191,8 +184,8 @@ export default function Info(props) {
                       registerMode.email && registerMode.phone
                         ? _l('手机号/邮箱或者验证码错误！')
                         : registerMode.phone
-                        ? _l('手机号或者验证码错误')
-                        : _l('邮箱或者验证码错误'),
+                          ? _l('手机号或者验证码错误')
+                          : _l('邮箱或者验证码错误'),
                       3,
                     );
                   } else {

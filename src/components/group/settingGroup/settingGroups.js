@@ -1,6 +1,6 @@
 import './settingGroups.css';
-import '@mdfe/jquery-plupload';
-import { htmlEncodeReg, expireDialogAsync, existAccountHint } from 'src/util';
+import { htmlEncodeReg, existAccountHint } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import groupController from 'src/api/group';
 import invitationController from 'src/api/invitation';
 import doT from 'dot';
@@ -20,12 +20,11 @@ import groupUserHtml from './tpl/groupUser.html';
 import groupSettingsHtml from './tpl/groupSettings.html';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
-import 'src/components/uploadAttachment/uploadAttachment';
 import addFriends from 'src/components/addFriends';
 import moment from 'moment';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Dropdown, UserHead, LoadDiv } from 'ming-ui';
+import { Dropdown, UserHead, LoadDiv, QiniuUpload } from 'ming-ui';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { renderToString } from 'react-dom/server';
@@ -686,8 +685,6 @@ $.extend(SettingGroup.prototype, {
   bindGroupHeadPlugin: function () {
     var _this = this;
     var $groupSelect = $('.groupSettingAvatarSelect .settingPictureLayer');
-    var $upload = $groupSelect.find('.uploadGroupAvatar');
-    var $input = $groupSelect.find('.hiddenUploadGroupAvatar');
 
     $('.groupSettingAvatarSelect').on('click', '.icon-close', function () {
       $('.groupSettingAvatarSelect').hide();
@@ -701,38 +698,37 @@ $.extend(SettingGroup.prototype, {
       }
     });
 
-    $input.on('click', function (event) {
-      event.stopPropagation();
-    });
+    const root = createRoot(document.getElementById('uploadGroupAvatarWrap'));
 
-    $input.uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#uploadGroupAvatar',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'GroupAvatar',
-      fileNamePrefix: 'GroupAvatarImage_',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 2,
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
-      },
-      createPicProgressBar: '',
-      callback: function (attachments) {
-        $upload.html(tips.customAvatar);
-
-        if (attachments.length > 0) {
-          var attachment = attachments[0];
-          var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-          var avatar = attachment.fileName + attachment.fileExt;
-          // modify group Head
-          _this.updateGroupHead(avatar);
-        }
-      },
-    });
+    root.render(
+      <QiniuUpload
+        options={{
+          multi_selection: false,
+          filters: {
+            mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+          },
+          max_file_size: '4m',
+          type: 2,
+        }}
+        bucket={4}
+        onUploaded={(up, file) => {
+          var $upload = $groupSelect.find('#uploadGroupAvatar');
+          $upload.html(tips.customAvatar);
+          _this.updateGroupHead(file.fileName);
+          up.disableBrowse(false);
+        }}
+        onAdd={(up, files) => {
+          var $upload = $groupSelect.find('#uploadGroupAvatar');
+          $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
+          up.disableBrowse();
+        }}
+        onError={() => {}}
+      >
+        <a href="javascript:void(0);" id="uploadGroupAvatar">
+          {_l('使用自定义头像')}
+        </a>
+      </QiniuUpload>,
+    );
   },
 
   buildGroupMemberOpList: function ($elem) {

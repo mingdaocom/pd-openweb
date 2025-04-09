@@ -20,7 +20,7 @@
     position: absolute;
     top: 0px;
     right: 0px;
-    padding: 0 3px;
+    padding: 0 8px 0 4px;
     line-height: 32px;
     visibility: hidden;
     background-color: #fafafa;
@@ -45,8 +45,23 @@
     right: 0px;
     top: 0;
     bottom: 0;
-    width: 6px;
+    width: 8px;
     cursor: ew-resize;
+    &::after {
+      content: ' ';
+      position: absolute;
+      top: ~'calc(50% - 8px)';
+      height: 16px;
+      right: 0;
+      width: 1px;
+      cursor: ew-resize;
+    }
+    &:hover {
+      &::after {
+        width: 2px;
+        background-color: #2196f3 !important;
+      }
+    }
   }
   .inner:hover {
     .dropIcon {

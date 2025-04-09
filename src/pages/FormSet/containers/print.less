@@ -138,6 +138,7 @@
   .sortablePrintItemList {
     .printTemplatesList-tr {
       position: relative;
+      padding-left: 14px;
       .icon-new_word {
         color: #2196f3;
       }
@@ -157,7 +158,12 @@
         font-size: 0;
       }
       .dragIcon {
-        opacity: 0;
+        display: none;
+        position: absolute;
+        left: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+
       }
 
       .renameInput {
@@ -166,7 +172,7 @@
 
       &:hover {
         .dragIcon {
-          opacity: 1;
+          display: block;
         }
       }
     }
@@ -734,4 +740,13 @@
 
 #ja .printBox .printTemplatesList .printTemplatesList-tr .activeCon {
   width: 210px !important;
+}
+
+.printSortableHelper {
+  .printTemplatesList-tr {
+    .dragIcon {
+      display: block;
+      color: #9e9e9e;
+    }
+  }
 }

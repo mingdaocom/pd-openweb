@@ -46,13 +46,16 @@ export default function SubListStyle(props) {
     hidenumber,
     titlewrap,
     layercontrolid,
+    detailworksheettype,
   } = getAdvanceSetting(data);
   const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
 
   const { mode, sheetInfo } = window.subListSheetConfig[data.controlId] || {};
-  const tableControls = _.get(sheetInfo, ['template', 'controls']) || _.get(sheetInfo, 'relationControls') || [];
+  const isRelateTable = mode === 'relate' || detailworksheettype !== '2';
+  const tableControls =
+    _.get(sheetInfo, ['template', 'controls']) || _.get(sheetInfo, 'relationControls') || data.relationControls || [];
   const tableData = tableControls
-    .filter(c => c.type === 29 && c.dataSource === _.get(sheetInfo, 'worksheetId') && c.enumDefault === 1)
+    .filter(c => c.type === 29 && c.dataSource === data.dataSource && c.enumDefault === 1)
     .map(i => ({ value: i.controlId, text: i.controlName }));
 
   const isDelete = layercontrolid && !_.find(tableControls, t => t.controlId === layercontrolid);
@@ -83,7 +86,7 @@ export default function SubListStyle(props) {
           })}
         </AnimationWrap>
       </SettingItem>
-      {mode === 'relate' && (
+      {isRelateTable && (
         <SettingItem>
           <div className="settingItemTitle">
             {_l('树形表格')}

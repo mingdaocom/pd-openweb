@@ -555,7 +555,7 @@ export default class AdminWorkflowList extends Component {
               <div className="flex" />
               <Search
                 placeholder={_l('流程名称')}
-                handleChange={keyWords => this.updateState({ keyWords: keyWords.trim() })}
+                handleChange={_.debounce(keyword => this.updateState(keyword.trim()), 500)}
               />
             </div>
             <div className="flexRow manageList manageListHeader bold mTop16">
@@ -593,7 +593,6 @@ export default class AdminWorkflowList extends Component {
               <div className="columnWidth">{_l('创建人')}</div>
               <div className="w20 mRight20" />
             </div>
-            {loading && pageIndex === 1 && <LoadDiv className="mTop15" />}
             <div className="flex flexColumn mTop16">{this.renderList()}</div>
             <PaginationWrap
               total={count}

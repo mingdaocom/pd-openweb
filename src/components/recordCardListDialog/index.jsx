@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Dialog, Button, Checkbox } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
-import RecordCard from 'src/components/recordCard';
-import { checkIsTextControl, fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import _, { find } from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Checkbox, Dialog } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import ScrollView from 'ming-ui/components/ScrollView';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import sheetAjax from 'src/api/worksheet';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import RecordCard from 'src/components/recordCard';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { checkIsTextControl, fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { getTranslateInfo } from 'src/util';
 import Header from './Header';
 import './recordCardListDialog.less';
-import _, { find } from 'lodash';
 
 function getSearchConfig(control) {
   try {
@@ -90,7 +90,6 @@ export default class RecordCardListDialog extends Component {
       worksheet: {},
       pageIndex: 1,
       loadouted: false,
-      showNewRecord: false,
       selectAll: false,
       focusIndex: -1,
     };
@@ -115,10 +114,13 @@ export default class RecordCardListDialog extends Component {
               window.worksheetControlsCache[c.dataSource] = c.relationControls;
             }
           });
+          const translateInfo = getTranslateInfo(data.appId, null, data.worksheetId);
+          data.entityName = translateInfo.recordName || data.entityName;
           this.setState(
             {
               allowAdd: _.get(window, 'shareState.isPublicFormPreview') ? false : data.allowAdd,
               worksheetInfo: data,
+              worksheet: data,
             },
             this.loadRecord,
           );
@@ -311,7 +313,7 @@ export default class RecordCardListDialog extends Component {
       } else {
         this.setState({
           loading: false,
-          error: true,
+          error: res.resultCode === 52 ? 'queryTextTooLong' : true,
         });
       }
     });
@@ -470,7 +472,6 @@ export default class RecordCardListDialog extends Component {
       selectedRecords,
       keyWords,
       worksheet,
-      showNewRecord,
       allowAdd,
       quickFilters = [],
       focusIndex,
@@ -588,9 +589,13 @@ export default class RecordCardListDialog extends Component {
                           <i className="icon Icon icon-ic-line Font56" />
                           {error ? (
                             <p className="emptyTip">
-                              {error === 'notCorrectCondition'
-                                ? _l('不存在符合条件的%0', worksheet.entityName || control.sourceEntityName || '')
-                                : _l('没有权限')}
+                              {{
+                                notCorrectCondition: _l(
+                                  '不存在符合条件的%0',
+                                  worksheet.entityName || control.sourceEntityName || '',
+                                ),
+                                queryTextTooLong: _l('筛选文本过长'),
+                              }[error] || _l('没有权限')}
                               {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
                                 <div
                                   className="mTop10 ThemeColor3 TxtCenter Hand"
@@ -605,8 +610,8 @@ export default class RecordCardListDialog extends Component {
                               {keyWords
                                 ? _l('无匹配的结果')
                                 : worksheet.entityName
-                                ? _l('暂无%0', worksheet.entityName)
-                                : _l('暂无记录')}
+                                  ? _l('暂无%0', worksheet.entityName)
+                                  : _l('暂无记录')}
                             </p>
                           )}
                         </div>
@@ -628,54 +633,46 @@ export default class RecordCardListDialog extends Component {
                       alert(_l('最多关联%0条', maxCount), 3);
                       return;
                     }
-                    this.setState({ showNewRecord: true });
+                    addRecord({
+                      className: 'worksheetRelateNewRecord worksheetRelateNewRecordFromSelectRelateRecord',
+                      viewId,
+                      worksheetId: relateSheetId,
+                      projectId: worksheet.projectId,
+                      masterRecordRowId,
+                      addType: 2,
+                      entityName: worksheet.entityName,
+                      filterRelateSheetIds: [relateSheetId],
+                      filterRelatesheetControlIds,
+                      defaultFormDataEditable: true,
+                      isDraft,
+                      defaultFormData:
+                        searchControl && checkIsTextControl(searchControl.type) && keyWords
+                          ? {
+                              [searchControl.controlId]: keyWords,
+                            }
+                          : {},
+                      defaultRelatedSheet,
+                      onAdd: row => {
+                        if (multiple || singleConfirm) {
+                          this.setState(
+                            {
+                              list: [row, ...list],
+                            },
+                            () => {
+                              this.handleSelect(row, true);
+                            },
+                          );
+                        } else {
+                          onOk([row]);
+                          onClose();
+                        }
+                      },
+                    });
                   }}
                 >
                   <i className="icon icon-plus mRight3"></i>
                   {_.get(worksheet, 'advancedSetting.btnname') || worksheet.entityName || ''}
                 </span>
-              )}
-              {showNewRecord && (
-                <NewRecord
-                  className="worksheetRelateNewRecord worksheetRelateNewRecordFromSelectRelateRecord"
-                  viewId={viewId}
-                  worksheetId={relateSheetId}
-                  projectId={worksheet.projectId}
-                  masterRecordRowId={masterRecordRowId}
-                  addType={2}
-                  entityName={worksheet.entityName}
-                  filterRelateSheetIds={[relateSheetId]}
-                  filterRelatesheetControlIds={filterRelatesheetControlIds}
-                  defaultFormDataEditable
-                  isDraft={isDraft}
-                  defaultFormData={
-                    searchControl && checkIsTextControl(searchControl.type) && keyWords
-                      ? {
-                          [searchControl.controlId]: keyWords,
-                        }
-                      : {}
-                  }
-                  defaultRelatedSheet={defaultRelatedSheet}
-                  visible={showNewRecord}
-                  hideNewRecord={() => {
-                    this.setState({ showNewRecord: false });
-                  }}
-                  onAdd={row => {
-                    if (multiple || singleConfirm) {
-                      this.setState(
-                        {
-                          list: [row, ...list],
-                        },
-                        () => {
-                          this.handleSelect(row, true);
-                        },
-                      );
-                    } else {
-                      onOk([row]);
-                      onClose();
-                    }
-                  }}
-                />
               )}
               {showList && canSelectAll && (
                 <Checkbox

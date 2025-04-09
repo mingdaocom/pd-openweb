@@ -52,16 +52,13 @@ export default function ProcessDelegation(props) {
 
       {cardListVisible && (
         <Popup
-          className="delegationCardList"
+          className="delegationCardList mobileModal minFull topRadius"
           position="bottom"
-          bodyStyle={{
-            height: '100%'
-          }}
           visible={cardListVisible}
           onClose={() => setCardListVisible(!cardListVisible)}
         >
           <div className="flexColumn h100">
-            <div className="pTop16 pRight16 TxtRight">
+            <div className="pTop10 pBottom10 pRight16 TxtRight">
               <Icon
                 icon="closeelement-bg-circle"
                 className="Font22 Gray_9e"
@@ -70,7 +67,7 @@ export default function ProcessDelegation(props) {
                 }}
               />
             </div>
-            <div className="flex">
+            <div className="flex minHeight0 pBottom20">
               <TodoEntrustList
                 visible={cardListVisible}
                 delegationList={delegationList}

@@ -1,28 +1,29 @@
-import React, { Fragment, Component } from 'react';
-import DocumentTitle from 'react-document-title';
-import { Tabs, SpinLoading } from 'antd-mobile';
+import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
-import { WaterMark } from 'ming-ui';
 import { connect } from 'react-redux';
-import * as actions from './redux/actions';
-import { addNewRecord } from 'src/pages/worksheet/redux/actions';
-import Back from '../components/Back';
-import AppPermissions from '../components/AppPermissions';
-import State from './State';
-import View from './View';
-import { RecordInfoModal } from 'mobile/Record';
-import './index.less';
-import { mdAppResponse, getRequest } from 'src/util';
+import { bindActionCreators } from 'redux';
+import DocumentTitle from 'react-document-title';
+import { SpinLoading, Tabs } from 'antd-mobile';
 import cx from 'classnames';
-import FixedPage from 'mobile/App/FixedPage.jsx';
-import { openAddRecord } from 'mobile/Record/addRecord';
-import alreadyDelete from './State/assets/alreadyDelete.png';
-import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
-import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
-import SlideGroupFilter from './GroupFilter/SlideGroupFilter';
-import { getViewActionInfo, getDefaultValueInCreate } from './util';
 import _ from 'lodash';
+import { WaterMark } from 'ming-ui';
+import FixedPage from 'mobile/App/FixedPage.jsx';
+import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
+import { RecordInfoModal } from 'mobile/Record';
+import { openAddRecord } from 'mobile/Record/addRecord';
+import { addNewRecord } from 'src/pages/worksheet/redux/actions';
+import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
+import { getShowViews } from 'src/pages/worksheet/views/util';
+import { getRequest, handlePushState, handleReplaceState, mdAppResponse } from 'src/util';
+import AppPermissions from '../components/AppPermissions';
+import Back from '../components/Back';
+import SlideGroupFilter from './GroupFilter/SlideGroupFilter';
+import * as actions from './redux/actions';
+import State from './State';
+import alreadyDelete from './State/assets/alreadyDelete.png';
+import { getDefaultValueInCreate, getViewActionInfo } from './util';
+import View from './View';
+import './index.less';
 
 @withRouter
 @AppPermissions
@@ -54,6 +55,7 @@ class RecordList extends Component {
         });
       }
     }
+    window.addEventListener('popstate', this.onQueryChange);
   }
   getApp(props) {
     const { params } = props.match;
@@ -86,7 +88,13 @@ class RecordList extends Component {
   }
   componentWillUnmount() {
     this.props.emptySheetControls();
+    window.removeEventListener('popstate', this.onQueryChange);
   }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'newRecord', () => this.setState({ showNewRecord: false }));
+  };
+
   sheetViewOpenRecord = (recordId, viewId) => {
     this.setState({
       previewRecordId: recordId,
@@ -112,12 +120,15 @@ class RecordList extends Component {
   };
 
   handleBack = () => {
-    const { match, history } = this.props;
+    const { match, history, appDetail } = this.props;
     const { params } = match;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
+    const { appNaviStyle } = appDetail.detail || {};
 
-    if (!isHideTabBar && location.href.includes('mobile/app')) {
+    if (appNaviStyle === 2 && location.href.includes('mobile/app')) {
+      window.mobileNavigateTo('/mobile/dashboard');
+    } else if (!isHideTabBar && location.href.includes('mobile/app')) {
       let currentGroupInfo =
         localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
       if (_.isEmpty(currentGroupInfo)) {
@@ -152,8 +163,8 @@ class RecordList extends Component {
     const { name } = worksheetInfo;
     let views =
       base.type === 'single'
-        ? worksheetInfo.views
-        : worksheetInfo.views.filter(
+        ? getShowViews(worksheetInfo.views)
+        : getShowViews(worksheetInfo.views).filter(
             v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
           );
     const view = _.find(views, { viewId }) || views[0];
@@ -163,10 +174,17 @@ class RecordList extends Component {
 
     if (_.isEmpty(views)) {
       return (
-        <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 Gray_9e">
-          <img style={{ width: 70 }} src={alreadyDelete} />
-          {_l('视图已隐藏')}
-        </div>
+        <Fragment>
+          <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 Gray_9e">
+            <img style={{ width: 70 }} src={alreadyDelete} />
+            {_l('视图已隐藏')}
+          </div>
+          <Back
+            icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
+            className="back Absolute"
+            onClick={this.handleBack}
+          />
+        </Fragment>
       );
     }
     const hasDebugRoles = (debugRole || {}).canDebug && !_.isEmpty(debugRoles);

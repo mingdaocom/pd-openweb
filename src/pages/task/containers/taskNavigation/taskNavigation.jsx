@@ -26,7 +26,7 @@ import {
   updateTopFolderList,
 } from '../../redux/actions';
 import config from '../../config/config';
-import { expireDialogAsync } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import CopyFolder from '../../components/copyFolder/copyFolder';
 import cx from 'classnames';
 import {

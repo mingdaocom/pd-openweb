@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Constant from './constant';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import RelationControl from 'src/components/relationControl/relationControl';
 import 'src/components/createTask/createTask';
 import createCalendar from 'src/components/createCalendar/createCalendar';

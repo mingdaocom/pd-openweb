@@ -63,13 +63,12 @@ class WorkflowSettings extends Component {
   render() {
     const { tabIndex, noAuth, infoVisible } = this.state;
     const { flowInfo, onBack, match } = this.props;
-    const { operator, operatorId } = match.params;
     const isPlugin = location.href.indexOf('workflowplugin') > -1;
 
     const INDEX2COMPONENT = {
       1: (
         <EditFlow
-          instanceId={operator === 'execHistory' && operatorId ? operatorId : ''}
+          urlParams={match.params}
           isPlugin={isPlugin}
           infoVisible={infoVisible}
           changeFlowInfo={visible => this.setState({ infoVisible: visible })}

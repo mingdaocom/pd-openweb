@@ -35,7 +35,7 @@ export default function ActionDrop(props) {
             >
               {_l('恢复')}
             </MenuItem>
-            {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
+            {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
               <MenuItem
                 onClick={() => {
                   setVisible(false);

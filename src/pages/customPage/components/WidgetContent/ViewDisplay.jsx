@@ -27,6 +27,10 @@ const ViewDisplay = props => {
     }
     const view = customPageContent.querySelector(`.widgetContent .view-${setting.id}`);
     const checkVisible = () => {
+      if (!view) {
+        setVisible(true);
+        return;
+      }
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
         const rect = view.getBoundingClientRect();

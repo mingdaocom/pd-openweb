@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import { List, Map, Set } from 'immutable';
 import { PICK_TYPE, NODE_SORT_BY, NODE_SORT_TYPE } from '../constant/enum';
-import { editRoot } from '../common/KcLeft/rootHandler';
 
 function kcListElement(state = null, action) {
   switch (action.type) {
@@ -170,20 +169,6 @@ export function rightMenuOption(state = false, action) {
   }
 }
 
-const defaultEditRootFn = (rootId) => {
-  editRoot(rootId, (root) => {
-    alert(_l('编辑成功'));
-  }, () => {});
-};
-export function kcLeftEditRootFn(state = defaultEditRootFn, action) {
-  switch (action.type) {
-    case 'KC_UPDATE_KC_LEFT_ROOT_FN':
-      return action.value;
-    default:
-      return state;
-  }
-}
-
 export function baseUrl(state = '/apps/kc', action) {
   switch (action.type) {
     case 'KC_UPDATE_KC_BASE_URL':
@@ -218,6 +203,5 @@ export default combineReducers({
   selectAll,
   selectedItems,
   rightMenuOption,
-  kcLeftEditRootFn,
   temp,
 });

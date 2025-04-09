@@ -1,15 +1,12 @@
-﻿import { getClassNameByExt, htmlEncodeReg } from 'src/util';
-import 'src/components/autoTextarea/autoTextarea';
+﻿import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
-import 'src/components/uploadAttachment/uploadAttachment';
-import LinkView from 'src/components/linkView/linkView';
-import VoteUpdater from 'src/components/voteUpdater/voteUpdater';
+import LinkView from '../../linkView/linkView';
+import VoteUpdater from '../../voteUpdater/voteUpdater';
 import kcAjax from 'src/api/kc';
-import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import postAjax from 'src/api/post';
 import { Dialog } from 'ming-ui';
 import React from 'react';
-import RegExpValidator from 'src/util/expression';
+
 var langUploadFiles = _l('上传附件') + '...';
 var langShareLink = _l('分享网站') + '...';
 var langVoteQuestion = _l('请输入投票问题') + '...';
@@ -30,258 +27,10 @@ var MyUpdater = {
   Init: function (settings) {
     $.extend(this.options, settings);
 
-    this.bindUploadEvent();
-
     this.BindEvent();
   },
   formatNumber: function (src, pos) {
     return Math.round(src * Math.pow(10, pos)) / Math.pow(10, pos);
-  },
-  bindUploadEvent: function () {
-    MyUpdater.options.uploadObj = $('#hidUpdaterUpload').uploadAttachment({
-      pluploadID: '#uploadMoreAttachment',
-      dropPasteElement: 'textarea_Updater',
-      callback: function (attachments, totalSize, isUploadComplete) {
-        if ($('#hidden_UpdaterType').val() != '9') {
-          return;
-        }
-        MyUpdater.options.attachmentData = attachments;
-        if (MyUpdater.options.attachmentData.length > 0) {
-          var $textareaUpdater = $('#textarea_Updater');
-          if (!$textareaUpdater.val().trim() || $textareaUpdater.val() == langUploadFiles) {
-            $textareaUpdater.val(MyUpdater.options.attachmentData[0].originalFileName).removeClass('Gray_a').focus();
-          }
-        } else {
-          if (!$('#Attachment_updater').find('.kcAttachmentList').children().length > 0) {
-            $('#Div_JoinKnowledge').hide();
-          }
-        }
-        if (totalSize || totalSize == 0) {
-          $('#currentUploadSize').html(totalSize + 'M');
-          var currentPrograss = this.formatNumber((totalSize / 1024 / 1024 / 1000) * 100, 2);
-          // 当前上传总量百分比
-          $('#Attachment_updater .currentPrograss').width(
-            (totalSize > 0 && currentPrograss < 10 ? 10 : currentPrograss) + '%',
-          );
-        }
-      },
-      beforeUpload: function (up, file) {
-        if ($('#Attachment_updater').is(':hidden') && $('#hidden_UpdaterType').val() == '0') {
-          $('#hidden_UpdaterType').val('9');
-          $('[targetDiv=#Attachment_updater]').removeClass('Gray_c').addClass('ThemeColor3');
-          $('#Attachment_updater').show();
-        }
-      },
-      filesAdded: function (up, files) {
-        if ($('#Attachment_updater').find('.attachmentList').find('.docItem,.picItem').length + files.length > 10) {
-          alert(_l('附件数量超过限制，一次上传不得超过10个附件'), 3);
-          return false;
-        }
-
-        var postType = $('#hidden_UpdaterType').val();
-        if (postType !== '2' && postType !== '3' && postType !== '9') {
-          // MyUpdater.ResetUpdaterDiv();
-          return;
-        }
-        /*
-        $('#Attachment_updater')
-          .find('.addAttachmentToKc').show()
-          .end()
-          .find('#hidUpdaterUpload')
-          .nextAll('.updaterAttachmentSplitter')
-          .first()
-          .show();
-          */
-      },
-      isUploadComplete: function (isUploadComplete) {
-        // 所有文件上传进度
-        MyUpdater.options.uploadObj.isUploadComplete = isUploadComplete;
-      },
-    });
-
-    $('#uploadAttachment').on('mousedown', function () {
-      MyUpdater.ResetUpdaterDiv();
-    });
-
-    $('#addAttachmentToKcToggle').on('change', function (e) {
-      if ($(this).prop('checked')) {
-        if (!$('#addAttachmentToKcLink').data('type')) {
-          $(this).prop('checked', false);
-          $('#addAttachmentToKcLink').click();
-          e.preventDefault();
-        } else {
-          $('#addAttachmentToKcLink > .kcNodePath').removeClass('Gray_a').addClass('ThemeColor3').off('click');
-        }
-      } else {
-        $('#addAttachmentToKcLink > .kcNodePath')
-          .addClass('Gray_a')
-          .removeClass('ThemeColor3')
-          .click(function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-          });
-      }
-    });
-
-    $('#addAttachmentToKcLink').on('click', function () {
-      var $this = $(this);
-      selectNode({
-        isFolderNode: 1,
-        reRootName: true,
-        dialogTitle: _l('选择路径'),
-      })
-        .then(function (result) {
-          if (!result || !result.node) {
-            return Promise.reject();
-          }
-          $this.data('type', result.type);
-          $this.data('node', result.node);
-          var path = result.type === 3 ? result.rootName || '' : result.node.name;
-          path += '/';
-          if (result.type == 3) {
-            var position = result.node.position;
-            var positionArr = position.split('/');
-            var isOmit = false;
-            positionArr.forEach(function (part, i) {
-              if (i > 1) {
-                if (i > positionArr.length - 4) {
-                  var partStr = part.length > 10 ? part.substring(0, 10) + '...' : part;
-                  path += partStr + '/';
-                } else {
-                  if (!isOmit) {
-                    path += '.../';
-                    isOmit = true;
-                  }
-                }
-              }
-            });
-          }
-          $this.html(
-            '<span>' + _l('本地文件存入知识中心:') + '</span><span class="mLeft15 kcNodePath">' + path + '</span>',
-          ); // TODO: position
-          $('#addAttachmentToKcToggle').prop('checked', true);
-        })
-        .catch(function () {
-          // alert("选择路径失败，请重新选择", 2);
-        })
-        .finally(function () {
-          if (!$this.data('type')) {
-            $('#addAttachmentToKcToggle').prop('checked', false);
-          }
-        });
-    });
-
-    $('#kcAttachment').on('click', function () {
-      selectNode({
-        isFolderNode: 2,
-      }).then(function (result) {
-        if (!result || !result.node || !result.node.length) {
-          alert(_l('未选择文件'), 3);
-        }
-        if ($('#Attachment_updater').find('.kcAttachmentList').children().length + result.node.length > 10) {
-          alert(_l('附件数量超过限制，一次上传不得超过10个附件'), 3);
-          return false;
-        }
-
-        var nodes = [];
-        var hasAlreadyAdded = false;
-        for (var i = 0; i < result.node.length; i++) {
-          if ($('#Attachment_updater .kcAttachmentList [data-node-id=' + result.node[i].id + ']').length) {
-            hasAlreadyAdded = true;
-          } else {
-            nodes.push(result.node[i]);
-          }
-        }
-        if (hasAlreadyAdded) {
-          alert(_l('已引用该文件'), 3);
-        }
-        if (!nodes.length) {
-          return;
-        } else {
-          result.node = nodes;
-        }
-
-        var $textareaUpdater = $('#textarea_Updater');
-        if (!$textareaUpdater.val().trim() || $textareaUpdater.val() == langUploadFiles) {
-          $textareaUpdater.val(result.node[0].name).removeClass('Gray_a').focus();
-        }
-        var html = '';
-        result.node.forEach(function (node) {
-          MyUpdater.options.kcAttachmentData.push({
-            refId: node.id,
-            // filePath: node.filePath,
-            originalFileName: node.name,
-            fileExt: node.ext ? '.' + node.ext : '',
-            fileSize: node.size,
-            allowDown: node.isDownloadable,
-            viewUrl: RegExpValidator.fileIsPicture('.' + node.ext) ? node.viewUrl : null,
-          });
-          html +=
-            "<div class='docItem kcDocItem' data-name='" +
-            htmlEncodeReg(node.name) +
-            "' data-node-id='" +
-            node.id +
-            "' id='docItem_" +
-            node.id +
-            "'>";
-          html += "<div class='progress'>";
-          if (RegExpValidator.fileIsPicture('.' + node.ext)) {
-            html +=
-              "<div class='Left nodeIconContainer nodeImg'><img src='" +
-              node.previewUrl +
-              "' alt='" +
-              htmlEncodeReg(node.ext) +
-              "' /></div>";
-          } else {
-            html +=
-              "<div class='Left nodeIconContainer nodeDoc'><span class='nodeIcon " +
-              getClassNameByExt(node.ext) +
-              "'></span></div>";
-          }
-          html += "<div class='Left docMessage'>";
-          html += "<div class='TxtLeft'>";
-          html +=
-            "<span class='overflow_ellipsis titleLimitWidth TxtTop Left' title='" +
-            htmlEncodeReg(node.name + (node.ext ? '.' + node.ext : '')) +
-            "'>" +
-            htmlEncodeReg(node.name + (node.ext ? '.' + node.ext : '')) +
-            "</span><span class='Right ThemeColor4 Font16 mLeft10 Hand docDelete Bold' title='删除'>×</span><div class='Clear'></div>";
-          html += '</div>';
-          html += "<div class='TxtLeft shareUrl ThemeColor3 overflow_ellipsis'>";
-          html += "<a href='" + node.shareUrl + "' target='_blank'>" + node.shareUrl + '</a>';
-          html += "<div class='Clear'></div>";
-          html += '</div>';
-          html += '</div>';
-          html += "<div class='Clear'></div>";
-          html += '</div>';
-          html += '</div>';
-        });
-
-        $('#Attachment_updater .kcAttachmentList').append(html);
-      });
-    });
-
-    $('#Attachment_updater .kcAttachmentList').on('click', '.docDelete', function () {
-      $(this)
-        .closest('.kcDocItem')
-        .fadeOut(300, function () {
-          var nodeID = $(this).data('nodeId');
-          MyUpdater.options.kcAttachmentData.forEach(function (kcItem, i) {
-            if (kcItem.refId == nodeID) {
-              MyUpdater.options.kcAttachmentData.splice(i, 1);
-            }
-          });
-          $(this).remove();
-
-          var kcAttachmentLength = $('#Attachment_updater').find('.kcAttachmentList').children().length;
-          if (!kcAttachmentLength) {
-            // $('#Attachment_updater .kcAttachmentList').nextAll('.updaterAttachmentSplitter').first().hide();
-          }
-          if (!$('#Attachment_updater .attachmentList ').find('.docItem,.picItem').length > 0) {
-            $('#Div_JoinKnowledge').hide();
-          }
-        });
-    });
   },
   // 绑定事件
   BindEvent: function () {
@@ -536,7 +285,6 @@ var MyUpdater = {
     }
 
     $('#hidden_UpdaterType').val('0');
-    $('#uploadAttachment').removeClass('falseHide');
     $("div.myUpdateItem_Content a[targetdiv='#Attachment_updater']").removeClass('ThemeColor3').addClass('Gray_c');
     $('div.myUpdateItem_Content a[targetdiv]').removeClass('ThemeColor3').addClass('Gray_c');
     $('#Attachment_updater,#Link_updater,#Vote_updater,#Storage_updater').hide();

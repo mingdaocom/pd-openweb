@@ -1,5 +1,6 @@
 import React from 'react';
-import { getPrintContent, getFormData } from '../util';
+import { getFormData } from '../util';
+import getPrintContent from '../getPrintContent';
 import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
 import STYLE_PRINT from './exportWordPrintTemCssString';

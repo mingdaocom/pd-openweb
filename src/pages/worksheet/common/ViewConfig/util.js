@@ -1,19 +1,7 @@
-import styled from 'styled-components';
 import update from 'immutability-helper';
+import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
-
-export const COVER_DISPLAY_MODE = [
-  { value: 0, text: _l('填满') },
-  { value: 1, text: _l('完整显示') },
-  { value: 2, text: _l('圆形') },
-  { value: 3, text: _l('矩形') },
-];
-
-export const COVER_DISPLAY_POSITION = [
-  { value: '2', text: _l('上') },
-  { value: '1', text: _l('左') },
-  { value: '0', text: _l('右') },
-];
+import { getSortData } from 'src/pages/worksheet/util';
 
 export const updateViewAdvancedSetting = (view, obj) => {
   const { navfilters } = obj;
@@ -45,18 +33,18 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
         navshow === '3'
           ? JSON.stringify(safeParse(_.get(advancedSetting, 'navfilters')).map(handleCondition))
           : JSON.stringify(
-            safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
-              let id = info;
-              let data = null;
-              try {
-                data = JSON.parse(info);
-                id = data.id || data;
-              } catch (error) {
-                id = info;
-              }
-              return id + '';
-            }),
-          ),
+              safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
+                let id = info;
+                let data = null;
+                try {
+                  data = JSON.parse(info);
+                  id = data.id || data;
+                } catch (error) {
+                  id = info;
+                }
+                return id + '';
+              }),
+            ),
     });
   }
 };
@@ -73,77 +61,62 @@ export const formatObjWithNavfilters = o => {
   }
 };
 
-// 不能作为视图排序的控件
-export const CAN_NOT_AS_VIEW_SORT = [14, 19, 21, 22, 23, 24, 25, 34, 35, 40, 41, 43, 45, 10010];
-
-export const ViewSettingWrap = styled.div`
-  .withSwitchConfig {
-    display: flex;
-    justify-content: space-between;
-    .configSwitch {
-      display: flex;
-      align-items: center;
-      .icon {
-        vertical-align: middle;
-        &-ic_toggle_on {
-          color: #00c345;
-        }
-        &-ic_toggle_off {
-          color: #bdbdbd;
-        }
-      }
-      .switchText {
-        margin-right: 6px;
-        line-height: 24px;
-      }
-    }
-  }
-  .title {
-    font-weight: bold;
-    // margin-top: 12px;
-    &:first-child {
-      margin: 0;
-    }
-  }
-  .subTitle {
-    color: #515151;
-    &.withDisplayControl {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-  }
-  .settingContent {
-    margin-top: 8px;
-  }
-  .Dropdown {
-    background-color: #fff;
-    &.disabled {
-      background-color: #f5f5f5;
-    }
-  }
-`;
-
-export const NORMAL_SYSTEM_FIELDS_SORT = ['rowid', 'caid', 'ownerid', 'uaid', 'ctime', 'utime'];
-export const WORKFLOW_SYSTEM_FIELDS_SORT = [
-  'wfname',
-  'wfstatus',
-  'wfcuaids',
-  'wfrtime',
-  'wfftime',
-  'wfdtime',
-  'wfcaid',
-  'wfctime',
-  'wfcotime',
-];
-
 export const getCanDisplayControls = (worksheetControls, disableTypes) => {
   return worksheetControls.filter(
-    c => c.attribute !== 1 && !!c.controlName && !_.includes(disableTypes || [22, 10010, 43, 45, 47, 49, 51, 52], c.type),
+    c => !!c.controlName && !_.includes(disableTypes || [22, 10010, 43, 45, 47, 49, 51, 52], c.type),
   );
-}
+};
 
 export const isSameType = (list, control) => {
-  return list.includes(control.type) ||
-    (list.includes(control.sourceControlType) && control.type === 30)
+  return list.includes(control.type) || (list.includes(control.sourceControlType) && control.type === 30);
+};
+
+export const getCanSelectColumnsForSort = (controlId = '', columns = [], sortConditions = []) => {
+  const sortConditionControls = sortConditions
+    .map(c => _.find(columns, column => column.controlId === c.controlId))
+    .filter(_.identity);
+  return filterOnlyShowField(columns)
+    .filter(o => {
+      if (o.controlId === controlId) return true;
+      //排除签名字段 扫码 接口查询按钮 查询记录 或 已选中且非当前id
+      if ([42, 47, 49, 51, 52, 54].includes(o.type) || _.find(sortConditions, sc => sc.controlId === o.controlId))
+        return false;
+      // 人员，部门，关联，组织角色，附件，级联选择此类支持多选的数组格式，都只能选择一个排序 选项strDefault=index除外
+      const list = [26, 27, 29, 48, 35, 14];
+      const optionTypes = [9, 10, 11];
+      const isExist = !!sortConditionControls.find(
+        o =>
+          (list.includes(o.type === 30 ? o.sourceControlType : o.type) ||
+            (optionTypes.includes(o.type === 30 ? o.sourceControlType : o.type) && o.strDefault !== 'index')) &&
+          controlId !== o.controlId,
+      );
+      // 存在数组类类型 都只能选择一个排序 选项strDefault=index除外
+      if (isExist) {
+        const type = o.type === 30 ? o.sourceControlType : o.type;
+        return optionTypes.includes(type) && o.strDefault === 'index'
+          ? true
+          : ![...list, ...optionTypes].includes(type);
+      }
+      return true;
+    })
+    .map(c => ({
+      text: c.controlName,
+      value: c.controlId,
+      itemContentStyle: { padding: '0 0 0 30px' },
+      iconName: getIconByType(c.type),
+    }));
+};
+
+export const getSortTypes = (controlId, columns) => {
+  const control = _.find(columns, c => c.controlId === controlId) || {};
+  return getSortData(control.type, control);
+};
+
+export const sortControls = columns => {
+  return columns.sort((a, b) => {
+    if (a.row === b.row) {
+      return a.col - b.col;
+    }
+    return a.row - b.row;
+  });
 };

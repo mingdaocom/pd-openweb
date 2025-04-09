@@ -10,7 +10,6 @@ import { SOURCE_TYPE } from 'src/components/comment/config';
 import UploadFiles from 'src/components/UploadFiles';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/autoTextarea/autoTextarea';
-import 'src/components/uploadAttachment/uploadAttachment';
 import Emotion from 'src/components/emotion/emotion';
 import _ from 'lodash';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
@@ -389,7 +388,6 @@ class PostCommentInput extends React.Component {
                   />
                 )}
               </div>
-              <input type="hidden" id={'hidUpload_' + postItem.postID + '_' + postItem.commentID + 'C'} />
               <div className={cx({ hide: !this.state.showAttachment })} style={{ padding: '0 5px' }}>
                 <UploadFiles
                   dropPasteElement={dropElementID}

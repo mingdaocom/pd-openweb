@@ -10,7 +10,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserOrgState: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetUserOrgState', args, options);
    },
   /**
@@ -26,7 +26,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    pagedNormalUserList: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'PagedNormalUserList', args, options);
    },
   /**
@@ -45,7 +45,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserList: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetUserList', args, options);
    },
   /**
@@ -62,7 +62,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    pagedRemovedUsers: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'PagedRemovedUsers', args, options);
    },
   /**
@@ -80,7 +80,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApprovalUser: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetApprovalUser', args, options);
    },
   /**
@@ -93,7 +93,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserListByAccountId: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetUserListByAccountId', args, options);
    },
   /**
@@ -107,7 +107,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserCard: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetUserCard', args, options);
    },
   /**
@@ -124,7 +124,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountBaseInfo: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetAccountBaseInfo', args, options);
    },
   /**
@@ -136,7 +136,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountDetail: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetAccountDetail', args, options);
    },
   /**
@@ -154,7 +154,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUsersByKeywords: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetUsersByKeywords', args, options);
    },
   /**
@@ -162,18 +162,19 @@ export default {
 用于工作表/任务 等默认最常协作联系人
   * @param {Object} args 请求参数
   * @param {integer} args.count 页大小（经常协作用户的数量，不包含 prefixAccountIds 和未指定/我自己的数量）
-  * @param {array} args.filterAccountIds 需要排除的帐号
-  * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+  * @param {array} args.filterAccountIds 需要排除的账号
+  * @param {array} args.prefixAccountIds 需要插在前面的账号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
+  * @param {integer} args.oftenMetionedType 最常协作类型：-1：遵循用户的设置；0：系统推荐；1：用户自定义
   * @param {string} args.projectId 当前网络id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getOftenMetionedUser: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetOftenMetionedUser', args, options);
    },
   /**
@@ -187,8 +188,8 @@ export default {
   * @param {string} args.projectId 网络Id
   * @param {} args.dataRange
   * @param {string} args.firstLetter 过滤的首字母
-  * @param {array} args.filterAccountIds 过滤的需要排除的帐号
-  * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+  * @param {array} args.filterAccountIds 过滤的需要排除的账号
+  * @param {array} args.prefixAccountIds 需要插在前面的账号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeMyself 是否在前面插入我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
@@ -202,7 +203,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getContactUserList: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetContactUserList', args, options);
    },
   /**
@@ -217,7 +218,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectResignedUserList: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetProjectResignedUserList', args, options);
    },
   /**
@@ -231,8 +232,8 @@ export default {
   * @param {string} args.projectId 网络Id
   * @param {} args.dataRange
   * @param {string} args.firstLetter 过滤的首字母
-  * @param {array} args.filterAccountIds 过滤的需要排除的帐号
-  * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+  * @param {array} args.filterAccountIds 过滤的需要排除的账号
+  * @param {array} args.prefixAccountIds 需要插在前面的账号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeMyself 是否在前面插入我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
@@ -246,7 +247,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectContactUserList: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetProjectContactUserList', args, options);
    },
   /**
@@ -259,8 +260,8 @@ export default {
   * @param {string} args.projectId 网络Id
   * @param {} args.dataRange
   * @param {string} args.firstLetter 过滤的首字母
-  * @param {array} args.filterAccountIds 过滤的需要排除的帐号
-  * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+  * @param {array} args.filterAccountIds 过滤的需要排除的账号
+  * @param {array} args.prefixAccountIds 需要插在前面的账号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeMyself 是否在前面插入我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
@@ -274,7 +275,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectContactUserListByApp: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetProjectContactUserListByApp', args, options);
    },
   /**
@@ -291,7 +292,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLeaveUserList: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'GetLeaveUserList', args, options);
    },
   /**
@@ -334,7 +335,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateUserCard: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'UpdateUserCard', args, options);
    },
   /**
@@ -347,7 +348,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeUser: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'RemoveUser', args, options);
    },
   /**
@@ -360,7 +361,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeUsers: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'RemoveUsers', args, options);
    },
   /**
@@ -373,7 +374,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    recoveryUser: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'RecoveryUser', args, options);
    },
   /**
@@ -394,7 +395,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    agreeUserJoin: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'AgreeUserJoin', args, options);
    },
   /**
@@ -407,7 +408,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    agreeUsersJoin: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'AgreeUsersJoin', args, options);
    },
   /**
@@ -421,7 +422,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refuseUserJoin: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'RefuseUserJoin', args, options);
    },
   /**
@@ -435,7 +436,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refuseUsersJoin: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'RefuseUsersJoin', args, options);
    },
   /**
@@ -449,7 +450,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendNotice: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'SendNotice', args, options);
    },
   /**
@@ -491,7 +492,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateDepartmentForUsers: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'UpdateDepartmentForUsers', args, options);
    },
   /**
@@ -505,7 +506,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateJobForUsers: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'UpdateJobForUsers', args, options);
    },
   /**
@@ -519,7 +520,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorkSiteForUsers: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'UpdateWorkSiteForUsers', args, options);
    },
   /**
@@ -531,7 +532,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    validateUserIsProjectAdmin: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'ValidateUserIsProjectAdmin', args, options);
    },
   /**
@@ -542,7 +543,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    validateUserHaveFriend: function (args, options = {}) {
-     
+
      return mdyAPI('User', 'ValidateUserHaveFriend', args, options);
    },
 };

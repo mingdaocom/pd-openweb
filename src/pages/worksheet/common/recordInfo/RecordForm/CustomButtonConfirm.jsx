@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { MenuItem, Textarea, Dialog, Menu, Icon, VerifyPasswordInput } from 'ming-ui';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import _ from 'lodash';
 import { Select } from 'antd';
 import { useSetState } from 'react-use';

@@ -1,33 +1,33 @@
 import {
+  assign,
+  find,
   get,
   includes,
+  isArray,
   isEmpty,
-  find,
-  isUndefined,
-  last,
-  pick,
   isFunction,
   isObject,
-  assign,
+  isUndefined,
+  last,
   omit,
-  isArray,
+  pick,
 } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import { getVisibleControls } from '../TableComp';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { getFilter, formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { WIDGETS_TO_API_TYPE_ENUM, SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { replaceByIndex, replaceControlsTranslateInfo, replaceAdvancedSettingTranslateInfo } from 'worksheet/util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { updateRecordControl, updateRelateRecords, deleteRecord } from 'src/pages/worksheet/common/recordInfo/crtl';
 import addRecord from 'worksheet/common/newRecord/addRecord';
+import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { replaceAdvancedSettingTranslateInfo, replaceByIndex, replaceControlsTranslateInfo } from 'worksheet/util';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import { deleteRecord, updateRecordControl, updateRelateRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
+import { formatValuesOfCondition, getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getTranslateInfo, parseNumber } from 'src/util';
 import { handleRowData } from 'src/util/transControlDefaultValue';
-import { parseNumber, getTranslateInfo } from 'src/util';
-import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
+import { getVisibleControls } from '../utils';
 
 export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getNewRows, updateRows } = {}) {
   return (dispatch, getState) => {
@@ -99,7 +99,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     const { base = {}, tableState = {}, changes = {} } = state;
     const { addedRecords = [], deletedRecordIds = [] } = changes;
     const { filterControls } = tableState;
-    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView } = base;
+    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
     pageIndex = pageIndex || tableState.pageIndex;
     pageSize = pageSize || tableState.pageSize;
     keywords = !isUndefined(keywords) ? keywords : tableState.keywords;
@@ -120,11 +120,20 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       sortId: (tableState.sortControl || {}).controlId,
       isAsc: (tableState.sortControl || {}).isAsc,
       getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
+      instanceId,
+      workId,
     });
+    if (res.resultCode !== 1) {
+      dispatch({
+        type: 'UPDATE_TABLE_STATE',
+        value: { error: _l('工作表已删除或无权限') },
+      });
+      return;
+    }
     const records = !base.isTab && recordId ? res.data.filter(r => !includes(deletedRecordIds, r.rowid)) : res.data;
     dispatch({
       type: 'UPDATE_RECORDS',
-      records,
+      records: records || [],
     });
     dispatch(updateTreeTableViewData());
     dispatch({
@@ -224,6 +233,10 @@ export function updateTableConfigByControl(control) {
         ...tableConfig,
       },
     });
+    dispatch({
+      type: 'UPDATE_TABLE_STATE',
+      value: { fixedColumnCount: tableConfig.fixedColumnCount },
+    });
   };
 }
 
@@ -237,7 +250,7 @@ export function init() {
     const state = getState();
     if (state.initialized) return;
     const { base = {}, tableState } = state;
-    const { from, mode, worksheetId, control, recordId, allowEdit, isTreeTableView } = base;
+    const { from, mode, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
     const { pageSize } = tableState;
     const isNewRecord = !recordId;
     let relateWorksheetInfo;
@@ -265,6 +278,8 @@ export function init() {
           getWorksheet: true,
           getRules: true,
           getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
+          instanceId,
+          workId,
         })
         .catch(err => {
           dispatch({
@@ -273,6 +288,13 @@ export function init() {
           });
         });
       if (!res) return;
+      if (res.resultCode !== 1) {
+        dispatch({
+          type: 'UPDATE_TABLE_STATE',
+          value: { error: _l('工作表已删除或无权限') },
+        });
+        return;
+      }
       relateWorksheetInfo = res.worksheet;
       const { addedRecordIds, deletedRecordIds, isDeleteAll } = get(getState(), 'changes');
       if (isEmpty(addedRecordIds) && isEmpty(deletedRecordIds) && !isDeleteAll) {
@@ -627,7 +649,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
     const newControl = omit(base.control, ['relationControls']);
     if (!isEmpty(sheetColumnWidths)) {
       const newWidths = JSON.stringify(
-        columns.map(c => ({ ...columnWidthsOfSetting, ...sheetColumnWidths }[c.controlId] || 160)),
+        columns.map(c => ({ ...columnWidthsOfSetting, ...sheetColumnWidths })[c.controlId] || 160),
       );
       newControl.advancedSetting.widths = newWidths;
     }

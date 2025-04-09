@@ -1,5 +1,5 @@
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 
 export function getAppNavigateUrl(appId, pcNaviStyle, selectAppItmeType = 2) {
   const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`));

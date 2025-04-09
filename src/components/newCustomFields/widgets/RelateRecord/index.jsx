@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'worksheet/util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
-import RelateRecordCards from 'worksheet/components/RelateRecordCards';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'worksheet/util';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -45,12 +45,6 @@ export default class Widgets extends Component {
   get isCard() {
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = this.props.advancedSetting; // 1 卡片 2 列表 3 下拉
     return parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD;
-  }
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -131,12 +125,6 @@ export default class Widgets extends Component {
       }
     }
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   render() {
     const {
@@ -229,7 +217,8 @@ export default class Widgets extends Component {
             showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={this.handleChange}
             from={from}
-            loadMoreRelateCards={this.props.loadMoreRelateCards}
+            instanceId={instanceId}
+            workId={workId}
           />
         ) : (
           <RelateRecordDropdown
@@ -250,6 +239,8 @@ export default class Widgets extends Component {
             multiple={enumDefault === 2}
             coverCid={coverCid}
             showControls={showControls}
+            instanceId={instanceId}
+            workId={workId}
             allowOpenRecord={advancedSetting.allowlink === '1'}
             showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={records => this.handleChange(records, 'array')}

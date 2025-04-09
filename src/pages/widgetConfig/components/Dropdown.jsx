@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Dropdown } from 'antd';
-import cx from 'classnames';
 import { DropdownOverlay, DropdownPlaceholder } from '../styled';
-import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
+import { isEmptyValue } from 'src/util';
 import _ from 'lodash';
 
 export default function DropdownWrapper(props) {

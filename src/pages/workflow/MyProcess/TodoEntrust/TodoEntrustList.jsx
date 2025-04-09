@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './index.less';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, Dialog, UserHead, UserName } from 'ming-ui';
-import { Dialog as MobileDialog } from 'antd-mobile';
+import { Icon, Dialog, UserHead, UserName, Tooltip } from 'ming-ui';
+import { Popup, Button } from 'antd-mobile';
 import styled from 'styled-components';
 import moment from 'moment';
 import delegationApi from '../../api/delegation';
@@ -76,12 +76,25 @@ cursor: pointer;
 `,
 );
 
+const Btn = styled(Button)`
+  border: 1px solid #eee !important;
+  background-color: #fff !important;
+  &.delete {
+    background-color: #f44336 !important;
+    border: 1px solid #f44336;
+    color: #fff;
+  }
+`;
+
 function TodoEntrustList(props) {
   const { posX, visible, delegationList, onClose, setDelegationList, finishDelegation = () => {} } = props;
   const [modalVisible, setModalVisible] = useState(false);
   const [entrustData, setEntrustData] = useState({});
   const [mobileConfigVisible, setMobileConfigVisble] = useState(false);
+  const [mobileFinishInfo, setMobileFinishInfo] = useState({ mobileModalVisible: false, finishItem: {} });
   const isMobile = browserIsMobile();
+
+  const getList = () => delegationApi.getList().then(result => setDelegationList(result));
 
   const onCardItemClick = item => {
     const data = Object.assign({}, item, {
@@ -99,14 +112,7 @@ function TodoEntrustList(props) {
   const onFinishEntrust = (e, item) => {
     e.stopPropagation();
     if (isMobile) {
-      MobileDialog.confirm({
-        content: _l('是否结束委托 ?'),
-        confirmText: <span className="Red">{_l('确定')}</span>,
-        onConfirm: () => {
-          finishDelegation(item);
-          onClose();
-        }
-      });
+      setMobileFinishInfo({ mobileModalVisible: true, finishItem: item });
       return;
     }
 
@@ -126,7 +132,7 @@ function TodoEntrustList(props) {
         delegationApi.update(params).then(res => {
           if (res) {
             alert(_l('结束委托成功'));
-            delegationApi.getList().then(result => setDelegationList(result));
+            getList();
           }
         });
       },
@@ -146,7 +152,15 @@ function TodoEntrustList(props) {
         >
           {!isMobile && (
             <div className="todoEntrustHeaderWrapper">
-              <span className="bold">{_l('待办委托')}</span>
+              <div className="flexRow alignItemsCenter">
+                <span className="bold">{_l('待办委托')}</span>
+                <Tooltip
+                  text={_l('待办事项如果匹配到多条待办委托，将分配给委托开始时间最早的待办委托')}
+                  popupPlacement="bottom"
+                >
+                  <Icon icon="info_outline" className="pointer Font16 Gray_bd mLeft5" />
+                </Tooltip>
+              </div>
               <Icon icon="close" className="pointer Font24 Gray_9d ThemeHoverColor3" onClick={onClose} />
             </div>
           )}
@@ -229,6 +243,12 @@ function TodoEntrustList(props) {
                       {moment(item.endDate).format('YYYY-MM-DD HH:mm')}
                     </RowValue>
                   </FlexRow>
+                  <FlexRow>
+                    <RowLabelText isMobile={isMobile}>{_l('委托范围')}</RowLabelText>
+                    <RowValue isMobile={isMobile}>
+                      {!item.apks ? _l('所有工作流') : _l('%0个应用', item.apks.length)}
+                    </RowValue>
+                  </FlexRow>
                   <EntrustButton isMobile={isMobile} className="w100" onClick={e => onFinishEntrust(e, item)}>
                     {_l('结束委托')}
                   </EntrustButton>
@@ -242,11 +262,11 @@ function TodoEntrustList(props) {
                 className="mobileStyle"
                 isAdd={true}
                 onClick={() => {
+                  setEntrustData({});
                   if (isMobile) {
                     setMobileConfigVisble(true);
                     return;
                   }
-                  setEntrustData({});
                   setModalVisible(true);
                 }}
               >
@@ -260,8 +280,7 @@ function TodoEntrustList(props) {
             <TodoEntrustModal
               setTodoEntrustModalVisible={setModalVisible}
               editEntrustData={entrustData}
-              delegationList={delegationList}
-              setDelegationList={setDelegationList}
+              onUpdate={getList}
             />
           )}
 
@@ -274,6 +293,42 @@ function TodoEntrustList(props) {
               setEntrustData={setEntrustData}
               delegationList={delegationList}
             />
+          )}
+
+          {mobileFinishInfo.mobileModalVisible && (
+            <Popup
+              closeOnMaskClick
+              visible={mobileFinishInfo.mobileModalVisible}
+              position="bottom"
+              className="mobileModal topRadius"
+              bodyClassName="pTop10 pBottom10 pLeft15 pRight15"
+              bodyStyle={{
+                borderTopLeftRadius: '8px',
+                borderTopRightRadius: '8px',
+              }}
+            >
+              <div className="Font16 bold mBottom10">{_l('确认结束委托?')}</div>
+              <div className="flexRow mBottom10">
+                <Btn
+                  radius
+                  className="flex mRight6 bold Gray_75 Font13"
+                  onClick={() => setMobileFinishInfo({ mobileConfigVisible: false, finishItem: undefined })}
+                >
+                  {_l('取消')}
+                </Btn>
+                <Btn
+                  radius
+                  className="flex mLeft6 bold Font13 delete"
+                  onClick={() => {
+                    finishDelegation(mobileFinishInfo.finishItem);
+                    setMobileFinishInfo({ mobileConfigVisible: false, finishItem: undefined });
+                    onClose();
+                  }}
+                >
+                  {_l('确定')}
+                </Btn>
+              </div>
+            </Popup>
           )}
         </div>
       ) : null}

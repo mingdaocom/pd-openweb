@@ -1,7 +1,44 @@
 import React, { Fragment } from 'react';
-import { APP_TYPE, APP_TYPE_TEXT } from '../../enum';
+import { APP_TYPE, APP_TYPE_TEXT, FIELD_TYPE_LIST } from '../../enum';
+import styled from 'styled-components';
+import { Icon, Dropdown } from 'ming-ui';
+import cx from 'classnames';
 
-export default ({ data }) => {
+const List = styled.div`
+  .w120 {
+    width: 120px;
+  }
+  .w160 {
+    width: 160px;
+  }
+  .w30 {
+    width: 30px;
+  }
+  .fieldName {
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    height: 36px;
+    line-height: 36px;
+    font-size: 13px;
+    &:focus {
+      border-color: #2196f3;
+    }
+  }
+`;
+
+export default ({ data, updateSource }) => {
+  const updateItem = (controlId, key, value) => {
+    updateSource({
+      controls: data.controls.map(o => {
+        if (o.controlId === controlId) {
+          o[key] = value;
+        }
+        return o;
+      }),
+    });
+  };
+
   return (
     <Fragment>
       <div className="flowDetailStartHeader flexColumn BGBlueAsh">
@@ -17,6 +54,64 @@ export default ({ data }) => {
             ? _l('工作表：%0', data.appName)
             : _l('其他：%0', APP_TYPE_TEXT[data.appType])}
         </div>
+
+        {!!data.controls.length && (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('数组对象元素')}</div>
+            <List className="mTop15">
+              <div className="flexRow">
+                <div className="w120">{_l('类型')}</div>
+                <div className="w160 mLeft10">{_l('字段名')}</div>
+                <div className="flex mLeft10">{_l('说明')}</div>
+                <div className="w30 mLeft10">{_l('标题')}</div>
+              </div>
+              {data.controls.map((item, index) => {
+                return (
+                  <div key={index} className="flexRow mTop4 relative">
+                    <Dropdown
+                      className="w120 mTop8"
+                      menuStyle={{ width: '100%' }}
+                      data={FIELD_TYPE_LIST}
+                      value={item.type}
+                      disabled={true}
+                      border
+                    />
+                    <input
+                      type="text"
+                      className="mLeft10 fieldName w160 mTop8 minWidth0"
+                      disabled={true}
+                      value={item.controlName}
+                    />
+                    <input
+                      type="text"
+                      className="mLeft10 fieldName flex mTop8"
+                      placeholder={_l('请输入说明')}
+                      value={item.desc}
+                      maxLength={64}
+                      onChange={e => updateItem(item.controlId, 'desc', e.target.value)}
+                      onBlur={e => updateItem(item.controlId, 'desc', e.target.value.trim())}
+                    />
+
+                    <div className="mLeft10 w30 flexRow mTop8 Font16 alignItemsCenter">
+                      <Icon
+                        icon={item.attribute === 1 ? 'ic_title' : 'title'}
+                        className={cx('Gray_75 ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
+                        onClick={() => {
+                          updateSource({
+                            controls: data.controls.map(o => {
+                              o.attribute = o.controlId === item.controlId ? 1 : 0;
+                              return o;
+                            }),
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </List>
+          </Fragment>
+        )}
 
         <div className="Font13 bold mTop20">{_l('被以下工作流触发')}</div>
         {!data.processList.length && (

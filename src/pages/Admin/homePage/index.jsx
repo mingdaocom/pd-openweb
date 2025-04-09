@@ -1,33 +1,33 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { HomePageWrap, FreeTrialWrap, TitleWrap } from './styled';
-import cx from 'classnames';
-import moment from 'moment';
 import { useSetState } from 'react-use';
+import { Button, Modal, Progress } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import moment from 'moment';
+import { Dialog, Icon, Support, Tooltip } from 'ming-ui';
+import certificationApi from 'src/api/certification.js';
 import projectAjax from 'src/api/project';
 import projectSettingAjax from 'src/api/projectSetting';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import certificationApi from 'src/api/certification.js';
-import { Modal, Button, Progress } from 'antd';
-import { Support, Tooltip, Icon, Dialog } from 'ming-ui';
-import { QUICK_ENTRY_CONFIG, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
-import { PERMISSION_ENUM } from '../enum';
-import { getCurrentProject, getFeatureStatus, formatNumberThousand } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
-import InstallDialog from './installDialog';
-import BalanceManage from '../components/BalanceManage';
 import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import PurchaseExpandPack from '../components/PurchaseExpandPack';
 import SelectCertification from 'src/pages/certification/SelectCertification';
 import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
-import TimeIcon from './image/time.png';
+import { navigateTo } from 'src/router/navigateTo';
+import { formatNumberThousand, getCurrentProject, getFeatureStatus } from 'src/util';
+import BalanceManage from '../components/BalanceManage';
+import PurchaseExpandPack from '../components/PurchaseExpandPack';
+import { PERMISSION_ENUM } from '../enum';
+import { formatFileSize, formatValue, QUICK_ENTRY_CONFIG, UPLOAD_COUNT } from './config';
 import PurchaseIcon from './image/purchaseIcon.png';
+import TimeIcon from './image/time.png';
+import InstallDialog from './installDialog';
+import { FreeTrialWrap, HomePageWrap, TitleWrap } from './styled';
 
 export default function HomePage({ match, location: routerLocation, authority, ...reset }) {
   const { projectId } = _.get(match, 'params');
   const { companyName } = getCurrentProject(projectId);
-  const [data, setData] = useSetState({ basicLoading: true });
+  const [data, setData] = useSetState({ basicLoading: true, hideBalance: true });
   const [installType, setType] = useState('');
   const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
   const isTrial = data.licenseType === 2;
@@ -152,9 +152,6 @@ export default function HomePage({ match, location: routerLocation, authority, .
   };
 
   const handleClick = type => {
-    if (_.includes(['user', 'portalexpand', 'portalupgrade'], type)) {
-      location.assign(`/admin/expansionservice/${projectId}/${type}`);
-    }
     if (type === 'recharge') {
       location.assign(`/admin/valueaddservice/${projectId}`);
     }
@@ -204,7 +201,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
 
     switch (key) {
       case 'limitWorksheetCount':
-        return !isFree && !isTeam && !isSingleVersion;
+        return isLocal ? data[key] === 2147483647 : !isFree && !isTeam && !isSingleVersion;
       case 'limitDataPipelineJobCount':
         return !isFree && !isLocal && !isSingleVersion;
       case 'limitDataPipelineEtlJobCount':
@@ -232,12 +229,12 @@ export default function HomePage({ match, location: routerLocation, authority, .
     return isAttachmentUpload
       ? formatFileSize(data[key])
       : isEnLang
-      ? `${formatValue(data[key])} ${numUnit}`
-      : data[key] >= 100000000
-      ? _l('%0 亿+', _.floor(getValue(data[key] / 100000000), 4)) + numUnit
-      : data[key] >= 10000
-      ? _l('%0 万', getValue(data[key] / 10000)) + numUnit
-      : `${getValue(data[key])} ${numUnit}`;
+        ? `${formatValue(data[key])} ${numUnit}`
+        : data[key] >= 100000000
+          ? _l('%0 亿+', _.floor(getValue(data[key] / 100000000), 4)) + numUnit
+          : data[key] >= 10000
+            ? _l('%0 万', getValue(data[key] / 10000)) + numUnit
+            : `${getValue(data[key])} ${numUnit}`;
   };
 
   const getCountText = (key, limit, numUnit) => {
@@ -378,7 +375,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
                 <Fragment>
                   <div className="Font14">
                     {hasNextLicense ? (
-                      <span className="Gray_75 mRight5">{_l('当前版本')}</span>
+                      <span className="Gray_75 mRight5">{_l('当前授权')}</span>
                     ) : surplus < 31 ? (
                       <span className="Red_f00 bold mRight5">{_l('剩余 %0 天', surplus)}</span>
                     ) : null}
@@ -386,12 +383,12 @@ export default function HomePage({ match, location: routerLocation, authority, .
                   </div>
                   {hasNextLicense && (
                     <div className="Font14 Gray_75">
-                      <span className="mRight5">{_l('下个版本')}</span>
+                      <span className="mRight5">{_l('下个授权')}</span>
                       {_l('%0到期', getValue(createTimeSpan(nextLicense.endDate, 4)))}
                       <Tooltip
                         text={
                           <span>
-                            {_l('下个版本：%0', nextVersion.name)}
+                            {_l('下个授权：%0', nextVersion.name)}
                             <br />
                             {`${createTimeSpan(nextLicense.startDate, 4)} ${moment(nextLicense.startDate).format(
                               'HH:mm',
@@ -458,16 +455,13 @@ export default function HomePage({ match, location: routerLocation, authority, .
           {(!isTrial || isLocal) && !data.basicLoading && (
             <div className="Font14">
               <span className="Gray_75">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
-              {!isLocal && !isFree && !_.isUndefined(data.limitUserCount) && (
-                <span
-                  className="ThemeColor3 hoverColor mLeft8 Hand"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleClick('user');
-                  }}
-                >
-                  {_l('扩充人数')}
-                </span>
+              {!isFree && !_.isUndefined(data.limitUserCount) && (
+                <PurchaseExpandPack
+                  className="mLeft8 hoverColor"
+                  text={_l('扩充人数')}
+                  type="user"
+                  projectId={projectId}
+                />
               )}
               {/* {!isFree && !isTrial && (
                 <div className="recharge" onClick={() => handleClick('recharge')}>
@@ -512,8 +506,15 @@ export default function HomePage({ match, location: routerLocation, authority, .
             </Tooltip>
           </div>
           <div className="mBottom6">
-            <span className="Font28 Gray Bold Hand">{formatNumberThousand(data.balance)}</span>
-            <span className="mLeft6 Black Font13">{_l('元')}</span>
+            <span className="Font28 Gray Bold Hand">
+              {data.hideBalance ? '*****' : formatNumberThousand(data.balance)}
+            </span>
+            <span className="mLeft6 Black Font13 mRight8">{_l('元')}</span>
+            <Icon
+              icon={data.hideBalance ? 'eye_off' : 'eye'}
+              className="Gray_9e eyeIcon Hand"
+              onClick={() => setData({ hideBalance: !data.hideBalance })}
+            />
           </div>
           {!_.isEmpty(balanceInfo) && hasBalance && (
             <div className="Font14">
@@ -577,11 +578,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
           <div className="userInfo">
             <div className="content">
               <ul>
-                {UPLOAD_COUNT.filter(
-                  item =>
-                    (IsPlatformLocal || !isLocal ? item : item.isLocalFilter) &&
-                    (versionIdV2 !== 0 || !item.singleHide),
-                ).map(item => {
+                {UPLOAD_COUNT.filter(item => (IsPlatformLocal || !isLocal ? item : item.isLocalFilter)).map(item => {
                   const {
                     key,
                     limit,
@@ -646,8 +643,8 @@ export default function HomePage({ match, location: routerLocation, authority, .
                           _.isNaN(Number(percentValue))
                             ? '#eaeaea'
                             : percentValue > 90
-                            ? { from: '#F51744 ', to: '#FF5779' }
-                            : { from: '#2196f3 ', to: '#4bb2ff' }
+                              ? { from: '#F51744 ', to: '#FF5779' }
+                              : { from: '#2196f3 ', to: '#4bb2ff' }
                         }
                         strokeWidth={4}
                         percent={percentValue}

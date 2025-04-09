@@ -1,6 +1,6 @@
 import moment from 'moment';
 import _ from 'lodash';
-import { filterEmptyChildTableRows } from 'worksheet/util';
+
 export const FORM_ERROR_TYPE = {
   REQUIRED: 'REQUIRED',
   MOBILE_PHONE: 'MOBILE_PHONE',
@@ -66,7 +66,9 @@ export const FORM_ERROR_TYPE_TEXT = {
     const { min, max, enablelimit } = advancedSetting;
     if (String(enablelimit) === '1') {
       const rowsLength = Number(
-        (_.get(value, 'rows') && filterEmptyChildTableRows(value.rows).length) || (!_.isObject(value) ? value : 0) || 0,
+        (_.get(value, 'rows') && value.rows.filter(row => !(row.rowid || '').startsWith('empty')).length) ||
+          (!_.isObject(value) ? value : 0) ||
+          0,
       );
       if (_.isNumber(rowsLength) && !_.isNaN(rowsLength)) {
         if (_.isNumber(Number(min)) && !_.isNaN(Number(min)) && rowsLength < Number(min)) {

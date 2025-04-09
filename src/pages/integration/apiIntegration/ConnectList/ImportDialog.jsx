@@ -1,15 +1,15 @@
-import React, { useRef, Fragment, useEffect } from 'react';
-import { QiniuUpload, Dialog, Button, Support } from 'ming-ui';
-import _ from 'lodash';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { formatFileSize } from 'src/util';
-import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import { Progress } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, QiniuUpload, Support } from 'ming-ui';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
+import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
+import { formatFileSize } from 'src/util';
 
 const Wrap = styled.div`
   &.importAppContainer {
@@ -169,9 +169,9 @@ export default function ImportDialog(props) {
     }
   };
 
-  const onUploadComplete = (up, files) => {
-    const file = files[files.length - 1];
-    checkUpgrade(file);
+  const onUploadComplete = (up, file, response) => {
+    const { key } = response;
+    checkUpgrade({ ...file, key });
   };
 
   //升级check
@@ -239,7 +239,7 @@ export default function ImportDialog(props) {
           onBeforeUpload={(up, file) => {
             !analyzeLoading && setState({ file: file, analyzeLoading: true, upgradeId: '' });
           }}
-          onUploadComplete={onUploadComplete}
+          onUploaded={onUploadComplete}
           onError={() => {
             setState({
               file: {},

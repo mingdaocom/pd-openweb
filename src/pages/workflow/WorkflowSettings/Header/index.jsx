@@ -2,19 +2,16 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import './index.less';
 import cx from 'classnames';
-import { Popover } from 'antd';
 import { updatePublishState } from '../../redux/actions';
 import process from '../../api/process';
 import Switch from '../../components/Switch';
-import { Button, Icon, Checkbox, MenuItem, LoadDiv, SvgIcon, ScrollView, Tooltip } from 'ming-ui';
+import { Button, Icon, Checkbox, MenuItem, LoadDiv, SvgIcon, ScrollView, Tooltip, Support } from 'ming-ui';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import { APP_TYPE, NODE_TYPE } from '../enum';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import sheetAjax from 'src/api/worksheet';
-import systemFieldsPNG from './images/systemFields.png';
-import flowPNG from './images/flow.png';
 import _ from 'lodash';
 import moment from 'moment';
 import { getAppFeaturesPath } from 'src/util';
@@ -670,14 +667,11 @@ class Header extends Component {
                   text={_l('在视图上显示审批系统字段')}
                   onClick={checked => this.setState({ showApprovalFields: !checked })}
                 />
-                <Popover
-                  title={null}
-                  arrowPointAtCenter={true}
-                  placement="bottomLeft"
-                  content={<img width={500} src={systemFieldsPNG} />}
-                >
-                  <Icon type="workflow_help" className="Font16 Gray_9e" />
-                </Popover>
+
+                <Support
+                  type={1}
+                  href="https://help.mingdao.com/workflow/node-initiate-approval-flow#approval-process"
+                />
               </div>
               <div className="mTop15 flexRow w100 alignItemsCenter justifyContentCenter">
                 <Checkbox
@@ -686,14 +680,11 @@ class Header extends Component {
                   text={_l('打开记录时显示审批流转详情')}
                   onClick={checked => this.setState({ showApprovalDetail: !checked })}
                 />
-                <Popover
-                  title={null}
-                  arrowPointAtCenter={true}
-                  placement="bottomLeft"
-                  content={<img width={500} src={flowPNG} />}
-                >
-                  <Icon type="workflow_help" className="Font16 Gray_9e" />
-                </Popover>
+
+                <Support
+                  type={1}
+                  href="https://help.mingdao.com/workflow/node-initiate-approval-flow#approval-process"
+                />
               </div>
               <Button
                 size="large"

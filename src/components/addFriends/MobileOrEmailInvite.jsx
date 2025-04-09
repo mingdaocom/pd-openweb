@@ -1,16 +1,16 @@
-import React, { Component, Fragment } from 'react';
-import { Icon, Button, RadioGroup } from 'ming-ui';
-import Tel from 'src/pages/Role/PortalCon/components/Tel';
-import InviteController from 'src/api/invitation';
-import Requests from 'src/api/addressBook';
-import EmailInput from 'src/pages/Role/PortalCon/components/Email';
-import { FROM_TYPE, DETAIL_MODE } from './';
+import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Icon, RadioGroup } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
-import _, { unset } from 'lodash';
+import Requests from 'src/api/addressBook';
+import InviteController from 'src/api/invitation';
+import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
+import EmailInput from 'src/pages/Role/PortalCon/components/Email';
+import Tel from 'src/pages/Role/PortalCon/components/Tel';
 import { existAccountHint } from 'src/util';
 import { encrypt } from 'src/util';
-import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
+import { DETAIL_MODE, FROM_TYPE } from './enum';
 
 const DISPLAY_OPTIONS = [
   {
@@ -76,11 +76,7 @@ export default class MobileOrEmailInvite extends Component {
       }
     };
 
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled, { needFeedBack: false }).show();
-    }
+    new captcha(throttled);
   };
 
   handleAdd = () => {

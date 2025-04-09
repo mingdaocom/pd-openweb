@@ -9,6 +9,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 
 const SelectItem = styled.div`
   .ming.Dropdown,
@@ -100,7 +101,7 @@ export default function SelectViewFromSheet({ projectId, currentAppId, appId, sh
     if (!currentSheet) return;
 
     sheetAjax.getWorksheetInfo({ worksheetId: ids.sheetId, getViews: true }).then(({ views = [] }) => {
-      const filterDetailViews = views.filter(v => String(v.viewType) !== VIEW_DISPLAY_TYPE.detail);
+      const filterDetailViews = getShowViews(views).filter(v => String(v.viewType) !== VIEW_DISPLAY_TYPE.detail);
       setData({ views: filterDetailViews.map(view => ({ text: view.name, value: view.viewId, type: view.viewType })) });
     });
   }, [data.sheets, ids.sheetId]);

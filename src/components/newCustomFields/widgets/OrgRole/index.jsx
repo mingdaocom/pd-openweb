@@ -6,7 +6,6 @@ import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 import { dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { SortableList } from 'ming-ui';
 
 export default class Widgets extends Component {
@@ -21,12 +20,6 @@ export default class Widgets extends Component {
   state = {
     showMobileOrgRole: false,
   };
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
@@ -96,12 +89,6 @@ export default class Widgets extends Component {
     const newValue = JSON.parse(value).filter(item => item.organizeId !== organizeId);
 
     onChange(JSON.stringify(newValue));
-  }
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
   }
 
   renderItem({ item, items = [] }) {

@@ -61,6 +61,7 @@ class EditPrint extends React.Component {
       popupVisible: false,
       error: false,
       createEditLoading: false,
+      allowEditAfterPrint: false,
       featureType: getFeatureStatus(props.projectId, VersionProductType.editAttachment),
     };
     this.con = React.createRef();
@@ -94,6 +95,7 @@ class EditPrint extends React.Component {
       fileName: templateData.formName,
       hasChange: false,
       allowDownloadPermission: templateData.allowDownloadPermission || 0,
+      allowEditAfterPrint: templateData.allowEditAfterPrint || false,
     });
 
     this.createUploader(fileType);
@@ -189,11 +191,12 @@ class EditPrint extends React.Component {
     this.setState({ bindCreateUpload: true });
   }
 
-  editDownload = () => {
-    const { allowDownloadPermission, hasChange } = this.state;
+  editDownload = (key = 'allowDownloadPermission') => {
+    const { hasChange } = this.state;
+    const value = !this.state[key];
     this.setState(
       {
-        allowDownloadPermission: !allowDownloadPermission,
+        [key]: key === 'allowDownloadPermission' ? Number(value) : Boolean(value),
         allowDownloadChange: true,
       },
       () => {
@@ -203,19 +206,29 @@ class EditPrint extends React.Component {
   };
 
   onOk = async (closeFlag = true) => {
-    const { fileName, hasChange, allowDownloadPermission, allowDownloadChange } = this.state;
-    const { onClose, worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word', updatePrint } = this.props;
+    const { fileName, hasChange, allowDownloadPermission, allowDownloadChange, allowEditAfterPrint } = this.state;
+    const {
+      onClose,
+      worksheetId,
+      downLoadUrl,
+      templateId,
+      refreshFn,
+      fileType = 'Word',
+      appId,
+      updatePrint,
+    } = this.props;
 
     if (allowDownloadChange && templateId) {
       sheetAjax
         .editTemplateDownloadPermission({
           id: templateId,
           allowDownloadPermission,
+          allowEditAfterPrint,
         })
         .then(res => {
           if (!hasChange) {
             closeFlag && onClose();
-            updatePrint(templateId, { allowDownloadPermission: allowDownloadPermission });
+            updatePrint(templateId, { allowDownloadPermission, allowEditAfterPrint });
           }
         });
     }
@@ -246,6 +259,7 @@ class EditPrint extends React.Component {
         doc: this.state.key,
         name: fileName,
         token,
+        appId,
       };
     }
     window
@@ -272,6 +286,7 @@ class EditPrint extends React.Component {
               .editTemplateDownloadPermission({
                 id: res.data,
                 allowDownloadPermission,
+                allowEditAfterPrint,
               })
               .then(res => {
                 if (res) {
@@ -289,17 +304,19 @@ class EditPrint extends React.Component {
   };
 
   onCreateEdit = item => {
-    const { worksheetId, downLoadUrl, fileType = 'Word', refreshFn } = this.props;
-    const { allowDownloadPermission } = this.state;
+    const { worksheetId, downLoadUrl, fileType = 'Word', refreshFn, appId } = this.props;
+    const { allowDownloadPermission, allowEditAfterPrint } = this.state;
 
     this.setState({ createEditLoading: true, popupVisible: false });
     createEditFileLink({
       worksheetId,
       downLoadUrl,
       allowDownloadPermission,
+      allowEditAfterPrint,
       fileType: AJAX_URL[fileType],
       type: item.value,
       editTemplateDownloadPermission: true,
+      appId,
       createCompleted: id => {
         this.setState({ createEditLoading: false });
         refreshFn(true, id);
@@ -387,6 +404,7 @@ class EditPrint extends React.Component {
       allowDownloadPermission,
       error,
       createEditLoading,
+      allowEditAfterPrint,
       featureType,
     } = this.state;
     const { onClose, worksheetId, downLoadUrl, templateId, fileType = 'Word', roleType } = this.props;
@@ -427,10 +445,6 @@ class EditPrint extends React.Component {
             </p>
             <div className="tiTop mTop50 valignWrapper">
               <div>{_l('2.制作模板')}</div>
-              <div className="flex"></div>
-              <Checkbox className="Font14" onClick={this.editDownload} checked={!allowDownloadPermission}>
-                {_l('允许成员下载打印文件')}
-              </Checkbox>
             </div>
             <p
               className={cx('uploadBtn mTop20', { loading: loading })}
@@ -527,6 +541,24 @@ class EditPrint extends React.Component {
                 </React.Fragment>
               )}
             </p>
+            <div className="checkBoxCon">
+              <Checkbox
+                className="Font14 mTop18"
+                onClick={() => this.editDownload()}
+                checked={!allowDownloadPermission}
+              >
+                {_l('允许成员下载打印文件')}
+              </Checkbox>
+              {md.global.Config.EnableDocEdit !== false && (
+                <Checkbox
+                  className="Font14 mTop18"
+                  onClick={() => this.editDownload('allowEditAfterPrint')}
+                  checked={allowEditAfterPrint}
+                >
+                  {_l('允许编辑后再打印')}
+                </Checkbox>
+              )}
+            </div>
           </div>
         </div>
       </div>

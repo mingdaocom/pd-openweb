@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import { Icon, VerifyPasswordConfirm } from 'ming-ui';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../../actions/entities';
 import cx from 'classnames';
-import Config from '../../../../../config';
-import importUser from 'src/api/importUser';
-import { captcha, dialogSelectDept } from 'ming-ui/functions';
-import UploadFile from './UploadFile';
-import ImportResulFailtDetail from './ImportResulFailtDetail';
-import { getCurrentProject } from 'src/util';
-import { downloadFile } from '../../../../../util';
-import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Icon, VerifyPasswordConfirm } from 'ming-ui';
+import { captcha, dialogSelectDept } from 'ming-ui/functions';
+import importUser from 'src/api/importUser';
+import { getCurrentProject } from 'src/util';
+import Config from '../../../../../config';
+import { downloadFile } from '../../../../../util';
+import * as actions from '../../actions/entities';
+import ImportResulFailtDetail from './ImportResulFailtDetail';
+import UploadFile from './UploadFile';
 
 const ImportBtn = styled.div`
   background: #219dff;
@@ -175,11 +175,8 @@ class ImportAndExport extends Component {
           _this.setState({ resultDetail: res, importError: true, isShowFailList: false, importFileLoading: false });
         });
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+
+    new captcha(callback);
   };
   renderImport = () => {
     let { fileName } = this.state;

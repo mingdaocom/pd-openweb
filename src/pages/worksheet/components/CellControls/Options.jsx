@@ -14,7 +14,8 @@ import { formatControlToServer } from 'src/components/newCustomFields/tools/util
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 import EditableCellCon from '../EditableCellCon';
-import _, { isEmpty } from 'lodash';
+import _, { get, isEmpty } from 'lodash';
+import { lineHeight } from 'worksheet/views/ResourceView/config';
 
 const OtherOptionCon = styled.div`
   background: #fff;
@@ -315,6 +316,7 @@ export default class Options extends React.Component {
 
   render() {
     const {
+      columnStyle,
       tableType,
       from,
       className,
@@ -331,6 +333,8 @@ export default class Options extends React.Component {
       onClick,
       fromEmbed,
     } = this.props;
+    const showAsText = columnStyle.showtype === 1;
+    const showAsTextWithBg = columnStyle.showtype === 3;
     const { value, verticalPlace } = this.state;
     const selectedOptions = value ? getSelectedOptions(cell.options, value, cell) : [];
     const isMultiple = cell.type === 10;
@@ -448,8 +452,19 @@ export default class Options extends React.Component {
           hideOutline
           conRef={this.cell}
           onClick={onClick}
-          className={cx(className, { canedit: editable })}
-          style={Object.assign({}, style, from !== FROM.CARD ? { padding: '5px 6px' } : {})}
+          className={cx(className, { canedit: editable, showAsText: showAsText || showAsTextWithBg, showAsTextWithBg })}
+          style={Object.assign(
+            {},
+            style,
+            from !== FROM.CARD ? { padding: '5px 6px' } : {},
+            showAsText || showAsTextWithBg
+              ? {
+                  height: style.height + 'px',
+                  lineHeight: style.height + 'px',
+                }
+              : {},
+            showAsTextWithBg && selectedOptions[0] ? getOptionStyle(selectedOptions[0], cell) : {},
+          )}
           iconName={'arrow-down-border'}
           isediting={isediting}
           onIconClick={() => updateEditingStatus(true)}
@@ -457,6 +472,9 @@ export default class Options extends React.Component {
           {!!value && !isEmpty(selectedOptions) && (
             <div className={cx('cellOptions cellControl', { singleLine })}>
               {selectedOptions.map((option, index) => {
+                if (showAsText || showAsTextWithBg) {
+                  return <div>{this.getShowValue(option)}</div>;
+                }
                 return (
                   <span
                     className="cellOption ellipsis"

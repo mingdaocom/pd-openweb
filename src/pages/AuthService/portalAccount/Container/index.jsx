@@ -64,15 +64,7 @@ export default function Container(props) {
         <div className={'lang'}>
           <ChangeLang />
         </div>
-        {logoImageUrl ? (
-          <img src={logoImageUrl} height={40} />
-        ) : appColor && appLogoUrl ? (
-          <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: appColor }}>
-            <SvgIcon url={appLogoUrl} fill={'#fff'} size={28} />
-          </span>
-        ) : (
-          ''
-        )}
+        {logoImageUrl ? <img src={logoImageUrl} height={40} /> : ''}
         <p className="Font26 Gray mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
           {pageTitle}
         </p>

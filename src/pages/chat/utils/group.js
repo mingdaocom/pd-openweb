@@ -76,17 +76,10 @@ export const addGroupMembers = session => {
   };
 
   if (type == Constant.SESSIONTYPE_GROUP) {
-    ajax.fetchDetail(id).then(data => {
-      if (data.groupUsers) {
-        data.groupUsers.forEach(userItem => {
-          userArr.push(userItem.accountId);
-        });
-      }
-      showInviteBox({
-        sourceId: id,
-        fromType: 1,
-        callback,
-      });
+    showInviteBox({
+      sourceId: id,
+      fromType: 1,
+      callback,
     });
   } else {
     // 个人聊天中创建聊天

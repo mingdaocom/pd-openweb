@@ -1,19 +1,22 @@
 import React from 'react';
+
+import cx from 'classnames';
+import _ from 'lodash';
+import { UserHead } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { quickSelectUser } from 'ming-ui/functions';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import cx from 'classnames';
-import { UserHead } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
 import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { isKeyBoardInputChar } from 'worksheet/util';
-const ClickAwayable = createDecoratedComponent(withClickAway);
-import EditableCellCon from '../EditableCellCon';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import _ from 'lodash';
+import { isKeyBoardInputChar } from 'worksheet/util';
+
 import ChildTableContext from '../ChildTable/ChildTableContext';
+import EditableCellCon from '../EditableCellCon';
 import CellErrorTip from './comps/CellErrorTip';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 function getPopupContainer(popupContainer, rows) {
   try {
@@ -373,7 +376,6 @@ export default class User extends React.Component {
         <EditableCellCon
           conRef={single ? this.cell : () => {}}
           hideOutline={!single}
-          clickAwayWrap={single}
           onClickAwayExceptions={['.cellUsers', '.selectUserBox', '#dialogBoxSelectUser']}
           onClickAway={() => isediting && this.handleExitEditing()}
           onClick={this.props.onClick}

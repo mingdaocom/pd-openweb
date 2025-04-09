@@ -1,10 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Input, LoadDiv } from 'ming-ui';
+import { Icon, Input, LoadDiv, intlTelInput } from 'ming-ui';
 import { Drawer } from 'antd';
 import userController from 'src/api/user';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 import DrawerFooterOption from '../DrawerFooterOption';
 import BaseFormInfo from '../BaseFormInfo';
@@ -15,6 +12,7 @@ import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMe
 import { getCurrentProject } from 'src/util';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 export default class EditUser extends Component {
   constructor(props) {
@@ -66,11 +64,6 @@ export default class EditUser extends Component {
       this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.mobilePhone, {
         customPlaceholder: '',
-        autoPlaceholder: 'off',
-        loadUtils: '',
-        initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-        preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
-        utilsScript: utils,
         separateDialCode: true,
         showSelectedDialCode: true,
       });

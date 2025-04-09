@@ -22,12 +22,6 @@ export default class Widgets extends Component {
     };
   }
 
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.width !== this.props.width) {
       this.setState({
@@ -54,12 +48,6 @@ export default class Widgets extends Component {
       this.props.triggerCustomEvent(ADD_EVENT_ENUM.BLUR);
     }
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   render() {
     const {

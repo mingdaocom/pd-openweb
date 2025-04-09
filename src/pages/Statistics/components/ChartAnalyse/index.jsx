@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { Collapse, Switch } from 'antd';
@@ -10,10 +10,10 @@ import AutoLinkage from './components/AutoLinkage';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
-import { isTimeControl } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
-import { ContrastValue, defaultNumberChartStyle } from 'statistics/components/ChartStyle/components/NumberStyle';
+import { ContrastValue } from 'statistics/components/ChartStyle/components/NumberStyle';
 import _ from 'lodash';
+import { defaultNumberChartStyle } from '../.../../../enum';
 
 @connect(
   state => ({
@@ -31,31 +31,28 @@ export default class ChartAnalyse extends Component {
       {
         displaySetup: {
           ...displaySetup,
-          ...data
-        }
+          ...data,
+        },
       },
-      isRequest
+      isRequest,
     );
-  }
+  };
   handleChangeStyle = (data, isRequest = false) => {
     const { style } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
         style: {
           ...style,
-          ...data
-        }
+          ...data,
+        },
       },
-      isRequest
+      isRequest,
     );
-  }
+  };
   renderAutoLinkage() {
     const { reportId, worksheetInfo, currentReport } = this.props;
     return (
-      <Collapse.Panel
-        key="autoLinkage"
-        header={_l('联动筛选')}
-      >
+      <Collapse.Panel key="autoLinkage" header={_l('联动筛选')}>
         <AutoLinkage
           reportId={reportId}
           worksheetInfo={worksheetInfo}
@@ -78,7 +75,7 @@ export default class ChartAnalyse extends Component {
         key="originalData"
         header={_l('查看原始数据')}
         className={cx({ collapsible: !displaySetup.showRowList })}
-        extra={(
+        extra={
           <Switch
             size="small"
             checked={displaySetup.showRowList}
@@ -87,11 +84,11 @@ export default class ChartAnalyse extends Component {
             }}
             onChange={checked => {
               this.handleChangeDisplaySetup({
-                showRowList: checked
+                showRowList: checked,
               });
             }}
           />
-        )}
+        }
       >
         <OriginalData
           worksheetInfo={worksheetInfo}
@@ -107,14 +104,8 @@ export default class ChartAnalyse extends Component {
   renderAuxiliaryLine() {
     const { currentReport } = this.props;
     return (
-      <Collapse.Panel
-        key="auxiliaryLine"
-        header={_l('辅助线')}
-      >
-        <AuxiliaryLine
-          currentReport={currentReport}
-          onChangeDisplaySetup={this.handleChangeDisplaySetup}
-        />
+      <Collapse.Panel key="auxiliaryLine" header={_l('辅助线')}>
+        <AuxiliaryLine currentReport={currentReport} onChangeDisplaySetup={this.handleChangeDisplaySetup} />
       </Collapse.Panel>
     );
   }
@@ -126,7 +117,8 @@ export default class ChartAnalyse extends Component {
     const mapKeys = Object.keys(reportData.map || []);
     // const xAxisisTime = isTimeControl(xaxes.controlType);
     // const contrastVisible = ((mapKeys.length < 2 && xAxisisTime) || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType));
-    const contrastVisible = mapKeys.length < 2 || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType);
+    const contrastVisible =
+      mapKeys.length < 2 || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType);
     const switchChecked = displaySetup.contrastType || displaySetup.contrast;
     const { numberChartStyle = defaultNumberChartStyle } = style;
 
@@ -139,7 +131,7 @@ export default class ChartAnalyse extends Component {
         header={_l('数据对比')}
         key="dataContrast"
         className={cx({ collapsible: isNumberChart ? !switchChecked : false })}
-        extra={(
+        extra={
           isNumberChart ? (
             <Switch
               size="small"
@@ -149,15 +141,18 @@ export default class ChartAnalyse extends Component {
                 event.stopPropagation();
               }}
               onChange={checked => {
-                this.handleChangeDisplaySetup({
-                  ...displaySetup,
-                  contrastType: checked ? 2 : 0,
-                  contrast: checked ? true : false
-                }, true);
+                this.handleChangeDisplaySetup(
+                  {
+                    ...displaySetup,
+                    contrastType: checked ? 2 : 0,
+                    contrast: checked ? true : false,
+                  },
+                  true,
+                );
               }}
             />
           ) : null
-        )}
+        }
       >
         <DataContrast
           isNumberChart={isNumberChart}
@@ -170,12 +165,12 @@ export default class ChartAnalyse extends Component {
         {isNumberChart && (
           <ContrastValue
             numberChartStyle={numberChartStyle}
-            onChangeNumberStyle={(data) => {
+            onChangeNumberStyle={data => {
               this.handleChangeStyle({
                 numberChartStyle: {
                   ...numberChartStyle,
-                  ...data
-                }
+                  ...data,
+                },
               });
             }}
           />
@@ -192,14 +187,8 @@ export default class ChartAnalyse extends Component {
     }
 
     return (
-      <Collapse.Panel
-        key="periodTarget"
-        header={_l('周期目标')}
-      >
-        <PeriodTarget
-          currentReport={currentReport}
-          onUpdateDisplaySetup={this.handleChangeDisplaySetup}
-        />
+      <Collapse.Panel key="periodTarget" header={_l('周期目标')}>
+        <PeriodTarget currentReport={currentReport} onUpdateDisplaySetup={this.handleChangeDisplaySetup} />
       </Collapse.Panel>
     );
   }
@@ -222,7 +211,8 @@ export default class ChartAnalyse extends Component {
             this.renderDataContrast()}
           {reportType === reportTypes.LineChart && this.renderPeriodTarget()}
           {this.renderOriginalData()}
-          {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) && this.renderAuxiliaryLine()}
+          {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) &&
+            this.renderAuxiliaryLine()}
         </Collapse>
       </div>
     );

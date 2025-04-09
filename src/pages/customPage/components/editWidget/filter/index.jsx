@@ -3,14 +3,13 @@ import SideWrap from '../../SideWrap';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
-import update from 'immutability-helper';
 import { Header, EditWidgetContent } from '../../../styled';
 import worksheetApi from 'src/api/worksheet';
-import { v4 as uuidv4 } from 'uuid';
 import Preview from './Preview';
 import Setting from './Setting';
 import './index.less';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
+import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { defaultFilterData } from './enum';
 import _ from 'lodash';
 
 const DefaultItem = styled.div`
@@ -40,22 +39,12 @@ const Wrap = styled.div`
   }
 `;
 
-export const defaultFilterData = {
-  filterId: uuidv4(),
-  name: '',
-  global: true,
-  dataType: 0,
-  filterType: 0,
-  objectControls: [],
-  advancedSetting: {},
-}
-
 const defaultData = {
   filtersGroupId: '',
   name: '',
   enableBtn: false,
   filters: [defaultFilterData],
-}
+};
 
 export default function Filter(props) {
   const { ids, widget, onEdit, onClose } = props;
@@ -72,9 +61,9 @@ export default function Filter(props) {
       ...filter,
       filters,
     });
-  }
+  };
 
-  const updateFilter = (data) => {
+  const updateFilter = data => {
     const newFilters = filters.map(itme => {
       if (itme.filterId === activeId) {
         return { ...itme, ...data };
@@ -85,7 +74,7 @@ export default function Filter(props) {
       ...filter,
       filters: newFilters,
     });
-  }
+  };
 
   const handleSave = () => {
     const { filters } = filter;
@@ -98,9 +87,9 @@ export default function Filter(props) {
       return;
     }
     onEdit({
-      filter
+      filter,
     });
-  }
+  };
 
   useEffect(() => {
     if (filtersGroup) {
@@ -110,24 +99,26 @@ export default function Filter(props) {
       return;
     }
     if (value) {
-      worksheetApi.getFiltersGroupByIds({
-        appId: ids.appId,
-        filtersGroupIds: [value],
-      }).then(data => {
-        const filtersGroup = data[0];
-        setFilter({
-          ...filtersGroup,
-          filters: filtersGroup.filters.map(f => {
-            return {
-              ...f,
-              values: formatFilterValues(f.dataType, f.values),
-              showDefsource: f.values
-            }
-          })
+      worksheetApi
+        .getFiltersGroupByIds({
+          appId: ids.appId,
+          filtersGroupIds: [value],
+        })
+        .then(data => {
+          const filtersGroup = data[0];
+          setFilter({
+            ...filtersGroup,
+            filters: filtersGroup.filters.map(f => {
+              return {
+                ...f,
+                values: formatFilterValues(f.dataType, f.values),
+                showDefsource: f.values,
+              };
+            }),
+          });
+          setActiveId(_.get(filtersGroup, 'filters[0].filterId'));
+          setLoading(false);
         });
-        setActiveId(_.get(filtersGroup, 'filters[0].filterId'));
-        setLoading(false);
-      });
     } else {
       setLoading(false);
     }
@@ -139,7 +130,7 @@ export default function Filter(props) {
         <span className="Font17 mRight10">{_l('筛选器')}</span>
         <span className="Font14 Gray_9e">{_l('对本页进行搜索')}</span>
       </div>
-      <DefaultItem className="pTop10 pBottom10" onClick={() => {  }}>
+      <DefaultItem className="pTop10 pBottom10" onClick={() => {}}>
         {_l('筛选器')}
       </DefaultItem>
     </SideWrap>

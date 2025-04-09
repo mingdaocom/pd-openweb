@@ -241,7 +241,7 @@ function ChartComponent(props) {
 
   return (
     <Fragment>
-      <Chart data={data} mobileCount={mobileCount} onOpenFilterModal={handleOpenFilterModal} {...chartProps} />
+      <Chart data={data} widget={widget} mobileCount={mobileCount} onOpenFilterModal={handleOpenFilterModal} {...chartProps} />
       <Popup
         style={{ height: isMobileChartPage ? '80%' : null }}
         visible={filterVisible}
@@ -307,13 +307,17 @@ function ChartContent(props) {
       setVisible(true);
       return;
     }
-    const chat = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
+    const chart = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
     const checkVisible = () => {
+      if (!chart) {
+        setVisible(true);
+        return;
+      }
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
-        const rect = chat.getBoundingClientRect();
+        const rect = chart.getBoundingClientRect();
         const value = rect.top <= pageRect.bottom;
-        value && setVisible(value);
+        value && setVisible(true);
       }
     };
     customPageContent.addEventListener('scroll', checkVisible, false);
@@ -335,6 +339,7 @@ function ChartContent(props) {
 
   if (
     !_.get(window, 'shareState.shareId') &&
+    !widget.tabId &&
     filterComponents.length &&
     loadFilterComponentCount < filterComponents.length
   ) {

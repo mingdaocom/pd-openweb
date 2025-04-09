@@ -61,7 +61,7 @@ function ResourceView(props) {
 
   useEffect(() => {
     initData();
-  }, [viewId]);
+  }, [viewId, _.get(view, 'advancedSetting.showtitle')]);
 
   useEffect(() => {
     const { view, controls = [] } = props;

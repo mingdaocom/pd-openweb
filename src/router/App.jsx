@@ -1,27 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
+import store from 'redux/configureStore';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import privateGuide from 'src/api/privateGuide';
 import preall from 'src/common/preall';
-import PageHeaderRoute from './PageHeader';
-import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
 import ChatList from 'src/pages/chat/containers/ChatList';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
-import { createDiscussion } from 'src/pages/chat/utils/group';
-import genRouteComponent from './genRouteComponent';
-import { ROUTE_CONFIG, withoutChatUrl } from './config';
-import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
-import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
-import socketInit from '../socket';
-import './index.less';
-import { Dialog, Icon } from 'ming-ui';
-import { getAppFeaturesVisible } from 'src/util';
-import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
-import privateGuide from 'src/api/privateGuide';
-import Trigger from 'rc-trigger';
+import { createDiscussion } from 'src/pages/chat/utils/group';
 import weixinCode from 'src/pages/NewPrivateDeployment/images/weixin.png';
-import _ from 'lodash';
+import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
+import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
+import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
+import { getAppFeaturesVisible } from 'src/util';
+import socketInit from '../socket';
+import { ROUTE_CONFIG, withoutChatUrl } from './config';
+import genRouteComponent from './genRouteComponent';
 import globalEvents from './globalEvents';
+import PageHeaderRoute from './PageHeader';
+import './index.less';
 
 @preall
 @errorBoundary(true)

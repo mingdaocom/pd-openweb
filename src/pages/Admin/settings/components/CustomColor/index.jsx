@@ -11,6 +11,7 @@ import projectAjax from 'src/api/projectSetting';
 import ChartSettingDialog from './ChartSettingDialog';
 import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
 import IllustrationTrigger from './IllustrationTrigger';
+import { navigateTo } from 'src/router/navigateTo';
 import '../index.less';
 
 const ColorBox = styled.div(
@@ -294,14 +295,17 @@ export default class CustomColor extends Component {
   render() {
     const { system_color, custom_color, system_char, custom_char, customChartDialog, addThemeColorVisible } =
       this.state;
-    const { onClose } = this.props;
 
     return (
       <div className="orgManagementWrap managementCustomColor flex flexColumn">
         <AdminTitle prefix={_l('自定义颜色')} />
         <div className="orgManagementHeader flexRow">
           <div className="flexRow alignItemsCenter">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
+            <Icon
+              icon="backspace"
+              className="Font22 ThemeHoverColor3 pointer"
+              onClick={() => navigateTo(`/admin/settings/${this.props.projectId}`)}
+            />
             <div className="Font17 bold flex mLeft10">
               {_l('自定义颜色')}
               <span className="Font13 Gray_9 mLeft10">{_l('自定义颜色可用于应用、自定义页面等地方')}</span>

@@ -2,7 +2,7 @@
 import { dialogSelectUser } from 'ming-ui/functions';
 import './less/copyFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
-import { expireDialogAsync } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { errorMessage } from '../../utils/utils';

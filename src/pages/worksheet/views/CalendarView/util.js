@@ -9,6 +9,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import { getRecordColor, getRecordColorConfig } from 'worksheet/util';
+import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
 
 const defaultColor = '#C9E6FC';
 export const eventStr = {
@@ -69,9 +70,9 @@ const getEnd = (data, o) => {
   return !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
     ? ''
     : moment(
-        //全天事件 都要加一天
-        !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
-      ).format(o.endFormat);
+      //全天事件 都要加一天
+      !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
+    ).format(o.endFormat);
 };
 const getIsOverOneDay = (data, o) => {
   return (
@@ -79,19 +80,19 @@ const getIsOverOneDay = (data, o) => {
     moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439
   );
 };
-const getTitleControls = worksheetControls => {
+const getTitleControls = (worksheetControls) => {
   return worksheetControls.find(item => item.attribute === 1) || [];
 };
-const getStringColor = (calendarData, data, currentView, worksheetControls) => {
+const getStringColor = (calendarData, data, currentView) => {
   const { colorOptions = [] } = calendarData;
   const { colorid = '' } = getAdvanceSetting(currentView);
   let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
   //未设置颜色时，背景色的默认颜色为：蓝色浅色，黑色文字
   return coloridData
     ? (
-        colorOptions.find(it => (coloridData && coloridData.startsWith('other') ? 'other' : coloridData) === it.key) ||
-        []
-      ).color || defaultColor
+      colorOptions.find(it => (coloridData && coloridData.startsWith('other') ? 'other' : coloridData) === it.key) ||
+      []
+    ).color || defaultColor
     : defaultColor;
 };
 
@@ -103,9 +104,8 @@ export const setDataFormat = pram => {
     return setDataFormatByRowId(pram);
   }
   const { hiddenDays = [], colorOptions = [], btnList, initialView, calendarInfo = [] } = calendarData;
-  let titleControls = getTitleControls(worksheetControls);
   //无选项且无默认值，才用默认颜色
-  let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
+  let stringColor = getStringColor(calendarData, data, currentView);
   const recordColorConfig = getRecordColorConfig(currentView);
   let recordColor =
     recordColorConfig &&
@@ -144,11 +144,7 @@ export const setDataFormat = pram => {
           recordColor,
           stringColor,
         },
-        title:
-          renderCellText({
-            ...titleControls,
-            value: dataInfo[titleControls.controlId],
-          }) || _l('未命名'),
+        title: renderTitleTxt(worksheetControls, currentView, dataInfo),
         start,
         end,
         allDay: !!allDay,
@@ -170,14 +166,25 @@ export const setDataFormat = pram => {
   });
   return list;
 };
+
+const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
+  const titleControls = getTitleControls(worksheetControls);
+  return (
+    (_.get(currentView, 'advancedSetting.viewtitle')
+      ? renderTitleByViewtitle(dataInfo, worksheetControls, currentView)
+      : renderCellText({
+          ...titleControls,
+          value: dataInfo[titleControls.controlId],
+        })) || _l('未命名')
+  );
+};
+
 //格式events数据//未排期 以及全部 一条数据卡片显示多个时间信息
 export const setDataFormatByRowId = pram => {
   const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
   const { colorOptions = [], calendarInfo = [] } = calendarData;
-  let titleControls = getTitleControls(worksheetControls);
-
   //无选项且无默认值，才用默认颜色
-  let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
+  let stringColor = getStringColor(calendarData, data, currentView);
   const recordColorConfig = getRecordColorConfig(currentView);
   let recordColor =
     recordColorConfig &&
@@ -223,12 +230,7 @@ export const setDataFormatByRowId = pram => {
         stringColor,
         recordColor,
       },
-      title:
-        renderCellText({
-          ...titleControls,
-          value: dataInfo[titleControls.controlId],
-        }) || _l('未命名'),
-
+      title: renderTitleTxt(worksheetControls, currentView, dataInfo),
       timeList,
       backgroundColor: stringColor,
       borderColor: stringColor,
@@ -240,12 +242,12 @@ export const getCalendarViewType = (strType, data) => {
   const str = !['1', '2'].includes(strType)
     ? 'dayGridMonth'
     : strType === '1'
-    ? isTimeStyle(data)
-      ? 'timeGridWeek'
-      : 'dayGridWeek'
-    : isTimeStyle(data)
-    ? 'timeGridDay'
-    : 'dayGridDay';
+      ? isTimeStyle(data)
+        ? 'timeGridWeek'
+        : 'dayGridWeek'
+      : isTimeStyle(data)
+        ? 'timeGridDay'
+        : 'dayGridDay';
   return str;
 };
 

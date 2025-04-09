@@ -5,15 +5,13 @@ import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import worksheetApi from 'src/api/worksheet';
-import QuickFilter from 'mobile/RecordList/QuickFilter';
-import Search from './Search';
 import Filters from './Filters';
 import { connect } from 'react-redux';
 import * as actions from '../redux/actions';
 import { bindActionCreators } from 'redux';
 import { formatFilters } from 'src/pages/customPage/components/editWidget/filter/util';
 import { updatePageInfo, updateFiltersGroup } from 'src/pages/customPage/redux/action';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
+import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import store from 'redux/configureStore';
 import { getTranslateInfo } from 'src/util';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
@@ -136,7 +134,7 @@ function FilterContent(props) {
   if (loading) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter h100">
-        <SpinLoading color='primary' />
+        <SpinLoading color="primary" />
       </div>
     );
   }

@@ -1,30 +1,30 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
+import _ from 'lodash';
+import { Qr, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import './content.less';
-import { getPrintContent, sortByShowControls, isRelation, getFormData } from '../util';
-import TableRelation from './relationTable';
-import { ScrollView, Qr } from 'ming-ui';
-import {
-  TRIGGER_ACTION,
-  OPERATION_LOG_ACTION,
-  fromType,
-  typeForCon,
-  DEFAULT_FONT_SIZE,
-  UN_PRINT_CONTROL,
-  DefaultNameWidth,
-  RecordTitleFont,
-  FONT_STYLE,
-  TitleFont,
-} from '../config';
-import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
-import { SYST_PRINT_TXT } from '../config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import _ from 'lodash';
-import STYLE_PRINT from './exportWordPrintTemCssString';
+import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { dateConvertToUserZone } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+import {
+  DEFAULT_FONT_SIZE,
+  DefaultNameWidth,
+  FONT_STYLE,
+  fromType,
+  OPERATION_LOG_ACTION,
+  RecordTitleFont,
+  TitleFont,
+  TRIGGER_ACTION,
+  typeForCon,
+  UN_PRINT_CONTROL,
+} from '../config';
+import { SYST_PRINT_TXT } from '../config';
+import getPrintContent from '../getPrintContent';
+import { getFormData, isRelation, sortByShowControls } from '../util';
+import STYLE_PRINT from './exportWordPrintTemCssString';
+import TableRelation from './relationTable';
+import './content.less';
 
 const RELATION_SHOW_TYPES = [
   {
@@ -281,10 +281,14 @@ export default class Con extends React.Component {
                     borderBottom: '0.1px solid #ddd',
                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                   };
-                  {
-                    /* 备注字段 */
-                  }
-                  if (item[0].type === 10010 && (item[0].value || item[0].dataSource)) {
+
+                  /* 备注字段、隐藏标题的富文本、隐藏标题且独占一行显示的mark类型文本 */
+
+                  if (
+                    (item[0].type === 10010 && (item[0].value || item[0].dataSource)) ||
+                    (item[0].type === 41 && hideTitle) ||
+                    (item[0].type === 2 && item[0].enumDefault === 3 && item.length === 1 && hideTitle)
+                  ) {
                     return (
                       <Fragment>
                         {!hideTitle && (
@@ -585,7 +589,7 @@ export default class Con extends React.Component {
                     fileStyle: relationFileStyle,
                     dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                     user_info: relationUserInfo,
-                    controls: getFormData(controls, o)
+                    controls: getFormData(controls, o),
                   };
 
                   return this.isShow(
@@ -630,7 +634,7 @@ export default class Con extends React.Component {
                             fileStyle: relationFileStyle,
                             dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                             user_info: relationUserInfo,
-                            controls: getFormData(controls, o)
+                            controls: getFormData(controls, o),
                           };
 
                           if ([29].includes(it.type)) {
@@ -835,8 +839,8 @@ export default class Con extends React.Component {
                                     (workItem.workItemLog.action === 5 && workItem.workItemLog.actionTargetName
                                       ? _l('退回到%0', workItem.workItemLog.actionTargetName)
                                       : workItem.workItemLog.action === 22 && workItem.type === 3
-                                      ? _l('无需填写')
-                                      : OPERATION_LOG_ACTION[workItem.workItemLog.action])}
+                                        ? _l('无需填写')
+                                        : OPERATION_LOG_ACTION[workItem.workItemLog.action])}
                               </span>
                             </td>
                             <td

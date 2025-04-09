@@ -1,30 +1,30 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio, Icon, Tooltip, Support } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import _ from 'lodash';
-import {
-  SelectUserDropDown,
-  Member,
-  SelectNodeObject,
-  DetailHeader,
-  DetailFooter,
-  WriteFields,
-  ButtonName,
-  Schedule,
-  UserRange,
-  EmailApproval,
-  UpdateFields,
-  OperatorEmpty,
-  CustomTextarea,
-  PromptSoundDialog,
-} from '../components';
-import styled from 'styled-components';
 import cx from 'classnames';
-import OpinionTemplate from './OpinionTemplate';
-import NoticeTemplate from './NoticeTemplate';
-import CallbackSettings from './CallbackSettings';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support, Tooltip } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
+import {
+  ButtonName,
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  EmailApproval,
+  Member,
+  OperatorEmpty,
+  PromptSoundDialog,
+  Schedule,
+  SelectNodeObject,
+  SelectUserDropDown,
+  UpdateFields,
+  UserRange,
+  WriteFields,
+} from '../components';
+import CallbackSettings from './CallbackSettings';
+import NoticeTemplate from './NoticeTemplate';
+import OpinionTemplate from './OpinionTemplate';
 
 const GraduallyMemberBox = styled.div`
   padding: 5px 10px;
@@ -215,7 +215,7 @@ export default class Approval extends Component {
       return;
     }
 
-    if (!accounts.length && multipleLevelType === 0) {
+    if (!accounts.length && _.includes([0, 11], multipleLevelType)) {
       alert(_l('必须指定审批人'), 2);
       return;
     }
@@ -301,7 +301,12 @@ export default class Approval extends Component {
     const list = [
       { text: _l('自定义'), value: 0 },
       { text: _l('按部门层级逐级审批'), value: 3 },
+      { text: _l('由上一审批节点选择'), value: 11 },
     ];
+
+    if (!isApproval && data.multipleLevelType !== 11) {
+      _.remove(list, o => o.value === 11);
+    }
 
     return (
       <Fragment>
@@ -323,16 +328,36 @@ export default class Approval extends Component {
                     accounts: [],
                     multipleLevel: 1,
                     schedule: Object.assign({}, data.schedule, { enable: false }),
-                    candidateUserMap: data.multipleLevelType === 0 && isApproval ? { 11: [] } : {},
+                    candidateUserMap: item.value === 3 && isApproval ? { 11: [] } : {},
+                    countersignType: item.value === 11 && data.countersignType === 0 ? 3 : data.countersignType,
                   });
                   this.setState({ tabIndex: 1 });
                 }}
               />
+
+              {item.value === 11 && (
+                <Tooltip
+                  popupPlacement="bottom"
+                  text={
+                    <span>
+                      {_l(
+                        '当上一节点审批人同意后，从设置的选择范围中选择本节点的审批人。若涉及多人审批，仅在或签模式下支持此操作。',
+                      )}
+                    </span>
+                  }
+                >
+                  <Icon
+                    className="Font16 Gray_9e InlineBlock mTop4"
+                    style={{ verticalAlign: 'top', marginLeft: -15 }}
+                    icon="info"
+                  />
+                </Tooltip>
+              )}
             </div>
           ))}
         </div>
 
-        {data.multipleLevelType === 0 ? this.renderMember() : this.renderApprovalStartAndEnd()}
+        {_.includes([0, 11], data.multipleLevelType) ? this.renderMember() : this.renderApprovalStartAndEnd()}
       </Fragment>
     );
   }
@@ -346,6 +371,7 @@ export default class Approval extends Component {
 
     return (
       <div className="mTop15">
+        {data.multipleLevelType === 11 && <div className="mBottom10 Font13 bold">{_l('选择范围')}</div>}
         <Member
           companyId={this.props.companyId}
           appId={this.props.relationType === 2 ? this.props.relationId : ''}
@@ -721,9 +747,9 @@ export default class Approval extends Component {
                   {data.callBackType === 1
                     ? data.callBackMultipleLevel === 1
                       ? _l('直接返回退回的层级')
-                      : data.multipleLevelType === 0
-                      ? _l('直接返回审批节点')
-                      : _l('返回此节点的第一级')
+                      : _.includes([0, 11], data.multipleLevelType)
+                        ? _l('直接返回审批节点')
+                        : _l('返回此节点的第一级')
                     : ''}
                 </div>
                 <div className="mTop4">
@@ -1053,7 +1079,7 @@ export default class Approval extends Component {
           updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
         />
 
-        {data.multipleLevelType === 0 && (
+        {_.includes([0, 11], data.multipleLevelType) && (
           <Fragment>
             <Checkbox
               className="mTop15 flexRow"
@@ -1147,7 +1173,17 @@ export default class Approval extends Component {
                 <Fragment>
                   {this.renderApprovalSettings()}
 
-                  <div className="Font13 bold mTop25">{_l('节点结果通知发起人')}</div>
+                  <div className="Font13 bold mTop25">
+                    {_l('节点结果通知发起人')}
+                    <span
+                      className="workflowDetailTipsWidth mLeft5 tip-top-right"
+                      data-tip={_l(
+                        '当发起节点启用邮件通知功能后，这边同步开启相应设置，审批结果将通过邮件的形式及时发送给发起人。',
+                      )}
+                    >
+                      <Icon className="Font16 Gray_9e" icon="info" />
+                    </span>
+                  </div>
                   {this.renderMessage()}
                   <div className="Font13 bold mTop25">{_l('审批意见')}</div>
                   <div className="flexRow mTop15">
@@ -1288,7 +1324,15 @@ export default class Approval extends Component {
                     }
                   />
 
-                  <div className="Font13 bold mTop25">{_l('审批说明')}</div>
+                  <div className="Font13 bold mTop25">
+                    {_l('审批说明')}
+                    <span
+                      className="workflowDetailTipsWidth mLeft5 tip-top-right"
+                      data-tip={_l('在审批记录详情页，右侧的当前节点卡片内会显示对审批内容或操作的提示信息')}
+                    >
+                      <Icon className="Font16 Gray_9e" icon="info" />
+                    </span>
+                  </div>
                   <CustomTextarea
                     projectId={this.props.companyId}
                     processId={this.props.processId}
@@ -1409,7 +1453,7 @@ export default class Approval extends Component {
           {...this.props}
           isCorrect={
             data.selectNodeId &&
-            ((!!data.accounts.length && data.multipleLevelType === 0) || data.multipleLevelType !== 0)
+            ((!!data.accounts.length && _.includes([0, 11], data.multipleLevelType)) || data.multipleLevelType !== 0)
           }
           onSave={this.onSave}
         />

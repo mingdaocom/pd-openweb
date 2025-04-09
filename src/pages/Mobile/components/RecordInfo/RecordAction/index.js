@@ -1,24 +1,25 @@
-import React, { Fragment, Component } from 'react';
-import cx from 'classnames';
-import { getRequest, verifyPassword, getCurrentProject, getTranslateInfo } from 'src/util';
-import worksheetAjax from 'src/api/worksheet';
-import { getRowDetail } from 'worksheet/api';
-import { Popup, Dialog, ActionSheet, Button } from 'antd-mobile';
+import React, { Component, Fragment } from 'react';
 import { message } from 'antd';
-import { Icon, LoadDiv } from 'ming-ui';
-import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
-import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
-import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import { doubleConfirmFunc } from './DoubleConfirm';
-import processAjax from 'src/pages/workflow/api/process';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { RecordInfoModal } from 'mobile/Record';
-import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
-import CustomButtons from './CustomButtons';
-import { appendDataToLocalPushUniqueId, handleRecordError, emitter } from 'worksheet/util';
-import './index.less';
+import { ActionSheet, Button, Dialog, Popup } from 'antd-mobile';
+import cx from 'classnames';
 import _, { get } from 'lodash';
+import { Icon, LoadDiv } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/process';
+import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
+import { RecordInfoModal } from 'mobile/Record';
+import { getRowDetail } from 'worksheet/api';
+import { appendDataToLocalPushUniqueId, emitter, handleRecordError } from 'worksheet/util';
+import verifyPassword from 'src/components/verifyPassword';
+import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
+import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
+import { getCurrentProject, getRequest, getTranslateInfo } from 'src/util';
+import CustomButtons from './CustomButtons';
+import { doubleConfirmFunc } from './DoubleConfirm';
+import './index.less';
 
 const CUSTOM_BUTTOM_CLICK_TYPE = {
   IMMEDIATELY: 1,
@@ -160,10 +161,10 @@ class RecordAction extends Component {
               template: template.map((item, index) => {
                 return {
                   ...item,
-                  value: translateInfo[`templateName_${index}`] || item.value
-                }
-              })
-            })
+                  value: translateInfo[`templateName_${index}`] || item.value,
+                };
+              }),
+            });
           })(),
           verifyPwd: btn.verifyPwd,
           enableConfirm: btn.enableConfirm,
@@ -548,7 +549,7 @@ class RecordAction extends Component {
   };
   renderFillRecord() {
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
-    const { sheetRow, viewId, worksheetInfo = {}, isBatchOperate } = this.props;
+    const { sheetRow = {}, viewId, worksheetInfo = {}, isBatchOperate } = this.props;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
 
     if (!this.state.fillRecordVisible) return null;
@@ -572,6 +573,7 @@ class RecordAction extends Component {
           writeControls={activeBtn.writeControls}
           continueFill={this.continueFill}
           worksheetInfo={worksheetInfo}
+          widgetStyle={sheetRow.advancedSetting}
           onSubmit={this.fillRecordControls}
           hideDialog={() => {
             this.setState({
@@ -591,6 +593,7 @@ class RecordAction extends Component {
     return (
       newRecordVisible && (
         <NewRecord
+          showDraftsEntry
           isCustomButton
           appId={appId}
           title={activeBtn.name}

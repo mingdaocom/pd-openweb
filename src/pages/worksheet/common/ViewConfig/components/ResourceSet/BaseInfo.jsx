@@ -6,7 +6,7 @@ import DisplayControl from '../DisplayControl';
 import _ from 'lodash';
 import { useSetState } from 'react-use';
 import { SwitchStyle } from '../style';
-import { COVER_DISPLAY_MODE } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { COVER_DISPLAY_MODE } from 'src/pages/worksheet/common/ViewConfig/config.js';
 import { Dropdown, Icon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';

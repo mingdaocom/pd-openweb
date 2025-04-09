@@ -3,7 +3,7 @@ import { Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import { Dropdown } from 'antd';
 import update from 'immutability-helper';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
+import 'intl-tel-input/build/css/intlTelInput.min.css';
 import allData from './telData';
 import { DropdownContent } from '../../../../styled';
 

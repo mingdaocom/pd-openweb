@@ -3,13 +3,11 @@ import React, { Component, Fragment } from 'react';
 import { Icon, MobileDatePicker, MdAntDatePicker } from 'ming-ui';
 import cx from 'classnames';
 import { FROM } from '../../tools/config';
-import { getDynamicValue } from '../../tools/DataFormat';
-import { compareWithTime } from '../../tools/utils';
+import { getDynamicValue, compareWithTime } from '../../tools/formUtils';
 import { browserIsMobile, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import moment from 'moment';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -37,12 +35,6 @@ export default class Widgets extends Component {
     showDatePicker: false,
   };
 
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     if ((nextProps.advancedSetting || {}).showtype !== (this.props.advancedSetting || {}).showtype) {
       this.setState({ dateProps: getDatePickerConfigs(nextProps) });
@@ -65,12 +57,6 @@ export default class Widgets extends Component {
 
     this.props.onChange(value);
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   renderIcon = value => {
     const { disabled, hideIcon, onChange } = this.props;

@@ -66,11 +66,7 @@ export default class ValidPassWord extends Component {
       { leading: true },
     );
 
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled, { needFeedBack: false }).show();
-    }
+    new captcha(throttled);
   }
 
   render() {

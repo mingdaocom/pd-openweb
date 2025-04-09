@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 

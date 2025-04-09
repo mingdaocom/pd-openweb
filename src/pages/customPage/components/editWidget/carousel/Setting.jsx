@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import sheetApi from 'src/api/worksheet';
 import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { getTranslateInfo } from 'src/util';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -157,7 +158,7 @@ function Setting(props) {
           if (resultCode === 1) {
             const controls = replaceControlsTranslateInfo(appId, worksheetId, template.controls);
             setDataSource({
-              views: views.map(data => {
+              views: getShowViews(views).map(data => {
                 return {
                   ...data,
                   name: getTranslateInfo(appId, null, data.viewId).name || data.name

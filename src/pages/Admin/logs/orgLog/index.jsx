@@ -7,7 +7,8 @@ import SearchWrap from '../../components/SearchWrap';
 import PageTableCon from '../../components/PageTableCon';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import HistoryLogs from './HistoryLogs';
-import { createLinksForMessage, dateConvertToUserZone } from 'src/util';
+import { dateConvertToUserZone } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import { ORG_MANAGE_LOG_COLUMNS, PRIVATE_APP_WORKSHEET_LOG_COLUMNS, OPERATE_TYPE, ORG_LOG_OPERATOR } from '../enum';
 import './style.less';
 import _ from 'lodash';
@@ -241,7 +242,7 @@ export default class orgLog extends React.Component {
 
     return (
       <div className="orgManagementWrap roleAuthLogTable">
-        <AdminTitle prefix={_l('组织管理')} />
+        <AdminTitle prefix={_l('日志 - 组织管理')} />
         <div className="orgManagementHeader Font17">
           <div className="flex">{_l('组织管理')}</div>
           <div>

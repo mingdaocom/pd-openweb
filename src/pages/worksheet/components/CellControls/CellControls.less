@@ -87,7 +87,8 @@
 // 等级
 .levelWrapper {
   .Score-wrapper {
-    min-width: 96px;
+    width: auto;
+    display: inline-flex !important;
     flex-wrap: nowrap !important;
   }
   &:not(.canedit) {
@@ -410,6 +411,9 @@
 
 .cell.alignRight:not(.columnHead) {
   text-align: right;
+}
+.cell.alignCenter {
+  text-align: center;
 }
 
 .linelimit,
@@ -750,4 +754,8 @@
       color: #9e9e9e !important;
     }
   }
+}
+
+.editableCellCon.showAsText {
+  padding: 0 6px !important;
 }

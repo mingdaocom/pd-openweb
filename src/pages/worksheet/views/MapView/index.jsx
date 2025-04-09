@@ -1,24 +1,26 @@
-import React, { useRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import _ from 'lodash';
-import { DndProvider } from 'react-dnd-latest';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { updateWorksheetControls } from '../../redux/actions';
-import SelectField from '../components/SelectField';
+import { DndProvider } from 'react-dnd-latest';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { LoadDiv } from 'ming-ui';
+import { RecordInfoModal } from 'mobile/Record';
 import { getIconByType, toEditWidgetPage } from 'src/pages/widgetConfig/util';
-import { filterAndFormatterControls } from '../util';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
+import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { calculateZoomLevel, parseRecord, calculatePoleCenter } from './utils';
-import PinMarker from './components/PinMarker';
+import { browserIsMobile, getMapConfig, handlePushState, handleReplaceState } from 'src/util';
+import { updateWorksheetControls } from '../../redux/actions';
+import SelectField from '../components/SelectField';
+import { filterAndFormatterControls } from '../util';
 import Map from './amap/Map';
-import { browserIsMobile, handlePushState, handleReplaceState, getMapConfig } from 'src/util';
-import { RecordInfoModal } from 'mobile/Record';
-import { LoadDiv } from 'ming-ui';
+import PinMarker from './components/PinMarker';
 import GMap from './GMap/GMap';
+import { calculatePoleCenter, calculateZoomLevel, parseRecord } from './utils';
 
 const Con = styled.div`
   position: relative;
@@ -53,6 +55,11 @@ function MapView(props) {
   const [mapViewConfig, setMapViewConfig] = useState({});
   const [recordInfoRowId, setRecordInfoRowId] = useState(null);
   const [mobileCloseCard, setMobileCloseCard] = useState(0);
+  const mapViewRequest = useRef(null);
+
+  useEffect(() => {
+    if (!mapViewRequest.current) mapViewRequest.current = uuidv4();
+  }, []);
 
   useEffect(() => {
     init();
@@ -101,18 +108,26 @@ function MapView(props) {
 
   const init = () => {
     if (!viewId || !view.viewControl) return;
-    const { showtitle } = mapViewConfig;
+
+    const { showtitle, viewtitle } = mapViewConfig;
     setMapViewConfig({
       positionId: view.viewControl,
       loadNum: 1000,
-      titleId: (controls.find(l => l.attribute === 1) || {}).controlId,
+      titleId: _.get(view, 'advancedSetting.viewtitle')
+        ? _.get(view, 'advancedSetting.viewtitle')
+        : (controls.find(l => l.attribute === 1) || {}).controlId,
       abstract: _.get(view, 'advancedSetting.abstract'),
       coverId: _.get(view, 'coverCid'),
       tagcolorid: _.get(view, 'advancedSetting.tagcolorid'),
       tagType: _.get(view, 'advancedSetting.tagType'),
       showtitle: _.get(view, 'advancedSetting.showtitle'),
+      viewtitle: _.get(view, 'advancedSetting.viewtitle'),
     });
-    initMapViewData(undefined, showtitle !== _.get(view, 'advancedSetting.showtitle'));
+    initMapViewData(
+      undefined,
+      showtitle !== _.get(view, 'advancedSetting.showtitle') || viewtitle !== _.get(view, 'advancedSetting.viewtitle'),
+      mapViewRequest.current,
+    );
   };
 
   const handleSelectField = obj => {
@@ -238,7 +253,8 @@ const ConnectedMapView = connect(
   state => ({
     ..._.pick(state.sheet, ['mapView', 'worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
   }),
-  dispatch => bindActionCreators({ ...viewActions, ...baseAction, updateWorksheetControls }, dispatch),
+  dispatch =>
+    bindActionCreators({ ...viewActions, ...baseAction, ...navFilterActions, updateWorksheetControls }, dispatch),
 )(MapView);
 
 export default function MapViewCon(props) {

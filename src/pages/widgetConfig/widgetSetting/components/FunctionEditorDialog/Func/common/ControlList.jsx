@@ -58,7 +58,7 @@ const Icon = styled.i`
   line-height: 36px;
 `;
 
-function getControlType(control) {
+export function getControlType(control) {
   if (control.type === 30) {
     return control.sourceControlType;
   } else if (control.type === 53) {
@@ -93,6 +93,7 @@ export default function ControlList(props) {
           {controlGroups.map(group => (
             <Collapse.Panel key={group.id} header={<span className="fnTitle">{group.name}</span>}>
               {group.controls
+                .filter(c => c.controlName && checkTypeSupportForFunction(c))
                 .filter(c => SearchFn(keywords, c.controlName))
                 .map((c, i) => (
                   <ControlItem

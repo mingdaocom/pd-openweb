@@ -1,30 +1,31 @@
-import React, { useState, memo, useRef, useEffect, Fragment, useLayoutEffect } from 'react';
-import { string } from 'prop-types';
+import React, { useState, useRef, Fragment, useLayoutEffect } from 'react';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import styled from 'styled-components';
 import cx from 'classnames';
-import reportConfig from 'statistics/api/reportConfig';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import update from 'immutability-helper';
 import { get, max, throttle } from 'lodash';
 import * as actions from '../../redux/action';
 import WidgetDisplay from './WidgetDisplay';
-import { getEnumType, getDefaultLayout, reportCountLimit } from '../../util';
-import { getTranslateInfo } from 'src/util';
-import Tools from './Tools';
+import { getEnumType, getLayout } from '../../util';
+import WidgetTools from './WidgetTools';
 import WidthProvider from './widthProvider';
 import { COLUMN_HEIGHT } from '../../config';
-import { v4 as uuidv4 } from 'uuid';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 const AutoWidthGridLayout = WidthProvider(GridLayout);
 
-const LayoutContent = styled.div`
+export const LayoutContent = styled.div`
   &:hover {
     z-index: 1;
+    >.widgetContentTools {
+      visibility: visible;
+    }
+  }
+  .widgetContentTools, &.resizing .widgetContentTools {
+    visibility: hidden;
   }
   .widgetContent {
     position: absolute;
@@ -57,19 +58,27 @@ const LayoutContent = styled.div`
         display: none;
       }
     }
+    &.tabs {
+      background: transparent !important;
+      >div {
+        padding: 0;
+      }
+    }
+    &.card {
+      box-shadow: none !important;
+      .card {
+        border-radius: 0 !important;
+        background-color: transparent !important;
+      }
+      >div {
+        padding: 0;
+      }
+    }
     &:hover {
       // box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.20);
     }
     &.haveTitle {
       height: calc(100% - 40px);
-    }
-    .widgetContentTools {
-      visibility: hidden;
-    }
-    &:hover {
-      .widgetContentTools {
-        visibility: visible;
-      }
     }
     .g2-tooltip {
       position: fixed !important;
@@ -121,7 +130,7 @@ const LayoutContent = styled.div`
   }
 `;
 
-const LAYOUT_CONFIG = {
+export const LAYOUT_CONFIG = {
   web: {
     rowHeight: COLUMN_HEIGHT,
     margin: [10, 10],
@@ -141,15 +150,8 @@ function WidgetContent(props) {
     editable = true,
     chatVisible = false,
     sheetListVisible = false,
-    components = [],
-    copyWidget = _.noop,
-    delWidget = _.noop,
-    updateWidgetVisible = _.noop,
-    updateWidget = _.noop,
     updateLayout = _.noop,
-    insertTitle = _.noop,
     addRecord = _.noop,
-    updatePageInfo = _.noop,
     editingWidget = {},
     config = {},
     setWidget = _.noop,
@@ -159,10 +161,8 @@ function WidgetContent(props) {
     isCharge,
     appPkg
   } = props;
-  const [loading, setLoading] = useState(false);
-  const [isEdit, setEdit] = useState(false);
+  const components = props.components.filter(c => !c.sectionId);
   const [windowHeight, setHeight] = useState(window.innerHeight);
-  const $input = useRef(null);
   const displayRefs = [];
 
   useLayoutEffect(() => {
@@ -175,105 +175,6 @@ function WidgetContent(props) {
     window.addEventListener('resize', throttle(handle));
   }, []);
 
-  const handleToolClick = (clickType, { widget, index, result }) => {
-    switch (clickType) {
-      case 'setting':
-        setWidget(widget);
-        break;
-      case 'move':
-      case 'del':
-        delWidget(widget);
-        break;
-      case 'insertTitle':
-        insertTitle({ widget, visible: !widget[layoutType].titleVisible, layoutType });
-        setEdit(!widget[layoutType].titleVisible);
-        break;
-      case 'copy':
-        if (getEnumType(widget.type) === 'analysis') {
-          // 限制单个页面添加报表数量
-          if (!reportCountLimit(components)) return;
-
-          setLoading(true);
-          if (loading) return;
-          reportConfig
-            .copyReport({ reportId: widget.value, sourceType: 1 })
-            .then(data => copyWidget({
-              ..._.omit(widget, ['id', 'uuid']),
-              value: data.reportId,
-              layoutType,
-              sourceValue: widget.value,
-              needUpdate: Date.now(),
-              config: {
-                objectId: uuidv4()
-              }
-            }))
-            .finally(() => setLoading(false));
-        } else {
-          copyWidget({ ..._.omit(widget, ['id', 'uuid']), layoutType });
-        }
-        alert(_l('复制成功'));
-        break;
-      case 'hideMobile':
-        updateWidgetVisible({ widget, layoutType });
-        break;
-      case 'switchButtonDisplay':
-        if (widget.type === 1) {
-          updateWidget({
-            widget,
-            config: update(widget.config, {
-              mobileCount: {
-                $apply: (item = 1) => {
-                  return item === 6 ? 1 : (item + 1);
-                }
-              }
-            })
-          });
-        } else {
-          const { btnType, direction } = _.get(widget, 'button.config') || {};
-          updateWidget({
-            widget,
-            button: update(widget.button, {
-              mobileCount: {
-                $apply: item => {
-                  // 图形按钮，上下结构
-                  if (btnType === 2 && direction === 1) {
-                    return item === 4 ? 1 : (item + 1);
-                  } else {
-                    return item === 1 ? 2 : 1;
-                  }
-                }
-              }
-            }),
-          });
-        }
-        break;
-      case 'changeFontSize':
-          updateWidget({
-            widget,
-            config: update(widget.config, {
-              mobileFontSize: {
-                $apply: (item) => {
-                  return result;
-                }
-              }
-            })
-          });
-      break;
-      default:
-        break;
-    }
-  };
-
-  // 获取layout布局, 如果没有设置好的layout,则生成一个默认的
-  const getLayout = components =>
-    components.map((item = {}, index) => {
-      const { id } = item;
-      const { layout, titleVisible } = item[layoutType] || {};
-      return layout
-        ? { ...layout, i: `${id || index}` }
-        : { ...getDefaultLayout({ components, index, layoutType, titleVisible }), i: `${id || index}` };
-    });
-
   const getLayoutConfig = () => {
     const config = LAYOUT_CONFIG[layoutType];
     const $wrap = document.getElementById('componentsWrap');
@@ -281,6 +182,8 @@ function WidgetContent(props) {
     const maxH = max(components.map(item => get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
     return { ...config, rowHeight: ((isFullscreen ? window.screen.height : $wrap.offsetHeight) - 10) / maxH - 10 };
   };
+
+  const layout = getLayout(components, layoutType);
 
   return (
     <Fragment>
@@ -293,43 +196,36 @@ function WidgetContent(props) {
         isFullscreen={isFullscreen}
         layoutType={layoutType}
         draggableCancel=".disableDrag,.chartWrapper .drag"
-        onResizeStop={(layout, oldItem = {}) => {
+        onResizeStop={(layout, oldItem = {}, newItem = {}) => {
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
           if (getData && typeof getData === 'function') {
             getData();
           }
         }}
-        // draggableHandle=".customPageDraggableHandle"
-        layout={getLayout(components)}
-        onLayoutChange={layouts => updateLayout({ layouts, layoutType, components, adjustScreen })}
+        layout={layout}
+        onLayoutChange={layouts => {
+          setTimeout(() => updateLayout({ layouts, layoutType, components, adjustScreen }))
+        }}
         {...getLayoutConfig()}
       >
         {components.map((widget, index) => {
-          const { id, type, value } = widget;
-          const { title, titleVisible } = widget[layoutType] || {};
+          const { id, type } = widget;
+          const { titleVisible } = widget[layoutType] || {};
           const enumType = getEnumType(type);
-          const translateInfo = getTranslateInfo(ids.appId, null, enumType === 'analysis' ? value : id);
+          const iconColor = appPkg.iconColor || apk.iconColor;
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
-              {titleVisible && (
-                <div className="componentTitle flexRow alignItemsCenter disableDrag bold" title={title}>
-                  {editable || isEdit ? (
-                    <input
-                      ref={$input}
-                      value={title}
-                      placeholder={_l('标题')}
-                      onBlur={() => setEdit(false)}
-                      onChange={e => updateWidget({ widget, title: e.target.value, layoutType })}
-                    ></input>
-                  ) : (
-                    <Fragment>
-                      {title && <div className="titleSign" style={{ backgroundColor: appPkg.iconColor || apk.iconColor }} />}
-                      <span className="flex overflow_ellipsis">{translateInfo.title || title}</span>
-                    </Fragment>
-                  )}
-                </div>
-              )}
+              <WidgetTools
+                ids={ids}
+                enumType={enumType}
+                editable={editable}
+                layoutType={layoutType}
+                iconColor={iconColor}
+                components={components}
+                widget={widget}
+                setWidget={setWidget}
+              />
               <div
                 className={cx('widgetContent', enumType, layoutType, {
                   haveTitle: titleVisible,
@@ -341,11 +237,12 @@ function WidgetContent(props) {
               >
                 <WidgetDisplay
                   widget={widget}
+                  setWidget={setWidget}
                   editingWidget={editingWidget}
                   ids={ids}
                   isCharge={isCharge && !(appPkg.isLock || appPkg.permissionType === APP_ROLE_TYPE.RUNNER_ROLE)}
                   config={config}
-                  themeColor={appPkg.iconColor || apk.iconColor}
+                  themeColor={iconColor}
                   isLock={appPkg.isLock}
                   permissionType={appPkg.permissionType}
                   projectId={appPkg.projectId || apk.projectId}
@@ -357,17 +254,6 @@ function WidgetContent(props) {
                   isFullscreen={isFullscreen}
                   addRecord={addRecord}
                 />
-                {editable && (
-                  <Tools
-                    appId={ids.appId}
-                    pageId={ids.worksheetId}
-                    widget={widget}
-                    layoutType={layoutType}
-                    titleVisible={titleVisible}
-                    handleToolClick={(clickType, result) => handleToolClick(clickType, { widget, index, result })}
-                    updatePageInfo={updatePageInfo}
-                  />
-                )}
               </div>
             </LayoutContent>
           );

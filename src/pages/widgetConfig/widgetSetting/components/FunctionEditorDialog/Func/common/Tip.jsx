@@ -112,7 +112,7 @@ export default function Tip(props) {
         <React.Fragment>
           {!visibleFn && (
             <ul>
-              <li>{_l('从左侧面板选择字段名和函数，或输入函数')}</li>
+              <b>{_l('请填写函数、参数和运算符进行运算；函数和字段可从左侧面板选择或直接输入')}</b>
               <li>
                 <span
                   dangerouslySetInnerHTML={{

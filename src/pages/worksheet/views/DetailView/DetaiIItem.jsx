@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import { getRecordColorConfig, getRecordColor } from 'worksheet/util';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -11,6 +11,7 @@ import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import EditableCard from '../components/EditableCard';
 import worksheetAjax from 'src/api/worksheet';
+import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
 
 export default function DetailItem(props) {
   const {
@@ -30,7 +31,7 @@ export default function DetailItem(props) {
   } = props;
   const currentView = views.find(o => o.viewId === viewId) || {};
   const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
-  let { coverposition = '2', abstract = '' } = getAdvanceSetting(currentView);
+  let { abstract = '' } = getAdvanceSetting(currentView);
 
   let formData = controls.map(o => {
     return { ...o, value: itemData[o.controlId] };
@@ -68,7 +69,7 @@ export default function DetailItem(props) {
     const parsedRow = row;
     const arr = [];
 
-    const titleControl = _.find(controls, itemData => itemData.attribute === 1);
+    const titleControl = getTitleControlForCard(currentView, controls);
     if (titleControl) {
       // 标题字段
       arr.push({ ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[titleControl.controlId] });

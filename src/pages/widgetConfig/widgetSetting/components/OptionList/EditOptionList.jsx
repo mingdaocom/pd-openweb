@@ -9,7 +9,7 @@ import { SettingItem, EditOptionDialog } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
 import DeleteDialog from './DelateDialog';
 import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
-import { checkOptionsRepeat } from '../../../util/data';
+import { checkOptionsRepeat } from '../../../util';
 
 export default function EditOptionList(props) {
   const { onOk, options = [], globalSheetInfo = {}, onCancel, worksheetIds = [], ...rest } = props;

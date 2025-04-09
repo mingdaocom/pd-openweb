@@ -1,20 +1,24 @@
 import React, { Fragment } from 'react';
 import { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { MenuItem, Icon } from 'ming-ui';
-import styled from 'styled-components';
-import worksheetAjax from 'src/api/worksheet';
-import webCacheAjax from 'src/api/webCache';
-import { generatePdf } from 'worksheet/common/PrintQrBarCode';
-import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { PRINT_TYPE_STYLE, PRINT_TYPE, PRINT_TEMP } from 'src/pages/Print/config';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, MenuItem, Tooltip } from 'ming-ui';
+import webCacheAjax from 'src/api/webCache';
+import worksheetAjax from 'src/api/worksheet';
+import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
+import { generatePdf } from 'worksheet/common/PrintQrBarCode/GeneratingPdf';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
+import { getDownLoadUrl } from 'src/pages/Print/util';
+import { addBehaviorLog, getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import IconBtn from './IconBtn';
+
 const MenuItemWrap = styled(MenuItem)`
   &.active,
   &.hover {
@@ -29,6 +33,31 @@ const MenuItemWrap = styled(MenuItem)`
       padding-left: 32px;
     }
   }
+  &.lightBg.ming.MenuItem {
+    .Item-content {
+      .detail {
+        top: 4px !important;
+        .downloadIcon {
+          width: 28px;
+          height: 28px;
+          border-radius: 3px;
+          display: inline-block;
+          text-align: center;
+          line-height: 28px;
+        }
+      }
+      &:hover {
+        background-color: #f8f8f8 !important;
+        color: revert !important;
+        .Icon {
+          color: #9e9e9e !important;
+        }
+        .downloadIcon {
+          background: #fff;
+        }
+      }
+    }
+  }
 `;
 
 const SecTitle = styled.div`
@@ -38,6 +67,8 @@ const SecTitle = styled.div`
 `;
 export default class PrintList extends Component {
   static propTypes = {
+    isCharge: PropTypes.bool,
+    type: PropTypes.string, // 显示样式 0 显示在menuItem中 1 显示为按钮 2 只显示系统打印
     viewId: PropTypes.string,
     recordId: PropTypes.string,
     appId: PropTypes.string,
@@ -58,7 +89,18 @@ export default class PrintList extends Component {
   }
 
   componentDidMount() {
+    this.getData();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.worksheetId !== prevProps.worksheetId || this.props.recordId !== prevProps.recordId) {
+      this.getData();
+    }
+  }
+
+  getData = () => {
     const { viewId, worksheetId, recordId } = this.props;
+
     if (worksheetId) {
       worksheetAjax
         .getPrintList({
@@ -81,7 +123,33 @@ export default class PrintList extends Component {
           });
         });
     }
-  }
+  };
+
+  getDownload = (item, e) => {
+    const { worksheetId, projectId, viewId, appId, recordId } = this.props;
+    const { type, id } = item;
+    // 系统打印
+    if (type === 0) return;
+
+    e.stopPropagation();
+    addBehaviorLog('printWord', worksheetId, { printId: id, rowId: recordId });
+    getDownLoadUrl(
+      md.global.Config.WorksheetDownUrl,
+      {
+        worksheetId,
+        rowId: recordId,
+        printId: id,
+        projectId,
+        appId,
+        viewId,
+        fileTypeNum: type,
+        download: 1,
+      },
+      link => {
+        link !== 'error' && window.open(link);
+      },
+    );
+  };
 
   menuPrint() {
     if (window.isPublicApp) {
@@ -113,6 +181,7 @@ export default class PrintList extends Component {
 
   render() {
     const {
+      isCharge,
       viewId,
       recordId,
       appId,
@@ -120,13 +189,16 @@ export default class PrintList extends Component {
       controls,
       projectId,
       sheetSwitchPermit,
+      type = 0,
+      showDownload = true,
       onItemClick = () => {},
     } = this.props;
     const { tempList, showPrintGroup } = this.state;
     let attriData = controls.filter(it => it.attribute === 1);
     const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
-    if (tempList.length <= 0) {
-      return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) ? (
+
+    if (tempList.length <= 0 || type === 2) {
+      return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && type !== 1 ? (
         <MenuItemWrap
           data-event="print"
           className={cx('printItem', { hover: showPrintGroup })}
@@ -136,7 +208,7 @@ export default class PrintList extends Component {
             this.menuPrint();
           }}
         >
-          <span className="mLeft15">{_l('打印%02002')}</span>
+          <span className="mLeft15">{_l('系统打印')}</span>
         </MenuItemWrap>
       ) : (
         ''
@@ -146,19 +218,26 @@ export default class PrintList extends Component {
         <Trigger
           popupVisible={showPrintGroup}
           onPopupVisibleChange={showPrintGroup => {
-            this.setState({ showPrintGroup });
+            this.setState({ showPrintGroup }, () => {
+              type === 1 && showPrintGroup && this.getData();
+            });
           }}
           popupClassName="DropdownPrintTrigger"
-          action={['hover']}
+          action={[type === 1 ? 'click' : 'hover']}
           mouseEnterDelay={0.1}
-          popupAlign={{ points: ['tl', 'tr'], offset: [1, -5], overflow: { adjustX: 1, adjustY: 2 } }}
+          popupAlign={{
+            points: type === 1 ? ['br', 'tr'] : ['tl', 'tr'],
+            offset: [1, -5],
+            overflow: { adjustX: 1, adjustY: 2 },
+          }}
           popup={
             <div className="">
               {/* 打印模板 */}
               {tempList.length > 0 && (
                 <div
                   className={cx('tempList', {
-                    noDefaultPrint: !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId),
+                    noDefaultPrint:
+                      type === 1 || !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId),
                   })}
                 >
                   {tempList.map((it, index) => {
@@ -168,7 +247,7 @@ export default class PrintList extends Component {
                       <MenuItemWrap
                         data-event={`printTemp-${index}`}
                         key={index}
-                        className=""
+                        className={cx('w100', { lightBg: type === 1 })}
                         icon={
                           isCustom ? (
                             <span className={`${PRINT_TYPE_STYLE[it.type].fileIcon} fileIcon`}></span>
@@ -220,6 +299,7 @@ export default class PrintList extends Component {
                               attriData: attriData[0],
                               fileTypeNum: it.type,
                               allowDownloadPermission: it.allowDownloadPermission,
+                              allowEditAfterPrint: it.allowEditAfterPrint,
                             };
                             let printKey = Math.random().toString(36).substring(2);
                             webCacheAjax.add({
@@ -235,16 +315,22 @@ export default class PrintList extends Component {
                         <div title={it.name} className="ellipsis templateName">
                           {it.name}
                         </div>
-                        {_.includes([3, 4], it.type) && (
+                        {_.includes([3, 4], it.type) ? (
                           <span className="detail">{getPrintCardInfoOfTemplate(it).text}</span>
-                        )}
+                        ) : (isCharge || !it.allowDownloadPermission) && showDownload ? (
+                          <span className="detail" onClick={e => this.getDownload(it, e)}>
+                            <Tooltip text={_l('导出')} popupPlacement="bottom">
+                              <Icon icon="file_download" className="Font16 downloadIcon" />
+                            </Tooltip>
+                          </span>
+                        ) : null}
                       </MenuItemWrap>
                     );
                   })}
                 </div>
               )}
               {/* 系统打印权限 */}
-              {isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && (
+              {type !== 1 && isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && (
                 <Fragment>
                   <SecTitle>{_l('系统默认打印')}</SecTitle>
                   <MenuItemWrap
@@ -262,16 +348,24 @@ export default class PrintList extends Component {
             </div>
           }
         >
-          <MenuItemWrap
-            data-event="print"
-            className={cx('printItem', { hover: showPrintGroup })}
-            icon={<Icon icon="print" className="Font17 mLeft5" />}
-          >
-            <span className="mLeft15">
-              {tempList.filter(o => o.type !== 0).length > 0 ? _l('打印/导出') : _l('打印%02002')}
-            </span>
-            <Icon icon="arrow-right-tip" style={{ left: 'auto', right: 15 }} className="Font14 mLeft5" />
-          </MenuItemWrap>
+          {type === 1 ? (
+            <IconBtn data-event="print">
+              <Tooltip offset={[0, 0]} text={_l('打印')} popupPlacement="bottom">
+                <Icon icon="print" className="Font22 Hand" />
+              </Tooltip>
+            </IconBtn>
+          ) : (
+            <MenuItemWrap
+              data-event="print"
+              className={cx('printItem', { hover: showPrintGroup })}
+              icon={<Icon icon="print" className="Font17 mLeft5" />}
+            >
+              <span className="mLeft15">
+                {tempList.filter(o => o.type !== 0).length > 0 ? _l('打印/导出') : _l('系统打印')}
+              </span>
+              <Icon icon="arrow-right-tip" style={{ left: 'auto', right: 15 }} className="Font14 mLeft5" />
+            </MenuItemWrap>
+          )}
         </Trigger>
       );
     }

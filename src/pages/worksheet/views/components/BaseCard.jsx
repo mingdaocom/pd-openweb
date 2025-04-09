@@ -16,11 +16,12 @@ import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import CardCoverImage from './CardCoverImage';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { getCardDisplayPara, getMultiRelateViewConfig, isListRelate, isTextTitle } from '../util';
+import { getCardDisplayPara, getMultiRelateViewConfig } from '../util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleRowData } from 'src/util/transControlDefaultValue';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import {  getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 
 const RecordItemWrap = styled.div`
   display: flex;
@@ -73,6 +74,29 @@ const RecordItemWrap = styled.div`
     /* autoprefixer: on */
     &.galleryViewAbstract {
       height: 72px;
+    }
+    &.maxLine1 {
+      -webkit-line-clamp: 1 !important;
+      max-height: 20px;
+    }
+    &.maxLine2 {
+      -webkit-line-clamp: 2 !important;
+      max-height: 38px;
+    }
+    &.maxLine3 {
+      -webkit-line-clamp: 3 !important;
+      max-height: 59px;
+    }
+    &.maxLine4 {
+      -webkit-line-clamp: 4 !important;
+      max-height: 77px;
+    }
+    &.maxLine5 {
+      -webkit-line-clamp: 5 !important;
+      max-height: 96px;
+      &.galleryViewAbstract {
+        height: 96px;
+      }
     }
   }
 
@@ -218,12 +242,24 @@ const BaseCard = props => {
       : data.fields
     : [];
   const { path = [] } = stateData;
-  const titleIndex = findIndex(fields, item => item.attribute === 1);
-  const titleField = fields[titleIndex] || {};
   const para = getCardDisplayPara({ currentView, data: stateData });
+  const { appId, projectId, viewType, viewControls, childType, showControlName } = para;
+
+  const getCurrentView = () => {
+    if (String(viewType) === '2' && String(childType) === '2') {
+      if (path.length < 2) return currentView;
+      return viewControls[path.length - 1];
+    }
+    return currentView;
+  };
+
+  const viewtitle = _.get(getCurrentView(), 'advancedSetting.viewtitle');
+  const viewtitleControlIndex = findIndex(fields, item => item.controlId === viewtitle);
+  const titleIndex =
+    viewtitleControlIndex < 0 ? findIndex(fields, item => item.attribute === 1) : viewtitleControlIndex;
+  const titleField = fields[titleIndex] || {};
   const [forceShowFullValue, setForceShowFullValue] = useState(_.get(titleField, 'advancedSetting.datamask') !== '1');
   let viewId, worksheetId;
-  const { appId, projectId, viewType, viewControls, childType, showControlName } = para;
   let paramForOperatePrint = {};
   if (viewParaOfRecord) {
     viewId = viewParaOfRecord.viewId;
@@ -238,7 +274,8 @@ const BaseCard = props => {
   const $ref = useRef(null);
 
   const multiRelateViewConfig = getMultiRelateViewConfig(currentView, stateData);
-  const { coverposition = '0', abstract, checkradioid } = getAdvanceSetting(multiRelateViewConfig);
+  const { abstract, checkradioid } = getAdvanceSetting(multiRelateViewConfig);
+  const { coverPosition = '0' } = getCoverStyle(multiRelateViewConfig);
   const showCover = !!currentView.coverCid;
 
   if (isEmpty(data)) return null;
@@ -267,7 +304,9 @@ const BaseCard = props => {
   };
 
   const isCanQuickEdit = () => {
-    return isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) && isTextTitle(fields) && allowEdit;
+    const viewtitle = _.get(getCurrentView(), 'advancedSetting.viewtitle');
+    const titleField = fields.find(item => (!viewtitle ? item.attribute === 1 : item.controlId === viewtitle)) || {};
+    return isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) && titleField.type === 2 && allowEdit;
   };
 
   const renderTitleControl = () => {
@@ -369,11 +408,16 @@ const BaseCard = props => {
   };
 
   const renderAbstract = () => {
+    const maxLine = _.get(getCurrentView(), 'advancedSetting.maxlinenum');
     const isShowAbstract = abstract && !!(data.formData || []).filter(item => item.controlId === abstract).length;
     if (isEmptyCell({ value: abstractValue }) && !isGalleryView && !showNull) return null;
     return isShowAbstract ? (
       <div
-        className={cx('abstractWrap', { galleryViewAbstract: isGalleryView || isVerticalHierarchy })}
+        className={cx(
+          'abstractWrap',
+          { galleryViewAbstract: isGalleryView || isVerticalHierarchy },
+          `maxLine${maxLine}`,
+        )}
         title={abstractValue}
       >
         {abstractValue || <div className="emptyHolder"></div>}
@@ -459,7 +503,7 @@ const BaseCard = props => {
         backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
       }}
       className={className}
-      coverDirection={includes(['0', '1'], coverposition) ? 'row' : 'column'}
+      coverDirection={includes(['0', '1'], coverPosition) ? 'row' : 'column'}
       canDrag={canDrag}
       controlStyles={showControlStyle && getControlStyles(showFields.concat(titleField))}
     >
@@ -468,13 +512,13 @@ const BaseCard = props => {
         <ColorTag
           style={Object.assign(
             { backgroundColor: recordColor.color },
-            showCover && coverposition === '1'
+            showCover && coverPosition === '1'
               ? { left: 'auto', right: 0, borderRadius: '0 3px 3px 0' }
               : { borderRadius: '3px 0 0 3px' },
           )}
         />
       )}
-      {includes(['1', '2'], coverposition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
+      {includes(['1', '2'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
       <div className="fieldContentWrap">
         {renderTitleControl({ forceShowFullValue })}
         {renderAbstract()}
@@ -496,7 +540,7 @@ const BaseCard = props => {
         )}
       </div>
       {/* // 封面图片右放置 */}
-      {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
+      {includes(['0'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
       {!hideOperate && (
         <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
           <RecordOperate

@@ -60,6 +60,21 @@ export default {
      return mdyAPI('Plugin', 'GetDetail', args, options);
    },
   /**
+  * 判断插件是否存在
+  * @param {Object} args 请求参数
+  * @param {string} args.id 插件id
+  * @param {} args.source
+  * @param {string} args.appId 应用id
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkExists: function (args, options = {}) {
+     
+     return mdyAPI('Plugin', 'CheckExists', args, options);
+   },
+  /**
   * 获取插件列表
   * @param {Object} args 请求参数
   * @param {string} args.creator 创建者，默认为当前登录账号

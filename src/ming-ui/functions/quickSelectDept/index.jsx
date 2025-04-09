@@ -7,7 +7,7 @@ import { LoadDiv, Icon, ScrollView } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { dialogSelectDept } from 'ming-ui/functions';
+import dialogSelectDept from '../dialogSelectDept';
 import { useClickAway } from 'react-use';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';

@@ -265,6 +265,7 @@ class PortalSetting extends React.Component {
             'internalControls',
             'externalControls',
             'addressExt',
+            'autoLogin'
           ]),
           epDiscussWorkFlow,
           appId,

@@ -12,7 +12,7 @@ var frameTpl = doT.template(frameTplHtml);
 var fileItemTpl = doT.template(fileItemHtml);
 import MobileSharePreview from '../shareMobile/shareMobile';
 import shareFolderAjax from 'src/api/shareFolder';
-import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';

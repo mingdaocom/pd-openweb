@@ -109,10 +109,10 @@ const Wrap = styled.div`
     .colorBlock {
       width: 24px;
       height: 24px;
-      margin-right: 7px;
     }
     .colorName {
       width: 200px;
+      margin-left: 7px;
     }
   }
   .label {

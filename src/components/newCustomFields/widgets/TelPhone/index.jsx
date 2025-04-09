@@ -31,12 +31,6 @@ export default class Widgets extends Component {
     maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
-
   componentWillReceiveProps(nextProps, nextState) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = nextProps.value || '';
@@ -75,12 +69,6 @@ export default class Widgets extends Component {
     }
     return this.props.hint;
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   render() {
     const { disabled, hint, value, onBlur, onChange, from, maskPermissions } = this.props;

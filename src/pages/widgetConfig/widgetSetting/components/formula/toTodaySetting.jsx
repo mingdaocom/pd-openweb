@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange, parseDataSource } from '../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import { parseDataSource } from '../../../util';
 import DynamicSelectDateControl from '../DynamicSelectDateControl';
 import InputSuffix from './InputSuffix';
 import PreSuffix from '../PreSuffix';

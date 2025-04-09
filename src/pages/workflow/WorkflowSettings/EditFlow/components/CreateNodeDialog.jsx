@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Radio, ScrollView, Support, Icon, Tooltip, SvgIcon } from 'ming-ui';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import SelectProcess from '../../../components/SelectProcess';
 import _ from 'lodash';
@@ -1051,6 +1052,17 @@ export default class CreateNodeDialog extends Component {
             ),
         );
 
+        if (o.id === 'data') {
+          o.items.unshift({
+            type: 13,
+            appType: 1,
+            name: _l('获取数组对象'),
+            iconColor: '#FFA340',
+            iconName: 'icon-transport',
+            describe: _l('获取发送API请求、代码块、JSON 解析的JSON数组对象'),
+          });
+        }
+
         o.items.forEach(item => {
           if (item.type === NODE_TYPE.WEBHOOK) {
             _.remove(item.secondList, obj => obj.appType !== APP_TYPE.WEBHOOK);
@@ -1425,7 +1437,7 @@ export default class CreateNodeDialog extends Component {
           });
         },
       },
-      { icon: 'copy', icon: 'icon-copy', text: _l('复制'), events: () => selectCopy(flowInfo.id) },
+      { key: 'copy', icon: 'icon-copy', text: _l('复制'), events: () => selectCopy(flowInfo.id) },
     ];
     const MODE = [
       { icon: 'icon-list1', value: 1 },

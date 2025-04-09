@@ -1,25 +1,17 @@
 import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
-import React from 'react';
 import update from 'immutability-helper';
 import _, { get } from 'lodash';
 import { TinyColor } from '@ctrl/tinycolor';
-import { Dialog, Support } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
-import 'src/pages/PageHeader/components/NetState/index.less';
-import { PUBLIC_KEY, VersionProductHelpLink } from './enum';
+import { PUBLIC_KEY } from './enum';
 import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import qiniuAjax from 'src/api/qiniu';
 import projectAjax from 'src/api/project';
-import { captcha } from 'ming-ui/functions';
 import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
 import appManagementApi from 'src/api/appManagement';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { SYS_COLOR, SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
-import { AT_ALL_TEXT } from 'src/components/comment/config';
-import Emotion from 'src/components/emotion/emotion';
 import moment from 'moment';
 import RegExpValidator from 'src/util/expression';
 
@@ -732,53 +724,6 @@ export function mdAppResponse(param) {
 }
 
 /**
- * 升级版本dialog
- */
-export const upgradeVersionDialog = options => {
-  const hint = options.hint || _l('当前版本无法使用此功能');
-  const explainText = options.explainText;
-  const versionType = options.versionType ? options.versionType : undefined;
-  const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
-  const helpLink = VersionProductHelpLink[options.featureId] || options.helpLink; // 帮助链接
-  const removeFooter = options.removeFooter;
-  const descFunc = () => {
-    return (
-      <div className="netStateWrap">
-        <div className="imgWrap" />
-        <div className="hint">{hint}</div>
-        {!md.global.Config.IsLocal && !md.global.Account.isPortal && !isExternal && options.explainText && (
-          <div className="explain">{explainText}</div>
-        )}
-      </div>
-    );
-  };
-  const onOkFunc = () => {
-    !options.projectId
-      ? (location.href = `/price`)
-      : options.isFree
-      ? purchaseMethodFunc({ projectId: options.projectId, select: versionType })
-      : options.onOk
-      ? options.onOk()
-      : navigateTo(`/admin/upgradeservice/${options.projectId}${versionType ? '/' + versionType : ''}`);
-  };
-
-  if (options.dialogType === 'content') {
-    return (
-      <div className="upgradeWrap">
-        {descFunc()}
-      </div>
-    );
-  }
-
-  Dialog.confirm({
-    className: options.className || 'upgradeVersionDialogBtn',
-    title: '',
-    description: descFunc(),
-    noFooter: true,
-  });
-};
-
-/**
  * 获取网络信息
  */
 export const getSyncLicenseInfo = projectId => {
@@ -813,57 +758,6 @@ export function getFeatureStatus(projectId, featureId) {
 }
 
 /**
- * 功能埋点授权显示升级版本内容dialogType： dialog弹层（默认） content 页面
- */
-export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
-  const { Versions = [] } = md.global || {};
-  const { licenseType, version = {} } = getSyncLicenseInfo(projectId);
-  const { explainText = '', dialogType } = extra || {};
-  let upgradeName, versionType;
-
-  if (!md.global.Config.IsLocal) {
-    const TYPE_NAME = { 1: _l('标准版'), 2: _l('专业版'), 3: _l('旗舰版') };
-    const getFeatureType = versionIdV2 => {
-      const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === versionIdV2) || {};
-      return {
-        versionName: TYPE_NAME[versionIdV2],
-        versionType: versionIdV2,
-        type: (_.find(versionInfo.Products || [], item => item.ProductType === featureId) || {}).Type,
-      };
-    };
-
-    let usableVersion = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(
-      item => item.type === '1',
-    )[0];
-
-    if (featureId === 38) {
-      usableVersion = {
-        versionName: TYPE_NAME[parseInt(version.versionIdV2 || 0) + 1],
-        versionType: parseInt(version.versionIdV2 || 0) + 1,
-      };
-    }
-
-    upgradeName = usableVersion.versionName;
-    versionType = usableVersion.versionType;
-  }
-
-  return upgradeVersionDialog({
-    projectId,
-    featureId,
-    isFree: licenseType === 0 || licenseType === 2,
-    explainText:
-      md.global.Config.IsLocal || md.global.Account.isPortal
-        ? _l('请升级版本')
-        : !!explainText
-        ? explainText
-        : _l('请升级至%0解锁开启', upgradeName),
-    versionType,
-    dialogType,
-    onOk,
-  });
-}
-
-/**
  * 解决 JavaScript 原生 toFixed 方法精度问题
  */
 export function toFixed(num, dot = 0) {
@@ -894,85 +788,6 @@ export function toFixed(num, dot = 0) {
     let data = String(Math.round(num * Math.pow(10, dot)));
     data = _.padStart(data, dot, '0');
     return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
-  }
-}
-
-/**
- * 验证登录密码
- * @param {Object} options - 选项对象
- * @param {string} options.projectId - 网络 ID
- * @param {string} options.password - 登录密码
- * @param {boolean} options.closeImageValidation - 是否前3次关闭图像验证
- * @param {boolean} options.isNoneVerification - 是否一小时内免验证
- * @param {boolean} options.checkNeedAuth - 检测是否免验证
- * @param {string} options.customActionName - 自定义 AJAX API 接口名称
- * @param {boolean} options.ignoreAlert - 忽略报错
- * @param {Function} options.success - 验证成功的回调函数
- * @param {Function} options.fail - 验证失败的回调函数
- */
-export function verifyPassword({
-  projectId = '',
-  password = '',
-  closeImageValidation = false,
-  isNoneVerification = false,
-  checkNeedAuth = false,
-  customActionName = '',
-  ignoreAlert = false,
-  success = () => {},
-  fail = () => {},
-}) {
-  const ERROR_CODE = {
-    6: _l('密码不正确'),
-    8: _l('验证码错误'),
-  };
-  const cb = function (res) {
-    if (res.ret !== 0) {
-      return;
-    }
-
-    accountAjax[
-      customActionName
-        ? customActionName
-        : checkNeedAuth || closeImageValidation
-        ? 'checkAccountIdentity'
-        : 'checkAccount'
-    ](
-      checkNeedAuth
-        ? { projectId }
-        : {
-            projectId,
-            isNoneVerification,
-            ticket: res.ticket,
-            randStr: res.randstr,
-            captchaType: md.global.getCaptchaType(),
-            password: encrypt(password),
-          },
-    ).then(statusCode => {
-      if (statusCode === 1) {
-        success();
-      } else if (statusCode === 10) {
-        captchaFuc();
-      } else if (checkNeedAuth && _.includes([6, 9], statusCode)) {
-        fail(statusCode === 6 ? 'showPasswordAndNoneVerification' : 'showPassword');
-      } else {
-        !ignoreAlert && alert(ERROR_CODE[statusCode] || _l('操作失败'), 2);
-        fail();
-      }
-    });
-  };
-  const captchaFuc = () => {
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(cb);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
-    }
-  };
-
-  // 前3次关闭图像验证
-  if (closeImageValidation || checkNeedAuth) {
-    cb({ ret: 0 });
-  } else {
-    captchaFuc();
   }
 }
 
@@ -1093,22 +908,6 @@ export function parseNumber(numStr) {
 }
 
 /**
- * 十六进制颜色转为RGBA
- * @param {string} hex - 十六进制颜色代码，例如 '#RRGGBB'
- * @param {number} opacity - 透明度，范围从 0 到 1，默认为 1
- * @returns {string} - RGBA格式的颜色，例如 'rgba(R, G, B, A)'
- */
-export const hexToRgba = (hex, opacity = 1) => {
-  // 提取RGB部分并转换为十进制
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-
-  // 返回RGBA格式的颜色
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-};
-
-/**
  * 获取组织管理颜色配置。
  * @param {string} projectId - 网络ID
  * @returns {Object} - 包含图表颜色和主题颜色配置的对象。
@@ -1180,248 +979,6 @@ export const setFavicon = (iconUrl, iconColor) => {
 
       $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
     });
-};
-
-/**
- * 替换动态/任务等内容中的链接
- * @param  {string} args.message        替换前的 html
- * @param  {object[]} args.rUserList      @ 到的帐号列表
- * @param  {object[]} args.rGroupList     @ 到的群组列表
- * @param  {object[]} args.categories     打的话题
- * @param  {boolean} args.noLink     只生成文本，不生成链接
- * @param  {boolean} args.filterFace     不显示表情
- * @return {string}                替换后的 html
- */
-export const createLinksForMessage = function (args) {
-  let message = args.message.replace(/\n/g, '<br>');
-  let rUserList = args.rUserList;
-  let rGroupList = args.rGroupList;
-  let categories = args.categories;
-  let noLink = args.noLink;
-  let filterFace = args.filterFace;
-  let sourceType = args.sourceType;
-  let replaceStr = '';
-  let j;
-  const replaceMessageCustomTag = function (message, tagName, replaceHtmlFunc, filterCustom) {
-    let startTag, endTag;
-
-    if (!message) return message;
-    if (typeof tagName === 'string') {
-      startTag = '[' + tagName + ']';
-      endTag = '[/' + tagName + ']';
-    } else if (Array.isArray(tagName)) {
-      startTag = tagName[0];
-      endTag = tagName[1];
-    } else {
-      return message;
-    }
-
-    if (message.indexOf(startTag) > -1) {
-      const customRegExp = new RegExp(
-        '(' +
-          startTag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&') +
-          ')([0-9a-zA-Z-]*\\|?.*?)' +
-          endTag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&'),
-        'gi',
-      );
-
-      if (filterCustom) {
-        message = message.replace(customRegExp, '');
-      } else {
-        message = message.replace(customRegExp, function ($0, $1, $2) {
-          let customStr = $2;
-          let splitterIndex = customStr.indexOf('|');
-          if (splitterIndex === -1) {
-            return replaceHtmlFunc ? replaceHtmlFunc(customStr, _l('无法解析') + tagName) : '';
-          }
-          let customId = customStr.substr(0, splitterIndex);
-          let customName = customStr.substr(splitterIndex + 1);
-          return replaceHtmlFunc ? replaceHtmlFunc(customId, customName) : customName;
-        });
-      }
-    }
-
-    return message;
-  };
-
-  message = message.replace(/\[all\]atAll\[\/all\]/gi, '<a>@' + AT_ALL_TEXT[sourceType] + '</a>');
-
-  if (rUserList && rUserList.length > 0) {
-    for (j = 0; j < rUserList.length; j++) {
-      let rUser = rUserList[j];
-      replaceStr = '';
-      let name = htmlEncodeReg(rUser.name || rUser.fullname);
-      let aid = rUser.aid || rUser.accountId;
-      if (name) {
-        if (noLink) {
-          replaceStr += ' @' + name + ' ';
-        } else {
-          if (md.global.Account.isPortal || (aid || '').indexOf('a#') > -1) {
-            // 外部门户
-            replaceStr += ' <a>@' + name + '</a> ';
-          } else {
-            replaceStr +=
-              ' <a data-accountid="' + aid + '" target="_blank" href="/user_' + aid + '">@' + name + '</a> ';
-          }
-        }
-      }
-      let userRegExp = new RegExp('\\[aid]' + aid + '\\[/aid]', 'gi');
-      message = message.replace(userRegExp, replaceStr);
-    }
-  }
-  if (rGroupList && rGroupList.length > 0) {
-    for (j = 0; j < rGroupList.length; j++) {
-      let rGroup = rGroupList[j];
-      replaceStr = '';
-      if (rGroup.groupName) {
-        if (noLink) {
-          replaceStr += '@' + htmlEncodeReg(rGroup.groupName);
-        } else {
-          if (rGroup.isDelete) {
-            replaceStr +=
-              ' <span class="DisabledColor" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
-          } else {
-            replaceStr +=
-              ' <a target="_blank" data-groupid="' +
-              rGroup.groupID +
-              '" href="/group/groupValidate?gID=' +
-              rGroup.groupID +
-              '">@' +
-              htmlEncodeReg(rGroup.groupName) +
-              '</a> ';
-          }
-        }
-      }
-      let groupRegExp = new RegExp('\\[gid]' + rGroup.groupID + '\\[/gid]', 'gi');
-      message = message.replace(groupRegExp, replaceStr);
-    }
-  }
-
-  const getReplaceHtmlFunc = function (getLink, getPlain) {
-    return function (customId, customName) {
-      if (noLink) {
-        return getPlain ? getPlain(customId) : customName;
-      }
-      return getLink(customId, customName);
-    };
-  };
-
-  // TODO: 了解此处各字符串是否已由后台encode
-  // 话题
-  let findCategory = function (id) {
-    if (categories) {
-      for (let i = 0, l = categories.length; i < l; i++) {
-        if (categories[i].catID === id) {
-          return categories[i];
-        }
-      }
-    }
-  };
-  message = replaceMessageCustomTag(
-    message,
-    'cid',
-    getReplaceHtmlFunc(
-      function (id, name) {
-        const category = findCategory(id);
-        name = category ? category.catName : _l('未知话题');
-        return '<a target="_blank" href="/feed?catId=' + id + '">#' + htmlEncodeReg(name) + '#</a>';
-      },
-      function (id, name) {
-        const category = findCategory(id);
-        name = category ? category.catName : _l('未知话题');
-        return '#' + htmlEncodeReg(name) + '#';
-      },
-    ),
-  );
-  // 任务
-  message = replaceMessageCustomTag(
-    message,
-    'tid',
-    getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/apps/task/task_' + id + '">' + htmlEncodeReg(name) + '</a>';
-    }),
-  );
-  // 项目
-  message = replaceMessageCustomTag(
-    message,
-    'fid',
-    getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/apps/task/folder_' + id + '">' + htmlEncodeReg(name) + '</a>';
-    }),
-  );
-  // 日程
-  message = replaceMessageCustomTag(
-    message,
-    ['[CALENDAR]', '[CALENDAR]'],
-    getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/apps/calendar/detail_' + id + '">' + htmlEncodeReg(name) + '</a>';
-    }),
-  );
-  // 问答中心
-  message = replaceMessageCustomTag(
-    message,
-    ['[STARTANSWER]', '[ENDANSWER]'],
-    getReplaceHtmlFunc(function (id, name) {
-      return '<a target="_blank" href="/feeddetail?itemID=' + id + '">' + htmlEncodeReg(name) + '</a>';
-    }),
-  );
-  // 文档版本
-  message = replaceMessageCustomTag(
-    message,
-    ['[docversion]', '[docversion]'],
-    getReplaceHtmlFunc(function (id, name) {
-      return (
-        '<a href="/feeddetail?itemID=' +
-        id +
-        '" target="_blank">' +
-        (htmlEncodeReg(name.split('|')[0]) || '文件') +
-        '</a>'
-      );
-    }),
-  );
-
-  if ((typeof filterFace === 'undefined' || !filterFace) && !noLink) {
-    message = Emotion.parse(message);
-  }
-
-  message = message.replace(/<br( \/)?>/g, '\n'); // .replace(/<[^>]+>/g, '');
-
-  if (!noLink) {
-    message = message.replace(/\n/g, '<br>');
-    let urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=])?[^ <>\[\]*(){},\u4E00-\u9FA5]+/gi;
-
-    message = message.replace(urlReg, function (m) {
-      return '<a target="_blank" href="' + m + '">' + m + '</a>';
-    });
-  }
-
-  // 外部用户
-  if ((args.accountId || '').indexOf('a#') > -1) {
-    message = message.replace(new RegExp(`\\[aid\\]${args.accountId}\\[\\/aid\\]`, 'g'), args.accountName);
-  }
-
-  return message;
-};
-
-// 验证网络是否到期异步
-export const expireDialogAsync = function (projectId) {
-  return new Promise((resolve, reject) => {
-    // 个人
-    if (!projectId) {
-      resolve();
-    } else {
-      if (getCurrentProject(projectId, true).licenseType === 0) {
-        upgradeVersionDialog({
-          projectId,
-          explainText: _l('请升级至付费版解锁开启'),
-          isFree: true,
-        });
-        reject();
-      } else {
-        resolve();
-      }
-    }
-  });
 };
 
 // 提示邀请结果
@@ -1576,7 +1133,7 @@ export const getTranslateInfo = (appId, parentId, id, data) => {
 export const getAppLangDetail = appDetail => {
   const { langInfo } = appDetail;
   const appId = appDetail.id;
-  return new Promise((reslove, reject) => {
+  return new Promise((resolve, reject) => {
     if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
       appManagementApi
         .getAppLangDetail({
@@ -1587,38 +1144,42 @@ export const getAppLangDetail = appDetail => {
         .then(lang => {
           window[`langData-${appId}`] = lang.items;
           window[`langVersion-${appId}`] = langInfo.version;
-          reslove(lang);
+          resolve(lang);
         });
     } else {
-      reslove();
+      resolve();
     }
   });
 };
 
-export const shareGetAppLangDetail = (data) => {
+export const shareGetAppLangDetail = data => {
   const langKey = getBrowserLang();
   const { appId, projectId } = data;
-  return new Promise(reslove => {
-    appManagementApi.getAppLangs({
-      appId,
-      projectId,
-    }).then(data => {
-      const langInfo = _.find(data, { langCode: langKey });
-      if (langInfo) {
-        appManagementApi.getAppLangDetail({
-          appId,
-          projectId,
-          appLangId: langInfo.id,
-        }).then(lang => {
-          window[`langData-${appId}`] = lang.items;
-          reslove(lang);
-        });
-      } else {
-        reslove();
-      }
-    });
+  return new Promise(resolve => {
+    appManagementApi
+      .getAppLangs({
+        appId,
+        projectId,
+      })
+      .then(data => {
+        const langInfo = _.find(data, { langCode: langKey });
+        if (langInfo) {
+          appManagementApi
+            .getAppLangDetail({
+              appId,
+              projectId,
+              appLangId: langInfo.id,
+            })
+            .then(lang => {
+              window[`langData-${appId}`] = lang.items;
+              resolve(lang);
+            });
+        } else {
+          resolve();
+        }
+      });
   });
-}
+};
 
 // 从浏览器获取 language 匹配 getAppLangs 接口
 const getBrowserLang = () => {
@@ -1654,7 +1215,7 @@ const getBrowserLang = () => {
       langKey = navigator.language || 'en';
   }
   return langKey;
-}
+};
 
 /**
  * 获取时区
@@ -1745,4 +1306,27 @@ export const getContactInfo = key => {
 // 获取地图配置
 export const getMapConfig = () => {
   return md.global.Account.accountId ? md.global.Account.map : md.global.Config.DefaultMap;
+};
+
+/**
+ * 兼容js sdk方法存在时调用sdk否则用原h5逻辑
+ * jsFuncName 方法名
+ * jsParams 参数
+ * h5callBack h5处理方法
+ * appCallBack app处理方法
+ */
+export const compatibleMDJS = (jsFuncName, jsParams = {}, h5callBack = () => {}, appCallBack = () => {}) => {
+  if (window.isMingDaoApp && window.MDJS && window.MDJS[jsFuncName]) {
+    window.MDJS[jsFuncName](jsParams);
+    appCallBack();
+  } else {
+    h5callBack();
+  }
+};
+
+/**
+ * 是否是空值
+ */
+export const isEmptyValue = value => {
+  return _.isUndefined(value) || _.isNull(value) || String(value).trim() === '';
 };

@@ -1,3 +1,5 @@
+import { saveAs } from 'file-saver';
+
 export const downloadFile = ({ url, params, exportFileName } = {}) => {
   window
     .mdyAPI('', '', params, {
@@ -16,13 +18,7 @@ export const downloadFile = ({ url, params, exportFileName } = {}) => {
           alert(exception, 2);
         };
       } else {
-        const fileName = exportFileName;
-        const link = document.createElement('a');
-
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+        saveAs(blob, exportFileName);
       }
     });
 };

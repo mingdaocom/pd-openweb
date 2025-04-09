@@ -1,26 +1,25 @@
 import React from 'react';
+import DocumentTitle from 'react-document-title';
+import { generate } from '@ant-design/colors';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ScrollView, Skeleton, RichText, Dialog, Button } from 'ming-ui';
-import DocumentTitle from 'react-document-title';
+import { Button, Dialog, RichText, ScrollView, Skeleton } from 'ming-ui';
+import weixinApi from 'src/api/weixin';
 import { Absolute, FormTopImgCon } from 'worksheet/components/Basics';
+import { VerificationPass } from 'worksheet/components/ShareState';
 import BgContainer from 'src/pages/publicWorksheetConfig/components/BgContainer';
 import Qr from 'src/pages/publicWorksheetConfig/components/Qr';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
-import { FILL_STATUS } from './enum';
+import { getPageConfig } from 'src/pages/publicWorksheetConfig/utils';
+import { getRequest } from 'src/util';
+import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
+import { themes, WX_ICON_LIST } from '../publicWorksheetConfig/enum';
 import { getFormData, getPublicWorksheet, getPublicWorksheetInfo } from './action';
+import { FILL_STATUS } from './enum';
 import FillWorksheet from './FillWorksheet';
 import NotFillStatus from './NotFillStatus';
 import './index.less';
-import _ from 'lodash';
-import { generate } from '@ant-design/colors';
-import { VerificationPass } from 'worksheet/components/ShareState';
-import { getRequest } from 'src/util';
-import cx from 'classnames';
-import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
-import weixinApi from 'src/api/weixin';
-import { themes, WX_ICON_LIST } from '../publicWorksheetConfig/enum';
-import { getPageConfig } from 'src/pages/publicWorksheetConfig/utils';
 
 const TopBar = styled.div(
   ({ color, hasBorderRadius }) =>
@@ -146,7 +145,9 @@ export default class PublicWorksheet extends React.Component {
 
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
 
-    isPayOrder && rowId && handlePrePayOrder({ worksheetId, rowId, paymentModule: 1 });
+    const { payNow, paySuccessReturnUrl } = getRequest() || {};
+
+    isPayOrder && rowId && handlePrePayOrder({ worksheetId, rowId, paymentModule: 1, payNow, paySuccessReturnUrl });
 
     if (!isPayOrder && afterSubmit.action === 2) {
       const value = safeParse(afterSubmit.content);
@@ -204,22 +205,22 @@ export default class PublicWorksheet extends React.Component {
   render() {
     const { isPreview } = this.props;
     const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey } = this.state;
-    const { worksheetId, projectName, writeScope } = publicWorksheetInfo;
+    const { worksheetId, writeScope } = publicWorksheetInfo;
     const request = getRequest();
-    const { bg, footer } = request;
+    const { bg, cover } = request;
     const hideBg = bg === 'no';
     const config = getPageConfig(_.get(publicWorksheetInfo, 'extendDatas.pageConfigs'), pageConfigKey);
-    const { themeBgColor, layout, cover, showQrcode, themeColor } = config;
-    const bgShowTop = layout === 2 && !loading;
+    const { themeBgColor, layout, cover: coverPic, showQrcode, themeColor } = config;
+    const bgShowTop = (layout === 2 || hideBg) && !loading;
     const theme = this.getThemeBgColor({ themeBgColor, themeColor });
 
     const renderContent = () => {
       return (
         <React.Fragment>
           <div className={cx('formContent flexColumn', { mTop10: bgShowTop })}>
-            {bgShowTop && cover && (
+            {bgShowTop && coverPic && cover !== 'no' && (
               <FormTopImgCon>
-                <img src={cover} />
+                <img src={coverPic} />
               </FormTopImgCon>
             )}
             {!hideBg && (
@@ -246,8 +247,8 @@ export default class PublicWorksheet extends React.Component {
                 )}
                 <TopBar
                   color={theme}
-                  hasBorderRadius={!bgShowTop || !cover}
-                  className={cx({ hide: (bgShowTop && cover) || loading })}
+                  hasBorderRadius={!bgShowTop || !coverPic}
+                  className={cx({ hide: (bgShowTop && coverPic) || loading })}
                 />
               </React.Fragment>
             )}
@@ -366,7 +367,7 @@ export default class PublicWorksheet extends React.Component {
               renderContent()
             ) : (
               <BgContainer
-                coverUrl={cover}
+                coverUrl={coverPic}
                 theme={loading ? '#f2f2f2' : theme}
                 isDisplayAvatar={!isPreview && writeScope !== 1 && !loading}
               >

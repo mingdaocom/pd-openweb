@@ -1,8 +1,10 @@
 .printPage {
   overflow: hidden;
+
   #chat {
     display: none;
   }
+
   .unnormalIcon {
     width: 150px;
     height: 150px;
@@ -12,6 +14,7 @@
     background-color: #f2f2f2;
     margin: 0 auto;
   }
+
   .loadDivPrint {
     width: 100px;
     height: 100px;
@@ -22,17 +25,21 @@
     margin-top: -50px;
     text-align: center;
   }
+
   .preWrap {
     white-space: pre-wrap;
   }
 }
+
 .printTem {
   height: 100%;
+
   .printTemCon {
     display: flex;
     width: 100%;
     height: calc(~'100% - 50px');
   }
+
   .pdfPng,
   .wordPng,
   .exportPng {
@@ -44,24 +51,29 @@
     background-size: cover;
     margin-left: -2px;
   }
+
   .exportPng {
     background: url('./img/export.png') no-repeat center center;
     background-size: cover;
   }
+
   .pdfPng {
     background: url('./img/pdf.png') no-repeat center center;
     background-size: cover;
   }
+
   .toWordLoadCon {
     text-align: center;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
     .dec {
       & > div {
         display: inline-block;
       }
+
       font-size: 15px;
       font-weight: 400;
       color: #151515;
@@ -69,6 +81,7 @@
       margin: 0;
       margin-top: 12px;
     }
+
     .txt {
       font-size: 13px;
       font-weight: 400;
@@ -76,35 +89,37 @@
       line-height: 20px;
       margin-top: 12px;
     }
+
+    .toPdf,
     .downWord {
-      font-size: 13px;
-      font-weight: 400;
-      color: #2196f3;
-      line-height: 17px;
+      border-radius: 4px;
+      display: block;
+      height: 36px;
       cursor: pointer;
-      margin: 0;
-      margin-top: 12px;
-      &:hover {
-        color: #2a65c4;
-      }
+      line-height: 36px;
+      width: 200px;
+      border: 1px solid transparent;
     }
     .toPdf {
-      background: #ffffff;
-      border: 1px solid #dddddd;
-      border-radius: 4px;
-      padding: 10px 50px;
-      display: inline-block;
-      margin: 30px auto 0;
-      color: #151515;
-      border: 1px solid #dddddd;
-      border-radius: 4px;
-      cursor: pointer;
+      background: #2196f3;
+      border-color: #2196f3;
+      color: #fff;
       &:hover {
-        color: #2196f3;
-        border: 1px solid #2196f3;
+        background: #1565c0;
+        border-color: #1565c0;
+      }
+    }
+    .downWord {
+      background: #fff;
+      border-color: #2196f3;
+      color: #2196f3;
+      &:hover {
+        color: #1565c0;
+        border-color: #1565c0;
       }
     }
   }
+
   .previewContainer {
     position: absolute;
     top: 50px;
@@ -112,24 +127,32 @@
     right: 0;
     bottom: 0;
     transition: bottom 0.4s;
+    display: flex;
+    flex-direction: column;
+
     &.top0 {
       top: 0;
     }
+
     iframe {
       border: 0;
     }
+
     .iframeDiv {
       display: none;
     }
+
     .iframeLoad {
       text-align: center;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+
       & > div {
         display: inline-block;
       }
+
       .dec {
         font-size: 15px;
         font-weight: 400;
@@ -138,25 +161,30 @@
         margin-top: 23px;
       }
     }
+
     .fileViewer {
       position: absolute;
       width: 100%;
       height: 100%;
       border: none;
     }
+
     .iframeViewer {
       background-color: #525659;
       color: #151515;
     }
+
     .iframeDiv {
       .toolbarButton#download {
         display: none;
       }
     }
   }
+
   .printRelationTable {
     .baseColumnHead {
       position: relative;
+
       .resizeDrag {
         position: absolute;
         right: 0px;
@@ -165,6 +193,7 @@
         width: 6px;
         cursor: ew-resize;
       }
+
       .controlName {
         .text {
           overflow: visible !important;
@@ -172,6 +201,20 @@
           text-overflow: unset !important;
         }
       }
+    }
+  }
+
+  .printMarkdownWrap {
+    .rc-md-editor {
+      border: none !important;
+      .editor-container > .section > .section-container {
+        padding: 0 !important;
+      }
+    }
+    .MdEditorCon {
+      height: 100%;
+      min-height: auto;
+      max-height: fit-content;
     }
   }
 }
@@ -185,6 +228,7 @@
     border: 0px !important;
     background: #fff;
   }
+
   .nano {
     position: relative;
     width: 100%;
@@ -193,6 +237,7 @@
     padding: 0;
     background: #fff;
   }
+
   .nano > .nano-content {
     position: initial;
     overflow: initial;
@@ -201,9 +246,11 @@
     background: #fff;
     height: auto !important;
   }
+
   .nano-pane {
     display: none;
   }
+
   .printTem .printContent {
     width: 100% !important;
     max-width: 100% !important;
@@ -214,9 +261,11 @@
     background: #fff;
     color: #000;
   }
+
   .printTem .printInfo {
     margin-bottom: 5em;
   }
+
   #app,
   #wrapper,
   #containerWrapper,
@@ -227,9 +276,11 @@
     height: auto !important;
     width: 100%;
   }
+
   .printTemCon col {
     display: none;
   }
+
   .printTem .printContent tr.trFlex {
     width: 100% !important;
   }
@@ -239,33 +290,43 @@
     .printTd1 {
       flex-grow: 1;
     }
+
     .printTd2 {
       flex-grow: 2;
     }
+
     .printTd3 {
       flex-grow: 3;
     }
+
     .printTd4 {
       flex-grow: 4;
     }
+
     .printTd5 {
       flex-grow: 5;
     }
+
     .printTd6 {
       flex-grow: 6;
     }
+
     .printTd7 {
       flex-grow: 7;
     }
+
     .printTd8 {
       flex-grow: 8;
     }
+
     .printTd9 {
       flex-grow: 9;
     }
+
     .printTd10 {
       flex-grow: 10;
     }
+
     .printTd11 {
       flex-grow: 11;
     }

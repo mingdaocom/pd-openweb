@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { Icon, Radio, Checkbox } from 'ming-ui';
 import _ from 'lodash';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 
 const Wrap = styled.div`
   width: 320px;
@@ -39,6 +40,7 @@ const HeaderRange = styled.div`
 `;
 export default function BtnRangeDrop(props) {
   const { onClose, data, onChange, views } = props;
+
   const noBatch = (data.writeObject === 2 || data.writeType === 2) && data.clickType === 3; //配置了关联=>不能设置成批量按钮
   const [{ isAllDt, isAllList, viewIds, viewSheetIds, hsDt, hsList }, setState] = useSetState({
     viewIds: [],
@@ -49,8 +51,9 @@ export default function BtnRangeDrop(props) {
     hsList: false,
   });
   useEffect(() => {
-    const viewIds = props.views.map(o => o.viewId);
-    const viewSheetIds = props.views
+    const viewList = getShowViews(props.views);
+    const viewIds = viewList.map(o => o.viewId);
+    const viewSheetIds = viewList
       .filter(o => o.viewType === 0 || (o.viewType === 2 && _.get(o, 'advancedSetting.hierarchyViewType') === '3'))
       .map(o => o.viewId); //仅表视图、树形层级视图，支持批量
     setState({
@@ -65,6 +68,9 @@ export default function BtnRangeDrop(props) {
         viewSheetIds.filter(o => safeParse(_.get(data, 'advancedSetting.listviews'), 'array').includes(o)).length > 0,
     });
   }, [props]);
+
+  const getViews = (list = []) => list.filter(l => l.viewId !== l.worksheetId);
+
   return (
     <Wrap className="">
       <HeaderRange className="headerRange Font14 Gray">
@@ -161,7 +167,7 @@ export default function BtnRangeDrop(props) {
                   <span className="flex"></span>
                 )}
               </div>
-              {views.map(it => {
+              {getShowViews(views).map(it => {
                 let isDt = safeParse(_.get(data, 'advancedSetting.detailviews'), 'array').includes(it.viewId);
                 let isList = safeParse(_.get(data, 'advancedSetting.listviews'), 'array').includes(it.viewId);
                 return (

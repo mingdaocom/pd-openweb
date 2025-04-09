@@ -1,29 +1,30 @@
-import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+import cx from 'classnames';
+import { find, get, isEmpty, isUndefined, last } from 'lodash';
+import { Dialog, Input } from 'ming-ui';
+import moment from 'moment';
 import { bool, func, shape, string } from 'prop-types';
+import { arrayOf } from 'prop-types';
+import { Motion, spring } from 'react-motion';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Motion, spring } from 'react-motion';
-import { Input, Dialog } from 'ming-ui';
-import { get, last, find, isUndefined, isEmpty } from 'lodash';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { emitter } from 'worksheet/util';
-import moment from 'moment';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
-import { getVisibleControls } from './TableComp';
-import addRecord from 'worksheet/common/newRecord/addRecord';
 import { selectRecord } from 'src/components/recordCardListDialog';
-import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
+import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
+import { getTranslateInfo } from 'src/util';
+import styled from 'styled-components';
+import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import ExportSheetButton from 'worksheet/components/ExportSheetButton';
 import Pagination from 'worksheet/components/Pagination';
-import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
+import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { emitter } from 'worksheet/util';
+
 import RelateRecordBtn from './RelateRecordBtn';
-import { getTranslateInfo } from 'src/util';
 import * as actions from './redux/action';
-import { arrayOf } from 'prop-types';
 import { initialChanges } from './redux/reducer';
+import { getVisibleControls } from './utils';
 
 const Con = styled.div`
   display: flex;
@@ -262,7 +263,7 @@ function Operate(props) {
     cacheStore.current.oldFilterControls = filterControls;
   }, [filterControls]);
   useEffect(() => {
-    emitter.emit(`relationSearchCount:${recordId}:${control.controlId}`, count);
+    emitter.emit(`relationSearchCount:${control.controlId}`, count);
   }, [count]);
   return (
     <Con className={className} style={style} smallMode={smallMode} ref={workSheetFilterContainerRef}>
@@ -336,7 +337,7 @@ function Operate(props) {
               recordId,
               relateSheetId: relateWorksheetInfo.worksheetId,
               isDraft: from === RECORD_INFO_FROM.DRAFT || control.from === RECORD_INFO_FROM.DRAFT,
-              filterRowIds: [recordId].concat(
+              filterRowIds: (relateWorksheetInfo.worksheetId === worksheetId ? [recordId] : []).concat(
                 recordId && from !== 21 && base.saveSync
                   ? []
                   : (base.saveSync ? records : records.concat(addedRecords)).map(r => r.rowid),

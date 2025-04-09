@@ -6,6 +6,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import html2canvas from 'html2canvas';
 import { addBehaviorLog } from 'src/util';
+import { saveAs } from 'file-saver';
 
 class Header extends React.Component {
   constructor(props) {
@@ -110,12 +111,8 @@ class Header extends React.Component {
         })
         .then(data => {
           this.setState({ exportLoading: false });
-          let blobUrl = window.URL.createObjectURL(data);
-          const a = document.createElement('a');
-
-          a.download = `${printData.name || printData.formName || '打印'}${new Date().getTime()}`;
-          a.href = blobUrl;
-          a.click();
+          const fileName = `${printData.name || printData.formName || '打印'}${new Date().getTime()}`;
+          saveAs(data, fileName);
         });
     });
   };

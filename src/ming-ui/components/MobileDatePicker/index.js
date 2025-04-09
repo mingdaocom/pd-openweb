@@ -35,32 +35,32 @@ export default function MobileDatePicker(props) {
   const clearDisable = /^[A-Za-z]{3} [A-Za-z]{3} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4} \(.+\)$/.test(value);
   const [dateTime, setDateTime] = useState(getDate(value, minuteStep));
   const year = {
-    format: 'YYYY ' + _l('年'),
+    format: _l('YYYY 年'),
     caption: 'Year',
     step: 1,
   };
   const month = {
-    format: 'MM ' + _l('月'),
+    format: _l('MM 月'),
     caption: 'Mon',
     step: 1,
   };
   const date = {
-    format: 'DD ' + _l('日%04035'),
+    format: _l('DD 日'),
     caption: 'Day',
     step: 1,
   };
   const hour = {
-    format: 'hh ' + _l('时'),
+    format: _l('hh 时'),
     caption: 'Hour',
     step: 1,
   };
   const minute = {
-    format: 'mm ' + _l('分'),
+    format: _l('mm 分'),
     caption: 'Min',
     step: minuteStep || 1,
   };
   const second = {
-    format: 'ss' + _l('秒'),
+    format: _l('ss 秒'),
     caption: 'Second',
     step: 1,
   };

@@ -11,6 +11,7 @@ import { getMultiRelateViewConfig } from '../util';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 
 const CoverImageWrap = styled.div`
   position: relative;
@@ -65,6 +66,11 @@ const CoverImageWrap = styled.div`
     width: 100%;
     border: none;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    &.display-circle,
+    &.display-square {
+      border-bottom: none;
+      padding: 14px 14px 0 14px;
+    }
     .coverWrap {
       height: 170px;
       &.coverWrapQr {
@@ -80,8 +86,6 @@ const CoverImageWrap = styled.div`
   }
   &.display-circle,
   &.display-square {
-    padding: 14px 0;
-
     .coverWrap {
       width: 80px;
       height: 80px;
@@ -109,14 +113,14 @@ const CoverImageWrap = styled.div`
     &.display-circle,
     &.display-square {
       border: none;
-      padding-left: 14px;
+      padding: 14px 0 14px 14px;
     }
   }
   &.dir-right {
     &.display-circle,
     &.display-square {
       border: none;
-      padding-right: 14px;
+      padding: 14px 14px 14px 0;
     }
     .fileIcon {
       /* margin-left: 14px; */
@@ -136,8 +140,6 @@ const CoverImageWrap = styled.div`
 `;
 
 const COVER_TYPE_TO_BACKGROUND_SIZE = {
-  0: 'cover',
-  1: 'contain',
   2: 'circle',
   3: 'square',
 };
@@ -146,6 +148,11 @@ const COVER_IMAGE_POSITION = {
   2: 'top',
   1: 'left',
   0: 'right',
+};
+
+const COVER_FILL_TYPE_BACKGROUND_SIZE = {
+  0: 'cover',
+  1: 'contain',
 };
 
 export default function CardCoverImage(props) {
@@ -159,9 +166,10 @@ export default function CardCoverImage(props) {
   const isHierarchyView = String(viewType) === '2';
   const coverImage = data.coverImage || previewUrl;
   const coverSetting = getMultiRelateViewConfig(currentView, stateData);
-  const { coverCid, coverType } = coverSetting;
-  const { coverposition = '0', opencover } = getAdvanceSetting(coverSetting); //opencover 空(默认没key)或者1：允许 2：不允许
-  const position = COVER_IMAGE_POSITION[coverposition];
+  const { coverCid } = coverSetting;
+  const { opencover } = getAdvanceSetting(coverSetting); //opencover 空(默认没key)或者1：允许 2：不允许
+  const { coverPosition = '0', coverType, coverFillType } = getCoverStyle(coverSetting);
+  const position = COVER_IMAGE_POSITION[coverPosition];
   const [isErr, setIsErr] = useState(false);
   if (!coverCid) return null;
   if (!isGalleryView && !isHierarchyView && position !== 'left' && !coverImage && !ext && type !== 47) return null;
@@ -221,10 +229,10 @@ export default function CardCoverImage(props) {
   };
 
   const getStyle = () => {
-    if (includes([0, 1], coverType)) {
+    if (includes([0, 1], coverFillType)) {
       return {
         backgroundImage: `url(${coverImage})`,
-        backgroundSize: COVER_TYPE_TO_BACKGROUND_SIZE[coverType],
+        backgroundSize: COVER_FILL_TYPE_BACKGROUND_SIZE[coverFillType],
       };
     }
     return {
@@ -304,7 +312,11 @@ export default function CardCoverImage(props) {
   };
 
   return (
-    <CoverImageWrap className={cx(`dir-${position} display-${COVER_TYPE_TO_BACKGROUND_SIZE[coverType]}`)}>
+    <CoverImageWrap
+      className={cx(
+        `dir-${position} display-${COVER_TYPE_TO_BACKGROUND_SIZE[coverType]} display-${COVER_FILL_TYPE_BACKGROUND_SIZE[coverFillType]}`,
+      )}
+    >
       {renderContent()}
     </CoverImageWrap>
   );

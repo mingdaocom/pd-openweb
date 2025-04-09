@@ -6,7 +6,8 @@ import HiddenMenu from './HiddenMenu';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import ViewDisplayMenu from './viewDisplayMenu';
 import { getDefaultViewSet } from 'src/pages/worksheet/constants/common';
@@ -106,6 +107,8 @@ function SettingMenu(props) {
         'topshow',
         'customitems',
         'customnavs',
+        'viewtitle',
+        'checkradioid',
       ]);
       if (advancedSetting.navshow && _.get(item, 'navGroup[0].controlId')) {
         let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId')) || {};

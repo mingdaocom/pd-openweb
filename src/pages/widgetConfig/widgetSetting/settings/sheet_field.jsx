@@ -3,14 +3,21 @@ import { useSetState } from 'react-use';
 import { LoadDiv, RadioGroup, Dialog, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
-import { filterControlsFromAll, getIconByType, resortControlByColRow, filterOnlyShowField } from '../../util';
+import {
+  filterControlsFromAll,
+  getIconByType,
+  resortControlByColRow,
+  filterOnlyShowField,
+  parseDataSource,
+} from '../../util';
 import { useSheetInfo } from '../../hooks';
-import { parseDataSource, isSingleRelateSheet, updateConfig } from '../../util/setting';
+import { isSingleRelateSheet, updateConfig } from '../../util/setting';
 import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
 import { SettingItem, DropdownPlaceholder, DropdownOverlay } from '../../styled';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { isEmpty, get, find } from 'lodash';
 import { SYS_CONTROLS } from '../../config/widget';
+import WorksheetReference from '../components/WorksheetReference';
 
 const SHEET_FIELD_TYPES = [
   {
@@ -131,6 +138,7 @@ export default function SheetField(props) {
           )}
         </span>
       ),
+      footerLeftElement: () => <WorksheetReference {...props} className="LineHeight36" />,
       buttonType: 'danger',
       onOk: () => {
         updateValue('1');

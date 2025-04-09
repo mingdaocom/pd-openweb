@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dropdown, Support, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
+import { Dropdown, Icon, LoadDiv } from 'ming-ui';
+import ClipboardButton from 'react-clipboard.js';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import InviteController from 'src/api/invitation';
 import projectSettingController from 'src/api/projectSetting';
-import ClipboardButton from 'react-clipboard.js';
-import { FROM_TYPE, DETAIL_MODE } from './';
-import _ from 'lodash';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
+import { DETAIL_MODE, FROM_TYPE } from './enum';
 
 const DISPLAY_OPTIONS = [
   {
@@ -132,7 +132,7 @@ export default class PublicLink extends Component {
               </Fragment>
             )}
             {!isFriend && (
-              <div className="addBox recordIcon Gray_9e">
+              <div className="addBox recordIcon">
                 <span onClick={() => setDetailMode(DETAIL_MODE.LINK)}>
                   <Icon icon="overdue_network" />
                   {_l('查看使用中的链接')}
@@ -164,8 +164,8 @@ export default class PublicLink extends Component {
         </div>
 
         {isProject && showInviteRules && (
-          <div className="footContainer">
-            <div className="addBox Gray_9e">
+          <div className="footContainer mTop12">
+            <div className="addBox recordIcon">
               <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
                 <Icon icon="manage_accounts" />
                 {_l('用户加入规则')}

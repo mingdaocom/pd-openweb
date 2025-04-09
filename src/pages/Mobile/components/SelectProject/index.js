@@ -46,7 +46,7 @@ export default function SelectProject(props) {
       }),
       extra: (
         <div className="flexRow header">
-          <span className="Font13">{_l('切换网络')}</span>
+          <span className="Font13">{_l('切换组织')}</span>
           <div className="closeIcon" onClick={() => actionSheetHandler.close()}>
             <Icon icon="close" />
           </div>

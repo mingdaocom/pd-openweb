@@ -1,9 +1,29 @@
 import React, { Component } from 'react';
+import { Select } from 'antd';
 import cx from 'classnames';
-import PropTypes, { string } from 'prop-types';
-import '@mdfe/selectize';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import filterXSS from 'xss';
-import { debounce } from 'lodash';
+import { Icon } from 'ming-ui';
+
+const Tag = styled.div`
+  font-size: 12px;
+  background-color: #e0e0e0;
+  padding: 6px 10px;
+  border-radius: 12px;
+  max-width: 360px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  .remove {
+    margin-left: 8px;
+  }
+`;
+
+const DropdownWrap = styled.div`
+  padding: 6px 12px;
+`;
 
 export default class Text extends Component {
   static propTypes = {
@@ -16,85 +36,80 @@ export default class Text extends Component {
   };
   constructor(props) {
     super(props);
-    this.state = {};
-    this.debouncedChange = debounce(this.props.onChange, 500);
+    this.state = {
+      searchValue: undefined,
+      values: this.props.values || [],
+    };
   }
-  componentDidMount() {
-    const comp = this;
-    const { debouncedChange } = this;
-    if (this.input) {
-      this.selectize = $(this.input).selectize({
-        dropdownClass: 'selectize-dropdown zIndex99 pAll10 dropdownTrigger',
-        plugins: ['remove_button'],
-        dropdownParent: 'body',
-        placeholder: _l('请输入'),
-        delimiter: ',',
-        persist: false,
-        openOnFocus: false,
-        maxOptions: 0,
-        maxItems: 500,
-        create: input => {
-          return {
-            value: input,
-            text: input,
-          };
-        },
-        render: {
-          option_create(data, escape) {
-            return `<div class="create ThemeColor3">${_l('使用“%0”', filterXSS(data.input))}</div>`;
-          },
-          item(data, escape) {
-            return '<div class="item ellipsis TxtMiddle">' + escape(data.text) + '</div>';
-          },
-        },
-        onInitialize: function () {
-          const $selectize = this;
-          if (this.$control_input[0]) {
-            this.$control_input[0].addEventListener('paste', e => {
-              const pasteValue = (e.clipboardData || window.clipboardData).getData('text');
-              if (pasteValue && /\n/.test(pasteValue)) {
-                const items = pasteValue.split('\n').slice(0, 500);
-                debouncedChange({ values: comp.props.values.concat(items) });
-                items.forEach(item => {
-                  $selectize.createItem(item);
-                });
-                e.preventDefault();
-              }
-            });
-          }
-        },
-        onFocus: () => {
-          this.closeDropdown();
-        },
-        onChange: selectizevalue => {
-          this.closeDropdown();
-          debouncedChange({ values: selectizevalue ? selectizevalue.split(',') : [] });
-        },
-      })[0].selectize;
 
-      this.selectize.on('type', e => {
-        if (!e) {
-          this.closeDropdown();
-        }
-      });
-    }
-  }
-  // 操作完关闭下拉
-  closeDropdown() {
-    if (this.selectize && this.selectize.isOpen) {
-      this.timer = setTimeout(() => {
-        this.selectize.close();
-        clearTimeout(this.timer);
-      });
-    }
-  }
-  render() {
-    let { values, disabled } = this.props;
-    values = !values ? [] : values;
+  onSearch = value => this.setState({ searchValue: filterXSS(value) });
+
+  onChange = value => {
+    this.props.onChange({ values: value });
+    this.setState({ searchValue: undefined, values: value });
+  };
+
+  onRemove = tag => {
+    const newValues = this.state.values.filter(l => l !== tag.value);
+    this.props.onChange({ values: newValues });
+    this.setState({ values: newValues });
+  };
+
+  onInputKeyDown = e => {
+    if (e.key !== 'Enter') return null;
+
+    const { searchValue, values } = this.state;
+    const value = _.trim(searchValue);
+
+    if (!value || _.includes(value)) return null;
+
+    this.onChange(values.concat(value));
+  };
+
+  tagRender = tag => {
     return (
-      <div className={cx('worksheetFilterTextCondition', { disabled })}>
-        <input type="text" ref={input => (this.input = input)} value={values.join(',')} readOnly />
-      </div>
+      <Tag>
+        <span className="ellipsis">{tag.value}</span>
+        <Icon icon="clear" className="remove Gray_9e Hand" onClick={() => this.onRemove(tag)} />
+      </Tag>
+    );
+  };
+
+  dropdownRender = () => {
+    const { searchValue } = this.state;
+
+    if (!searchValue) return null;
+
+    return (
+      <DropdownWrap className="ThemeColor Font13 Hand">
+        {_l('使用')}“{searchValue}”
+      </DropdownWrap>
+    );
+  };
+
+  render() {
+    const { searchValue, values } = this.state;
+    const { disabled } = this.props;
+
+    return (
+      <Select
+        mode="tags"
+        className="worksheetFilterTextCondition"
+        placeholder={_l('请输入')}
+        dropdownClassName={cx('worksheetFilterTextPopup', { hide: !searchValue })}
+        disabled={disabled}
+        value={values}
+        searchValue={searchValue}
+        style={{ width: '100%' }}
+        notFoundContent={null}
+        onChange={this.onChange}
+        onSearch={this.onSearch}
+        tokenSeparators={['\r\n', '\n']}
+        options={[]}
+        tagRender={this.tagRender}
+        dropdownRender={this.dropdownRender}
+        onInputKeyDown={this.onInputKeyDown}
+      />
     );
   }
 }

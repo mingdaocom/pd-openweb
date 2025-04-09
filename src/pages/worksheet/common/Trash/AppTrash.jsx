@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { func, string, bool } from 'prop-types';
-import styled from 'styled-components';
-import moment from 'moment';
-import { VerifyPasswordConfirm, SvgIcon, UserHead } from 'ming-ui';
-import BaseTrash from './BaseTrash';
-import homeAppAjax from 'src/api/homeApp';
+import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
+import moment from 'moment';
+import { bool, func, string } from 'prop-types';
+import styled from 'styled-components';
+import { SvgIcon, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp';
+import BaseTrash from './BaseTrash';
 
 const AppIcon = styled.div`
   display: inline-flex;

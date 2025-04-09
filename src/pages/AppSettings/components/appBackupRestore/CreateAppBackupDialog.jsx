@@ -1,7 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Dialog, Checkbox, Support, SvgIcon, LoadDiv } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
-import Beta from '../../components/Beta';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -189,7 +188,6 @@ export default function CreateBackupModal(props) {
                     setContainData(!checked);
                   }}
                 />
-                <Beta />
               </div>
 
               <div className="Font12 Gray_9e pLeft24">{_l('预计共有 %0 行记录', countInfo.rowTotal)}</div>

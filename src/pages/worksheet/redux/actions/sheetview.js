@@ -1,24 +1,42 @@
-import _, { concat, difference, find, findKey, forEach, get, includes, isEmpty, isUndefined, set, uniq } from 'lodash';
+import _, {
+  assign,
+  concat,
+  difference,
+  find,
+  findKey,
+  forEach,
+  get,
+  identity,
+  includes,
+  isEmpty,
+  isUndefined,
+  mapValues,
+  pickBy,
+  set,
+  uniq,
+} from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
+import { getRowDetail } from 'worksheet/api';
+import { treeDataUpdater } from 'worksheet/common/TreeTableHelper';
+import { handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper/index.js';
 import {
-  SYSTEM_CONTROL,
-  WORKFLOW_SYSTEM_CONTROL,
-  WIDGETS_TO_API_TYPE_ENUM,
-} from 'src/pages/widgetConfig/config/widget';
-import {
-  getLRUWorksheetConfig,
-  saveLRUWorksheetConfig,
   clearLRUWorksheetConfig,
   formatQuickFilter,
+  getListStyle,
+  getLRUWorksheetConfig,
+  getSheetColumnWidthsMap,
+  getSheetColumnWidthsOfStyles,
   handleRecordError,
+  saveLRUWorksheetConfig,
 } from 'worksheet/util';
-import { treeDataUpdater } from 'worksheet/common/TreeTableHelper';
-import { updateNavGroup } from './index';
-import { getRowDetail } from 'worksheet/api';
 import { getFilledRequestParams } from 'worksheet/util';
-import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
-
-import { handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper/index.js';
+import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
+import {
+  SYSTEM_CONTROL,
+  WIDGETS_TO_API_TYPE_ENUM,
+  WORKFLOW_SYSTEM_CONTROL,
+} from 'src/pages/widgetConfig/config/widget';
+import { updateNavGroup } from './navFilter.js';
 
 const DEFAULT_PAGESIZE = 50;
 
@@ -76,7 +94,7 @@ export const fetchRows = ({
     const { base, filters, views, sheetview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId, forcePageSize, maxCount, chartId, showAsSheetView } = base;
     const abortController = sheetview.abortController;
-    let savedPageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', viewId), 10);
+    let savedPageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', worksheetId), 10);
     if (_.isNaN(savedPageSize)) {
       savedPageSize = undefined;
     }
@@ -222,21 +240,25 @@ export const sortByControl = sortControl => ({
   sortControl,
 });
 
-export function updateViewPermission() {
+export function updateViewPermission(param) {
   return (dispatch, getState) => {
     const { base } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     worksheetAjax
-      .getViewPermission({
-        appId,
-        worksheetId,
-        viewId,
-      })
+      .getViewPermission(
+        !_.isEmpty(param)
+          ? param
+          : {
+              appId,
+              worksheetId,
+              viewId,
+            },
+      )
       .then(data => {
         if (data.view) {
           dispatch({
             type: 'WORKSHEET_SHEETVIEW_UPDATE_PERMISSION',
-            viewId,
+            viewId: _.get(param, 'viewId') || viewId,
             value: data.view,
           });
         }
@@ -491,26 +513,37 @@ export function frozenColumn(columnIndex) {
   return { type: 'WORKSHEET_SHEETVIEW_UPDATE_FIXED_COLUMN_COUNT', value: columnIndex };
 }
 
-export function saveSheetLayout({ closePopup = () => {} }) {
+export function saveSheetLayout({ isApplyAll, closePopup = () => {} }) {
   return function (dispatch, getState) {
-    const { base, controls, views, sheetview } = getState().sheet;
+    const { base, controls, views, sheetview, worksheetInfo } = getState().sheet;
     const { appId, worksheetId, viewId } = base;
-    const { fixedColumnCount, sheetHiddenColumns, sheetColumnWidths } = sheetview.sheetViewConfig;
+    const { fixedColumnCount, sheetHiddenColumns, columnStyles, sheetColumnWidths } = sheetview.sheetViewConfig;
     const view = _.find(views, v => v.viewId === viewId);
     if (!view) {
       return;
     }
+    const hadNewConfig = get(worksheetInfo, 'advancedSetting.liststyle') || get(view, 'advancedSetting.liststyle');
     const updates = {
       appId,
       worksheetId,
       viewId,
       editAttrs: ['AdvancedSetting'],
     };
+    const listStyleStr = JSON.stringify({
+      time: Date.now(),
+      styles: uniq(Object.keys(columnStyles).concat(!hadNewConfig ? Object.keys(sheetColumnWidths) : [])).map(cid => ({
+        cid,
+        ...(!hadNewConfig ? { width: sheetColumnWidths[cid] } : {}),
+        ...(columnStyles[cid] || {}),
+      })),
+    });
     updates.advancedSetting = {
       fixedcolumncount: fixedColumnCount,
-      sheetcolumnwidths: JSON.stringify(sheetColumnWidths),
       layoutupdatetime: new Date().getTime(),
     };
+    if (!isApplyAll) {
+      updates.advancedSetting.liststyle = listStyleStr;
+    }
     if (sheetHiddenColumns.length) {
       updates.editAttrs = updates.editAttrs.concat('ShowControls');
       if (view.advancedSetting.customdisplay === '1' && view.showControls.length) {
@@ -529,9 +562,6 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       }
     }
     updates.editAdKeys = Object.keys(updates.advancedSetting);
-    delete updates.advancedSetting.fixedColumnCount;
-    delete updates.advancedSetting.layoutUpdateTime;
-    delete updates.advancedSetting.sheetColumnWidths;
     dispatch(clearHiddenColumn());
     dispatch({
       type: 'WORKSHEET_UPDATE_VIEW',
@@ -552,29 +582,50 @@ export function saveSheetLayout({ closePopup = () => {} }) {
         alert(_l('保存表格外观失败！'), 3);
         console.log(err);
       });
+    if (isApplyAll) {
+      worksheetAjax
+        .editWorksheetSetting({
+          appId,
+          worksheetId,
+          editAdKeys: ['liststyle'],
+          advancedSetting: {
+            liststyle: listStyleStr,
+          },
+        })
+        .then(() => {
+          dispatch({
+            type: 'WORKSHEET_UPDATE_WORKSHEETINFO',
+            info: {
+              advancedSetting: {
+                ...worksheetInfo.advancedSetting,
+                liststyle: listStyleStr,
+              },
+            },
+          });
+          clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', viewId);
+        });
+    }
   };
 }
+
 export function resetSheetLayout() {
   return function (dispatch, getState) {
-    const { base, views } = getState().sheet;
+    const { base, views, worksheetInfo } = getState().sheet;
     const { viewId } = base;
     const view = _.find(views, v => v.viewId === viewId);
     if (!view) {
       return;
     }
     const { advancedSetting = {} } = view;
-    let sheetColumnWidths = {};
-    if (advancedSetting.sheetcolumnwidths) {
-      try {
-        sheetColumnWidths = JSON.parse(advancedSetting.sheetcolumnwidths);
-      } catch (err) {}
-    }
     dispatch(clearHiddenColumn());
     dispatch(frozenColumn(Number(advancedSetting.fixedcolumncount || 0)));
     saveLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_FROZON', viewId, advancedSetting.fixedcolumncount || 0);
-    dispatch({ type: 'WORKSHEET_SHEETVIEW_INIT_COLUMN_WIDTH', value: sheetColumnWidths });
-    saveLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId, JSON.stringify(sheetColumnWidths));
+    clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId);
     clearLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId);
+    const { map: sheetColumnWidthsMap } = getSheetColumnWidthsMap(view, worksheetInfo);
+    dispatch({ type: 'WORKSHEET_SHEETVIEW_INIT_COLUMN_WIDTH', value: sheetColumnWidthsMap });
+    clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', viewId);
+    dispatch(setColumnStyles(view, worksheetInfo));
   };
 }
 
@@ -587,7 +638,7 @@ export const updateDefaultScrollLeft = value => ({
 export function changePageSize(pageSize, pageIndex, { refetch = true } = {}) {
   return function (dispatch, getState) {
     const { base } = getState().sheet;
-    saveLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', base.viewId, pageSize);
+    saveLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', base.worksheetId, pageSize);
     dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize, pageIndex });
     if (refetch) {
       dispatch(fetchRows());
@@ -621,25 +672,59 @@ function resetView() {
   };
 }
 
+/**
+ * 整理逻辑，重写这里
+ * 列冻结，列隐藏，列宽，对齐方式
+ * 老配置-本地：列冻结 fixedcolumncount，列宽 sheetcolumnwidths，更新时间 layoutupdatetime
+ * 新配置-本地：列宽(和对齐方式) - liststyle，列冻结 fixedcolumncount，更新时间 layoutupdatetime
+ */
+
 export function setViewLayout(viewId) {
+  // pageSize 更新逻辑
   return (dispatch, getState) => {
-    const { views } = getState().sheet;
+    const { views, worksheetInfo } = getState().sheet;
     const view = _.find(views, { viewId });
     if ((!view || view.viewType !== 0) && !checkIsTreeTableView(getState())) {
       return;
     }
+    dispatch(setColumnStyles(view, worksheetInfo, { updateWidths: false }));
     const { advancedSetting = {} } = view || {};
     let sheetColumnWidths = {};
     const localLayoutUpdateTime = getLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId);
-    const pageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', viewId), 10);
+    const pageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', worksheetInfo.worksheetId), 10);
     let frozonIndex = getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_FROZON', viewId);
+    /**
+     * sheetColumnWidths 逻辑
+     * 1. 老表，取本地 width
+     * 2. 新表本地新，取本地 styles
+     * 3. 新表配置新，取配置 styles
+     */
     try {
+      // 默认给了旧配置本地
       sheetColumnWidths = JSON.parse(getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId));
     } catch (err) {}
     // advancedSetting 内属性名需为全小写 兼容老数据
     if (advancedSetting.layoutUpdateTime) advancedSetting.layoutupdatetime = advancedSetting.layoutUpdateTime;
     if (advancedSetting.fixedColumnCount) advancedSetting.fixedcolumncount = advancedSetting.fixedColumnCount;
     if (advancedSetting.sheetColumnWidths) advancedSetting.sheetcolumnwidths = advancedSetting.sheetColumnWidths;
+
+    const { time: listStyleUpdateTime, map: sheetColumnWidthsMap } = getSheetColumnWidthsMap(view, worksheetInfo);
+    const localColumnStyles = JSON.parse(
+      (view && getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', view.viewId)) || '{}',
+    );
+    // sheetColumnWidthsMap 是配置的数据，view 和 worksheet 取最新的那个
+    if (sheetColumnWidthsMap) {
+      if (localColumnStyles && localColumnStyles.time > listStyleUpdateTime) {
+        // 本地样式配置时间比配置里的新
+        sheetColumnWidths = mapValues(localColumnStyles.styles, 'width');
+      } else {
+        sheetColumnWidths = sheetColumnWidthsMap;
+      }
+    }
+    if (localColumnStyles.time && listStyleUpdateTime && listStyleUpdateTime > localColumnStyles.time) {
+      clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', view.viewId);
+    }
+    // 兼容老数据
     if (
       advancedSetting.layoutupdatetime &&
       (!localLayoutUpdateTime || Number(advancedSetting.layoutupdatetime) > Number(localLayoutUpdateTime))
@@ -648,7 +733,7 @@ export function setViewLayout(viewId) {
         frozonIndex = Number(advancedSetting.fixedcolumncount);
         clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_FROZON', viewId);
       }
-      if (advancedSetting.sheetcolumnwidths) {
+      if (!sheetColumnWidthsMap && advancedSetting.sheetcolumnwidths) {
         try {
           sheetColumnWidths = { ...sheetColumnWidths, ...JSON.parse(advancedSetting.sheetcolumnwidths) };
           saveLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId, JSON.stringify(sheetColumnWidths));
@@ -670,16 +755,88 @@ export function setViewLayout(viewId) {
   };
 }
 
-export function getWorksheetSheetViewSummary() {
+function columnStylesMergeChanges(columnStyles = {}, changes = {}) {
+  const newChanges = { ...changes };
+  Object.keys(changes).forEach(cid => {
+    if (columnStyles[cid]) {
+      newChanges[cid] = assign({}, columnStyles[cid], changes[cid]);
+    }
+  });
+  return assign({}, columnStyles, newChanges);
+}
+
+export function setColumnStyles(view, worksheetInfo, { updateWidths = true } = {}) {
+  return (dispatch, getState) => {
+    const listStyleStrOfWorksheet = get(worksheetInfo, 'advancedSetting.liststyle');
+    const listStyleStrOfView = get(view, 'advancedSetting.liststyle');
+    if (!listStyleStrOfView && !listStyleStrOfWorksheet) return;
+    const { time, styles } = getListStyle(listStyleStrOfView, listStyleStrOfWorksheet);
+    let columnStyles = styles.reduce((a, b) => Object.assign({}, a, { [b.cid]: b }), {});
+    const localColumnStyles = JSON.parse(getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', view.viewId) || '{}');
+    if (localColumnStyles.time && localColumnStyles.time > time) {
+      columnStyles = assign({}, columnStyles, localColumnStyles.styles);
+    } else if (time > localColumnStyles.time) {
+      clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', view.viewId);
+    }
+    if (updateWidths) {
+      const sheetColumnWidths = _.mapValues(columnStyles, item => item.width);
+      dispatch({ type: 'WORKSHEET_SHEETVIEW_INIT_COLUMN_WIDTH', value: sheetColumnWidths });
+    }
+    dispatch({
+      type: 'WORKSHEET_SHEETVIEW_UPDATE_COLUMN_STYLES',
+      value: columnStyles,
+    });
+  };
+}
+
+export function updateColumnStyles(changes) {
+  return (dispatch, getState) => {
+    const { sheetview } = getState().sheet;
+    const { columnStyles } = sheetview.sheetViewConfig;
+    dispatch({
+      type: 'WORKSHEET_SHEETVIEW_UPDATE_COLUMN_STYLES',
+      value: columnStylesMergeChanges(columnStyles, changes),
+    });
+  };
+}
+
+export function saveColumnStylesToLocal(changes) {
+  return (dispatch, getState) => {
+    const { sheetview, base } = getState().sheet;
+    const viewId = get(base, 'viewId');
+    if (viewId) {
+      const columnStyles = get(sheetview, 'sheetViewConfig.columnStyles');
+      const newColumnStyles = columnStylesMergeChanges(columnStyles, changes);
+      saveLRUWorksheetConfig(
+        'WORKSHEET_VIEW_COLUMN_STYLES',
+        viewId,
+        JSON.stringify({
+          time: Date.now(),
+          styles: newColumnStyles,
+        }),
+      );
+    }
+  };
+}
+
+export function getWorksheetSheetViewSummary({ reset = false } = {}) {
   return (dispatch, getState) => {
     const { base, sheetview, filters, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId, chartId } = base;
     const { rowsSummary } = sheetview.sheetViewData;
+    const configData = mapValues(sheetview.sheetViewConfig.columnStyles, 'report');
     let savedData = {};
     try {
       savedData = JSON.parse(getLRUWorksheetConfig('WORKSHEET_VIEW_SUMMARY_TYPES', viewId));
     } catch (err) {}
-    const types = Object.assign(savedData, rowsSummary.types);
+    let types = Object.assign(
+      savedData,
+      reset ? configData : pickBy(configData, identity),
+      reset ? {} : rowsSummary.types,
+    );
+    if (reset) {
+      types = mapValues(types, v => v || 0);
+    }
     const columnRpts = Object.keys(types).map(controlId => ({
       controlId,
       rptType: parseInt(types[controlId], 10),
@@ -716,13 +873,12 @@ export function getWorksheetSheetViewSummary() {
         }),
       )
       .then(data => {
-        if (data && data.length) {
-          dispatch({
-            type: 'WORKSHEET_SHEETVIEW_FETCH_REPORT_SUCCESS',
-            types: types,
-            values: [{}, ...data].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
-          });
-        }
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_FETCH_REPORT_SUCCESS',
+          types: types,
+          values:
+            data && data.length ? [{}, ...data].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })) : {},
+        });
       });
   };
 }

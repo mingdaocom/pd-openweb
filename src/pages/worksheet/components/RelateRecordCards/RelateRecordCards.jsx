@@ -1,31 +1,32 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _, { identity, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import sheetAjax from 'src/api/worksheet';
+import { Icon } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
-import { selectRecord } from 'src/components/recordCardListDialog';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
-import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
+import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
-import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
-import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import { getTitleTextFromRelateControl, controlState } from 'src/components/newCustomFields/tools/utils';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import RecordCoverCard from './RecordCoverCard';
-import RecordTag from './RecordTag';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
+import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
+import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
+import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
+import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
-import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
-import { Icon } from 'ming-ui';
-import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
-import { browserIsMobile, addBehaviorLog, getTranslateInfo, handlePushState, handleReplaceState } from 'src/util';
-import _, { identity, isEmpty } from 'lodash';
+import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { selectRecord } from 'src/components/recordCardListDialog';
+import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
+import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
+import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
+import { addBehaviorLog, browserIsMobile, getTranslateInfo, handlePushState, handleReplaceState } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+import RecordCoverCard from './RecordCoverCard';
+import RecordTag from './RecordTag';
+
 const MAX_COUNT = 200;
 
 const CARD_MIN_WIDTH = 360;
@@ -283,16 +284,11 @@ class RelateRecordCards extends Component {
     if (!_.isEqual(nextProps.records, this.props.records)) {
       this.setState({ records: nextProps.records, count: nextProps.count });
     }
-
-    const { pageIndex, showLoadMore, isLoadingMore } = this.state;
-    if (nextProps.loadMoreRelateCards && !isLoadingMore && showLoadMore) {
-      this.loadMoreRecords(pageIndex + 1);
-    }
   }
 
   get controls() {
     let {
-      control: { showControls, advancedSetting },
+      control: { showControls = [], advancedSetting },
     } = this.props;
     const { controls } = this.state;
     if (this.mobileShowAddAsDropdown) {
@@ -323,7 +319,7 @@ class RelateRecordCards extends Component {
     const { control = {} } = this.props;
     const { choosetype = '2' } = control.advancedSetting || {};
     const { enumDefault2 } = control;
-    return choosetype === '1' && enumDefault2 !== 10 && enumDefault2 !== 11;
+    return browserIsMobile() && choosetype === '1' && enumDefault2 !== 10 && enumDefault2 !== 11;
   }
 
   get mobileShowAddAsDropdown() {
@@ -415,7 +411,8 @@ class RelateRecordCards extends Component {
   }
 
   loadMoreRecords = (pageIndex = 2, nextProps) => {
-    const { from, controlId, recordId, worksheetId, advancedSetting } = (nextProps || this.props).control;
+    const { from, controlId, recordId, worksheetId, advancedSetting, instanceId, workId } = (nextProps || this.props)
+      .control;
     this.setState({
       isLoadingMore: true,
     });
@@ -427,6 +424,8 @@ class RelateRecordCards extends Component {
         pageIndex,
         pageSize: 50,
         getType: from === FROM.DRAFT ? from : undefined,
+        instanceId,
+        workId,
       })
       .then(res => {
         this.setState(state => {
@@ -687,7 +686,7 @@ class RelateRecordCards extends Component {
           {!!records.length &&
             (showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)).map((record, i) => (
               <RecordCoverCard
-                className={cardClassName}
+                className={cardClassName + (width > 700 ? '' : ' mBottom10')}
                 hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
                 showAddAsDropdown={this.showAddAsDropdown}
                 containerWidth={width}

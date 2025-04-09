@@ -6,7 +6,7 @@ import { Icon } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { SOURCE_TYPE } from './config';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import UploadFiles from 'src/components/UploadFiles';
 import { Tooltip, UserHead, LoadDiv, UserName, PreferenceTime } from 'ming-ui';
 import confirm from 'ming-ui/components/Dialog/Confirm';

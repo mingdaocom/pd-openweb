@@ -293,7 +293,7 @@ export const SelectFieldsWrap = styled.div`
       align-items: center;
       box-sizing: border-box;
       height: 36px;
-      max-width: 320px;
+      ${props => (props.limitWidth ? 'max-width: 320px;' : 'max-width: 100%;')}
       line-height: 36px;
       padding: 0 16px;
       cursor: pointer;

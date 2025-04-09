@@ -1,15 +1,15 @@
 import React from 'react';
 import { Button } from 'antd-mobile';
-import styled from 'styled-components';
 import update from 'immutability-helper';
-import CustomFields from 'src/components/newCustomFields';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { filterHidedSubList } from 'worksheet/util';
+import CustomFields from 'src/components/newCustomFields';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
-import _ from 'lodash';
+import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
 
 const Con = styled.div`
   display: flex;
@@ -219,7 +219,7 @@ class FillRecordControls extends React.Component {
     );
   };
   render() {
-    const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill } = this.props;
+    const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill, widgetStyle } = this.props;
     const { submitLoading, isSubmitting, formData, showError } = this.state;
 
     return (
@@ -239,6 +239,7 @@ class FillRecordControls extends React.Component {
               isWorksheetQuery
               ignoreLock
               ref={this.customwidget}
+              widgetStyle={widgetStyle}
               data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
               recordId={recordId}
               from={3}

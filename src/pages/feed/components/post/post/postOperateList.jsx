@@ -1,7 +1,7 @@
 ﻿import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import { Menu, MenuItem, Dialog } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';

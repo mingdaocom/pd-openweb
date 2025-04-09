@@ -98,6 +98,7 @@ export default class Gunter extends Component {
     }
     if (
       view.viewControl !== this.props.view.viewControl ||
+      view.advancedSetting.viewtitle !== this.props.view.advancedSetting.viewtitle ||
       view.advancedSetting.milepost !== this.props.view.advancedSetting.milepost ||
       view.advancedSetting.begindate !== this.props.view.advancedSetting.begindate ||
       view.advancedSetting.enddate !== this.props.view.advancedSetting.enddate

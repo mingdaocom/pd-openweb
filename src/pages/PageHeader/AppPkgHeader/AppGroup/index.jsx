@@ -466,7 +466,7 @@ export default class extends Component {
               <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
               <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
             </div>
-            {td && otherAllShow && !md.global.Account.isPortal && !window.isPublicApp && appPkg.appStatus !== 4 && (
+            {td && !md.global.Account.isPortal && !window.isPublicApp && appPkg.appStatus !== 4 && (
               <div className="appExtensionWrap">
                 <MyProcessEntry type="appPkg" renderContent={renderContent} />
               </div>

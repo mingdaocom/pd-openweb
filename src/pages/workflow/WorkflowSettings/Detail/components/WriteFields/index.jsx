@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Icon, Dialog, Switch } from 'ming-ui';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import cx from 'classnames';
+import { Checkbox, Dialog, Icon, Switch } from 'ming-ui';
 import { NODE_TYPE } from '../../../enum';
-import { Tooltip } from 'antd';
 
-const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51, 53, 54];
+const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51, 53, 54, 10010];
 
 const Box = styled.ul`
   > li {
@@ -342,7 +342,7 @@ export default class WriteFields extends Component {
               </div>
               {showCard && (
                 <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                  {!_.includes([14, 21, 22, 40, 41, 42, 43, 45, 47, 49, 51, 52, 54], item.type) && (
+                  {!_.includes([14, 21, 22, 40, 41, 42, 43, 45, 47, 49, 51, 52, 54, 10010], item.type) && (
                     <Checkbox
                       checked={item.showCard}
                       onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)}

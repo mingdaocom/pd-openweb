@@ -66,9 +66,69 @@
     background-color: #2196f324 !important;
     border-bottom: none;
   }
-  .mobileNavRadio{
-    .ming.Radio{
+  .mobileNavRadio {
+    .ming.Radio {
       margin-right: 56px;
+    }
+  }
+}
+
+.customAppNavSelect {
+  &.ant-select-multiple .ant-select-selection-item {
+    background: #d8eeff;
+    border-radius: 15px;
+    border: 1px solid #bbd6ea;
+    color: #2c6288;
+    padding: 0 12px;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    padding: 3px 24px 3px 10px;
+    border: 1px solid #e0e0e0;
+    box-shadow: none !important;
+  }
+  &.ant-select-open .ant-select-selector {
+    border-color: #2196f3 !important;
+    box-shadow: none !important;
+    background-color: #fff !important;
+  }
+  .ant-select-selection-item-content {
+    margin-right: 0 !important;
+  }
+}
+.mobileAppItemsWrap {
+  padding: 4px 0 6px;
+  box-sizing: border-box;
+  max-height: calc(~'100vh - 350px');
+  .searchWrap {
+    height: 40px;
+    margin: 0 6px;
+    box-sizing: border-box;
+    input {
+      border: none;
+    }
+  }
+  .line {
+    height: 1px;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 8px 15px;
+  }
+  .listWrap {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .item {
+    height: 40px;
+    padding: 0 15px;
+    .icon-drag {
+      visibility: hidden;
+    }
+    &:hover {
+      background-color: #f8f8f8;
+      .icon-drag {
+        visibility: visible;
+      }
     }
   }
 }

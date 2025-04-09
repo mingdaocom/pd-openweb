@@ -402,7 +402,7 @@ export default class Start extends Component {
         <div className="flex">
           <ScrollView>
             {flowInfo.child ? (
-              <SubProcess data={data} />
+              <SubProcess data={data} updateSource={this.updateSource} />
             ) : (
               <Fragment>
                 {_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], data.appType) && (

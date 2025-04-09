@@ -31,6 +31,8 @@ export default {
   * @param {integer} args.layer 层级 0：不限制
   * @param {string} args.textSplit 分割字符
   * @param {boolean} args.isLast 是否最后一级
+  * @param {boolean} args.isGlobalGeoRegion 是否国际地区
+  * @param {integer} args.langType 语言类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

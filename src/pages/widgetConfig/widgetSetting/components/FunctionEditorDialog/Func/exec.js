@@ -1,12 +1,132 @@
-import _, { isNumber } from 'lodash';
 import dayjs from 'dayjs';
+import _, { get, isNumber } from 'lodash';
 import qs from 'query-string';
-import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { functions } from './enum';
-import { asyncRun } from 'worksheet/util';
-import { handleDotAndRound } from 'src/components/newCustomFields/tools/DataFormat';
+import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { toFixed } from 'src/util';
+import { functions } from './enum';
+
+const execWorkerCode = `onmessage = function (e) {
+  try {
+  const result = new Function(e.data)();
+  if (typeof result === 'object' && typeof result.then === 'function') {
+      postMessage('promise begin');
+      Promise.all([result]).then(function ([value]) {
+        postMessage('promise value ' + value);
+        postMessage({
+          type: 'over',
+          value,
+        });
+      });
+    } else {
+      postMessage({
+        type: 'over',
+        value: new Function(e.data)(),
+      });
+    }
+  } catch (err) {
+    postMessage({
+      type: 'error',
+      err,
+    });
+  }
+};
+`;
+
+function genFunctionWorker() {
+  return new Worker('data:application/javascript,' + encodeURIComponent(execWorkerCode));
+}
+
+class Runner {
+  constructor({ max = 10 } = {}) {
+    this.max = max;
+    this.runningCount = 0;
+    this.queue = [];
+    this.workers = [];
+    this.list = [];
+    this.isRunning = false;
+  }
+  getWorker() {
+    const idleWorker = this.workers.filter(w => w.idle)[0];
+    if (idleWorker) {
+      return idleWorker;
+    } else if (this.workers.length < this.max) {
+      const newWorker = {
+        worker: genFunctionWorker(),
+        idle: false,
+        id: Math.random(),
+      };
+      this.workers.push(newWorker);
+      return newWorker;
+    }
+  }
+  run() {
+    const workerObj = this.getWorker();
+    if (!workerObj) {
+      return;
+    }
+    const item = this.list.shift();
+    if (!item) {
+      this.isRunning = false;
+      return;
+    }
+    const { code, cb, timeout } = item;
+    workerObj.idle = false;
+    this.isRunning = true;
+    this.runningCount++;
+    const afterRun = () => {
+      workerObj.idle = true;
+      this.runningCount--;
+      this.run();
+    };
+    let timer;
+    workerObj.worker.onmessage = msg => {
+      if (msg.data.type === 'begin') {
+        timer = setTimeout(() => {
+          workerObj.worker.terminate();
+          this.workers = this.workers.filter(w => w.id !== workerObj.id);
+          afterRun();
+          cb(timeout + 'ms time out');
+        }, timeout);
+      }
+      if (msg.data.type === 'over') {
+        afterRun();
+
+        cb(null, msg.data.value);
+        clearTimeout(timer);
+      }
+      if (msg.data.type === 'error') {
+        console.error(msg.err || get(msg, 'data.err'));
+        afterRun();
+        cb(msg.err || get(msg, 'data.err'));
+        clearTimeout(timer);
+      }
+    };
+    workerObj.worker.postMessage(code);
+  }
+  push({ code, cb, timeout }) {
+    this.list.push({ code, cb, timeout });
+    if (this.runningCount < this.max) {
+      this.run();
+    }
+  }
+}
+
+const runner = new Runner();
+
+/**
+ * 2023 9 25
+ * 函数运行方式改为走队列，最多只创建 10 个worker，解决了子表多记录时运行几百个函数导致的卡顿和超时问题。
+ * 问题：
+ * 现在瓶颈在表格更新端，函数运行挺快的但更新到表格时还是挨个单元格更新。
+ */
+
+function asyncRun(code, cb, { timeout = 1000 } = {}) {
+  runner.push({ code, cb, timeout });
+  // 测试使用，下面的写法是同步运行函数。
+  // const result = eval('function run() { ' + code + ' } run()');
+  // cb(null, result);
+}
 
 function replaceControlIdToValue(expression, formData, inString) {
   expression = expression.replace(/\$(.+?)\$/g, matched => {
@@ -91,20 +211,20 @@ function formatFunctionResult(control, value) {
   return result;
 }
 
-export default function (control, formData, { update, type, forceSyncRun = false } = {}) {
+export default function (control, formData, { update, type, forceSyncRun = false, defaultExpression } = {}) {
   const run = functions;
   let expressionData = {};
   try {
     expressionData = JSON.parse(control.advancedSetting.defaultfunc);
   } catch (err) {}
-  let expression = _.get(expressionData, 'expression');
+  let expression = defaultExpression || _.get(expressionData, 'expression');
   let fnType = _.get(expressionData, 'type');
   if (!expression) {
     throw new Error('expression is undefined');
   }
   let existDeletedControl, existUndefinedFunction;
   if (fnType !== 'javascript') {
-    expression = expression.replace(/([A-Z]+)(?=\()/g, name => {
+    expression = expression.replace(/([A-Z_]+)(?=\()/g, name => {
       if (run[name]) {
         return 'run.' + name;
       } else {

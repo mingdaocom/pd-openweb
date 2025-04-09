@@ -140,9 +140,10 @@ const Entry = props => {
   };
 
   const renderInfo = () => {
-    const { appName, worksheetName, viewName, appIcon, appIconColor } = share.data || {};
+    const { appName, worksheetName, viewName, appIcon, appIconColor, pageTitle } = share.data || {};
+    const title = pageTitle || `${appName}-${worksheetName}-${viewName}`;
     return (
-      <div className="Font16 bold flexRow alignItemsCenter">
+      <div className="Font16 bold flexRow flex alignItemsCenter">
         {appIcon && (
           <div
             className="svgWrap flexRow alignItemsCenter justifyContentCenter mRight10"
@@ -151,9 +152,9 @@ const Entry = props => {
             <SvgIcon url={appIcon} fill="#fff" size={22} />
           </div>
         )}
-        <div className="flex ellipsis">
-          {appName && `${appName}-${worksheetName}-${viewName}`}
-          {appName && <DocumentTitle title={`${appName}-${worksheetName}-${viewName}`} />}
+        <div className="flex ellipsis" title={title}>
+          {appName && title}
+          {appName && <DocumentTitle title={title} />}
         </div>
       </div>
     );

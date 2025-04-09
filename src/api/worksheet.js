@@ -234,6 +234,7 @@ export default {
   * @param {string} args.appId 应用Id
   * @param {string} args.password 密码code
   * @param {string} args.validTime 有效时间
+  * @param {string} args.pageTitle 页面标题
   * @param {boolean} args.isEdit 是否为编辑,获取url时不传，编辑时传true
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -381,6 +382,8 @@ export default {
   * @param {boolean} args.getRules
   * @param {} args.getType
   * @param {array} args.fastFilters 快递筛选
+  * @param {string} args.instanceId
+  * @param {string} args.workId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1163,6 +1166,7 @@ export default {
   * 获取可见视图
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
+  * @param {string} args.viewId
   * @param {string} args.appId 应用Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1171,6 +1175,20 @@ export default {
    getWorksheetViews: function (args, options = {}) {
      
      return mdyAPI('Worksheet', 'GetWorksheetViews', args, options);
+   },
+  /**
+  * 获取视图详情
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.viewId
+  * @param {string} args.appId 应用Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetViewById: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetWorksheetViewById', args, options);
    },
   /**
   * 删除视图
@@ -1608,6 +1626,24 @@ export default {
      return mdyAPI('Worksheet', 'EditControlsStatus', args, options);
    },
   /**
+  * 获取字段和表引用关系
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.controlId 字段ID
+  * @param {integer} args.type 类型 1：字段引用关系 2：工作表引用关系
+  * @param {integer} args.module 模块 1：工作表 2：工作流
+  * @param {integer} args.subModule 子模块 0：表示获取全部 101：字段 102：视图 103：业务规则 201：流程节点
+  * @param {boolean} args.isRefresh 刷新引用关系
+  * @param {string} args.appId 空表示所有引用，默认传当前应用ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetReferences: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetWorksheetReferences', args, options);
+   },
+  /**
   * 获取系统打印列表
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId
@@ -1793,6 +1829,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 打印模板id
   * @param {} args.allowDownloadPermission
+  * @param {boolean} args.allowEditAfterPrint 允许编辑后再打印
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

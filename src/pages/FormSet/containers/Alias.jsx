@@ -1,12 +1,12 @@
-import React, { useRef, useEffect } from 'react';
-import { Icon, ScrollView } from 'ming-ui';
-import AliasDialog from '../components/AliasDialog';
+import React, { useEffect, useRef } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import './alias.less';
+import _ from 'lodash';
+import { Icon, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import _ from 'lodash';
-import { useSetState } from 'react-use';
+import AliasDialog from '../components/AliasDialog';
+import './alias.less';
 
 export default function Alias(props) {
   const { match = {}, onChange } = props;
@@ -70,7 +70,9 @@ export default function Alias(props) {
     sheetAjax.updateWorksheetAlias({ appId, worksheetId, alias: e.target.value.trim() }).then(res => {
       //0:成功 1：失败 2：别名重复 3：格式不匹配
       if (res === 0) {
-        setState({ alias: e.target.value.trim() });
+        const alias = e.target.value.trim();
+        setState({ alias });
+        onChange({ ...worksheetInfo, alias });
       } else if (res === 3) {
         alert(_l('工作表别名格式不匹配'), 3);
       } else if (res === 2) {
@@ -135,14 +137,19 @@ export default function Alias(props) {
                     <Icon icon="workbench" className="Font18" />
                   </span>
                   <span className="textCon">
-                    <span className="text">
-                      {_l('应用消息:您已被')}
-                      <span className="">@{_l('刘兰')}</span>
-                      {_l('添加为')}
-                      <b className={cx('Normal', { nameFocus })}>{name}</b>：
-                      <span className="">{_l('销售线索管理')}</span>
-                      {_l('的负责人')}
-                    </span>
+                    <span
+                      className="text"
+                      dangerouslySetInnerHTML={{
+                        __html: _l(
+                          '应用消息:您已被%0@刘兰%1添加为%2：%3销售线索管理%4的负责人',
+                          '<span>',
+                          '</span>',
+                          `<b class="Normal ${nameFocus ? 'nameFocus' : ''}">${name}</b>`,
+                          '<span>',
+                          '</span>',
+                        ),
+                      }}
+                    />
                     <span className="time mTop20 Block">2020-05-09 10:21:35</span>
                   </span>
                 </span>

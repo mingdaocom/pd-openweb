@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState, onValidator } from 'src/components/newCustomFields/tools/formUtils';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import DataFormat, { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import {
   checkIsTextControl,
@@ -39,7 +39,7 @@ import Search from './Search';
 import RelationSearch from './RelationSearch';
 
 import './CellControls.less';
-import _, { get } from 'lodash';
+import _, { get, includes, isUndefined } from 'lodash';
 
 function mergeControlAdvancedSetting(control = {}, advancedSetting = {}) {
   return {
@@ -518,6 +518,7 @@ export default class CellControl extends React.Component {
       cellIndex,
       rowFormData,
       masterData,
+      columnStyle = {},
       from,
       mode,
       rowHeight,
@@ -630,6 +631,7 @@ export default class CellControl extends React.Component {
       cell: { ...cell },
       rowFormData,
       masterData,
+      columnStyle,
       from: from,
       mode,
       tableFromModule,
@@ -672,11 +674,15 @@ export default class CellControl extends React.Component {
       }
       return <Text {...props} needLineLimit={needLineLimit} />;
     }
-    if (_.includes([9, 10, 11], cell.type) && cell.advancedSetting.showtype !== '2') {
-      return <Options {...props} />;
-    }
-    if (_.includes([9, 10, 11], cell.type) && cell.advancedSetting.showtype === '2') {
+    if (
+      cell.type === 11 &&
+      (columnStyle.showtype === 2 ||
+        (cell.advancedSetting.showtype === '2' && (isUndefined(columnStyle.showtype) || isediting)))
+    ) {
       return <OptionSteps {...props} />;
+    }
+    if (_.includes([9, 10, 11], cell.type) && (columnStyle.showtype !== 2 || includes([10, 11], cell.type))) {
+      return <Options {...props} />;
     }
     if (cell.type === 28) {
       return <Level {...props} />;

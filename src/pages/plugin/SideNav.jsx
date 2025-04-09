@@ -2,9 +2,9 @@ import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, MdLink } from 'ming-ui';
-import { sideNavList } from './config';
 import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { sideNavList } from './config';
 
 const Wrap = styled.div`
   width: 241px;
@@ -58,10 +58,6 @@ const Wrap = styled.div`
       margin-left: 6px;
       font-size: 16px;
     }
-    .betaIcon {
-      color: rgb(76, 175, 80) !important;
-      margin-left: 4px;
-    }
 
     &.isDisabled {
       color: #757575;
@@ -112,7 +108,10 @@ class SideNav extends React.Component {
                 {group.title && <div className="Gray_9e mTop28 pLeft18">{group.title}</div>}
                 <ul className={index === 0 ? 'mTop16' : 'mTop12'}>
                   {group.list
-                    .filter(o => o.type !== 'node' || featureType)
+                    .filter(
+                      o =>
+                        (o.type !== 'node' || featureType) && !(md.global.Config.IsLocal && o.type === 'pluginMarket'),
+                    )
                     .map((item, index) => {
                       return (
                         <li
@@ -122,10 +121,19 @@ class SideNav extends React.Component {
                             isDisabled: item.disabled,
                           })}
                         >
-                          <MdLink className="overflow_ellipsis pRight10" to={`/plugin/${item.type}`}>
+                          <MdLink
+                            className="overflow_ellipsis pRight10 stopPropagation"
+                            to={`/plugin/${item.type}`}
+                            onClick={e => {
+                              if (item.type === 'pluginMarket') {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                window.open(`${md.global.Config.MarketUrl}/plugins`);
+                              }
+                            }}
+                          >
                             <Icon icon={item.icon} />
                             <span>{item.text}</span>
-                            {item.type === 'node' && <Icon icon="beta1" className="betaIcon" />}
                           </MdLink>
                         </li>
                       );

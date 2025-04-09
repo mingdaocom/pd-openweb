@@ -65,13 +65,12 @@
     .item {
       color: #757575;
       font-size: 14px;
-      padding: 0 25px;
+      padding: 0 16px;
       cursor: pointer;
       position: relative;
       line-height: 50px;
       display: flex;
       align-items: center;
-      font-weight: normal;
       &:before {
         content: '';
         width: 100%;
@@ -96,20 +95,27 @@
     }
     .processCount {
       color: #757575;
-      margin-left: 8px;
+      margin-left: 4px;
     }
-    .red {
-      color: #F44336;
+    .darkRed, .red {
       border-radius: 20px;
       min-width: 20px;
       height: 20px;
-      background-color: #fce4e3;
+      line-height: 20px;
       width: auto;
       padding: 0 6px;
       display: flex;
-      line-height: normal;
       align-items: center;
       justify-content: center;
+    }
+    .darkRed {
+      font-weight: bold;
+      color: #fff;
+      background-color: #F44336;
+    }
+    .red {
+      color: #F44336;
+      background-color: #fce4e3;
     }
   }
   .cuttingLine {

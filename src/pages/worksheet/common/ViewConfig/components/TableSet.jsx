@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Icon, Tooltip, CheckBlock, Radio } from 'ming-ui';
 import _ from 'lodash';
 import { SwitchStyle } from './style';
@@ -7,6 +7,7 @@ import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
 export default function TableSet(props) {
   const { appId, view, updateCurrentView } = props;
+  const isManageView = view.viewId === view.worksheetId;
   const handleChange = (obj, editAttrs) => {
     if (editAttrs) {
       updateCurrentView({
@@ -72,77 +73,81 @@ export default function TableSet(props) {
             </div>
           );
         })}
-      <div className="commonConfigItem Font13 bold mTop32">{_l('表格交互方式')}</div>
-      <div className="mTop12">
-        <Radio
-          className=""
-          text={_l('经典模式')}
-          checked={_.get(view, 'advancedSetting.sheettype') !== '1'}
-          onClick={value => {
-            handleChange({ sheettype: '0' }); ////表格交互
-          }}
-        />
-        <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
-          {_l('点整行打开记录')}
-        </div>
-      </div>
-      <div className="mTop20">
-        <Radio
-          className=""
-          text={_l('电子表格模式')}
-          checked={_.get(view, 'advancedSetting.sheettype') === '1'}
-          onClick={value => {
-            handleChange({ sheettype: '1' });
-          }}
-        />
-        <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
-          {_l('点单元格选中字段，按空格键打开记录')}
-        </div>
-      </div>
-      <div className="commonConfigItem Font13 bold mTop32">{_l('更多设置')}</div>
-      <SwitchStyle className="mTop12">
-        <div className="flexRow alignItemsCenter">
-          <Icon
-            icon={_.get(view, 'advancedSetting.fastedit') !== '0' ? 'ic_toggle_on' : 'ic_toggle_off'} //'1', //行内编辑
-            className="Font28 Hand"
-            onClick={() => {
-              handleChange({ fastedit: _.get(view, 'advancedSetting.fastedit') !== '0' ? '0' : '1' });
-            }}
-          />
+      {!isManageView && (
+        <Fragment>
+          <div className="commonConfigItem Font13 bold mTop32">{_l('表格交互方式')}</div>
+          <div className="mTop12">
+            <Radio
+              className=""
+              text={_l('经典模式')}
+              checked={_.get(view, 'advancedSetting.sheettype') !== '1'}
+              onClick={value => {
+                handleChange({ sheettype: '0' }); ////表格交互
+              }}
+            />
+            <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+              {_l('点整行打开记录')}
+            </div>
+          </div>
+          <div className="mTop20">
+            <Radio
+              className=""
+              text={_l('电子表格模式')}
+              checked={_.get(view, 'advancedSetting.sheettype') === '1'}
+              onClick={value => {
+                handleChange({ sheettype: '1' });
+              }}
+            />
+            <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+              {_l('点单元格选中字段，按空格键打开记录')}
+            </div>
+          </div>
+          <div className="commonConfigItem Font13 bold mTop32">{_l('更多设置')}</div>
+          <SwitchStyle className="mTop12">
+            <div className="flexRow alignItemsCenter">
+              <Icon
+                icon={_.get(view, 'advancedSetting.fastedit') !== '0' ? 'ic_toggle_on' : 'ic_toggle_off'} //'1', //行内编辑
+                className="Font28 Hand"
+                onClick={() => {
+                  handleChange({ fastedit: _.get(view, 'advancedSetting.fastedit') !== '0' ? '0' : '1' });
+                }}
+              />
 
-          <div className="switchText InlineBlock Normal mLeft12">{_l('允许行内编辑')}</div>
-        </div>
-        <div className="flexRow">
-          <div className="w28" />
-          <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
-            {_l('无需打开记录详情，在表格行内直接编辑字段')}
-          </div>
-        </div>
-      </SwitchStyle>
-      <SwitchStyle className="mTop12">
-        <div className="flexRow alignItemsCenter">
-          <Icon
-            icon={
-              _.get(view, 'advancedSetting.enablerules') !== '0' ////启用业务规则
-                ? 'ic_toggle_on'
-                : 'ic_toggle_off'
-            }
-            className="Font28 Hand"
-            onClick={() => {
-              handleChange({
-                enablerules: _.get(view, 'advancedSetting.enablerules') !== '0' ? '0' : '1',
-              });
-            }}
-          />
-          <div className="switchText InlineBlock Normal mLeft12">{_l('启用业务规则')}</div>
-        </div>
-        <div className="flexRow">
-          <div className="w28"></div>
-          <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
-            {_l('在表格中生效业务规则，但会影响表格性能')}
-          </div>
-        </div>
-      </SwitchStyle>
+              <div className="switchText InlineBlock Normal mLeft12">{_l('允许行内编辑')}</div>
+            </div>
+            <div className="flexRow">
+              <div className="w28" />
+              <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+                {_l('无需打开记录详情，在表格行内直接编辑字段')}
+              </div>
+            </div>
+          </SwitchStyle>
+          <SwitchStyle className="mTop12">
+            <div className="flexRow alignItemsCenter">
+              <Icon
+                icon={
+                  _.get(view, 'advancedSetting.enablerules') !== '0' ////启用业务规则
+                    ? 'ic_toggle_on'
+                    : 'ic_toggle_off'
+                }
+                className="Font28 Hand"
+                onClick={() => {
+                  handleChange({
+                    enablerules: _.get(view, 'advancedSetting.enablerules') !== '0' ? '0' : '1',
+                  });
+                }}
+              />
+              <div className="switchText InlineBlock Normal mLeft12">{_l('启用业务规则')}</div>
+            </div>
+            <div className="flexRow">
+              <div className="w28"></div>
+              <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+                {_l('在表格中生效业务规则，但会影响表格性能')}
+              </div>
+            </div>
+          </SwitchStyle>
+        </Fragment>
+      )}
     </div>
   );
 }

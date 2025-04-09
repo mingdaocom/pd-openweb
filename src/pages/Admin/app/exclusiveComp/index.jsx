@@ -76,7 +76,7 @@ export default class ExclusiveComp extends Component {
 
     return (
       <div className="orgManagementWrap exclusiveComp flex flexColumn">
-        <AdminTitle prefix={activeKey === 'computing' ? _l('专属算力') : _l('专属数据库')} />
+        <AdminTitle prefix={activeKey === 'computing' ? _l('专属资源 - 算力') : _l('专属资源 - 数据库')} />
         {this.renderHeader()}
 
         {hasComputing && (

@@ -3,9 +3,8 @@ import { Icon, Checkbox } from 'ming-ui';
 import { SettingItem, AnimationWrap, DisplayMode } from '../../../styled';
 import WidgetColor from '../WidgetColor';
 import cx from 'classnames';
-import { handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
+import { handleAdvancedSettingChange, updateConfig, canSetWidgetStyle } from '../../../util/setting';
 import { SectionItem } from '../SplitLineConfig/style';
-import { HAVE_VALUE_STYLE_WIDGET } from '../../../config';
 import { isCustomWidget, notExplainDisplay, getAdvanceSetting } from '../../../util';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 
@@ -238,7 +237,7 @@ const OtherDefault = props => {
 const TextHeightLimit = props => {
   const { data, onChange } = props;
   const { type } = data;
-  const { minheight, maxheight } = getAdvanceSetting(data);
+  const { minheight = '90', maxheight } = getAdvanceSetting(data);
   return (
     <SettingItem>
       <div className="settingItemTitle">{_l('文本框高度（px）')}</div>
@@ -253,21 +252,20 @@ const TextHeightLimit = props => {
             onChange(handleAdvancedSettingChange(data, { minheight: value }));
           }}
           onBlur={value => {
-            let tempMinValue = value;
-            if (type === 2 && tempMinValue < 36) {
+            let tempMinValue = Number(value || 36);
+            if (tempMinValue < 36) {
               tempMinValue = 36;
             }
-            if (type === 41 && tempMinValue < 90) {
-              tempMinValue = 90;
-            }
-            const max = type === 2 ? maxheight || 400 : maxheight;
-            if (max && tempMinValue > Number(max)) {
+            if (maxheight && tempMinValue > Number(maxheight)) {
               tempMinValue = max;
             }
             onChange(handleAdvancedSettingChange(data, { minheight: tempMinValue.toString() }));
           }}
         />
       </SectionItem>
+      <div className="Gray_75 mTop6" style={{ paddingLeft: '50px' }}>
+        {_l('最小可设为36px（单行高度）')}
+      </div>
       <SectionItem>
         <div className="label Gray_75">{_l('最大')}</div>
         <InputValue
@@ -279,12 +277,12 @@ const TextHeightLimit = props => {
             onChange(handleAdvancedSettingChange(data, { maxheight: value }));
           }}
           onBlur={value => {
-            let tempMaxValue = value;
+            let tempMaxValue = Number(value);
             if (type === 2 && tempMaxValue > 400) {
               tempMaxValue = 400;
             }
-            if (minheight && tempMaxValue && tempMaxValue < Number(minheight)) {
-              tempMaxValue = minheight;
+            if (minheight && tempMaxValue < Number(minheight)) {
+              tempMaxValue = min;
             }
             onChange(handleAdvancedSettingChange(data, { maxheight: tempMaxValue.toString() }));
           }}
@@ -312,19 +310,17 @@ export const WidgetItem = props => {
           />
         </SettingItem>
       )}
-      {!isCustomWidget(data) &&
-        (_.includes(HAVE_VALUE_STYLE_WIDGET, type) ||
-          (type === 51 && (enumDefault === 1 ? showControls.length === 1 : showtype === '3'))) && (
-          <SettingItem>
-            <div className="settingItemTitle">{type === 51 ? _l('字段值（文本）') : _l('字段值')}</div>
-            <StyleDefault
-              {...props}
-              editKey="valuedefault"
-              defaultStyle={JSON.stringify({ style: valuestyle, color: valuecolor, size: valuesize })}
-            />
-          </SettingItem>
-        )}
-      {((type === 2 && enumDefault === 1) || type === 41) && <TextHeightLimit {...props} />}
+      {!isCustomWidget(data) && canSetWidgetStyle(data) && (
+        <SettingItem>
+          <div className="settingItemTitle">{type === 51 ? _l('字段值（文本）') : _l('字段值')}</div>
+          <StyleDefault
+            {...props}
+            editKey="valuedefault"
+            defaultStyle={JSON.stringify({ style: valuestyle, color: valuecolor, size: valuesize })}
+          />
+        </SettingItem>
+      )}
+      {((type === 2 && _.includes([1, 3], enumDefault)) || type === 41) && <TextHeightLimit {...props} />}
     </Fragment>
   );
 };

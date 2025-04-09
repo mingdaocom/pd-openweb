@@ -92,7 +92,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -127,6 +127,13 @@ export const CUR_USER = [{ icon: 'icon-account_circle', key: 'user', id: 'user-s
 export const WATER_MASK_TYPES = [
   { id: 'user-self', text: _l('当前用户姓名'), key: 'waterMask', icon: 'icon-account_circle' },
   { id: 'current-time', text: _l('当前日期'), key: 'waterMask', icon: 'icon-access_time' },
+];
+
+export const H5_WATER_MASK_TYPES = [
+  { id: 'user', text: _l('当前用户'), key: 'h5waterMask', icon: 'icon-account_circle' },
+  { id: 'time', text: _l('当前拍摄时间'), key: 'h5waterMask', icon: 'icon-access_time' },
+  { id: 'address', text: _l('当前地点'), key: 'h5waterMask', icon: 'icon-location' },
+  { id: 'xy', text: _l('当前地点经纬度'), key: 'h5waterMask', icon: 'icon-a-latlng' },
 ];
 
 export const CUR_SEARCH_TYPES = [
@@ -233,6 +240,7 @@ export const OTHER_FIELD_TYPE = {
   KEYWORD: 'keyword',
   OCR: 'ocr',
   WATER_MASK: 'waterMask',
+  H5_WATER_MASK: 'h5waterMask',
   EMPTY: 'empty',
   CODE_RESULT: 'codeResult',
   TRIGGER_TIME: 'triggerTime',
@@ -346,4 +354,5 @@ export const DYNAMIC_FROM_MODE = {
   ORG_CONFIG: 8, // 组织角色选择范围
   CUSTOM_EVENT: 9, // 自定义事件
   FAST_FILTER: 10, // 快速筛选
+  H5_WATER_MASK: 11, // h5照片水印
 };

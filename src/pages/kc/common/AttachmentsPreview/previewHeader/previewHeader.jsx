@@ -15,7 +15,8 @@ import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import _ from 'lodash';
 import 'rc-trigger/assets/index.css';
 import CommonHeader from './CommonHeader';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 
 class PreviewHeader extends React.Component {

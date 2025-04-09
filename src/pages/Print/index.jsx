@@ -1,32 +1,32 @@
-import React, { Fragment } from 'react';
-import cx from 'classnames';
-import SideNav from './components/sideNav/index';
-import Header from './components/header';
-import Con from './components/content';
-import { Icon, Dialog, LoadDiv } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
-import homeAppApi from 'src/api/homeApp';
-import instance from 'src/pages/workflow/api/instanceVersion';
-import './index.less';
-import SaveDia from './components/saveDia';
-import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE } from './config';
-import { mdNotification } from 'ming-ui/functions';
-import webCacheAjax from 'src/api/webCache';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
+import React from 'react';
 import axios from 'axios';
-import { getControlsForPrint, SYST_PRINTData, isRelation, getVisibleControls, useUserPermission } from './util';
-import appManagementAjax from 'src/api/appManagement';
+import cx from 'classnames';
 import _ from 'lodash';
-import { addBehaviorLog, getTranslateInfo, getAppLangDetail, getFeatureStatus } from 'src/util';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import processAjax from 'src/pages/workflow/api/processVersion';
-import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
-import { VersionProductType } from 'src/util/enum';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { mdNotification } from 'ming-ui/functions';
 import attachmentAjax from 'src/api/attachment';
+import homeAppApi from 'src/api/homeApp';
+import webCacheAjax from 'src/api/webCache';
+import sheetAjax from 'src/api/worksheet';
+import instance from 'src/pages/workflow/api/instanceVersion';
+import processAjax from 'src/pages/workflow/api/processVersion';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
+import { addBehaviorLog, getAppLangDetail, getFeatureStatus, getTranslateInfo } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import Con from './components/content';
+import Header from './components/header';
+import SaveDia from './components/saveDia';
+import SideNav from './components/sideNav/index';
+import { DEFAULT_FONT_SIZE, fromType, PRINT_TYPE, typeForCon } from './config';
+import { getControlsForPrint, getVisibleControls, isRelation, SYST_PRINTData, useUserPermission } from './util';
+import { getDownLoadUrl } from './util';
+import './index.less';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -66,6 +66,7 @@ class PrintForm extends React.Component {
       isWps: false,
       showSavePreviewService: false,
       showHeader: true,
+      editLoading: false,
     };
   }
 
@@ -138,6 +139,7 @@ class PrintForm extends React.Component {
                 },
                 printData: {
                   allowDownloadPermission: data.allowDownloadPermission,
+                  allowEditAfterPrint: data.allowEditAfterPrint,
                   ...this.state.printData,
                   name: data.name,
                 },
@@ -194,15 +196,17 @@ class PrintForm extends React.Component {
             this.getData();
           }
         } else {
-          this.setState({
-            isLoading: false,
-          });
+          this.setState({ isLoading: false });
 
           if (from === fromType.PRINT && printId) {
             document.title = `${name}-${isBatch ? _l('批量打印') : renderCellText(attriData) || _l('未命名')}`;
           }
 
-          this.getDownLoadUrl(res.downLoadUrl);
+          getDownLoadUrl(res.downLoadUrl, params, link => {
+            this.setState({ ajaxUrlStr: link }, () => {
+              link !== 'error' && this.getFiles();
+            });
+          });
         }
       },
     );
@@ -212,47 +216,6 @@ class PrintForm extends React.Component {
     if (evt.key === 'Escape') {
       this.setState({ showPdf: false, showHeader: true });
     }
-  };
-
-  getDownLoadUrl = async downLoadUrl => {
-    const { params } = this.state;
-    const { worksheetId, rowId, printId, projectId, appId, viewId, fileTypeNum } = params;
-    //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
-    const token = await appManagementAjax.getToken({ worksheetId, viewId, tokenType: 5 });
-    let payload = {
-      id: printId,
-      rowId: rowId,
-      accountId: md.global.Account.accountId,
-      worksheetId,
-      appId,
-      projectId,
-      t: new Date().getTime(),
-      viewId,
-      token,
-    };
-
-    window
-      .mdyAPI('', '', payload, {
-        ajaxOptions: { url: downLoadUrl + (fileTypeNum === 5 ? '/ExportXlsx/GetXlsxPath' : '/ExportWord/GetWordPath') },
-        customParseResponse: true,
-      })
-      .then(r => {
-        if (r.message) {
-          alert(r.message, 2);
-          this.setState({ ajaxUrlStr: 'error' });
-          return;
-        }
-
-        this.setState(
-          {
-            ajaxUrlStr: r.data,
-          },
-          () => this.getFiles(),
-        );
-      })
-      .fail(() => {
-        this.setState({ ajaxUrlStr: 'error' });
-      });
   };
 
   getApproval = () => {
@@ -780,12 +743,19 @@ class PrintForm extends React.Component {
   getFiles = () => {
     let { params, ajaxUrlStr } = this.state;
 
-    this.setState({
-      pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${params.name}.${
-        params.fileTypeNum === 5 ? 'xlsx' : 'docx'
-      }&filePath=${ajaxUrlStr.replace(/\?.*/, '')}`,
-      isLoading: false,
-    });
+    this.setState(
+      {
+        pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${params.name}.${
+          params.fileTypeNum === 5 ? 'xlsx' : 'docx'
+        }&filePath=${ajaxUrlStr.replace(/\?.*/, '')}`,
+        isLoading: false,
+      },
+      () => {
+        if (_.get(this.state, 'params.from') === fromType.PRINT) {
+          this.onClickPrint();
+        }
+      },
+    );
   };
 
   downFn = () => {
@@ -806,27 +776,29 @@ class PrintForm extends React.Component {
   };
 
   onEdit = () => {
-    const { params = {} } = this.state;
-    const { worksheetId, printId } = params;
+    const { params = {}, ajaxUrlStr } = this.state;
+    const { worksheetId, printId, from } = params;
+    const isFormSet = from === fromType.FORM_SET;
+    this.setState({ editLoading: true });
 
     attachmentAjax
       .getAttachmentEditDetail({
         fileId: printId,
-        editType: 2,
+        editType: isFormSet ? 2 : 3,
         worksheetId,
+        fileUrl: isFormSet ? undefined : ajaxUrlStr,
       })
       .then(res => {
-        if (res.wpsEditUrl) window.open(res.wpsEditUrl);
+        if (res.wpsEditUrl) location.href = res.wpsEditUrl;
       });
   };
 
   renderShowPdf = () => {
-    const { params, printData, showHeader, useWps, isHaveCharge, info, downLoadUrl } = this.state;
-    const { fileTypeNum, allowDownloadPermission, from, projectId, worksheetId } = params;
+    const { params, printData, showHeader, useWps, isHaveCharge, info, editLoading } = this.state;
+    const { fileTypeNum, allowDownloadPermission, from, projectId, worksheetId, allowEditAfterPrint, isBatch } = params;
     const allowDown = isHaveCharge || !allowDownloadPermission;
     const canEditFile =
-      from === fromType.FORM_SET &&
-      _.get(info, 'roleType') === 2 &&
+      (from === fromType.FORM_SET ? _.get(info, 'roleType') === 2 && fileTypeNum !== 5 : allowEditAfterPrint) &&
       getFeatureStatus(projectId, VersionProductType.editAttachment);
 
     return (
@@ -839,7 +811,6 @@ class PrintForm extends React.Component {
           </p>
         </div>
         <CommonHeader
-          className={''}
           editNameInfo={{
             name: printData.name,
             ext: fileTypeNum === 5 ? 'xlsx' : 'docx',
@@ -847,9 +818,10 @@ class PrintForm extends React.Component {
           }}
           showKcVersionPanel={false}
           attachmentActionInfo={{
+            editLoading: editLoading,
             cauUseWpsPreview: fileTypeNum !== 5,
             userWps: useWps,
-            showEdit: canEditFile && md.global.Config.EnableDocEdit !== false,
+            showEdit: !isBatch && canEditFile && md.global.Config.EnableDocEdit !== false,
             changePreview: type => this.setState({ useWps: type === 'wps' }),
             clickEdit: this.onEdit,
           }}
@@ -899,9 +871,14 @@ class PrintForm extends React.Component {
     }
   };
 
+  onClickPrint = () => {
+    this.handleBehaviorLog();
+    this.setState({ showPdf: true, showHeader: false });
+  };
+
   renderExportRes = () => {
     const { ajaxUrlStr, params, isHaveCharge } = this.state;
-    const { fileTypeNum, allowDownloadPermission } = params;
+    const { allowDownloadPermission, fileTypeNum } = params;
     const allowDown = isHaveCharge || !allowDownloadPermission;
 
     return (
@@ -913,46 +890,30 @@ class PrintForm extends React.Component {
         )}
         <p className="dec">{ajaxUrlStr === 'error' ? _l('导出失败') : _l('导出成功！')}</p>
         {ajaxUrlStr !== 'error' && (
-          <Fragment>
+          <div className="mTop20">
+            <div className="toPdf mBottom16" onClick={this.onClickPrint}>
+              <span className="Font15">{_l('打印')}</span>
+            </div>
             {allowDown && (
-              <p
+              <div
                 className="downWord"
                 onClick={() => {
                   this.handleBehaviorLog();
                   this.downFn();
                 }}
               >
-                <Icon
-                  icon={'file_download'}
-                  className="Font16"
-                  style={{ marginLeft: -14, 'vertical-align': 'bottom' }}
-                />
-                {fileTypeNum === 5 ? _l('下载 Excel 文件') : _l('下载 Word 文件')}
-              </p>
+                <span className="Font15">{_l('下载%0文件', fileTypeNum === 5 ? 'Excel' : 'Word')}</span>
+              </div>
             )}
-            <div
-              className="toPdf"
-              onClick={() => {
-                this.handleBehaviorLog();
-                this.setState({
-                  showPdf: true,
-                  showHeader: false,
-                });
-              }}
-            >
-              {_l('在线预览，直接用浏览器打印')}
-            </div>
-          </Fragment>
+          </div>
         )}
-        <p className="txt">{_l('文件复杂时可能会失败')}</p>{' '}
       </React.Fragment>
     );
   };
 
   renderWordCon = () => {
-    const { ajaxUrlStr, showPdf, params, printData, showHeader, useWps, isHaveCharge } = this.state;
-    const { fileTypeNum, allowDownloadPermission } = params;
-    const allowDown = isHaveCharge || !allowDownloadPermission;
+    const { ajaxUrlStr, showPdf, params } = this.state;
+    const { fileTypeNum } = params;
 
     if (!showPdf) {
       return (
@@ -962,7 +923,7 @@ class PrintForm extends React.Component {
               <div className="wordPng"></div>
               <p className="dec">
                 <LoadDiv size="small" className="mRight10" />
-                {_l(fileTypeNum === 5 ? '正在导出Excel文件...' : '正在导出Word文件...')}
+                {fileTypeNum === 5 ? _l('正在导出Excel文件...') : _l('正在导出Word文件...')}
               </p>
               <p className="txt">{_l('包含图片时生成速度较慢，请耐心等待...')}</p>
             </React.Fragment>

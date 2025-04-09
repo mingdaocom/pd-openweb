@@ -1,9 +1,8 @@
 import React, { Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import { parseDataSource } from '../../util/setting';
 import { getMoneyCnControls } from '../../util/data';
-import { formatControlsToDropdown } from '../../util';
+import { formatControlsToDropdown, parseDataSource } from '../../util';
 
 export default function MoneyCn({ data, onChange, allControls }) {
   const moneyControls = formatControlsToDropdown(getMoneyCnControls(allControls, data));

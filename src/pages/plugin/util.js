@@ -34,6 +34,8 @@ export const getPluginOperateText = (recentOperation = {}) => {
       break;
     case 3:
       operateText = _l('导入于');
+    case 4:
+      operateText = _l('安装于');
       break;
     default:
       break;

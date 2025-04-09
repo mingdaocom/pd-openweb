@@ -256,11 +256,7 @@ export default class Widgets extends Component {
       );
     }
 
-    const inputAttribute = isMobile
-      ? window.isIphone
-        ? { type: 'number', pattern: '\d' }
-        : { inputmode: 'decimal' }
-      : {};
+    const inputAttribute = { inputmode: 'decimal' };
 
     return (
       <div className="flexCenter flexRow">

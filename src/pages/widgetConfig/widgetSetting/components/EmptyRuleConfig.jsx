@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
 
@@ -10,12 +10,12 @@ const RULE_CONFIG = [
 ];
 
 const isDynamicValue = (filters = []) => {
-  for (const f of filters) {
+  return _.some(filters, f => {
     if (f.isGroup) {
       return _.some(f.groupFilters || [], g => !_.isEmpty(g.dynamicSource) || g.isDynamicsource);
     }
     return !_.isEmpty(f.dynamicSource) || f.isDynamicsource;
-  }
+  });
 };
 
 export default function EmptyRuleConfig({ filters, handleChange }) {

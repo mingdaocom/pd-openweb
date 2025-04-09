@@ -102,6 +102,7 @@ class Range extends React.Component {
   render() {
     const { data = {}, diaRang } = this.props;
     const { viewIds = [] } = data;
+
     return (
       <RangeBox
         className="rangeBox Absolute"
@@ -181,7 +182,7 @@ class Range extends React.Component {
               />
               <p className="mLeft25 mTop10 mBottom16"></p>
               {!diaRang &&
-                this.props.views.map(it => {
+                this.props.views.filter(l => l.viewId !== l.worksheetId).map(it => {
                   return (
                     <div
                       className="mTop15 mLeft25 inputTxt Hand"

@@ -23,7 +23,7 @@ import {
   getCodeContent,
   getDefaultText,
 } from './util';
-import { generatePdf } from '.';
+import { generatePdf } from './GeneratingPdf';
 import _ from 'lodash';
 import { addBehaviorLog } from 'src/util';
 

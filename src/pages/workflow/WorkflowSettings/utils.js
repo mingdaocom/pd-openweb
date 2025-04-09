@@ -54,6 +54,10 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-table';
       }
       break;
+    case NODE_TYPE.BRANCH:
+    case NODE_TYPE.BRANCH_ITEM:
+      icon = 'icon-workflow_branch';
+      break;
     case NODE_TYPE.WRITE:
       icon = 'icon-workflow_write';
       break;

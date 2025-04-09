@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import moment from 'moment';
-import { Button, LoadDiv, Dialog, UserHead, Icon } from 'ming-ui';
+import styled from 'styled-components';
+import { Button, Dialog, Icon, LoadDiv, UserHead } from 'ming-ui';
+import orderController from 'src/api/order';
+import paymentAjax from 'src/api/payment';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import PageTableCon from 'src/pages/Admin/components/PageTableCon';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
+import { VersionProductType } from 'src/util/enum';
+import { PAY_CHANNEL_TXT, STATUS } from '../../config';
+import merchantEmpty from '../../images/merchantEmpty.png';
 import CreateMerchant from './CreateMerchant';
 import WithdrawalsRecord from './WithdrawalsRecord';
-import PageTableCon from 'src/pages/Admin/components/PageTableCon';
-import { STATUS } from '../config';
-import paymentAjax from 'src/api/payment';
-import orderController from 'src/api/order';
-import merchantEmpty from '../../images/merchantEmpty.png';
-import styled from 'styled-components';
-import _ from 'lodash';
-import { buriedUpgradeVersionDialog } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
-import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 
 const TableWrap = styled(PageTableCon)`
   .ant-table-body {
@@ -108,7 +108,7 @@ function EmptyMerchant(props) {
   const { changeCreateMerchant } = props;
 
   return (
-    <div className="h100 flexColumn alignItemsCenter justifyContentCenter">
+    <div className="h100 flexColumn alignItemsCenter justifyContentCenter pBottom20">
       <img src={merchantEmpty} style={{ width: 90 }} />
       <div className="Font24 bold mTop30">{_l('申请商户号，开通组织在线收款')}</div>
       <div className="Gray_75 Font18 mTop12">
@@ -118,7 +118,7 @@ function EmptyMerchant(props) {
         {[
           {
             title: _l('支付收款'),
-            desc: _l('完成商户签约认证才可使用支付功能收款'),
+            desc: _l('需完成商户签约认证或绑定微信/支付宝直连商户'),
             icon: 'sp_account_balance_wallet_white',
           },
           { title: _l('资金管理'), desc: _l('独立收款并提供安全、便捷的资金管理功能'), icon: 'payment3' },
@@ -155,10 +155,21 @@ export default class MerchantCom extends Component {
       loading: false,
       merchantList: [],
       createStep: 0,
+      merchantUsage: {},
     };
     this.columns = [
-      { title: _l('商户编号'), dataIndex: 'merchantNo', width: 200 },
-      { title: _l('商户简称'), dataIndex: 'shortName', ellipsis: true },
+      { title: _l('商户编号'), dataIndex: 'merchantNo', width: 200, fixed: 'left' },
+      { title: _l('商户简称'), dataIndex: 'shortName', ellipsis: true, fixed: 'left' },
+      {
+        title: _l('支付通道'),
+        dataIndex: 'merchantPaymentChannel',
+        ellipsis: true,
+        width: 200,
+        render: (text, record) => {
+          const { merchantPaymentChannel } = record;
+          return PAY_CHANNEL_TXT[merchantPaymentChannel] || '';
+        },
+      },
       {
         title: _l('状态'),
         dataIndex: 'status',
@@ -240,8 +251,28 @@ export default class MerchantCom extends Component {
         width: 'fit-content',
         fixed: 'right',
         render: (text, record) => {
-          const { status } = record;
+          const { status, merchantPaymentChannel } = record;
           // 0-注册中 1-待开通 2-开通中 3-已开通 4-已禁用
+          if (md.global.Config.IsLocal) {
+            return (
+              <Fragment>
+                {_.includes([0, 3], status) && (
+                  <span
+                    className="Hand ThemeColor mRight24 Hover_51"
+                    onClick={() => this.openCreateMerchant(status == 0 ? 1 : status, record)}
+                  >
+                    {_l('商户详情')}
+                  </span>
+                )}
+                {(_.includes([0, 1, 2], status) ||
+                  (_.includes([1, 2], record.merchantPaymentChannel) && !record.subscribeMerchant)) && (
+                  <span className="Hand Red" onClick={() => this.deleteMerchant(record)}>
+                    {_l('删除')}
+                  </span>
+                )}
+              </Fragment>
+            );
+          }
           switch (status) {
             case 0:
               return (
@@ -281,15 +312,17 @@ export default class MerchantCom extends Component {
                   >
                     {_l('商户详情')}
                   </span>
-                  <span
-                    className="Hand ThemeColor Hover_51 mRight24"
-                    onClick={() => {
-                      this.props.changeShowHeader(false);
-                      this.setState({ showWithdraw: true, currentMerchantInfo: record });
-                    }}
-                  >
-                    {_l('提现')}
-                  </span>
+                  {!_.includes([1, 2], merchantPaymentChannel) && (
+                    <span
+                      className="Hand ThemeColor Hover_51 mRight24"
+                      onClick={() => {
+                        this.props.changeShowHeader(false);
+                        this.setState({ showWithdraw: true, currentMerchantInfo: record });
+                      }}
+                    >
+                      {_l('提现')}
+                    </span>
+                  )}
                   {!record.isTrialed && !record.subscribeMerchant && (
                     <span className="Hand ThemeColor Hover_51 mRight24" onClick={() => this.onClickTrial(record)}>
                       {_l('开通试用')}
@@ -304,6 +337,11 @@ export default class MerchantCom extends Component {
                       projectId={props.projectId}
                     />
                   )}
+                  {_.includes([1, 2], record.merchantPaymentChannel) && !record.subscribeMerchant && (
+                    <span className="Hand Red mLeft24" onClick={() => this.deleteMerchant(record)}>
+                      {_l('删除')}
+                    </span>
+                  )}
                 </Fragment>
               );
           }
@@ -314,6 +352,7 @@ export default class MerchantCom extends Component {
 
   componentDidMount() {
     this.getDataList();
+    this.getMerchantUsage();
   }
 
   getDataList = ({ pageIndex = 1 } = {}) => {
@@ -329,7 +368,6 @@ export default class MerchantCom extends Component {
       })
       .then(({ merchants, dataCount }) => {
         this.setState({ merchantList: merchants, count: dataCount, loading: false, pageIndex });
-        localStorage.setItem(`${projectId}-hasMerchant`, !_.isEmpty(merchants));
         if (!_.isEmpty(merchants)) {
           this.props.changeShowCreateMerchant(true);
         }
@@ -337,6 +375,14 @@ export default class MerchantCom extends Component {
       .catch(err => {
         this.setState({ loading: false });
       });
+  };
+
+  // 获取商户可创建数量
+  getMerchantUsage = () => {
+    const { projectId } = this.props;
+    paymentAjax.getMerchantUsage({ projectId }).then(res => {
+      this.setState({ merchantUsage: res });
+    });
   };
 
   onClickTrial = record => {
@@ -372,9 +418,14 @@ export default class MerchantCom extends Component {
 
   changeCreateMerchant = (key, visible) => {
     const { projectId, featureType } = this.props;
-    const { currentMerchantInfo } = this.state;
+    const { currentMerchantInfo, merchantUsage = {} } = this.state;
     if (featureType === '2' && key === 'createMerchantVisible') {
       buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
+      return;
+    }
+
+    if (merchantUsage.canCreate < 1 && key === 'createMerchantVisible' && visible) {
+      alert(_l('支付商户号数量已达上限，请先购买'), 3);
       return;
     }
 
@@ -412,6 +463,7 @@ export default class MerchantCom extends Component {
       title: _l('是否删除当前商户'),
       okText: _l('确认'),
       buttonType: 'danger',
+      description: _l('删除后，待支付的订单不能继续收款，待退款的订单不能继续退款'),
       onOk: () => {
         paymentAjax.deleteMerchant({ projectId, merchantId: record.id, merchantNo: record.merchantNo }).then(res => {
           if (res) {
@@ -419,7 +471,6 @@ export default class MerchantCom extends Component {
             const newList = _.filter(merchantList, v => v.id !== record.id);
             this.setState({ merchantList: newList, count: count - 1 });
             if (_.isEmpty(newList)) {
-              localStorage.setItem(`${projectId}-hasMerchant`, false);
               this.props.changeShowCreateMerchant(false);
             }
           } else {
@@ -434,34 +485,43 @@ export default class MerchantCom extends Component {
   renderExplain = () => {
     return (
       <ExplainWrap>
-        <div className="mBottom8">
-          从2025年1月22日起，平台将对支付能力进行调整，按照商户号收取功能服务费。具体规则如下：
-        </div>
-        <div className="mLeft8">
-          1.新开通的商户号：
-          <br />
-          <div className="mLeft16">
-            统一按照商户号收费，支付渠道费率为0.25%
-            <br />
-            商户号在填写资料开通后，可申请一周的免费试用。试用期内，单笔订单交易额最高为 1元
-            <br />
-            商户也可以选择直接付费开通。付费开通后，单笔订单交易额不受限制。平台支持按月购买，或购买至与组织版本授权到期的时间
-            <br />
-          </div>
-          2.已开通使用的商户：
-          <br />
-          <div className="mLeft16">
-            平台将提供 3个月的过渡调整期。过渡期内，支付渠道费率仍为0.6%，且平台不收取功能服务费
-            <br />
-            商户切换新的收费方式时必须联系顾问。切换后支付渠道费率为0.25%；调整费率后，之前的订单不支持线上退款
-          </div>
-        </div>
-        <div className="mTop8">功能服务费：</div>
-        <div className="mLeft8">
-          999元/商户/年（年费）
-          <br />
-          199元/商户/月（月费）
-        </div>
+        {md.global.Config.IsLocal ? (
+          <Fragment>
+            平台提供微信支付、支付宝直连模式，提供收款和退款能力，支付费率参考官方规则，同时提现只能在微信支付商户后台、支付宝商户平台操作
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="mBottom8">
+              从2025年1月22日起，平台将对支付能力进行调整，按照商户号收取功能服务费。具体规则如下：
+            </div>
+            <div className="mLeft8">
+              1.新开通的商户号：
+              <br />
+              <div className="mLeft16">
+                统一按照商户号收费，聚合支付渠道费率为0.25%、微信支付/支付宝支付费率参考官方标准
+                <br />
+                商户号在填写资料开通后，可申请一周的免费试用。试用期内，单笔订单交易额最高为 1元
+                <br />
+                商户也可以选择直接付费开通。付费开通后，单笔订单交易额不受限制。平台支持按月购买，或购买至与组织版本授权到期的时间
+                <br />
+              </div>
+              2.已开通使用的商户（仅包含聚合支付的商户）：
+              <br />
+              <div className="mLeft16">
+                平台将提供 3个月的过渡调整期。过渡期内，支付渠道费率仍为0.6%，且平台不收取功能服务费
+                <br />
+                商户切换新的收费方式时必须联系顾问。切换后支付渠道费率为0.25%；调整费率后，之前的订单不支持线上退款
+              </div>
+              3.微信支付/支付宝直连的商户号提现只能在微信支付商户后台、支付宝商户平台操作
+            </div>
+            <div className="mTop8">功能服务费：</div>
+            <div className="mLeft8">
+              999元/商户/年（年费）
+              <br />
+              199元/商户/月（月费）
+            </div>
+          </Fragment>
+        )}
       </ExplainWrap>
     );
   };
@@ -527,7 +587,9 @@ export default class MerchantCom extends Component {
         ) : (
           <TableWrap
             loading={loading}
-            columns={this.columns}
+            columns={this.columns.filter(v =>
+              md.global.Config.IsLocal ? !_.includes(['subscribeMerchant', 'paymentMethod'], v.dataIndex) : true,
+            )}
             dataSource={merchantList}
             count={count}
             getDataSource={this.getDataList}

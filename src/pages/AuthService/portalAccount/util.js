@@ -159,19 +159,19 @@ export const accountResultAction = (res, customLink) => {
       return goApp(sessionId, appId, customLink);
     // break;
     case -1:
-      msg = _l('该帐号不存在');
+      msg = _l('该账号不存在');
       break;
     case 0:
       msg = _l('登录失败');
       break;
     case 2:
-      msg = _l('该帐号已停用');
+      msg = _l('该账号已停用');
       break;
     case 3:
-      msg = _l('该帐号待审核');
+      msg = _l('该账号待审核');
       break;
     case 4:
-      msg = _l('该帐号审核未通过');
+      msg = _l('该账号审核未通过');
       break;
     case 5:
       msg = _l('该账号已删除');

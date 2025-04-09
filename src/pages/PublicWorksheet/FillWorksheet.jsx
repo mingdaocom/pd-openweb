@@ -1,27 +1,28 @@
 import React, { Fragment } from 'react';
+import { TinyColor } from '@ctrl/tinycolor';
+import cx from 'classnames';
+import localForage from 'localforage';
+import _, { get } from 'lodash';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, RichText } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import CustomFields from 'src/components/newCustomFields';
-import { addWorksheetRow } from './action';
+import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { checkMobileVerify, controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
-import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
-import './index.less';
-import _, { get } from 'lodash';
-import moment from 'moment';
+import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
+import { browserIsMobile, getRequest } from 'src/util';
+import CountDown from '../publicWorksheetConfig/common/CountDown';
 import { TIME_TYPE } from '../publicWorksheetConfig/enum';
 import { getLimitWriteTimeDisplayText } from '../publicWorksheetConfig/utils';
-import FilledRecord from './FilledRecord';
-import { FILL_STATUS } from './enum';
-import CountDown from '../publicWorksheetConfig/common/CountDown';
 import { getRgbaByColor } from '../widgetConfig/util';
-import { getRequest, browserIsMobile } from 'src/util';
-import cx from 'classnames';
-import localForage from 'localforage';
-import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
-import { TinyColor } from '@ctrl/tinycolor';
+import { addWorksheetRow } from './action';
+import { FILL_STATUS } from './enum';
+import FilledRecord from './FilledRecord';
 import { getPublicSubmitStorage } from './utils';
+import './index.less';
 
 const ImgCon = styled.div`
   position: relative;
@@ -206,11 +207,7 @@ export default class FillWorksheet extends React.Component {
       return false;
     } else {
       if (needCaptcha) {
-        if (md.global.getCaptchaType() === 1) {
-          captcha(submit, () => submit({}));
-        } else {
-          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), submit, { needFeedBack: false }).show();
-        }
+        captcha(submit, () => submit({}));
       } else {
         submit();
       }
@@ -263,9 +260,11 @@ export default class FillWorksheet extends React.Component {
       completeNumber,
       cacheDraft,
       advancedSetting = {},
+      shareId,
+      projectName,
     } = publicWorksheetInfo;
     const request = getRequest();
-    const { header, submit } = request;
+    const { header, submit, logo, title, description, footer } = request;
     const isFixedLeft = !browserIsMobile() && _.get(advancedSetting, 'tabposition') === '3';
     const isFixedRight = _.get(advancedSetting, 'tabposition') === '4';
 
@@ -275,15 +274,15 @@ export default class FillWorksheet extends React.Component {
         <div className="infoCon">
           {header !== 'no' && (
             <React.Fragment>
-              {logoUrl && (
+              {logoUrl && logo !== 'no' && (
                 <ImgCon>
                   <img className="logo" src={logoUrl} />
                 </ImgCon>
               )}
 
-              {name && <div className="worksheetName">{name}</div>}
+              {name && title !== 'no' && <div className="worksheetName">{name}</div>}
 
-              {!!desc && (
+              {!!desc && description !== 'no' && (
                 <div className="mdEditor">
                   <RichText
                     data={desc || ''}
@@ -395,7 +394,9 @@ export default class FillWorksheet extends React.Component {
                       value:
                         item.type === 34
                           ? _.get(item, 'value.rows')
-                            ? JSON.stringify(item.value.rows)
+                            ? JSON.stringify(
+                                item.value.rows.map(r => ({ ...r, rowid: r.rowid.replace(/^temp-/, 'public-temp-') })),
+                              )
                             : undefined
                           : item.value,
                     }));
@@ -442,6 +443,24 @@ export default class FillWorksheet extends React.Component {
             <span className="InlineBlock ellipsis w100">{submitBtnName}</span>
           </Button>
         </div>
+        {worksheetId && footer !== 'no' && window.top === window.self && (
+          <div className="mingdaoCon">
+            {_l('由 %0 创建的表单', projectName || '')}
+            {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
+            {shareId && shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
+              <a
+                className="mLeft3"
+                target="_blank"
+                href={`/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
+              >
+                {_l('举报')}
+              </a>
+            )}
+            <div className="Right">
+              <CreateByMingDaoYun mode={1} />
+            </div>
+          </div>
+        )}
       </React.Fragment>
     );
   }

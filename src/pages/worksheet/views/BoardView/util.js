@@ -4,6 +4,8 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { RENDER_RECORD_NECESSARY_ATTR, filterAndFormatterControls, getRecordAttachments } from '../util';
 import { CAN_AS_BOARD_OPTION } from './config';
 import { getRecordColorConfig } from 'worksheet/util';
+import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
+
 // 处理从后端获取的看板数据
 export const dealBoardViewData = props => {
   const { view, controls } = props;
@@ -18,7 +20,7 @@ export const dealBoardViewData = props => {
     formatter: v => v,
   });
   const { abstract = '' } = getAdvanceSetting(view);
-  const titleControl = _.find(controls, item => item.attribute === 1);
+  const titleControl = getTitleControlForCard(view, controls);
   if (selectControl.length) {
     const control = selectControl[0];
     const res = data.map(item => {

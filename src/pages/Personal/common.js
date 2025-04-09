@@ -45,8 +45,8 @@ Common.USER_STATUS = {
 };
 
 Common.guideType = {
-  accountMobilePhone: 4, //手机号帐号
-  accountEmail: 5, //邮箱帐号
+  accountMobilePhone: 4, //手机号账号
+  accountEmail: 5, //邮箱账号
   mdDaShi: 6, // 大使
   createCompany: 7, //创建企业网络
   postFeed: 8, // 探索动态

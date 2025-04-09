@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { getDataByFilterXSS, checkReturnUrl, toMDPage } from 'src/pages/AuthService/util.js';
+import moment from 'moment';
 import loginController from 'src/api/login';
 import workWeiXinController from 'src/api/workWeiXin';
-import moment from 'moment';
-import { LoginResult } from './config.js';
-import { setPssId } from 'src/util/pssId';
+import { checkReturnUrl, getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest, browserIsMobile } from 'src/util';
+import { browserIsMobile, compatibleMDJS, getRequest } from 'src/util';
+import { setPssId } from 'src/util/pssId';
+import { LoginResult } from './config.js';
 
 //登录相关的回调处理
 export const loginCallback = ({ data, onChange }) => {
@@ -53,27 +53,30 @@ export const loginCallback = ({ data, onChange }) => {
 
   if (data.accountResult === LoginResult.accountSuccess) {
     const { token = {} } = data;
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.login) {
-      window.MDJS.login({
-        access_token: token.accessToken,
+
+    compatibleMDJS(
+      'login',
+      {
+        access_token: token.accessToken || window.access_token,
         expires_in: 7200,
         refresh_token: token.rereshToken,
-      });
-      return;
-    }
-    setPssId(data.sessionId);
+      },
+      () => {
+        setPssId(data.sessionId);
 
-    if (location.href.indexOf('autoClose=true') > -1) {
-      window.close();
-      return;
-    }
+        if (location.href.indexOf('autoClose=true') > -1) {
+          window.close();
+          return;
+        }
 
-    if (request.ReturnUrl) {
-      checkReturnUrl(request.ReturnUrl);
-      location.replace(getDataByFilterXSS(request.ReturnUrl));
-    } else {
-      toMDPage()
-    }
+        if (request.ReturnUrl) {
+          checkReturnUrl(request.ReturnUrl);
+          location.replace(getDataByFilterXSS(request.ReturnUrl));
+        } else {
+          toMDPage();
+        }
+      },
+    );
   } else {
     //开启了两步验证
     if (data.accountResult === LoginResult.needTwofactorVerifyCode) {

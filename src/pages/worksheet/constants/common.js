@@ -256,31 +256,23 @@ export const isGalleryOrBoardOrStructureOrDetail = type => {
 
 // 根据视图类型，设置封面位置和显示方式的默认值
 export const getDefaultViewSet = data => {
-  let { viewType, advancedSetting = {}, coverType = 0 } = data;
+  let { viewType, advancedSetting = {} } = data;
+  const coverstyle = safeParse(advancedSetting.coverstyle);
+
   if (VIEW_DISPLAY_TYPE.gallery === String(viewType)) {
-    let { coverposition = '2' } = advancedSetting;
-    // 画廊视图封面设置项 默认上，且上时，显示方式只支持 填满和完整显示
-    if (coverposition === '2' && coverType >= 2) {
-      coverType = 0;
-    }
     return {
       ...data,
-      coverType,
       advancedSetting: {
         ...advancedSetting,
-        coverposition,
+        coverstyle: JSON.stringify({ ...coverstyle, position: coverstyle.position || '2' }),
       },
     };
   } else {
-    //看板视图、表视图、层级视图封面设置项 默认右
-    let { coverposition = '0' } = advancedSetting;
+    //看板视图、表视图、层级视图封面设置项 默认左
     let childTypeObj = {};
-    if (coverposition === '2') {
-      coverposition = '0';
-    }
     //表视图 新建默认不启用业务规则
     if (VIEW_DISPLAY_TYPE.sheet === String(viewType)) {
-      advancedSetting = { ...advancedSetting, enablerules: '1' };
+      advancedSetting = { ...advancedSetting, enablerules: data.viewId === data.worksheetId ? '0' : '1' };
     }
     if (VIEW_DISPLAY_TYPE.detail === String(viewType)) {
       childTypeObj = { childType: 2 };
@@ -290,10 +282,13 @@ export const getDefaultViewSet = data => {
     }
     return {
       ...data,
-      coverType,
       advancedSetting: {
         ...advancedSetting,
-        coverposition,
+        coverstyle: JSON.stringify({
+          ...coverstyle,
+          position: coverstyle.position || '1',
+          style: _.isNumber(coverstyle.style) ? coverstyle.style : 3,
+        }),
       },
       ...childTypeObj,
     };

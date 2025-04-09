@@ -1,27 +1,29 @@
 import React, { Component } from 'react';
-import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import Trigger from 'rc-trigger';
-import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 import styled from 'styled-components';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import pluginAjax from 'src/api/plugin';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 import bg from './img/customview.png';
 import Board from './lottie/board.json';
 import Calendar from './lottie/calendar.json';
 import Detail from './lottie/detail.json';
+import Gallery from './lottie/gallery.json';
 import Gunter from './lottie/gantt.json';
 import Map from './lottie/map.json';
 import Resource from './lottie/resources.json';
-import Sheet from './lottie/table.json';
 import Structure from './lottie/structure.json';
-import Gallery from './lottie/gallery.json';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import Sheet from './lottie/table.json';
 
 const Wrap = styled.div`
   background-color: #fff;
   border-radius: 3px 3px 3px 3px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   .title {
     padding: 0 12px 12px;
   }
@@ -50,6 +52,9 @@ const Wrap = styled.div`
     padding: 16px 0 16px 24px;
     .listCon {
       overflow: auto;
+      .groupTitle {
+        width: fit-content;
+      }
     }
     .con {
       flex-wrap: wrap;
@@ -223,6 +228,7 @@ export default class AddViewDisplayMenu extends Component {
       loading: true,
       guild: '',
       LottieComponent: null,
+      retract: [],
     };
   }
 
@@ -255,6 +261,12 @@ export default class AddViewDisplayMenu extends Component {
         loading: false,
       });
     });
+  };
+
+  onClickGroup = key => {
+    const { retract } = this.state;
+
+    this.setState({ retract: retract.includes(key) ? retract.filter(item => item !== key) : [...retract, key] });
   };
 
   renderCon = (info, isDev) => {
@@ -292,7 +304,7 @@ export default class AddViewDisplayMenu extends Component {
 
   render() {
     const { onClick, canAddCustomView, projectId, ...rest } = this.props;
-    const { myPlugins = [], orgPlugins = [], loading, LottieComponent } = this.state;
+    const { myPlugins = [], orgPlugins = [], loading, LottieComponent, retract } = this.state;
     const hasPluginAuth =
       _.get(
         _.find(md.global.Account.projects, item => item.projectId === projectId),
@@ -372,14 +384,30 @@ export default class AddViewDisplayMenu extends Component {
                   <div className="">
                     {orgPlugins.length > 0 && (
                       <React.Fragment>
-                        <div className="Gray_9e mTop16 Bold">{_l('组织发布的')}</div>
-                        <div className="flexRow con customListCon mTop8">{this.renderCon(orgPlugins)}</div>
+                        <div className="Gray_9e mTop16 Bold Hand groupTitle" onClick={() => this.onClickGroup('company')}>
+                          <Icon
+                            icon={retract.includes('company') ? 'arrow-right-tip' : 'arrow-down'}
+                            className="Font13 mRight8"
+                          />
+                          {_l('组织发布的')}
+                        </div>
+                        {!retract.includes('company') && (
+                          <div className="flexRow con customListCon mTop8">{this.renderCon(orgPlugins)}</div>
+                        )}
                       </React.Fragment>
                     )}
                     {myPlugins.length > 0 && (
                       <React.Fragment>
-                        <div className="Gray_9e mTop16 Bold">{_l('我开发的')}</div>
-                        <div className="flexRow con customListCon mTop8">{this.renderCon(myPlugins, true)}</div>
+                        <div className="Gray_9e mTop24 Bold Hand groupTitle" onClick={() => this.onClickGroup('my')}>
+                          <Icon
+                            icon={retract.includes('my') ? 'arrow-right-tip' : 'arrow-down'}
+                            className="Font13 mRight8"
+                          />
+                          {_l('我开发的')}
+                        </div>
+                        {!retract.includes('my') && (
+                          <div className="flexRow con customListCon mTop8">{this.renderCon(myPlugins, true)}</div>
+                        )}
                       </React.Fragment>
                     )}
                   </div>

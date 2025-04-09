@@ -319,15 +319,15 @@ class Card extends Component {
       projectId,
       onCancelFavorite,
     } = this.props;
+    const { reportType, yaxisList = [], xaxes = {} } = reportData;
     const { titleStyle = 0, pageBgColor, pageStyleType = 'light' } = customPageConfig;
     const isLight = pageStyleType === 'light';
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
-    const isSheetView = ![reportTypes.PivotTable].includes(reportData.reportType);
+    const isSheetView = ![reportTypes.PivotTable].includes(reportType);
     const translateInfo = getTranslateInfo(appId, null, report.id);
     const getBgColor = () => {
+      const hideNumberChartName = [reportTypes.NumberChart].includes(reportType) ? yaxisList.length === 1 && !xaxes.controlId : !showTitle
       if (titleStyle === 1) {
-        const card = document.querySelector(`.statisticsCard-${report.id}`);
-        const hideNumberChartName = card ? card.classList.contains('hideNumberChartName') : true;
         return {
           '--title-color': hideNumberChartName ? undefined : '#fff',
           '--icon-color': hideNumberChartName ? undefined : '#fff',
@@ -339,8 +339,6 @@ class Card extends Component {
         }
       }
       if (titleStyle === 2) {
-        const card = document.querySelector(`.statisticsCard-${report.id}`);
-        const hideNumberChartName = card ? card.classList.contains('hideNumberChartName') : true;
         return {
           '--title-color': hideNumberChartName ? undefined : '#fff',
           '--icon-color': hideNumberChartName ? undefined : '#fff',

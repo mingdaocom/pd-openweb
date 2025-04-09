@@ -10,6 +10,7 @@ import _, {
   isArray,
   isObject,
   includes,
+  isString,
 } from 'lodash';
 import update from 'immutability-helper';
 import { navigateTo } from 'src/router/navigateTo';
@@ -26,9 +27,7 @@ import {
 import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS, ALL_SYS } from '../config/widget';
-import { getCurrentRowSize } from './widgets';
 import { browserIsMobile } from 'src/util';
-import { parseDataSource } from './setting';
 import { COMMON_DEFAULT_COUNTRY } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/telData.js';
 
 const FORMULA_FN_LIST = [
@@ -267,7 +266,8 @@ export const filterControlsFromAll = (allControls = [], filter = item => item) =
   return allControls.filter(filter).map(({ controlId, controlName }) => ({ value: controlId, text: controlName }));
 };
 
-export const formatViewToDropdown = views => views.map(({ viewId, name }) => ({ text: name, value: viewId }));
+export const formatViewToDropdown = views =>
+  views.filter(l => l.viewId !== l.worksheetId).map(({ viewId, name }) => ({ text: name, value: viewId }));
 
 export const formatAppsToDropdown = (apps, currentAppId) =>
   apps.map(({ appId, appName }) => ({
@@ -579,6 +579,7 @@ export const supportSettingCollapse = (props, key) => {
           return _.includes([2, 6, 15, 16], enumDefault2);
         default:
           if (_.includes([2, 6, 46, 10], type) && isCustom) return false;
+          if (_.includes([19, 23, 24], type) && enumDefault === 1) return false;
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
       }
     case 'security':
@@ -613,8 +614,6 @@ export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle 
   if (isRecycle && _.includes([2, 3, 4], introType)) return false;
   // 分段、他表、标签页
   if (_.includes([22, 30, 52], data.type) && introType === 2) return false;
-  // 空白子表里面字段不支持说明
-  if (from === 'subList' && introType === 3) return false;
   // 子表不支持事件
   if ((from === 'subList' || data.type === 34) && introType === 4) return false;
 
@@ -633,9 +632,9 @@ export const getDefaultarea = () => {
 };
 
 // 拖拽补key,完成去key
-export const getSortItems = (items = [], addKey) => {
+export const getSortItems = (items = [], addKey, controlId = '') => {
   return items.map((i, index) => {
-    return addKey ? { ...i, key: `item_${index}` } : { ..._.omit(i, ['key']) };
+    return addKey ? { ...i, key: `${controlId}item_${index}` } : { ..._.omit(i, ['key']) };
   });
 };
 
@@ -655,4 +654,27 @@ export const checkWidgetMaxNumErr = (data, allControls = []) => {
   if (data.type === 41 && allControls.filter(i => i.type === 41).length >= 3) {
     return _l('富文本字段数量已达上限（3个）');
   }
+};
+
+export const parseDataSource = dataSource => {
+  if (!_.isString(dataSource) || !dataSource) return '';
+  if (includes(dataSource, '$')) return dataSource.slice(1, -1);
+  return dataSource;
+};
+
+// 表单保存选项集不校验
+export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
+  for (const c of controls) {
+    if (_.includes([9, 10, 11], c.type) && c.dataSource ? checkCollections : true) {
+      const noDelOptions = (c.options || []).filter(o => !o.isDeleted);
+      const uniqOptions = _.uniqBy(noDelOptions, 'value');
+      if (noDelOptions.length !== uniqOptions.length) {
+        return true;
+      }
+    }
+  }
+};
+
+export const getCurrentRowSize = row => {
+  return row.reduce((p, c) => p + c.size, 0);
 };

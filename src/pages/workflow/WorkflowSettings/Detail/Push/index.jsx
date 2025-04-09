@@ -9,6 +9,8 @@ import {
   SpecificFieldsValue,
   SingleControlValue,
   PromptSound,
+  Member,
+  SelectUserDropDown,
 } from '../components';
 import { PUSH_TYPE, PUSH_LIST, APP_TYPE, ACTION_ID } from '../../enum';
 import homeApp from 'src/api/homeApp';
@@ -91,6 +93,8 @@ export default class Push extends Component {
       data: {},
       saveRequest: false,
       currentAppList: [],
+      isCustomAccount: false,
+      showSelectUserDialog: false,
     };
   }
 
@@ -127,7 +131,7 @@ export default class Push extends Component {
           result.promptSound.type = 1;
         }
 
-        this.setState({ data: result });
+        this.setState({ data: result, isCustomAccount: !!result.accounts.length });
         !instanceId && !currentAppList.length && result.pushType !== PUSH_TYPE.AUDIO && this.getWorksheetsByAppId();
       });
   }
@@ -203,6 +207,7 @@ export default class Push extends Component {
       actionId,
       fields,
       promptSound,
+      accounts,
     } = data;
 
     let hasError = false;
@@ -245,6 +250,7 @@ export default class Push extends Component {
         actionId,
         fields: actionId === ACTION_ID.CREATE_RECORD ? fields : [],
         promptSound,
+        accounts,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -321,7 +327,11 @@ export default class Push extends Component {
    */
   renderContent() {
     const { flowInfo } = this.props;
-    const { data, currentAppList } = this.state;
+    const { data, currentAppList, isCustomAccount, showSelectUserDialog } = this.state;
+    const PUSH_ACCOUNTS = [
+      { text: _l('触发者'), value: false },
+      { text: _l('自定义'), value: true },
+    ];
 
     return (
       <Fragment>
@@ -340,6 +350,58 @@ export default class Push extends Component {
 
         <div className="Font13 bold mTop20">{_l('推送内容')}</div>
         {this.renderEventList(data.pushType)}
+
+        {_.includes([PUSH_TYPE.NOTIFICATION], data.pushType) && (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('推送人')}</div>
+            <div className="flexRow mTop10">
+              {PUSH_ACCOUNTS.map((item, index) => {
+                return (
+                  <Radio
+                    key={index}
+                    className="mRight60"
+                    checked={item.value === isCustomAccount}
+                    text={item.text}
+                    onClick={() => {
+                      this.setState({ isCustomAccount: item.value });
+                      this.updateSource({ accounts: [] });
+                    }}
+                  />
+                );
+              })}
+            </div>
+
+            {isCustomAccount && (
+              <Fragment>
+                <Member
+                  companyId={this.props.companyId}
+                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                  accounts={data.accounts}
+                  updateSource={this.updateSource}
+                />
+                <div
+                  className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+                  onClick={() => this.setState({ showSelectUserDialog: true })}
+                >
+                  <i className="Font28 icon-task-add-member-circle mRight10" />
+                  {_l('添加推送人')}
+                  <SelectUserDropDown
+                    appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                    visible={showSelectUserDialog}
+                    companyId={this.props.companyId}
+                    processId={this.props.processId}
+                    nodeId={this.props.selectNodeId}
+                    unique={false}
+                    accounts={data.accounts}
+                    isIncludeSubDepartment={true}
+                    updateSource={this.updateSource}
+                    onClose={() => this.setState({ showSelectUserDialog: false })}
+                  />
+                </div>
+              </Fragment>
+            )}
+          </Fragment>
+        )}
 
         {data.pushType === PUSH_TYPE.ALERT && (
           <Fragment>
@@ -515,7 +577,16 @@ export default class Push extends Component {
         value={pushType}
         border
         onChange={pushType => {
-          const obj = { pushType, openMode: 2, appId: '', content: '', viewId: '', selectNodeId: '', duration: 5 };
+          const obj = {
+            pushType,
+            openMode: 2,
+            appId: '',
+            content: '',
+            viewId: '',
+            selectNodeId: '',
+            duration: 5,
+            accounts: [],
+          };
 
           if (buttonIndex === undefined) {
             this.updateSource(Object.assign(obj, { promptType: 1, buttons: [] }));

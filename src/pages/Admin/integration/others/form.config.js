@@ -50,7 +50,7 @@ export const formListTop = [
 
 export const formListBottom = [
   {
-    label: _l('用户帐号'),
+    label: _l('用户账号'),
     key: 'searchFilter',
     errorMsg: _l('请输入LDAP Server账户字段名称'),
   },

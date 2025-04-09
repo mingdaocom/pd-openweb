@@ -8,7 +8,8 @@ import favoriteApi from 'src/api/favorite';
 import { copyRow } from 'worksheet/controllers/record';
 import copy from 'copy-to-clipboard';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { handleShare, handleOpenInNew, handleCustomWidget, deleteRecord } from 'worksheet/common/recordInfo/crtl';
+import { handleOpenInNew, handleCustomWidget, deleteRecord } from 'worksheet/common/recordInfo/crtl';
+import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
 import PrintList from 'worksheet/common/recordInfo/RecordForm/PrintList';
 import { replaceBtnsTranslateInfo } from 'worksheet/util';
@@ -144,6 +145,8 @@ export default function RecordOperate(props) {
     onRecreate = () => {},
     hideFav,
     isDraft,
+    printBtnType = 0,
+    printCharge,
   } = props;
   const showDel = (isOpenPermit(permitList.recordDelete, sheetSwitchPermit, viewId) || isSubList) && allowDelete;
   const showShare =
@@ -159,11 +162,12 @@ export default function RecordOperate(props) {
     _.includes(shows, 'recreate') &&
     allowRecreate &&
     (isOpenPermit(permitList.recordRecreateSwitch, sheetSwitchPermit, viewId) || isSubList);
+  const isManageView = viewId === worksheetId;
   const showCopyId = _.includes(shows, 'copyId') && (isCharge || isDevAndOps);
   const showPrint = _.includes(shows, 'print');
   const showRemoveRelation = _.includes(shows, 'removeRelation');
   const showEditForm = _.includes(shows, 'editform') && isCharge;
-  const showOpenInNew = _.includes(shows, 'openinnew');
+  const showOpenInNew = _.includes(shows, 'openinnew') && !isManageView;
   const customButtonActive = useRef();
   const [customButtons, setCustomButtons] = useState([]);
   const [customButtonLoading, setCustomButtonLoading] = useState();
@@ -177,7 +181,8 @@ export default function RecordOperate(props) {
     !window.isPublicApp &&
     !md.global.Account.isPortal &&
     !isExternal &&
-    _.includes(shows, 'fav');
+    _.includes(shows, 'fav') &&
+    !isManageView;
   function changePopupVisible(value) {
     onPopupVisibleChange(value);
     if (customButtonActive.current) {
@@ -464,11 +469,13 @@ export default function RecordOperate(props) {
           )}
           {showPrint && (
             <PrintList
-              isCharge={isCharge}
+              type={printBtnType}
+              isCharge={isCharge || printCharge}
               controls={formdata || []}
               {...{ appId: appId || props.printAppId, viewId, worksheetId, projectId, workId, instanceId }}
               sheetSwitchPermit={sheetSwitchPermit}
               recordId={recordId}
+              showDownload={!isSubList && !isRelateRecordTable}
               onItemClick={() => setPopupVisible(false)}
             />
           )}

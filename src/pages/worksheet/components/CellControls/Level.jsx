@@ -104,7 +104,7 @@ export default class Level extends React.Component {
         onClick={onClick}
       >
         {recordId !== 'empty' && !/^empty/.test(recordId) && (
-          <div className="flex flexRow">
+          <div className="w100">
             {isMobile && (
               <span className="mRight5" style={{ marginTop: '-2px' }}>
                 {value}

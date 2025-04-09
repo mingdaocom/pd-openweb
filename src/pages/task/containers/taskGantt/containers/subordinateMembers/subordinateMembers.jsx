@@ -12,7 +12,7 @@ import { Tooltip, UserHead } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import { updateStateConfig } from '../../../../redux/actions';
 import { navigateTo } from 'src/router/navigateTo';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class SubordinateMembers extends Component {

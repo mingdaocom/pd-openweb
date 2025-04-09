@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const IconBtn = styled.span`
-  color: #9e9e9e;
+  color: #757575;
   height: 28px;
   font-size: 22px;
   line-height: 28px;

@@ -2,14 +2,23 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { Select, Input, Tooltip } from 'antd';
-import { normTypes } from 'statistics/common';
+import { normTypes } from '../../../enum';
 
 export class Count extends Component {
   constructor(props) {
     super(props);
   }
   render() {
-    const { smallTitle, isCollectMode, isCalculateMode = true, summary, yaxisList, yAxis = {}, extra, onChangeSummary } = this.props;
+    const {
+      smallTitle,
+      isCollectMode,
+      isCalculateMode = true,
+      summary,
+      yaxisList,
+      yAxis = {},
+      extra,
+      onChangeSummary,
+    } = this.props;
     return (
       <Fragment>
         {isCollectMode && extra}
@@ -43,7 +52,10 @@ export class Count extends Component {
             <div className="flexRow valignWrapper mBottom8">
               <div>{_l('汇总方式')}</div>
               {isCollectMode && summary.type === 5 && (
-                <Tooltip placement="bottom" title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}>
+                <Tooltip
+                  placement="bottom"
+                  title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}
+                >
                   <Icon className="Font15 Gray_9e pointer mLeft5" icon="info" />
                 </Tooltip>
               )}
@@ -68,7 +80,10 @@ export class Count extends Component {
                 }
               }}
             >
-              {(isCalculateMode && yAxis.controlType === 10000001 ? normTypes.filter(n => ![6].includes(n.value)) : normTypes.filter(n => ![5, 6].includes(n.value))).map(item => (
+              {(isCalculateMode && yAxis.controlType === 10000001
+                ? normTypes.filter(n => ![6].includes(n.value))
+                : normTypes.filter(n => ![5, 6].includes(n.value))
+              ).map(item => (
                 <Select.Option className="selectOptionWrapper" value={item.value}>
                   {item.value === 5 ? _l('计算') : item.alias || item.text}
                 </Select.Option>
@@ -96,7 +111,7 @@ export class Count extends Component {
   }
 }
 
-const getLocationTypes = (locationType) => {
+const getLocationTypes = locationType => {
   if (locationType === 'line') {
     const lineLocationTypes = [
       {
@@ -123,7 +138,7 @@ const getLocationTypes = (locationType) => {
     ];
     return columnLocationTypes;
   }
-}
+};
 
 export const Location = ({ summary, locationType, onChangeSummary }) => {
   return (
@@ -146,5 +161,4 @@ export const Location = ({ summary, locationType, onChangeSummary }) => {
       </div>
     </div>
   );
-}
-
+};

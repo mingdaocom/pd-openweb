@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState, memo, forwardRef } from 'react';
+import React, { useRef, forwardRef } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { getEnumType, parseLink } from '../../util';
+import { getEnumType } from '../../util';
 import ChartDisplay from './ChartDisplay';
 import ViewDisplay from './ViewDisplay';
 import ButtonList from './ButtonList';
@@ -9,6 +9,7 @@ import PreviewWraper from '../previewContent';
 import { RichText } from 'ming-ui';
 import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
 import CarouselPreview from '../editWidget/carousel/Carousel';
+import Tabs from '../editWidget/tabs';
 import MobileFilter from 'mobile/CustomPage/FilterContent';
 import MobileView from 'mobile/CustomPage/ViewContent';
 import { reportTypes } from 'statistics/Charts/common';
@@ -28,7 +29,8 @@ const WidgetContent = styled.div`
   &.embedUrl {
     color: var(--widget-title-color);
   }
-  &.embedUrl, &.view {
+  &.embedUrl,
+  &.view {
     padding: 0 !important;
   }
   &.analysis {
@@ -45,7 +47,8 @@ const WidgetContent = styled.div`
       .iconItem {
         background-color: var(--widget-color) !important;
       }
-      .header, .header .icon {
+      .header,
+      .header .icon {
         background-color: transparent !important;
       }
       .header {
@@ -57,14 +60,17 @@ const WidgetContent = styled.div`
       }
     }
     .numberChart {
-      .contentWrapper .name, .minorWrap, .minorWrap .name {
+      .contentWrapper .name,
+      .minorWrap,
+      .minorWrap .name {
         color: var(--widget-title-color) !important;
       }
     }
     .fixedLoading {
       background-color: var(--widget-color) !important;
     }
-    .header .iconItem, .header .reportDesc {
+    .header .iconItem,
+    .header .reportDesc {
       color: var(--widget-icon-color) !important;
       &:hover {
         color: var(--widget-icon-hover-color) !important;
@@ -80,32 +86,15 @@ const WidgetContent = styled.div`
 `;
 
 const WidgetDisplay = forwardRef((props, $cardRef) => {
-  const {
-    layoutType,
-    isFullscreen,
-    editable,
-    ids,
-    projectId,
-    widget,
-    editingWidget,
-    isCharge,
-    ...rest
-  } = props;
+  const { layoutType, isFullscreen, editable, ids, projectId, widget, editingWidget, isCharge, ...rest } = props;
   const { type, param = [], value, needUpdate, button, name, config = {} } = widget;
-  const { worksheetId } = ids;
+  const { worksheetId, appId } = ids;
   const componentType = getEnumType(type);
   const ref = useRef(null);
   const renderContent = () => {
     if (componentType === 'embedUrl') {
       const { newTab = false, reload = false } = config;
-      return (
-        <PreviewWraper
-          reload={reload}
-          newTab={newTab}
-          value={value}
-          param={param}
-        />
-      );
+      return <PreviewWraper reload={reload} newTab={newTab} value={value} param={param} />;
     }
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
@@ -120,14 +109,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     }
     if (componentType === 'button') {
       return (
-        <ButtonList
-          editable={editable}
-          button={button}
-          ids={ids}
-          layoutType={layoutType}
-          widget={widget}
-          {...rest}
-        />
+        <ButtonList editable={editable} button={button} ids={ids} layoutType={layoutType} widget={widget} {...rest} />
       );
     }
     if (componentType === 'analysis') {
@@ -159,13 +141,13 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     }
     if (componentType === 'view') {
       if (browserIsMobile()) {
-        return (
-          <MobileView appId={ids.appId} setting={widget} />
-        );
+        return <MobileView appId={ids.appId} setting={widget} />;
       }
+
       return (
         editingWidget.viewId !== widget.viewId && (
           <ViewDisplay
+            themeColor={rest.themeColor}
             layoutType={layoutType}
             className={cx({ disableSingleView: editable })}
             appId={ids.appId}
@@ -173,23 +155,36 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
               ...widget,
               config: {
                 ...widget.config,
-                refresh: _.get(rest.config, 'refresh')
-              }
+                refresh: _.get(rest.config, 'refresh'),
+                printCharge: appId === widget.apkId ? isCharge : false,
+              },
             }}
           />
         )
       );
     }
+    if (componentType === 'tabs' || componentType === 'card') {
+      return (
+        <Tabs
+          ids={ids}
+          themeColor={props.themeColor}
+          widget={widget}
+          setWidget={props.setWidget}
+          editable={editable}
+          layoutType={layoutType}
+          customPageConfig={rest.config || {}}
+          projectId={projectId}
+          isCharge={isCharge}
+          isLock={props.isLock}
+          permissionType={props.permissionType}
+          editingWidget={props.editingWidget}
+        />
+      );
+    }
   };
   if (componentType === 'filter') {
     if (layoutType === 'mobile') {
-      return (
-        <MobileFilter
-          ids={ids}
-          widget={widget}
-          className={cx({ disableFiltersGroup: editable })}
-        />
-      );
+      return <MobileFilter ids={ids} widget={widget} className={cx({ disableFiltersGroup: editable })} />;
     } else {
       return (
         <FiltersGroupPreview
@@ -213,7 +208,15 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     );
   }
   return (
-    <WidgetContent className={cx(componentType, `${componentType}-${widget.id}`)} ref={ref}>
+    <WidgetContent
+      className={cx(
+        componentType,
+        `${componentType}-${
+          ['tabs', 'card'].includes(componentType) ? _.get(widget, 'config.objectId') : widget.id || widget.uuid
+        }`,
+      )}
+      ref={ref}
+    >
       {renderContent()}
     </WidgetContent>
   );

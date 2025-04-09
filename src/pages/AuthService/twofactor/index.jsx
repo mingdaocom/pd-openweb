@@ -134,11 +134,7 @@ export default class TwofactorContainer extends React.Component {
       );
     };
     if (needTicket) {
-      if (md.global.getCaptchaType() === 1) {
-        new captcha(callback);
-      } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-      }
+      new captcha(callback);
     } else {
       callback();
     }

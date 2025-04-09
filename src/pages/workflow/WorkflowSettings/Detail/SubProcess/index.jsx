@@ -1,14 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Checkbox, Dropdown, Radio, Dialog } from 'ming-ui';
+import { ScrollView, LoadDiv, Checkbox, Dropdown, Radio } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import process from '../../../api/process';
 import {
   DetailHeader,
   DetailFooter,
   SelectNodeObject,
-  UpdateFields,
   SpecificFieldsValue,
-  ProcessVariables,
+  ProcessVariablesInput,
 } from '../components';
 import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
 import _ from 'lodash';
@@ -21,7 +19,6 @@ export default class SubProcess extends Component {
       saveRequest: false,
       subProcessDialog: false,
       processVariables: [],
-      errorItems: {},
     };
   }
 
@@ -63,7 +60,6 @@ export default class SubProcess extends Component {
       .then(result => {
         this.setState({
           data: _.isEmpty(obj) ? result : { ...result, name: data.name, executeType: data.executeType },
-          errorItems: {},
         });
       });
   }
@@ -118,7 +114,7 @@ export default class SubProcess extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, subProcessDialog, processVariables, errorItems } = this.state;
+    const { data } = this.state;
     const executeTypes = [
       {
         text: _l('并行'),
@@ -270,84 +266,18 @@ export default class SubProcess extends Component {
               {_l('勾选后，当子流程数据源为单条对象，之后节点可使用子流程中的参数')}
             </div>
 
-            <div className="Font13 mTop20 flexRow">
-              <div className="flex bold">{_l('参数传递')}</div>
-              {data.subProcessId && (
-                <div
-                  className="pointer ThemeColor3 ThemeHoverColor2"
-                  onClick={() => this.setState({ subProcessDialog: true, processVariables: data.subProcessVariables })}
-                >
-                  {_l('参数设置')}
-                </div>
-              )}
-            </div>
-            <div className="Font13 Gray_75 mTop10">{_l('向子流程的流程参数传递初始值，供子流程执行时使用')}</div>
-
-            <UpdateFields
-              type={2}
-              isSubProcessNode={true}
-              companyId={this.props.companyId}
-              processId={this.props.processId}
-              relationId={this.props.relationId}
-              selectNodeId={this.props.selectNodeId}
-              controls={data.subProcessVariables}
-              fields={data.fields}
-              formulaMap={data.formulaMap}
+            <ProcessVariablesInput
+              {...this.props}
+              data={data}
+              selectProcessId={data.subProcessId}
+              desc={_l('向子流程的流程参数传递初始值，供子流程执行时使用')}
               updateSource={this.updateSource}
             />
           </Fragment>
         )}
-
-        {subProcessDialog && (
-          <Dialog
-            visible
-            className="subProcessDialog"
-            onCancel={() => this.setState({ subProcessDialog: false })}
-            onOk={this.saveSubProcessOptions}
-            title={_l('参数设置')}
-          >
-            <ProcessVariables
-              processVariables={processVariables}
-              errorItems={errorItems}
-              setErrorItems={errorItems => this.setState({ errorItems })}
-              updateSource={processVariables => this.setState(processVariables)}
-            />
-          </Dialog>
-        )}
       </Fragment>
     );
   }
-
-  /**
-   * 保存子流程参数
-   */
-  saveSubProcessOptions = () => {
-    const { data, processVariables, errorItems } = this.state;
-
-    if (_.find(errorItems, o => o)) {
-      alert(_l('有参数配置错误'), 2);
-      return;
-    }
-
-    if (processVariables.filter(item => !item.controlName).length) {
-      alert(_l('参数名称不能为空'), 2);
-      return;
-    }
-
-    process
-      .saveProcessConfig({
-        processId: data.subProcessId,
-        isSaveVariables: true,
-        processVariables,
-      })
-      .then(result => {
-        if (result) {
-          alert(_l('保存成功'));
-          this.setState({ subProcessDialog: false });
-          this.updateSource({ subProcessVariables: result });
-        }
-      });
-  };
 
   render() {
     const { data } = this.state;

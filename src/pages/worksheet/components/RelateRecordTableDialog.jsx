@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Modal } from 'ming-ui';
-import styled from 'styled-components';
-import { useKey } from 'react-use';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import RelateRecordTable from 'worksheet/components/RelateRecordTable';
+
 import { get, includes } from 'lodash';
+import { Modal } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import PropTypes from 'prop-types';
+import { useKey } from 'react-use';
+import styled from 'styled-components';
+import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 
 const Con = styled.div`
   width: 100%;
@@ -133,6 +134,7 @@ export default function RelateRecordTableDialog(props) {
   } = props;
   const cache = useRef({});
   const [isFullScreen, setIsFullScreen] = useState(openFrom !== 'cell');
+  const callFromDialog = openFrom !== 'cell';
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
   useKey('e', e => {
     if (window.isMacOs ? e.metaKey : e.ctrlKey) {
@@ -188,21 +190,27 @@ export default function RelateRecordTableDialog(props) {
                 : _l('全屏%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
             }
             onClick={() => {
-              setIsFullScreen(!isFullScreen);
+              if (callFromDialog) {
+                onClose();
+              } else {
+                setIsFullScreen(!isFullScreen);
+              }
             }}
           >
             <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
           </IconBtn>
-          <IconBtn
-            className="ThemeHoverColor3"
-            data-tip={_l('关闭(Esc)')}
-            onClick={() => {
-              reloadTable();
-              onClose();
-            }}
-          >
-            <i className="icon icon-close"></i>
-          </IconBtn>
+          {!callFromDialog && (
+            <IconBtn
+              className="ThemeHoverColor3"
+              data-tip={_l('关闭(Esc)')}
+              onClick={() => {
+                reloadTable();
+                onClose();
+              }}
+            >
+              <i className="icon icon-close"></i>
+            </IconBtn>
+          )}
         </Header>
         <Content>
           <Table

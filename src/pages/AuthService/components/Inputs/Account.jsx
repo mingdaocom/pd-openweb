@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { getEmailOrTel, getDefaultCountry, getDialCode, isTel } from 'src/pages/AuthService/util.js';
 import _ from 'lodash';
 import cx from 'classnames';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
+import intlTelInput from 'ming-ui/components/intlTelInput';
 
 // 'inputAccount',//手机邮箱输入框
 export default function (props) {
@@ -39,15 +37,11 @@ export default function (props) {
     if (mobile.current) {
       window.initIntlTelInput = null;
       window.initIntlTelInput = intlTelInput(mobile.current, {
-        i18n: { searchPlaceholder: _l('搜索') },
         customPlaceholder: () => {
           return emailOrTel;
         },
-        autoPlaceholder: 'off',
         initialCountry: getDefaultCountry(),
         preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || [getDefaultCountry()],
-        loadUtils: '',
-        utilsScript: utils,
         separateDialCode: false,
         showSelectedDialCode: true,
       });

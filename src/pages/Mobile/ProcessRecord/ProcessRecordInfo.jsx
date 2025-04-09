@@ -5,7 +5,6 @@ import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import instanceApi from 'src/pages/workflow/api/instance';
-import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import { Loading, Abnormal } from 'mobile/components/RecordInfo/RecordState';
 import WorkflowStepItem from 'mobile/ProcessRecord/WorkflowStepItem';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
@@ -24,10 +23,14 @@ export default class ProcessRecordInfo extends Component {
       instance: {},
       appInfo: {}
     }
+    this.RecordInfo = null;
   }
   processFooter = React.createRef();
   componentDidMount() {
     this.getWorkItem();
+    import('mobile/components/RecordInfo/RecordInfo').then(component => {
+      this.RecordInfo = component.default;
+    });
   }
   getWorkItem() {
     const { instanceId, workId, isModal } = this.props;
@@ -121,10 +124,11 @@ export default class ProcessRecordInfo extends Component {
     );
   }
   render() {
+    const { RecordInfo } = this;
     const { workId, instanceId, onClose } = this.props;
     const { loading, workItem, instance, error, errorMsg, appInfo } = this.state;
 
-    if (loading) {
+    if (loading || !RecordInfo) {
       return <Loading />;
     }
 

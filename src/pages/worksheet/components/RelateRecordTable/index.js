@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useContext } from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import { Provider } from 'react-redux';
 import { get, isEqual, isFunction } from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import RelateRecordTable from './RelateRecordTable';
 import generateStore from './redux/store';
@@ -31,6 +32,8 @@ export default function RelateRecordTableIndex(props) {
     sheetSwitchPermit,
     onCountChange,
   } = props;
+  const { recordbase = {} } = useContext(RecordFormContext) || {};
+  const { instanceId, workId } = recordbase;
   const [filters, setFilters] = useState(false);
   const cache = useRef({
     changes: { addedRecordIds: [], deletedRecordIds: [] },
@@ -51,6 +54,8 @@ export default function RelateRecordTableIndex(props) {
         sheetSwitchPermit,
         isCharge,
         appId,
+        instanceId,
+        workId,
       })
     );
   }, [control.controlId, get(control, 'store.version')]);

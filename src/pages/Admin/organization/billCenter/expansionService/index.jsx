@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Checkbox } from 'antd';
-import Config from '../../../config';
-import { Icon, Switch, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import './style.less';
-import orderController from 'src/api/order';
-import projectSetting from 'src/api/projectSetting';
-import PortalProgress from './PortalProgress';
-import projectAjax from 'src/api/project';
-import paymentAjax from 'src/api/payment';
 import _ from 'lodash';
 import moment from 'moment';
+import { Icon, LoadDiv, Switch } from 'ming-ui';
+import orderController from 'src/api/order';
+import paymentAjax from 'src/api/payment';
+import projectAjax from 'src/api/project';
+import projectSetting from 'src/api/projectSetting';
 import { getCurrentProject } from 'src/util';
+import Config from '../../../config';
+import PortalProgress from './PortalProgress';
+import './style.less';
 
 //操作类型
 const EXPAND_TYPE = {
@@ -145,7 +145,8 @@ export default class ExpansionService extends Component {
     this.expandType = Config.params[3];
     this.isPortalUser = _.includes([EXPAND_TYPE.PORTALUSER, EXPAND_TYPE.PORTALUPGRADE], this.expandType);
     const currentProject = getCurrentProject(Config.projectId);
-    const disabledPurchase = _.includes([0, 2], currentProject.licenseType);
+    const disabledPurchase =
+      _.includes([0, 2], currentProject.licenseType) || parseInt(_.get(currentProject, 'version.versionIdV2')) === 0;
     this.state = {
       step: 1,
       addUserCount: 5, // 输入增加的人数
@@ -232,8 +233,8 @@ export default class ExpansionService extends Component {
             expandType === EXPAND_TYPE.USER
               ? data.userLimitNumber
               : expandType === EXPAND_TYPE.APP
-              ? data.apkLimitNumber
-              : data.workflowLimitNumber * 1000,
+                ? data.apkLimitNumber
+                : data.workflowLimitNumber * 1000,
             10,
           ) || 0;
         this.setState(
@@ -420,8 +421,8 @@ export default class ExpansionService extends Component {
       !merchantInfo.subscribeMerchant || isTrial
         ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
         : moment(merchantInfo.planExpiredTime).isBefore(new Date())
-        ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
-        : moment(merchantInfo.planExpiredTime).add(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ');
+          ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
+          : moment(merchantInfo.planExpiredTime).add(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ');
 
     return {
       startDate,
@@ -619,7 +620,8 @@ export default class ExpansionService extends Component {
   renderWorkFlowContent() {
     const { workflowType } = this.state;
     const currentProject = getCurrentProject(Config.projectId);
-    const disabledPurchase = _.includes([0, 2], currentProject.licenseType);
+    const disabledPurchase =
+      _.includes([0, 2], currentProject.licenseType) || parseInt(_.get(currentProject, 'version.versionIdV2')) === 0;
 
     return (
       <Fragment>
@@ -665,7 +667,8 @@ export default class ExpansionService extends Component {
   renderDataSyncContent() {
     const { dataSyncType } = this.state;
     const currentProject = getCurrentProject(Config.projectId);
-    const disabledPurchase = _.includes([0, 2], currentProject.licenseType);
+    const disabledPurchase =
+      _.includes([0, 2], currentProject.licenseType) || parseInt(_.get(currentProject, 'version.versionIdV2')) === 0;
 
     return (
       <Fragment>
@@ -822,8 +825,8 @@ export default class ExpansionService extends Component {
             <span className="Gray_75 mRight24">{_l('到期时间')}</span>
             <span className="Gray">
               {exclusiveInfo.type === 0
-                ? monthEndDate.format('YYYY年MM月DD日')
-                : moment(exclusiveInfo.currentLicense.endDate).format('YYYY年MM月DD日')}
+                ? monthEndDate.format(_l('YYYY年MM月DD日'))
+                : moment(exclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}
             </span>
           </div>
         )}
@@ -854,7 +857,7 @@ export default class ExpansionService extends Component {
         </div>
         <div className="mTop40 mBottom40">
           <span className="Gray_75 mRight24">{_l('到期时间')}</span>
-          {moment(renewexclusiveInfo.currentLicense.endDate).format('YYYY年MM月DD日')}
+          {moment(renewexclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}
           <span className="Gray_b4">
             {`（${_l('计费')}：${renewexclusiveInfo.currentLicense.expireDays}${_l('天')}）`}
           </span>
@@ -912,9 +915,13 @@ export default class ExpansionService extends Component {
         {licenseInfo.currentLicense.endDate && (
           <div className={cx('Font13 mBottom24', { mTop24: merchantType !== 1 })}>
             <span className={cx('mRight24', color)}>{_l('购买时间')}</span>
-            <span className={disable ? 'Gray_9' : 'Gray'}>{moment(dateRange.startDate).format('YYYY年MM月DD日')}</span>
+            <span className={disable ? 'Gray_9' : 'Gray'}>
+              {moment(dateRange.startDate).format(_l('YYYY年MM月DD日'))}
+            </span>
             <span className="mLeft6 mRight6">-</span>
-            <span className={disable ? 'Gray_9' : 'Gray'}>{moment(dateRange.endDate).format('YYYY年MM月DD日')}</span>
+            <span className={disable ? 'Gray_9' : 'Gray'}>
+              {moment(dateRange.endDate).format(_l('YYYY年MM月DD日'))}
+            </span>
           </div>
         )}
       </Fragment>
@@ -987,8 +994,8 @@ export default class ExpansionService extends Component {
                     ? _l('每月额度升级包')
                     : _l('本月额度升级包')
                   : workflowType === 1
-                  ? _l('每月额度升级包')
-                  : _l('本月额度升级包')}
+                    ? _l('每月额度升级包')
+                    : _l('本月额度升级包')}
               </span>
             )}
           </Fragment>
@@ -1025,8 +1032,8 @@ export default class ExpansionService extends Component {
                 <span className="mRight12">{_l('到期时间')}</span>
                 <span>
                   {exclusiveInfo.type === 0
-                    ? monthEndDate.format('YYYY年MM月DD日')
-                    : moment(exclusiveInfo.currentLicense.endDate).format('YYYY年MM月DD日')}
+                    ? monthEndDate.format(_l('YYYY年MM月DD日'))
+                    : moment(exclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}
                 </span>
                 <span>{`（${_l('计费')}：${
                   exclusiveInfo.type === 0
@@ -1059,7 +1066,7 @@ export default class ExpansionService extends Component {
             {exclusiveInfo.currentLicense.endDate && (
               <div className="Font13 mBottom24 Gray_9e">
                 <span className="mRight12">{_l('到期时间')}</span>
-                <span>{moment(renewexclusiveInfo.currentLicense.endDate).format('YYYY年MM月DD日')}</span>
+                <span>{moment(renewexclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}</span>
                 <span>{`（${_l('计费')}：${renewexclusiveInfo.currentLicense.expireDays}${_l('天')}）`}</span>
               </div>
             )}

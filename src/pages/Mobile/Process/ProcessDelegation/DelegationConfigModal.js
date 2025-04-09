@@ -1,9 +1,10 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Popup, Button } from 'antd-mobile';
-import { Icon } from 'ming-ui';
+import { Icon, Radio } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import SelectUser from 'mobile/components/SelectUser';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
+import SelectAppDialog from 'mobile/components/SelectAppDialog/index.js';
 import moment from 'moment';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -16,6 +17,8 @@ const ModalWrap = styled(Popup)`
   }
   .formInfo {
     padding: 0 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
     .formItem {
       .label {
         font-size: 14px;
@@ -31,10 +34,36 @@ const ModalWrap = styled(Popup)`
       font-size: 13px;
       font-weight: bold;
     }
-    .organization {
+    .organization,
+    .emptyAppWrap {
       height: 36px;
       padding: 0 10px;
       border: 1px solid #eaeaea;
+    }
+    .selectedAppsWrap {
+      flex-wrap: wrap;
+      border: 1px solid #eaeaea;
+      padding: 0 10px;
+    }
+    .appTags {
+      height: 26px;
+      border-radius: 26px;
+      background: #f7f7f7 !important;
+      display: inline-flex;
+      align-items: center;
+      margin: 4px 8px 4px 0;
+      padding: 0 10px;
+      vertical-align: top;
+      position: relative;
+      max-width: 100%;
+      .tagDel {
+        cursor: pointer;
+        color: #9e9e9e;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        transition: all 0.2s ease-out;
+      }
     }
     .client {
       margin: 15px 0 24px 0;
@@ -59,7 +88,7 @@ const ModalWrap = styled(Popup)`
         margin-left: -16px;
       }
     }
-    .addUserBtn {
+    .organization .addUserBtn {
       width: 26px;
       height: 26px;
       line-height: 26px;
@@ -74,14 +103,15 @@ const ModalWrap = styled(Popup)`
   .actionButtons {
     padding: 7px 0;
   }
-  &.projectListWrap {
+  &.projectListModal {
     height: 280px;
     .adm-popup-body {
-      padding: 16px 16px 0;
+      padding: 16px 0px 0;
     }
     .header {
       line-height: 24px;
       margin-bottom: 10px;
+      padding: 0 16px;
       .closeIcon {
         width: 24px;
         height: 24px;
@@ -93,6 +123,12 @@ const ModalWrap = styled(Popup)`
         }
       }
     }
+    .projectListWrap {
+      height: calc(100% - 50px);
+      overflow: auto;
+      padding: 0 16px;
+    }
+
     .projectItem {
       height: 50px;
       line-height: 50px;
@@ -134,6 +170,11 @@ export default function DelegationConfigModal(props) {
       : { startDate: '', endDate: '' },
   );
   const [projectListVisible, setProjectListVisible] = useState(false);
+  const [selectedApps, setSelectedApps] = useState(
+    entrustData.apks ? (entrustData.apks || []).map(item => ({ ...item, appId: item.id, appName: item.name })) : [],
+  );
+  const [showAppDialog, setShowAppDialog] = useState(false);
+  const [scope, setScope] = useState(!entrustData.apks ? 1 : 2);
 
   const formatDate = date => {
     if (!date) return;
@@ -146,6 +187,7 @@ export default function DelegationConfigModal(props) {
       startDate: dateInfo.startDate ? moment(dateInfo.startDate).format('YYYY-MM-DD HH:mm:ss') : '',
       endDate: moment(dateInfo.endDate).format('YYYY-MM-DD HH:mm:ss'),
       trustee: user.accountId,
+      apkIds: scope === 2 && !_.isEmpty(selectedApps) ? selectedApps.map(item => item.appId) : undefined,
     };
     if (moment(dateInfo.endDate).diff(moment(dateInfo.startDate), 'minutes') <= 0) {
       alert(_l('委托结束时间应大于开始时间'), 2);
@@ -175,18 +217,21 @@ export default function DelegationConfigModal(props) {
   };
 
   if (!orgInfo) return null;
+  const date = new Date();
+  const minYear = date.getFullYear();
+  const minMouth = date.getMonth();
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
 
   const disabled = !orgInfo.projectId || !user.accountId || !dateInfo.endDate;
 
   return (
-    <ModalWrap
-      className="mobileDelegationCardList mobileModal full"
-      onClose={onCancel}
-      visible={configVisible}
-    >
+    <ModalWrap className="mobileDelegationCardList mobileModal full" onClose={onCancel} visible={configVisible}>
       <div className="flexColumn h100 TxtLeft Font13">
-        <div className="description">{_l('发起委托后，您负责的审批、填写事项将转交给被委托人')}</div>
         <div className="formInfo flex">
+          <div className="description">{_l('发起委托后，您负责的审批、填写事项将转交给被委托人')}</div>
           <div className="formItem ">
             <div className="label Relative">
               <span className="requied">*</span>
@@ -194,7 +239,10 @@ export default function DelegationConfigModal(props) {
             </div>
             <div
               className="formCon organization flexRow alignItemsCenter mBottom24 mTop10"
-              onClick={() => setProjectListVisible(true)}
+              onClick={() => {
+                setProjectListVisible(true);
+                setSelectedApps([]);
+              }}
             >
               <div className="flex ellipsis Gray">{orgInfo.companyName || ''}</div>
               <Icon icon="arrow-right-border" className="Gray_9d" />
@@ -233,7 +281,7 @@ export default function DelegationConfigModal(props) {
               </div>
             </div>
           </div>
-          <div className="formItem">
+          <div className="formItem mBottom24">
             <div className="label mBottom16">{_l('委托时间')}</div>
             <div className="flexRow Gray Font13">
               <div className="flex mRight5">
@@ -259,7 +307,7 @@ export default function DelegationConfigModal(props) {
                     precision="minite"
                     isOpen={startDateVisible}
                     value={dateInfo.startDate ? dateInfo.startDate : new Date()}
-                    min={new Date()}
+                    min={new Date(minYear, minMouth, day, hour, minute, second)}
                     onClose={() => {
                       setStartDateVisible(false);
                     }}
@@ -300,7 +348,7 @@ export default function DelegationConfigModal(props) {
                     precision="minite"
                     isOpen={endDateVisible}
                     value={dateInfo.endDate || new Date()}
-                    min={dateInfo.startDate || new Date()}
+                    min={dateInfo.startDate || new Date(minYear, minMouth, day, hour, minute, second)}
                     onClose={() => {
                       setEndDateVisible(false);
                     }}
@@ -317,12 +365,68 @@ export default function DelegationConfigModal(props) {
               </div>
             </div>
           </div>
+          <div className="formItem">
+            <div className="label mBottom16">{_l('委托范围')}</div>
+            {[
+              { label: _l('所有工作流'), value: 1 },
+              { label: _l('指定应用的工作流'), value: 2 },
+            ].map(item => {
+              return (
+                <div key={item.value} className="mBottom15">
+                  <Radio
+                    text={item.label}
+                    checked={item.value === scope}
+                    onClick={() => {
+                      setScope(item.value);
+                      if (item.value === 2) {
+                        setShowAppDialog(true);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
+            {scope === 2 && (
+              <Fragment>
+                {_.isEmpty(selectedApps) ? (
+                  <div className="flexRow emptyAppWrap alignItemsCenter" onClick={() => setShowAppDialog(true)}>
+                    <div className="Gray_bd flex">{_l('所有应用')}</div>
+                    <Icon icon="arrow-right-border" className="Gray_9d" />
+                  </div>
+                ) : (
+                  <div className="selectedAppsWrap flexRow">
+                    <div className="flex pRight8 overflowHidden">
+                      {selectedApps.map(item => {
+                        return (
+                          <div className="appTags">
+                            <span className="ellipsis">{item.appName}</span>
+                            <i
+                              className="icon-minus-square Font16 tagDel"
+                              onClick={() => setSelectedApps(selectedApps.filter(v => v.appId !== item.appId))}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="Gray_9d mTop7">
+                      <Icon icon="arrow-right-border" onClick={() => setShowAppDialog(true)} />
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            )}
+          </div>
         </div>
         <div className="actionButtons flexRow">
           <Button className="flex mLeft6 mRight6 Font13 bold Gray_75 btn" onClick={onCancel}>
             {_l('取消')}
           </Button>
-          <Button className="flex mLeft6 mRight6 Font13 bold btn" color="primary" disabled={disabled} onClick={onSubmit}>
+          <Button
+            className="flex mLeft6 mRight6 Font13 bold btn"
+            color="primary"
+            disabled={disabled}
+            onClick={onSubmit}
+          >
             {_l('确定')}
           </Button>
         </div>
@@ -345,8 +449,7 @@ export default function DelegationConfigModal(props) {
       {projectListVisible && (
         <ModalWrap
           visible={projectListVisible}
-          style={{ height: 280 }}
-          className="projectListWrap mobileModal topRadius"
+          className="projectListModal mobileModal minFull topRadius"
           onClose={() => setProjectListVisible(false)}
         >
           <div className="flexRow header">
@@ -361,31 +464,48 @@ export default function DelegationConfigModal(props) {
             </div>
           </div>
 
-          {projectList.map(it => {
-            return (
-              <div
-                className="flexRow projectItem"
-                onClick={() => {
-                  if (_.includes(existCompanyIds, it.projectId)) return;
-                  if (it.projectId !== orgInfo.projectId) {
-                    setUser({});
-                  }
-                  setOrgInfo(it);
-                  setProjectListVisible(false);
-                }}
-              >
-                <div className={cx('flex Gray Font15 Bold', { Gray_9e: _.includes(existCompanyIds, it.projectId) })}>
-                  {it.companyName}
-                </div>
-                {it.projectId === orgInfo.projectId && (
-                  <div>
-                    <Icon icon="done" className="ThemeColor Font20 Bold" />
+          <div className="projectListWrap">
+            {projectList.map(it => {
+              return (
+                <div
+                  className="flexRow projectItem"
+                  onClick={() => {
+                    if (_.includes(existCompanyIds, it.projectId)) return;
+                    if (it.projectId !== orgInfo.projectId) {
+                      setUser({});
+                    }
+                    setOrgInfo(it);
+                    setProjectListVisible(false);
+                  }}
+                >
+                  <div className={cx('flex Gray Font15 Bold ellipsis', { Gray_9e: _.includes(existCompanyIds, it.projectId) })}>
+                    {it.companyName}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                  {it.projectId === orgInfo.projectId && (
+                    <div>
+                      <Icon icon="done" className="ThemeColor Font20 Bold" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </ModalWrap>
+      )}
+
+      {showAppDialog && (
+        <SelectAppDialog
+          visible={showAppDialog}
+          projectId={orgInfo.projectId}
+          selectedApps={selectedApps}
+          ajaxFun="getMyApp"
+          filterFun={l => {
+            _.assign(l, { appId: l.id, appName: l.name });
+            return !!l;
+          }}
+          onClose={() => setShowAppDialog(false)}
+          onOk={selectedApps => setSelectedApps(selectedApps)}
+        />
       )}
     </ModalWrap>
   );

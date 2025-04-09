@@ -1,23 +1,32 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import update from 'immutability-helper';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import ClipboardButton from 'react-clipboard.js';
 import { Drawer } from 'antd';
-import { Dialog, Tabs, Radio, Dropdown, Button, RichText } from 'ming-ui';
-import * as actions from '../../redux/actions';
-import { Hr, H1, H3, Tip75, Tipbd, TipBlock } from 'worksheet/components/Basics';
-import SourceKeys from '../../components/SourceKeys';
-import AddControlDialog from '../../components/AddControlDialog';
-import { PUBLISH_CONFIG_TABS, FILL_OBJECT_OPTIONS, TIME_PERIOD_TYPE, TIME_TYPE, WECHAT_FIELD_KEY } from '../../enum';
+import cx from 'classnames';
+import update from 'immutability-helper';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Dropdown, Radio, Tabs } from 'ming-ui';
+import { H1, H3, Hr, Tip75, Tipbd, TipBlock } from 'worksheet/components/Basics';
+import AddControlDialog from '../../components/AddControlDialog';
+import SourceKeys from '../../components/SourceKeys';
+import {
+  BUTTON_POSITION_OPTIONS,
+  DISPLAY_CONTENT_OPTIONS,
+  FILL_OBJECT_OPTIONS,
+  PUBLISH_CONFIG_TABS,
+  TIME_PERIOD_TYPE,
+  TIME_TYPE,
+  WECHAT_FIELD_KEY,
+} from '../../enum';
+import * as actions from '../../redux/actions';
+import AbilityExpandSettings from './AbilityExpandSettings';
 import DataCollectionSettings from './DataCollectionSettings';
 import FillSettings from './FillSettings';
-import AbilityExpandSettings from './AbilityExpandSettings';
-import SectionTitle from './SectionTitle';
 import ReceiptSettings from './ReceiptSettings';
+import SectionTitle from './SectionTitle';
 import WeChatEnhance from './WeChatEnhance';
 import WeChatSettings from './WeChatSettings';
 
@@ -106,6 +115,8 @@ class PublicConfig extends React.Component {
         _.get(settings, 'limitWriteFrequencySetting.limitRangType') === 0
           ? { ...settings.limitWriteFrequencySetting, limitRangType: 1 }
           : settings.limitWriteFrequencySetting,
+      displayContent: [1, 2, 3, 4],
+      buttonPosition: 'center',
     };
   }
 
@@ -458,8 +469,13 @@ class PublicConfig extends React.Component {
     }
   };
 
-  getIframeHtml() {
-    return `<iframe width="100%" height="100%" style="border: none; margin: 0; padding: 0;" src="${this.props.shareUrl}"></iframe>`;
+  getIframeUrl() {
+    const { displayContent, buttonPosition } = this.state;
+    const coverPic = displayContent.includes(1) ? '' : `&cover=no`;
+    const logo = displayContent.includes(2) ? '' : `&logo=no`;
+    const title = displayContent.includes(3) ? '' : `&title=no`;
+    const description = displayContent.includes(4) ? '' : `&description=no`;
+    return `${this.props.shareUrl}?bg=no&submit=${buttonPosition}${coverPic}${logo}${title}${description}`;
   }
 
   getDropdownControls(key) {
@@ -514,6 +530,8 @@ class PublicConfig extends React.Component {
       titleFolded,
       settingChanged,
       extendDatas,
+      displayContent,
+      buttonPosition,
     } = this.state;
 
     return (
@@ -600,27 +618,6 @@ class PublicConfig extends React.Component {
                 }}
                 setState={this.handleLinkSettingChange}
               />
-
-              {!md.global.SysSettings.hideWeixin && (
-                <WeChatSettings
-                  projectId={this.props.worksheetInfo.projectId}
-                  data={{
-                    weChatSetting,
-                    originalControls,
-                    writeScope,
-                    extendSourceId,
-                    ipControlId,
-                    browserControlId,
-                    deviceControlId,
-                    systemControlId,
-                    titleFolded,
-                    boundControlIds: worksheetSettings.boundControlIds,
-                  }}
-                  weChatBind={this.state.weChatBind}
-                  setState={this.handleLinkSettingChange}
-                  addWorksheetControl={addWorksheetControl}
-                />
-              )}
 
               {!md.global.SysSettings.hideWeixin && (
                 <AbilityExpandSettings
@@ -739,18 +736,52 @@ class PublicConfig extends React.Component {
           )}
           {activeTab === 4 && (
             <React.Fragment>
-              <H3>{_l('嵌入代码')}</H3>
+              <H3>{_l('嵌入链接')}</H3>
               <TipBlock color="#757575" className="Font14">
-                {this.getIframeHtml()}
+                {this.getIframeUrl()}
               </TipBlock>
-              <div className="TxtRight mTop35">
+              <div className="mTop16">
                 <ClipboardButton
                   component="span"
-                  data-clipboard-text={this.getIframeHtml()}
+                  data-clipboard-text={this.getIframeUrl()}
                   onSuccess={() => alert(_l('复制成功'))}
                 >
                   <Button>{_l('复制')}</Button>
                 </ClipboardButton>
+              </div>
+              <div className="bold mTop32">{_l('链接设置')}</div>
+              <div className="flexRow alignItemsCenter mTop20">
+                <div className="mRight24">{_l('显示内容')}</div>
+                {DISPLAY_CONTENT_OPTIONS.map((item, index) => (
+                  <Checkbox
+                    key={index}
+                    className="pRight24"
+                    checked={displayContent.includes(item.value)}
+                    onClick={() => {
+                      const checked = displayContent.includes(item.value);
+                      this.setState({
+                        displayContent: checked
+                          ? displayContent.filter(v => v !== item.value)
+                          : [...displayContent, item.value],
+                      });
+                    }}
+                    text={item.text}
+                  />
+                ))}
+              </div>
+              <div className="flexRow alignItemsCenter mTop20">
+                <div className="mRight24">{_l('按钮位置')}</div>
+                <div className="btnPositionSwitch">
+                  {BUTTON_POSITION_OPTIONS.map((item, index) => (
+                    <div
+                      key={index}
+                      className={cx('positionItem', { isActive: buttonPosition === item.value })}
+                      onClick={() => this.setState({ buttonPosition: item.value })}
+                    >
+                      {item.text}
+                    </div>
+                  ))}
+                </div>
               </div>
             </React.Fragment>
           )}

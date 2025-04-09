@@ -1,47 +1,50 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { LoadDiv, Dropdown, ScrollView, UserHead } from 'ming-ui';
-import orderAjax from 'src/api/order';
-import copy from 'copy-to-clipboard';
-import projectAjax from 'src/api/project';
-import applicationAjax from 'src/api/application';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { getCurrentProject } from 'src/util';
-import { AccountIdOperation, BillInfoWrap } from 'src/pages/Admin/common/styled';
-import {
-  PAID_RECORD_TYPE,
-  RECHARGE_RECORD_TYPE,
-  enumInvoiceStatus,
-  invoiceTypeText,
-  orderRecordType,
-  orderTypeText,
-  orderRecordText,
-  enumOrderRecordStatus,
-  orderRecordStatusDropdownData,
-} from './config';
-import InvoiceSetting from './invoiceSetting';
-import ApplyInvoice from './applyInvoice';
+import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import img from 'staticfiles/images/billinfo_system.png';
+import { Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import applicationAjax from 'src/api/application';
+import orderAjax from 'src/api/order';
+import projectAjax from 'src/api/project';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
+import { AccountIdOperation, BillInfoWrap } from 'src/pages/Admin/common/styled';
+import { getCurrentProject } from 'src/util';
+import { formatNumberThousand } from 'src/util';
 import PaginationWrap from '../../../components/PaginationWrap';
 import Common from '../common';
-import img from 'staticfiles/images/billinfo_system.png';
-import _ from 'lodash';
-import { formatNumberThousand } from 'src/util';
+import ApplyInvoice from './applyInvoice';
+import {
+  enumInvoiceStatus,
+  enumOrderRecordStatus,
+  invoiceTypeText,
+  orderRecordStatusDropdownData,
+  orderRecordText,
+  orderRecordType,
+  orderTypeText,
+  PAID_RECORD_TYPE,
+  RECHARGE_RECORD_TYPE,
+} from './config';
+import InvoiceSetting from './invoiceSetting';
+import 'rc-trigger/assets/index.css';
 
 export default function BillInfo({ match }) {
   const { 0: projectId } = _.get(match, 'params');
   const [data, setData] = useSetState({});
   const [paras, setPara] = useSetState({ pageIndex: 1, pageSize: 50, status: 0, recordTypes: PAID_RECORD_TYPE });
-  const [{ applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, datePickerVisible }, setVisible] =
-    useSetState({
-      applyInvoiceVisible: false,
-      invoiceVisible: false,
-      operateMenuVisible: -1,
-      datePickerVisible: false,
-      applyOrderId: '',
-    });
+  const [
+    { applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, datePickerVisible, hideBalance },
+    setVisible,
+  ] = useSetState({
+    applyInvoiceVisible: false,
+    invoiceVisible: false,
+    operateMenuVisible: -1,
+    datePickerVisible: false,
+    applyOrderId: '',
+    hideBalance: true,
+  });
   const [loading, setLoading] = useState(false);
   const [displayRecordType, setType] = useState('paid');
   const { balance, list = [], allCount, invoiceType } = data;
@@ -179,8 +182,7 @@ export default function BillInfo({ match }) {
               <li key={orderId || recordId} className="recordItem">
                 <div className="time overflow_ellipsis item Font14 Gray_75">{createTime}</div>
                 <div className={cx('type overflow_ellipsis item', { rechargeType: displayRecordType === 'recharge' })}>
-                  {orderTypeText[orderRecordType[recordType]] +
-                    (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
+                  {orderTypeText[orderRecordType[recordType]] + (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
                 </div>
                 <div className={cx('amount item', { isPositive: price > 0 })}>{formatNumberThousand(price)}</div>
                 {isRechargeType ? (
@@ -298,7 +300,14 @@ export default function BillInfo({ match }) {
           <i className="icon-sp_account_balance_wallet_white Font24" />
           <span>{_l('账户余额')}</span>
           <span className="moneySymbol Gray_75">(￥)</span>
-          <span className="balance Font24">{loading ? '-' : formatNumberThousand(balance)}</span>
+          <span className={cx('balance Font24', { mRight0: hideBalance })}>
+            {loading ? '-' : hideBalance ? '*****' : formatNumberThousand(balance)}
+          </span>
+          <Icon
+            icon={hideBalance ? 'eye_off' : 'eye'}
+            className="Gray_9e eyeIcon Hand mRight8 mBottom10"
+            onClick={() => setVisible({ hideBalance: !hideBalance })}
+          />
           {!md.global.Config.IsLocal && isPaid && (
             <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
               {_l('充值')}

@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'antd';
+import { Input } from 'antd';
 import { Button, Modal, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Tip99, Hr, Bold600 } from 'worksheet/components/Basics';
@@ -65,15 +65,27 @@ export default function Share(props) {
     disabledTip =
       from === 'recordInfo' ? _l('记录拥有者才能操作') : _l('系统角色（包含管理员、运营者、开发者）才能操作');
   }
+  const handleChangePageTitle = () => {
+    if (_.includes(['view'], from)) {
+      getPublicShareInfo({
+        isEdit: true,
+        ...shareData,
+      });
+    }
+    if (_.includes(['customPage'], from)) {
+      editEntityShare(shareData);
+    }
+  }
   async function updatePublicShare(active) {
     const result = await updatePublicShareStatus({
       from,
       isPublic: active,
+      pageTitle: _.get(shareData, 'pageTitle'),
       ...params,
       onUpdate,
     });
     setIsPublic(active);
-    setShareData(result);
+    setShareData(result.appEntityShare ? result.appEntityShare : result);
     setPublicUrl(result ? result.shareLink : null);
     setUrlVisible(false);
   }
@@ -116,6 +128,7 @@ export default function Share(props) {
       }
     })();
   }, []);
+
   return (
     <Modal visible width={720} footer={null} title={<Bold600>{title || _l('分享')}</Bold600>} onCancel={onClose}>
       {privateVisible && (
@@ -206,6 +219,27 @@ export default function Share(props) {
                 >
                   {_l('编辑公开表单')}
                 </a>
+              )}
+              {_.includes(['view', 'customPage'], from) && (
+                <div className="flex flexRow alignItemsCenter mTop16 validityDateConfig">
+                  <div className="mRight8">{_l('页面标题')}</div>
+                  <Input
+                    placeholder={params.title}
+                    value={shareData.pageTitle}
+                    className="flex"
+                    onChange={event => {
+                      const { value } = event.target;
+                      setShareData({
+                        ...shareData,
+                        pageTitle: value.slice(0, 200)
+                      });
+                    }}
+                    onBlur={handleChangePageTitle}
+                    onKeyDown={event => {
+                      event.which === 13 && handleChangePageTitle();
+                    }}
+                  />
+                </div>
               )}
               {_.includes(['view', 'recordInfo', 'customPage', 'worksheetApi'], from) && (
                 <Validity

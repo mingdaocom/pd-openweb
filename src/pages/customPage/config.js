@@ -1,4 +1,4 @@
-export const MAX_REPORT_COUNT = 30;
+export const MAX_COMPONENT_COUNT = 60;
 
 export const COLUMN_HEIGHT = 15;
 

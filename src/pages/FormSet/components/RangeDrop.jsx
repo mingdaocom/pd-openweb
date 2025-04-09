@@ -87,20 +87,27 @@ export class RangeDrop extends React.Component {
   componentDidMount() {
     const { printData, views } = this.props;
     this.setState({
-      allView: views.length === printData.views.length,
+      allView: this.getViews(views).length === printData.views.length,
     });
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEmpty(this.props.printData, nextProps.printData)) {
       const { printData, views } = nextProps;
       this.setState({
-        allView: views.length === printData.views.length,
+        allView: this.getViews(views).length === printData.views.length,
       });
     }
   }
+
+  getViews(list) {
+    return list.filter(l => l.viewId !== l.worksheetId);
+  }
+
   render() {
     const { printData, views, setData, className } = this.props;
     const { allView } = this.state;
+    const viewList = this.getViews(views);
+
     return (
       <RangeBox className={className}>
         <HeaderRange className="headerRange Font14 Gray">
@@ -142,7 +149,7 @@ export class RangeDrop extends React.Component {
           {printData.range === 3 && (
             <div className="viewList">
               <div className="viewListLi">
-                {views.map(it => {
+                {viewList.map(it => {
                   return (
                     <div
                       className="mTop15 mLeft25 Hand"
@@ -171,7 +178,7 @@ export class RangeDrop extends React.Component {
                             },
                             () => {
                               this.setState({
-                                allView: this.state.views.length === this.state.printData.views.length,
+                                allView: this.getViews(this.state.views).length === this.state.printData.views.length,
                               });
                             },
                           );

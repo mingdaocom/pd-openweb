@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Checkbox, Icon, Tooltip } from 'ming-ui';
+import cx from 'classnames';
 import Trigger from 'rc-trigger';
+import { Checkbox, Icon, Tooltip } from 'ming-ui';
 
 const ChartColorSettingBox = styled.div(
   ({ select = false }) => `
@@ -29,6 +30,9 @@ const ChartColorSettingBox = styled.div(
     align-items: end;
     cursor: pointer;
     opacity: ${select ? 1 : 0.6};
+    &.minGap {
+      gap: 2px;
+    }
     &:hover {
       & + .ChartColorSetting_checkbox {
         .Checkbox-box {
@@ -175,9 +179,9 @@ export default function ChartColorSetting(props) {
 
   return (
     <ChartColorSettingBox select={selected}>
-      <div className="chartWrap flex" onClick={() => handleSelect(!selected)}>
-        {COLOR_BOX_HEIGHT.map((height, index) => (
-          <span className="colorBox" style={{ background: colors[index], height: height }}></span>
+      <div className={cx('chartWrap flex', { minGap: colors.length > 8 })} onClick={() => handleSelect(!selected)}>
+        {colors.map((color, index) => (
+          <span className="colorBox" style={{ background: color, height: COLOR_BOX_HEIGHT[(index + 1) % 8] }}></span>
         ))}
       </div>
       {!disablechecked && (

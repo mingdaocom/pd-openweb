@@ -1,13 +1,12 @@
 import styled from 'styled-components';
-import { MAX_REPORT_COUNT, COLUMN_HEIGHT } from './config';
+import { MAX_COMPONENT_COUNT } from './config';
 import maxBy from 'lodash/maxBy';
-import { widgets } from './enum';
+import { widgets, containerWidgets } from './enum';
 import { get } from 'lodash';
 import domtoimage from 'dom-to-image';
 import { reportTypes } from 'statistics/Charts/common';
 import { v4 as uuidv4 } from 'uuid';
 import { generate } from '@ant-design/colors';
-import store from 'redux/configureStore';
 import * as utils from 'src/util';
 import { SYS_COLOR } from 'src/pages/Admin/settings/config';
 import { TinyColor } from '@ctrl/tinycolor';
@@ -27,16 +26,16 @@ const enumObj = obj => {
   return obj;
 };
 
-export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5, filter: 6, carousel: 7, ai: 8 });
+export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5, filter: 6, carousel: 7, ai: 8, tabs: 9, card: 10 });
 
 export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
   const id = component.id || component.uuid;
   return _.findIndex(components, item => item.id === id || item.uuid === id);
 };
-export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type, config = {} }) => {
+export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type }) => {
   if (layoutType === 'web') {
-    if (type === 'view') {
+    if (['view', 'tabs'].includes(type)) {
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 6 };
     } else if (type === 'filter') {
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 2 };
@@ -49,7 +48,7 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
     const { y = 0, h = 6 } = maxBy(components, item => get(item, ['mobile', 'layout', 'y'])) || {};
     const enumType = getEnumType(type);
     const minW = _.includes(['button'], enumType) ? 2 : 1;
-    if (enumType === 'view') {
+    if (['view', 'tabs'].includes(enumType)) {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 4 };
     } else if (enumType === 'filter') {
       return { x: 0, y: y + h, w: 4, h: 1, minW, minH: 1 };
@@ -61,24 +60,21 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
 
 // export const formatComponents = components => components.map(item => ({ ...item, layout: JSON.parse(item.layout || '{}') }));
 
-export const reportCount = (components = []) =>
-  components.filter(item => item.type === 1 || item.type === 'analysis').length;
-
-export const reportCountLimit = components => {
-  // if (reportCount(components) >= MAX_REPORT_COUNT) {
-  //   alert(_l('自定义页面最多只能添加%0个统计报表', MAX_REPORT_COUNT));
+export const componentCountLimit = components => {
+  // if (components.length >= MAX_COMPONENT_COUNT) {
+  //   alert(_l('自定义页面最多只能添加%0个组件', MAX_COMPONENT_COUNT), 3);
   //   return false;
   // }
   return true;
 };
 
 export const getIconByType = type => {
-  return _.get(widgets[getEnumType(type)], 'icon');
+  return _.get({ ...widgets, ...containerWidgets }[getEnumType(type)], 'icon');
 };
 
 const htmlReg = /<.+?>/g;
 export const getComponentTitleText = component => {
-  const { value = '', type, name, button, config = {} } = component;
+  const { value = '', type, name, button, config = {}, componentConfig = {} } = component;
   const enumType = getEnumType(type);
   if (enumType === 'analysis') return name || _l('未命名图表');
   if (enumType === 'richText') return value.replace(htmlReg, '');
@@ -86,6 +82,8 @@ export const getComponentTitleText = component => {
   if (enumType === 'view') return config.name;
   if (enumType === 'filter') return _l('筛选组件');
   if (enumType === 'carousel') return _l('轮播图');
+  if (enumType === 'tabs') return _.get(componentConfig, 'name') || _l('标签页');
+  if (enumType === 'card') return _.get(componentConfig, 'name') || _l('卡片');
   if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };
@@ -103,6 +101,17 @@ export const reorderComponents = components => {
     }),
   );
 };
+
+//  获取layout布局, 如果没有设置好的layout,则生成一个默认的
+export const getLayout = (components, layoutType) => {
+  return components.map((item = {}, index) => {
+    const { id } = item;
+    const { layout, titleVisible } = item[layoutType] || {};
+    return layout
+      ? { ...layout, i: `${id || index}` }
+      : { ...getDefaultLayout({ components, index, layoutType, titleVisible }), i: `${id || index}` };
+  });
+}
 
 export const computeWidth = ({ width, count, margin = 20 }) => {
   return { width: `calc(${100 / count}% - ${margin}px)` };

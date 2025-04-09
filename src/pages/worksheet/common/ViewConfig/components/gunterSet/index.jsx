@@ -14,13 +14,13 @@ let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周�
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getAdvanceSetting } from 'src/util';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
 import Group from '../Group';
 import DisplayControl from '../DisplayControl';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet.jsx';
+import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
 
 const GunterTypeChoose = styled.div`
   ul > li {
@@ -55,13 +55,7 @@ export default function GunterSet(props) {
   const { advancedSetting = {} } = view;
   const { calendartype = '0', unweekday = '', milepost } = advancedSetting;
   let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
-  let [timeControls, setTimeControls] = useState(
-    worksheetControls.filter(
-      item =>
-        !SYS.includes(item.controlId) &&
-        (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
-    ),
-  );
+  let [timeControls, setTimeControls] = useState(getControlsForGunter(worksheetControls));
   const { begindate = '', enddate = '' } = getAdvanceSetting(view);
   const beginIsDel = begindate && !worksheetControls.find(item => item.controlId === begindate);
   const endIsDel = enddate && !worksheetControls.find(item => item.controlId === enddate);
@@ -77,12 +71,7 @@ export default function GunterSet(props) {
     });
   };
   useEffect(() => {
-    let timeControls = worksheetControls.filter(
-      item =>
-        !SYS.includes(item.controlId) &&
-        (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
-    );
-    setTimeControls(timeControls);
+    setTimeControls(getControlsForGunter(worksheetControls));
   }, [worksheetControls]);
   return (
     <React.Fragment>

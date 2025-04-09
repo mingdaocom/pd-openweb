@@ -19,6 +19,7 @@ export default {
   * @param {} args.paymentModule
   * @param {string} args.productId 产品id
   * @param {string} args.licenseId 套餐id
+  * @param {string} args.merchantNo 商户号
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -35,6 +36,7 @@ export default {
   * @param {} args.paymentModule
   * @param {string} args.productId 产品id
   * @param {string} args.licenseId 套餐id
+  * @param {string} args.merchantNo 商户号
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -175,6 +177,17 @@ export default {
      return mdyAPI('Payment', 'GetMerchantList', args, options);
    },
   /**
+  * 获取商户可创建数量
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMerchantUsage: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'GetMerchantUsage', args, options);
+   },
+  /**
   * 下拉框加载商户列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
@@ -186,6 +199,18 @@ export default {
    getMerchantsForDropdownList: function (args, options = {}) {
      
      return mdyAPI('Payment', 'GetMerchantsForDropdownList', args, options);
+   },
+  /**
+  * 获取工作表支付配置选中的商户列表
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPaymentSettingSelectedMerchants: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'GetPaymentSettingSelectedMerchants', args, options);
    },
   /**
   * 获取商户状态
@@ -211,6 +236,9 @@ export default {
   * @param {} args.aliPayStatus
   * @param {} args.wechatPayStatus
   * @param {} args.status
+  * @param {} args.merchantPaymentChannel
+  * @param {} args.merchantPayConfigInfo
+  * @param {boolean} args.needVerify
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -245,19 +273,6 @@ export default {
    deleteMerchant: function (args, options = {}) {
      
      return mdyAPI('Payment', 'DeleteMerchant', args, options);
-   },
-  /**
-  * 更新试用状态
-  * @param {Object} args 请求参数
-  * @param {string} args.merchantNo 交易商户号
-  * @param {string} args.projectId 组织id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateMerchantTrailStatus: function (args, options = {}) {
-     
-     return mdyAPI('Payment', 'UpdateMerchantTrailStatus', args, options);
    },
   /**
   * 获取订单汇总
@@ -295,6 +310,7 @@ export default {
   * @param {string} args.endPaidTime 付款成功时间结束
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
+  * @param {} args.merchantPaymentChannel
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -338,6 +354,7 @@ export default {
   * @param {string} args.endPaidTime 付款成功时间结束
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
+  * @param {} args.merchantPaymentChannel
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -440,6 +457,7 @@ export default {
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
   * @param {string} args.operatorAccountId 操作用户
+  * @param {} args.merchantPaymentChannel
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -500,6 +518,7 @@ export default {
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
   * @param {string} args.operatorAccountId 操作用户
+  * @param {} args.merchantPaymentChannel
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

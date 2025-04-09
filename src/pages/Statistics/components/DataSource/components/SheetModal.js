@@ -354,7 +354,7 @@ export default class SheetModal extends Component {
                     {_l('所有记录')}
                   </Select.Option>
                 )}
-                {(views || []).map(item => (
+                {(views || []).filter(view => view.worksheetId !== view.viewId).map(item => (
                   <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
                     {getTranslateInfo(appId, null, item.viewId).name || item.name}
                   </Select.Option>
@@ -391,7 +391,7 @@ export default class SheetModal extends Component {
                   <Select.Option className="selectOptionWrapper" value={null}>
                     {_l('所有记录')}
                   </Select.Option>
-                  {(views || []).map(item => (
+                  {(views || []).filter(view => view.worksheetId !== view.viewId).map(item => (
                     <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
                       {getTranslateInfo(appId, null, item.viewId).name || item.name}
                     </Select.Option>

@@ -63,7 +63,14 @@ export default class CustomDefaultValue extends Component {
             control={{
               ...data,
               value: JSON.stringify(rowData),
-              advancedSetting: { ...data.advancedSetting, batchcids: '[]' },
+              advancedSetting: {
+                ...data.advancedSetting,
+                batchcids: '[]',
+                allowadd: '1',
+                allowsingle: '1',
+                allowedit: '1',
+                allowcancel: '1',
+              },
             }}
             controls={controls}
             projectId={globalSheetInfo.projectId}

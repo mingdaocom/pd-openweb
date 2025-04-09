@@ -411,6 +411,7 @@ class BatchOperate extends React.Component {
         </span>
       </div>
     );
+
     return (
       <DropMotion
         duration={200}

@@ -7,7 +7,7 @@ import { includes, noop, isEmpty } from 'lodash';
 import { uniqBy } from 'lodash/array';
 import worksheetAjax from 'src/api/worksheet';
 import { wrapAjax } from './util';
-import { updateNavGroup } from 'src/pages/worksheet/redux/actions/index.js';
+import { updateNavGroup } from './navFilter.js';
 
 let boardPromiseObj;
 let boardPromiseViewIds = [];

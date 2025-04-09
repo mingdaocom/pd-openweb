@@ -187,28 +187,6 @@ export const getAllAddressbookByKeywords = (keyword) => {
 };
 
 /**
- * 获取群组的详细信息
- * @param {*} groupid
- */
-export const fetchDetail = (groupid) => {
-  return new Promise((resolve, reject) => {
-    GroupController.getGroupInfo({
-      groupId: groupid,
-    }).then((res) => {
-      const users = [];
-      for (let i = 0; i < res.groupUsers.length; i++) {
-        const user = res.groupUsers[i];
-        if (user !== null) {
-          users.push(user);
-        }
-      }
-      res.users = users;
-      resolve(res);
-    });
-  });
-};
-
-/**
  * 添加群组成员
  * @param {*} param
  */

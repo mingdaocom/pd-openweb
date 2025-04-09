@@ -458,7 +458,7 @@ export default class HistoryDetail extends Component {
                               ]
                             : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds[0]) || {})
                                 .name || _l('分支')}
-                          {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+                          {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}
                         </div>
                         {alias && <div className="Gray_75 Font13 ellipsis">{_l('别名：%0', alias)}</div>}
                         {app && appType !== APP_TYPE.EVENT_PUSH && (

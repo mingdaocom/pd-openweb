@@ -7,7 +7,7 @@ import searchListHtml from './tpl/searchList.htm';
 import searchListItemHtml from './tpl/searchListItem.htm';
 import createFeed from 'src/pages/feed/components/createFeed';
 import createCalendar from 'src/components/createCalendar/createCalendar';
-import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import KcController from 'src/api/kc';
 import WorksheetController from 'src/api/worksheet';
 import ChatController from 'src/api/chat';

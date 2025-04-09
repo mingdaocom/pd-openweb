@@ -1,18 +1,18 @@
 import QRCode from '@mdfe/qrcode-base';
 import JsBarcode from 'jsbarcode';
-import localForage from 'localforage';
 import loadScript from 'load-script';
+import localForage from 'localforage';
+import { get } from 'lodash';
 import {
   BAR_POSITION,
+  LANDSCAPE_QR_CODE_SIZE,
+  PORTRAIT_QR_CODE_SIZE,
   PRINT_TYPE,
-  QR_LAYOUT,
-  QR_POSITION,
   QR_LABEL_SIZE,
   QR_LABEL_SIZES,
-  PORTRAIT_QR_CODE_SIZE,
-  LANDSCAPE_QR_CODE_SIZE,
+  QR_LAYOUT,
+  QR_POSITION,
 } from 'worksheet/common/PrintQrBarCode/enum';
-import { get } from 'lodash';
 
 export const QRErrorCorrectLevel = {
   L: 1, // 7%
@@ -258,7 +258,7 @@ export default class Label {
           ...item,
         })),
         {
-          fontSize: mmToPt(this.fontSize * this.unitSize * 0.6),
+          fontSize: mmToPt(this.fontSize * this.unitSize * 0.59),
           width: Math.ceil(mmToPt(width - this.paddingX * 2 * this.unitSize)),
           left: mmToPt(this.paddingX * this.unitSize),
           top: mmToPt(
@@ -280,7 +280,7 @@ export default class Label {
           left: mmToPt(this.paddingX * this.unitSize),
           top: mmToPt(this.paddingY * this.unitSize),
           width: mmToPt(width - this.paddingX * 2 * this.unitSize),
-          fontSize: mmToPt(this.fontSize * this.unitSize * 0.6),
+          fontSize: mmToPt(this.fontSize * this.unitSize * 0.59),
         },
       );
       this.renderTexts(
@@ -297,7 +297,7 @@ export default class Label {
           ),
           top: mmToPt((this.paddingY + 5 * this.topTextNum) * this.unitSize),
           width: mmToPt(width - this.paddingX * 2 * this.unitSize - (this.codeSize + 2) * this.unitSize),
-          fontSize: mmToPt(this.fontSize * this.unitSize * 0.6),
+          fontSize: mmToPt(this.fontSize * this.unitSize * 0.59),
         },
       );
     }
@@ -386,7 +386,7 @@ export default class Label {
         left: mmToPt(this.paddingX * this.unitSize),
         top: mmToPt(textTop),
         width: mmToPt(width - this.paddingX * 2 * this.unitSize),
-        fontSize: mmToPt(this.fontSize * this.unitSize * 0.6),
+        fontSize: mmToPt(this.fontSize * this.unitSize * 0.59),
       },
     );
     this.renderBarCode(labelData.value);

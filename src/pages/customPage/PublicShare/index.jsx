@@ -133,10 +133,12 @@ const Entry = props => {
   };
 
   if (share.resultCode === 1) {
+    const { pageTitle } = share.data || {};
     return (
       <Provider store={store}>
         {isMobile ? (
           <Components.default
+            pageTitle={pageTitle}
             match={{
               params: {
                 worksheetId: share.data.sourceId,
@@ -147,6 +149,7 @@ const Entry = props => {
           />
         ) : (
           <Components.default
+            pageTitle={pageTitle}
             id={share.data.sourceId}
             ids={{ appId: share.data.appId, worksheetId: share.data.sourceId }}
             className={cx({ hideHeader: hideHeader === 'true' })}
@@ -156,12 +159,13 @@ const Entry = props => {
     );
   }
 
-  const { appName, customerPageName, appIcon, appIconColor } = share.data || {};
+  const { appName, customerPageName, appIcon, appIconColor, pageTitle } = share.data || {};
+  const title = pageTitle || `${appName}-${customerPageName}`;
 
   return (
     <Wrap className={cx('flexColumn h100')}>
       <div className="header flexRow alignItemsCenter">
-        <div className="Font16 bold flexRow alignItemsCenter">
+        <div className="Font16 bold flexRow alignItemsCenter flex">
           {appIcon && (
             <div
               className="svgWrap flexRow alignItemsCenter justifyContentCenter mRight10"
@@ -170,8 +174,8 @@ const Entry = props => {
               <SvgIcon url={appIcon} fill="#fff" size={22} />
             </div>
           )}
-          {appName && `${appName}-${customerPageName}`}
-          {appName && <DocumentTitle title={`${appName}-${customerPageName}`} />}
+          {appName && <div className="flex ellipsis">{title}</div>}
+          {appName && <DocumentTitle title={title} />}
         </div>
       </div>
       {renderContent()}

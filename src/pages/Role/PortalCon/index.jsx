@@ -1,20 +1,20 @@
 import React from 'react';
-import cx from 'classnames';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from './redux/actions';
-import ShareUrl from 'worksheet/components/ShareUrl';
-import { WrapCon, WrapHeader, WrapContext } from '../style';
-import PortalSetting from 'src/pages/Role/PortalCon/setting';
-import EditPortalUrlDialog from './components/EditPortalUrlDialog';
+import cx from 'classnames';
+import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
+import styled from 'styled-components';
 import externalPortalAjax from 'src/api/externalPortal';
+import ShareUrl from 'worksheet/components/ShareUrl';
+import PortalSetting from 'src/pages/Role/PortalCon/setting';
+import { WrapCon, WrapContext, WrapHeader } from '../style';
+import EditPortalUrlDialog from './components/EditPortalUrlDialog';
+import CustomUrlDrawer from './customUrl';
+import * as actions from './redux/actions';
+import RoleCon from './tabCon/RoleCon';
 import Statistics from './tabCon/Statistics';
 import UserCon from './tabCon/UserCon';
-import RoleCon from './tabCon/RoleCon';
-import { navigateTo } from 'router/navigateTo';
-import _ from 'lodash';
-import CustomUrlDrawer from './customUrl';
 
 const Wrap = styled.div`
   width: 60%;
@@ -206,15 +206,11 @@ class PortalCon extends React.Component {
                 className="mainShareUrl"
                 theme="light"
                 url={_.get(portalSet, ['portalSetModel', 'portalUrl'])}
-                editUrl={
-                  canEditApp
-                    ? () => {
-                        this.setState({
-                          showEditUrl: true,
-                        });
-                      }
-                    : null
-                }
+                editUrl={() => {
+                  this.setState({
+                    showEditUrl: true,
+                  });
+                }}
                 editTip={_l('自定义域名')}
                 customBtns={[
                   {

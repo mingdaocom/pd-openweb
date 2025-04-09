@@ -109,11 +109,24 @@ export const HomePageWrap = styled.div`
       }
       .trialTag {
         padding: 4px 8px;
-        background: #FEF5EA;
-        color: #DE9000;
+        background: #fef5ea;
+        color: #de9000;
         margin-left: 10px;
         display: inline-block;
         border-radius: 50px;
+      }
+      .eyeIcon {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+        display: inline-block;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 20px;
+        border-radius: 50%;
+        &:hover {
+          background: #f5f5f5;
+        }
       }
     }
     @media screen and (max-width: 1320px) {

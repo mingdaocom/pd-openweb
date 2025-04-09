@@ -13,7 +13,8 @@ import syncTaskApi from '../../api/syncTask';
 import _ from 'lodash';
 import { ROLE_TYPE } from '../constant';
 import './style.less';
-import { upgradeVersionDialog, getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 
 const ConnectorWrapper = styled.div`
   background: #fff;

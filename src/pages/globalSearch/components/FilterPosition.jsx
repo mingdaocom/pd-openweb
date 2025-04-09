@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, Icon, Dialog, ScrollView, LoadDiv, SvgIcon } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import smartSearchAjax from 'src/api/smartSearch';
 import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import smartSearchAjax from 'src/api/smartSearch';
-import OrgSelect from './OrgSelect';
 import { getCurrentProjectId } from '../utils';
+import OrgSelect from './OrgSelect';
 
 const FilterCountWrap = styled.span`
   padding: 0px 10px 0px 5px;
@@ -199,7 +199,9 @@ export default function FilterPosition(props) {
                             </span>
                             <span className="itemName overflow_ellipsis">{item.name}</span>
                             {listKey !== 'app' && (
-                              <span className="Gray_9e overLimi_130 overflow_ellipsis">{item.appName || ''}</span>
+                              <span className="Gray_9e overflow_ellipsis" style={{ maxWidth: 130 }}>
+                                {item.appName || ''}
+                              </span>
                             )}
                             <Icon
                               icon="clear"

@@ -47,6 +47,8 @@ export default function FunctionEditorDialog(props) {
     >
       <LoadableFunction
         {...props}
+        dialogWidth={width}
+        dialogHeight={height}
         setRef={(key, value) => (editor.current[key] = value)}
         onChange={() => (cache.current.changed = true)}
       />

@@ -1,8 +1,8 @@
-import React, { useEffect, useCallback, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { find } from 'lodash';
 import MessageBridge from './messageBridge';
 import Runner from './Runner';
-import { find } from 'lodash';
 
 const root = createRoot(document.querySelector('#app'));
 
@@ -52,8 +52,8 @@ function FreeFieldSandbox() {
           formData,
           env,
         }}
-        onChange={newValue => {
-          sendMessageToMain({ event: 'trigger-on-change', value: newValue });
+        onChange={(...args) => {
+          sendMessageToMain({ event: 'trigger-on-change', value: args });
         }}
         onError={error => {
           sendMessageToMain({ event: 'trigger-error', error });

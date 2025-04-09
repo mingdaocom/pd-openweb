@@ -4,7 +4,7 @@ import { Dialog, Textarea, Dropdown, Signature, VerifyPasswordInput } from 'ming
 import { ACTION_TO_TEXT } from '../../config';
 import cx from 'classnames';
 import _ from 'lodash';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import { quickSelectUser } from 'ming-ui/functions';
 import styled from 'styled-components';
 import codeAuth from 'src/api/codeAuth';
@@ -96,6 +96,12 @@ const AttachmentBtn = styled.span`
   }
 `;
 
+const RequiredIcon = styled.div`
+  position: absolute;
+  margin: 1px 0 0 -8px;
+  color: #f44336;
+`;
+
 export default class OtherAction extends Component {
   static propTypes = {
     projectId: string,
@@ -126,7 +132,6 @@ export default class OtherAction extends Component {
     }
 
     if (_.includes(['pass', 'overrule', 'return', 'after'], props.action)) {
-      const { opinions = [] } = _.get(props.data, 'opinionTemplate') || {};
       let list = (
         (_.includes(['pass', 'after'], props.action)
           ? _.get(props, 'data.opinionTemplate.opinions[4]')
@@ -152,6 +157,7 @@ export default class OtherAction extends Component {
       files: '',
       countersignType: 1,
       opinionList: [],
+      nextUserRange: {},
     };
   }
 
@@ -173,17 +179,23 @@ export default class OtherAction extends Component {
       });
     }
 
-    this.getHistoryOpinionList();
+    this.getOperationDetail();
   }
 
   /**
-   * 获取历史意见列表
+   * 获取操作窗口详情
    */
-  getHistoryOpinionList() {
-    const { instanceId } = this.props;
+  getOperationDetail() {
+    const { instanceId, workId = '', action } = this.props;
 
-    instanceAJAX.getOperationHistoryList({ instanceId }).then(res => {
-      this.setState({ opinionList: res });
+    instanceAJAX.getOperationDetail({ id: instanceId, workId }).then(res => {
+      const userIds = _.flatten(_.map(res.nextUserRange));
+
+      this.setState({
+        opinionList: res.workItems || [],
+        nextUserRange: res.nextUserRange || {},
+        selectedUsers: action === 'pass' && userIds.length === 1 ? [{ accountId: userIds[0] }] : [],
+      });
     });
   }
 
@@ -202,7 +214,8 @@ export default class OtherAction extends Component {
 
   onOk = () => {
     const { projectId, action, onOk, onCancel } = this.props;
-    const { content, backNodeId, selectedUsers, entrustList, showPassword, files, countersignType } = this.state;
+    const { content, backNodeId, selectedUsers, entrustList, showPassword, files, countersignType, nextUserRange } =
+      this.state;
     const { auth, encrypt } = (this.props.data || {}).flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
@@ -219,23 +232,44 @@ export default class OtherAction extends Component {
         })
         .join(',');
 
+      const nextApprovalUser = {};
+
+      if (_.keys(nextUserRange).length) {
+        nextApprovalUser[_.keys(nextUserRange)[0]] = selectedUsers.map(o => o.accountId);
+      }
+
       if (!this.isComplete) return;
 
       this.isComplete = false;
 
+      const parameter = {
+        action,
+        content,
+        userId,
+        backNodeId,
+        files: attachments,
+        countersignType,
+        nextUserRange: nextApprovalUser,
+      };
+
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          onOk({ action, content, userId, backNodeId, signature, files: attachments, countersignType });
+          onOk({ ...parameter, signature });
           onCancel();
         });
       } else {
-        onOk({ action, content, userId, backNodeId, signature: undefined, files: attachments, countersignType });
+        onOk({ ...parameter, signature: undefined });
         onCancel();
       }
     };
 
     if (_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove'], action) && !selectedUsers.length) {
       alert(_l('必须选择一个人员'), 2);
+      return;
+    }
+
+    if (action === 'pass' && !!_.flatten(_.map(nextUserRange)).length && !selectedUsers.length) {
+      alert(_l('必须指定下一节点审批人'), 2);
       return;
     }
 
@@ -304,17 +338,19 @@ export default class OtherAction extends Component {
 
     return (
       <div className="mBottom20">
-        <div className="bold">
-          {_.includes(['after', 'before'], action)
-            ? _l('加签')
-            : action === 'addApprove'
-            ? _l('添加成员')
-            : _l('转交给')}
+        {action !== 'pass' && (
+          <div className="bold">
+            {_.includes(['after', 'before'], action)
+              ? _l('加签')
+              : action === 'addApprove'
+              ? _l('添加成员')
+              : _l('转交给')}
 
-          {_.includes(['after', 'before', 'addApprove'], action) &&
-            !!selectedUsers.length &&
-            `(${selectedUsers.length})`}
-        </div>
+            {_.includes(['after', 'before', 'addApprove'], action) &&
+              !!selectedUsers.length &&
+              `(${selectedUsers.length})`}
+          </div>
+        )}
 
         <div>
           {selectedUsers.map((user, index) => {
@@ -324,7 +360,7 @@ export default class OtherAction extends Component {
                 <span className="ellipsis mLeft8" style={{ maxWidth: 300 }}>
                   {user.fullname}
                 </span>
-                {_.includes(['after', 'before', 'addApprove'], action) && (
+                {_.includes(['after', 'before', 'addApprove', 'pass'], action) && (
                   <i
                     className="icon-close Font14 mLeft5 Gray_75 pointer"
                     onClick={() =>
@@ -372,7 +408,7 @@ export default class OtherAction extends Component {
           <i
             className={cx(
               'Font26 Gray_75 ThemeHoverColor3 pointer mTop10 InlineBlock relative',
-              !_.includes(['after', 'before', 'addApprove'], action) && !!selectedUsers.length
+              !_.includes(['after', 'before', 'addApprove', 'pass'], action) && !!selectedUsers.length
                 ? 'icon-task-folder-charge'
                 : 'icon-task-add-member-circle',
             )}
@@ -388,6 +424,7 @@ export default class OtherAction extends Component {
    */
   selectUser = event => {
     const { projectId, action, data } = this.props;
+    const { nextUserRange } = this.state;
     const { operationUserRange } = data;
     const TYPES = {
       transferApprove: 6,
@@ -396,11 +433,11 @@ export default class OtherAction extends Component {
       before: 7,
       transfer: 10,
     };
-    const isUserRange = _.isArray((operationUserRange || {})[TYPES[action]]);
-    const appointedAccountIds = ((operationUserRange || {})[TYPES[action]] || []).filter(
-      id => id !== md.global.Account.accountId,
+    const isUserRange = action === 'pass' || _.isArray((operationUserRange || {})[TYPES[action]]);
+    const appointedAccountIds = ((operationUserRange || {})[TYPES[action]] || _.flatten(_.map(nextUserRange))).filter(
+      id => action === 'pass' || id !== md.global.Account.accountId,
     );
-    const unique = !_.includes(['after', 'before', 'addApprove'], action);
+    const unique = !_.includes(['after', 'before', 'addApprove', 'pass'], action);
 
     quickSelectUser(event.target, {
       offset: {
@@ -414,12 +451,14 @@ export default class OtherAction extends Component {
       filterFriend: true,
       filterOthers: true,
       filterOtherProject: true,
-      filterAccountIds: [md.global.Account.accountId].concat(this.state.selectedUsers.map(o => o.accountId)),
+      filterAccountIds: (action === 'pass' ? [] : [md.global.Account.accountId]).concat(
+        this.state.selectedUsers.map(o => o.accountId),
+      ),
       onSelect: users => {
         const selectedUsers = unique ? users : _.uniqBy(this.state.selectedUsers.concat(users), user => user.accountId);
 
         this.setState({ selectedUsers });
-        this.checkEntrust(selectedUsers);
+        action !== 'pass' && this.checkEntrust(selectedUsers);
       },
     });
   };
@@ -551,6 +590,26 @@ export default class OtherAction extends Component {
             </TemplateList>
           </Fragment>
         )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染下一个审批节点的审批人
+   */
+  renderNextApprovalUser() {
+    const { nextUserRange } = this.state;
+    const userIds = _.flatten(_.map(nextUserRange));
+
+    if (userIds.length <= 1) return null;
+
+    return (
+      <Fragment>
+        <div className="mTop20 relative bold">
+          <RequiredIcon>*</RequiredIcon>
+          {_l('选择下一节点审批人')}
+        </div>
+        {this.renderMember()}
       </Fragment>
     );
   }
@@ -693,11 +752,7 @@ export default class OtherAction extends Component {
         {!hideContent && (
           <Fragment>
             <div className="relative bold">
-              {(passContent || overruleContent) && (
-                <div className="Absolute" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
-                  *
-                </div>
-              )}
+              {(passContent || overruleContent) && <RequiredIcon>*</RequiredIcon>}
               {action === 'return' ? _l('退回理由') : _l('审批意见')}
             </div>
             <div className="mTop10 relative">
@@ -733,7 +788,7 @@ export default class OtherAction extends Component {
 
             {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&
               allowUploadAttachment && (
-                <div className="mTop10">
+                <div className={files ? 'mTop10' : 'Height0'}>
                   <div className="customFieldsContainer InlineBlock mLeft0 pointer">
                     <Attachment
                       projectId={projectId}
@@ -776,9 +831,7 @@ export default class OtherAction extends Component {
         {(passSignature || overruleSignature) && (
           <Fragment>
             <div className="mTop20 mBottom10 relative bold">
-              <div className="Absolute" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
-                *
-              </div>
+              <RequiredIcon>*</RequiredIcon>
               {_l('签名')}
             </div>
             <Signature
@@ -788,6 +841,8 @@ export default class OtherAction extends Component {
             />
           </Fragment>
         )}
+
+        {action === 'pass' && this.renderNextApprovalUser()}
       </Dialog>
     );
   }

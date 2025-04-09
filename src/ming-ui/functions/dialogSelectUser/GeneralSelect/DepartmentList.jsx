@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { LoadDiv, Checkbox, Radio } from 'ming-ui';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import NoData from './NoData';
 import './css/department.less';
 import styled from 'styled-components';
 import _ from 'lodash';

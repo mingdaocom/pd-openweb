@@ -631,7 +631,7 @@ export const addCurrentSession = result => (dispatch, getState) => {
  */
  export const addCurrentInbox = result => (dispatch, getState) => {
   const { currentInboxList = [], sessionList } = getState().chat;
-  if (currentInboxList.length >= 2) {
+  if (currentInboxList.length >= 3) {
     const { id } = currentInboxList[0];
     dispatch(removeCurrentInbox(id));
   }
@@ -1223,6 +1223,9 @@ export const newNotifyMessage = message => (dispatch, getState) => {
         showBadge: showBadge,
       }),
     );
+    if (currentSession.value !== message.id) {
+      dispatch(removeCurrentInbox(message.id));
+    }
   } else {
     message.count = 1;
     dispatch(addSession(message));
@@ -1587,7 +1590,7 @@ export const setShowAddressBook = isShowAddressBook => {
  * 重连后重置聊天状态
  */
 export const refresh = () => (dispatch, getState) => {
-  const { messages, currentSession, currentSessionList } = getState().chat;
+  const { currentSession, currentInboxList, currentSessionList } = getState().chat;
   const { id } = currentSession;
   ajax
     .chatSessionList({
@@ -1602,6 +1605,11 @@ export const refresh = () => (dispatch, getState) => {
           }
         });
         dispatch(setSessionList(res));
+        currentInboxList.forEach(inbox => {
+          if (inbox.id !== id) {
+            dispatch(removeCurrentInbox(inbox.id));
+          }
+        });
         const newCurrentSessionList = currentSessionList.filter(item => item.id === id)[0];
         if (!newCurrentSessionList) {
           return;
@@ -1639,6 +1647,9 @@ export const refresh = () => (dispatch, getState) => {
         dispatch({
           type: 'UPDATE_MESSAGE',
           result: {},
+        });
+        dispatch({
+          type: 'REMOVE_ALL_INBOX_SESSION'
         });
       }
     });

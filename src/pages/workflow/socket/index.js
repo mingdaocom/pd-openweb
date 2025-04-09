@@ -67,7 +67,16 @@ export default () => {
 
   IM.socket.on('workflow_push', result => {
     const pushType = parseInt(Object.keys(result)[0]);
-    const { pushUniqueId, content, promptType, duration, title, buttons = [], promptSound } = result[pushType];
+    const {
+      pushUniqueId,
+      content,
+      promptType,
+      duration,
+      title,
+      buttons = [],
+      promptSound,
+      accountId,
+    } = result[pushType];
     const actionFun = (data, pushType) => {
       const { appId: worksheetId, content, rowId, viewId, openMode, code } = data;
 
@@ -187,7 +196,10 @@ export default () => {
       }
     };
 
-    if (!equalToLocalPushUniqueId(pushUniqueId) && !(window.isNewTab() && pushType === PUSH_TYPE.AUDIO)) {
+    if (
+      !equalToLocalPushUniqueId(pushUniqueId) &&
+      !(window.isNewTab() && (pushType === PUSH_TYPE.AUDIO || accountId))
+    ) {
       return;
     }
 

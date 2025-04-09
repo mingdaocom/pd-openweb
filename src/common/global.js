@@ -1,15 +1,15 @@
+import baseAxios from 'axios';
+import CryptoJS from 'crypto-js';
+import localForage from 'localforage';
+import _, { get, isFunction, isObject, replace, some } from 'lodash';
+import moment from 'moment';
+import qs from 'query-string';
+import { v4 as uuidv4 } from 'uuid';
+import { antAlert, destroyAlert } from 'ming-ui/functions/alert';
+import versionApi from 'src/api/version';
+import { PUBLIC_KEY } from 'src/util/enum';
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
-import { antAlert, destroyAlert } from 'ming-ui/functions/alert';
-import _, { get, isFunction, isObject, some } from 'lodash';
-import moment from 'moment';
-import baseAxios from 'axios';
-import qs from 'query-string';
-import localForage from 'localforage';
-import versionApi from 'src/api/version';
-import CryptoJS from 'crypto-js';
-import { PUBLIC_KEY } from 'src/util/enum';
-import { v4 as uuidv4 } from 'uuid';
 
 const axios = baseAxios.create();
 
@@ -42,12 +42,15 @@ axios.interceptors.request.use(
             [
               'Worksheet/AddWorksheetRow',
               'Worksheet/UpdateWorksheetRow',
+              'Worksheet/DeleteWorksheetRows',
               'process/startProcessByPBC',
               'process/startProcess',
             ].map(apiPath => testApiPath(apiPath, config.url)),
           ),
         {
-          pushUniqueId: get(md, 'global.Config.pushUniqueId'),
+          pushUniqueId: testApiPath('process/startProcess', config.url)
+            ? get(md, 'global.Config.pushUniqueId')
+            : replace(get(md, 'global.Config.pushUniqueId', ''), /__.*/, ''),
         },
       );
     } catch (err) {
@@ -175,7 +178,7 @@ window._l = function (key, ...args) {
 const ua = window.navigator.userAgent.toLowerCase();
 
 window.isDingTalk = ua.includes('dingtalk'); // 是否是钉钉环境下
-window.isMacOs = ua.includes('mac os'); // 是否是mac os环境下
+window.isMacOs = ua.includes('mac os') || ua.includes('mdclient_mac'); // 是否是mac os环境下
 window.isMingDaoApp = ua.includes('mingdao application'); //是否是明道app环境下
 window.isMiniProgram = ua.includes('miniprogram'); //是否是小程序环境下
 window.isWxWork = ua.includes('wxwork'); // 是否是企业微信环境下
@@ -208,7 +211,7 @@ window.md = {
       ServiceTel: '400-665-6655',
       DefaultConfig: {
         initialCountry: 'cn',
-        preferredCountries: ['cn'],
+        preferredCountries: ['cn', 'hk', 'mo', 'tw'],
         onlyCountries: [],
       },
     },
@@ -222,8 +225,8 @@ window.md = {
       return window.localStorage.getItem('captchaType')
         ? parseInt(window.localStorage.getItem('captchaType'))
         : ua.match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
-        ? 1
-        : md.global.Config.CaptchaType || 0;
+          ? 1
+          : md.global.Config.CaptchaType || 0;
     },
     SysSettings: {
       passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
@@ -376,7 +379,7 @@ const getErrorMessage = (jqXHR = {}, textStatus, exception) => {
       errorMessage = _l('网络异常，请检查您的网络');
       break;
     case 401:
-      errorMessage = _l('帐号已退出，请重新登录');
+      errorMessage = _l('账号已退出，请重新登录');
       break;
     case 403:
       errorMessage = _l('403 权限不足');
@@ -479,23 +482,18 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     headers['x-nonce'] = encryptAES256CBC(uuidv4() + '_' + moment().unix());
   }
 
+  if (window.isMingDaoApp && window.access_token) {
+    headers.Authorization = `access_token ${window.access_token}`;
+  }
+
   // 应用库
   if (window.publicAppAuthorization) {
-    if (
-      _.get(md.global.Config, 'IsLocal') &&
-      !/#isPrivateBuild/.test(location.hash) &&
-      _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2'
-    ) {
+    if (_.get(md.global.Config, 'IsLocal') && _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2') {
       serverPath = 'https://www.mingdao.com/api/';
     }
 
     headers.shareAuthor = window.publicAppAuthorization;
     headers.clientId = undefined;
-  }
-
-  // 工作流&统计服务
-  if (window.access_token) {
-    headers.Authorization = `access_token ${access_token}`;
   }
 
   if ((ajaxOptions.type || '').toUpperCase() === 'GET') {

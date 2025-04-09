@@ -405,7 +405,7 @@ class UserCard extends React.Component {
             >
               {type === 2 ? data.groupName : data.fullname}
               {data.status === USER_STATUS.INACTIVE && <span className="icon-folder-public smallEarth mLeft8" />}
-              {data.status === USER_STATUS.LOGOFF && <span className="mLeft3">{_l('帐号已注销')}</span>}
+              {data.status === USER_STATUS.LOGOFF && <span className="mLeft3">{_l('账号已注销')}</span>}
             </a>
 
             <div className="cardContentDesc userCard">

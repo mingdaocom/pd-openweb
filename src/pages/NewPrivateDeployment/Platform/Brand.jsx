@@ -1,13 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Input, Dialog, Icon, Switch } from 'ming-ui';
-import { formatNumberFromInput } from 'src/util';
-import { Button, Divider } from 'antd';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Divider } from 'antd';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { updateSysSettings } from '../common';
-import 'src/components/uploadAttachment/uploadAttachment';
-import logo from '../images/logo.png';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon, Input, QiniuUpload, Switch } from 'ming-ui';
+import { formatNumberFromInput } from 'src/util';
+import { updateSysSettings } from '../common';
+import logo from '../images/logo.png';
 
 const Wrap = styled.div`
   max-width: 880px;
@@ -97,7 +96,7 @@ const BrandName = () => {
     <Fragment>
       <div className="Font14 bold mBottom8">{_l('品牌名称')}</div>
       <div className="Font13 Gray_9e mBottom18">{_l('平台登录 / 注册页品牌名称')}</div>
-      <div className="flexRow valignWrapper Font13 Gray_9e">
+      <div className="flexRow valignWrapper Font13">
         <span className="mRight10">{brandName}</span>
         <a onClick={() => setBrandNameDialogVisible(true)}>{_l('修改')}</a>
       </div>
@@ -164,23 +163,24 @@ const BrandLogo = () => {
     );
   };
 
-  useEffect(() => {
-    $('#hideUploadBrandLogo').uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#uploadBrandLogo',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'ProjectLogo',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 4,
-      checkProjectLimitFileSizeUrl: '',
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-          const logoName = attachment.fileName + attachment.fileExt;
+  return (
+    <Fragment>
+      <div className="Font14 bold mBottom8">{_l('品牌LOGO')}</div>
+      <div className="Font13 Gray_9e mBottom8">{_l('推荐尺寸 400*180 px，显示在登录、注册页面')}</div>
+      <QiniuUpload
+        className="h100"
+        options={{
+          multi_selection: false,
+          filters: {
+            mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+          },
+          max_file_size: '4m',
+          type: 4,
+        }}
+        bucket={4}
+        onUploaded={(up, file) => {
+          const fullFilePath = file.url;
+          const logoName = file.fileName;
           updateSysSettings(
             {
               brandLogo: logoName,
@@ -191,34 +191,28 @@ const BrandLogo = () => {
               md.global.SysSettings.brandLogoUrl = fullFilePath;
             },
           );
-        }
-      },
-    });
-  }, []);
-
-  return (
-    <Fragment>
-      <div className="Font14 bold mBottom8">{_l('品牌LOGO')}</div>
-      <div className="Font13 Gray_9e mBottom8">{_l('推荐尺寸 400*180 px，显示在登录、注册页面')}</div>
-      <div
-        id="uploadBrandLogo"
-        className={cx('uploadingImageWrap flexRow valignWrapper pointer', {
-          noBorder: brandLogoUrl,
-          justifyContentCenter: !brandLogoUrl,
-        })}
+        }}
+        onError={() => { }}
       >
-        <input id="hideUploadBrandLogo" type="file" className="Hidden" />
-        {brandLogoUrl ? (
-          <Fragment>
-            <img className="h100" src={brandLogoUrl} />
-            <div className="uploadMask flexRow valignWrapper justifyContentCenter">
-              <Icon icon="upload_pictures" className="White Font17" />
-            </div>
-          </Fragment>
-        ) : (
-          <img className="h100" src={logo} />
-        )}
-      </div>
+        <div
+          id="uploadBrandLogo"
+          className={cx('uploadingImageWrap flexRow valignWrapper pointer Relative', {
+            noBorder: brandLogoUrl,
+            justifyContentCenter: !brandLogoUrl,
+          })}
+        >
+          {brandLogoUrl ? (
+            <Fragment>
+              <img className="h100" src={brandLogoUrl} />
+              <div className="uploadMask flexRow valignWrapper justifyContentCenter">
+                <Icon icon="upload_pictures" className="White Font17" />
+              </div>
+            </Fragment>
+          ) : (
+            <img className="h100" src={logo} />
+          )}
+        </div>
+      </QiniuUpload>
       <div className="flexRow valignWrapper mTop10">
         <Switch
           checked={!hideBrandLogo}
@@ -257,7 +251,7 @@ const BrandLogo = () => {
 
       <div className="mBottom8 mTop10">{_l('LOGO跳转链接')}</div>
       <Input
-        className=""
+        className="LineHeight36"
         value={brandLogoRedirectUrl}
         onBlur={() => {
           if (brandLogoRedirectUrl === SysSettings.brandLogoRedirectUrl) return;
@@ -280,64 +274,59 @@ export const BrandHomeImage = () => {
   const { SysSettings } = md.global;
   const [brandHomeImageUrl, setBrandHomeImageUrl] = useState(SysSettings.brandHomeImageUrl);
 
-  useEffect(() => {
-    $('#hideUploadBrandHomeImage').uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#uploadBrandHomeImage',
-      multiSelection: false,
-      maxTotalSize: 2,
-      folder: 'ProjectLogo',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 4,
-      checkProjectLimitFileSizeUrl: '',
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-          const name = attachment.fileName + attachment.fileExt;
-          updateSysSettings(
-            {
-              brandHomeImage: name,
-            },
-            () => {
-              setBrandHomeImageUrl(fullFilePath);
-              md.global.SysSettings.brandHomeImage = name;
-              md.global.SysSettings.brandHomeImageUrl = fullFilePath;
-            },
-          );
-        }
-      },
-    });
-  }, []);
-
   return (
     <Wrap>
       <div className="Font14 bold mBottom8">{_l('背景图')}</div>
       <div className="Font13 Gray_9e mBottom8">{_l('登录页背景图，推荐尺寸 1920*900，2 M以内')}</div>
       <div className="flexRow alignItemsCenter">
-        <div
-          id="uploadBrandHomeImage"
-          className={cx('uploadingImageWrap flexRow valignWrapper pointer', {
-            noBorder: brandHomeImageUrl,
-            justifyContentCenter: !brandHomeImageUrl,
-          })}
+        <QiniuUpload
+          className="h100"
+          options={{
+            multi_selection: false,
+            filters: {
+              mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+            },
+            max_file_size: '2m',
+            type: 4,
+          }}
+          bucket={4}
+          onUploaded={(up, file) => {
+            const fullFilePath = file.url;
+            const name = file.fileName;
+            updateSysSettings(
+              {
+                brandHomeImage: name,
+              },
+              () => {
+                setBrandHomeImageUrl(fullFilePath);
+                md.global.SysSettings.brandHomeImage = logoName;
+                md.global.SysSettings.brandHomeImageUrl = fullFilePath;
+              },
+            );
+          }}
+          onError={() => { }}
         >
-          <input id="hideUploadBrandHomeImage" type="file" className="Hidden" />
-          {brandHomeImageUrl ? (
-            <Fragment>
-              <img className="h100" src={brandHomeImageUrl} />
-              <div className="uploadMask flexRow valignWrapper justifyContentCenter">
-                <Icon icon="upload_pictures" className="White Font17" />
+          <div
+            id="uploadBrandHomeImage"
+            className={cx('uploadingImageWrap flexRow valignWrapper pointer Relative', {
+              noBorder: brandHomeImageUrl,
+              justifyContentCenter: !brandHomeImageUrl,
+            })}
+          >
+            {brandHomeImageUrl ? (
+              <Fragment>
+                <img className="h100" src={brandHomeImageUrl} />
+                <div className="uploadMask flexRow valignWrapper justifyContentCenter">
+                  <Icon icon="upload_pictures" className="White Font17" />
+                </div>
+              </Fragment>
+            ) : (
+              <div className="flexRow valignWrapper justifyContentCenter" style={{ width: 110 }}>
+                <Icon icon="upload_pictures" className="Gray_9e Font20" />
               </div>
-            </Fragment>
-          ) : (
-            <div className="flexRow valignWrapper justifyContentCenter" style={{ width: 110 }}>
-              <Icon icon="upload_pictures" className="Gray_9e Font20" />
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </QiniuUpload>
         {brandHomeImageUrl && (
           <span
             className="clearLogo Hand mLeft15 ThemeHoverColor3"
@@ -362,68 +351,52 @@ export const BrandHomeImage = () => {
   );
 };
 
-const BrandFavicon = () => {
-  const { SysSettings } = md.global;
-  const [brandFaviconUrl, setBrandFaviconUrl] = useState(SysSettings.brandFaviconUrl);
+const FaviconSet = () => {
 
-  useEffect(() => {
-    $('#hideUploadBrandFavicon').uploadAttachment({
-      filterExtensions: 'ico',
-      pluploadID: '#uploadBrandFavicon',
-      multiSelection: false,
-      maxTotalSize: 2,
-      folder: 'ProjectLogo',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 4,
-      checkProjectLimitFileSizeUrl: '',
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-          const name = attachment.fileName + attachment.fileExt;
-          updateSysSettings(
-            {
-              brandFavicon: name,
-            },
-            () => {
-              setBrandFaviconUrl(fullFilePath);
-              md.global.SysSettings.brandFavicon = name;
-              md.global.SysSettings.brandFaviconUrl = fullFilePath;
-            },
-          );
-        }
-      },
-    });
-  }, []);
+  const defaultFaviconUrl = `${md.global.FileStoreConfig.pictureHost}ProjectLogo/favicon.png`;
+  const getUrlWithTimestamp = (url) => `${url}?t=${Date.now()}`;
+  const [faviconUrl, setfaviconUrl] = useState(getUrlWithTimestamp(defaultFaviconUrl));
 
   return (
-    <Fragment>
-      <div className="Font14 bold mBottom8">{_l('Favicon')}</div>
+    <Wrap>
+      <div className="Font14 bold mBottom8">Favicon</div>
       <div className="Font13 Gray_9e mBottom8">
-        {_l('推荐尺寸 32*32 px，文件格式ico，显示在浏览器页签、浏览器收藏夹')}
+        {_l('请上传尺寸 128*128 px 的 PNG 格式文件，用于浏览器标签页和收藏栏显示')}
       </div>
-      <div
-        id="uploadBrandFavicon"
-        className={cx('uploadingIconWrap flexRow valignWrapper pointer', {
-          noBorder: brandFaviconUrl,
-          justifyContentCenter: !brandFaviconUrl,
-        })}
-      >
-        <input id="hideUploadBrandFavicon" type="file" className="Hidden" />
-        {brandFaviconUrl ? (
-          <Fragment>
-            <img className="h100" src={brandFaviconUrl} />
-            <div className="uploadMask flexRow valignWrapper justifyContentCenter">
-              <Icon icon="upload_pictures" className="White Font17" />
-            </div>
-          </Fragment>
-        ) : (
-          <Icon icon="upload_pictures" className="Gray_9e" />
-        )}
+      <div className="flexRow alignItemsCenter">
+        <QiniuUpload
+          className="h100"
+          getTokenParam={{ isFavicon: true }}
+          options={{
+            multi_selection: false,
+            filters: {
+              mime_types: [{ extensions: 'png' }],
+            },
+            max_file_size: '2m',
+            type: 4,
+          }}
+          bucket={4}
+          onUploaded={(up, file) => {
+            setfaviconUrl(getUrlWithTimestamp(defaultFaviconUrl));
+          }}
+          onError={() => {
+            alert(_l('上传失败'), 3);
+          }}
+        >
+          <div
+            id="uploadBrandHomeImage"
+            className={cx('uploadingImageWrap flexRow valignWrapper pointer Relative noBorder')}
+          >
+            <Fragment>
+              <img className="h100" src={faviconUrl} />
+              <div className="uploadMask flexRow valignWrapper justifyContentCenter">
+                <Icon icon="upload_pictures" className="White Font17" />
+              </div>
+            </Fragment>
+          </div>
+        </QiniuUpload>
       </div>
-    </Fragment>
+    </Wrap>
   );
 };
 
@@ -434,8 +407,8 @@ const Brand = props => {
       <BrandName />
       <Divider className="mTop20 mBottom20" />
       <BrandLogo />
-      {/*<Divider className="mTop20 mBottom20" />
-      <BrandFavicon />*/}
+      <Divider className="mTop20 mBottom20" />
+      <FaviconSet />
     </Wrap>
   );
 };

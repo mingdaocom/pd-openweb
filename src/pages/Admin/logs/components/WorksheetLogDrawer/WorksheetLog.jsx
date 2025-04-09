@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, ScrollView, LoadDiv, PreferenceTime } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import { filterXSS } from 'xss';
 import _ from 'lodash';
 import moment from 'moment';

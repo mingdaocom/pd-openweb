@@ -74,7 +74,6 @@ export default class Item extends Component {
             if (showList.length === 0) return;
             navigateTo(getNavigateUrl(showList[0]));
           }
-
         }}
         handleClose={() => this.setState({ visible: false })}
       />
@@ -93,7 +92,16 @@ export default class Item extends Component {
     });
   };
   render() {
-    const { appId, item, currentViewId, isCharge, sheetSwitchPermit, currentView, getNavigateUrl } = this.props;
+    const {
+      appId,
+      item,
+      currentViewId,
+      isCharge,
+      sheetSwitchPermit,
+      currentView,
+      getNavigateUrl,
+      fixed = false,
+    } = this.props;
     const { isEdit } = this.state;
 
     const customViewDebugUrl = window.localStorage.getItem(`customViewDebugUrl_${item.viewId}`);
@@ -101,6 +109,7 @@ export default class Item extends Component {
     const pluginIsDeleted = !_.get(item, 'pluginInfo.id');
     const codeUrl = _.get(item, 'pluginInfo.codeUrl');
     const showWidgetDebugIcon = item.viewType === 21 && pluginIsInDevelop && !pluginIsDeleted;
+    const isManageView = item.viewId === item.worksheetId;
 
     return (
       <div
@@ -108,14 +117,16 @@ export default class Item extends Component {
           active: currentViewId === item.viewId,
         })}
         style={
-          _.get(item, 'advancedSetting.showhide') && _.get(item, 'advancedSetting.showhide').search(/hide|hpc/g) !== -1
+          _.get(item, 'advancedSetting.showhide') &&
+          _.get(item, 'advancedSetting.showhide').search(/hide|hpc/g) !== -1 &&
+          !fixed
             ? { display: 'none' }
             : {}
         }
       >
         <MdLink
           className={cx('name valignWrapper overflowHidden h100', {
-            pRight20: !(isCharge || this.canExport() || this.canShare()),
+            pRight20: !(isCharge || this.canExport() || this.canShare()) || isManageView,
           })}
           to={getNavigateUrl(item)}
         >
@@ -145,10 +156,12 @@ export default class Item extends Component {
               }}
             />
           ) : (
-            <span className="ellipsis bold">{getTranslateInfo(appId, null, item.viewId).name || item.name}</span>
+            <span className="ellipsis bold">
+              {isManageView ? _l('数据管理') : getTranslateInfo(appId, null, item.viewId).name || item.name}
+            </span>
           )}
         </MdLink>
-        {isCharge || this.canExport() || this.canShare() ? (
+        {(isCharge || this.canExport() || this.canShare()) && !isManageView ? (
           <Trigger
             popupVisible={this.state.visible}
             onPopupVisibleChange={visible => {

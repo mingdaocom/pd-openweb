@@ -1,15 +1,15 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Tabs } from 'antd-mobile';
-import { Icon, SvgIcon } from 'ming-ui';
-import RelateRecord from 'src/components/newCustomFields/widgets/RelateRecord';
-import RelationSearch from 'src/components/newCustomFields/widgets/RelationSearch';
-import RelationList from 'mobile/RelationRow/RelationList';
-import styled from 'styled-components';
-import { FROM } from '../tools/config';
-import { browserIsMobile } from 'src/util';
-import { ADD_EVENT_ENUM } from '../../../pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Icon, SvgIcon } from 'ming-ui';
+import styled from 'styled-components';
+import RelationList from 'mobile/RelationRow/RelationList';
+import RelateRecord from 'src/components/newCustomFields/widgets/RelateRecord';
+import RelationSearch from 'src/components/newCustomFields/widgets/RelationSearch';
+import { browserIsMobile } from 'src/util';
+import { ADD_EVENT_ENUM } from '../../../pages/widgetConfig/widgetSetting/components/CustomEvent/config';
+import { FROM } from '../tools/config';
 
 const TabCon = styled.div`
   .md-adm-tabs {
@@ -117,8 +117,8 @@ export default function MobileWidgetSection(props) {
     onChange = () => {},
     data = [],
     tabControls,
-    loadMoreRelateCards,
     isDraft,
+    mobileApprovalRecordInfo = {},
   } = props;
   const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
   const [newFlag, setNewFlag] = useState(flag);
@@ -257,6 +257,8 @@ export default function MobileWidgetSection(props) {
             control={activeControl}
             getType={from}
             data={data}
+            workId={mobileApprovalRecordInfo.workId}
+            instanceId={mobileApprovalRecordInfo.instanceId}
           />
         </div>
       );
@@ -280,9 +282,8 @@ export default function MobileWidgetSection(props) {
             showRelateRecordEmpty={true}
             onChange={(value, cid = activeControl.controlId) => {
               props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
-              onChange(value, cid, activeControl)
+              onChange(value, cid, activeControl);
             }}
-            loadMoreRelateCards={loadMoreRelateCards}
           />
         </RelateTabCon>
       );

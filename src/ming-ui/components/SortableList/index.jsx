@@ -97,8 +97,8 @@ const DragItem = props => {
 
   // 使用拖拽手柄
   const DragHandle = useDragHandle
-    ? ({ children }) => (
-        <span ref={drag} style={{ cursor: 'move' }}>
+    ? ({ children, className='' }) => (
+        <span className={className} ref={drag} style={{ cursor: 'move' }}>
           {children}
         </span>
       )

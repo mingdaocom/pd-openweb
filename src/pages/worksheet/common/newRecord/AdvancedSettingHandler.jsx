@@ -1,13 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import worksheetAjax from 'src/api/worksheet';
-import { getTranslateInfo } from 'src/util';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import worksheetAjax from 'src/api/worksheet';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { getTranslateInfo } from 'src/util';
+
+const ErrorWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 14px;
+  color: #aaaaaa;
+`;
 
 export default function AdvancedSettingHandler(Comp) {
   return function NewRecord(props) {
     const { worksheetId } = props;
     const [loading, setLoading] = useState(_.isEmpty(props.worksheetInfo));
+    const [error, setError] = useState(false);
     const [worksheetInfo, setWorksheetInfo] = useState(props.worksheetInfo || {});
     useEffect(() => {
       if (loading) {
@@ -19,6 +30,10 @@ export default function AdvancedSettingHandler(Comp) {
             worksheetId,
           })
           .then(data => {
+            if (!data.worksheetId) {
+              setError(true);
+              return;
+            }
             const translateInfo = getTranslateInfo(data.appId, null, worksheetId);
             if (data.advancedSetting) {
               data.advancedSetting.title = translateInfo.formTitle || data.advancedSetting.title;
@@ -56,6 +71,13 @@ export default function AdvancedSettingHandler(Comp) {
           reservecontrols: advancedSettingData.reservecontrols !== 'all' ? advancedSettingData.reservecontrols : '',
         }
       : undefined;
+    if (error) {
+      return (
+        <ErrorWrapper>
+          <span>{_l('应用项无权限或已删除')}</span>
+        </ErrorWrapper>
+      );
+    }
     return <Comp {...props} loading={loading} worksheetInfo={worksheetInfo} advancedSetting={advancedSetting} />;
   };
 }

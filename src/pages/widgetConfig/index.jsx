@@ -5,12 +5,12 @@ import externalPortalAjax from 'src/api/externalPortal';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import update from 'immutability-helper';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Dialog, FunctionWrap } from 'ming-ui';
 import { flatten, isFunction, pick, head, isEmpty, get, find, isEqual, findIndex } from 'lodash';
 import { useSheetInfo } from './hooks';
 import Header from './Header';
 import Content from './content';
-import { getCurrentRowSize, getPathById } from './util/widgets';
+import { getPathById } from './util/widgets';
 import {
   formatControlsData,
   getMsgByCode,
@@ -28,6 +28,7 @@ import {
   getBoundRowByTab,
   fixedBottomWidgets,
   canSetAsTitle,
+  getCurrentRowSize,
 } from './util';
 import { resetDisplay } from './util/drag';
 import NoTitleControlDialog from './widgetSetting/components/NoTitleControlDialog';
@@ -131,7 +132,7 @@ export default function Container(props) {
 
     // 不支持设置为标题的，被设为标题了，清空一下
     if (!canSetAsTitle(data) && data.attribute === 1) {
-      data.attribute = '';
+      data.attribute = 0;
     }
 
     // 如果将当前变成整行 且当前行有其他控件 则另起一行
@@ -549,3 +550,24 @@ export default function Container(props) {
     </Fragment>
   );
 }
+
+export const dialogEditWorksheet = props => {
+  const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
+  const Content = props => {
+    return (
+      <Dialog
+        width={width}
+        className="DialogWidgetConfig"
+        overlayClosable={false}
+        visible
+        type="fixed"
+        title={null}
+        footer={null}
+      >
+        <Container {...props} handleClose={() => props.onClose()} />
+      </Dialog>
+    );
+  };
+
+  FunctionWrap(Content, { ...props });
+};

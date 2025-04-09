@@ -78,8 +78,8 @@ export const NAVSHOW_TYPE = [
 export const OPTIONS = {
   //选项
   data: [
-    { key: 'navshow', types: NAVSHOW_TYPE.filter(o => o.value !== '3'), txt: '显示项', default: '0' },
-    { key: 'isAsc', types: OPTIONS_TYPE, txt: '排序方式', default: true },
+    { key: 'navshow', types: NAVSHOW_TYPE.filter(o => o.value !== '3'), txt: _l('显示项'), default: '0' },
+    { key: 'isAsc', types: OPTIONS_TYPE, txt: _l('排序方式'), default: true },
   ],
   keys: [
     11, // 选项
@@ -91,8 +91,8 @@ export const OPTIONS = {
 export const OPTIONSOTHER = {
   //成员 部门 组织角色
   data: [
-    { key: 'navshow', types: NAVSHOW_TYPE.filter(o => ['1', '2'].includes(o.value)), txt: '显示项', default: '1' },
-    { key: 'isAsc', types: OPTIONS_TYPE, txt: '排序方式', default: true },
+    { key: 'navshow', types: NAVSHOW_TYPE.filter(o => ['1', '2'].includes(o.value)), txt: _l('显示项'), default: '1' },
+    { key: 'isAsc', types: OPTIONS_TYPE, txt: _l('排序方式'), default: true },
   ],
   keys: [26, 27, 48],
 };
@@ -104,15 +104,15 @@ export const RELATES = {
   //选项
   keys: [29],
   data: [
-    { key: 'viewId', txt: '层级视图', des: '当前选择为关联记录字段，可以继续选择关联表中的层级视图生成树状导航' },
-    { key: 'filterType', types: RELATE_TYPE, txt: '筛选方式', default: 11 },
-    { key: 'navshow', types: NAVSHOW_TYPE, txt: '显示项', default: '0' },
+    { key: 'viewId', txt: _l('层级视图'), des: _l('当前选择为关联记录字段，可以继续选择关联表中的层级视图生成树状导航') },
+    { key: 'filterType', types: RELATE_TYPE, txt: _l('筛选方式'), default: 11 },
+    { key: 'navshow', types: NAVSHOW_TYPE, txt: _l('显示项'), default: '0' },
   ],
 };
 export const CASCADER = {
   //选项
   keys: [35],
-  data: [{ key: 'filterType', types: RELATE_TYPE, txt: '筛选方式', default: 11 }],
+  data: [{ key: 'filterType', types: RELATE_TYPE, txt: _l('筛选方式'), default: 11 }],
 };
 export const getSetDefault = control => {
   let { controlId = '', type, sourceControlType } = control;

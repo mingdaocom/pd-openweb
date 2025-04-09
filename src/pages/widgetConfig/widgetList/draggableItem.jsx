@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DRAG_ITEMS } from '../config/Drag';
 import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
 import { enumWidgetType, getDefaultarea, checkWidgetMaxNumErr } from '../util';
-import { buriedUpgradeVersionDialog } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { Dialog, Checkbox, Button } from 'ming-ui';
 import imgUrl from 'staticfiles/images/tab_img.png';
 import cx from 'classnames';

@@ -70,6 +70,9 @@ const PivotTableContent = styled.div`
   &.cell-right .cell-content {
     text-align: right;
   }
+  .ant-table {
+    line-height: 1.36;
+  }
   .cell-content {
     color: ${props => props.pivotTableStyle.textColor};
     text-align: ${props => props.pivotTableStyle.cellTextAlign || 'right'};

@@ -13,6 +13,7 @@ export default function (props) {
     appId = '',
     state,
     isAutoLogin,
+    autoLogin,
     loading,
     sending,
     twofactorInfo,
@@ -43,7 +44,7 @@ export default function (props) {
           ticket,
           randStr: randstr,
           state, // 首次登陆返回的state
-          autoLogin: isAutoLogin,
+          autoLogin: autoLogin && isAutoLogin,
         },
         props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
       )

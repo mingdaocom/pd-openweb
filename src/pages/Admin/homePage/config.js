@@ -59,7 +59,6 @@ export const UPLOAD_COUNT = [
     link: 'app',
     numUnit: _l('个'),
     isLocalFilter: true,
-    singleHide: true,
   },
   {
     key: 'effectiveWorksheetCount',

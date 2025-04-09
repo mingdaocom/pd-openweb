@@ -21,8 +21,6 @@ Comp.propTypes = {
   resetQuickFilter: func,
 };
 
-export { formatFilterValues, formatFilterValuesToServer } from './utils';
-
 export default connect(
   state => ({
     // worksheet

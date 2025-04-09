@@ -72,6 +72,7 @@ const Wrap = styled.div(
 const UserInfoDialogWrap = styled.div`
   width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   .customFieldsContainer {
     width: 100%;
     padding: 0 14px 24px 14px;

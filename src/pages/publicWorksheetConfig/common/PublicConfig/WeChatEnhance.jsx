@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useRef, Fragment } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Input, QiniuUpload, Icon, Tooltip } from 'ming-ui';
-import { CustomButton } from 'worksheet/components/Basics';
+import styled from 'styled-components';
+import { Icon, Input, QiniuUpload, Tooltip } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
-import WeChatSettings from './WeChatSettings';
-import SectionTitle from './SectionTitle';
+import { CustomButton } from 'worksheet/components/Basics';
 import { WX_ICON_LIST } from '../../enum';
+import SectionTitle from './SectionTitle';
+import WeChatSettings from './WeChatSettings';
 
 const Con = styled.div`
   .shareCard {
@@ -310,13 +310,15 @@ function WeChatEnhance(props) {
 
   return (
     <Con>
-      <WeChatSettings
-        projectId={worksheetInfo.projectId}
-        data={data}
-        weChatBind={weChatBind}
-        setState={setState}
-        addWorksheetControl={addWorksheetControl}
-      />
+      {!md.global.SysSettings.hideWeixin && (
+        <WeChatSettings
+          projectId={worksheetInfo.projectId}
+          data={data}
+          weChatBind={weChatBind}
+          setState={setState}
+          addWorksheetControl={addWorksheetControl}
+        />
+      )}
       <SectionTitle
         title={_l('分享卡片')}
         isFolded={expandKeys.share}

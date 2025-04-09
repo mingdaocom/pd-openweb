@@ -235,3 +235,12 @@ export const groupListLoading = (state = false, action) => {
       return state;
   }
 };
+
+export const previewRecordId = (state = '', action) => {
+  switch (action.type) {
+    case 'UPDATE_PREVIEW_RECORD':
+      return action.data;
+    default:
+      return state;
+  }
+};

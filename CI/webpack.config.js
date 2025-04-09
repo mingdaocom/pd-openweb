@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const WebpackBar = require('webpackbar');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
@@ -7,6 +8,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const InjectPlugin = require('webpack-inject-plugin').default;
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const rules = isProduction
@@ -97,7 +100,46 @@ module.exports = function (alonePath = '') {
       new MomentLocalesPlugin({ localesToKeep: ['es-us', 'zh-cn', 'zh-tw', 'ja'] }),
       ...(isProduction
         ? [new MiniCssExtractPlugin({ filename: '[contenthash].css', ignoreOrder: true })]
-        : [new CaseSensitivePathsPlugin()]),
+        : [
+            new CaseSensitivePathsPlugin(),
+            // new CircularDependencyPlugin({
+            //   include: /src/,
+            //   exclude: /node_modules/,
+            //   failOnError: true,
+            //   allowAsyncCycles: true,
+            //   cwd: process.cwd(),
+            //   onDetected({ module, paths, compilation }) {
+            //     // 获取文件的绝对路径
+
+            //     let isAsyncImport = false;
+
+            //     for (let i = 0; i < paths.length - 1; i++) {
+            //       const filePath = paths[i];
+
+            //       // 读取文件内容
+            //       if (filePath && fs.existsSync(filePath)) {
+            //         const fileContent = fs.readFileSync(filePath, 'utf-8');
+            //         const nextPath = paths[i + 1]
+            //           .replace(/index\.jsx?$/, '')
+            //           .split('/')
+            //           .pop()
+            //           .replace(/\..*/, '');
+            //         const regex = new RegExp(`import\\(.*${nextPath}.*\\)`);
+
+            //         if (regex.test(fileContent)) {
+            //           isAsyncImport = true;
+            //           break;
+            //         }
+            //       }
+            //     }
+
+            //     // 如果不是异步引用，则报错
+            //     if (!isAsyncImport) {
+            //       compilation.errors.push(new Error(`同步循环引用: ${paths.join(' -> ')}`));
+            //     }
+            //   },
+            // }),
+          ]),
       // new BundleAnalyzerPlugin(),
     ],
     resolve: {
@@ -114,6 +156,7 @@ module.exports = function (alonePath = '') {
         new TerserJSPlugin({
           minify: TerserJSPlugin.esbuildMinify,
           terserOptions: {
+            minify: true,
             target: 'chrome58',
             legalComments: 'none',
           },
@@ -125,59 +168,59 @@ module.exports = function (alonePath = '') {
         alonePath === 'single'
           ? undefined
           : alonePath === 'singleExtractModules'
-          ? {
-              chunks: 'initial',
-              minSize: 2000000,
-              cacheGroups: {
-                common: {
-                  name: 'common',
-                  minChunks,
-                  priority: -10,
-                  reuseExistingChunk: true,
-                  minSize: 30000,
-                },
-                node_modules: {
-                  minSize: 30000,
-                  name: 'node_modules',
-                  minChunks,
-                  test: /[\\/]node_modules[\\/]/,
-                },
-                default: false,
-              },
-            }
-          : {
-              chunks: 'initial',
-              minSize: 2000000,
-              cacheGroups: {
-                common: {
-                  name: 'common',
-                  minChunks: 2,
-                  priority: -10,
-                  reuseExistingChunk: true,
-                  minSize: 30000,
-                },
-                core: {
-                  name: 'core',
-                  minChunks,
-                  minSize: 30000,
-                  test(module) {
-                    return (
-                      module.resource &&
-                      !!module.resource.match(
-                        /src\/pages\/(worksheet|Statistics|customPage|workflow|Role|Portal|integration)/,
-                      )
-                    );
+            ? {
+                chunks: 'initial',
+                minSize: 2000000,
+                cacheGroups: {
+                  common: {
+                    name: 'common',
+                    minChunks,
+                    priority: -10,
+                    reuseExistingChunk: true,
+                    minSize: 30000,
                   },
+                  node_modules: {
+                    minSize: 30000,
+                    name: 'node_modules',
+                    minChunks,
+                    test: /[\\/]node_modules[\\/]/,
+                  },
+                  default: false,
                 },
-                node_modules: {
-                  minSize: 30000,
-                  name: 'node_modules',
-                  minChunks,
-                  test: /[\\/]node_modules[\\/]/,
+              }
+            : {
+                chunks: 'initial',
+                minSize: 2000000,
+                cacheGroups: {
+                  common: {
+                    name: 'common',
+                    minChunks: 2,
+                    priority: -10,
+                    reuseExistingChunk: true,
+                    minSize: 30000,
+                  },
+                  core: {
+                    name: 'core',
+                    minChunks,
+                    minSize: 30000,
+                    test(module) {
+                      return (
+                        module.resource &&
+                        !!module.resource.match(
+                          /src\/pages\/(worksheet|Statistics|customPage|workflow|Role|Portal|integration)/,
+                        )
+                      );
+                    },
+                  },
+                  node_modules: {
+                    minSize: 30000,
+                    name: 'node_modules',
+                    minChunks,
+                    test: /[\\/]node_modules[\\/]/,
+                  },
+                  default: false,
                 },
-                default: false,
               },
-            },
     },
     cache: true,
     devtool: alonePath || isProduction ? undefined : 'eval',

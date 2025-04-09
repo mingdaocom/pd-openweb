@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { getAdvanceSetting } from '../../util/setting';
 import SwitchType from '../components/formula/SwitchType';
 import { SettingItem } from '../../styled';
@@ -10,6 +10,7 @@ import Date from './date';
 import FunctionEditorDialog from '../components/FunctionEditorDialog';
 import { DynamicInputStyle } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled.js';
 import { TIME_DISPLAY_TYPE, OUTPUT_FORMULA_FUNC } from '../../config/setting';
+import { get } from 'lodash';
 
 export default function FormulaFunc(props) {
   const { data, allControls, onChange } = props;
@@ -32,6 +33,13 @@ export default function FormulaFunc(props) {
     if (i.type === 30 && (i.strDefault || '')[0] === '1') return false;
     return true;
   });
+
+  useEffect(() => {
+    if (window[`${controlId}-handleOpenEditor`]) {
+      setVisible(true);
+      delete window[`${controlId}-handleOpenEditor`];
+    }
+  }, []);
 
   const renderContent = () => {
     if (enumDefault2 === 6) {
@@ -126,6 +134,10 @@ export default function FormulaFunc(props) {
 
       {visible && (
         <FunctionEditorDialog
+          supportDebug
+          worksheetId={get(props, 'globalSheetInfo.worksheetId')}
+          projectId={get(props, 'globalSheetInfo.projectId')}
+          appId={get(props, 'globalSheetInfo.appId')}
           supportJavaScript={false}
           control={data}
           value={funcObj}

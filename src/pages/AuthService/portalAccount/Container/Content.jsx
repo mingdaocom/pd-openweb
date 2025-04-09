@@ -15,6 +15,7 @@ export default function (props) {
     registerMode = {},
     paramForPcWx,
     isAutoLogin,
+    autoLogin,
     allowUserType,
     termsAndAgreementEnable,
     setAutoLogin,
@@ -172,7 +173,7 @@ export default function (props) {
             </div>
           </div>
         )}
-        {!paramForPcWx && (
+        {!paramForPcWx && autoLogin && (
           <div className="mTop12 flexRow alignItemsCenter">
             <div className="flexRow alignItemsCenter" onClick={() => setAutoLogin(!isAutoLogin)}>
               <Checkbox checked={isAutoLogin} className="Hand" name="" />
@@ -254,13 +255,15 @@ export default function (props) {
           <div className="mTop16 TxtCenter Gray_75 Font14 Bold">
             {subscribeWXOfficial ? _l('扫描关注微信服务号并登录') : _l('微信扫码登录')}
           </div>
-          <div
-            className="mTop20 flexRow alignItemsCenter Hand justifyContentCenter"
-            onClick={() => setAutoLogin(!isAutoLogin)}
-          >
-            <Checkbox checked={isAutoLogin} className="" name="" />
-            <span className="Gray_9e">{_l('7天内免登录')}</span>
-          </div>
+          {autoLogin && (
+            <div
+              className="mTop20 flexRow alignItemsCenter Hand justifyContentCenter"
+              onClick={() => setAutoLogin(!isAutoLogin)}
+            >
+              <Checkbox checked={isAutoLogin} className="" name="" />
+              <span className="Gray_9e">{_l('7天内免登录')}</span>
+            </div>
+          )}
           {footerNotice(true)}
         </WrapWXCon>
       );

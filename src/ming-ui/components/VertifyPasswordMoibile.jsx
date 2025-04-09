@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Popup } from 'antd-mobile';
 import { Button, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import cx from 'classnames';
 import styled from 'styled-components';
 

@@ -13,7 +13,7 @@ import {
 } from '../../../redux/actions';
 import { checkIsProject, taskStatusDialog } from '../../../utils/utils';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
-import { expireDialogAsync } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { Menu, MenuItem, Dialog, Checkbox } from 'ming-ui';
 import ShareFolderOrTask from '../../../components/shareFolderOrTask/shareFolderOrTask';
 import CopyTask from '../copyTask/copyTask';

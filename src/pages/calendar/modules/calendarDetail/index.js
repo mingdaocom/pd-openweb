@@ -1,13 +1,11 @@
 ﻿import { createRoot } from 'react-dom/client';
 import React, { Component } from 'react';
 import CalendarDetail from './root';
-import { getParamsFromUrl, getCalendarDetail } from './common';
+import { getParamsFromUrl, getCalendarDetail, Config } from './common';
 import ErrorState from 'src/components/errorPage/errorState';
 import DocumentTitle from 'react-document-title';
 import { htmlDecodeReg, getAppFeaturesPath } from 'src/util';
 import { Dialog, LoadDiv } from 'ming-ui';
-
-export let Config = {};
 
 class Container extends Component {
   constructor(props) {
@@ -146,10 +144,10 @@ export default function (options) {
     saveCallback: null,
   };
 
-  Config = Object.assign(Config, defaults, options);
+  Object.assign(Config, defaults, options);
 
   if (Config.isDetailPage && Config.container) {
-    Config = Object.assign({}, Config, getParamsFromUrl());
+    Object.assign(Config, getParamsFromUrl());
     Config.exitCallback = Config.deleteCallback = function () {
       window.location.href = '/apps/calendar/home' + '?' + getAppFeaturesPath();
     };

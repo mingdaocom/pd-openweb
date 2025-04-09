@@ -141,6 +141,10 @@ export default function NotFillStatus(props) {
     return output;
   };
 
+  if (request.statusAll === 'no') {
+    return null;
+  }
+
   return (
     <Con className="notFillStatus">
       {status === FILL_STATUS.FIXED ? (

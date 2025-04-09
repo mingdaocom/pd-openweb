@@ -10,7 +10,13 @@ import { filterSysControls, getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getCanSelectColumnsForSort } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
+const Wrap = styled.div`
+  .addCondition .Dropdown--input {
+    padding: 0 !important;
+  }
+`;
 const ConditionsWrap = styled.div`
   .operateBtn {
     cursor: pointer;
@@ -38,14 +44,14 @@ const ConditionsWrap = styled.div`
 `;
 
 const Item = props => {
-  const { sortConditions = [], columns, condition = {}, info = {}, DragHandle } = props;
+  const { sortConditions = [], columns, condition = {}, info = {}, DragHandle, canClear } = props;
   const { index } = info;
-  const canDelete = !(index === 0 && sortConditions.length === 1);
+  const canDelete = canClear || !(index === 0 && sortConditions.length === 1);
   const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
   const control = _.find(columns, i => i.controlId === condition.controlId);
   let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
   return (
-    <div className="flexRow alignItemsCenter mBottom10">
+    <Wrap className="flexRow alignItemsCenter mBottom10">
       <DragHandle className="alignItemsCenter flexRow">
         <Icon className="mRight5 Font14 Hand" icon="drag" />
       </DragHandle>
@@ -112,15 +118,29 @@ const Item = props => {
             if (canDelete) props.handleDeleteCondition(condition.controlId);
           }}
         />
-        <Icon
-          className={cx('operateBtn', { disabled: !canAdd })}
-          icon="control_point"
-          onClick={() => {
-            if (canAdd) props.handleAddCondition(index);
-          }}
-        />
+        {props.forViewControl ? (
+          <Dropdown
+            openSearch
+            isAppendToBody
+            menuStyle={{ width: 200 }}
+            className="addCondition"
+            data={props.getCanSelectColumns()}
+            onChange={value => props.handleAddConditionByValue(index, value)}
+            renderPointer={() => {
+              return <Icon className={cx('operateBtn', { disabled: !canAdd })} icon="control_point" />;
+            }}
+          />
+        ) : (
+          <Icon
+            className={cx('operateBtn', { disabled: !canAdd })}
+            icon="control_point"
+            onClick={() => {
+              if (canAdd) props.handleAddCondition(index);
+            }}
+          />
+        )}
       </div>
-    </div>
+    </Wrap>
   );
 };
 
@@ -221,6 +241,23 @@ export default class SortConditions extends React.Component {
     this.handleChange(newSortConditions);
   };
 
+  handleAddConditionByValue = (index, value) => {
+    const { sortConditions } = this.state;
+    const newSortConditions = update(sortConditions, {
+      $splice: [
+        [
+          index + 1,
+          0,
+          {
+            controlId: value,
+            isAsc: this.getSortTypes(value)[0].value === 2,
+          },
+        ],
+      ],
+    });
+    this.handleChange(newSortConditions);
+  };
+
   handleDeleteCondition = controlId => {
     const { sortConditions } = this.state;
     const newSortConditions = sortConditions.filter(sc => sc.controlId !== controlId);
@@ -229,39 +266,7 @@ export default class SortConditions extends React.Component {
 
   getCanSelectColumns = controlId => {
     const { columns, sortConditions } = this.state;
-    const sortConditionControls = sortConditions
-      .map(c => _.find(columns, column => column.controlId === c.controlId))
-      .filter(_.identity);
-    return filterOnlyShowField(columns)
-      .filter(o => {
-        if (o.controlId === controlId) return true;
-        //排除签名字段 扫码 接口查询按钮 查询记录 或 已选中且非当前id
-        if ([42, 47, 49, 51, 52, 54].includes(o.type) || _.find(sortConditions, sc => sc.controlId === o.controlId))
-          return false;
-        // 人员，部门，关联，组织角色，附件，级联选择此类支持多选的数组格式，都只能选择一个排序 选项strDefault=index除外
-        const list = [26, 27, 29, 48, 35, 14];
-        const optionTypes = [9, 10, 11];
-        const isExist = !!sortConditionControls.find(
-          o =>
-            (list.includes(o.type === 30 ? o.sourceControlType : o.type) ||
-              (optionTypes.includes(o.type === 30 ? o.sourceControlType : o.type) && o.strDefault !== 'index')) &&
-            controlId !== o.controlId,
-        );
-        // 存在数组类类型 都只能选择一个排序 选项strDefault=index除外
-        if (isExist) {
-          const type = o.type === 30 ? o.sourceControlType : o.type;
-          return optionTypes.includes(type) && o.strDefault === 'index'
-            ? true
-            : ![...list, ...optionTypes].includes(type);
-        }
-        return true;
-      })
-      .map(c => ({
-        text: c.controlName,
-        value: c.controlId,
-        itemContentStyle: { padding: '0 0 0 30px' },
-        iconName: getIconByType(c.type),
-      }));
+    return getCanSelectColumnsForSort(controlId, columns, sortConditions);
   };
 
   getSortTypes = controlId => {
@@ -278,7 +283,7 @@ export default class SortConditions extends React.Component {
   renderCondtions = () => {
     const { columns, sortConditions } = this.state;
     return (
-      <div className="mTop24">
+      <div className={this.props.forViewControl ? 'mTop16' : 'mTop24'}>
         <SortableList
           itemKey="controlId"
           items={sortConditions}
@@ -301,6 +306,7 @@ export default class SortConditions extends React.Component {
               handleAddCondition={this.handleAddCondition}
               getSortTypes={this.getSortTypes}
               getCanSelectColumns={this.getCanSelectColumns}
+              handleAddConditionByValue={this.handleAddConditionByValue}
             />
           )}
         />

@@ -1,5 +1,5 @@
 // import react, react-markdown-editor-lite, and a markdown parser you like
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useEffect } from 'react';
 import MarkdownIt from 'markdown-it';
 import MdEditor from 'react-markdown-editor-lite';
 // import style manually
@@ -10,9 +10,6 @@ import { getToken } from 'src/util';
 import RegExpValidator from 'src/util/expression';
 // Register plugins if required
 // MdEditor.use(YOUR_PLUGINS_HERE);
-
-// Initialize a markdown parser
-const mdParser = new MarkdownIt(/* Markdown-it options */);
 
 const Wrap = styled.div`
   .MdEditorCon {
@@ -44,14 +41,22 @@ const Wrap = styled.div`
   }
 `;
 
-const Markdown = props => {
-  const { onSave, disabled, projectId, appId, worksheetId, bucket } = props;
+const Markdown = forwardRef((props, ref) => {
+  const { onSave, disabled, projectId, appId, worksheetId, bucket, editProps = {} } = props;
   const [value, setValue] = useState(props.value);
+  // Initialize a markdown parser
+  const mdParser = new MarkdownIt({ linkify: editProps.linkify });
   const handleChange = ({ html, text }) => {
     setValue(text);
     onSave(text);
     // 这里可以处理 newValue，比如保存到服务器等
   };
+
+  useEffect(() => {
+    if (props.value !== value) {
+      setValue(props.value);
+    }
+  }, [props.value]);
   const tokenArgs = {
     projectId,
     appId,
@@ -150,10 +155,12 @@ const Markdown = props => {
       <MdEditor
         htmlClass="MdEditorCon"
         markdownClass="MdEditorCon"
+        ref={ref}
         plugins={PLUGINS}
         renderHTML={text => mdParser.render(text)}
         value={value}
         onChange={handleChange}
+        imageAccept=".jpg,.jpeg,.png,.gif"
         onImageUpload={handleImageUpload}
         // https://github.com/HarryChen0506/react-markdown-editor-lite/blob/master/docs/api.zh-CN.md
         config={{
@@ -163,9 +170,10 @@ const Markdown = props => {
             html: true, //预览区
           },
         }}
+        {...editProps}
       />
     </Wrap>
   );
-};
+});
 
 export default Markdown;

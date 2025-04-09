@@ -5,7 +5,7 @@ import { downloadFile, formatFileSize, getClassNameByExt } from 'src/util';
 import mobileShareHtml from './tpl/mobileShare.htm';
 var mobileShareTpl = doT.template(mobileShareHtml);
 import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
-import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import shareajax from 'src/api/share';
 import chatAjax from 'src/api/chat';
 import weixinAjax from 'src/api/weixin';

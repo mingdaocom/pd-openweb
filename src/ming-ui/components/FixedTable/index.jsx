@@ -65,6 +65,8 @@ function FixedTable(props, ref) {
     noRenderEmpty,
     isSubList,
     loading,
+    showLoadingMask,
+    loadingMaskChildren = null,
     className,
     showHead,
     showFoot,
@@ -415,6 +417,23 @@ function FixedTable(props, ref) {
             active
             itemStyle={{ marginBottom: '10px' }}
           />
+        </div>
+      )}
+      {/* 加载遮罩 */}
+      {showLoadingMask && (
+        <div
+          className="flexCenter justifyContentCenter"
+          style={{
+            position: 'absolute',
+            top: 0,
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            color: '#777',
+          }}
+        >
+          {loadingMaskChildren}
         </div>
       )}
       {!loading &&

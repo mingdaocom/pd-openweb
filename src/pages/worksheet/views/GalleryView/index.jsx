@@ -23,14 +23,30 @@ import _, { isEmpty } from 'lodash';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import GalleryItem from './GalleryItem';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getRecordColorConfig } from 'worksheet/util';
+import { getRecordColorConfig, getCardWidth } from 'worksheet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
 
 const isMobile = browserIsMobile();
+
+const notFetchAttr = [
+  'name',
+  'worksheetName',
+  'showControlName',
+  'advancedSetting.rowcolumns',
+  'advancedSetting.checkradioid',
+  'advancedSetting.maxlinenum',
+  'advancedSetting.showcount',
+  'advancedSetting.coverstyle',
+  'advancedSetting.opencover',
+  'advancedSetting.cardwidth',
+  'advancedSetting.refreshtime',
+];
 
 @autoSize
 @connect(
@@ -72,12 +88,10 @@ export default class RecordGallery extends Component {
       return;
     }
     const isNoAs =
-      !_.isEqual(
-        _.omit(currentView, ['name', 'worksheetName', 'advancedSetting.rowcolumns', 'advancedSetting.checkradioid']),
-        _.omit(preView, ['name', 'worksheetName', 'advancedSetting.rowcolumns', 'advancedSetting.checkradioid']),
-      ) ||
+      !_.isEqual(_.omit(currentView, notFetchAttr), _.omit(preView, notFetchAttr)) ||
       clicksearch !== this.state.clicksearch ||
       !_.isEqual(navGroupFilters, this.props.navGroupFilters);
+
     if (
       sheetListVisible !== this.props.sheetListVisible ||
       isNoAs ||
@@ -171,10 +185,11 @@ export default class RecordGallery extends Component {
     let { base = {}, views = [], width } = props;
     const { viewId = '' } = base;
     const view = views.find(o => o.viewId === viewId) || {};
-    const { coverposition = '2', cardwidth } = getAdvanceSetting(view);
-    const isTopCover = coverposition === '2'; // 封面上
+    const { coverPosition = '2' } = getCoverStyle(view);
+    const cardWidth = getCardWidth(view);
+    const isTopCover = coverPosition === '2'; // 封面上
     width = width - 8 * 2; //padding:8px;
-    const minW = !!cardwidth ? Number(cardwidth) + 16 : !isTopCover ? 336 : 246;
+    const minW = !!cardWidth ? Number(cardWidth) + 16 : !isTopCover ? 336 : 246;
     let W = minW > width ? minW : Math.floor(Math.floor(width) / Math.floor(Math.floor(width) / minW));
     return W;
   };
@@ -187,7 +202,7 @@ export default class RecordGallery extends Component {
     const parsedRow = row;
     const arr = [];
 
-    const titleControl = _.find(controls, item => item.attribute === 1);
+    const titleControl = getTitleControlForCard(view, controls);
     if (titleControl) {
       // 标题字段
       arr.push({ ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[titleControl.controlId] });
@@ -229,18 +244,23 @@ export default class RecordGallery extends Component {
     const currentView = views.find(o => o.viewId === viewId) || {};
     const { gallery = [], galleryViewLoading, galleryLoading, galleryIndex, galleryViewRecordCount } = galleryview;
     const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
-    let { coverposition = '2', abstract = '' } = getAdvanceSetting(currentView);
-    const isTopCover = coverposition === '2';
+    const { abstract = '' } = getAdvanceSetting(currentView);
+    const { coverPosition = '2' } = getCoverStyle(currentView);
+    const isTopCover = coverPosition === '2';
     const { recordInfoVisible, recordId } = this.state;
+
     if (galleryViewLoading) {
       return <LoadDiv size="big" className="mTop32" />;
     }
+
     if (gallery.length <= 0) {
       if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
         return <ViewEmpty filters={filters} />;
       }
+
       return <NoRecords sheetIsFiltered={!this.noFilter()} />;
     }
+
     return (
       <ScrollView className="galleryScrollWrap" updateEvent={_.throttle(this.scrollLoad, 400)}>
         <div

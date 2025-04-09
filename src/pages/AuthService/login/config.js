@@ -1,6 +1,6 @@
 export const LoginResult = {
   failed: 0,
-  accountSuccess: 1, // 帐号验证成功
+  accountSuccess: 1, // 账号验证成功
   accountError: 2, // 账号不存在
   passwordError: 3, // 密码错误
   verifyCodeError: 4, // 验证码输入错误

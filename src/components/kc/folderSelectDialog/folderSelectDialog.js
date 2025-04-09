@@ -1,6 +1,7 @@
 import './folderSelectStyle.css';
 import '../layerMain.css';
-import { getClassNameByExt, expireDialogAsync, htmlEncodeReg } from 'src/util';
+import { getClassNameByExt, htmlEncodeReg } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import doT from 'dot';
 import rootTpl from './tpl/rootTpl.html';
 import nodeTpl from './tpl/nodeTpl.html';

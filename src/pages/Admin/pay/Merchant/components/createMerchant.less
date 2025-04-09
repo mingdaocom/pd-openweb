@@ -10,3 +10,113 @@
     }
   }
 }
+
+.createMerchantHeader {
+  .icon-backspace {
+    vertical-align: text-top;
+  }
+}
+.secretDialog,
+.createMerchantContent {
+  .description {
+    background: rgba(33, 150, 243, 0.05);
+    border-radius: 5px;
+    padding: 10px 0;
+  }
+  .required {
+    position: absolute;
+    top: 3px;
+    left: -10px;
+    color: #f44336;
+  }
+  .errorMessage {
+    position: absolute;
+    bottom: 100%;
+    transform: translateY(-5px);
+    z-index: 1;
+    left: 0;
+    color: #fff;
+    padding: 3px 8px;
+    white-space: nowrap;
+    background: #f44336;
+    font-size: 12px;
+    right: 0;
+    max-width: fit-content;
+  }
+  .delIcon {
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.24);
+  }
+  .errorArrow {
+    position: absolute;
+    transform: translateY(-5px);
+    z-index: 1;
+    left: 0;
+    background: transparent;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent #f44336;
+    bottom: -11px;
+  }
+  .isSingleLine {
+    height: 36px !important;
+    max-height: 36px !important;
+    min-height: 36px !important;
+    overflow: hidden !important;
+    padding: 6px 12px !important;
+  }
+  .noBindWeiXin {
+    display: inline-block;
+    height: 36px;
+    line-height: 36px;
+    background: #f8f8f8;
+    padding: 0 30px 0 16px;
+    border-radius: 6px;
+  }
+  .submit.ming.Button--disabled {
+    color: rgba(255, 255, 255, 0.5);
+    background: #2196f3;
+  }
+}
+
+.createMerchantContent .formItem {
+  width: 50%;
+}
+
+.verifyMerchantWrap {
+  .codeWrap {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+  }
+}
+
+.secretWrap {
+  width: 50%;
+  background: #f8f8f8;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  padding: 14px 16px 4px 20px;
+  align-items: center;
+  .icon-edit {
+    right: 16px;
+    top: 40%;
+  }
+}
+
+.disabledForm {
+  width: 100%;
+  height: 36px;
+  line-height: 36px;
+  background: #f8f8f8;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  padding-left: 10px;
+}
+
+.secretScrollDialog .mui-dialog-footer {
+  padding: 10px 34px 20px 24px !important;
+}

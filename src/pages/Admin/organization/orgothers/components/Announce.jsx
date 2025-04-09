@@ -5,8 +5,9 @@ import { Input } from 'antd';
 import cx from 'classnames';
 import messageController from 'src/api/message';
 import { dialogSelectUser } from 'ming-ui/functions';
-import 'src/components/uploadAttachment/uploadAttachment';
 import styled from 'styled-components';
+import Attachment from 'src/components/newCustomFields/widgets/Attachment';
+
 const { TextArea } = Input;
 
 const WrapCom = styled.div`
@@ -61,6 +62,14 @@ const WrapCom = styled.div`
   }
 `;
 
+const AttachmentList = styled.div`
+  .customFormControlBox > div:first-child {
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+`;
+
 export default class Announce extends Component {
   constructor(props) {
     super(props);
@@ -79,12 +88,11 @@ export default class Announce extends Component {
       allDepartmentChargeUser: false,
       users: [],
       groups: [],
-      attachments: [],
+      files: '',
     };
   }
   componentDidMount() {
     this.getAnnounce();
-    this.uploadFiled();
   }
 
   getAnnounce = () => {
@@ -97,22 +105,6 @@ export default class Announce extends Component {
         projectAdminUserCount: data.projectAdminUserCount,
         projectDepartmentChargeUserCount: data.projectDepartmentChargeUserCount,
       });
-    });
-  };
-  uploadFiled = () => {
-    const _this = this;
-    _this.uploadAttachmentObj = $('#hidUploadAttachment').uploadAttachment({
-      checkDocVersionUrl: '',
-      pluploadID: '#uploadAttachment',
-      folder: 'Accessories',
-      showDownload: false,
-      checkProjectLimitFileSizeUrl: '',
-      bucketType: 1,
-      callback: function (attachments, totalSize) {
-        _this.setState({
-          attachments,
-        });
-      },
     });
   };
 
@@ -165,9 +157,9 @@ export default class Announce extends Component {
       allProject,
       allAdmin,
       allDepartmentChargeUser,
-      attachments,
       groups,
       users,
+      files,
     } = this.state;
     if (!content) {
       alert(_l('请输入内容'), 3);
@@ -198,10 +190,6 @@ export default class Announce extends Component {
     if (users.length) {
       accountIds = users.map(x => x.accountId);
     }
-    let attachmentStr = '';
-    if (attachments.length > 0) {
-      attachmentStr = JSON.stringify(attachments);
-    }
 
     alert(_l('正在发送...'));
 
@@ -209,7 +197,7 @@ export default class Announce extends Component {
       .sendNotice({
         projectId: Config.projectId,
         content,
-        attachments: attachmentStr,
+        attachments: files,
         groupIds,
         accountIds,
         allAdmin,
@@ -230,7 +218,6 @@ export default class Announce extends Component {
           }
           this.setState({
             content: '',
-            attachments: [],
             sendEmail: false,
             sendMessage: false,
             sendMobileMessage: false,
@@ -239,6 +226,7 @@ export default class Announce extends Component {
             allDepartmentChargeUser: false,
             groups: [],
             users: [],
+            files: '',
           });
           this.uploadAttachmentObj.clearAttachment();
         } else if (data.actionResult == 2) {
@@ -249,6 +237,35 @@ export default class Announce extends Component {
           alert(_l('发送失败'), 2);
         }
       });
+  };
+
+  renderAttachmentList = () => {
+    return (
+      <AttachmentList>
+        <div className="ThemeHoverColor3 pointer mTop5 mBottom10 Font13 Gray_75">
+          <span
+            className="InlineBlock ThemeColor3 Hand adminHoverColor"
+            id="uploadAttachment"
+            onClick={() => {
+              $('.noticeOrgWrap .triggerTraget').click();
+            }}
+          >
+            <i className="icon-attachment" />
+            {_l('添加附件')}
+          </span>
+        </div>
+        <div className="customFieldsContainer InlineBlock mLeft0 pointer">
+          <Attachment
+            projectId={Config.projectId}
+            value={this.state.files}
+            hint={_l('附件')}
+            canAddKnowledge={false}
+            advancedSetting={{}}
+            onChange={files => this.setState({ files })}
+          />
+        </div>
+      </AttachmentList>
+    );
   };
 
   render() {
@@ -273,18 +290,12 @@ export default class Announce extends Component {
           {_l('群发通告')}
           <div className="flex"></div>
         </div>
-        <WrapCom className="orgManagementContent">
+        <WrapCom className="orgManagementContent noticeOrgWrap">
           <div className="toolItem">
             <div className="toolItemLabel">{_l('通告内容')}</div>
             <div className="toolItemRight">
               <TextArea id="txtNotice" value={content} onChange={this.handleTextChange} autoSize={{ minRows: 5 }} />
-              <div className="ThemeHoverColor3 pointer mTop5 mBottom10 Font13 Gray_75">
-                <span className="InlineBlock ThemeColor3 Hand adminHoverColor" id="uploadAttachment">
-                  <i className="icon-attachment" />
-                  {_l('添加附件')}
-                </span>
-                <input type="hidden" id="hidUploadAttachment" />
-              </div>
+              {this.renderAttachmentList()}
             </div>
           </div>
           <div className="toolItem">

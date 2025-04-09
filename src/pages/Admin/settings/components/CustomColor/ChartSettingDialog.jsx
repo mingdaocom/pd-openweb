@@ -7,6 +7,9 @@ import { TinyColor } from '@ctrl/tinycolor';
 import IllustrationTrigger from './IllustrationTrigger';
 
 const CustomChartContentWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   .label {
     font-size: 13px;
     font-family: FZLanTingHeiS;
@@ -19,9 +22,53 @@ const CustomChartContentWrap = styled.div`
     cursor: pointer;
   }
   .colorList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px 37px;
+    padding: 6px 0;
+    flex: 1;
+    overflow-y: scroll;
+    min-height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 285px;
+    overflow-y: scroll;
+    .colorSelectItem {
+      padding: 6px 10px 6px 19px;
+      display: flex;
+      align-items: center;
+      .ColorPickerPanel {
+        font-size: 0;
+      }
+      .item {
+        height: 24px;
+        margin-right: 7px;
+        width: 40px;
+        display: inline-block;
+        border-radius: 2px;
+        &.border {
+          border: 1px solid #e6e6e6;
+        }
+      }
+      .deleteIcon {
+        display: none;
+        &:hover {
+          color: #f44338 !important;
+        }
+      }
+      &.addItem {
+        .item {
+          background: #fff;
+          border: 1px solid #e6e6e6;
+          text-align: center;
+          line-height: 24px;
+        }
+      }
+      &:hover,
+      &.active {
+        background: #f5f5f5;
+        .deleteIcon {
+          display: inline-block;
+        }
+      }
+    }
   }
   .colorSelectWrap {
     width: 80px;
@@ -161,6 +208,8 @@ const CustomColorsWrap = styled.div`
   }
 `;
 
+const DEFAULT_COLOR = '#2196f3';
+
 export default function ChartSettingDialog(props) {
   const { onOk, visible, onCancel, data = null, editable = false, customColors = [], id, customChar = [] } = props;
 
@@ -188,26 +237,25 @@ export default function ChartSettingDialog(props) {
     setOtherThemeColors(_data);
   }, [id]);
 
-  const renderColorSelectWrap = (color, index) => {
-    const colorSelectContent = (
-      <div className={cx('colorSelectWrap', { disableColorSelectWrap: !editable })}>
-        <div className="colorBg" style={{ background: color || 'rgba(255, 255, 255, 0)' }}></div>
-        <Icon icon="expand_more" className="Font18 Gray_9e" />
-      </div>
-    );
+  const isWhite = color => new TinyColor(color).toHexString() === '#ffffff';
 
-    return editable ? (
+  const renderColorSelectWrap = (color, index) => {
+    return (
       <ColorPicker
-        value={color || lastColor}
+        key={`ColorPicker-${index}`}
+        disabled={!editable}
+        isPopupBody
+        value={color || lastColor || DEFAULT_COLOR}
         onChange={value => {
           setColors(colors.map((l, i) => (index === i ? value : l)));
-          setLastColor(value);
         }}
+        handleClose={value => setLastColor(value)}
       >
-        {colorSelectContent}
+        <div
+          className={cx('item', { border: isWhite(color || DEFAULT_COLOR) })}
+          style={{ background: color || DEFAULT_COLOR }}
+        ></div>
       </ColorPicker>
-    ) : (
-      colorSelectContent
     );
   };
 
@@ -244,36 +292,39 @@ export default function ChartSettingDialog(props) {
     );
   };
 
-  const editCustomChar = () => {
+  const editCustomChart = () => {
     if (!name) {
       alert(_l('请填写图表配色名称'), 3);
       return;
     }
 
-    if (colors.filter(l => l).length < 8) {
-      alert(_l('请完善图表颜色'), 3);
-      return;
-    }
-
     onOk({
       name,
-      colors,
+      colors: colors.map(l => l || DEFAULT_COLOR),
       themeColors,
       id: id || null,
     });
   };
 
+  const onAdd = () => setColors(colors.concat(undefined));
+
   return (
     <Dialog
       width={480}
+      hight={640}
       className="customChartDialog"
       visible={visible}
       title={editable ? _l('自定义图表配色') : _l('预设颜色')}
       onCancel={onCancel}
-      onOk={editCustomChar}
+      onOk={editCustomChart}
     >
       <CustomChartContentWrap>
-        <div className="label mBottom12">{_l('名称')}</div>
+        <div className="label mBottom12">
+          {_l('名称')}
+          <Tooltip text={_l('最多15个字符')}>
+            <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
+          </Tooltip>
+        </div>
         <Input
           placeholder={_l('请填写自定义图表配色名称')}
           disabled={!editable}
@@ -286,14 +337,28 @@ export default function ChartSettingDialog(props) {
         <div className="label mBottom16 mTop24">{_l('颜色')}</div>
         <div className="colorList">
           {colors.map((color, index) => (
-            <div className="colorSelectItem">
-              <div className="name mBottom12">
-                {_l('颜色')}
-                {index + 1}
-              </div>
+            <div className="colorSelectItem" key={`chatSetting-${index}`}>
               {renderColorSelectWrap(color, index)}
+              <div className="Font13 flex">{_l('色值%0', index + 1)}</div>
+              {colors.length > 8 && (
+                <Tooltip text={_l('删除')}>
+                  <Icon
+                    icon="delete_12"
+                    className="Gray_9e deleteIcon"
+                    onClick={() => setColors(colors.filter((l, i) => i !== index))}
+                  />
+                </Tooltip>
+              )}
             </div>
           ))}
+          {editable && colors.length < 18 && (
+            <div className="colorSelectItem addItem Hand" onClick={onAdd}>
+              <div className="item">
+                <Icon icon="add" className="Gray_9e Font16" />
+              </div>
+              <div className="Font13 Gray_9e Hover_21">{_l('添加颜色')}</div>
+            </div>
+          )}
         </div>
         <IllustrationTrigger type="chart">
           <div className="label mBottom16 mTop32 valignWrapper fitContent">

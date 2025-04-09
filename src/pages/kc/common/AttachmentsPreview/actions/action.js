@@ -6,7 +6,7 @@ import kcAjax from 'src/api/kc';
 import fileAjax from 'src/api/file';
 import { getToken, addBehaviorLog, getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
 import kcService from '../../../api/service';

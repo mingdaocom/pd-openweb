@@ -28,6 +28,8 @@ import {
   clearFilters,
   updateGroupFilter,
   fireWhenViewLoaded,
+  updateWorksheetInfo,
+  loadManageView,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
@@ -102,6 +104,8 @@ function ViewControl(props) {
     clearFilters,
     updateGroupFilter,
     fireWhenViewLoaded,
+    updateWorksheetInfo,
+    loadManageView,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -115,7 +119,9 @@ function ViewControl(props) {
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
-  const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+  const newSheetSwitchPermit =
+    viewId !== worksheetId ? sheetSwitchPermit : sheetSwitchPermit.map(l => ({ ...l, state: true }));
+  const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, newSheetSwitchPermit);
   useEffect(() => {
     if (['gallery', 'board'].includes(VIEW_DISPLAY_TYPE[props.view.viewType])) {
       const showcount = _.get(props.view, 'advancedSetting.showcount');
@@ -152,7 +158,7 @@ function ViewControl(props) {
     <Con>
       <ViewItems
         worksheetInfo={worksheetInfo}
-        sheetSwitchPermit={sheetSwitchPermit}
+        sheetSwitchPermit={newSheetSwitchPermit}
         isCharge={isCharge}
         appId={appId}
         viewList={views}
@@ -160,6 +166,7 @@ function ViewControl(props) {
         currentViewId={viewId}
         worksheetId={worksheetId}
         isLock={_.get(appPkg, 'isLock')}
+        loadManageView={loadManageView}
         updateCurrentView={data => {
           saveView(viewId, _.pick(data, [...(data.editAttrs || []), 'editAdKeys']));
         }}
@@ -173,7 +180,7 @@ function ViewControl(props) {
         }}
         onAddView={(newViews, newView) => {
           updateViews(newViews);
-          if ([0, 3, 6, 21].includes(Number(newView.viewType))) {
+          if ([0, 3, 6, 21].includes(Number(newView.viewType)) && newView.viewId !== worksheetId) {
             setViewConfigVisible(true);
           }
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
@@ -189,14 +196,14 @@ function ViewControl(props) {
             title: _l('分享视图'),
             isPublic: view.shareRange === 2,
             hidePublicShare: !(
-              isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
+              isOpenPermit(permitList.viewShareSwitch, newSheetSwitchPermit, viewId) && !md.global.Account.isPortal
             ),
-            privateShare: isOpenPermit(permitList.internalAccessLink, sheetSwitchPermit, viewId),
+            privateShare: isOpenPermit(permitList.internalAccessLink, newSheetSwitchPermit, viewId),
             params: {
               appId,
               worksheetId,
               viewId,
-              title: view.name,
+              title: `${worksheetInfo.name}-${view.name}`,
             },
             getCopyContent: (type, url) => (type === 'private' ? url : `${url} ${worksheetInfo.name}-${view.name}`),
             onUpdate: value => {
@@ -217,7 +224,7 @@ function ViewControl(props) {
             chartId,
             searchArgs: filters,
             selectRowIds: sheetSelectedRows.map(item => item.rowid),
-            sheetSwitchPermit,
+            sheetSwitchPermit: newSheetSwitchPermit,
             columns: hasCharge
               ? controls.filter(item => {
                   return item.controlId !== 'rowid';
@@ -365,8 +372,9 @@ function ViewControl(props) {
           projectId={projectId}
           worksheetId={worksheetId}
           worksheetControls={controls}
-          sheetSwitchPermit={sheetSwitchPermit}
+          sheetSwitchPermit={newSheetSwitchPermit}
           updateViewShowcount={updateViewShowcount}
+          updateWorksheetInfo={updateWorksheetInfo}
           onClickAwayExceptions={[
             '.ant-select-dropdown',
             '.ChooseWidgetDialogWrap',
@@ -458,7 +466,7 @@ function ViewControl(props) {
       {createCustomBtnVisible && (
         <CreateCustomBtn
           zIndex={12}
-          sheetSwitchPermit={sheetSwitchPermit}
+          sheetSwitchPermit={newSheetSwitchPermit}
           isEdit={customBtnIsEdit}
           onClose={() => setCreateCustomBtnVisible(false)}
           columns={controls
@@ -495,7 +503,6 @@ function ViewControl(props) {
             '.mui-dialog-container',
             '.ant-select-dropdown',
             '.rc-trigger-popup',
-            '.selectize-dropdown',
             '.selectUserBox',
             '.ant-picker-dropdown',
             '.TimePicker',
@@ -541,6 +548,7 @@ ViewControl.propTypes = {
   refreshSheet: PropTypes.func,
   changePageIndex: PropTypes.func,
   changePageSize: PropTypes.func,
+  loadManageView: PropTypes.func,
 };
 
 export default connect(
@@ -585,6 +593,8 @@ export default connect(
         clearFilters,
         updateGroupFilter,
         fireWhenViewLoaded,
+        updateWorksheetInfo,
+        loadManageView,
       },
       dispatch,
     ),

@@ -22,7 +22,7 @@ function ConfirmMoveDialog(props) {
     appManagementAjax
       .migrate({
         appId: appInfo.appId,
-        dbInstanceId: dataBaseInfo.id,
+        dbInstanceId: type === 'remove' ? '' : dataBaseInfo.id,
         projectId,
       })
       .then(({ code }) => {
@@ -47,7 +47,11 @@ function ConfirmMoveDialog(props) {
       onCancel={onClose}
     >
       <Content>
-        <div className="Font13 Gray mBottom20">{_l('点击确认后开始迁移应用 "%0" 的所有数据', appInfo.appName)}</div>
+        <div className="Font13 Gray mBottom20">
+          {type === 'move'
+            ? _l('点击确认后开始迁移应用 "%0" 的所有数据', appInfo.appName)
+            : _l('点击确认后开始迁移应用 "%0" 的所有数据到默认数据库', appInfo.appName)}
+        </div>
         <div className="warningInfo">
           <div>{_l('迁移过程中，应用将无法使用')}</div>
           <div>{_l('迁移过程中，正在写入的数据可能会丢失，请保证在空闲时间进行操作')}</div>

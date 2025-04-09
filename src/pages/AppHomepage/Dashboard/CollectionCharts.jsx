@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, SortableList } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import Chart from 'src/pages/Statistics/Card';
-import { CardItem } from '.';
+import { CardItem } from './utils';
 import './style.less';
 import chartEmptyImg from 'staticfiles/images/chart.png';
 
@@ -27,7 +27,7 @@ const ChartListWrapper = styled.div`
       display: none;
       position: absolute;
       left: 8px;
-      top: 16px;
+      top: 22px;
       color: #9e9e9e;
       cursor: pointer;
       &:hover {

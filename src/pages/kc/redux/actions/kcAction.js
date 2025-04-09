@@ -599,10 +599,3 @@ export function updateKcBaseUrl(baseUrl) {
     value: baseUrl,
   };
 }
-
-export function initkcLeftEditRootFn(fn) {
-  return {
-    type: 'KC_UPDATE_KC_LEFT_ROOT_FN',
-    value: fn,
-  };
-}

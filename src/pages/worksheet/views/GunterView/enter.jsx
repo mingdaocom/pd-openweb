@@ -6,11 +6,11 @@ import SelectField from '../components/SelectField';
 import { saveView, updateWorksheetControls } from 'worksheet/redux/actions';
 import SelectFieldForStartOrEnd from 'worksheet/views/components/SelectFieldForStartOrEnd';
 import { getAdvanceSetting } from 'src/util';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
 
 const Wrap = styled.div`
   width: 100%;
@@ -35,11 +35,7 @@ export default class GunterEnter extends Component {
       setViewConfigVisible,
     } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
-    let timeControls = controls.filter(
-      item =>
-        !SYS.includes(item.controlId) &&
-        (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
-    );
+    let timeControls = getControlsForGunter(controls);
     timeControls = setSysWorkflowTimeControlFormat(timeControls, sheetSwitchPermit);
     const timeControlsIds = timeControls.map(o => o.controlId);
     const isDelete = begindate && !timeControlsIds.includes(begindate); //开始时间字段已删除

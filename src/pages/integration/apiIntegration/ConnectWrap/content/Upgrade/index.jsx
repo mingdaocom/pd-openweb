@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { LoadDiv, Icon, Tooltip, QiniuUpload, Button, Support } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
 import { Steps } from 'antd';
-const { Step } = Steps;
-import UpgradeItemWrap from './UpgradeItemWrap';
-import { formatFileSize } from 'src/util';
-import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
-import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Button, Icon, LoadDiv, QiniuUpload, Support, Tooltip } from 'ming-ui';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
+import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
+import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
+import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
+import { formatFileSize } from 'src/util';
+import UpgradeItemWrap from './UpgradeItemWrap';
+
+const { Step } = Steps;
 
 const Wrap = styled.div`
   width: 100%;
@@ -205,10 +206,12 @@ export default function Upgrade(props) {
       });
   };
 
-  const onUploadComplete = (up, files) => {
+  const onUploadComplete = (up, file, response) => {
+    const { key } = response;
+    const fileInfo = { ...file, key };
     setState({
-      file: files[files.length - 1],
-      url: md.global.FileStoreConfig.documentHost + files[files.length - 1].key,
+      file: fileInfo,
+      url: md.global.FileStoreConfig.documentHost + fileInfo.key,
       errTip: '',
       analyzeLoading: false,
     });
@@ -265,7 +268,7 @@ export default function Upgrade(props) {
               onBeforeUpload={(up, file) => {
                 !analyzeLoading && setState({ file: file, analyzeLoading: true });
               }}
-              onUploadComplete={onUploadComplete}
+              onUploaded={onUploadComplete}
               onError={() => {
                 setState({
                   file: {},

@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import DocumentTitle from 'react-document-title';
-import Trigger from 'rc-trigger';
-import sheetAjax from 'src/api/worksheet';
-import { Icon, Support, Dialog, Menu, MenuItem } from 'ming-ui';
 import copy from 'copy-to-clipboard';
-import './index.less';
 import _ from 'lodash';
-import { FILTER_SYS, APPROVAL_SYS } from 'src/pages/Print/config';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, Menu, MenuItem, Support } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import { APPROVAL_SYS, FILTER_SYS } from 'src/pages/Print/config';
 import { createEditFileLink } from './utils';
+import './index.less';
 
 let controlNo = [22, 10010, 43, 45, 21]; //分割线、备注、OCR、嵌入字段、自由链接/
 const qrcodeField = ['sharelink', 'privatelink', 'recordid'];
@@ -254,7 +254,7 @@ export default class UploadTemplateSheet extends React.Component {
     control.type === 51 ||
     (control.type === 29 && ['2', '5', '6'].includes(_.get(control, 'advancedSetting.showtype')));
 
-  renderItem = it => {
+  renderItem = (it, isSystem = false) => {
     const that = this;
 
     // 显示的子字段列表
@@ -307,8 +307,12 @@ export default class UploadTemplateSheet extends React.Component {
 
           {/** 点击复制图标 */}
           <span className="copySpan">
-            {fieldCode}
-            {this.renderIcon(fieldCode)}
+            {!isSystem && (
+              <Fragment>
+                {fieldCode}
+                {this.renderIcon(fieldCode)}
+              </Fragment>
+            )}
           </span>
 
           {/** 点击复制二维码图标 */}
@@ -449,7 +453,7 @@ export default class UploadTemplateSheet extends React.Component {
 
         {/** 系统字段列表 */}
         <div className="title">{_l('系统字段')}</div>
-        {systemControl.map(it => this.renderItem(it))}
+        {systemControl.map(it => this.renderItem(it, true))}
 
         {/** 表单字段列表 */}
         <p className="line" />
@@ -635,10 +639,8 @@ export default class UploadTemplateSheet extends React.Component {
               {item.expandControls && (
                 <React.Fragment>
                   {APPROVAL_SYS.map(l => {
-                    const fieldCode = `#{${_l('[审批]')}${item.name}.${l.name}${
-                      l.key === 'signature' ? '$[48*20]$' : ''
-                    }}`;
-                    const fieldAlias = `#{${_l('[审批]')}${item.id}.${l.key}}`;
+                    const fieldCode = `#{[Approval]${item.name}.${l.key}${l.key === 'signature' ? '$[48*20]$' : ''}}`;
+                    const fieldAlias = `#{[Approval]${item.id}.${l.key}}`;
 
                     return (
                       <div className="list">
@@ -680,7 +682,7 @@ export default class UploadTemplateSheet extends React.Component {
   };
 
   onEdit = type => {
-    const { popupVisible, downLoadUrl } = this.state;
+    const { popupVisible, downLoadUrl, appId } = this.state;
     this.setState({ popupVisible: false });
 
     if (type === 0) {
@@ -689,6 +691,7 @@ export default class UploadTemplateSheet extends React.Component {
       createEditFileLink({
         worksheetId: _.get(this.props, 'match.params.worksheetId'),
         downLoadUrl,
+        appId,
         fileType: popupVisible,
       });
     }

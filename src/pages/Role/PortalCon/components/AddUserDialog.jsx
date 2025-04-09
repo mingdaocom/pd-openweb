@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions';
-import { Icon, Dialog, Checkbox, LoadDiv } from 'ming-ui';
-import 'src/components/uploadAttachment/uploadAttachment';
+import { Icon, Dialog, Checkbox, LoadDiv, QiniuUpload } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import { getPssId } from 'src/util/pssId';
 import _ from 'lodash';
+import { saveAs } from 'file-saver';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
 
 const Wrap = styled.div`
   .listCon {
@@ -30,41 +31,9 @@ const Wrap = styled.div`
 `;
 function AddUserDialog(props) {
   const { appId, show, setAddUserDialog, getUserList, changeIsSendMsgs } = props;
-  const [isSendMsgs, setIsSend] = useState(props.isSendMsgs); //
-  const [fileUrl, setFileUrl] = useState('');
-  const [fileName, setFileName] = useState(''); //文件名
-  const [loading, setLoading] = useState(false); //
-  /**
-   * 创建上传
-   */
-  const createUploader = () => {
-    $('#hideUploadUser').uploadAttachment({
-      filterExtensions: 'xlsx,xls,xlsm',
-      pluploadID: '#uploadUser',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'addUser',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 0,
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        setLoading(true);
-      },
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          setFileUrl(attachment.serverName + attachment.key);
-          setFileName(attachment.originalFileName + attachment.fileExt);
-          setLoading(false);
-        }
-      },
-    });
-  };
-  useEffect(() => {
-    createUploader();
-  }, []);
+  const [isSendMsgs, setIsSend] = useState(props.isSendMsgs);
+  const [{ file, fileUrl }, setState] = useSetState({ file: null, fileUrl: '' });
+  const [loading, setLoading] = useState(false);
 
   const update = () => {
     setLoading(true);
@@ -103,26 +72,24 @@ function AddUserDialog(props) {
       });
   };
   const downLoadByUrl = url => {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.setRequestHeader('Authorization', `md_pss_id ${getPssId()}`);
-    xhr.setRequestHeader('AccountId', `${md.global.Account.accountId}`);
-    xhr.responseType = 'blob';
-    xhr.onload = function (e) {
-      if (xhr.status == 200) {
-        try {
-          let blob = xhr.response;
-          let filename = `${_l('外部用户导入模板')}.xlsx`;
-          let a = document.createElement('a');
-          let url = URL.createObjectURL(blob);
-          a.href = url;
-          a.download = filename;
-          a.click();
-          window.URL.revokeObjectURL(url);
-        } catch (e) {}
-      }
-    };
-    xhr.send();
+    window
+      .mdyAPI(
+        '',
+        '',
+        {},
+        {
+          ajaxOptions: {
+            responseType: 'blob',
+            type: 'GET',
+            url: url,
+          },
+          customParseResponse: true,
+        },
+      )
+      .then(data => {
+        let filename = `${_l('外部用户导入模板')}.xlsx`;
+        saveAs(data, filename);
+      });
   };
   return (
     <Dialog
@@ -145,8 +112,6 @@ function AddUserDialog(props) {
       }}
     >
       <Wrap>
-        <input id="hideUploadUser" type="file" className="Hidden" />
-        <span id="uploadUser" className="Hidden" />
         <p className="Gray_9e pAll0 mBottom10">
           {_l('上传成功后会发送短信/邮箱邀请用户注册外部门户')}
           <br />
@@ -167,7 +132,7 @@ function AddUserDialog(props) {
             <div className="listCon">
               <span className="txt flex flexRow">
                 <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: '#4CAF50' }} />
-                <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {fileName}</span>
+                <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {(file || {}).name}</span>
               </span>
             </div>
             <Checkbox
@@ -175,7 +140,12 @@ function AddUserDialog(props) {
               text={
                 <span>
                   {_l('邀请用户并发送短信/邮箱')}
-                  {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('（短信%0/条、邮箱%1/封，自动从企业账户扣除。）', _.get(md, 'global.PriceConfig.SmsPrice'), _.get(md, 'global.PriceConfig.EmailPrice'))}
+                  {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+                    _l(
+                      '（短信%0/条、邮箱%1/封，自动从企业账户扣除。）',
+                      _.get(md, 'global.PriceConfig.SmsPrice'),
+                      _.get(md, 'global.PriceConfig.EmailPrice'),
+                    )}
                 </span>
               }
               checked={isSendMsgs}
@@ -186,21 +156,48 @@ function AddUserDialog(props) {
           </React.Fragment>
         ) : (
           <React.Fragment>
-            {loading ? (
-              <LoadDiv size="small" className="TxtLeft InlineBlock" />
-            ) : (
-              <React.Fragment>
-                <div
-                  className="Hand InlineBlock mTop6 uploadUser"
-                  onClick={() => {
-                    $('#uploadUser').click();
-                  }}
-                >
+            <QiniuUpload
+              className={cx('Hand InlineBlock mTop6 uploadUser')}
+              options={{
+                filters: {
+                  mime_types: [{ extensions: 'xlsx,xls,xlsm' }],
+                },
+                max_file_size: '4m',
+              }}
+              onAdd={(up, files) => {
+                if (loading) return;
+                setLoading(true);
+                up.disableBrowse();
+              }}
+              onBeforeUpload={(up, file) => {
+                setState({ file });
+              }}
+              onUploaded={(up, file, response) => {
+                up.disableBrowse(false);
+                setLoading(false);
+                setState({
+                  file: file,
+                  fileUrl: file.serverName + file.key,
+                });
+              }}
+              onError={() => {
+                alert(_l('文件上传失败'), 2);
+                setLoading(false);
+                setState({
+                  file: {},
+                  fileUrl: '',
+                });
+              }}
+            >
+              {loading ? (
+                <LoadDiv className="mTop6" />
+              ) : (
+                <React.Fragment>
                   <Icon className="Font18 TxtMiddle mRight6" type="cloud_upload" />
                   <span className=""> {_l('从Excel导入数据')}</span>
-                </div>
-              </React.Fragment>
-            )}
+                </React.Fragment>
+              )}
+            </QiniuUpload>
           </React.Fragment>
         )}
       </Wrap>

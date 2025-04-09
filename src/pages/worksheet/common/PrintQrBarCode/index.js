@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import PrintQrBarCode from './PrintQrBarCode';
-import GeneratingPdf from './GeneratingPdf';
 
 const FullScreenCon = styled.div`
   position: fixed;
@@ -24,4 +23,3 @@ function FullScreen(props = {}) {
 
 export default PrintQrBarCode;
 export const printQrBarCode = props => functionWrap(FullScreen, props);
-export const generatePdf = props => functionWrap(GeneratingPdf, props);

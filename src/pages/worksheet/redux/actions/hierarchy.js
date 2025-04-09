@@ -4,7 +4,7 @@ import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './uti
 import _, { get, filter, flatten, isEmpty, isFunction } from 'lodash';
 import { getCurrentView } from '../util';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
-import { updateNavGroup } from 'src/pages/worksheet/redux/actions/index.js';
+import { updateNavGroup } from './navFilter.js';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
 let hierarchyPromiseObj;

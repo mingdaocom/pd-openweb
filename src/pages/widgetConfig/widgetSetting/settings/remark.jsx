@@ -5,6 +5,7 @@ import { Modal } from 'antd';
 import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import styled from 'styled-components';
 import cx from 'classnames';
+
 const Wrap = styled.div`
   .fieldEditorRemark {
     &.editorNull {

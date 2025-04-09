@@ -12,7 +12,7 @@ import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/W
 import { RecordInfoModal } from 'mobile/Record';
 import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
-import { parseDataSource } from 'src/pages/widgetConfig/util/setting';
+import { parseDataSource } from 'src/pages/widgetConfig/util';
 import { getUrlList } from './util';
 import _ from 'lodash';
 

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
+import intlTelInput from 'ming-ui/components/intlTelInput';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -13,9 +11,6 @@ export default class Tel extends Component {
 
     this.iti = intlTelInput(this.input, {
       customPlaceholder: '',
-      autoPlaceholder: 'off',
-      loadUtils: '',
-      utilsScript: utils,
       separateDialCode: true,
       showSelectedDialCode: true,
       initialCountry: this.props.allowDropdown ? _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn' : 'cn',

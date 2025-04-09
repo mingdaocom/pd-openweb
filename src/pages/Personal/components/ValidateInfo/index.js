@@ -1,13 +1,10 @@
 import React, { Fragment, Component } from 'react';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
-import { Dialog, VerifyPasswordInput } from 'ming-ui';
+import { Dialog, VerifyPasswordInput, intlTelInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import accountController from 'src/api/account';
 import { captcha } from 'ming-ui/functions';
 import RegExpValidator from 'src/util/expression';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import styled from 'styled-components';
 
 const InputCom = styled.input`
@@ -83,7 +80,7 @@ export default class ValidateInfoCon extends Component {
     };
     this.iti = null;
   }
-  componentDidMount() {}
+  componentDidMount() { }
 
   changeValue = (e, filed) => {
     let val = e.target.value;
@@ -93,7 +90,7 @@ export default class ValidateInfoCon extends Component {
   clickNext = () => {
     this.setState({ nextBtnDisabled: true });
 
-    const { showStep, callback = () => {}, onCancel = () => {} } = this.props;
+    const { showStep, callback = () => { }, onCancel = () => { } } = this.props;
     const { password } = this.state;
 
     verifyPassword({
@@ -126,10 +123,6 @@ export default class ValidateInfoCon extends Component {
     this.iti && this.iti.destroy();
 
     this.iti = intlTelInput(this.mobile, {
-      loadUtils: '',
-      initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-      preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
-      utilsScript: utils,
       separateDialCode: true,
       showSelectedDialCode: true,
     });
@@ -161,7 +154,7 @@ export default class ValidateInfoCon extends Component {
     return true;
   };
 
-  // 发送更新帐号验证码到手机或邮箱
+  // 发送更新账号验证码到手机或邮箱
   sendChangeAccountVerifyCode = () => {
     if (!this.validate()) return;
 
@@ -194,7 +187,7 @@ export default class ValidateInfoCon extends Component {
             } else if (data === 8) {
               alert(_l('验证码错误'), 3);
             } else if (data === 12) {
-              alert(_l('此%0已被其它帐号绑定', accountTypeDesc), 2);
+              alert(_l('此%0已被其它账号绑定', accountTypeDesc), 2);
             } else {
               alert(_l('验证码发送失败'), 2);
             }
@@ -202,11 +195,7 @@ export default class ValidateInfoCon extends Component {
           }
         });
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+    new captcha(callback);
   };
 
   // 验证码倒计时
@@ -223,11 +212,11 @@ export default class ValidateInfoCon extends Component {
     }, 1000);
   };
 
-  // 更新绑定帐号
+  // 更新绑定账号
   updateAccount = () => {
     if (!this.validate()) return;
 
-    const { type, callback = () => {} } = this.props;
+    const { type, callback = () => { } } = this.props;
     const { verifyCode, email } = this.state;
 
     if (!md.global.SysSettings.allowBindAccountNoVerify && !verifyCode) {
@@ -272,7 +261,7 @@ export default class ValidateInfoCon extends Component {
   };
 
   render() {
-    const { title, des, showStep, type, onCancel = () => {} } = this.props;
+    const { title, des, showStep, type, onCancel = () => { } } = this.props;
     const { nextBtnDisabled, sendCodeLoading, step, sendCodeTxt } = this.state;
 
     return (

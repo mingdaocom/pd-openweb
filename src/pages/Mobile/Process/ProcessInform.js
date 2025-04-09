@@ -11,20 +11,10 @@ import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { handlePushState, handleReplaceState } from 'src/util';
+import { processInformTabs } from './enum';
 import Card from './Card';
 import './index.less';
 import _ from 'lodash';
-
-export const processInformTabs = [{
-  name: _l('全部'),
-  id: 'all',
-}, {
-  name: _l('未读'),
-  id: 'unread',
-}, {
-  name: _l('已读'),
-  id: 'already',
-}];
 
 export default class ProcessInform extends Component {
   constructor(props) {

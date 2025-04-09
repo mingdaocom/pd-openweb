@@ -233,6 +233,7 @@ export const CONTROLS_NAME = {
   52: _l('标签页'),
   53: _l('函数'),
   54: _l('自定义字段'),
+  10010: _l('备注'),
   10000001: _l('人员'),
   10000002: _l('人员'),
   10000003: _l('数组'),
@@ -604,8 +605,13 @@ export const FORMAT_TEXT = {
 export const DATE_SHOW_TYPES = [
   {
     value: 0,
-    text: _l('ISO'),
+    text: '',
     format: _l('YYYY-MM-DD'),
+  },
+  {
+    value: 4,
+    text: '',
+    format: _l('YYYY/MM/DD'),
   },
   {
     value: 1,

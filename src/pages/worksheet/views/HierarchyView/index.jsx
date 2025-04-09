@@ -1,34 +1,36 @@
-import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
-import styled from 'styled-components';
-import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import _ from 'lodash';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+
 import domtoimage from 'dom-to-image';
-import { LoadDiv } from 'ming-ui';
-import { connect } from 'react-redux';
 import { saveAs } from 'file-saver';
+import _ from 'lodash';
+import { isEmpty } from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import { HTML5Backend } from 'react-dnd-html5-backend-latest';
+import { DndProvider, useDrop } from 'react-dnd-latest';
+import { connect } from 'react-redux';
+import { useSetState } from 'react-use';
+import { bindActionCreators } from 'redux';
+import worksheetAjax from 'src/api/worksheet';
+import { browserIsMobile, emitter } from 'src/util';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
-import worksheetAjax from 'src/api/worksheet';
-import { bindActionCreators } from 'redux';
+
+import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
-import ToolBar from './ToolBar';
-import { hierarchyViewCanSelectFields } from './util';
-import TreeNode from './components/TreeNode';
-import LeftBoundary from './components/LeftBoundary';
-import LayerTitle from './components/LayerTitle';
-import { v4 as uuidv4 } from 'uuid';
-import './index.less';
-import { ITEM_TYPE, SCROLL_CONFIG } from './config';
-import DragLayer from './components/DragLayer';
+import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from '../util';
 import EmptyHierarchy from './EmptyHierarchy';
-import { isAllowQuickSwitch, isDisabledCreate, isTextTitle, getSearchData } from '../util';
-import { isEmpty } from 'lodash';
-import { DndProvider, useDrop } from 'react-dnd-latest';
-import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { useSetState } from 'react-use';
-import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
-import { browserIsMobile, emitter } from 'src/util';
+import ToolBar from './ToolBar';
+import DragLayer from './components/DragLayer';
+import LayerTitle from './components/LayerTitle';
+import LeftBoundary from './components/LeftBoundary';
+import TreeNode from './components/TreeNode';
+import { ITEM_TYPE, SCROLL_CONFIG } from './config';
+import './index.less';
+import { hierarchyViewCanSelectFields } from './util';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -138,8 +140,11 @@ function Hierarchy(props) {
   });
   const { viewControl, viewControls } = view;
   const $wrapRef = useRef(null);
+  const cache = useRef({});
+  const [refreshFlag, setRefreshFlag] = useState();
 
   useEffect(() => {
+    if (!cache.current.didMount) return;
     getDefaultHierarchyData();
     const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
@@ -166,8 +171,17 @@ function Hierarchy(props) {
     _.get(view, 'advancedSetting.topshow'),
     _.get(view, 'advancedSetting.topfilters'),
     _.get(view, 'advancedSetting.defaultlayer'),
+    _.get(view, 'advancedSetting.viewtitle'),
     JSON.stringify(navGroupFilters),
+    refreshFlag,
   ]);
+
+  useEffect(() => {
+    if (!cache.current.didMount) {
+      cache.current.didMount = true;
+      setRefreshFlag(Math.random());
+    }
+  }, []);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewWrap');

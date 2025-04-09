@@ -10,11 +10,10 @@ import axios from 'axios';
 import cx from 'classnames';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { browserIsMobile, getToken } from 'src/util';
+import { browserIsMobile, getToken, compatibleMDJS } from 'src/util';
 import accountSettingAjax from 'src/api/accountSetting';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -110,12 +109,6 @@ export default class Signature extends Component {
     popupVisible: false,
     lastInfo: '',
   };
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.flag !== this.props.flag && !nextProps.value) {
@@ -274,34 +267,29 @@ export default class Signature extends Component {
     e.nativeEvent.stopImmediatePropagation();
     const { value } = this.props;
 
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewSignature) {
-      window.MDJS.previewSignature({
-        url: value,
+    compatibleMDJS('previewSignature', { url: value }, () => {
+      previewAttachments({
+        attachments: [
+          {
+            previewType: 1,
+            ext: 'png',
+            name: 'signature.png',
+            previewAttachmentType: 'QINIU',
+            path: value,
+          },
+        ],
+        index: 0,
+        callFrom: 'player',
+        hideFunctions: location.href.indexOf('/public/') > -1 ? ['editFileName', 'download'] : ['editFileName'],
       });
-      return;
-    }
-
-    previewAttachments({
-      attachments: [
-        {
-          previewType: 1,
-          ext: 'png',
-          name: 'signature.png',
-          previewAttachmentType: 'QINIU',
-          path: value,
-        },
-      ],
-      index: 0,
-      callFrom: 'player',
-      hideFunctions: location.href.indexOf('/public/') > -1 ? ['editFileName', 'download'] : ['editFileName'],
     });
   };
 
   openSignature = () => {
     const { controlId, formData } = this.props;
     const control = _.find(formData, { controlId }) || {};
-    if (!window.MDJS || !window.MDJS.signature) return;
-    window.MDJS.signature({
+
+    compatibleMDJS('signature', {
       control,
       success: res => {
         var { url } = res.signature;
@@ -315,12 +303,6 @@ export default class Signature extends Component {
       },
     });
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   renderFooter() {
     const { advancedSetting: { uselast } = {} } = this.props;

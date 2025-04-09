@@ -78,11 +78,13 @@
                     <div class="listBox overfllowHidden">
                         <div class="listCon">
                             <div class="contentCon">
-                                <div class="targetBtn chat" data-type="{{! it.SEND_TO_TYPE.CHAT.toString()}}">
-                                    <span class="icon icon-to-chat-circle">
-                                    </span>
-                                    <p>{{=_l('发消息%02072')}}</p>
-                                </div>
+                                {{? !md.global.SysSettings.forbidSuites.includes('6')}}
+                                    <div class="targetBtn chat" data-type="{{! it.SEND_TO_TYPE.CHAT.toString()}}">
+                                        <span class="icon icon-to-chat-circle">
+                                        </span>
+                                        <p>{{=_l('发消息%02072')}}</p>
+                                    </div>
+                                {{?}}
                                 {{? !md.global.SysSettings.forbidSuites.includes('1')}}
                                     <div class="targetBtn feed" data-type="{{! it.SEND_TO_TYPE.FEED}}">
                                         <span class="icon icon-to-feed-circle"></span>

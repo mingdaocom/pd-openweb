@@ -36,13 +36,8 @@ import processAjax from 'src/pages/workflow/api/process';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import {
-  getFeatureStatus,
-  buriedUpgradeVersionDialog,
-  setFavicon,
-  getTranslateInfo,
-  getAppFeaturesPath,
-} from 'src/util';
+import { getFeatureStatus, setFavicon, getTranslateInfo, getAppFeaturesPath } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 import moment from 'moment';
@@ -444,10 +439,6 @@ class AppWorkflowList extends Component {
                 <div className="bold Font12 Gray_75 mTop15 mBottom15 mLeft16">{_l('调用流程')}</div>
               )}
 
-              {item.value === FLOW_TYPE.OTHER_APP && (
-                <div className="bold Font12 Gray_75 mTop15 mBottom15 mLeft16">{_l('其他')}</div>
-              )}
-
               <MdLink
                 className="NoUnderline"
                 to={item.value ? `${linkUrl}${linkUrl.indexOf('?') > -1 ? '&' : '?'}type=${item.value}` : linkUrl}
@@ -461,6 +452,10 @@ class AppWorkflowList extends Component {
                   </span>
                 </li>
               </MdLink>
+
+              {item.value === FLOW_TYPE.PBC && (
+                <div className="bold Font12 Gray_75 mTop15 mBottom15 mLeft16">{_l('其他')}</div>
+              )}
             </Fragment>
           ))}
 
@@ -814,20 +809,26 @@ class AppWorkflowList extends Component {
             <CopyFlowBtn
               item={data}
               updateList={() => {
-                this.getList(type);
+                this.getList(this.state.type);
                 this.getCount();
               }}
             />
           </MenuItem>
         )}
 
-        {_.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) && (
+        {(_.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) ||
+          (type === FLOW_TYPE.TIME && data.appId !== 'timer') ||
+          (type === FLOW_TYPE.SUB_PROCESS && data.appId === 'otherSubProcess')) && (
           <MenuItem>
             <CopyFlowBtn
-              isConvert
               item={data}
+              isConvertSubProcess={
+                _.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) ||
+                (type === FLOW_TYPE.TIME && data.appId !== 'timer')
+              }
+              isConvertPBP={type === FLOW_TYPE.SUB_PROCESS && data.appId === 'otherSubProcess'}
               updateList={() => {
-                this.getList(type);
+                this.getList(this.state.type);
                 this.getCount();
               }}
             />

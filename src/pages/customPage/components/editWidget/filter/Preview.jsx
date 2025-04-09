@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Button, Divider } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import { defaultFilterData } from './index';
+import { defaultFilterData } from './enum';
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { formatFilters } from './util';

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const Con = styled.div`
   p {
     margin: 0;
@@ -149,7 +150,8 @@ export const Con = styled.div`
     .itemT {
       background: #f5f5f5;
       border-radius: 4px 4px 4px 4px;
-      padding: 3px 8px 3px 10px;
+      padding: 2px 8px 2px 10px;
+      line-height: 18px;
       border: 1px solid #e0e0e0;
       overflow: hidden;
       span {

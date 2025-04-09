@@ -6,6 +6,7 @@ import { getCodeTexts, getCodeContent } from './util';
 import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import { QrPdf } from './print';
 import _, { includes } from 'lodash';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 
 const PAGE_SIZE = 200;
 
@@ -168,3 +169,5 @@ export default function GeneratingPdf(props) {
     />
   );
 }
+
+export const generatePdf = props => functionWrap(GeneratingPdf, props);

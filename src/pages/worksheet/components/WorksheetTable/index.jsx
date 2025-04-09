@@ -1,32 +1,32 @@
-import React, { useCallback, useRef, useMemo, useImperativeHandle, forwardRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import _, { get } from 'lodash';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _, { get } from 'lodash';
+import styled from 'styled-components';
 import { FixedTable } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { useSetState } from 'react-use';
+import worksheetApi from 'src/api/worksheet';
+import DragMask from 'worksheet/common/DragMask';
+import { SHEET_VIEW_HIDDEN_TYPES, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { useRefStore } from 'worksheet/hooks';
 import useTableWidth from 'worksheet/hooks/useTableWidth';
-import DragMask from 'worksheet/common/DragMask';
-import worksheetApi from 'src/api/worksheet';
 import {
-  emitter,
   checkRulesErrorOfRowControl,
-  getScrollBarWidth,
-  filterEmptyChildTableRows,
   clearSelection,
+  emitter,
+  filterEmptyChildTableRows,
   getControlStyles,
+  getScrollBarWidth,
 } from 'worksheet/util';
-import { WORKSHEETTABLE_FROM_MODULE, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import { Cell, NoRecords, NoSearch } from './components';
 import {
-  handleLifeEffect,
+  checkCellFullVisible,
   columnWidthFactory,
   getControlFieldPermissionsAfterRules,
   getRulePermissions,
   getTableHeadHeight,
-  checkCellFullVisible,
+  handleLifeEffect,
 } from './util';
-import { NoSearch, NoRecords, Cell } from './components';
 import './style.less';
 
 const StyledFixedTable = styled(FixedTable)`
@@ -51,8 +51,8 @@ const StyledFixedTable = styled(FixedTable)`
     &.lastFixedColumn {
       border-right-width: 2px !important;
     }
-    &.highlight,
-    &.highlightFromProps {
+    &:not(.showAsTextWithBg).highlight,
+    &:not(.showAsTextWithBg).highlightFromProps {
       background-color: #f5fbff !important;
       .editIcon {
         background-color: #f5fbff !important;
@@ -93,6 +93,13 @@ const StyledFixedTable = styled(FixedTable)`
     .cell:not(.lastFixedColumn) {
       border-right: none !important;
     }
+    .cell.row-head-hover {
+      .resizeDrag {
+        &::after {
+          background-color: rgba(155, 155, 155, 0.4);
+        }
+      }
+    }
   }
   &.showAsZebra {
     .cell.oddRow {
@@ -100,7 +107,7 @@ const StyledFixedTable = styled(FixedTable)`
     }
   }
   &:not(.classic) {
-    .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps) {
+    .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps):not(.showAsTextWithBg) {
       background-color: #f5f5f5 !important;
     }
   }
@@ -147,6 +154,8 @@ function WorksheetTable(props, ref) {
     noRenderEmpty,
     masterRecord,
     loading,
+    showLoadingMask,
+    loadingMaskChildren,
     isSubList,
     isRelateRecordList,
     readonly,
@@ -192,6 +201,7 @@ function WorksheetTable(props, ref) {
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
   const {
+    columnStyles,
     showSummary = false,
     scrollBarHoverShow,
     showVerticalLine = true,
@@ -521,6 +531,8 @@ function WorksheetTable(props, ref) {
         disablePanVertical={disablePanVertical}
         noRenderEmpty={noRenderEmpty}
         loading={loading}
+        showLoadingMask={showLoadingMask}
+        loadingMaskChildren={loadingMaskChildren}
         ref={tableRef}
         className={cx(`worksheetTableComp sheetViewTable id-${tableId}-id`, className, tableType, {
           scrollBarHoverShow,
@@ -544,6 +556,7 @@ function WorksheetTable(props, ref) {
         showHead={showHead}
         showFoot={showSummary}
         tableData={{
+          columnStyles,
           chatButton,
           masterRecord,
           isTreeTableView,
@@ -559,6 +572,7 @@ function WorksheetTable(props, ref) {
           allowAdd,
           allowlink,
           isSubList,
+          isRelateRecordList,
           fromModule,
           appId,
           worksheetId,
@@ -630,10 +644,11 @@ function WorksheetTable(props, ref) {
           },
           // 更新数据
           updateCell: ({ row, rowIndex, args, options } = {}) => {
+            const { cell } = args;
             updateCell(args, {
               ...options,
               updateSuccessCb: async newRow => {
-                if (rules.length) {
+                if (rules.length && !_.isEqual(row[cell.controlId] || '', newRow[cell.controlId] || '')) {
                   handleUpdateRulePermissions(
                     getControlFieldPermissionsAfterRules(
                       newRow,

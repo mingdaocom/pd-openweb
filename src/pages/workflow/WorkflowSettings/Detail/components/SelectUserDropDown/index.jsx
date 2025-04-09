@@ -179,7 +179,7 @@ export default class SelectUserDropDown extends Component {
    */
   addDepartment = evt => {
     const accounts = _.cloneDeep(this.props.accounts);
-    const { companyId, unique, updateSource, onClose } = this.props;
+    const { companyId, unique, updateSource, onClose, isIncludeSubDepartment = false } = this.props;
 
     evt.stopPropagation();
     onClose();
@@ -190,8 +190,10 @@ export default class SelectUserDropDown extends Component {
       selectedDepartment: [],
       unique: unique,
       showCreateBtn: false,
-      selectFn: departments => {
-        departments = departments.map(o => {
+      checkIncludeChilren: isIncludeSubDepartment,
+      fetchCount: true,
+      selectFn: (departments, departmentTrees) => {
+        const cb = (o, includeSub = false) => {
           return {
             type: USER_TYPE.DEPARTMENT,
             entityId: o.departmentId,
@@ -200,11 +202,14 @@ export default class SelectUserDropDown extends Component {
             roleName: '',
             avatar: '',
             count: o.userCount,
+            includeSub,
           };
-        });
+        };
 
-        if (departments.length) {
-          updateSource({ accounts: unique ? departments : accounts.concat(departments) });
+        const newDepartments = departments.map(o => cb(o)).concat((departmentTrees || []).map(o => cb(o, true)));
+
+        if (newDepartments.length) {
+          updateSource({ accounts: unique ? departments : accounts.concat(newDepartments) });
         }
       },
     });

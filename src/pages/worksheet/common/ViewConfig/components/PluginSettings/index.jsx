@@ -13,6 +13,7 @@ import AddDialog from './AddDialog';
 import SettingList from './SettingList';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import moment from 'moment';
+import { saveAs } from 'file-saver';
 
 const Wrap = styled.div`
   .tit {
@@ -396,14 +397,8 @@ function PluginSettings(params) {
                 // 设置文件名称
                 const now = new Date();
                 const date = moment(now).format('YYYYMMDDhhmmss');
-                // 新建a标签下载文件
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${name}_${date}.json`;
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(url);
+                // 下载文件
+                saveAs(blob, `${name}_${date}.json`);
               }}
             >
               {_l('生成JSON代码')}
@@ -432,7 +427,6 @@ function PluginSettings(params) {
               '.mui-dialog-container',
               '.ant-select-dropdown',
               '.rc-trigger-popup',
-              '.selectize-dropdown',
               '.selectUserBox',
               '.ant-picker-dropdown',
               '#quickSelectDept',

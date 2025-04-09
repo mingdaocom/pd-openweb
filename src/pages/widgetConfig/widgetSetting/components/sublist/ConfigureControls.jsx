@@ -204,10 +204,12 @@ export default function ConfigureControl(props) {
                         return;
                       }
                       if (type === 35) {
+                        setValue(false);
                         setVisible({ selectCascadeDataSourceVisible: true });
                         return;
                       }
                       if (type === 29) {
+                        setValue(false);
                         Dialog.confirm({
                           title: _l('选择工作表'),
                           children: (

@@ -45,6 +45,7 @@ export default function CustomPageHeader(props) {
     apk,
     appPkg,
     linkageFiltersGroup,
+    pageTitle,
     ...rest
   } = props;
   //运营者|开发者 均可分享
@@ -376,7 +377,7 @@ export default function CustomPageHeader(props) {
               </div>
               {(showAppName || showName) && (
                 <span className="pageName Font17 ellipsis">
-                  {showAppName}-{showName}
+                  {pageTitle || `${showAppName}-${showName}`}
                 </span>
               )}
             </div>

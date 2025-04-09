@@ -1,22 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { flushSync } from 'react-dom';
 import cx from 'classnames';
+import _, { get, includes, isEqual } from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Textarea, Linkify } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Linkify, Textarea } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAwayable = createDecoratedComponent(withClickAway);
-import CellErrorTips from './comps/CellErrorTip';
-import EditableCellCon from '../EditableCellCon';
-import renderText from './renderText';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { emitter, isKeyBoardInputChar } from 'worksheet/util';
-import { FROM } from './enum';
-import { browserIsMobile, accMul, formatStrZero, formatNumberFromInput } from 'src/util';
-import _, { get, includes, isEqual } from 'lodash';
-import ChildTableContext from '../ChildTable/ChildTableContext';
+import { accMul, browserIsMobile, formatNumberFromInput, formatStrZero } from 'src/util';
 import { toFixed } from '../../../../util';
-import { flushSync } from 'react-dom';
+import ChildTableContext from '../ChildTable/ChildTableContext';
+import EditableCellCon from '../EditableCellCon';
+import CellErrorTips from './comps/CellErrorTip';
+import { FROM } from './enum';
+import renderText from './renderText';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const InputCon = styled.div`
   box-sizing: border-box;
@@ -207,7 +208,7 @@ export default class Text extends React.Component {
       this.setState({ value });
     }
 
-    if (!isSubList && oldValue === value) {
+    if (!isSubList && ([6, 8].includes(cell.type) ? Number(oldValue) === Number(value) : oldValue === value)) {
       if (this.isNumberPercent && value) {
         this.setState({ oldValue, value });
       }

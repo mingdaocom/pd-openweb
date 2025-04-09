@@ -97,7 +97,9 @@ class Upload extends Component {
   }
   uploadFile() {
     const _this = this;
-    $(this.uploadFileEl).plupload({
+
+    const config = {
+      browse_button: this.uploadFileEl,
       url: md.global.FileStoreConfig.uploadHost,
       file_data_name: 'file',
       multi_selection: false,
@@ -156,7 +158,14 @@ class Upload extends Component {
           _this.props.update({ uploadAvatar, uploadAvatarUrl });
         },
       },
-    });
+    };
+
+    const uploader = new window.plupload.Uploader(config);
+    uploader.bind('FilesAdded', config.method.FilesAdded);
+    uploader.bind('BeforeUpload', config.method.BeforeUpload);
+    uploader.bind('FileUploaded', config.method.FileUploaded);
+    uploader.bind('UploadComplete', config.method.UploadComplete);
+    uploader.init();
   }
   render() {
     const { avatarUrl } = this.props;

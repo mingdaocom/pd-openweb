@@ -1,8 +1,5 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { FROM } from '../../tools/config';
@@ -13,7 +10,7 @@ import styled from 'styled-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { initIntlTelInput } from '../../../../pages/AuthService/util';
+import intlTelInput, { initIntlTelInput } from 'ming-ui/components/intlTelInput';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -68,19 +65,18 @@ export default class Widgets extends Component {
 
   componentDidMount() {
     const { hint, value, advancedSetting } = this.props;
-
-    this.iti = intlTelInput(this.input, {
-      customPlaceholder: () => hint,
-      autoPlaceholder: 'off',
-      initialCountry: this.initialCountry(),
-      preferredCountries: this.getCountries(advancedSetting.commcountries),
-      onlyCountries: this.getCountries(advancedSetting.allowcountries),
-      loadUtils: '',
-      utilsScript: utils,
-      separateDialCode: true,
-      showSelectedDialCode: true,
-      countrySearch: this.getSearchResult(advancedSetting.commcountries),
-    });
+    if (this.input) {
+      this.iti && this.iti.destroy();
+      this.iti = intlTelInput(this.input, {
+        customPlaceholder: () => hint,
+        initialCountry: this.initialCountry(),
+        preferredCountries: this.getCountries(advancedSetting.commcountries),
+        onlyCountries: this.getCountries(advancedSetting.allowcountries),
+        separateDialCode: true,
+        showSelectedDialCode: true,
+        countrySearch: this.getSearchResult(advancedSetting.commcountries),
+      });
+    }
 
     this.setValue(value);
 
@@ -91,10 +87,6 @@ export default class Widgets extends Component {
         }, 10);
       }
     });
-
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -125,10 +117,6 @@ export default class Widgets extends Component {
   componentWillUnmount() {
     this.destroy = true;
     this.iti && this.iti.destroy();
-
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
   }
 
   initialCountry() {
@@ -137,8 +125,8 @@ export default class Widgets extends Component {
     return enumDefault === 1
       ? initialCountry
       : advancedSetting.defaultarea
-      ? JSON.parse(advancedSetting.defaultarea).iso2
-      : initialCountry;
+        ? JSON.parse(advancedSetting.defaultarea).iso2
+        : initialCountry;
   }
 
   getCountries(countries = '[]') {

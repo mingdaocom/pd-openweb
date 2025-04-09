@@ -44,8 +44,12 @@ export default function TodoEntrust() {
   const entrustCount = delegationList.length;
 
   useEffect(() => {
-    delegationApi.getList().then(res => res && setDelegationList(res));
+    getData();
   }, []);
+
+  const getData = () => {
+    delegationApi.getList().then(res => res && setDelegationList(res));
+  };
 
   const onEntrustIconClick = () => {
     entrustCount === 0 ? setTodoEntrustModalVisible(true) : setEntrustListVisible(true);
@@ -58,7 +62,7 @@ export default function TodoEntrust() {
           <Icon icon="lift" className="Font22 Gray_75" />
           {entrustCount > 0 && <RedDot />}
         </div>
-        <div className="iconText">{_l('委托')}</div>
+        <div className="iconText nowrap">{_l('委托')}</div>
       </IconWrapper>
 
       <Motion
@@ -90,10 +94,7 @@ export default function TodoEntrust() {
         )}
       </Motion>
       {todoEntrustModalVisible && (
-        <TodoEntrustModal
-          setTodoEntrustModalVisible={setTodoEntrustModalVisible}
-          setDelegationList={setDelegationList}
-        />
+        <TodoEntrustModal setTodoEntrustModalVisible={setTodoEntrustModalVisible} onUpdate={getData} />
       )}
     </React.Fragment>
   );

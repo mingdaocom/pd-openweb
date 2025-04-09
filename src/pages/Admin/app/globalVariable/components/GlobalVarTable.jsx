@@ -10,7 +10,8 @@ import { formatVarList } from '../utils';
 import OptionColumn from './OptionColumn';
 import variableApi from 'src/api/variable';
 import VarLog from './VarLog';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 
 const Wrapper = styled.div`

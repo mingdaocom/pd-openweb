@@ -9,10 +9,9 @@ import WidgetsDesc from './WidgetsDesc';
 import styled from 'styled-components';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
-import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import { getTitleStyle, canSetWidgetStyle } from 'src/pages/widgetConfig/util/setting';
 import RelationSearchCount from './RelationSearchCount';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util';
-import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config';
 
 const ControlLabel = styled.div`
   ${({ displayRow, isMobile, titlewidth_app = '100', titlewidth_pc = '100' }) => {
@@ -208,7 +207,7 @@ export default ({
         titleSize={titleSize}
         titleStyle={titleStyle}
         titleColor={titlecolor}
-        valuesize={_.includes(HAVE_VALUE_STYLE_WIDGET, item.type) ? valuesize : '0'}
+        valuesize={canSetWidgetStyle(item) ? valuesize : '0'}
         hasContent={showDesc || showOtherIcon || showTitle}
       >
         {loadingItems[item.controlId] ? (

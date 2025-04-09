@@ -280,7 +280,10 @@ export default class Member extends Component {
           )}
         />
 
-        <div className="mLeft6 ellipsis bold">{item.entityName}</div>
+        <div className="mLeft6 ellipsis bold">
+          {item.entityName}
+          {item.includeSub ? `(${_l('包含下级部门')})` : ''}
+        </div>
       </div>
     );
   }

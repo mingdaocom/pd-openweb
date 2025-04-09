@@ -81,11 +81,16 @@ export function views(state = [], action) {
     case 'WORKSHEET_INIT':
       return action.value.views || state;
     case 'WORKSHEET_UPDATE_VIEWS':
-      return action.views;
+      const manageView =
+        _.find(action.views, l => l.viewId === l.worksheetId) || _.find(state, l => l.viewId === l.worksheetId);
+
+      return _.isEmpty(manageView) ? action.views : [manageView].concat(action.views);
     case 'WORKSHEET_UPDATE_VIEW':
       return state.map(v => (v.viewId === action.view.viewId ? action.view : v));
     case 'WORKSHEET_FETCH_START':
       return [];
+    case 'WORKSHEET_ADD_MANAGE_VIEW':
+      return action.views.concat(state);
     default:
       return state;
   }

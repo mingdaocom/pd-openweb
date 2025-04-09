@@ -1,21 +1,21 @@
-import React, { useState, useEffect, Fragment, useRef } from 'react';
-import cx from 'classnames';
-import { useSetState } from 'react-use';
-import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import { FilterContent, AddRelate } from './styled';
-import SelectSearchSheetFromApp from './SelectSearchSheetFromApp';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
-import { enumWidgetType, toEditWidgetPage, isSheetDisplay, filterSysControls } from 'src/pages/widgetConfig/util';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import _ from 'lodash';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Dialog, Dropdown, LoadDiv, Support, SvgIcon, Switch } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import worksheetAjax from 'src/api/worksheet';
+import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
+import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
+import { enumWidgetType, filterSysControls, isSheetDisplay, toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import EmptyRuleConfig from '../EmptyRuleConfig';
 import { handleAdvancedSettingChange } from 'src/util';
+import EmptyRuleConfig from '../EmptyRuleConfig';
+import SelectSearchSheetFromApp from './SelectSearchSheetFromApp';
+import { AddRelate, FilterContent } from './styled';
 
 const RELATE_SEARCH_TYPE = [
   { key: 'new', text: _l('新建查询') },
@@ -447,7 +447,8 @@ export function RelateSearchWorksheet(props) {
                   let resultFilters = [];
                   // 为关联表时，筛选条件有默认值
                   if (sourceControlId || (selectedControl || {}).sourceControl) {
-                    const selectControl = sourceControlId || open ? selectedControl.sourceControl : '';
+                    const selectControl =
+                      (sourceControlId || open) && selectedControl ? selectedControl.sourceControl : '';
 
                     if (
                       selectControl &&

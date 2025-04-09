@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, Switch, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 
 const ConfigItemWrap = styled.div`
   padding: 0 32px;

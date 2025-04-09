@@ -5,6 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { WIDGETS_TO_API_TYPE_ENUM, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 import _ from 'lodash';
 
 const Item = styled.div`
@@ -110,7 +111,7 @@ export default function QueryConfigDialog(props) {
         <Desp>{_l('对所选视图下数据进行查询')}</Desp>
         <Dropdown
           value={viewId}
-          data={(worksheet.views || []).map(view => ({
+          data={getShowViews(worksheet.views || []).map(view => ({
             text: view.name,
             value: view.viewId,
           }))}

@@ -19,7 +19,7 @@ import {
 import { ACTION_ID, DATE_SHOW_TYPES } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { handleGlobalVariableName, getControlTypeName, getIcons } from '../../utils';
@@ -123,6 +123,7 @@ export default class Formula extends Component {
       filters,
       reportControlId,
       reportType,
+      showFormat,
     } = data;
 
     // 日期/时间
@@ -194,6 +195,7 @@ export default class Formula extends Component {
         filters,
         reportControlId,
         reportType,
+        showFormat,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -424,7 +426,7 @@ export default class Formula extends Component {
         {this.renderDateControl(data, this.updateSource)}
 
         <div className="mTop20 Gray_75">
-          {_l('设置参与运算时的日期格式')}
+          {_l('设置参与运算时的方式')}
           <span
             className="mLeft5 workflowDetailTipsWidth"
             data-tip={_l(
@@ -468,7 +470,7 @@ export default class Formula extends Component {
 
         {this.renderFormulaAndOtherValue()}
 
-        <div className="mTop20 bold">{_l('输出格式')}</div>
+        <div className="mTop20 bold">{_l('输出结果')}</div>
         <Dropdown
           className="flowDropdown mTop10"
           data={[
@@ -481,6 +483,8 @@ export default class Formula extends Component {
           border
           onChange={unit => this.updateSource({ unit })}
         />
+
+        {_.includes([1, 3], data.unit) && this.renderDateType('showFormat', true)}
       </Fragment>
     );
   }
@@ -625,27 +629,16 @@ export default class Formula extends Component {
         </div>
 
         {data.type === 6 && this.renderNumberDot()}
-        {_.includes([15, 16], data.type) && (
-          <Fragment>
-            <div className="mTop15 flexRow alignItemsCenter">
-              <div>{_l('显示格式')}</div>
-              <Dropdown
-                style={{ width: 260 }}
-                className="flowDropdown mLeft12"
-                data={DATE_SHOW_TYPES.map(item => {
-                  return { ...item, text: item.text + ` (${moment().format(item.format)}) ` };
-                })}
-                value={data.number}
-                border
-                onChange={number => this.updateSource({ number })}
-              />
-            </div>
-          </Fragment>
-        )}
+        {_.includes([15, 16], data.type) && this.renderDateType('number')}
 
         {showFormulaDialog && (
           <FunctionEditorDialog
+            isWorksheetFlow
             className="workflowDialogBox"
+            supportDebug
+            appId={this.props.relationId}
+            projectId={get(this, 'props.companyId')}
+            worksheetId={get(this, 'props.flowInfo.startAppId')}
             value={{ expression: data.formulaValue }}
             title={_l('结果')}
             controlGroups={fieldsData}
@@ -657,6 +650,30 @@ export default class Formula extends Component {
             }}
           />
         )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染日期格式
+   */
+  renderDateType(key, isString = false) {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="mTop15 flexRow alignItemsCenter">
+          <div>{_l('日期格式')}</div>
+          <Dropdown
+            className="flowDropdown mLeft12 flex"
+            data={DATE_SHOW_TYPES.map(item => {
+              return { ...item, text: `${moment().format(item.format)}` + (item.text ? `(${item.text})` : '') };
+            })}
+            value={parseInt(data[key])}
+            border
+            onChange={value => this.updateSource({ [key]: isString ? value.toString() : value })}
+          />
+        </div>
       </Fragment>
     );
   }

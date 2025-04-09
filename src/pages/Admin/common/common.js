@@ -1,4 +1,5 @@
-﻿import { upgradeVersionDialog, getCurrentProject } from 'src/util';
+﻿import { getCurrentProject } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 var AdminCommon = {};
 import Config from '../config';
 import roleApi from 'src/api/role';

@@ -87,9 +87,6 @@
   height: inherit !important;
   .mui-dialog-body {
     padding: 0 24px;
-    .fieldList li {
-      max-width: 100%;
-    }
   }
   .splitLine {
     position: absolute;
@@ -101,5 +98,29 @@
   }
   .mui-dialog-footer {
     margin-right: 304px;
+  }
+}
+
+.textMarkdownTipsContainer {
+  &.ant-tooltip {
+    max-width: 370px !important;
+  }
+}
+
+.worksheetReferenceDialog {
+  .mui-dialog-header {
+    padding: 16px 40px 16px 24px !important;
+    .mui-dialog-default-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  .mui-dialog-body {
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  > .mui-dialog-close-btn {
+    top: 12px !important;
   }
 }

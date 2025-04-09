@@ -62,7 +62,7 @@ const Operation = ({
             icon="task-later"
             className="Font20 Gray_9e pointer mLeft16"
             onClick={() => {
-              getReportData();
+              getReportData({ reload: true });
               if (sheetVisible) {
                 getTableData();
               }

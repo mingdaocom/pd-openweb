@@ -15,7 +15,7 @@ import { reportTypes } from 'statistics/Charts/common';
 import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
+import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
 import './index.less';
 import _ from 'lodash';
@@ -362,9 +362,11 @@ export default class CustomPage extends Component {
                   ...item.advancedSetting,
                   navfilters,
                   showNavfilters: undefined,
-                  showDefsource: undefined
+                  showDefsource: undefined,
                 },
-                values: _.isEmpty(item.dynamicSource) ? formatFilterValuesToServer(item.dataType, item.values) : undefined,
+                values: _.isEmpty(item.dynamicSource)
+                  ? formatFilterValuesToServer(item.dataType, item.values)
+                  : undefined,
                 value: _.isEmpty(item.dynamicSource) ? item.value : undefined,
                 control: undefined,
               };
@@ -470,7 +472,16 @@ export default class CustomPage extends Component {
   };
 
   handleSave = async () => {
-    const { version, ids, adjustScreen, urlParams = [], config, components, updatePageInfo, updateSaveLoading } = this.props;
+    const {
+      version,
+      ids,
+      adjustScreen,
+      urlParams = [],
+      config,
+      components,
+      updatePageInfo,
+      updateSaveLoading,
+    } = this.props;
     const pageId = ids.worksheetId;
 
     updateSaveLoading(true);
@@ -500,7 +511,7 @@ export default class CustomPage extends Component {
           this.$originAdjustScreen = adjustScreen;
           this.$originConfig = {
             ...config,
-            orightWebCols: config.webNewCols
+            orightWebCols: config.webNewCols,
           };
           updatePageInfo({
             components,
@@ -509,7 +520,8 @@ export default class CustomPage extends Component {
             modified: false,
             filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
             apk,
-            config: this.$originConfig
+            config: this.$originConfig,
+            activeContainerInfo: {},
           });
           alert(_l('保存成功'), 1);
         } else {
@@ -528,6 +540,7 @@ export default class CustomPage extends Component {
       components: this.$originComponents,
       adjustScreen: this.$originAdjustScreen,
       config: this.$originConfig,
+      activeContainerInfo: {},
     });
     this.handleBack();
   };
@@ -535,7 +548,10 @@ export default class CustomPage extends Component {
   switchType = type => {
     const { updateComponents, components } = this.props;
     this.setState({ displayType: type });
-    this.props.updatePageInfo({ loadFilterComponentCount: 0 });
+    this.props.updatePageInfo({
+      loadFilterComponentCount: 0,
+      activeContainerInfo: {},
+    });
     const orderComponent = reorderComponents(components);
     if (orderComponent) {
       updateComponents(orderComponent);

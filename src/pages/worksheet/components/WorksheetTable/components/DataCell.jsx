@@ -1,6 +1,6 @@
 import React from 'react';
-import CellControl from 'worksheet/components/CellControls';
 import { find } from 'lodash';
+import CellControl from 'worksheet/components/CellControls';
 
 export default function MDCell(props) {
   const {
@@ -18,6 +18,7 @@ export default function MDCell(props) {
     getPopupContainer,
     from,
     isDraft,
+    leftFixedCount,
   } = props;
   const {
     tableType,
@@ -26,6 +27,7 @@ export default function MDCell(props) {
     worksheetId,
     rowFormData,
     masterData,
+    columnStyle,
     isSubList,
     rowHeight,
     rowHeightEnum,
@@ -113,10 +115,11 @@ export default function MDCell(props) {
       columnIndex={columnIndex}
       rowFormData={rowFormData}
       masterData={masterData}
+      columnStyle={columnStyle}
       rowHeight={rowHeight}
       rowHeightEnum={rowHeightEnum}
       from={from === 21 ? from : 1}
-      popupContainer={() => getPopupContainer(columnIndex <= fixedColumnCount)}
+      popupContainer={() => getPopupContainer(columnIndex <= leftFixedCount - 1)}
       projectId={projectId}
       scrollTo={scrollTo}
       tableScrollTop={tableScrollTop}

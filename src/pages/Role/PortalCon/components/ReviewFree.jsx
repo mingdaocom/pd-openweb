@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Dialog, Dropdown, Radio } from 'ming-ui';
-import 'src/components/uploadAttachment/uploadAttachment';
+import { Icon, Dialog, QiniuUpload, Radio } from 'ming-ui';
 import cx from 'classnames';
 import noVerifyAjax from 'src/api/noVerify';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -9,6 +8,7 @@ import { SwitchStyle } from 'src/pages/Role/PortalCon/setting/BaseSet.jsx';
 import ReviewFreeByWorksheetWrap from './ReviewFreeByWorksheetWrap';
 import ReviewFreeMap from './ReviewFreeMap';
 import _ from 'lodash';
+
 const Wrap = styled.div`
   .switchTextP {
     line-height: 40px !important;
@@ -131,35 +131,7 @@ export default function ReviewFree(props) {
   const [fileName, setFileName] = useState(''); //免审文件名
   const [uploadLoading, setUploadLoading] = useState(false); //
   const [canDown, setCanDown] = useState(false); //
-  const postUploader = () => {
-    if (uploadLoading) {
-      return;
-    }
-    $('#hideUpload').uploadAttachment({
-      filterExtensions: 'xlsx,xls,xlsm',
-      pluploadID: '#upload',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'reviewFree',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 0,
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        setUploadLoading(true);
-      },
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          setFileUrl(attachment.serverName + attachment.key);
-          setFileName(attachment.originalFileName + attachment.fileExt);
-          setCellConfigs([]);
-          setCanDown(false);
-        }
-      },
-    });
-  };
+
   const getControls = () => {
     externalPortalAjax
       .getUserCollect({
@@ -191,7 +163,6 @@ export default function ReviewFree(props) {
     }
   };
   useEffect(() => {
-    postUploader();
     getInfo();
     getPreviewCell();
     getControls();
@@ -244,6 +215,35 @@ export default function ReviewFree(props) {
       }
     });
   };
+  const uploadParam = {
+    options: {
+      filters: {
+        mime_types: [{ extensions: 'xlsx,xls,xlsm' }],
+      },
+      max_file_size: '4m',
+    },
+    onAdd: (up, files) => {
+      if (uploadLoading) return;
+      setUploadLoading(true);
+      up.disableBrowse();
+    },
+    onUploaded: (up, file, response) => {
+      up.disableBrowse(false);
+      setFileName(file.name);
+      setFileUrl(file.serverName + file.key);
+      setCellConfigs([]);
+      setCanDown(false);
+      setUploadLoading(false);
+    },
+    onError: () => {
+      alert(_l('文件上传失败'), 2);
+      setFileName('');
+      setFileUrl('');
+      setCellConfigs([]);
+      setCanDown(false);
+      setUploadLoading(false);
+    },
+  };
   return (
     <Dialog
       className="showReviewFree Hand"
@@ -270,8 +270,6 @@ export default function ReviewFree(props) {
             {status === 0 ? _l('开启') : _l('关闭')}
           </div>
         </SwitchStyle>
-        <input id="hideUpload" type="file" className="Hidden" />
-        <div className="Hidden" id="upload" />
         {status === 0 && (
           <React.Fragment>
             <p className="pAll0 mTop20 Bold">{_l('数据源')}</p>
@@ -302,15 +300,10 @@ export default function ReviewFree(props) {
               />
             ) : !fileUrl ? (
               <div className="listCon">
-                <div
-                  className="up Hand InlineBlock"
-                  onClick={() => {
-                    $('#upload').click();
-                  }}
-                >
+                <QiniuUpload {...uploadParam} className={cx('up Hand InlineBlock')}>
                   <Icon className="Font18 TxtMiddle mRight6" type="cloud_upload" />
                   <span>{_l('上传免审配置')}</span>
-                </div>
+                </QiniuUpload>
               </div>
             ) : (
               <React.Fragment>
@@ -334,14 +327,10 @@ export default function ReviewFree(props) {
                       <Icon className="Font18 TxtMiddle" type="cloud_download" /> {_l('下载')}
                     </span>
                   )}
-                  <span
-                    className="act ThemeColor3 Hand"
-                    onClick={() => {
-                      $('#upload').click();
-                    }}
-                  >
-                    <Icon className="Font18 TxtMiddle" type="refresh" /> {_l('更新')}
-                  </span>
+                  <QiniuUpload {...uploadParam} className={cx('act ThemeColor3 Hand')}>
+                    <Icon className="Font18 TxtMiddle" type="refresh" />
+                    {_l('更新')}
+                  </QiniuUpload>
                   <span
                     className="act Red"
                     onClick={() => {

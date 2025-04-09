@@ -12,7 +12,6 @@ import SubListVerify from './SubListVerify';
 import _ from 'lodash';
 
 const CompConfig = {
-  2: TextVerify,
   14: AttachmentVerify,
   15: DateVerify,
   16: DateVerify,
@@ -237,7 +236,7 @@ export default function WidgetVerify(props) {
         </div>
       )}
 
-      {type === 50 && enumDefault === 2 && <TextVerify {...props} />}
+      {((type === 50 && enumDefault === 2) || (type === 2 && enumDefault !== 3)) && <TextVerify {...props} />}
       {Comp && <Comp {...props} />}
     </VerifySettingItem>
   );

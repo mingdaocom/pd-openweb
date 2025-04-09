@@ -12,7 +12,6 @@ import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import { checkCellIsEmpty } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import './index.less';
 
 const getItem = value => {
@@ -92,9 +91,6 @@ export default class Widgets extends Component {
           }
         }, 30);
       });
-    }
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
   }
 
@@ -412,12 +408,6 @@ export default class Widgets extends Component {
       value,
     });
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   /**
    * PopupWrapper事件

@@ -1,21 +1,33 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import Trigger from 'rc-trigger';
+import { checkIsTextControl, controlIsNumber } from 'worksheet/util';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { hideColumn, clearHiddenColumn, frozenColumn, sortByControl } from 'worksheet/redux/actions/sheetview';
-import { Menu, MenuItem, Dialog } from 'ming-ui';
+import {
+  hideColumn,
+  clearHiddenColumn,
+  frozenColumn,
+  sortByControl,
+  saveColumnStylesToLocal,
+  updateColumnStyles,
+} from 'worksheet/redux/actions/sheetview';
+import { Menu, MenuItem, Dialog, Icon } from 'ming-ui';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
+import { CONTROL_EDITABLE_WHITELIST, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
 import { emitter, getSortData, fieldCanSort, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'worksheet/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import './ColumnHead.less';
-import _ from 'lodash';
+import _, { get, isUndefined } from 'lodash';
+import { WIDGETS_TO_API_TYPE_ENUM } from '../../../../../widgetConfig/config/widget';
+import { showTypeData } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
+import { COVER_DISPLAY_FILL } from 'src/pages/worksheet/common/ViewConfig/config.js';
 
 class ColumnHead extends Component {
   static contextType = SheetContext;
@@ -47,6 +59,8 @@ class ColumnHead extends Component {
     return sortControl && sortControl.isAsc;
   }
 
+  conRef = React.createRef();
+
   getType(control) {
     const { type, sourceControlType } = control;
     let itemType = type;
@@ -69,18 +83,13 @@ class ColumnHead extends Component {
   }
 
   handleColumnWidthLRUSave(controlId, value) {
-    const { readonly, viewId } = this.props;
-    let columnWidth = {};
+    const { readonly, viewId, saveColumnStylesToLocal, updateColumnStyles } = this.props;
     try {
       columnWidth = JSON.parse(getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId));
     } catch (err) {}
     if (readonly) return;
-    saveLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId, new Date().getTime());
-    saveLRUWorksheetConfig(
-      'WORKSHEET_VIEW_COLUMN_WIDTH',
-      viewId,
-      JSON.stringify(_.assign({}, columnWidth, { [controlId]: value })),
-    );
+    saveColumnStylesToLocal({ [controlId]: { width: value } });
+    updateColumnStyles({ [controlId]: { width: value } });
   }
 
   changeSort = newIsAsc => {
@@ -107,6 +116,14 @@ class ColumnHead extends Component {
     updateSheetColumnWidths({ controlId, value });
   };
 
+  updateColumnStyle = ({ controlId, key, value }) => {
+    const { saveColumnStylesToLocal, updateColumnStyles } = this.props;
+    if (!get(window, 'shareState.shareId')) {
+      saveColumnStylesToLocal({ [controlId]: { [key]: value } });
+    }
+    updateColumnStyles({ [controlId]: { [key]: value } });
+  };
+
   render() {
     const {
       className,
@@ -116,6 +133,7 @@ class ColumnHead extends Component {
       count,
       style,
       isLast,
+      isCharge,
       allWorksheetIsSelected,
       sheetSelectedRows = [],
       disabledFunctions = [],
@@ -127,10 +145,23 @@ class ColumnHead extends Component {
       clearHiddenColumn,
       onBatchEdit,
       canBatchEdit = true,
+      worksheetInfo,
+      columnStyles = {},
       onShowFullValue = () => {},
+      onBatchSetColumns = () => {},
     } = this.props;
     const hideColumnFilter = _.get(this.context, 'config.hideColumnFilter');
     let control = { ...this.props.control };
+    const columnStyle = get(columnStyles, control.controlId, {});
+    const direction = isUndefined(columnStyle.direction) ? (controlIsNumber(control) ? 2 : 0) : columnStyle.direction;
+    const showtype = !isUndefined(columnStyle.showtype)
+      ? columnStyle.showtype
+      : (control.type === 30 ? control.sourceControlType : control.type) === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
+      ? 6
+      : _.get(control, 'advancedSetting.showtype') === '2'
+      ? 2
+      : 0;
+    const coverFillType = !isUndefined(columnStyle.coverFillType) ? columnStyle.coverFillType : 0;
     const isShowOtherField = isOtherShowFeild(control);
     const itemType = this.getType(control);
     const canSort = fieldCanSort(itemType, control);
@@ -150,6 +181,7 @@ class ColumnHead extends Component {
     const maskData =
       _.get(control, 'advancedSetting.datamask') === '1' && _.get(control, 'advancedSetting.isdecrypt') === '1';
     control = redefineComplexControl(control);
+    const allowSetAlign = WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(control.type);
     return (
       <BaseColumnHead
         disabled={disabled}
@@ -168,6 +200,7 @@ class ColumnHead extends Component {
             style={{ width: 180 }}
             specialFilter={target => target === this.head}
             onClickAway={closeMenu}
+            setRef={this.conRef}
           >
             {canSort &&
               !isShowOtherField &&
@@ -229,7 +262,6 @@ class ColumnHead extends Component {
                 {_l('解码')}
               </MenuItem>
             )}
-            {(canSort || (canFilter && !rowIsSelected) || (canEdit && rowIsSelected)) && <hr />}
             <MenuItem
               onClick={() => {
                 if (window.isPublicApp) {
@@ -280,6 +312,237 @@ class ColumnHead extends Component {
                 {_l('解冻')}
               </MenuItem>
             )}
+            {(isCharge || checkIsTextControl(control.type)) && <hr />}
+            {isCharge && (
+              <Trigger
+                getPopupContainer={() => this.conRef.current}
+                popupClassName="Relative"
+                action={['hover']}
+                popupPlacement="bottom"
+                popupAlign={{
+                  points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
+                  offset: [0, -6],
+                  // overflow: { adjustX: true, adjustY: true },
+                }}
+                popup={
+                  <Menu className="columnHeadChangeAlign">
+                    {(allowSetAlign
+                      ? [
+                          {
+                            name: _l('左对齐'),
+                            value: 0,
+                          },
+                          {
+                            name: _l('居中'),
+                            value: 1,
+                          },
+                          {
+                            name: _l('右对齐'),
+                            value: 2,
+                          },
+                        ]
+                      : [
+                          {
+                            name: _l('左对齐'),
+                            value: 0,
+                          },
+                          {
+                            name: _l('居中'),
+                            value: 1,
+                          },
+                        ]
+                    ).map(({ value, name }, index) => (
+                      <MenuItem
+                        key={index}
+                        className={cx({ active: direction === value })}
+                        onClick={() => {
+                          this.updateColumnStyle({ controlId: control.controlId, key: 'direction', value });
+                          closeMenu();
+                        }}
+                      >
+                        <div className="flexRow">
+                          {name}
+                          {!allowSetAlign && value === 1 && <span className="sec">{_l('(仅字段名称)')}</span>}
+                          <div className="flex"></div>
+                          {direction === value && <Icon icon="done" className="mRight12 Relative" />}
+                        </div>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                }
+              >
+                <MenuItem
+                  onClick={() => {
+                    closeMenu();
+                  }}
+                >
+                  <i className="icon icon-format_align_left"></i>
+                  {_l('对齐')}
+                  <i
+                    className="icon icon-arrow-right-tip Right"
+                    style={{
+                      fontSize: 12,
+                      marginTop: 12,
+                      marginRight: -8,
+                    }}
+                  ></i>
+                </MenuItem>
+              </Trigger>
+            )}
+            {isCharge &&
+              [
+                WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
+                WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
+                WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT,
+              ].includes(control.type) && (
+                <Trigger
+                  getPopupContainer={() => this.conRef.current}
+                  popupClassName="Relative"
+                  action={['hover']}
+                  popupPlacement="bottom"
+                  popupAlign={{
+                    points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
+                    offset: [0, -6],
+                  }}
+                  popup={
+                    <Menu className="columnHeadChangeAlign">
+                      {showTypeData
+                        .filter(a =>
+                          control.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
+                            ? [4, 5, 6].includes(a.value)
+                            : ![4, 5, 6].includes(a.value),
+                        )
+                        .map(({ value, text }, index) => (
+                          <MenuItem
+                            key={index}
+                            className={cx({ active: showtype === value })}
+                            onClick={() => {
+                              this.updateColumnStyle({ controlId: control.controlId, key: 'showtype', value });
+                              closeMenu();
+                            }}
+                          >
+                            <div className="flexRow">
+                              {text}
+                              {showtype === value && <Icon icon="done" className="mRight12 Relative" />}
+                            </div>
+                          </MenuItem>
+                        ))}
+                      {control.type === 14 && showtype !== 6 && (
+                        <Trigger
+                          getPopupContainer={() => this.conRef.current}
+                          popupClassName="Relative"
+                          action={['hover']}
+                          popupPlacement="bottom"
+                          popupAlign={{
+                            points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
+                            offset: [0, -6],
+                          }}
+                          popup={
+                            <Menu className="columnHeadChangeAlign">
+                              {COVER_DISPLAY_FILL.map(({ text, value }, index) => (
+                                <MenuItem
+                                  key={index}
+                                  className={cx({ active: coverFillType === value })}
+                                  onClick={() => {
+                                    this.updateColumnStyle({
+                                      controlId: control.controlId,
+                                      key: 'coverFillType',
+                                      value,
+                                    });
+                                    closeMenu();
+                                  }}
+                                >
+                                  <div className="flexRow">
+                                    {text}
+                                    {coverFillType === value && <Icon icon="done" className="mRight12 Relative" />}
+                                  </div>
+                                </MenuItem>
+                              ))}
+                            </Menu>
+                          }
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              closeMenu();
+                            }}
+                          >
+                            {_l('图片填充方式')}
+                            <i
+                              className="icon icon-arrow-right-tip Right"
+                              style={{
+                                fontSize: 12,
+                                marginTop: 12,
+                                marginRight: -8,
+                              }}
+                            ></i>
+                          </MenuItem>
+                        </Trigger>
+                      )}
+                    </Menu>
+                  }
+                >
+                  <MenuItem
+                    onClick={() => {
+                      closeMenu();
+                    }}
+                  >
+                    <i className="icon icon-task-color"></i>
+                    {_l('样式')}
+                    <i
+                      className="icon icon-arrow-right-tip Right"
+                      style={{
+                        fontSize: 12,
+                        marginTop: 12,
+                        marginRight: -8,
+                      }}
+                    ></i>
+                  </MenuItem>
+                </Trigger>
+              )}
+
+            {checkIsTextControl(control.type) && (
+              <MenuItem
+                onClick={() => {
+                  function getColumnTextMaxWidth() {
+                    const texts = [...document.querySelectorAll('.col-' + columnIndex)].slice(1).map(a => a.innerText);
+                    const con = document.createElement('div');
+                    con.style.fontSize = '13px';
+                    con.style.display = 'inline-block';
+                    con.innerHTML = texts.map(text => `<div>${text}</div>`);
+                    document.body.append(con);
+                    const result = con.clientWidth;
+                    document.body.removeChild(con);
+                    return result + 14;
+                  }
+                  if (!checkIsTextControl(control.type)) {
+                    return;
+                  }
+                  let width = getColumnTextMaxWidth();
+                  if (width < 60) {
+                    width = 60;
+                  }
+                  if (width > 600) {
+                    width = 600;
+                  }
+                  this.updateColumnWidth({ controlId: control.controlId, value: width });
+                  closeMenu();
+                }}
+              >
+                <i className="icon icon-sheets_rtl"></i>
+                {_l('列宽适合内容')}
+              </MenuItem>
+            )}
+            {isCharge && (
+              <MenuItem
+                onClick={() => {
+                  onBatchSetColumns();
+                  closeMenu();
+                }}
+              >
+                <i className="icon icon-align_setting"></i>
+                {_l('批量设置')}
+              </MenuItem>
+            )}
           </Menu>
         )}
       />
@@ -292,6 +555,8 @@ const mapStateToProps = state => ({
   sortControls: state.sheet.sheetview.sheetFetchParams.sortControls,
   allWorksheetIsSelected: state.sheet.sheetview.sheetViewConfig.allWorksheetIsSelected,
   sheetSelectedRows: state.sheet.sheetview.sheetViewConfig.sheetSelectedRows,
+  columnStyles: state.sheet.sheetview.sheetViewConfig.columnStyles,
+  worksheetInfo: state.sheet.worksheetInfo,
 });
 
 const mapDispatchToProps = dispatch =>
@@ -301,6 +566,8 @@ const mapDispatchToProps = dispatch =>
       clearHiddenColumn,
       frozenColumn,
       sortByControl,
+      updateColumnStyles,
+      saveColumnStylesToLocal,
     },
     dispatch,
   );

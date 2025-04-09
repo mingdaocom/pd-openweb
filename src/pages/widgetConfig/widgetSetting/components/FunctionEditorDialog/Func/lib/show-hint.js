@@ -267,7 +267,7 @@ export default function useShowHint(CodeMirror) {
       if (i == this.selectedHint) elt.setAttribute('aria-selected', 'true');
       elt.id = this.id + '-' + i;
       elt.setAttribute('role', 'option');
-      if (cur.render) cur.render(elt, data, cur);
+      if (cur.render) cur.render(elt, data, cur, i);
       else elt.appendChild(ownerDocument.createTextNode(cur.displayText || getText(cur)));
       elt.hintId = i;
     }

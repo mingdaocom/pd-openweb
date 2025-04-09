@@ -4,7 +4,7 @@ import { Input } from 'antd';
 import { Button, Textarea, Icon, Checkbox, VerifyPasswordInput } from 'ming-ui';
 
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import styled from 'styled-components';
 import cx from 'classnames';
 

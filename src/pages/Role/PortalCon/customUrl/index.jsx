@@ -82,43 +82,7 @@ const Wrap = styled.div`
     }
   }
 `;
-const WrapCon = styled.div`
-  background: #f5f5f5;
-  padding: 16px 24px;
-  width: 100%;
-  z-index: 2;
-  .saveBtn {
-    display: inline-block;
-    height: 36px;
-    padding: 0 24px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    line-height: 36px;
-    cursor: pointer;
-    background: #2196f3;
-    color: #fff;
-    &:not(.disable):hover {
-      background-color: #1565c0;
-    }
-    &.disable {
-      opacity: 0.5;
-    }
-  }
-  .cancelBtn {
-    display: inline-block;
-    height: 36px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    line-height: 36px;
-    cursor: pointer;
-    background: #fff;
-    border: 1px solid #2196f3;
-    color: #2196f3;
-    margin-left: 16px;
-    padding: 0 32px;
-    width: auto;
-  }
-`;
+
 const WrapDetail = styled.div`
   .nameInput {
     height: 36px;
@@ -160,13 +124,11 @@ const CustomUrlSet = styled.div`
 
 function Setting(props) {
   const { show, closeSet, appId } = props;
-  const [{ saveLoading, customLink, editData, list, roleList, hasChange }, setState] = useSetState({
-    saveLoading: false,
+  const [{ customLink, editData, list, roleList }, setState] = useSetState({
     customLink: '',
     editData: null,
     list: _.get(props, 'baseSetResult.addressExt') || [],
     roleList: props.roleList || [],
-    hasChange: false,
   });
   useEffect(() => {
     setState({ roleList: props.roleList, list: _.get(props, 'baseSetResult.addressExt') || [] });
@@ -195,23 +157,14 @@ function Setting(props) {
     ExternalPortalApi.editCustomAddressExt({
       appId,
       addressExt,
-    }).then(
-      res => {
-        if (res.resultEnum === 1) {
-          props.onChange(res.addressExt);
-          setState({ hasChange: false, saveLoading: false });
-          alert(_l('保存成功'));
-          closeSet();
-        } else {
-          alert(_l('保存失败，请稍后再试'), 3);
-        }
-      },
-      () => {
-        setState({
-          saveLoading: false,
-        });
-      },
-    );
+    }).then(res => {
+      if (res.resultEnum === 1) {
+        props.onChange(res.addressExt);
+        alert(_l('保存成功'));
+      } else {
+        alert(_l('保存失败，请稍后再试'), 3);
+      }
+    });
   };
   return (
     <Drawer
@@ -265,7 +218,10 @@ function Setting(props) {
                           buttonType: 'danger',
                           title: <div className="Red"> {_l('你确认删除？')} </div>,
                           description: _l('删除后，用户不能通过该地址访问'),
-                          onOk: () => setState({ list: list.filter(a => a.ext !== o.ext), hasChange: true }),
+                          onOk: () => {
+                            const newList = list.filter(a => a.ext !== o.ext);
+                            onSave(newList);
+                          },
                         });
                       }}
                     />
@@ -293,27 +249,6 @@ function Setting(props) {
               );
             })}
           </div>
-          <WrapCon className="Con">
-            <span
-              className={cx('saveBtn Hand', { disable: saveLoading || !hasChange })}
-              onClick={() => {
-                if (saveLoading || !hasChange) {
-                  return;
-                }
-                onSave(list);
-              }}
-            >
-              {_l('保存设置')}
-            </span>
-            <span
-              className="cancelBtn Hand"
-              onClick={() => {
-                closeSet();
-              }}
-            >
-              {_l('取消')}
-            </span>
-          </WrapCon>
         </Wrap>
       ) : null}
       {!!editData && (
@@ -326,7 +261,6 @@ function Setting(props) {
           onCancel={() => {
             setState({
               editData: null,
-              hasChange: false,
             });
           }}
           onOk={() => {
@@ -352,17 +286,17 @@ function Setting(props) {
               return;
             }
             const isNew = !list.find(o => o.ext === editData.ext);
+            const newList = isNew
+              ? list.concat(editData)
+              : list.map(o => {
+                  if (o.ext === editData.ext) {
+                    return editData;
+                  }
+                  return o;
+                });
+            onSave(newList);
             setState({
-              list: isNew
-                ? list.concat(editData)
-                : list.map(o => {
-                    if (o.ext === editData.ext) {
-                      return editData;
-                    }
-                    return o;
-                  }),
               editData: null,
-              hasChange: true,
             });
           }}
         >

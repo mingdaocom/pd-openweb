@@ -2,24 +2,24 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import classNames from 'classnames';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
-import * as entitiesActions from '../../actions/entities';
-import * as currentActions from '../../actions/current';
 import cx from 'classnames';
-import { handoverDialog } from '../HandoverDialog';
-import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
-import { refuseUserJoinFunc } from '../refuseUserJoinDia';
-import departmentController from 'src/api/department';
-import moment from 'moment';
-import { Checkbox, Tooltip, Dialog, Input, Menu, MenuItem, UserHead } from 'ming-ui';
-import './userItem.less';
-import { encrypt, dateConvertToUserZone } from 'src/util';
-import RegExpValidator from 'src/util/expression';
-import Trigger from 'rc-trigger';
-import userController from 'src/api/user';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Checkbox, Dialog, Input, Menu, MenuItem, Tooltip, UserHead } from 'ming-ui';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
+import departmentController from 'src/api/department';
+import userController from 'src/api/user';
 import { hasPermission } from 'src/components/checkPermission';
+import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import TodoEntrustModal from 'src/pages/workflow/MyProcess/TodoEntrust/TodoEntrustModal';
+import { dateConvertToUserZone, encrypt } from 'src/util';
+import RegExpValidator from 'src/util/expression';
+import * as currentActions from '../../actions/current';
+import * as entitiesActions from '../../actions/entities';
+import { handoverDialog } from '../HandoverDialog';
+import { refuseUserJoinFunc } from '../refuseUserJoinDia';
+import './userItem.less';
 
 class UserItem extends Component {
   constructor(props) {
@@ -66,7 +66,7 @@ class UserItem extends Component {
     } else {
       if (isPrivateMobile) {
         mobileTpl = (
-          <span title={_l('保密')} className="overLimi_130 overflow_ellipsis">
+          <span title={_l('保密')} className="overflow_ellipsis" style={{ maxWidth: 130 }}>
             *********
           </span>
         );
@@ -91,7 +91,7 @@ class UserItem extends Component {
       emailTpl = <span title={email}>{email}</span>;
     } else if (isPrivateEmail) {
       emailTpl = (
-        <span title={_l('保密')} className="overLimi_130 overflow_ellipsis">
+        <span title={_l('保密')} className="overflow_ellipsis" style={{ maxWidth: 130 }}>
           *********
         </span>
       );
@@ -157,6 +157,12 @@ class UserItem extends Component {
   handleTransfer = e => {
     this.clickEvent(e);
     this.setState({ showWorkHandover: true });
+  };
+
+  // 待办委托
+  handleDelegate = e => {
+    this.clickEvent(e);
+    this.setState({ showDelegate: true });
   };
 
   // 离职
@@ -314,8 +320,11 @@ class UserItem extends Component {
         {departmentId && user.isDepartmentChargeUser && (
           <MenuItem onClick={this.setAndCancelCharge}>{_l('取消部门负责人')}</MenuItem>
         )}
-        {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
-          <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
+        {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
+          <Fragment>
+            <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
+            <MenuItem onClick={this.handleDelegate}> {_l('待办委托')}</MenuItem>
+          </Fragment>
         )}
         {user.accountId !== md.global.Account.accountId && (
           <MenuItem className="leaveText" onClick={this.handleRemoveUserClick}>
@@ -353,7 +362,7 @@ class UserItem extends Component {
       editCurrentUser = {},
       departmentId,
     } = this.props;
-    const { isMinSc, optListVisible, showWorkHandover } = this.state;
+    const { isMinSc, optListVisible, showWorkHandover, showDelegate } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
     let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
     const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
@@ -518,7 +527,7 @@ class UserItem extends Component {
                 : createTimeSpan(dateConvertToUserZone(user.createTime))}
             </td>
           )}
-          {!isMinSc && typeCursor === 3 ? (
+          {!isMinSc && typeCursor === 3 && (
             <Fragment>
               {isHideCurrentColumn('applyDate') && (
                 <td className="dateTh overflow_ellipsis WordBreak">
@@ -531,8 +540,6 @@ class UserItem extends Component {
                 </td>
               )}
             </Fragment>
-          ) : (
-            ''
           )}
 
           <td className="actTh">
@@ -560,6 +567,16 @@ class UserItem extends Component {
             projectId={projectId}
             transferor={user}
             onCancel={() => this.setState({ showWorkHandover: false })}
+          />
+        )}
+        {showDelegate && (
+          <TodoEntrustModal
+            type={2}
+            defaultValue={{
+              principal: _.pick(user, ['accountId', 'avatar', 'fullname']),
+            }}
+            companyId={projectId}
+            setTodoEntrustModalVisible={e => this.setState({ showDelegate: false })}
           />
         )}
       </Fragment>

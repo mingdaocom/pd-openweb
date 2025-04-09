@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import { Input, Button, Support, UpgradeIcon } from 'ming-ui';
-import Beta from '../Beta';
 import styled from 'styled-components';
 import { func, string, bool, any } from 'prop-types';
 import cx from 'classnames';
@@ -41,7 +40,6 @@ export default function AppSettingHeader(props) {
   const {
     warpClassName,
     title,
-    showBeta,
     showSearch,
     placeholder,
     addIcon,
@@ -57,9 +55,7 @@ export default function AppSettingHeader(props) {
   return (
     <HeaderWrap className={warpClassName}>
       <div className="flexRow alignItemsCenter content">
-        <div className="Font17 bold flex">
-          {title} {showBeta && <Beta />}
-        </div>
+        <div className="Font17 bold flex">{title}</div>
         {extraElement && <Fragment>{extraElement}</Fragment>}
         {showSearch && (
           <div className="searchWrap">
@@ -88,7 +84,6 @@ export default function AppSettingHeader(props) {
 AppSettingHeader.propTypes = {
   warpClassName: string,
   title: string,
-  showBeta: bool,
   showSearch: bool,
   placeholder: string,
   handleSearch: func,

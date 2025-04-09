@@ -6,7 +6,7 @@ import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import Config from '../../../config';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import './index.less';
 import _ from 'lodash';
 

@@ -1,14 +1,14 @@
-import React, { Fragment, useRef, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { Popup, ActionSheet, Button } from 'antd-mobile';
-import { ScrollView, LoadDiv, Checkbox } from 'ming-ui';
-import { removeTempRecordValueFromLocal } from 'worksheet/util';
-import NewRecordContent from './NewRecordContent';
-import AdvancedSettingHandler from './AdvancedSettingHandler';
-import MobileDraft from 'src/pages/Mobile/MobileDraft';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import { removeTempRecordValueFromLocal } from 'worksheet/util';
+import MobileDraft from 'src/pages/Mobile/MobileDraft';
+import AdvancedSettingHandler from './AdvancedSettingHandler';
+import NewRecordContent from './NewRecordContent';
 
 const ModalWrap = styled(Popup)`
   .mobileContainer {
@@ -59,25 +59,6 @@ const CloseIcon = styled.div`
   cursor: pointer;
 `;
 
-export function MobileRecordRecoverConfirm(props) {
-  const { title, cancelText, updateText, visible, onCancel, onUpdate } = props;
-  return (
-    <ModalWrap onClose={onUpdate} visible={visible} className="mobileModal topRadius">
-      <div className="flexColumn h100">
-        <div className="flexRow alignItemsCenter Font17 Gray bold pLeft15 pRight15 mTop24 mBottom32">{title}</div>
-        <BtnsWrap className="footerBox valignWrapper flexRow" style={{ border: 'none' }}>
-          <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onCancel}>
-            {cancelText}
-          </Button>
-          <Button className="flex mLeft6 mRight6 Font13 bold" color="primary" onClick={onUpdate}>
-            {updateText}
-          </Button>
-        </BtnsWrap>
-      </div>
-    </ModalWrap>
-  );
-}
-
 function NewRecord(props) {
   const {
     visible,
@@ -105,10 +86,12 @@ function NewRecord(props) {
     showDraftsEntry;
   const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
   const ua = window.navigator.userAgent.toLowerCase();
-  const isHonor = ua.match(/honor/i) == 'honor';
 
   useEffect(() => {
     const cancel = () => {
+      if (!!location.search) {
+        return;
+      }
       const setRestoreVisible = _.get(newRecordContent.current, 'setRestoreVisible');
       hideNewRecord();
       setRestoreVisible && setRestoreVisible(false);
@@ -313,10 +296,7 @@ function NewRecord(props) {
   };
 
   const header = (
-    <div
-      className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8"
-      style={isHonor ? { zIndex: 2, background: '#fff' } : {}}
-    >
+    <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
       <div className="title Font18 Gray flex bold leftAlign ellipsis">
         {advancedSetting.title || props.title || (props.entityName && _l('创建%0', props.entityName))}
       </div>
@@ -382,7 +362,7 @@ function NewRecord(props) {
       )}
       <div className="flexColumn leftAlign h100">
         {notDialog ? null : header}
-        <ScrollView style={isHonor ? { position: 'static' } : {}}>
+        <ScrollView>
           <div className="pAll20 pTop0 h100">{content}</div>
         </ScrollView>
         {footer}

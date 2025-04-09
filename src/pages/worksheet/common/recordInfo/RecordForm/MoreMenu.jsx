@@ -20,11 +20,14 @@ export default function MoreMenu(props) {
     hideRecordInfo,
     hideFav,
     isDraft,
+    printCharge,
   } = props;
   const { from, isCharge, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
   const { allowDelete, formData, projectId, allowAdd, rowData } = recordinfo;
+
   return (
     <RecordOperate
+      printCharge={printCharge}
       from={from}
       hideFav={hideFav}
       showDeleteHr={false}
@@ -51,6 +54,7 @@ export default function MoreMenu(props) {
       onCopySuccess={handleAddSheetRow}
       hideRecordInfo={hideRecordInfo}
       isDraft={isDraft}
+      printBtnType={2}
       onRecreate={() => {
         handleRowData({
           rowId: recordId,
@@ -75,7 +79,7 @@ export default function MoreMenu(props) {
         });
       }}
     >
-      <IconBtn className="moreBtn Hand Gray_9e Font22 mLeft10">
+      <IconBtn className="moreBtn Hand Font22 mLeft10">
         <Icon icon="task-point-more" className="ThemeHoverColor3" />
       </IconBtn>
     </RecordOperate>

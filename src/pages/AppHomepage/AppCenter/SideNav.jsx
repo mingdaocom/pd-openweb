@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Tooltip, ScrollView, SvgIcon } from 'ming-ui';
-import ThirdApp from './components/ThirdApp';
-import PopupLinks from './components/PopupLinks';
-import privateSource from 'src/api/privateSource';
 import _ from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
-import { getCurrentProject } from 'src/util';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import privateSource from 'src/api/privateSource';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { navigateTo } from 'src/router/navigateTo';
+import { getCurrentProject } from 'src/util';
+import PopupLinks from './components/PopupLinks';
+import ThirdApp from './components/ThirdApp';
 
 const NATIVE_APP_ITEM = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
@@ -143,6 +143,7 @@ const DashboardEntry = styled.div`
     top: -2px;
     border-radius: 20px;
     font-size: 12px;
+    font-weight: bold;
     text-align: center;
     line-height: 20px;
     width: 20px;
@@ -156,6 +157,19 @@ const DashboardEntry = styled.div`
     &.outed {
       width: auto;
       padding: 0 4px;
+    }
+  }
+  .weakCount {
+    height: 7px;
+    width: 7px;
+    border-radius: 20px;
+    background-color: #ff0000;
+    position: absolute;
+    left: 31px;
+    top: 5px;
+    &.isExpanded {
+      left: 82px;
+      top: 10px;
     }
   }
 `;
@@ -225,7 +239,7 @@ export default function SideNav(props) {
       md.global.SysSettings.forbidSuites.indexOf(item.key) === -1 &&
       (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
   );
-  const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
+  const count = countData ? (countData.waitingDispose > 99 ? '99+' : countData.waitingDispose) : 0;
   const isExternal = _.isEmpty(getCurrentProject(projectId));
   const hasPluginAuth =
     _.get(
@@ -288,7 +302,7 @@ export default function SideNav(props) {
                   const type = localStorage.getItem('pluginUrl');
                   navigateTo('/plugin/' + (type || ''));
                 } else if (entry.type === 'market') {
-                  window.open(md.global.Config.MarketUrl);
+                  window.open(`${md.global.Config.MarketUrl}/apps`);
                 }
               }
             : _.noop
@@ -306,6 +320,9 @@ export default function SideNav(props) {
           <DashboardEntry isExpanded={isExpanded} key={index}>
             {content}
             {!!count && <span className={cx('count', { isExpanded, outed: String(count) === '99+' })}>{count}</span>}
+            {!count && !!_.get(countData, 'waitingExamine') && (
+              <span className={cx('weakCount', { isExpanded })}></span>
+            )}
           </DashboardEntry>
         );
       case 'cooperation':

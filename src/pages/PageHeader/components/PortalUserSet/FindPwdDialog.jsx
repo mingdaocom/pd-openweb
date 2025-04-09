@@ -248,11 +248,7 @@ export default function TelDialog(props) {
       });
     };
 
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+    new captcha(callback);
   };
 
   const changePwd = (resRet = {}) => {
@@ -296,11 +292,7 @@ export default function TelDialog(props) {
         }),
       );
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+    new captcha(callback);
   };
 
   return (

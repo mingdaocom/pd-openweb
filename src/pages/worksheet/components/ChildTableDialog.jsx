@@ -1,18 +1,19 @@
-import React, { Fragment, useState, useRef, useEffect } from 'react';
-import _, { get } from 'lodash';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+
 import cx from 'classnames';
-import { Button, Modal, Dialog } from 'ming-ui';
+import _, { get } from 'lodash';
+import { Button, Dialog, Modal } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { useKey } from 'react-use';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
-import { useKey } from 'react-use';
-import styled from 'styled-components';
-import { ROW_HEIGHT } from 'worksheet/constants/enum';
-import ChildTable from 'worksheet/components/ChildTable';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
+import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { emitter, handleRecordError } from 'worksheet/util';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import styled from 'styled-components';
+import ChildTable from 'worksheet/components/ChildTable';
+import { ROW_HEIGHT } from 'worksheet/constants/enum';
+import { emitter, handleRecordError } from 'worksheet/util';
 
 /**
  * TODO
@@ -138,6 +139,7 @@ export default function ChildTableDialog(props) {
     onChange = () => {},
   } = props;
   const cache = useRef({});
+  const callFromDialog = openFrom !== 'cell';
   const rowHeight = ROW_HEIGHT[Number(_.get(control, 'advancedSetting.rowheight'))] || 34;
   const needUpdateControls = _.isEmpty(controls) || hasNoRelationRelateControl(controls);
   const [loading, setLoading] = useState(typeof props.searchConfig === 'undefined');
@@ -244,33 +246,39 @@ export default function ChildTableDialog(props) {
                   : _l('全屏%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
               }
               onClick={() => {
-                setIsFullScreen(!isFullScreen);
+                if (callFromDialog) {
+                  onClose();
+                } else {
+                  setIsFullScreen(!isFullScreen);
+                }
               }}
             >
               <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
             </IconBtn>
-            <IconBtn
-              className={cx('ThemeHoverColor3', { mRight10: changed })}
-              data-tip={_l('关闭(Esc)')}
-              onClick={() => {
-                if (!changed || openFrom !== 'cell') {
-                  onClose();
-                  return;
-                }
-                Dialog.confirm({
-                  title: _l('您是否保存此次更改'),
-                  description: _l('当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。'),
-                  cancelType: 'ghost',
-                  okText: _l('是，保存更改'),
-                  cancelText: _l('否，放弃更改'),
-                  onlyClose: true,
-                  onOk: () => handleSave(true),
-                  onCancel: onClose,
-                });
-              }}
-            >
-              <i className="icon icon-close"></i>
-            </IconBtn>
+            {!callFromDialog && (
+              <IconBtn
+                className={cx('ThemeHoverColor3', { mRight10: changed })}
+                data-tip={_l('关闭(Esc)')}
+                onClick={() => {
+                  if (!changed || openFrom !== 'cell') {
+                    onClose();
+                    return;
+                  }
+                  Dialog.confirm({
+                    title: _l('您是否保存此次更改'),
+                    description: _l('当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。'),
+                    cancelType: 'ghost',
+                    okText: _l('是，保存更改'),
+                    cancelText: _l('否，放弃更改'),
+                    onlyClose: true,
+                    onOk: () => handleSave(true),
+                    onCancel: onClose,
+                  });
+                }}
+              >
+                <i className="icon icon-close"></i>
+              </IconBtn>
+            )}
           </div>
           {openFrom === 'cell' && changed && (
             <Fragment>

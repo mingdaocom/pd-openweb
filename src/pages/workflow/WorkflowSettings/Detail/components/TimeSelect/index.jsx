@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import './index.less';
 import { Dropdown } from 'ming-ui';
 import Time from 'ming-ui/components/NewTimePicker';
 import { EXEC_TIME_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
+import './index.less';
 
 export default class TimeSelect extends Component {
   static defaultProps = {
@@ -10,7 +10,7 @@ export default class TimeSelect extends Component {
   };
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (nextProps.data.number !== this.props.data.number && this.text) {
+    if (this.text && this.text.value !== nextProps.data.number) {
       this.text.value = nextProps.data.number;
     }
   }
@@ -46,7 +46,7 @@ export default class TimeSelect extends Component {
     evt.target.value = num;
 
     if (isBlur) {
-      this.props.updateSource({ number: num });
+      this.props.updateSource({ number: num || 15 });
     }
   }
 

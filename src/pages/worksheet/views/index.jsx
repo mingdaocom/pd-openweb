@@ -116,6 +116,7 @@ function View(props) {
     'groupFilterWidth',
     'sheetSwitchPermit',
     'noLoadAtDidMount',
+    'printCharge',
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {

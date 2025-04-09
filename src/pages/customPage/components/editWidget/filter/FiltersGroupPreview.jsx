@@ -8,8 +8,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action.js';
-import { formatFilterValues, formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
-import { validate } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { validate, formatFilterValues, formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions';
 import { formatFilters } from './util';
 import { getTranslateInfo } from 'src/util';
@@ -85,7 +84,7 @@ function FiltersGroupPreview(props) {
                   value,
                   advancedSetting,
                   filters: _.flatten(filters.map(item => item.objectControls)),
-                  mobileVisible: widget.mobile.visible
+                  mobileVisible: widget.mobile.visible,
                 };
               } else {
                 return item;

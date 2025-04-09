@@ -3,12 +3,11 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import worksheetAjax from 'src/api/worksheet';
-import reportApi from 'statistics/api/report.js';
 import { isPublicLink } from '../../tools/utils';
+
 
 const EmbedWrap = styled.div`
   width: 100%;
@@ -76,7 +75,7 @@ export default class Widgets extends Component {
   }
 
   initFunc = (nextProps, callback) => {
-    const { enumDefault, addRefreshEvents, controlId, triggerCustomEvent } = nextProps || this.props;
+    const { enumDefault, addRefreshEvents, controlId } = nextProps || this.props;
     const isMobile = browserIsMobile();
 
     if (enumDefault === 2) {
@@ -95,10 +94,6 @@ export default class Widgets extends Component {
 
     if (_.isFunction(addRefreshEvents)) {
       addRefreshEvents(controlId, this.handleReloadIFrame.bind(this));
-    }
-
-    if (_.isFunction(triggerCustomEvent)) {
-      triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
 
     if (_.isFunction(callback)) {
@@ -164,9 +159,6 @@ export default class Widgets extends Component {
     clearInterval(this.embedWatch);
     if (_.isFunction(this.props.addRefreshEvents)) {
       this.props.addRefreshEvents(this.props.controlId, undefined);
-    }
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
     }
   }
 

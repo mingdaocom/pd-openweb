@@ -7,26 +7,17 @@ import { encryptDetailCon } from './EncryptDetail';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import Empty from 'src/pages/Admin/common/TableEmpty';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
+import { encryptList, statusList } from './constant';
 import Trigger from 'rc-trigger';
 import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
 
 const { Option } = Select;
-export const encryptList = [
-  { value: '', label: _l('全部方式') },
-  { value: 1, label: 'AES128' },
-  { value: 2, label: 'AES192' },
-  { value: 3, label: 'AES256' },
-  { value: 50, label: 'SM4' },
-];
-export const statusList = [
-  { value: '', label: _l('全部状态') },
-  { value: 1, label: _l('启用') },
-  { value: 2, label: _l('停用') },
-];
+
 export default class EncryptRules extends Component {
   constructor(props) {
     super(props);

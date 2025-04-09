@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
 import { ConfigProvider, Input, Modal, Button, Dropdown, Menu } from 'antd';
-import { getRePosFromStr } from 'ming-ui/components/TagTextarea';
 import { TagTextarea, Icon } from 'ming-ui';
-import { isNumberControl, normTypes, textNormTypes } from 'statistics/common';
+import { isNumberControl, textNormTypes } from 'statistics/common';
+import { normTypes } from '../../../enum';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -45,7 +45,7 @@ class CalculateControl extends Component {
       showInSideFormulaSelect: false,
       dropdownVisible: false,
       showDropdownId: '',
-      showDropdownStyle: {}
+      showDropdownStyle: {},
     };
   }
   handleSave = () => {
@@ -82,7 +82,7 @@ class CalculateControl extends Component {
             return {
               ...item,
               controlName,
-              dot
+              dot,
             };
           } else {
             return item;
@@ -97,7 +97,7 @@ class CalculateControl extends Component {
       });
     }
     this.props.onChangeDialogVisible(false);
-  }
+  };
   handleChange = (err, value, obj) => {
     if (err) {
       // this.handleError(err);
@@ -119,8 +119,8 @@ class CalculateControl extends Component {
       showInSideFormulaSelect: newFnmatch,
       fnmatchPos: newFnmatch ? this.tagtextarea.cmObj.getCursor() : undefined,
     });
-  }
-  handleChangeDot = (value) => {
+  };
+  handleChangeDot = value => {
     let count = '';
     if (value) {
       count = parseInt(value);
@@ -130,7 +130,7 @@ class CalculateControl extends Component {
       count = 0;
     }
     this.setState({ dot: count });
-  }
+  };
   renderControlTypeOverlay({ controlId, type, enumDefault }, norm) {
     const isNumber = isNumberControl(type) || enumDefault === 1;
     return (
@@ -168,17 +168,11 @@ class CalculateControl extends Component {
             {norm.text}
           </span>
         )}
-        {!norm && control.type === 11 && (
-          <span className="Font12 mLeft5 Red">
-            {_l('计算方式失效，请重新调整')}
-          </span>
-        )}
-        {!invalid && (
-          <Icon className="Font14 mLeft5 pointer iconTrigger" icon="arrow-down-border" data-id={id} />
-        )}
+        {!norm && control.type === 11 && <span className="Font12 mLeft5 Red">{_l('计算方式失效，请重新调整')}</span>}
+        {!invalid && <Icon className="Font14 mLeft5 pointer iconTrigger" icon="arrow-down-border" data-id={id} />}
       </ControlTag>
     );
-  }
+  };
   renderDropdown() {
     const { showDropdownId, showDropdownStyle } = this.state;
     const control = _.find(this.props.axisControls, { controlId: showDropdownId.replace(/-\w/, '') }) || {};
@@ -211,11 +205,11 @@ class CalculateControl extends Component {
       if (n.type === 10000000) {
         return {
           ...n,
-          type: 6
-        }
+          type: 6,
+        };
       }
       return n;
-    })
+    });
     return (
       <SelectControls
         controls={allControls}
@@ -235,10 +229,10 @@ class CalculateControl extends Component {
       const chartModalRect = document.querySelector('.chartModal').getBoundingClientRect();
       this.setState({
         showDropdownId: target.dataset.id,
-        showDropdownStyle: { left: rect.left - chartModalRect.left, top: (rect.top - chartModalRect.top) + 20 }
+        showDropdownStyle: { left: rect.left - chartModalRect.left, top: rect.top - chartModalRect.top + 20 },
       });
     }
-  }
+  };
   render() {
     const { axisControls } = this.props;
     const { controlName, showInSideFormulaSelect, formulaStr, dot, dropdownVisible } = this.state;
@@ -267,7 +261,7 @@ class CalculateControl extends Component {
               overflow: {
                 adjustX: true,
                 adjustY: true,
-              }
+              },
             }}
           >
             <div className="flexRow valignWrapper pointer" style={{ color: '#2196F3' }}>

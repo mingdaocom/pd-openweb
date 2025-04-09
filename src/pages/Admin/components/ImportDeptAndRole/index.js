@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import { Icon } from 'ming-ui';
 import { Table } from 'antd';
-import Config from '../../config';
-import jobController from 'src/api/job';
-import departmentController from 'src/api/department';
-import { captcha } from 'ming-ui/functions';
-import importOrgRoleListController from 'src/api/organize';
-import UploadFile from '../UploadFile';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import departmentController from 'src/api/department';
+import jobController from 'src/api/job';
+import importOrgRoleListController from 'src/api/organize';
+import Config from '../../config';
+import UploadFile from '../UploadFile';
 
 const ImportWrap = styled.div`
   background: #fff;
@@ -339,8 +339,8 @@ export default class ImportDeptAndRole extends Component {
         importType === 'position'
           ? jobController.importJobList(requestData)
           : importType === 'role'
-          ? importOrgRoleListController.importOrgRoleList(requestData)
-          : departmentController.importDepartmentList(requestData);
+            ? importOrgRoleListController.importOrgRoleList(requestData)
+            : departmentController.importDepartmentList(requestData);
 
       promiseRequest
         .then(result => {
@@ -375,11 +375,8 @@ export default class ImportDeptAndRole extends Component {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+
+    new captcha(callback);
   };
   // 返回导入
   backAct = () => {

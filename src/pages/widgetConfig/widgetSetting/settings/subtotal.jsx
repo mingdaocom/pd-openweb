@@ -9,13 +9,9 @@ import {
   getIconByType,
   resortControlByColRow,
   isShowUnitConfig,
-} from '../../util';
-import {
   parseDataSource,
-  filterByTypeAndSheetFieldType,
-  handleAdvancedSettingChange,
-  getAdvanceSetting,
-} from '../../util/setting';
+} from '../../util';
+import { filterByTypeAndSheetFieldType, handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
 import { useSheetInfo } from '../../hooks';
 import { FilterItemTexts, FilterDialog } from '../components/FilterData';
 import WidgetDropdown from '../../components/Dropdown';

@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import _ from 'lodash';
 import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import { addBehaviorLog, getTranslateInfo } from 'src/util';
 
 const Wrap = styled.div`

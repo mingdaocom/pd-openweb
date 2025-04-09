@@ -1,12 +1,12 @@
-import qs from 'query-string';
-import worksheetAjax from 'src/api/worksheet';
-import kcAjax from 'src/api/kc';
-import attachmentAjax from 'src/api/attachment';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { updateOptionsOfControls, checkCellIsEmpty, handleRecordError } from 'worksheet/util';
 import _ from 'lodash';
+import qs from 'query-string';
+import attachmentAjax from 'src/api/attachment';
+import kcAjax from 'src/api/kc';
+import worksheetAjax from 'src/api/worksheet';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { checkCellIsEmpty, handleRecordError, updateOptionsOfControls } from 'worksheet/util';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { emitter } from 'src/util';
 
 export async function downloadAttachmentById({
@@ -261,7 +261,7 @@ export function submitNewRecord(props) {
       } else if (res.resultCode === 32) {
         setRuleError(res.badData);
       } else {
-        handleRecordError(res.resultCode);
+        handleRecordError(res.resultCode, undefined, true);
       }
       onSubmitEnd();
       setRequesting(false);

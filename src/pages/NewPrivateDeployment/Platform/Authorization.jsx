@@ -139,8 +139,11 @@ const columns = [
 ];
 
 const AuthorizationInfo = props => {
-  const { loading, platformLicenseInfo, onUpdatePage } = props;
+  const { loading, platformLicenseInfo } = props;
   const [privateKeyDialogVisible, setPrivateKeyDialogVisible] = useState(false);
+  const onUpdatePage = () => {
+    location.reload();
+  }
 
   const formatDate = (date) => {
     const current = moment().format('YYYY-MM-DD');
@@ -204,7 +207,11 @@ const AuthorizationInfo = props => {
                 <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('组织数')}</div>
                 <div className="Font17 mBottom5 bold">{`${_.get(platformLicenseInfo, 'projectIds.length')}/${platformLicenseInfo.projectNum}`}</div>
                 <div className="Font13 ThemeColor pointer">
-                  <Projects usable={true} onSave={onUpdatePage} />
+                  <Projects
+                    usable={true}
+                    platformLicenseInfo={platformLicenseInfo}
+                    onSave={onUpdatePage}
+                  />
                 </div>
               </div>
             )}
@@ -237,6 +244,7 @@ const AuthorizationInfo = props => {
       )}
       <PrivateKeyDialog
         codeInfo={null}
+        platformLicenseInfo={platformLicenseInfo}
         visible={privateKeyDialogVisible}
         onCancel={() => {
           setPrivateKeyDialogVisible(false);
@@ -252,68 +260,13 @@ const AppreciationServer = props => {
   const [serverInfo, setServerInfo] = useState(null);
   const [trialServer, setTrialServer] = useState(null);
 
-  const renderDpState = () => {
-    if (platformLicenseInfo.dp) {
-      return null;
-    }
-
+  const renderState = extendFunType => {
     return (
       <div
         className="ThemeColor pointer"
         onClick={(e) => {
           e.stopPropagation();
-          setTrialServer(2);
-        }}
-      >
-        {_l('绑定密钥')}
-      </div>
-    );
-  }
-  const renderDiCiState = () => {
-    if (platformLicenseInfo.dici) {
-      return null;
-    }
-
-    return (
-      <div
-        className="ThemeColor pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          setTrialServer(3);
-        }}
-      >
-        {_l('绑定密钥')}
-      </div>
-    );
-  }
-  const renderDidbState = () => {
-    if (platformLicenseInfo.didb) {
-      return null;
-    }
-
-    return (
-      <div
-        className="ThemeColor pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          setTrialServer(4);
-        }}
-      >
-        {_l('绑定密钥')}
-      </div>
-    );
-  }
-  const renderSseState = () => {
-    if (platformLicenseInfo.sse) {
-      return null;
-    }
-
-    return (
-      <div
-        className="ThemeColor pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          setTrialServer(1);
+          setTrialServer(extendFunType);
         }}
       >
         {_l('绑定密钥')}
@@ -336,7 +289,7 @@ const AppreciationServer = props => {
               <Icon className="Font30 ThemeColor" icon={serverInfo.icon} />
               <div className="Font17 Gray bold mLeft5">{serverInfo.title}</div>
             </div>
-            {(serverInfo.isTrial || serverInfo.type === 'dici' || serverInfo.type === 'didb') && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新密钥')}</div>}
+            {(serverInfo.isTrial || ['dici', 'didb', 'mpc'].includes(serverInfo.type)) && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新密钥')}</div>}
           </div>
         )}
         onCancel={() => {
@@ -387,6 +340,15 @@ const AppreciationServer = props => {
             </div>
           </div>
         )}
+        {['mpc'].includes(serverInfo.type) && (
+          <div className="flexColumn flex mTop20">
+            <div className="Gray_9e mBottom2">{_l('支付商户数')}</div>
+            <div className="flexRow">
+              <div className="mRight5 Gray">{_l('剩余%0个', serverInfo.num - serverInfo.usedNum)}</div>
+              <div className="Gray_9e">{_l('共%0个', serverInfo.num)}</div>
+            </div>
+          </div>
+        )}
       </Dialog>
     );
   }
@@ -413,7 +375,7 @@ const AppreciationServer = props => {
               <Icon className={cx('Font40', platformLicenseInfo.dp ? 'ThemeColor' : 'Gray_bd')} icon="a-Data_integration1" />
             </div>
             <div className="Font14 mTop2">{_l('数据集成')}</div>
-            {renderDpState()}
+            {!platformLicenseInfo.dp && renderState(2)}
           </div>
           <div
             className="diciWrap flex flexColumn alignItemsCenter pointer"
@@ -431,7 +393,7 @@ const AppreciationServer = props => {
               <Icon className={cx('Font40', platformLicenseInfo.dici ? 'ThemeColor' : 'Gray_bd')} icon="dns1" />
             </div>
             <div className="Font14 mTop2">{_l('专属算力')}</div>
-            {renderDiCiState()}
+            {!platformLicenseInfo.dici && renderState(3)}
           </div>
           {!md.global.Config.IsPlatformLocal && (<div
             className="diciWrap flex flexColumn alignItemsCenter pointer"
@@ -449,7 +411,7 @@ const AppreciationServer = props => {
               <Icon className={cx('Font40', platformLicenseInfo.didb ? 'ThemeColor' : 'Gray_bd')} icon="database" />
             </div>
             <div className="Font14 mTop2">{_l('专属数据库')}</div>
-            {renderDidbState()}
+            {!platformLicenseInfo.didb && renderState(4)}
           </div>)}
           <div
             className="sseWrap flex flexColumn alignItemsCenter pointer"
@@ -467,7 +429,25 @@ const AppreciationServer = props => {
               <Icon className={cx('Font40', platformLicenseInfo.sse ? 'ThemeColor' : 'Gray_bd')} icon="search" />
             </div>
             <div className="Font14 mTop2">{_l('超级搜索')}</div>
-            {renderSseState()}
+            {!platformLicenseInfo.sse && renderState(1)}
+          </div>
+          <div
+            className="sseWrap flex flexColumn alignItemsCenter pointer"
+            onClick={() => {
+              platformLicenseInfo.mpc && setServerInfo({
+                ...platformLicenseInfo.mpc,
+                title: _l('支付商户号'),
+                icon: 'zhifubao',
+                type: 'mpc',
+                extendFunType: 5
+              });
+            }}
+          >
+            <div className={cx('iconWrap valignWrapper justifyContentCenter', { active: platformLicenseInfo.mpc })}>
+              <Icon className={cx('Font40', platformLicenseInfo.mpc ? 'ThemeColor' : 'Gray_bd')} icon="zhifubao" />
+            </div>
+            <div className="Font14 mTop2">{_l('支付商户号')}</div>
+            {!platformLicenseInfo.mpc && renderState(5)}
           </div>
         </div>
       )}
@@ -501,6 +481,11 @@ const AppreciationServer = props => {
               platformLicenseInfo.didb = data;
               platformLicenseInfo.didb.usedInstanceNum = 0;
               platformLicenseInfo.didb.instanceNum = result.trialInfo.didb;
+            }
+            if (result.extendFunType === 5) {
+              platformLicenseInfo.mpc = data;
+              platformLicenseInfo.mpc.usedNum = 0;
+              platformLicenseInfo.mpc.num = result.trialInfo.mpc;
             }
             if (serverInfo) {
               setServerInfo({
@@ -694,10 +679,6 @@ const Authorization = props => {
   const [loading, setLoading] = useState(true);
   const [platformLicenseInfo, setPlatformLicenseInfo] = useState({});
 
-  const handleUpdatePage = () => {
-    location.reload();
-  }
-
   useEffect(() => {
     privateGuideApi.getPlatformLicenseInfo().then(data => {
       setLoading(false);
@@ -719,7 +700,6 @@ const Authorization = props => {
         <AuthorizationInfo
           loading={loading}
           platformLicenseInfo={platformLicenseInfo}
-          onUpdatePage={handleUpdatePage}
         />
       </div>
       <Log />

@@ -1,13 +1,13 @@
+import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import { originRuleItem } from '../../config';
-import _ from 'lodash';
 import {
   checkConditionCanSave,
   checkConditionError,
-  formatValues,
   filterDeleteOptions,
-  getDefaultRuleName,
+  formatValues,
   getActionError,
+  getDefaultRuleName,
 } from '../../config';
 
 /**
@@ -226,13 +226,15 @@ export function copyControlRules(rule) {
 export function grabControlRules(list = []) {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
-    let { worksheetId } = stateList;
+    let { worksheetId, columnRulesListData } = stateList;
     const ruleIds = list.map(item => item.ruleId);
+
     dispatch(clearColumnRules());
     dispatch({
       type: 'COLUMNRULES_LIST',
-      data: list,
+      data: list.concat(columnRulesListData.filter(item => !_.includes(ruleIds, item.ruleId))),
     });
+
     sheetAjax.sortControlRules({
       ruleIds,
       worksheetId,

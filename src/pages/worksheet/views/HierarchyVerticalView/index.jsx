@@ -1,32 +1,35 @@
-import React, { Fragment, useRef, useEffect, useState } from 'react';
-import { DndProvider, useDrop } from 'react-dnd-latest';
-import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { useSetState } from 'react-use';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+
 import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
-import { v4 as uuidv4 } from 'uuid';
-import { LoadDiv } from 'ming-ui';
 import _ from 'lodash';
-import { isAllowQuickSwitch, isDisabledCreate, isTextTitle, getSearchData } from '../util';
-import { hierarchyViewCanSelectFields } from '../HierarchyView/util';
-import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
+import { LoadDiv } from 'ming-ui';
+import { HTML5Backend } from 'react-dnd-html5-backend-latest';
+import { DndProvider, useDrop } from 'react-dnd-latest';
+import { connect } from 'react-redux';
+import { useSetState } from 'react-use';
+import { bindActionCreators } from 'redux';
+import worksheetAjax from 'src/api/worksheet';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { browserIsMobile } from 'src/util';
+import { emitter } from 'src/util';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
-import NewRecord from 'worksheet/common/newRecord/NewRecord';
+
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
-import worksheetAjax from 'src/api/worksheet';
-import { browserIsMobile } from 'src/util';
+import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
 import ToolBar from '../HierarchyView/ToolBar';
+import DragLayer from '../HierarchyView/components/DragLayer';
+import LeftBoundary from '../HierarchyView/components/LeftBoundary';
+import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
+import { hierarchyViewCanSelectFields } from '../HierarchyView/util';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
+import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from '../util';
 import VertricalTreeNode from './components/VertricalTreeNode';
-import LeftBoundary from '../HierarchyView/components/LeftBoundary';
-import DragLayer from '../HierarchyView/components/DragLayer';
-import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
-import { emitter } from 'src/util';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -137,6 +140,8 @@ function HierarchyVertical(props) {
 
   const { viewControl, viewControls } = view;
   const $wrapRef = useRef(null);
+  const cache = useRef({});
+  const [refreshFlag, setRefreshFlag] = useState();
   const [scrollMiddleSign, setScrollMiddleSign] = useState(false);
 
   const scrollToMiddle = () => {
@@ -156,6 +161,7 @@ function HierarchyVertical(props) {
   }, [hierarchyViewState]);
 
   useEffect(() => {
+    if (!cache.current.didMount) return;
     getDefaultHierarchyData();
     const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
@@ -181,8 +187,17 @@ function HierarchyVertical(props) {
     _.get(view, 'advancedSetting.topshow'),
     _.get(view, 'advancedSetting.topfilters'),
     _.get(view, 'advancedSetting.defaultlayer'),
+    _.get(view, 'advancedSetting.viewtitle'),
     JSON.stringify(navGroupFilters),
+    refreshFlag,
   ]);
+
+  useEffect(() => {
+    if (!cache.current.didMount) {
+      cache.current.didMount = true;
+      setRefreshFlag(Math.random());
+    }
+  }, []);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewWrap');
@@ -457,7 +472,8 @@ function HierarchyVertical(props) {
         _.find(controls, item => item.controlId === viewControl) &&
         hierarchyData.map(o => o.value).includes(viewControl)) ||
       !_.isEmpty(viewControls);
-    let isNarrow = advancedSetting.coverposition === '2';
+    const { coverPosition } = getCoverStyle(view);
+    let isNarrow = coverPosition === '2';
 
     if (!isHaveSelectControl) {
       return (
@@ -480,10 +496,9 @@ function HierarchyVertical(props) {
 
     if (!_.isEmpty(viewControls) && viewControls.length > 1) {
       let sign = viewControls.slice(1).some(item => {
-        return (
-          isNarrow && (item.advancedSetting || {}).coverposition && (item.advancedSetting || {}).coverposition !== '2'
-        );
+        return isNarrow && _.get(getCoverStyle(item), 'coverPosition') !== '2';
       });
+
       if (sign) isNarrow = false;
     }
 

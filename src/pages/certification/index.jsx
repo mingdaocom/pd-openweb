@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
-import { Icon, Button, Dropdown, Input, Avatar } from 'ming-ui';
-import { Form, DatePicker, Popover } from 'antd';
-import enterpriseImg from './images/enterprise.png';
-import personalImg from './images/personal.png';
-import marketplacePaymentApi from 'src/api/marketplacePayment';
-import UploadCertificate from './UploadCertificate';
-import accountApi from 'src/api/account';
-import { captcha } from 'ming-ui/functions';
-import certificationApi from 'src/api/certification';
-import { getRequest } from 'src/util';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import { DatePicker, Form, Popover } from 'antd';
 import localeEn from 'antd/es/date-picker/locale/en_US';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Avatar, Button, Dropdown, Icon, Input } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import accountApi from 'src/api/account';
+import certificationApi from 'src/api/certification';
+import marketplacePaymentApi from 'src/api/marketplacePayment';
 import HelpCollection from 'src/pages/PageHeader/components/CommonUserHandle/HelpCollection';
+import { getRequest } from 'src/util';
 import developerGroupImg from './images/developer-group.png';
+import enterpriseImg from './images/enterprise.png';
+import personalImg from './images/personal.png';
+import UploadCertificate from './UploadCertificate';
 
 const { RangePicker } = DatePicker;
 
@@ -292,10 +292,15 @@ export default function Certification(props) {
       });
   };
 
-  const formatCreditDate = period => {
-    const dateArr = period.split('至');
-    const startDate = moment(dateArr[0], 'YYYY年MM月DD日');
-    const endDate = dateArr[1] === '长期' ? moment('2099-12-31') : moment(dateArr[1], 'YYYY年MM月DD日');
+  const formatValidDate = (period, splitKey = '-', format = 'YYYY-MM-DD') => {
+    const dateArr = period.split(splitKey);
+    const startDate = moment(dateArr[0], format).isValid() ? moment(dateArr[0], format) : '';
+    const endDate =
+      dateArr[1] === '长期'
+        ? moment('2099-12-31')
+        : moment(dateArr[1], format).isValid()
+          ? moment(dateArr[1], format)
+          : '';
     return [startDate, endDate];
   };
 
@@ -363,6 +368,11 @@ export default function Certification(props) {
             7: _l('参数错误'),
             8: _l('验证码错误或过期'),
             9: _l('认证信息不存在'),
+            10: _l('证件超过有效期'),
+            11: _l('手机号码有误'),
+            12: _l('身份证号有误'),
+            13: _l('姓名校验不通过'),
+            14: _l('手机号码与姓名和身份证不一致'),
           };
           if (data === 1) {
             alert(_l('认证信息已提交'));
@@ -385,7 +395,7 @@ export default function Certification(props) {
             form.setFieldsValue({
               companyName: data.name,
               creditCode: data.regNum,
-              creditValidDate: formatCreditDate(data.period),
+              creditValidDate: formatValidDate(data.period, '至', 'YYYY年MM月DD日'),
             });
             setBizLicenseOCRInfo({ ...data, key });
             checkIsCertByCertNo({ creditCode: data.regNum });
@@ -418,10 +428,7 @@ export default function Certification(props) {
               }
             } else {
               if (data.validDate) {
-                const validDate = (data.validDate.split('-') || []).map(item =>
-                  moment(item).isValid() ? moment(item) : '',
-                );
-                form.setFieldsValue({ idCardValidDate: validDate });
+                form.setFieldsValue({ idCardValidDate: formatValidDate(data.validDate) });
                 setIDCardOCRBackInfo({ ...data, key });
               } else {
                 return reject(_l('未检测到身份证国徽面信息'));
@@ -488,11 +495,7 @@ export default function Certification(props) {
           }
         });
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+    new captcha(callback);
   };
 
   // 验证码倒计时
@@ -735,10 +738,10 @@ export default function Certification(props) {
           !currentPage
             ? _l('认证')
             : currentPage === 'success'
-            ? _l('认证成功')
-            : certSource === 'personal' || currentPage === 'personal'
-            ? _l('个人认证')
-            : _l('企业认证')
+              ? _l('认证成功')
+              : certSource === 'personal' || currentPage === 'personal'
+                ? _l('个人认证')
+                : _l('企业认证')
         }
       />
       <div className="headerBar">

@@ -64,6 +64,7 @@ export default function (props) {
     loginForType,
     loginForTypeBack,
     status,
+    autoLogin
   } = props;
   let request = getRequest();
   const [
@@ -167,7 +168,7 @@ export default function (props) {
     type === 'weChat' &&
       externalPortalAjax
         .scanTpLogin(
-          { state: stateWX, appId, autoLogin: isAutoLogin }, //自动登录的参数
+          { state: stateWX, appId, autoLogin: autoLogin && isAutoLogin }, //自动登录的参数
           props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
         )
         .then(res => {
@@ -233,11 +234,7 @@ export default function (props) {
         doPwdLogin(Object.assign({}, res, { captchaType: md.global.getCaptchaType() }));
       }
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+    new captcha(callback);
   };
 
   const onLogin = (resRet = {}) => {
@@ -256,7 +253,7 @@ export default function (props) {
           randStr: randstr,
           appId, //应用ID
           state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
-          autoLogin: isAutoLogin,
+          autoLogin: autoLogin && isAutoLogin,
         },
         props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
       )
@@ -308,7 +305,7 @@ export default function (props) {
           password: encrypt(password),
           appId,
           verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
-          autoLogin: isAutoLogin,
+          autoLogin:autoLogin && isAutoLogin,
           captchaType: md.global.getCaptchaType(),
           ticket,
           randStr: randstr,

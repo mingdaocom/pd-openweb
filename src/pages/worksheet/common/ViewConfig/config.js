@@ -49,7 +49,56 @@ export const setList = [
   { key: 'titlewrap', txt: _l('标题行文字换行') },
 ];
 
+export const manageViewFilter = ['Filter', 'Controls', 'MobileSet', 'urlParams']
+
 export const MaxNavW = 500;
 export const MinNavW = 100;
 export const defaultNavOpenW = 200;
 export const defaultNavCloseW = 32;
+
+export const COVER_DISPLAY_MODE = [
+  { value: 3, text: _l('矩形') },
+  { value: 2, text: _l('圆形') },
+  { value: 0, text: _l('覆盖') },
+];
+
+export const COVER_DISPLAY_POSITION = [
+  { value: '2', text: _l('上') },
+  { value: '1', text: _l('左') },
+  { value: '0', text: _l('右') },
+];
+
+export const COVER_DISPLAY_FILL = [
+  { value: 0, text: _l('填满') },
+  { value: 1, text: _l('完整显示') },
+];
+
+export const CARD_WIDTH_OPTIONS = [
+  {
+    value: '1',
+    text: _l('小'),
+  },
+  {
+    value: '2',
+    text: _l('中'),
+  },
+  {
+    value: '3',
+    text: _l('大'),
+  },
+  {
+    value: '4',
+    text: _l('超大'),
+  },
+  {
+    value: '5',
+    text: _l('自定义'),
+  },
+];
+
+export const CARD_WIDTH_SETTING = {
+  '1': 200,
+  '2': 240,
+  '3': 300,
+  '4': 400,
+}

@@ -10,6 +10,7 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { Con, Wrap, WrapTxt } from './style';
 import DoubleConfirmationDialog from './DoubleConfirmDialog';
 import { defaultDoubleConfirm } from './config';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 
 let ajaxPromise = null;
 function SubmitFormSetting(props) {
@@ -176,7 +177,7 @@ function SubmitFormSetting(props) {
                 <Dropdown
                   menuStyle={{ width: 150 }}
                   currentItemClass="currentMenu"
-                  data={(_.get(props, 'worksheetInfo.views') || []).map(item => {
+                  data={getShowViews(_.get(props, 'worksheetInfo.views') || []).map(item => {
                     return { text: item.name, value: item.viewId };
                   })}
                   value={_.get(advancedSetting, btnList[i][2])}
@@ -228,7 +229,7 @@ function SubmitFormSetting(props) {
     return (
       advancedSetting.enableconfirm === '1' &&
       !!doubleconfirm.confirmMsg && (
-        <WrapTxt className='flexRow w100'>
+        <WrapTxt className="flexRow w100">
           <div className="txtFilter flex">
             <p>
               <span className="titleTxt Gray">{_l('提示文字')}</span>
@@ -237,7 +238,9 @@ function SubmitFormSetting(props) {
             {!!(_.get(doubleconfirm, 'confirmContent') || '').trim() && (
               <p className="mTop5 flexRow w100">
                 <span className="titleTxt Gray">{_l('详细内容')}</span>
-                <span className="txt Gray WordBreak overflow_ellipsis flex">{_.get(doubleconfirm, 'confirmContent')}</span>
+                <span className="txt Gray WordBreak overflow_ellipsis flex">
+                  {_.get(doubleconfirm, 'confirmContent')}
+                </span>
               </p>
             )}
           </div>

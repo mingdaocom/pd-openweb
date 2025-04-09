@@ -1,6 +1,5 @@
 import './css/batchTask.less';
 import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import '@mdfe/selectize';
 import doT from 'dot';
 import config from '../../config/config';
 import batchTaskTpl from './tpl/batchTask.html';
@@ -9,7 +8,6 @@ import ajaxRequest from 'src/api/taskCenter';
 import Store from 'redux/configureStore';
 import { errorMessage, checkIsProject, taskStatusDialog } from '../../utils/utils';
 import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
-import tagController from 'src/api/tag';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
@@ -17,6 +15,7 @@ import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import { LoadDiv, Dialog, Checkbox } from 'ming-ui';
 import { renderToString } from 'react-dom/server';
+import SelectTag from '../taskDetail/SelectTag';
 
 const SearchFolderCon = styled.ul`
   width: 438px;
@@ -170,7 +169,6 @@ BatchTask.initEvent = function () {
   // 批量标签
   $batchTask.on('click', '.iconTaskLabel', event => {
     $('#batchTask .categorys').show();
-    $('#txtCategory-selectized').focus();
     $batchTask.find('.batchOperator').addClass('Hidden');
     event.stopPropagation();
   });
@@ -467,106 +465,23 @@ BatchTask.bindDialog = function () {
   const root = createRoot(document.querySelector('.barchTaskMain .autoBatchFolder'));
   root && root.render(<SearchFolder />);
 
-  // 批量标签绑定事件
-  config.selectize = $('#txtCategory').selectize({
-    valueField: 'id',
-    plugins: ['remove_button'],
-    delimiter: ',',
-    persist: false,
-    placeholder: _l('+ 添加标签'),
-    create(text) {
-      return {
-        id: 'createNewTagsID',
-        text,
-      };
-    },
-    options: [],
-    items: [],
-    preload: 'focus',
-    render: {
-      option(data, escape) {
-        return (
-          '<div class="option"><span class="tagsIcon" style="background:' +
-          data.color +
-          '"></span>' +
-          escape(data.text) +
-          '</div>'
-        );
-      },
-      item(data, escape) {
-        return (
-          '<div class="item selectizeiItem"><span class="tagsIcon" style="background:' +
-          (data.color || 'transparent') +
-          ';width:' +
-          (data.color ? '10px' : '0px') +
-          '"></span><span class="tagName">' +
-          escape(data.text) +
-          '</span></div>'
-        );
-      },
-      option_create(data, escape) {
-        return '<div class="create">' + _l('创建标签') + '<strong>' + escape(data.input) + '</strong></div>';
-      },
-    },
-    load(keywords, callback) {
-      ajaxRequest.getTagsByTaskID({ taskID: '', keywords }).then(source => {
-        const selectize = config.selectize[0].selectize || {};
-        const selectTags = $('#txtCategory').val().split(',');
-
-        $.map(Object.keys(selectize.options), key => {
-          if (selectTags.indexOf(selectize.options[key].id) < 0) {
-            selectize.removeOption(key);
-          }
-        });
-        const list = [];
-        $.map(source.data, item => {
-          list.push({ text: item.tagName, id: item.tagID, color: item.color });
-        });
-        callback(list);
-      });
-    },
-    onItemAdd(tagID, $item) {
-      tagController
-        .addTaskTag2({
-          taskIds: BatchTask.getAllTaskIds(),
-          tagName: $item.find('.tagName').text(),
-          tagID: tagID === 'createNewTagsID' ? '' : tagID,
-        })
-        .then(data => {
-          if (data) {
-            if (tagID === 'createNewTagsID') {
-              const $tagList = $('#txtCategory');
-              config.selectize[0].selectize.updateOption('createNewTagsID', {
-                id: data.id,
-                text: data.value,
-                color: data.extra,
-              });
-              $tagList.attr('value', $tagList.val().replace('createNewTagsID', data.id));
-            }
-          } else {
-            config.selectize[0].selectize.removeOption(tagID || 'createNewTagsID');
-          }
-        });
-    },
-    onDelete(tagID) {
-      const selectize = config.selectize[0].selectize;
-
-      $('#txtCategory-selectized').blur();
-      tagController
-        .removeTasksTag({
-          sourceIds: BatchTask.getAllTaskIds(),
-          tagId: tagID[0],
-        })
-        .then(data => {
-          if (data.state === 0) {
-            selectize.addOption([selectize.options[tagID[0]]]);
-          }
-        });
-    },
-  });
-
+  BatchTask.renderSelectTags();
   BatchTask.loadTask();
   BatchTask.initEvent();
+};
+
+BatchTask.renderSelectTags = () => {
+  const selectRoot = createRoot(document.getElementById('txtCategory'));
+  selectRoot &&
+    selectRoot.render(
+      <SelectTag
+        defaultValue={[]}
+        taskID={BatchTask.getAllTaskIds()}
+        batchTask={true}
+        autoFocus={true}
+        getPopupContainer={triggerNode => triggerNode.parentElement}
+      />,
+    );
 };
 
 BatchTask.getAllTaskIds = function () {

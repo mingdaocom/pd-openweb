@@ -12,7 +12,7 @@ export default {
      return mdyAPI('Order', 'GetAuthorizeVersions', args, options);
    },
   /**
-  * 获取网络主授权草案订单
+  * 获取组织主授权草案订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数

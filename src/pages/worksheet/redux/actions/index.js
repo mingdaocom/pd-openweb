@@ -29,6 +29,8 @@ import {
   replaceControlsTranslateInfo,
   replaceAdvancedSettingTranslateInfo,
   replaceRulesTranslateInfo,
+  getHighAuthSheetSwitchPermit,
+  getHighAuthControls,
 } from 'src/pages/worksheet/util';
 import _, { find, get, some } from 'lodash';
 import { getTranslateInfo, addBehaviorLog } from 'src/util';
@@ -39,6 +41,8 @@ import {
   handleConditionsDefault,
   validate,
 } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { isHaveCharge } from './util';
+import { updateNavGroup, getNavGroupCount } from './navFilter.js';
 
 export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
   return (dispatch, getState) => {
@@ -126,7 +130,7 @@ let worksheetRequest = null;
 
 export function loadWorksheet(worksheetId, setRequest) {
   return (dispatch, getState) => {
-    const { base = {} } = getState().sheet;
+    const { base = {}, appPkgData = {}, views = [] } = getState().sheet;
     const { appId, viewId, chartId } = base;
 
     if (worksheetRequest && worksheetRequest.abort && base.type !== 'single') {
@@ -180,15 +184,21 @@ export function loadWorksheet(worksheetId, setRequest) {
         if (_.get(res, 'template.controls')) {
           res.template.controls = replaceControlsTranslateInfo(appId, worksheetId, res.template.controls);
         }
+
+        const manageView =
+          viewId === worksheetId && appPkgData.appRoleType > 99
+            ? _.find(views, l => l.viewId === worksheetId)
+            : undefined;
+
         dispatch({
           type: 'WORKSHEET_INIT',
           value: Object.assign(
-            !chartId
-              ? res
-              : {
-                  ...res,
-                  views: res.views.map(v => ({ ...v, viewType: 0 })),
-                },
+            {
+              ...res,
+              views: (manageView ? [manageView] : []).concat(
+                res.views.map(v => ({ ...v, viewType: !chartId ? v.viewType : 0 })),
+              ),
+            },
             {
               isRequestingRelationControls: true,
             },
@@ -224,6 +234,7 @@ export function loadWorksheet(worksheetId, setRequest) {
             type: 'WORKSHEET_UPDATE_VIEWS',
             views: infoRes.views,
           });
+
           infoRes.template.controls = newControls;
           dispatch(updateWorksheetSomeControls(newControls));
           dispatch({
@@ -407,17 +418,6 @@ export function saveView(viewId, newConfig, cb) {
   };
 }
 
-// 更新分组筛选
-export const updateNavGroup = () => {
-  return (dispatch, getState) => {
-    const { views, base } = getState().sheet;
-    const { viewId = '' } = base;
-    const view = views.find(o => o.viewId === viewId) || {};
-    const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
-    navGroup.controlId && window.localStorage.getItem('navGroupIsOpen') !== 'false' && dispatch(getNavGroupCount());
-  };
-};
-
 // 刷新视图
 export function refreshSheet(view, options) {
   return dispatch => {
@@ -491,6 +491,10 @@ export function openNewRecord({ isDraft } = {}) {
   return (dispatch, getState) => {
     const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, appPkgData } = getState().sheet;
     const { appId, viewId, groupId, worksheetId } = base;
+    const isManageView = isHaveCharge(appPkgData.appRoleType) && viewId === worksheetId;
+    const lastSheetSwitchPermit = isManageView
+      ? getHighAuthSheetSwitchPermit(sheetSwitchPermit, worksheetId)
+      : sheetSwitchPermit;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { advancedSetting = {} } = view;
     let { usenav } = advancedSetting;
@@ -510,8 +514,14 @@ export function openNewRecord({ isDraft } = {}) {
       );
     function handleAdd(param = {}) {
       const publicShare =
-        isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal;
-      const privateShare = isOpenPermit(permitList.embeddedLink, sheetSwitchPermit, viewId);
+        isOpenPermit(permitList.recordShareSwitch, lastSheetSwitchPermit, viewId) && !md.global.Account.isPortal;
+      const privateShare = isOpenPermit(permitList.embeddedLink, lastSheetSwitchPermit, viewId);
+
+      if (isManageView) {
+        worksheetInfo.template.controls = getHighAuthControls(_.get(worksheetInfo, 'template.controls'));
+        worksheetInfo.rules = [];
+      }
+
       return addRecord({
         ...param,
         showFillNext: true,
@@ -524,7 +534,7 @@ export function openNewRecord({ isDraft } = {}) {
         needCache: true,
         addType: 1,
         showShare: publicShare || privateShare,
-        sheetSwitchPermit,
+        sheetSwitchPermit: lastSheetSwitchPermit,
         hidePublicShare: !publicShare,
         privateShare: privateShare,
         isCharge: isCharge,
@@ -695,56 +705,6 @@ export function updateGroupFilter(navGroupFilters = [], view) {
     }
   };
 }
-let getNavGroupRequest = null;
-let preWorksheetIds = [];
-// 获取分组筛选的count
-export function getNavGroupCount() {
-  return (dispatch, getState) => {
-    const sheet = getState().sheet;
-    const { filters = {}, base = {}, quickFilter = {} } = sheet;
-    const { appId, worksheetId, viewId } = base;
-    const { filterControls, filtersGroup, keyWords, searchType } = filters;
-    if (getNavGroupRequest && getNavGroupRequest.abort && preWorksheetIds.includes(`${worksheetId}-${viewId}`)) {
-      getNavGroupRequest.abort();
-    }
-    if (!worksheetId && !viewId) {
-      return;
-    }
-    preWorksheetIds.push(`${worksheetId}-${viewId}`);
-    getNavGroupRequest = worksheetAjax.getNavGroup(
-      getFilledRequestParams({
-        appId,
-        worksheetId,
-        viewId,
-        filterControls,
-        filtersGroup,
-        searchType,
-        fastFilters: (_.isArray(quickFilter) ? quickFilter : []).map(f =>
-          _.pick(f, [
-            'controlId',
-            'dataType',
-            'spliceType',
-            'filterType',
-            'dateRange',
-            'value',
-            'values',
-            'minValue',
-            'maxValue',
-          ]),
-        ),
-        keyWords,
-      }),
-    );
-
-    getNavGroupRequest.then(data => {
-      preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${worksheetId}-${viewId}`);
-      dispatch({
-        type: 'WORKSHEET_NAVGROUP_COUNT',
-        data,
-      });
-    });
-  };
-}
 
 // 展开或收起工作表列表
 export function updateSheetListVisible(visible) {
@@ -840,5 +800,28 @@ export function updateViewShowcount(showcount) {
       type: 'VIEW_UPDATE_SHOW_COUNT',
       showcount,
     });
+  };
+}
+
+export function loadManageView(worksheetId, callback) {
+  return (dispatch, getState) => {
+    const { base = {}, appPkgData = {} } = getState().sheet;
+    const { appId } = base;
+
+    if (!worksheetId || appPkgData.appRoleType < 100) return;
+
+    worksheetAjax
+      .getWorksheetViewById({
+        appId,
+        worksheetId,
+        viewId: worksheetId,
+      })
+      .then(res => {
+        dispatch({
+          type: 'WORKSHEET_ADD_MANAGE_VIEW',
+          views: [{ ...res, name: _l('数据管理') }],
+        });
+        callback(res);
+      });
   };
 }

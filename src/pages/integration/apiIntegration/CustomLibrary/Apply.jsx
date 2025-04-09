@@ -92,7 +92,13 @@ export default function Apply(props) {
         <ApplyBtn
           className="flexRow alignItemsCenter"
           onClick={() =>
-            dialogSelectApp({ title: _l('选择授权应用'), projectId: companyId, isGetManagerApps: true, onOk: onApply })
+            dialogSelectApp({
+              title: _l('选择授权应用'),
+              projectId: companyId,
+              ajaxFun: 'getManagerApps',
+              ajaxParam: { projectId: companyId },
+              onOk: onApply,
+            })
           }
         >
           {_l('申请使用')}

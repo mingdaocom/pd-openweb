@@ -43,6 +43,14 @@ const ModalWrap = styled(Popup)`
       }
     }
   }
+  .closeIcon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 12px;
+    background-color: #e6e6e6;
+  }
 `;
 
 const BatchModalWrap = styled.div`
@@ -153,13 +161,20 @@ function MessageComp(props) {
   }
 
   return (
-    <ModalWrap onClose={hideModalMessage} visible={visible} className="mobileNoticeWrap mobileModal minFull topRadius">
+    <ModalWrap onClose={hideModalMessage} visible={visible} className="mobileNoticeWrap mobileModal topRadius">
       <div className="flex overflowAuto">
         <div className="flexRow">
-          <div className="flex mBottom16">
+          <div className="flex mBottom16 ellipsis">
             {getIcon()}
             <span className="bold Font18 TxtBottom mLeft10">{title}</span>
           </div>
+          {!duration && (
+            <div>
+              <span className="closeIcon TxtCenter" onClick={hideModalMessage}>
+                <i className="icon icon-close Gray_9e" />
+              </span>
+            </div>
+          )}
         </div>
         <div className="mobileNoticeContent">{description}</div>
       </div>

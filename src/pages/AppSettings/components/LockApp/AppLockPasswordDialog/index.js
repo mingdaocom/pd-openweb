@@ -1,14 +1,15 @@
-import React, { Component, Fragment, useState, createRef, useEffect } from 'react';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import { Dialog, Tooltip, Button, VerifyPasswordInput } from 'ming-ui';
-import { Input } from 'antd';
+import React, { Component, createRef, Fragment, useEffect, useState } from 'react';
 import ClipboardButton from 'react-clipboard.js';
-import RegExpValidator from 'src/util/expression';
-import appManagementAjax from 'src/api/appManagement';
-import { generateRandomPassword, verifyPassword } from 'src/util';
-import { captcha } from 'ming-ui/functions';
-import styled from 'styled-components';
+import { Input } from 'antd';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Button, Dialog, Tooltip, VerifyPasswordInput } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { captcha } from 'ming-ui/functions';
+import appManagementAjax from 'src/api/appManagement';
+import verifyPassword from 'src/components/verifyPassword';
+import { generateRandomPassword } from 'src/util';
+import RegExpValidator from 'src/util/expression';
 
 const PasswordInputBox = styled.div`
   line-height: 34px;
@@ -121,11 +122,8 @@ const graphicVertify = (callback = () => {}) => {
     }
     callback();
   };
-  if (md.global.getCaptchaType() === 1) {
-    new captcha(cb);
-  } else {
-    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
-  }
+
+  new captcha(cb);
 };
 
 // 锁定应用（开启应用锁）

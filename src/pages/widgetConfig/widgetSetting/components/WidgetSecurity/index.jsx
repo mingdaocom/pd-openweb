@@ -7,7 +7,8 @@ import { DISPLAY_MASK, CUSTOM_DISPLAY } from 'src/pages/widgetConfig/config/sett
 import MaskSettingDialog from './MaskSettingDialog';
 import EncryptSettingDialog from './EncryptSettingDialog';
 import styled from 'styled-components';
-import { buriedUpgradeVersionDialog, getFeatureStatus } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import _ from 'lodash';

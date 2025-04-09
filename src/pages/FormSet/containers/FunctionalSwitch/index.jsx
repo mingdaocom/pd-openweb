@@ -385,7 +385,7 @@ function FunctionalSwitch(props) {
                   });
                   setRang(data.diaRang);
                 }}
-                views={views}
+                views={views.filter(l => l.viewId !== l.worksheetId)}
                 data={info.showData}
               />
             )}

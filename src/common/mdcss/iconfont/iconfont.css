@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1737624523554') format('woff2'),
-       url('iconfont.woff?t=1737624523554') format('woff'),
-       url('iconfont.ttf?t=1737624523554') format('truetype');
+  src: url('iconfont.woff2?t=1742796599704') format('woff2'),
+       url('iconfont.woff?t=1742796599704') format('woff'),
+       url('iconfont.ttf?t=1742796599704') format('truetype');
 }
 
 .MD_Icon {
@@ -13,12 +13,60 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-move_out:before {
+.icon-align_horizontal_right:before {
+  content: "\e664";
+}
+
+.icon-align_horizontal_left:before {
+  content: "\e665";
+}
+
+.icon-align_horizontal_center1:before {
+  content: "\e667";
+}
+
+.icon-exchange:before {
+  content: "\e662";
+}
+
+.icon-align_setting:before {
+  content: "\e6bc";
+}
+
+.icon-format_paint:before {
+  content: "\e6b6";
+}
+
+.icon-tab_page:before {
+  content: "\ecec";
+}
+
+.icon-page_card:before {
+  content: "\eced";
+}
+
+.icon-sheets_rtl:before {
+  content: "\e6b5";
+}
+
+.icon-Single_Line:before {
   content: "\ece7";
 }
 
-.icon-move_in:before {
+.icon-Markdown:before {
   content: "\ece8";
+}
+
+.icon-Multiple_Lines:before {
+  content: "\eceb";
+}
+
+.icon-move_in:before {
+  content: "\ece9";
+}
+
+.icon-move_out:before {
+  content: "\ecea";
 }
 
 .icon-horizontal-fieldvalue:before {

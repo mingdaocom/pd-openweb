@@ -1,49 +1,49 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { filterHidedControls } from 'src/pages/worksheet/util';
-import { ScrollView } from 'ming-ui';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
-import CardAppearance from './CardAppearance';
+import _, { get } from 'lodash';
+import { Icon, ScrollView } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import pluginAjax from 'src/api/plugin.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import {
-  CAN_NOT_AS_VIEW_SORT,
-  WORKFLOW_SYSTEM_FIELDS_SORT,
-  formatAdvancedSettingByNavfilters,
-} from 'src/pages/worksheet/common/ViewConfig/util';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import _ from 'lodash';
-import { viewTypeConfig, baseSetList } from './config';
-import pluginAjax from 'src/api/plugin.js';
+import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { filterHidedControls } from 'src/pages/worksheet/util';
+import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
+import CardAppearance from './CardAppearance';
 import {
   ActionSet,
-  SortConditions,
-  MobileSet,
+  BatchSet,
   CalendarSet,
-  GunterSet,
-  FastFilter,
-  RecordColor,
-  NavGroup,
-  Show,
-  Controls,
-  UrlParams,
-  DebugConfig,
-  PluginSettings,
-  SubmitConfig,
-  ParameterSet,
-  ResourceSet,
-  SideNav,
-  ViewFilter,
-  MapSetting,
-  TableSet,
   CardSet,
-  StructureSet,
-  HierarchyViewSetting,
+  Controls,
+  DebugConfig,
   DetailSet,
+  FastFilter,
+  GunterSet,
+  HierarchyViewSetting,
+  MapSetting,
+  MobileSet,
+  NavGroup,
+  ParameterSet,
+  PluginSettings,
+  RecordColor,
   RefreshTime,
+  ResourceSet,
+  Show,
+  SideNav,
+  Sort,
+  SortConditions,
+  StructureSet,
+  SubmitConfig,
+  TableSet,
+  TitleControl,
+  UrlParams,
+  ViewFilter,
 } from './components';
+import { baseSetList, viewTypeConfig } from './config';
 
 @errorBoundary
 export default class ViewConfigCon extends Component {
@@ -52,6 +52,7 @@ export default class ViewConfigCon extends Component {
     this.state = {
       view: props.view,
       viewSetting: baseSetList[VIEW_DISPLAY_TYPE[_.get(props, 'view.viewType') || 0]][0],
+      showBatch: false,
     };
   }
 
@@ -70,8 +71,8 @@ export default class ViewConfigCon extends Component {
         viewSetting: !!viewConfigTab
           ? viewConfigTab
           : VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView
-          ? 'PluginSettings'
-          : 'Setting',
+            ? 'PluginSettings'
+            : 'Setting',
       });
     }
     if (!_.isEqual(nextProps.view.moreSort, this.props.view.moreSort)) {
@@ -241,9 +242,35 @@ export default class ViewConfigCon extends Component {
           );
       }
     };
+    const renderTitleSet = () => {
+      const { updateCurrentView } = this.props;
+      switch (viewTypeText) {
+        case 'resource':
+        case 'gunter':
+        case 'calendar':
+          return (
+            <TitleControl
+              {...this.props}
+              className="mTop32"
+              advancedSetting={_.get(view, 'advancedSetting')}
+              handleChange={value => {
+                updateCurrentView({
+                  ...view,
+                  advancedSetting: { viewtitle: value },
+                  editAttrs: ['advancedSetting'],
+                  editAdKeys: ['viewtitle'],
+                });
+              }}
+            />
+          );
+        default:
+          return null;
+      }
+    };
     return (
       <div className="viewConfigWrap">
         {renderCom()}
+        {renderTitleSet()}
         <RefreshTime {...this.props} />
       </div>
     );
@@ -320,32 +347,7 @@ export default class ViewConfigCon extends Component {
       case 'Filter': // 筛选
         return <ViewFilter {...this.props} />;
       case 'Sort': // 排序
-        return (
-          <div className="commonConfigItem">
-            <SortConditions
-              columns={columns.filter(o => !CAN_NOT_AS_VIEW_SORT.includes(o.type))}
-              sortConditions={this.state.view.moreSort || []}
-              onChange={value => {
-                const first = value[0] || {};
-                this.setState(
-                  {
-                    view: { ...view, moreSort: value },
-                  },
-                  () => {
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      editAttrs: ['moreSort', 'sortCid', 'sortType'],
-                      moreSort: value,
-                      sortCid: first.controlId || 'ctime',
-                      sortType: first.isAsc ? 2 : 1,
-                    });
-                  },
-                );
-              }}
-            />
-          </div>
-        );
+        return <Sort {...this.props} />;
       case 'Controls': // 字段
         return <Controls {...this.props} formatColumnsListForControls={this.formatColumnsListForControlsWithoutHide} />;
       case 'MobileSet': // 移动端设置
@@ -405,7 +407,7 @@ export default class ViewConfigCon extends Component {
   };
 
   render() {
-    const { viewSetting } = this.state;
+    const { viewSetting, showBatch } = this.state;
     const data = viewTypeConfig.find((item, i) => item.type === viewSetting) || {};
     const conRender = () => {
       const { view } = this.props;
@@ -415,12 +417,25 @@ export default class ViewConfigCon extends Component {
           {!['MobileSet', 'FastFilter', 'NavGroup', 'RecordColor', 'ActionSet', 'Submit', 'Filter'].includes(
             data.type,
           ) && (
-            <div className="viewSetTitle">
-              {data.type === 'Setting'
-                ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType]).txt
-                : data.name}
-              {isDevCustomView && ['ParameterSet'].includes(viewSetting) && (
-                <div className="Gray_75 Font13 mTop4 Normal">{_l('插件发布后将作为使用者的视图配置')}</div>
+            <div className="viewSetTitle flexRow">
+              <div className="flex">
+                {data.type === 'Setting'
+                  ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType]).txt
+                  : data.name}
+                {isDevCustomView && ['ParameterSet'].includes(viewSetting) && (
+                  <div className="Gray_75 Font13 mTop4 Normal">{_l('插件发布后将作为使用者的视图配置')}</div>
+                )}
+              </div>
+              {(view.viewType === 0 ||
+                (view.viewType === 2 && get(view, 'advancedSetting.hierarchyViewType') === '3')) &&
+                viewSetting === 'Show' && (
+                  <span className="Hand Font14 batchSetBtn" onClick={() => this.setState({ showBatch: true })}>
+                    <Icon icon="format_paint" />
+                    <span className="mLeft5 Normal">{_l('编辑列样式')}</span>
+                  </span>
+                )}
+              {showBatch && (
+                <BatchSet {...this.props} onClose={() => this.setState({ showBatch: false })} visible={showBatch} />
               )}
             </div>
           )}
@@ -428,6 +443,7 @@ export default class ViewConfigCon extends Component {
         </div>
       );
     };
+
     return (
       <div className="viewSetBox">
         <SideNav

@@ -507,4 +507,18 @@ export default {
      
      return mdyAPI('Department', 'SearchDepartment2', args, options);
    },
+  /**
+  * 保留 有成员的部门Ids
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {array} args.departmentIds 是否 部门Ids 有成员（仅当前部门成员）
+  * @param {array} args.departmentIdsInTree 是否 部门Ids 有成员（包含 所有下级成员）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   keepHasMemberIds: function (args, options = {}) {
+     
+     return mdyAPI('Department', 'KeepHasMemberIds', args, options);
+   },
 };

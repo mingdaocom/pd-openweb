@@ -13,7 +13,8 @@ export default {
   /**
   * 更新个人系统设置
   * @param {Object} args 请求参数
-  * @param {string} args.settingType 设置项 PrivateMobile=9, PrivateEmail=10、AllowMultipleDevicesUse=16、
+  * @param {string} args.settingType 设置项[枚举值]
+PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetioned=22
   * @param {string} args.settingValue 设置值1:true, 0:false
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

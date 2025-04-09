@@ -1,15 +1,18 @@
-import React, { useRef, useState, Fragment, useEffect, forwardRef, useImperativeHandle, useContext } from 'react';
-import styled from 'styled-components';
+import React, { forwardRef, Fragment, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import _ from 'lodash';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
+import _, { pick } from 'lodash';
+import styled from 'styled-components';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { selectRecord } from 'src/components/recordCardListDialog';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
+import {
+  getTitleControlIdFromRelateControl,
+  getTitleTextFromRelateControl,
+} from 'src/components/newCustomFields/tools/utils';
+import { selectRecord } from 'src/components/recordCardListDialog';
+import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
 import { addBehaviorLog } from 'src/util';
 
 function getCellHeight(texts = [], width) {
@@ -189,7 +192,11 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   }
   useEffect(() => {
     setRecords(props.records);
-  }, [JSON.stringify(props.records.map(r => r.rowid))]);
+  }, [
+    JSON.stringify(
+      props.records.map(r => pick(r, ['rowid'].concat(getTitleControlIdFromRelateControl(control) || []))),
+    ),
+  ]);
   function handleOpenRecord({ appId, worksheetId, recordId, viewId }) {
     openDialogCallback();
     openRecordInfo({

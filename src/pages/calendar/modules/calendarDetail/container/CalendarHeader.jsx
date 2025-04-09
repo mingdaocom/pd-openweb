@@ -6,10 +6,7 @@ import Icon from 'ming-ui/components/Icon';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-
-import { Config } from '../index';
-
-import { getUserAllCalCategories, getCalendarColor } from '../common';
+import { getUserAllCalCategories, getCalendarColor, Config } from '../common';
 
 export default class CalendarHeader extends Component {
   static propTypes = {

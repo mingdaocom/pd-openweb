@@ -11,7 +11,8 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import SetControlName from './components/SetControlName';
 import _ from 'lodash';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import { APP_TYPE, USER_TYPE } from '../enum';
 import { quickSelectUser } from 'ming-ui/functions';
@@ -52,6 +53,7 @@ class ProcessConfig extends Component {
   onSave = () => {
     const { flowInfo } = this.props;
     const { data, saveRequest, errorItems } = this.state;
+    let objArrError = 0;
     const {
       executeType,
       allowRevoke,
@@ -82,6 +84,17 @@ class ProcessConfig extends Component {
 
     if (processVariables.filter(item => !item.controlName).length) {
       alert(_l('参数名称不能为空'), 2);
+      return;
+    }
+
+    processVariables
+      .filter(item => item.type === 10000008 && item.processVariableType === 0)
+      .forEach(item => {
+        if (!processVariables.find(o => o.dataSource === item.controlId)) objArrError++;
+      });
+
+    if (objArrError) {
+      alert(_l('对象数组下至少要有一个参数'), 2);
       return;
     }
 
@@ -550,7 +563,7 @@ class ProcessConfig extends Component {
   }
 
   renderParameterContent() {
-    const { data, errorItems } = this.state;
+    const { data } = this.state;
 
     return (
       <Fragment>
@@ -561,12 +574,7 @@ class ProcessConfig extends Component {
           )}
         </div>
 
-        <ProcessVariables
-          processVariables={data.processVariables}
-          errorItems={errorItems}
-          setErrorItems={errorItems => this.setState({ errorItems })}
-          updateSource={this.updateSource}
-        />
+        <ProcessVariables processVariables={data.processVariables} updateSource={this.updateSource} />
       </Fragment>
     );
   }

@@ -579,18 +579,6 @@ export function getNewIconByType(control = {}) {
   return type === 43 ? OCR_ICON_WHITELIST[enumDefault] : getIconByType(type);
 }
 
-//是否关联多条列表
-export function isRelateMoreList(control, condition) {
-  return (
-    control &&
-    control.type === 29 &&
-    control.enumDefault === 2 &&
-    control.advancedSetting &&
-    control.advancedSetting.showtype === '2' &&
-    _.includes([24, 25], condition.filterType || condition.type)
-  );
-}
-
 // 业务规则默认名称
 export function getDefaultRuleName(data = [], activeTab) {
   const displayNum = data.filter(i => i.type === activeTab).length + 1;

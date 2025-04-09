@@ -428,3 +428,18 @@
   -moz-transition-delay: 1000ms;
   transition-delay: 1000ms;
 }
+
+.tip-no-animation:before,
+.tip-no-animation:after {
+  transition: none !important;
+}
+
+
+.tip-red:before {
+  border-right-color: #F44336 !important;
+}
+.tip-red:after {
+  background-color: #F44336 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}

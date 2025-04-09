@@ -1,36 +1,37 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Dialog } from 'antd-mobile';
+import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
+import cx from 'classnames';
+import _, { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog } from 'antd-mobile';
-import { ScrollView, EditingBar } from 'ming-ui';
+import { EditingBar, ScrollView } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
-import RecordInfoContext from '../recordInfo/RecordInfoContext';
+import RecordForm from 'worksheet/common/recordInfo/RecordForm';
+import { BUTTON_ACTION_TYPE } from 'worksheet/constants/enum';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
+import { canEditData } from 'worksheet/redux/actions/util';
 import {
   formatRecordToRelateRecord,
-  isRelateRecordTableControl,
   getRecordTempValue,
+  isRelateRecordTableControl,
   parseRecordTempValue,
-  saveTempRecordValueToLocal,
   removeTempRecordValueFromLocal,
+  saveTempRecordValueToLocal,
 } from 'worksheet/util';
-import RecordForm from 'worksheet/common/recordInfo/RecordForm';
-import Share from 'src/pages/worksheet/components/Share';
-import { MobileRecordRecoverConfirm } from './MobileNewRecord';
-import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
-import { browserIsMobile } from 'src/util';
-import './NewRecord.less';
-import { BUTTON_ACTION_TYPE } from './NewRecord';
-import _, { get, isEmpty } from 'lodash';
-import { canEditData } from 'worksheet/redux/actions/util';
 import { emitter, KVGet } from 'worksheet/util';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { emitter as ViewEmitter } from 'src/util';
-import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
+import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
-import cx from 'classnames';
+import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
+import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
+import Share from 'src/pages/worksheet/components/Share';
+import { browserIsMobile } from 'src/util';
+import { emitter as ViewEmitter } from 'src/util';
+import RecordInfoContext from '../recordInfo/RecordInfoContext';
+import MobileRecordRecoverConfirm from './MobileRecordRecoverConfirm';
+import './NewRecord.less';
 
 const Con = styled.div`
   height: 100%;
@@ -139,6 +140,7 @@ function NewRecordForm(props) {
   const [errorVisible, setErrorVisible] = useState();
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
+
   const isMobile = browserIsMobile();
   function newRecord(options = {}) {
     if (!customwidget.current) return;
@@ -295,7 +297,7 @@ function NewRecordForm(props) {
               return;
             }
 
-            alert('保存成功', 1, 1000);
+            alert(_l('保存成功'), 1, 1000);
             isSubmitting.current = false;
 
             // APP集成H5前置扫码继续扫码提交下一条
@@ -344,6 +346,15 @@ function NewRecordForm(props) {
               );
               if (_.isFunction(openRecord)) {
                 openRecord(rowData.rowid, openViewId);
+              } else if (isMobile) {
+                openMobileRecordInfo({
+                  className: 'full',
+                  appId: appId,
+                  worksheetId: worksheetId,
+                  rowId: rowData.rowid,
+                  viewId: openViewId,
+                  from: 3,
+                });
               } else {
                 openRecordInfo({
                   appId: appId,
@@ -426,7 +437,14 @@ function NewRecordForm(props) {
     }
   }
 
-  const handleAPPScanCodeFunc = controls => {
+  const handleAPPScanCodeFunc = newFormdata => {
+    newFormdata = formdata && !_.isEmpty(formdata) ? formdata : newFormdata;
+    const controls = newFormdata.map(item => {
+      if (_.get(item, 'advancedSetting.defsource')) {
+        return { ...item, value: getDynamicValue(newFormdata, item) };
+      }
+      return item;
+    });
     const cloneControls = _.clone(controls);
 
     handleAPPScanCode({
@@ -476,6 +494,7 @@ function NewRecordForm(props) {
       load();
     }
   }, [loading]);
+
   return (
     <RecordInfoContext.Provider
       value={{

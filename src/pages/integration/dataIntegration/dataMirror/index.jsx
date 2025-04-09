@@ -6,7 +6,8 @@ import MirrorList from './components/MirrorList.jsx';
 import CreateDialog from './components/CreateDialog.jsx';
 import { useSetState } from 'react-use';
 import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 
 const Wrap = styled.div`
   background: #fff;

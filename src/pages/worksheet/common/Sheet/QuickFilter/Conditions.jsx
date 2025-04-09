@@ -8,8 +8,8 @@ import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import FilterInput, { TextTypes, NumberTypes } from './Inputs';
 import { validate } from './utils';
-import { formatFilterValuesToServer } from './';
-import _ from 'lodash';
+import { formatFilterValuesToServer } from './utils';
+import _, { get } from 'lodash';
 import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
 
 const Con = styled.div`
@@ -338,8 +338,14 @@ export default function Conditions(props) {
   const filtersData = Object.keys(values)
     .map(key => {
       const keyIndex = key.split('-')[1];
+      const control = _.get(items[keyIndex], 'control') || {};
       return {
-        ...(_.get(items[keyIndex], 'control') || {}),
+        ...control,
+        type:
+          (control.type === 9 || control.type === 11) &&
+          String(get(items[keyIndex], 'advancedSetting.allowitem')) === '2'
+            ? 10
+            : control.type,
         controlId: 'fastFilter_' + _.get(items[keyIndex], 'control.controlId'),
         value: formatQuickFilterValueToControlValue(_.get(items[keyIndex], 'control.type'), values[key]),
         filterValue: _.includes(

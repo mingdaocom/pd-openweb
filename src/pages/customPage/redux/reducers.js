@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   ADD_WIDGET,
   DEL_WIDGET,
+  DEL_TABS_WIDGET,
+  DEL_WIDGET_TAB,
   UPDATE_WIDGET,
   UPDATE_LAYOUT,
   UPDATE_PAGE_INFO,
@@ -59,7 +61,7 @@ function updateLayout(state, payload) {
                 data.h = maxH;
               }
               return update(item, {
-                [layoutType]: { layout: { $set: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH']) } },
+                [layoutType]: { layout: { $set: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH', 'maxH']) } },
               });
             } else {
               return item;
@@ -189,7 +191,20 @@ export default function customPage(state = initialState, action) {
                 title: '',
                 titleVisible: false,
                 visible: true,
-                layout: getDefaultLayout({ components: state.components, layoutType: 'web', type: payload.type, config: payload.config }),
+                layout: getDefaultLayout({
+                  components: (() => {
+                    if (payload.tabId) {
+                      return state.components.filter(c => c.tabId === payload.tabId);
+                    }
+                    if (payload.sectionId) {
+                      return state.components.filter(c => c.sectionId === payload.sectionId);
+                    }
+                    return state.components;
+                  })(),
+                  layoutType: 'web',
+                  type: payload.type,
+                  config: payload.config,
+                }),
               },
               mobile: {
                 title: '',
@@ -233,6 +248,31 @@ export default function customPage(state = initialState, action) {
         delData.filterComponents = delData.filterComponents.filter(item => item.value !== (payload.value || payload.uuid));
       }
       return delData;
+    case DEL_TABS_WIDGET:
+      const objectId = _.get(payload, 'config.objectId');
+      return {
+        ...state,
+        components: state.components.filter(c => {
+          if (_.get(c, 'config.objectId') === objectId) {
+            return false;
+          }
+          if (c.sectionId === objectId) {
+            return false;
+          }
+          return true;
+        })
+      }
+    case DEL_WIDGET_TAB:
+      const { tabId } = payload; 
+      return {
+        ...state,
+        components: state.components.filter(c => {
+          if (c.tabId === tabId) {
+            return false;
+          }
+          return true;
+        })
+      }
     case UPDATE_WIDGET:
       const { widget, layoutType, ...rest } = payload;
       let result = {};

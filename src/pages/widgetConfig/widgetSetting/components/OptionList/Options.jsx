@@ -264,6 +264,7 @@ export default function SelectOptions(props) {
   const [focusIndex, setIndex] = useState(-1);
   const { showtype } = getAdvanceSetting(data);
   const [isDrag, setIsDrag] = useState(false);
+  const [focusIndexs, setIndexs] = useState([]);
   const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
   const findOther = _.findIndex(options, i => i.key === 'other');
   const noDelOptions = options.filter(i => !i.isDeleted);
@@ -273,6 +274,10 @@ export default function SelectOptions(props) {
     assignValueVisible: false,
     batchAddVisible: false,
   });
+
+  useEffect(() => {
+    setIndexs([...focusIndexs, focusIndex]);
+  }, [focusIndex]);
 
   const addOption = (isOther, nextIndex) => {
     if (notAdd) {
@@ -368,7 +373,18 @@ export default function SelectOptions(props) {
         }}
       />
       <HandleOption className="handleOption">
-        <div className="addOptions" onClick={() => addOption()}>
+        <div
+          className="addOptions"
+          onClick={() => {
+            const prevFocusIndex = focusIndexs[focusIndexs.length - 2];
+            addOption(
+              false,
+              prevFocusIndex === -1 || (hasOther && prevFocusIndex === noDelOptions.length - 1)
+                ? undefined
+                : prevFocusIndex + 1,
+            );
+          }}
+        >
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>
         </div>

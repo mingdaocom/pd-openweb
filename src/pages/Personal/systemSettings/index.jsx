@@ -1,14 +1,13 @@
 import React from 'react';
-import { LoadDiv, Dropdown, Checkbox, RadioGroup } from 'ming-ui';
-import accountSetting from 'src/api/accountSetting';
-import privateMapAjax from 'src/api/privateMap';
-import Beta from 'src/pages/AppSettings/components/Beta';
 import cx from 'classnames';
-import './index.less';
+import _ from 'lodash';
+import { Checkbox, Dropdown, LoadDiv, RadioGroup } from 'ming-ui';
+import accountSetting from 'src/api/accountSetting';
+import fixedDataApi from 'src/api/fixedData';
+import privateMapAjax from 'src/api/privateMap';
 import langConfig from 'src/common/langConfig';
 import common from '../common';
-import _ from 'lodash';
-import fixedDataApi from 'src/api/fixedData';
+import './index.less';
 
 const configs = [
   // {
@@ -164,10 +163,7 @@ export default class AccountChart extends React.Component {
           );
         })}
         <div className="systemSettingItem">
-          <div className="systemSettingsLabel Gray_75 LineHeight32">
-            {_l('时区')}
-            <Beta className="Right mTop8" />
-          </div>
+          <div className="systemSettingsLabel Gray_75 LineHeight32">{_l('时区')}</div>
           <div className="systemSettingsRight">
             <div className="Gray_75 mBottom16">
               <Dropdown

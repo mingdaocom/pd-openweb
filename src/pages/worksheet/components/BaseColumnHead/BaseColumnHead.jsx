@@ -197,11 +197,8 @@ export default class BaseColumnHead extends React.Component {
           </div>
           {maskData && <i className="icon icon-eye_off maskData Font16"></i>}
           {showDropdown && !disabled && (
-            <span className="dropIcon">
-              <i
-                className="icon icon-arrow-down-border ThemeHoverColor3 Hand"
-                onClick={() => this.setState({ listVisible: true })}
-              ></i>
+            <span className="dropIcon" onClick={() => this.setState({ listVisible: true })}>
+              <i className="icon icon-arrow-down-border ThemeHoverColor3 Hand"></i>
             </span>
           )}
         </div>
@@ -226,7 +223,7 @@ export default class BaseColumnHead extends React.Component {
         popupClassName="filterTrigger"
         popupVisible={listVisible}
         popupAlign={{
-          points: ['tr', 'br'],
+          points: style.width > 180 ? ['tr', 'br'] : ['tl', 'bl'],
           overflow: {
             adjustX: true,
             adjustY: true,

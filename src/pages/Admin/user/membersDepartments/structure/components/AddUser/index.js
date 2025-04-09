@@ -1,12 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip, RadioGroup, Input, LoadDiv } from 'ming-ui';
+import { Icon, Tooltip, RadioGroup, Input, LoadDiv, intlTelInput } from 'ming-ui';
 import { Drawer } from 'antd';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
 import { dialogSelectUser } from 'ming-ui/functions';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
 import DrawerFooterOption from '../DrawerFooterOption';
 import { encrypt } from 'src/util';
 import BaseFormInfo from '../BaseFormInfo';
@@ -50,11 +47,6 @@ export default class AddUser extends Component {
       this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.mobile, {
         customPlaceholder: '',
-        autoPlaceholder: 'off',
-        loadUtils: '',
-        initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-        preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
-        utilsScript: utils,
         separateDialCode: true,
         showSelectedDialCode: true,
       });
@@ -65,11 +57,6 @@ export default class AddUser extends Component {
     this.itiAutonomously && this.itiAutonomously.destroy();
     this.itiAutonomously = intlTelInput(this.autonomously, {
       customPlaceholder: '',
-      autoPlaceholder: 'off',
-      loadUtils: '',
-      initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-      preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
-      utilsScript: utils,
       separateDialCode: true,
       showSelectedDialCode: true,
     });
@@ -145,10 +132,10 @@ export default class AddUser extends Component {
       inviteType === 'mobile'
         ? this.iti.getNumber()
         : inviteType === 'email'
-        ? email
-        : type === 'autonomously' && this.itiAutonomously
-        ? this.itiAutonomously.getNumber()
-        : autonomously;
+          ? email
+          : type === 'autonomously' && this.itiAutonomously
+            ? this.itiAutonomously.getNumber()
+            : autonomously;
 
     if (!userContact) {
       this.setState({ showMask: false });
@@ -226,18 +213,18 @@ export default class AddUser extends Component {
     let check = !_.isEmpty(user)
       ? false
       : inviteType === 'mobile'
-      ? !!checkForm['userName'](userName) || !!checkForm['mobile'](mobile, this.iti)
-      : !!checkForm['userName'](userName) || !!checkForm['email'](email);
+        ? !!checkForm['userName'](userName) || !!checkForm['mobile'](mobile, this.iti)
+        : !!checkForm['userName'](userName) || !!checkForm['email'](email);
 
     if (md.global.Config.IsLocal && _.isEmpty(user)) {
       check = _.includes(['mobile', 'email'], inviteType)
         ? check
         : inviteType === 'autonomously' &&
-          (!!checkForm['autonomously'](
-            this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
-            this.itiAutonomously,
-          ) ||
-            !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
+        (!!checkForm['autonomously'](
+          this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+          this.itiAutonomously,
+        ) ||
+          !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
     }
     if (check) {
       return false;
@@ -546,7 +533,7 @@ export default class AddUser extends Component {
       projectId,
       departmentId,
       authority = [],
-      onClose = () => {},
+      onClose = () => { },
     } = this.props;
     const {
       isUploading,

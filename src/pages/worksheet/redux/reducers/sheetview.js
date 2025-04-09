@@ -8,9 +8,11 @@ const initialSheetViewConfig = {
   fixedColumnCount: 0,
   defaultScrollLeft: 0,
   sheetColumnWidths: {},
+  sheetColumnWidthsMap: {},
   sheetHiddenColumns: [],
   allWorksheetIsSelected: false,
   sheetSelectedRows: [],
+  columnStyles: {},
 };
 
 export function sheetViewConfig(state = initialSheetViewConfig, action) {
@@ -42,6 +44,9 @@ export function sheetViewConfig(state = initialSheetViewConfig, action) {
     // 表格默认横向滚动值
     case 'WORKSHEET_SHEETVIEW_UPDATE_SCROLL_LEFT':
       return { ...state, defaultScrollLeft: action.value };
+    // 显示列样式
+    case 'WORKSHEET_SHEETVIEW_UPDATE_COLUMN_STYLES':
+      return { ...state, columnStyles: action.value };
     case 'WORKSHEET_INIT':
     case 'WORKSHEET_SHEETVIEW_CLEAR':
       return initialSheetViewConfig;

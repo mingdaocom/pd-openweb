@@ -4,7 +4,7 @@ import { Radio } from 'antd';
 import _ from 'lodash';
 
 export default function ShowTypeCom(props) {
-  const { updateViewSet, data, advancedSetting, dataType } = props;
+  const { updateViewSet, data = {}, advancedSetting = {}, dataType } = props;
   return (
     <React.Fragment>
       <div className="title">{data.txt}</div>
@@ -20,7 +20,7 @@ export default function ShowTypeCom(props) {
             updateViewSet({ [data.key]: e.target.value });
           }
         }}
-        value={JSON.parse(advancedSetting[data.key]) || data.default}
+        value={safeParse(advancedSetting[data.key]) || data.default}
       >
         {data.types.map(o => {
           return (

@@ -25,6 +25,12 @@ const fillTranslateInfo = (appId, roleDetail) => {
 };
 
 const Wrap = styled.div`
+  .w35 {
+    width: 35%;
+  }
+  .mLeft52 {
+    margin-left: 52px;
+  }
   flex: 1;
   display: flex;
   flex-flow: column nowrap;
@@ -63,12 +69,14 @@ const Wrap = styled.div`
         top: 0;
         z-index: 1;
         .tableHeaderItemMax {
-          width: 35%;
           text-align: center;
           font-weight: bold;
         }
         .tableHeaderOption {
-          width: 13%;
+          padding-left: 32px;
+          width: 15%;
+          max-width: 170px;
+          min-width: 100px;
           justify-content: center !important;
         }
         .tableHeaderOther {
@@ -97,7 +105,6 @@ const Wrap = styled.div`
 
         .viewsGroup {
           border-right: 1px solid #eaeaea;
-          width: 87%; //13*4+35
         }
 
         .viewSetting {
@@ -140,13 +147,6 @@ const Wrap = styled.div`
               opacity: 1;
             }
           }
-          .viewSettingItemMax {
-            width: 100%;
-            flex: 35;
-            .mLeft52 {
-              margin-left: 52px;
-            }
-          }
           .viewSettingItem {
             flex: 13;
             display: flex;
@@ -157,7 +157,9 @@ const Wrap = styled.div`
         }
 
         .settingGroup {
-          width: 13%;
+          width: 15%;
+          max-width: 170px;
+          min-width: 100px;
           padding: 0 10px;
           &.showSet {
             span {

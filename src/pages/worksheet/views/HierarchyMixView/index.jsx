@@ -27,6 +27,7 @@ import DragLayer from '../HierarchyView/components/DragLayer';
 import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
 import './index.less';
 import { emitter } from 'src/util';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -183,6 +184,7 @@ function HierarchyMix(props) {
     _.get(view, 'advancedSetting.topshow'),
     _.get(view, 'advancedSetting.topfilters'),
     _.get(view, 'advancedSetting.defaultlayer'),
+    _.get(view, 'advancedSetting.viewtitle'),
     JSON.stringify(navGroupFilters),
   ]);
 
@@ -452,7 +454,8 @@ function HierarchyMix(props) {
         _.find(controls, item => item.controlId === viewControl) &&
         hierarchyData.map(o => o.value).includes(viewControl)) ||
       !_.isEmpty(viewControls);
-    let isNarrow = advancedSetting.coverposition === '2';
+    const { coverPosition } = getCoverStyle(view);
+    let isNarrow = coverPosition === '2';
 
     if (!isHaveSelectControl) {
       return (
@@ -475,10 +478,9 @@ function HierarchyMix(props) {
 
     if (!_.isEmpty(viewControls) && viewControls.length > 1) {
       let sign = viewControls.slice(1).some(item => {
-        return (
-          isNarrow && (item.advancedSetting || {}).coverposition && (item.advancedSetting || {}).coverposition !== '2'
-        );
+        return isNarrow && _.get(getCoverStyle(item), 'coverPosition') !== '2';
       });
+
       if (sign) isNarrow = false;
     }
 

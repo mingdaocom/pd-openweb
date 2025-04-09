@@ -1,16 +1,11 @@
+import { saveAs } from 'file-saver';
+import _, { find, get, includes, isString, omit, pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  handleSortRows,
-  postWithToken,
-  download,
-  filterEmptyChildTableRows,
-  getRelateRecordCountOfControlFromRow,
-} from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
-import _, { find, get, includes, isString, pick } from 'lodash';
-import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { createRequestPool } from 'worksheet/api/standard';
+import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
+import { filterEmptyChildTableRows, handleSortRows, postWithToken } from 'worksheet/util';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 
 const PAGE_SIZE = 200;
 
@@ -20,7 +15,7 @@ export function updateTreeNodeExpansion(
 ) {
   return (dispatch, getState) => {
     const { base = {}, rows = [], treeTableViewData } = getState();
-    const { control } = base;
+    const { control, instanceId, workId } = base;
     const { treeMap, maxLevel } = treeTableViewData;
     const getNewRowsFn =
       getNewRows ||
@@ -38,6 +33,8 @@ export function updateTreeNodeExpansion(
                 value: row.rowid,
               },
             ],
+            instanceId,
+            workId,
           })
           .then(res => {
             const newRows = res.data.map(r => ({
@@ -127,7 +124,7 @@ export const clearAndSetRows = rows => {
 export const setOriginRows = rows => ({ type: 'LOAD_ROWS', rows });
 
 export const addRow = (row, insertRowId) => (dispatch, getState) => {
-  dispatch({ type: 'ADD_ROW', row, rowid: row.rowid, insertRowId });
+  dispatch({ type: 'ADD_ROW', row: omit(row, 'needShowLoading'), rowid: row.rowid, insertRowId });
   dispatch(updateTreeTableViewData());
 };
 
@@ -183,12 +180,17 @@ export const updateRows = ({ rowIds, value }, { asyncUpdate, noRealUpdate } = {}
 
 async function batchLoadRows(args) {
   let rows = [];
-  let total, res;
-  while (_.isUndefined(total) || rows.length < total) {
+  let total;
+  let res;
+  let noMore = false;
+  while ((_.isUndefined(total) || rows.length < total) && !noMore) {
     res = await worksheetAjax.getRowRelationRows(args);
     rows = rows.concat(res.data || []).map((row, i) => ({ ...row, addTime: i }));
     if (!total) {
       total = res.count;
+    }
+    if (res.data.length === 0) {
+      noMore = true;
     }
     args.pageIndex += 1;
   }
@@ -210,6 +212,8 @@ export const loadRows = ({
   callback = () => {},
 }) => {
   return (dispatch, getState) => {
+    const { base = {} } = getState();
+    const { control, instanceId, workId } = base;
     const args = {
       worksheetId,
       rowId: recordId,
@@ -218,6 +222,8 @@ export const loadRows = ({
       pageIndex,
       pageSize: PAGE_SIZE,
       getType: from === 21 ? from : undefined,
+      instanceId,
+      workId,
     };
     batchLoadRows(args)
       .then(batchRes => {
@@ -235,6 +241,7 @@ export const loadRows = ({
             value: { maxLevel, treeMap },
           });
         }
+        dispatch({ type: 'LOAD_ROWS_COMPLETE' });
         callback(res);
       })
       .catch(err => {
@@ -246,7 +253,7 @@ export const loadRows = ({
 export const addRows =
   (rows, options = {}) =>
   dispatch => {
-    dispatch({ type: 'ADD_ROWS', rows, ...options });
+    dispatch({ type: 'ADD_ROWS', rows: rows.map(row => omit(row, 'needShowLoading')), ...options });
     dispatch(updateTreeTableViewData());
   };
 
@@ -283,7 +290,7 @@ export const exportSheet = ({
         },
       );
       onDownload();
-      download(resData, fileName);
+      saveAs(resData, fileName || resData.name || 'file');
     } catch (err) {
       onDownload(err);
       alert(_l('导出失败！请稍候重试'), 2);
@@ -386,13 +393,18 @@ export function setRowsFromStaticRows({
       maxConcurrentRequests: 6,
     });
     const rows = (!max ? staticRows : staticRows.slice(0, max)).map(staticRow => {
-      const tempRowId = !isDefaultValue
-        ? `temp-${uuidv4()}`
-        : includes(staticRow.rowid, 'temp-')
-        ? staticRow.rowid.replace('temp-', 'default-')
-        : /^default-/.test(staticRow.rowid)
-        ? staticRow.rowid
-        : `default-${uuidv4()}`;
+      let tempRowId;
+      if (/^public-/.test(staticRow.rowid)) {
+        tempRowId = staticRow.rowid.replace('public-', '');
+      } else {
+        tempRowId = !isDefaultValue
+          ? `temp-${uuidv4()}`
+          : includes(staticRow.rowid, 'temp-')
+            ? staticRow.rowid.replace('temp-', 'default-')
+            : /^default-/.test(staticRow.rowid)
+              ? staticRow.rowid
+              : `default-${uuidv4()}`;
+      }
       Object.keys(staticRow).forEach(key => {
         if (isString(staticRow[key]) && includes(staticRow[key], '"sid":"temp-')) {
           staticRow[key] = staticRow[key].replace('"sid":"temp-', `\"sid\":\"default-`);
@@ -416,8 +428,8 @@ export function setRowsFromStaticRows({
           (!_.isUndefined(staticRow.initRowIsCreate)
             ? staticRow.initRowIsCreate
             : !_.isUndefined(initRowIsCreate)
-            ? initRowIsCreate
-            : true),
+              ? initRowIsCreate
+              : true),
         updateRow: row => {
           dispatch({
             type: 'UPDATE_ROW',

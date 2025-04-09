@@ -8,13 +8,17 @@
     border-radius: 4px;
     border: 1px solid #DDDDDD;
   }
+  .customSwatches {
+    .colorItem .item {
+      border-radius: 2px;
+    }
+  }
   .colorItem {
     cursor: pointer;
     padding: 6px 10px 6px 19px;
     .item {
-      height: 24px;
+      height: 30px;
       width: 40px;
-      margin-right: 7px;
       &.narrow {
         width: 24px;
       }
@@ -25,11 +29,39 @@
     .wrap {
       flex-wrap: wrap;
     }
+    .addWrap {
+      height: 30px;
+      width: 40px;
+      border-radius: 4px;
+      border: 1px solid #e1dcdc;
+    }
     &.active, &:hover {
       background-color: #F5F5F5;
     }
+    &:hover {
+      .icon-done.Visibility {
+        display: none;
+      }
+      .deleteIcon {
+        display: block;
+        &:hover {
+          color: #F44336 !important;
+        }
+      }
+    }
     .icon-done {
       color: #2196F3;
+    }
+    .deleteIcon {
+      display: none;
+    }
+  }
+  .hoverText:hover {
+    .icon-add {
+      color: #2196F3 !important;
+    }
+    .addWrap {
+      border-color: #2196F3;
     }
   }
   .ant-radio-wrapper {

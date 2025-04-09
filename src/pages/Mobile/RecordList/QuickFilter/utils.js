@@ -1,7 +1,7 @@
 import { includes, isUndefined, assign, find, get, isEmpty } from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
-import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
+import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { getRequest, browserIsMobile } from 'src/util';
 import moment from 'moment';
 

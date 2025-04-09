@@ -1,13 +1,13 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { get, pick } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
-import React, { useRef, useEffect, useState, useCallback } from 'react';
 import qs from 'query-string';
+import styled from 'styled-components';
+import filterXSS from 'xss';
 import { LoadDiv } from 'ming-ui';
 import { formatQuickFilter } from 'worksheet/util';
-import styled from 'styled-components';
-import { get, pick } from 'lodash';
 import { emitter } from 'worksheet/util';
 import WidgetBridge from './bridge';
-import filterXSS from 'xss';
 
 const Con = styled.div`
   width: 100%;
@@ -41,6 +41,7 @@ export default function WidgetContainer(props) {
     scriptUrl,
     isServerUrl,
     paramsMap,
+    isCharge,
     appPkg = {},
     appId,
     worksheetId,
@@ -84,6 +85,8 @@ export default function WidgetContainer(props) {
         'email',
         'mobilePhone',
       ]),
+      isCharge,
+      shareState: window.shareState,
     },
   };
   const emitWidgetDataUpdate = useCallback(
@@ -141,7 +144,8 @@ export default function WidgetContainer(props) {
   return (
     <Con>
       <CustomWidget
-        allow="geolocation; microphone; camera;"
+        allow="geolocation; microphone; camera; fullscreen;"
+        allowFullscreen
         ref={iframeRef}
         src={`${(get(md, 'global.Config.PluginRuntimeUrl') || '').replace(/\/$/, '')}/widgetview`}
       />

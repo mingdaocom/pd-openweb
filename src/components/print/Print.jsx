@@ -15,7 +15,7 @@ import { formatFormulaDate } from 'src/pages/worksheet/util';
 import model from './model';
 import nzh from 'nzh';
 import filterXss from 'xss';
-import './Print.less';
+import './index.less';
 import { htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';

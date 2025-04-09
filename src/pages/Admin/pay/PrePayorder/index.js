@@ -1,158 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, FunctionWrap, Button, Qr, LoadDiv } from 'ming-ui';
+import { Dialog, FunctionWrap, Button, Qr, LoadDiv, Icon, Radio } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
-import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import cx from 'classnames';
-import { getOrderStatusInfo } from '../Merchant/config';
+import { getOrderStatusInfo } from '../config';
 import { formatDate } from '../util';
 import PayErrorIcon from '../components/PayErrorIcon';
 import { formatNumberThousand } from 'src/util';
 import webCacheAjax from 'src/api/webCache';
+import jxqfImg from '../images/jxqf.png';
+import './index.less';
 
-const DialogWrap = styled(Dialog)`
-  text-align: center !important;
-  .mui-dialog-header {
-    display: none;
-  }
-  &.payOrderDialog {
-    .mui-dialog-close-btn {
-      top: 10px !important;
-    }
-    .mui-dialog-body {
-      padding: 0px 24px 56px !important;
-    }
-    .cancelPay {
-      min-width: 120px;
-      height: 44px;
-      line-height: 44px;
-      border-radius: 3px;
-      border: 1px solid #e0e0e0;
-      padding: 0 24px;
-      font-weight: 600;
-      margin-right: 16px;
-      &:hover {
-        border: 1px solid #2196f3;
-        color: #2196f3;
-      }
-    }
-    .okPay {
-      height: 44px;
-      line-height: 44px;
-      background-color: #2196f3;
-      &:hover {
-        background-color: #1e88e5;
-      }
-      &.w120 {
-        width: 120px !important;
-      }
-      &.mTop106 {
-        margin-top: 106px;
-      }
-    }
-    .preOrderWrap {
-      min-height: 206px;
-      padding-top: 58px;
-    }
-    .orderPayWrap {
-      width: unset;
-      text-align: left;
-      padding-top: 32px;
-    }
-    .orderPayCon {
-      height: 230px;
-      background: #f8f8f8;
-      border-radius: 3px;
-      .amountWrap {
-        padding-top: 70px;
-      }
-    }
-    .qrCode {
-      width: 160px;
-      height: 160px;
-      padding: 12px 10px 0;
-      border-radius: 8px;
-      margin: 0 32px auto;
-      border: 1px solid #e0e0e0;
-    }
-    .weChatColor {
-      color: #28c445;
-    }
-    .aliColor {
-      color: #1296db;
-    }
-    .payStatusWrap {
-      padding: 88px 0 50px;
-      .okIcon {
-        color: #fff;
-        font-size: 30px;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 41px;
-        margin-bottom: 12px;
-      }
-      .overTimeIcon {
-        color: #ff9d00;
-        font-size: 70px;
-        margin-bottom: 12px;
-        transform: rotate(180deg);
-      }
-    }
-  }
-  .amount {
-    font-family: DIN Alternate, DIN Alternate;
-    margin-bottom: 6px;
-    font-weight: 500;
-    word-break: break-all;
-  }
-  &.mobilePayOrderDialog {
-    width: 100% !important;
-    height: calc(100% - 32px) !important;
-    position: fixed !important;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-height: unset !important;
-    padding-top: 140px;
-    border-radius: 0 !important;
-    border-top-left-radius: 8px !important;
-    border-top-right-radius: 8px !important;
-    .preOrderWrap {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .mobileOkPay {
-      height: 44px;
-      line-height: 44px;
-      background-color: #2196f3;
-      border-radius: 22px;
-      font-size: 15px;
-    }
-    .cancelPay {
-      border: 1px solid #eee;
-      border-radius: 22px;
-      line-height: 44px;
-      font-weight: 600;
-    }
-    .mobilePay {
-      padding: 0;
-      min-width: 0;
-      border-radius: 22px;
-    }
-  }
-  .FontW500 {
-    font-weight: 500;
-  }
-`;
-
-const TopBar = styled.div(
-  ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;margin: 0 -24px;`,
-);
-
+const PAY_CHANNEL = [
+  { value: 0, label: _l('聚合支付') },
+  { value: 2, label: _l('微信支付'), icon: 'wechat_pay' },
+  { value: 1, label: _l('支付宝支付'), icon: 'order-alipay' },
+];
 export default class PrePayOrder extends Component {
   constructor(props) {
     super(props);
@@ -162,6 +26,8 @@ export default class PrePayOrder extends Component {
       orderInfo: {},
       loading: false,
       orderId: props.orderId,
+      activePayChannel: undefined,
+      selectedMerchants: [], // 工作表支付配置中选中的商户列表
     };
   }
 
@@ -184,24 +50,47 @@ export default class PrePayOrder extends Component {
 
   // 生成预检订单
   handlePrePayOrder = () => {
-    const { worksheetId, rowId, paymentModule } = this.props;
+    const { worksheetId, rowId, paymentModule, projectId, appId, payNow } = this.props;
+    const isMobile = browserIsMobile();
 
     this.setState({ loading: true });
 
-    paymentAjax
-      .getPrePayOrder(
-        {
-          worksheetId,
-          rowId,
-          paymentModule,
-        },
-        { silent: true },
-      )
-      .then(res => {
-        if (res.status !== 0) {
-          this.setState({ orderInfo: res, orderStatus: res.status, loading: false });
+    const promises = payNow
+      ? [paymentAjax.getPaymentSettingSelectedMerchants({ worksheetId, projectId, appId }, { silent: true })]
+      : [
+          paymentAjax.getPaymentSettingSelectedMerchants({ worksheetId, projectId, appId }, { silent: true }),
+          paymentAjax.getPrePayOrder({ worksheetId, rowId, paymentModule }, { silent: true }),
+        ];
+
+    Promise.all(promises)
+      .then(([selectedMerchants = [], res]) => {
+        const activePayChannel =
+          isMobile && selectedMerchants.length
+            ? selectedMerchants[0].merchantPaymentChannel
+            : selectedMerchants.length === 1
+            ? selectedMerchants[0].merchantPaymentChannel
+            : undefined;
+        if (payNow) {
+          this.setState({ selectedMerchants });
+          this.handlePay(selectedMerchants);
         } else {
-          this.setState({ preOrderInfo: res, orderStatus: res.status, loading: false });
+          if (res.status !== 0) {
+            this.setState({
+              orderInfo: res,
+              orderStatus: res.status,
+              loading: false,
+              selectedMerchants,
+              activePayChannel,
+            });
+          } else {
+            this.setState({
+              preOrderInfo: res,
+              orderStatus: res.status,
+              loading: false,
+              selectedMerchants,
+              activePayChannel,
+            });
+          }
         }
       })
       .catch(({ errorCode, errorMessage }) => {
@@ -210,14 +99,17 @@ export default class PrePayOrder extends Component {
   };
 
   // 创建订单
-  handlePay = () => {
+  handlePay = merchants => {
     const { worksheetId, rowId, paymentModule, onUpdateSuccess = () => {} } = this.props;
-    const { orderInfo = {}, preOrderInfo = {} } = this.state;
+    const { orderInfo = {}, preOrderInfo = {}, selectedMerchants = [], activePayChannel } = this.state;
+    const selectedMerchantNo = (
+      _.find(merchants || selectedMerchants, v => v.merchantPaymentChannel === activePayChannel) || {}
+    ).merchantNo;
 
     this.setState({ payLoading: true });
 
     paymentAjax
-      .createOrder({ worksheetId, rowId, paymentModule })
+      .createOrder({ worksheetId, rowId, paymentModule, merchantNo: selectedMerchantNo })
       .then(res => {
         if (res && res.orderId) {
           if (preOrderInfo.amount <= 0) {
@@ -283,13 +175,22 @@ export default class PrePayOrder extends Component {
 
   // 轮询订单状态
   pollOrderStatus = (orderInfo = {}) => {
-    const { onUpdateSuccess = () => {} } = this.props;
+    const { onUpdateSuccess = () => {}, payFinished = () => {}, paySuccessReturnUrl, onCancel } = this.props;
     const { orderId } = orderInfo;
 
     paymentAjax.getPayOrderStatus({ orderId }).then(({ status, expireCountdown, msg, amount, description }) => {
+      if (status === 1 && paySuccessReturnUrl) {
+        window.parent.postMessage(
+          { type: 'navigate', returnUrl: decodeURIComponent(paySuccessReturnUrl) },
+          md.global.Config.MarketUrl,
+        );
+        return;
+      }
+
       if (_.includes([1, 4], status)) {
         this.getData();
-        onUpdateSuccess({ orderStatus: status });
+        onUpdateSuccess({ orderStatus: status, onCancel });
+        payFinished({ onCancel });
       } else {
         this.setState(
           {
@@ -332,6 +233,7 @@ export default class PrePayOrder extends Component {
 
   // 已生成订单
   renderOrderInfo = () => {
+    const { title, paymentModule } = this.props;
     const { orderInfo = {}, expireCountdown } = this.state;
     const {
       description,
@@ -351,7 +253,7 @@ export default class PrePayOrder extends Component {
 
     return (
       <div className="orderPayWrap">
-        <div className="Font24 bold mBottom24">{amount <= 0 ? _l('确认订单') : _l('扫码支付')}</div>
+        <div className="Font24 bold mBottom24">{title ? title : amount <= 0 ? _l('确认订单') : _l('扫码支付')}</div>
         {description && <div className="Font15 mBottom16">{_l('支付内容：%0', description)}</div>}
         <div className="Font15 mBottom16">{_l('订单编号：%0', orderId)}</div>
         <div className="Font15 mBottom16">{_l('收款方：%0', shortName)}</div>
@@ -373,7 +275,7 @@ export default class PrePayOrder extends Component {
                   {_l('应付金额：')}
                   <span className="amount Font40 ThemeColor">¥{amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
                 </div>
-                {expireTime === 0 ? (
+                {paymentModule === 5 ? null : expireTime === 0 ? (
                   <div className="Font15">
                     {amount <= 0 ? _l('订单已生成，请完成确认') : _l('订单已生成，请使用移动设备扫码完成支付')}
                   </div>
@@ -455,23 +357,41 @@ export default class PrePayOrder extends Component {
   };
 
   render() {
-    const { onCancel = () => {} } = this.props;
-    const { loading, preOrderInfo = {}, orderInfo = {}, orderStatus, errorMessage, payLoading } = this.state;
+    const { onCancel = () => {}, payNow } = this.props;
+    const {
+      loading,
+      preOrderInfo = {},
+      orderInfo = {},
+      orderStatus,
+      errorMessage,
+      payLoading,
+      activePayChannel,
+      selectedMerchants = [],
+    } = this.state;
     const { amount, description } = preOrderInfo;
     const isMobile = browserIsMobile();
+    const isAli = navigator.userAgent.toLowerCase().indexOf('alipay') !== -1; // 支付宝环境
+    const channels = isAli ? [0, 1] : window.isWeiXin ? [0, 2] : [0, 1, 2];
+
+    const payChannels = selectedMerchants
+      .filter(v => (isMobile ? _.includes(channels, v.merchantPaymentChannel) : true))
+      .map(item => _.find(PAY_CHANNEL, v => v.value === item.merchantPaymentChannel));
 
     return (
-      <DialogWrap
+      <Dialog
+        dialogClasses={cx({ payNowContainer: payNow })}
         overlayClosable={false}
         className={isMobile ? 'mobilePayOrderDialog' : 'payOrderDialog'}
         visible
-        closable={!_.isEmpty(orderInfo) || _.includes([1, 2, 3, 4, 5], orderStatus)}
+        closable={!isMobile && !payNow}
         footer={null}
         width={800}
         onCancel={onCancel}
       >
         {loading ? (
-          <LoadDiv />
+          <div className={cx('loadingWrap', { payNow })}>
+            <LoadDiv />
+          </div>
         ) : _.includes([1, 2, 3, 4, 5], orderStatus) ? (
           this.renderPayStatus()
         ) : orderInfo.orderId ? (
@@ -492,29 +412,108 @@ export default class PrePayOrder extends Component {
           </div>
         ) : (
           <div className="preOrderWrap">
-            <div className={cx('bold Font24', { mBottom16: isMobile })}>{_l('请支付')}</div>
+            <div className={cx('bold Font24', { mBottom16: isMobile })}>{description}</div>
             <div className="ThemeColor bold mBottom10 mTop10">
               <span className="Font50 amount">¥ {amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
             </div>
-            <div className={cx('mBottom24 ellipsis', isMobile ? 'Font17' : 'Font15')}>
-              {_l('支付内容：%0', description)}
-            </div>
-            {isMobile && <div className="flex"></div>}
-            <div className="flexRow justifyContentCenter">
-              <div className={cx('cancelPay Font14 Hand', { 'flex mRight6': isMobile })} onClick={onCancel}>
-                {_l('放弃支付')}
+
+            {payChannels.length > 1 ? (
+              <Fragment>
+                {isMobile ? (
+                  <Fragment>
+                    <div className="line"></div>
+                    <div className="TxtLeft">{_l('支付方式')}</div>
+                    <div className="mobilePayChannel flex">
+                      {payChannels.map(item => {
+                        return (
+                          <div className="mobilePayChannelItem flexCenter">
+                            <div
+                              className={cx('channelIcon', {
+                                wechatBgColor: item.value === 2,
+                                aliBgColor: item.value === 1,
+                              })}
+                            >
+                              {item.value === 0 ? (
+                                <img src={jxqfImg} className="w100" />
+                              ) : (
+                                <Icon icon={item.icon} className="Font24" />
+                              )}
+                            </div>
+                            <div className="flex Font15 bold TxtLeft">{item.label}</div>
+                            <Radio
+                              className="mRight0"
+                              checked={activePayChannel === item.value}
+                              onClick={checked => this.setState({ activePayChannel: item.value })}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </Fragment>
+                ) : (
+                  <div className="payChannel valignWrapper justifyContentCenter">
+                    {payChannels.map(item => {
+                      return (
+                        <div
+                          className={cx('payChannelItem valignWrapper justifyContentCenter Relative Hand', {
+                            activePayChannel: activePayChannel === item.value,
+                          })}
+                          onClick={() => this.setState({ activePayChannel: item.value }, this.handlePay)}
+                        >
+                          <div
+                            className={cx('channelIcon', {
+                              wechatBgColor: item.value === 2,
+                              aliBgColor: item.value === 1,
+                            })}
+                          >
+                            {item.value === 0 ? (
+                              <img src={jxqfImg} className="w100" />
+                            ) : (
+                              <Icon icon={item.icon} className="Font24" />
+                            )}
+                          </div>
+                          <div>{item.label}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </Fragment>
+            ) : isMobile ? (
+              <div className="flex"></div>
+            ) : (
+              ''
+            )}
+            {(isMobile || payChannels.length) && (
+              <div className="flexRow justifyContentCenter">
+                {isMobile && (
+                  <div className={cx('cancelPay Font14 Hand', { 'flex mRight6': isMobile })} onClick={onCancel}>
+                    {_l('放弃支付')}
+                  </div>
+                )}
+                {(payChannels.length <= 1 || isMobile) && (
+                  <Button
+                    disabled={payLoading}
+                    className={cx('okPay', { 'flex mobilePay mLeft6': isMobile })}
+                    onClick={() => this.handlePay()}
+                  >
+                    {payLoading ? (
+                      _l('处理中...')
+                    ) : isMobile ? (
+                      _l('支付')
+                    ) : (
+                      <Fragment>
+                        <i className="icon icon-payment3 mRight5 TxtMiddle Font16" />
+                        <span className="TxtMiddle">{_l('立即支付')}</span>
+                      </Fragment>
+                    )}
+                  </Button>
+                )}
               </div>
-              <Button
-                disabled={payLoading}
-                className={cx('okPay w120', { 'flex mobilePay mLeft6': isMobile })}
-                onClick={this.handlePay}
-              >
-                {payLoading ? _l('处理中...') : _l('付款')}
-              </Button>
-            </div>
+            )}
           </div>
         )}
-      </DialogWrap>
+      </Dialog>
     );
   }
 }

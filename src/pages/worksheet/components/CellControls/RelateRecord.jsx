@@ -1,23 +1,23 @@
 import React, { createRef } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styled from 'styled-components';
+import _, { find, includes } from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { formatRecordToRelateRecord } from 'worksheet/util';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { formatRecordToRelateRecord } from 'worksheet/util';
+import { emitter, isKeyBoardInputChar } from 'worksheet/util';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { getTitleTextFromControls, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { isKeyBoardInputChar, emitter } from 'worksheet/util';
-import RelateRecordTags from './comps/RelateRecordTags';
-import EditableCellCon from '../EditableCellCon';
-import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
-import { openChildTable } from '../ChildTableDialog';
-import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
-import _, { find, includes } from 'lodash';
 import { browserIsMobile } from 'src/util';
+import { openChildTable } from '../ChildTableDialog';
+import EditableCellCon from '../EditableCellCon';
+import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
+import RelateRecordTags from './comps/RelateRecordTags';
 
 const RecordCardCellRelateRecord = styled.div`
   display: inline-block;
@@ -326,7 +326,9 @@ export default class RelateRecord extends React.Component {
                     masterData: {
                       worksheetId,
                       formData: (_.isFunction(rowFormData) ? rowFormData() : rowFormData)
-                        .map(c => _.pick(c, ['controlId', 'type', 'value', 'options']))
+                        .map(c =>
+                          _.pick(c, ['controlId', 'type', 'value', 'options', 'sourceControl', 'sourceControlType']),
+                        )
                         .filter(c => !!c.value),
                     },
                     projectId,
@@ -410,7 +412,7 @@ export default class RelateRecord extends React.Component {
             onChange={newRecords => {
               this.records = newRecords;
               this.changed = true;
-              this.setState({ records: newRecords, changed: true });
+              // this.setState({ records: newRecords, changed: true });
             }}
           />
         </EditableCellCon>

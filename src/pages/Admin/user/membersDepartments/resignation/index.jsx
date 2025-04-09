@@ -12,6 +12,7 @@ import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import ActionDrop from './ActionDrop';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import _ from 'lodash';
 
 const KEYWORDS_TYPES = [
   {
@@ -230,7 +231,7 @@ export default class extends React.Component {
               this.getData();
               alert(_l('恢复成功'));
             } else if (data == 4) {
-              const { licenseType } = getCurrentProject(projectId, true);
+              const { licenseType, version } = getCurrentProject(projectId, true);
               let link = '';
               if (licenseType === 0) {
                 link = (
@@ -284,7 +285,7 @@ export default class extends React.Component {
             />
           </div>
 
-          {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
+          {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
             <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
               {_l('交接协作相关数据')}
             </span>

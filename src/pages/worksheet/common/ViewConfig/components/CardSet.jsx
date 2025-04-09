@@ -1,28 +1,35 @@
 import React, { Fragment } from 'react';
-import { Abstract, CoverSetting, DisplayControl } from './index';
+import Abstract from './Abstract';
+import CoverSetting from './CoverSettingCon';
+import DisplayControl from './DisplayControl';
+import TitleControl from './TitleControl';
 import _ from 'lodash';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
 export default function CardSet(props) {
   const { appId, view, updateCurrentView } = props;
   const { advancedSetting } = view;
-
+  const info = { ...view, appId, editAttrs: ['advancedSetting'] };
   return (
     <Fragment>
-      {/* abstract：摘要控件ID */}
-      <Abstract
+      <TitleControl
         {...props}
         advancedSetting={advancedSetting}
+        isCard
         handleChange={value => {
-          updateCurrentView({
-            ...view,
-            appId,
-            advancedSetting: { abstract: value },
-            editAttrs: ['advancedSetting'],
-            editAdKeys: ['abstract'],
-          });
+          updateCurrentView({ ...info, advancedSetting: { viewtitle: value }, editAdKeys: ['viewtitle'] });
         }}
       />
+      {/* abstract：摘要控件ID */}
+      <div className="mTop32">
+        <Abstract
+          {...props}
+          advancedSetting={advancedSetting}
+          handleChange={value => {
+            updateCurrentView({ ...info, advancedSetting: value, editAdKeys: _.keys(value) });
+          }}
+        />
+      </div>
       {/* 显示字段 */}
       <DisplayControl
         {...props}
@@ -36,8 +43,8 @@ export default function CardSet(props) {
               ? newShowControls.length <= 0
                 ? undefined
                 : Number(showcount) > newShowControls.length
-                ? newShowControls.length
-                : showcount
+                  ? newShowControls.length
+                  : showcount
               : undefined;
             updateCurrentView(
               {
@@ -81,17 +88,6 @@ export default function CardSet(props) {
             editAttrs: ['coverCid'],
           })
         }
-        // 显示位置
-        handleChangePosition={(value, coverTypeValue) => {
-          updateCurrentView({
-            ...view,
-            appId,
-            coverType: coverTypeValue,
-            advancedSetting: { coverposition: value },
-            editAttrs: ['coverType', 'advancedSetting'],
-            editAdKeys: ['coverposition'],
-          });
-        }}
         handleChangeCoverWidth={value => {
           updateCurrentView({
             ...view,
@@ -101,10 +97,6 @@ export default function CardSet(props) {
             editAttrs: ['advancedSetting'],
           });
         }}
-        // 显示方式
-        handleChangeType={value =>
-          updateCurrentView({ ...view, appId, coverType: value, editAttrs: ['coverType'] }, false)
-        }
         // 允许点击查看
         handleChangeOpencover={value => {
           updateCurrentView({
@@ -112,6 +104,15 @@ export default function CardSet(props) {
             appId,
             advancedSetting: { opencover: value },
             editAdKeys: ['opencover'],
+            editAttrs: ['advancedSetting'],
+          });
+        }}
+        handleChangeCoverStyle={value => {
+          updateCurrentView({
+            ...view,
+            appId,
+            advancedSetting: { coverstyle: value },
+            editAdKeys: ['coverstyle'],
             editAttrs: ['advancedSetting'],
           });
         }}

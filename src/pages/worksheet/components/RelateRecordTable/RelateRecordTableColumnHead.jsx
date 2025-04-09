@@ -3,15 +3,10 @@ import PropTypes from 'prop-types';
 import { emitter } from 'worksheet/util';
 import cx from 'classnames';
 import { Menu, MenuItem } from 'ming-ui';
-import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { fieldCanSort, getSortData } from 'worksheet/util';
+import { fieldCanSort, getSortData, controlBatchCanEdit } from 'worksheet/util';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import _, { get } from 'lodash';
-
-import { controlCanEdit } from 'worksheet/common/BatchEditRecord/BatchEditRecord.jsx';
 
 export default function ColumnHead(props) {
   const {
@@ -50,7 +45,7 @@ export default function ColumnHead(props) {
     canFilter = false;
   }
   const canSort = !disabled && fieldCanSort(itemType);
-  const canEdit = controlCanEdit(control);
+  const canEdit = controlBatchCanEdit(control);
   const maskData =
     !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
     _.get(control, 'advancedSetting.datamask') === '1' &&

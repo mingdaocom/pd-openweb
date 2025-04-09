@@ -1,11 +1,8 @@
-import React, { Fragment, useState } from 'react';
-import { string } from 'prop-types';
-import { Icon } from 'ming-ui';
-import { Modal } from 'antd';
+import React from 'react';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { connect } from 'react-redux';
 import EmbedUrl from './EmbedUrl';
-import { FlexCenter, getEnumType, reportCountLimit } from '../../util';
+import { getEnumType, componentCountLimit } from '../../util';
 import Analysis from './analysis';
 import ButtonComp from './button';
 import View from './view';
@@ -25,15 +22,20 @@ const TYPE_TO_COMPONENTS = {
 };
 
 function EditWidget(props) {
-  const { components, widget, onClose, mode, addWidget, updateWidget } = props;
+  const { components, widget, onClose, mode, activeContainerInfo = {}, addWidget, updateWidget } = props;
   const type = getEnumType(widget.type);
   const Comp = TYPE_TO_COMPONENTS[type];
   const handleEdit = obj => {
     if (mode === 'add') {
-      if (type === 'analysis') {
-        if (!reportCountLimit(components)) return;
+      if (!componentCountLimit(components)) return;
+      if (activeContainerInfo.sectionId) {
+        obj.sectionId = activeContainerInfo.sectionId;
+        obj.tabId = activeContainerInfo.tabId;
       }
-      addWidget({ type, ...obj });
+      addWidget({
+        type,
+        ...obj
+      });
     } else {
       updateWidget({ widget, needUpdate: !widget.needUpdate, ...obj });
     }
@@ -50,5 +52,6 @@ export default errorBoundary(
     projectId: appPkg.projectId,
     components: customPage.components,
     config: customPage.config,
+    activeContainerInfo: customPage.activeContainerInfo,
   }))(EditWidget),
 );

@@ -24,7 +24,8 @@ import {
   isPublicFileDownload,
 } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile, createLinksForMessage, getFeatureStatus } from 'src/util';
+import { browserIsMobile, getFeatureStatus } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import { GET_SYSTEM_USER, EDIT_TYPE_TEXT, SUBLIST_FILE_EDIT_TYPE } from './enum.js';
 import copy from 'copy-to-clipboard';
 import UserPicker from './component/UserPicker';

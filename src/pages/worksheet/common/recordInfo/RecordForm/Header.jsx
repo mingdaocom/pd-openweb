@@ -16,6 +16,7 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import favoriteApi from 'src/api/favorite.js';
 import { getCurrentProject } from 'src/util';
+import PrintList from 'src/pages/worksheet/common/recordInfo/RecordForm/PrintList';
 
 const SideBarIcon = styled(IconBtn)`
   display: flex;
@@ -62,6 +63,7 @@ export default function InfoHeader(props) {
     payConfig = {},
     isDraft,
     updateDiscussCount = _.noop,
+    printCharge,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
@@ -87,7 +89,11 @@ export default function InfoHeader(props) {
   const isPublicRecordLand = isPublicShare && notDialog;
   const project = getCurrentProject(projectId);
   const showFav =
-    !window.shareState.shareId && !window.isPublicApp && !md.global.Account.isPortal && !_.isEmpty(project);
+    !window.shareState.shareId &&
+    !window.isPublicApp &&
+    !md.global.Account.isPortal &&
+    !_.isEmpty(project) &&
+    viewId !== worksheetId;
   const showOrder = payConfig.rowDetailIsShowOrder;
   const showSideBar =
     (!isPublicShare && showOrder) ||
@@ -145,7 +151,7 @@ export default function InfoHeader(props) {
   const sideBarBtn = () => {
     return (
       <SideBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-        <Tooltip offset={[0, 0]} text={<span>{sideVisible ? _l('收起') : _l('展开')}</span>}>
+        <Tooltip offset={[0, 0]} text={<span>{sideVisible ? _l('收起') : _l('展开')}</span>} popupPlacement="bottom">
           <span>
             <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
           </span>
@@ -176,7 +182,7 @@ export default function InfoHeader(props) {
     return notDialog ? (
       btn
     ) : (
-      <Tooltip offset={[0, 0]} text={<span className="nowrap">{_l('关闭（esc）')}</span>}>
+      <Tooltip offset={[0, 0]} text={<span className="nowrap">{_l('关闭（esc）')}</span>} popupPlacement="bottom">
         {btn}
       </Tooltip>
     );
@@ -226,14 +232,14 @@ export default function InfoHeader(props) {
     const btn = (
       <IconBtn
         className={cx('Hand favBtn', { ThemeHoverColor3: !isFavorite })}
-        style={{ color: isFavorite ? '#FFC402' : '#9E9E9E' }}
+        style={{ color: isFavorite ? '#FFC402' : '#757575' }}
         onClick={onFav}
       >
         <Icon className="Font22 Hand" icon={!isFavorite ? 'star_outline' : 'star'} />
       </IconBtn>
     );
     return (
-      <Tooltip offset={[0, 0]} text={<span>{isFavorite ? _l('取消收藏') : _l('收藏')}</span>}>
+      <Tooltip offset={[0, 0]} text={<span>{isFavorite ? _l('取消收藏') : _l('收藏')}</span>} popupPlacement="bottom">
         {btn}
       </Tooltip>
     );
@@ -266,7 +272,7 @@ export default function InfoHeader(props) {
               onRefresh();
             }}
           >
-            <Tooltip offset={[0, 0]} text={<span>{_l('刷新')}</span>}>
+            <Tooltip offset={[0, 0]} text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
               <i className="icon icon-task-later" />
             </Tooltip>
           </span>
@@ -290,6 +296,17 @@ export default function InfoHeader(props) {
           ) : (
             <div className="flex" />
           )}
+          {!isPublicShare && (
+            <PrintList
+              type={1}
+              isCharge={isCharge || printCharge}
+              {..._.pick(recordbase, ['appId', 'workId', 'instanceId', 'worksheetId', 'viewId', 'recordId'])}
+              projectId={projectId}
+              controls={_.get(recordinfo, 'formData') || []}
+              sheetSwitchPermit={sheetSwitchPermit}
+              onItemClick={() => {}}
+            />
+          )}
           {showFav && favBtn()}
           {showSideBar && sideBarBtn()}
           {!isPublicShare && (
@@ -304,6 +321,7 @@ export default function InfoHeader(props) {
               handleAddSheetRow={handleAddSheetRow}
               hideRecordInfo={hideRecordInfo}
               isDraft={from === RECORD_INFO_FROM.DRAFT || isDraft}
+              printCharge={printCharge}
             />
           )}
           {!notDialog && closeBtn()}

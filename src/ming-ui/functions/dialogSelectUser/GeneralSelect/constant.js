@@ -40,3 +40,16 @@ export const UserTabsId = {
   SUBORDINATE_USER: 'subordinateUser',
   RESIGNED: 'resigned',
 };
+
+export const OFTEN_USER_OPTIONS = [
+  {
+    text: _l('系统推荐'),
+    value: 0,
+  },
+  {
+    text: _l('自定义'),
+    value: 1,
+  },
+];
+
+export const MAX_OFTEN_USERS = 50;

@@ -503,6 +503,7 @@ export default {
   * 刷新权限缓存
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -538,6 +539,32 @@ export default {
    replaceRoleMemberForApps: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'ReplaceRoleMemberForApps', args, options);
+   },
+  /**
+  * 组织下加入的应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.userId 用户id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getUserApp: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetUserApp', args, options);
+   },
+  /**
+  * 我加入的应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {boolean} args.noCache 不走缓存
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMyApp: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetMyApp', args, options);
    },
   /**
   * 获取网络下应用
@@ -907,7 +934,7 @@ export default {
   * 迁移应用
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
-  * @param {string} args.dbInstanceId 专属数据库id
+  * @param {string} args.dbInstanceId 专属数据库id (迁出为空）
   * @param {string} args.projectId 组织id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1165,6 +1192,7 @@ export default {
   * @param {integer} args.status 状态  0 = 关闭，1 =启用
   * @param {string} args.password 密码
   * @param {string} args.validTime 有效时间
+  * @param {string} args.pageTitle 页面标题
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1676,6 +1704,7 @@ export default {
   * 获取应用升级记录
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1946,5 +1975,45 @@ export default {
    getProjectLang: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'GetProjectLang', args, options);
+   },
+  /**
+  * 添加离线应用项
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.worksheetId 工作表Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addOfflineItem: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'AddOfflineItem', args, options);
+   },
+  /**
+  * 编辑离线应用项
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.worksheetId 工作表Id
+  * @param {integer} args.status 状态 （0 = 关闭，1 = 启用，2 = 删除）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editOfflineItemStatus: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditOfflineItemStatus', args, options);
+   },
+  /**
+  * 获取离线应用项
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOfflineItems: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetOfflineItems', args, options);
    },
 };

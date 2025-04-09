@@ -28,3 +28,14 @@ export const widgets = {
     name: _l('嵌入url'),
   }
 };
+
+export const containerWidgets = {
+  tabs: {
+    icon: 'tab_page',
+    name: _l('标签页')
+  },
+  card: {
+    icon: 'page_card',
+    name: _l('卡片')
+  }
+}

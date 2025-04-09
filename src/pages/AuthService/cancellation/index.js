@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import { LoadDiv, Button, Checkbox, RichText, VerifyPasswordInput } from 'ming-ui';
-import { browserIsMobile, mdAppResponse, verifyPassword } from 'src/util';
+import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import moment from 'moment';
+import { Button, Checkbox, LoadDiv, RichText, VerifyPasswordInput } from 'ming-ui';
 import accountAjax from 'src/api/account';
+import preall from 'src/common/preall';
+import verifyPassword from 'src/components/verifyPassword';
+import { browserIsMobile, mdAppResponse } from 'src/util';
 import { Wrap } from './style.jsx';
-import DocumentTitle from 'react-document-title';
 
 const actionMsg = {
   0: _l('操作失败'),
@@ -202,8 +203,8 @@ export default class Cancellation extends Component {
         ? _l('%0 天 %1 小时', days, hours)
         : _l('%0 天', days)
       : hours > 0
-      ? _l('%0 小时', hours)
-      : _l('1 小时');
+        ? _l('%0 小时', hours)
+        : _l('1 小时');
 
     return (
       <Fragment>
@@ -212,7 +213,7 @@ export default class Cancellation extends Component {
         </div>
         <div className="Font13 Bold">
           {_l('账号将在')}
-         <span className='mLeft3'> {deadline}</span>
+          <span className="mLeft3"> {deadline}</span>
           {_l('后正式注销，不可撤销！')}
         </div>
         {overdueDiff > 0 ? (

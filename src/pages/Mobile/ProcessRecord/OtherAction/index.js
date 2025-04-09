@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { Popup, ActionSheet, TextArea } from 'antd-mobile';
 import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import functionTemplateModal from '../FunctionTemplateModal';
 import SelectUser from 'mobile/components/SelectUser';
@@ -48,6 +48,7 @@ export default class extends Component {
       files: [],
       countersignType: 1,
       opinionList: [],
+      nextUserRange: {},
     };
   }
   componentDidMount() {
@@ -64,7 +65,7 @@ export default class extends Component {
       });
     }
 
-    this.getHistoryOpinionList();
+    this.getOperationDetail();
   }
 
   componentWillUnmount() {
@@ -74,17 +75,30 @@ export default class extends Component {
   /**
    * 获取历史意见列表
    */
-  getHistoryOpinionList() {
-    const { instanceId } = this.props;
-
-    instanceAJAX.getOperationHistoryList({ instanceId }).then(res => {
-      this.setState({ opinionList: res });
+  getOperationDetail() {
+    const { instanceId, workId } = this.props;
+    instanceAJAX.getOperationDetail({ id: instanceId, workId }).then(res => {
+      const userIds = _.flatten(_.map(res.nextUserRange));
+      this.setState({
+        opinionList: res.workItems,
+        nextUserRange: res.nextUserRange,
+        selectedUser: userIds.length === 1 ? [{ accountId: userIds[0] }] : [],
+      });
     });
   }
 
   handleAction = () => {
     const { action, instance } = this.props;
-    const { content, showPassword, selectedUser, entrustList, files, backNodeId = '', countersignType } = this.state;
+    const {
+      content,
+      showPassword,
+      selectedUser,
+      entrustList,
+      files,
+      backNodeId = '',
+      countersignType,
+      nextUserRange,
+    } = this.state;
     const { auth, encrypt } = (instance || {}).flowNode || {};
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
@@ -92,7 +106,8 @@ export default class extends Component {
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
     const attachments = files.length ? JSON.stringify(files) : '';
-    const forwardAccountId = (_.isArray(selectedUser) ? selectedUser : [selectedUser])
+    const selectedUsers = _.isArray(selectedUser) ? selectedUser : [selectedUser];
+    const forwardAccountId = selectedUsers
       .map(user => {
         if (entrustList[user.accountId]) {
           return entrustList[user.accountId].trustee.accountId;
@@ -101,10 +116,22 @@ export default class extends Component {
       })
       .join(',');
 
+    const nextApprovalUser = {};
+
+    if (_.keys(nextUserRange).length) {
+      nextApprovalUser[_.keys(nextUserRange)[0]] = selectedUsers.map(o => o.accountId);
+    }
+
     if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action) && !forwardAccountId) {
       alert(_l('必须选择一个人员'), 2);
       return;
     }
+
+    if (action === 'pass' && !!_.flatten(_.map(nextUserRange)).length && !selectedUsers.length) {
+      alert(_l('必须指定下一节点审批人'), 2);
+      return;
+    }
+
     if (
       ((passContent || overruleContent) && !content.trim()) ||
       ((passSignature || overruleSignature) && this.signature.checkContentIsEmpty())
@@ -113,28 +140,28 @@ export default class extends Component {
       return;
     }
 
+    const parameter = {
+      action,
+      content,
+      forwardAccountId,
+      backNodeId,
+      files: attachments,
+      countersignType,
+      nextUserRange: nextApprovalUser,
+    };
+
     const submitFun = () => {
       if (this.signature) {
         this.signature.saveSignature(signature => {
           this.props.onAction({
-            action,
-            content,
-            forwardAccountId,
-            backNodeId,
+            ...parameter,
             signature,
-            files: attachments,
-            countersignType,
           });
         });
       } else {
         this.props.onAction({
-          action,
-          content,
-          forwardAccountId,
-          backNodeId,
+          ...parameter,
           signature: undefined,
-          files: attachments,
-          countersignType,
         });
       }
       if (this.isNoneVerification) {
@@ -352,7 +379,7 @@ export default class extends Component {
   }
   renderSelectUser() {
     const { projectId, action, instance } = this.props;
-    const { selectUserVisible, selectedUser } = this.state;
+    const { selectUserVisible, selectedUser, nextUserRange } = this.state;
     if (selectUserVisible) {
       const TYPES = {
         transferApprove: 6,
@@ -362,15 +389,19 @@ export default class extends Component {
         transfer: 10,
       };
       const { operationUserRange } = instance;
-      const appointedAccountIds = operationUserRange ? operationUserRange[TYPES[action]] : '';
+      const isUserRange = action === 'pass' || _.isArray((operationUserRange || {})[TYPES[action]]);
+      const appointedAccountIds = ((operationUserRange || {})[TYPES[action]] || _.flatten(_.map(nextUserRange))).filter(
+        id => action === 'pass' || id !== md.global.Account.accountId,
+      );
+      const unique = !_.includes(['after', 'before', 'addApprove', 'pass'], action);
       return (
         <SelectUser
           projectId={projectId}
           visible={selectUserVisible}
           selectedUsers={_.isArray(selectedUser) ? selectedUser : [selectedUser]}
-          selectRangeOptions={appointedAccountIds ? { appointedAccountIds } : ''}
+          selectRangeOptions={isUserRange ? { appointedAccountIds } : ''}
           type="user"
-          onlyOne={false}
+          onlyOne={unique}
           onClose={() => {
             this.setState({
               selectUserVisible: false,
@@ -378,7 +409,7 @@ export default class extends Component {
           }}
           onSave={user => {
             this.setState({ selectedUser: user });
-            this.checkEntrust(user);
+            action !== 'pass' && this.checkEntrust(user);
           }}
         />
       );
@@ -401,6 +432,33 @@ export default class extends Component {
           />
         </div>
       </Fragment>
+    );
+  }
+  renderNextApprovalUser() {
+    const { selectedUser, nextUserRange } = this.state;
+    const userIds = _.flatten(_.map(nextUserRange));
+
+    if (userIds.length <= 1) return null;
+
+    return (
+      <div className="itemWrap flexRow valignWrapper">
+        <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+          *
+        </div>
+        <div className="Gray Font13 bold">{_l('选择下一节点审批人')}</div>
+        {selectedUser.length ? (
+          <div className="flex flexRow valignWrapper flexEnd mRight10 mLeft30">
+            {_l('已选 %0 人', selectedUser.length)}
+          </div>
+        ) : (
+          <div className="flex"></div>
+        )}
+        <Icon
+          className="Gray_9e Font28"
+          icon={selectedUser.length ? 'task-folder-charge' : 'task-add-member-circle'}
+          onClick={() => this.setState({ selectUserVisible: true })}
+        />
+      </div>
     );
   }
   renderAttachment() {
@@ -576,6 +634,7 @@ export default class extends Component {
           {this.renderSignType()}
           {this.renderSelectUser()}
           {isSignature && this.renderSignature()}
+          {action === 'pass' && this.renderNextApprovalUser()}
         </div>
         <div className="flexRow actionBtnWrapper">
           <div className="flex actionBtn bold Gray_75" onClick={this.props.onHide}>

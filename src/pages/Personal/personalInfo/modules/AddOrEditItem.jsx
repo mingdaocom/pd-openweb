@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
-import account from 'src/api/account';
-import './index.less';
-import { Checkbox, DatePicker } from 'ming-ui';
 import cx from 'classnames';
-import moment from 'moment';
-import fixedDataAjax from 'src/api/fixedData.js';
 import _ from 'lodash';
+import moment from 'moment';
+import { Checkbox, DatePicker } from 'ming-ui';
+import account from 'src/api/account';
+import fixedDataAjax from 'src/api/fixedData.js';
+import './index.less';
 
 const errorList = {
   name: false,
@@ -43,27 +43,33 @@ export default class AddOrEditItem extends React.Component {
   }
 
   updateError(key, value, content) {
+    const { type } = this.props;
     const { errorList = {}, errorSentry = {} } = this.state;
+    const list = { ...errorList, [key]: value };
+    const textInfo = {
+      name: type === 1 ? _l('请输入组织名称') : _l('请输入学校名称'),
+      title: this.renderTitleErrorMsg(),
+      startDate: _l('请选择起始年月'),
+      endDate: _l('请选择结束年月'),
+    };
+
     if (['name', 'title'].includes(key) && !!content) {
       fixedDataAjax.checkSensitive({ content }).then(res => {
+        const sentry = { ...errorSentry, [key]: res };
+        if (sentry[key]) {
+          alert(_l('输入内容包含敏感词，请重新填写'));
+        }
         this.setState({
-          errorSentry: {
-            ...errorSentry,
-            [key]: res,
-          },
-          errorList: {
-            ...errorList,
-            [key]: value,
-          },
+          errorSentry: sentry,
+          errorList: list,
         });
       });
     } else {
-      this.setState(preState => ({
-        errorList: {
-          ...preState.errorList,
-          [key]: value,
-        },
-      }));
+      this.setState({ errorList: list });
+    }
+
+    if (list[key]) {
+      alert(textInfo[key], 2);
     }
   }
 
@@ -142,21 +148,11 @@ export default class AddOrEditItem extends React.Component {
         </div>
         <input
           type="text"
-          className={cx('formControl mTop6', { error: errorList.name })}
+          className={cx('formControl mTop6 mBottom6', { error: errorList.name })}
           defaultValue={baseInfo.name}
           onChange={e => this.updateValue('name', e.target.value)}
-          onBlur={() => this.updateError('name', !baseInfo.name, baseInfo.name)}
-          onFocus={() => this.updateError('name', false)}
         />
-        <div className="Red errorBox">
-          <span className={cx({ Hidden: !errorList.name && !errorSentry.name })}>
-            {errorSentry.name
-              ? _l('输入内容包含敏感词，请重新填写')
-              : type === 1
-              ? _l('请输入组织名称')
-              : _l('请输入学校名称')}
-          </span>
-        </div>
+
         {/**专业学历和职位 */}
         <div className="Bold">
           {type === 1 ? _l('期间最高职位') : _l('专业和学历')}
@@ -164,21 +160,15 @@ export default class AddOrEditItem extends React.Component {
         </div>
         <input
           type="text"
-          className={cx('formControl mTop6', { error: errorList.title })}
+          className={cx('formControl mTop6 mBottom6', { error: errorList.title })}
           defaultValue={baseInfo.title}
           onChange={e => this.updateValue('title', e.target.value)}
-          onBlur={() => this.updateError('title', !baseInfo.title, baseInfo.title)}
-          onFocus={() => this.updateError('title', false)}
         />
-        <div className="Red errorBox">
-          <span className={cx({ Hidden: !errorList.title && !errorSentry.title })}>
-            {errorSentry.title ? _l('输入内容包含敏感词，请重新填写') : this.renderTitleErrorMsg()}
-          </span>
-        </div>
+
         {/**描述或核心课程 */}
         <div className="Bold">{type === 1 ? _l('描述') : _l('核心课程')}</div>
         <textarea
-          className="mTop6 mBottom24 formControl"
+          className="mTop6 mBottom24 formControl mBottom6"
           value={baseInfo.description}
           onChange={e => {
             this.updateValue('description', e.target.value);
@@ -189,38 +179,28 @@ export default class AddOrEditItem extends React.Component {
           {_l('起止时间')}
           <span className="TxtMiddle Red">*</span>
         </div>
-        <div className="flexRow mTop6">
-          <div>
+        <div className="flexRow mTop6 mBottom6">
+          <div className="flex">
             <DatePicker
               selectedValue={baseInfo.startDate ? moment(baseInfo.startDate) : moment()}
               max={this.getRangeTime('max')}
               allowClear={false}
               onOk={value => {
                 this.updateValue('startDate', moment(value).format('YYYY-MM-DD'));
-                this.updateError('startDate', !value);
               }}
               onSelect={selectedValue => {
                 this.updateValue('startDate', moment(selectedValue).format('YYYY-MM-DD'));
-                this.updateError('startDate', !selectedValue);
               }}
             >
-              <input
-                type="text"
-                className={cx('formControl', { error: errorList.startDate })}
-                placeholder={_l('开始时间')}
-                value={baseInfo.startDate}
-                onBlur={() => this.updateError('startDate', !baseInfo.startDate)}
-                onFocus={() => this.updateError('startDate', false)}
-              />
+              <div className={cx('formControl date Hand', { error: errorList.startDate })}>
+                {baseInfo.startDate ? baseInfo.startDate : _l('开始时间')}
+              </div>
             </DatePicker>
-            <div className="Red errorBox">
-              <span className={cx({ Hidden: !errorList.startDate })}>{_l('请选择起始年月')}</span>
-            </div>
           </div>
           <span className="LineHeight36">
             <span className="mLeft16 mRight16">{_l('至')}</span>
           </span>
-          <div>
+          <div className="flex">
             <DatePicker
               selectedValue={baseInfo.endDate ? moment(baseInfo.endDate) : moment()}
               disabled={baseInfo.isSoFar}
@@ -228,28 +208,20 @@ export default class AddOrEditItem extends React.Component {
               allowClear={false}
               onOk={value => {
                 this.updateValue('endDate', moment(value).format('YYYY-MM-DD'));
-                this.updateError('endDate', !value);
               }}
               onSelect={selectedValue => {
                 this.updateValue('endDate', moment(selectedValue).format('YYYY-MM-DD'));
-                this.updateError('endDate', !selectedValue);
               }}
             >
-              <input
-                type="text"
-                className={cx('formControl', { error: !baseInfo.isSoFar && errorList.endDate })}
-                placeholder={_l('结束时间')}
-                disabled={baseInfo.isSoFar}
-                value={baseInfo.isSoFar ? _l('至今') : baseInfo.endDate}
-                onBlur={() => this.updateError('endDate', !baseInfo.endDate)}
-                onFocus={() => this.updateError('endDate', false)}
-              />
+              <div
+                className={cx('formControl date Hand', {
+                  error: !baseInfo.isSoFar && errorList.endDate,
+                  disabled: baseInfo.isSoFar,
+                })}
+              >
+                {baseInfo.isSoFar ? _l('至今') : baseInfo.endDate ? baseInfo.endDate : _l('结束时间')}
+              </div>
             </DatePicker>
-            <div className="Red errorBox">
-              <span className={cx({ Hidden: (!errorList.endDate && !baseInfo.isSoFar) || baseInfo.isSoFar })}>
-                {_l('请选择结束年月')}
-              </span>
-            </div>
           </div>
         </div>
         <Checkbox

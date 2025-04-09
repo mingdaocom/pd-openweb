@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import { Icon, Support, LoadDiv, Tooltip, Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
@@ -224,7 +225,9 @@ export default function Card(props) {
                       <span className="WordBreak flex">{o.controlName}</span>
                       <span className="Gray_9e mLeft5 WordBreak">{o.alias}</span>
                     </div>
-                    <div className="w150 Gray_75 WordBreak">{FIELD_TYPE.find(s => s.value === o.type).text}</div>
+                    <div className="w150 Gray_75 WordBreak">
+                      {(FIELD_TYPE.find(s => s.value === o.type) || {}).text}
+                    </div>
                     <div className="w150 WordBreak">{o.workflowDefaultValue}</div>
                     <div className="flex WordBreak">{o.desc}</div>
                   </div>

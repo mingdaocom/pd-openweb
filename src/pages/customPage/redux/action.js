@@ -1,6 +1,8 @@
 import {
   ADD_WIDGET,
   DEL_WIDGET,
+  DEL_TABS_WIDGET,
+  DEL_WIDGET_TAB,
   UPDATE_WIDGET,
   UPDATE_LAYOUT,
   UPDATE_PAGE_INFO,
@@ -12,12 +14,10 @@ import {
   UPDATE_WIDGET_VISIBLE,
   UPDATE_EDIT_PAGE_VISIBLE,
   UPDATE_COMPONENTS,
-  ADD_RECORD,
   UPDATE_FILTERS_GROUP,
   UPDATE_LINKAGE_FILTERS_GROUP,
   DELETE_LINKAGE_FILTERS_GROUP
 } from './actionType';
-import sheetAjax from 'src/api/worksheet';
 
 const genAction = type => payload => ({ type, payload });
 
@@ -26,6 +26,8 @@ export const updatePageInfo = genAction(UPDATE_PAGE_INFO);
 export const addWidget = genAction(ADD_WIDGET);
 
 export const delWidget = genAction(DEL_WIDGET);
+export const delTabsWidget = genAction(DEL_TABS_WIDGET);
+export const delWidgetTab = genAction(DEL_WIDGET_TAB);
 
 export const copyWidget = genAction(COPY_WIDGET);
 

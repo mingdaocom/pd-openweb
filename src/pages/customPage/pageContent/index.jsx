@@ -26,7 +26,7 @@ import { enumWidgetType, updateLayout } from 'src/pages/customPage/util';
 import DocumentTitle from 'react-document-title';
 import { pick } from 'lodash';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
 import { getTranslateInfo, addBehaviorLog } from 'src/util';
 
@@ -91,7 +91,8 @@ const CustomPageContentWrap = styled.div`
       // background: #f5f5f5;
     }
     .createSource {
-      &>div, & a {
+      & > div,
+      & a {
         color: var(--title-color);
       }
     }
@@ -127,6 +128,7 @@ function CustomPageContent(props) {
     id,
     groupId,
     className,
+    pageTitle,
     ids = {},
   } = props;
   const pageId = id;
@@ -137,6 +139,7 @@ function CustomPageContent(props) {
   const showFullscreen = () => {
     document.body.classList.add('customPageFullscreen');
     toggle(true);
+    window.parent.postMessage({ type: 'showFullscreen' }, md.global.Config.MarketUrl);
   };
   const closeFullscreen = () => {
     document.body.classList.remove('customPageFullscreen');
@@ -169,7 +172,7 @@ function CustomPageContent(props) {
     }
     return () => {
       updateLoading(true);
-    }
+    };
   }, []);
 
   const getPage = () => {
@@ -178,7 +181,9 @@ function CustomPageContent(props) {
         appId: pageId,
       })
       .then(({ components, desc, apk, adjustScreen, urlParams, name, config, version }) => {
-        const componentsData = isMobile ? components.filter(item => item.mobile.visible) : updateLayout(components, config);
+        const componentsData = isMobile
+          ? components.filter(item => item.mobile.visible)
+          : updateLayout(components, config);
         addBehaviorLog('customPage', pageId, {}, true);
         updatePageInfo({
           components: componentsData,
@@ -258,7 +263,9 @@ function CustomPageContent(props) {
   return (
     <Fragment>
       <CustomPageContentWrap className={cx('CustomPageContentWrap flexColumn', className)}>
-        {(appName || pageName) && <DocumentTitle title={`${pageName}${pageName && appName ? ' - ' : ''}${appName}`} />}
+        {(appName || pageName) && (
+          <DocumentTitle title={pageTitle || `${pageName}${pageName && appName ? ' - ' : ''}${appName}`} />
+        )}
         {!loading && (
           <CustomPageHeader {...props} currentSheet={currentSheet} toggle={showFullscreen} resetPage={resetPage} />
         )}

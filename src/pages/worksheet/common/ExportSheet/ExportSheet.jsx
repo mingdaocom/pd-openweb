@@ -853,7 +853,7 @@ export default class ExportSheet extends Component {
                         title={
                           <div>
                             <div>{_l('以下类型有效')}</div>
-                            <div>{_l('数值、金额、公式（输出类型为数值）')}</div>
+                            <div>{_l('数值、金额、公式（输出类型为数值）、汇总（输出类型为数值）、等级')}</div>
                           </div>
                         }
                       >

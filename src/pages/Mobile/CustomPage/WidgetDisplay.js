@@ -5,6 +5,7 @@ import PreviewContent from './PreviewContent';
 import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel/Carousel';
 import { StateChartContent } from './ChartContent';
 import ViewContent from './ViewContent';
+import TabsContent from './TabsContent';
 import Filter from './FilterContent';
 import { RichText } from 'ming-ui';
 import { getTranslateInfo } from 'src/util';
@@ -28,6 +29,11 @@ const WidgetContent = styled.div`
   }
   &.mobileButton {
     padding: 8px 6px !important;
+  }
+  &.mobileTabs, &.mobileCard {
+    padding: 0;
+    box-shadow: none;
+    background-color: transparent !important;
   }
   img {
     max-width: 100%;
@@ -116,10 +122,25 @@ function WidgetDisplay(props) {
         <CarouselPreview config={config} componentConfig={componentConfig} />
       );
     }
+    if (['tabs', 'card'].includes(componentType)) {
+      return (
+        <TabsContent
+          widget={widget}
+          layoutType="mobile"
+          isMobile={true}
+          ids={ids}
+          apk={apk}
+          themeColor={apk.iconColor}
+          editable={false}
+          components={pageComponents}
+          customPageConfig={pageConfig}
+          updateComponents={props.updateComponents}
+        />
+      );
+    }
   };
-
   return (
-    <WidgetContent className={`mobile${fistLetterUpper(componentType)} ${componentType}-${widget.id} flexColumn `}>
+    <WidgetContent className={`mobile${fistLetterUpper(componentType)} ${componentType}-${['tabs', 'card'].includes(componentType) ? _.get(widget, 'config.objectId') : widget.id} flexColumn`}>
       {renderContent()}
     </WidgetContent>
   );

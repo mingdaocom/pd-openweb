@@ -21,11 +21,15 @@ function ViewContent(props) {
     }
     const view = customPageContent.querySelector(`.widgetContent .view-${setting.id}`);
     const checkVisible = () => {
+      if (!view) {
+        setVisible(true);
+        return;
+      }
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
         const rect = view.getBoundingClientRect();
         const value = rect.top <= pageRect.bottom;
-        value && setVisible(value);
+        value && setVisible(true);
       }
     }
     customPageContent.addEventListener('scroll', checkVisible, false);
@@ -42,7 +46,13 @@ function ViewContent(props) {
     }
   }, []);
 
-  if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
+  if (
+    !_.get(window, 'shareState.shareId') &&
+    !setting.tabId &&
+    !_.get(window, 'shareState.shareId') &&
+    filterComponents.length &&
+    loadFilterComponentCount < filterComponents.length
+  ) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
         <SpinLoading color='primary' />

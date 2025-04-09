@@ -5,7 +5,8 @@ import './print.less';
 import EditPrint from '../components/EditPrint';
 import PrintTemDialog from '../components/PrintTemDialog';
 import { PRINT_TYPE } from 'src/pages/Print/config';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import _ from 'lodash';
@@ -252,10 +253,12 @@ class Print extends React.Component {
         useDragHandle
         items={data}
         itemKey="id"
+        helperClass="printSortableHelper"
         onSortEnd={newItems => this.onSortEnd(newItems, type)}
-        renderItem={options => (
+        renderItem={({ item, DragHandle }) => (
           <PrintSortableItem
-            {...options}
+            item={item}
+            DragHandle={DragHandle}
             worksheetInfo={worksheetInfo}
             worksheetControls={worksheetControls}
             updatePrint={this.updatePrint}
@@ -267,9 +270,48 @@ class Print extends React.Component {
     );
   };
 
-  renderCon = () => {
+  renderEditPrint = () => {
     const { worksheetId, worksheetInfo = {} } = this.props;
     const { showEditPrint, templateId, showCreatePrintTemp, fileType, printData = [] } = this.state;
+
+    return (
+      <Drawer
+        width={480}
+        placement="right"
+        className="Absolute"
+        zIndex={9}
+        onClose={() => this.setState({ showEditPrint: false, type: '' })}
+        visible={showEditPrint}
+        maskClosable={true}
+        closable={false}
+        getContainer={false}
+        mask={false}
+        bodyStyle={{ padding: 0 }}
+      >
+        <EditPrint
+          onClickAwayExceptions={['.mui-dialog-dialog', '.ant-picker-dropdown']}
+          downLoadUrl={worksheetInfo.downLoadUrl}
+          onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
+          onClose={() => this.setState({ showEditPrint: false, type: '' })}
+          templateId={templateId}
+          worksheetId={worksheetId}
+          templateData={printData.find(it => it.id === templateId)}
+          fileType={fileType}
+          appId={_.get(worksheetInfo, 'appId')}
+          roleType={_.get(worksheetInfo, 'roleType')}
+          projectId={_.get(worksheetInfo, 'projectId')}
+          updatePrint={this.updatePrint}
+          refreshFn={(showEditPrint = false, id) => {
+            this.setState({ showEditPrint, type: '', templateId: id || templateId });
+            this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
+          }}
+        />
+      </Drawer>
+    );
+  };
+
+  renderCon = () => {
+    const { printData = [] } = this.state;
     const defaultTemData = printData.filter(it => PRINT_TYPE_CLASSIFY[0].includes(it.type)); //记录打印
     const codeTemData = printData.filter(it => PRINT_TYPE_CLASSIFY[1].includes(it.type)); //条码打印
 
@@ -327,59 +369,19 @@ class Print extends React.Component {
               </React.Fragment>
             )}
           </div>
-          <Drawer
-            width={480}
-            placement="right"
-            className="Absolute"
-            zIndex={9}
-            onClose={() => this.setState({ showEditPrint: false, type: '' })}
-            visible={showEditPrint}
-            maskClosable={true}
-            closable={false}
-            getContainer={false}
-            mask={false}
-            bodyStyle={{ padding: 0 }}
-          >
-            <EditPrint
-              onClickAwayExceptions={['.mui-dialog-dialog', '.ant-picker-dropdown']}
-              downLoadUrl={worksheetInfo.downLoadUrl}
-              onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
-              onClose={() => this.setState({ showEditPrint: false, type: '' })}
-              templateId={templateId}
-              worksheetId={worksheetId}
-              templateData={printData.find(it => it.id === templateId)}
-              fileType={fileType}
-              roleType={_.get(worksheetInfo, 'roleType')}
-              projectId={_.get(worksheetInfo, 'projectId')}
-              updatePrint={this.updatePrint}
-              refreshFn={(showEditPrint = false, id) => {
-                this.setState({ showEditPrint, type: '', templateId: id || templateId });
-                this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
-              }}
-            />
-          </Drawer>
-          <CreatePrintDrawer
-            worksheetProjectId={worksheetInfo.projectId}
-            onCloseDrawer={() => this.setState({ showCreatePrintTemp: false })}
-            visible={showCreatePrintTemp}
-            addNewRecordPrintTemp={this.addNewRecordPrintTemp}
-            addWordPrintTemp={() => this.addDrawerPrintTemp('Word')}
-            addExcelPrintTemp={() => this.addDrawerPrintTemp('Excel')}
-            addCodePrintTemp={this.addCodePrintTemp}
-          />
         </div>
       </div>
     );
   };
 
   render() {
-    const { loading, previewRowId = '' } = this.state;
+    const { loading, previewRowId = '', showEditPrint, showPrintTemDialog, showCreatePrintTemp } = this.state;
     const { worksheetInfo = {}, worksheetId } = this.props;
 
     return (
       <React.Fragment>
         {loading ? <LoadDiv /> : this.renderCon()}
-        {this.state.showPrintTemDialog && (
+        {showPrintTemDialog && (
           <PrintTemDialog
             printId={this.state.templateId}
             name={this.state.name}
@@ -403,6 +405,18 @@ class Print extends React.Component {
                 name: '',
               });
             }}
+          />
+        )}
+        {showEditPrint && this.renderEditPrint()}
+        {!loading && (
+          <CreatePrintDrawer
+            worksheetProjectId={worksheetInfo.projectId}
+            onCloseDrawer={() => this.setState({ showCreatePrintTemp: false })}
+            visible={showCreatePrintTemp}
+            addNewRecordPrintTemp={this.addNewRecordPrintTemp}
+            addWordPrintTemp={() => this.addDrawerPrintTemp('Word')}
+            addExcelPrintTemp={() => this.addDrawerPrintTemp('Excel')}
+            addCodePrintTemp={this.addCodePrintTemp}
           />
         )}
       </React.Fragment>

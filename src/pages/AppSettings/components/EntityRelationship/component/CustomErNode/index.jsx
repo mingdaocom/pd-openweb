@@ -1,23 +1,46 @@
-import React from 'react';
-import _ from 'lodash';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import Trigger from 'rc-trigger';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { dialogEditWorksheet } from 'ming-ui/functions';
+import { dialogEditWorksheet } from 'src/pages/widgetConfig';
 import { WIDGETS_TO_API_TYPE_ENUM, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import sheetAjax from 'src/api/worksheet';
 import { getVisibleControls } from 'src/pages/Print/util';
 import { LINE_HEIGHT, NODE_WIDTH, HIDE_FIELDS } from '../../utils';
 import { iconSvg } from '../../config';
 import { getTranslateInfo } from 'src/util';
+import { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference/index';
 import './index.less';
 
 const TIPS = [_l('焦点'), _l('编辑表单')];
+
+const Menu = styled.ul`
+  width: 160px;
+  background: #ffffff;
+  box-shadow: 0px 4px 20px 1px rgba(0, 0, 0, 0.16);
+  border-radius: 2px;
+  padding: 6px 0;
+  li {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 20px;
+    &:hover {
+      background-color: #1e88e5;
+      color: #fff;
+    }
+  }
+`;
 
 export default function CustomErNode(props) {
   const { node } = props;
 
   const data = _.get(node, 'store.data.data');
   const { item, controls, height, list, updateSource, appId, count, filter, allControls, onFilter } = data;
+  const worksheetName = getTranslateInfo(appId, null, item.worksheetId).name || item.worksheetName;
+
+  const [visible, setVisible] = useState(false);
 
   const onClose = async () => {
     const newWorksheetInfo = await sheetAjax.getWorksheetInfo({
@@ -48,14 +71,58 @@ export default function CustomErNode(props) {
   };
 
   const openEdit = () => {
+    setVisible(false);
     dialogEditWorksheet({
       worksheetId: item.worksheetId,
       onClose,
     });
   };
 
+  const openRelation = () => {
+    setVisible(false);
+    renderDialog({
+      globalSheetInfo: {
+        appId,
+        worksheetId: item.worksheetId,
+        name: item.worksheetName,
+        worksheetList: data.list,
+        name: worksheetName,
+      },
+      type: 2,
+    });
+  };
+
   const getTip = sign => {
     return { [window.isSafari ? 'title' : 'data-tip']: TIPS[sign] };
+  };
+
+  const renderMoreOp = () => {
+    return (
+      <Trigger
+        popupVisible={visible}
+        onPopupVisibleChange={value => setVisible(value)}
+        action={['click']}
+        popupAlign={{
+          points: ['tr', 'br'],
+          offset: [0, 10],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        popup={() => (
+          <Menu>
+            <li className="overflow_ellipsis Hand" onClick={openEdit}>
+              {_l('编辑表单')}
+            </li>
+            <li className="overflow_ellipsis Hand" onClick={openRelation}>
+              {_l('查看引用')}
+            </li>
+          </Menu>
+        )}
+      >
+        <span className="Gray_9e Hover_21 Hand">
+          <Icon icon="task-point-more" className="Font14 Hover_21" />
+        </span>
+      </Trigger>
+    );
   };
 
   return (
@@ -64,9 +131,7 @@ export default function CustomErNode(props) {
       id={`customErNode-${item.worksheetId}`}
     >
       <div className="nodeTitle valignWrapper">
-        <span className="Font14 Bold overflow_ellipsis">
-          {getTranslateInfo(appId, null, item.worksheetId).name || item.worksheetName}
-        </span>
+        <span className="Font14 Bold overflow_ellipsis">{worksheetName}</span>
         {(!!item.start || !!item.end) && (
           <span
             className="editIconBox Gray_9e Hover_21 Hand"
@@ -77,11 +142,7 @@ export default function CustomErNode(props) {
             </span>
           </span>
         )}
-        <span className="editIconBox Gray_9e Hover_21 Hand" onClick={openEdit}>
-          <span {...getTip(1)}>
-            <Icon icon="edit" className="Font14 editIcon Hover_21" />
-          </span>
-        </span>
+        {renderMoreOp()}
       </div>
       <div className="splitLint"></div>
       {controls.map(control => {

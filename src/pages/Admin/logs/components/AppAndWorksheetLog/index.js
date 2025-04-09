@@ -18,7 +18,9 @@ import appManagementAjax from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import downloadAjax from 'src/api/download';
 import sheetAjax from 'src/api/worksheet';
-import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage, dateConvertToUserZone, getTranslateInfo } from 'src/util';
+import { getFeatureStatus, dateConvertToUserZone, getTranslateInfo } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import { VersionProductType } from 'src/util/enum';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import styled from 'styled-components';
@@ -662,10 +664,7 @@ export default class AppAndWorksheetLog extends Component {
     if (glFeatureType === '2') {
       return (
         <div className="orgManagementWrap h100">
-          {buriedUpgradeVersionDialog(projectId, VersionProductType.glabalLog, {
-            dialogType: 'content',
-            explainText: _l('请升级至付费版解锁开启'),
-          })}
+          {buriedUpgradeVersionDialog(projectId, VersionProductType.glabalLog, { dialogType: 'content' })}
         </div>
       );
     }

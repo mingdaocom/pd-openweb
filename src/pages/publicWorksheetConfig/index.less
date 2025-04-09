@@ -117,7 +117,7 @@
     .formContent {
       position: relative;
       overflow: hidden;
-      width: 800px;
+      width: 1100px;
       margin: 200px auto 50px;
       border-radius: 3px;
       padding: 0 2px;
@@ -359,6 +359,24 @@
       }
       .ming.Radio {
         margin-right: 32px;
+      }
+      .btnPositionSwitch {
+        display: flex;
+        background: #f5f5f5;
+        border-radius: 5px;
+        padding: 4px;
+        .positionItem {
+          width: 45px;
+          height: 30px;
+          line-height: 30px;
+          text-align: center;
+          cursor: pointer;
+          &.isActive {
+            background: #fff;
+            color: #2196f3;
+            font-weight: bold;
+          }
+        }
       }
     }
     .footer {

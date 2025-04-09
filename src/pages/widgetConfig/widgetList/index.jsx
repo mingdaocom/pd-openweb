@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
-import DraggableItem from './draggableItem';
-import { WIDGET_GROUP_TYPE } from '../config/widget';
-import ListItemLayer from './ListItemLayer';
-import { getFeatureStatus } from 'src/util';
-import { notInsetSectionTab } from '../util';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
+import { getFeatureStatus } from 'src/util';
+import { WIDGET_GROUP_TYPE } from '../config/widget';
 import WidgetAiRecommend from '../Header/WidgetAiRecommend';
-import cx from 'classnames';
+import { notInsetSectionTab } from '../util';
+import DraggableItem from './draggableItem';
+import ListItemLayer from './ListItemLayer';
 
 const WidgetList = styled.div`
   width: 300px;
@@ -167,7 +167,7 @@ export default function List(props) {
           {_.keys(WIDGET_GROUP_TYPE).map((group, index) => {
             const { widgets, title } = WIDGET_GROUP_TYPE[group];
             return (
-              <div key={group} className={cx('group', !index ? (md.global.Config.IsLocal ? 'mTop7' : 'mTop20') : '')}>
+              <div key={group} className={cx('group', !index ? 'mTop20' : '')}>
                 <div className="title">{title}</div>
                 <ul>
                   {_.keys(widgets).map(key => {

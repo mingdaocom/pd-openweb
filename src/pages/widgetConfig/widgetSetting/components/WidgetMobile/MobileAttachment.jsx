@@ -5,32 +5,37 @@ import { SettingItem } from '../../../styled';
 import SheetDealDataType from '../SheetDealDataType';
 import { updateConfig, getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import _ from 'lodash';
+import { transferValue } from '../DynamicDefaultValue/util';
+import DynamicDefaultValue from '../DynamicDefaultValue';
 
-const WATERMARK_TYPE = [
-  { value: 'user', text: _l('当前用户') },
-  { value: 'time', text: _l('当前拍摄时间') },
-  { value: 'address', text: _l('当前地点') },
-  { value: 'xy', text: _l('当前地点经纬度') },
-];
+const getWaterMarkValue = data => {
+  const { h5watermark = '', watermark } = getAdvanceSetting(data);
+  const oldWatermark = _.reduce(
+    safeParse(watermark || '[]'),
+    (result, cur) => {
+      result += '\n' + `$${cur}$`;
+      return result;
+    },
+    '',
+  );
+  return h5watermark || oldWatermark.replace(/^\s+/, '') || '';
+};
 
-export default ({ from, data, onChange }) => {
+export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => {
   let { strDefault, enumDefault2, advancedSetting = {} } = data;
   const [disableAlbum, onlyAllowMobileInput] = (strDefault || '00').split('');
   const { webcompress = '1' } = getAdvanceSetting(data);
   const { type = '' } = JSON.parse(advancedSetting.filetype || '{}');
-  const originWatermark = JSON.parse(advancedSetting.watermark || '[]');
   const [visible, setVisible] = useState(false);
-  const [watermark, setWatermark] = useState(originWatermark);
-
-  useEffect(() => {
-    setWatermark(originWatermark);
-  }, [data.controlId]);
+  const [watermark, setWatermark] = useState('');
+  const currentWaterMark = getWaterMarkValue(data);
 
   useEffect(() => {
     if (!_.includes([1, 2, 3], enumDefault2)) {
       onChange({
         ...handleAdvancedSettingChange(data, {
           watermark: '',
+          h5watermark: '',
           getsave: '0',
           getinput: '0',
         }),
@@ -96,26 +101,20 @@ export default ({ from, data, onChange }) => {
                   <div className="labelWrap labelBetween">
                     <Checkbox
                       size="small"
-                      checked={originWatermark.length > 0}
+                      checked={currentWaterMark}
                       onClick={checked => {
                         if (checked) {
                           setVisible(false);
-                          setWatermark([]);
+                          setWatermark('');
                           onChange({
                             ...handleAdvancedSettingChange(data, {
                               watermark: '',
+                              h5watermark: '',
                             }),
                           });
                         } else {
                           setVisible(true);
-                          if (!watermark.length) {
-                            setWatermark(['user', 'time']);
-                            onChange({
-                              ...handleAdvancedSettingChange(data, {
-                                watermark: JSON.stringify(['user', 'time']),
-                              }),
-                            });
-                          }
+                          setWatermark('$user$$time$');
                         }
                       }}
                     >
@@ -127,11 +126,14 @@ export default ({ from, data, onChange }) => {
                         <i className="icon-help Gray_9e Font16 Hand"></i>
                       </Tooltip>
                     </Checkbox>
-                    {originWatermark.length > 0 && (
+                    {currentWaterMark && (
                       <Tooltip placement="bottom" title={_l('设置水印内容')}>
                         <i
                           className="icon-settings Gray_9e Font16 Hand Right ThemeHoverColor3"
-                          onClick={() => setVisible(true)}
+                          onClick={() => {
+                            setVisible(true);
+                            setWatermark(currentWaterMark);
+                          }}
                         ></i>
                       </Tooltip>
                     )}
@@ -193,29 +195,56 @@ export default ({ from, data, onChange }) => {
         title={_l('水印内容')}
         okText={_l('保存')}
         cancelText={_l('取消')}
-        onCancel={() => setVisible(false)}
+        onCancel={() => {
+          setVisible(false);
+          setWatermark(currentWaterMark);
+        }}
+        className="SearchWorksheetDialog"
         onOk={() => {
-          onChange({
-            ...handleAdvancedSettingChange(data, {
-              watermark: JSON.stringify(watermark),
+          onChange(
+            handleAdvancedSettingChange(data, {
+              watermark: '',
+              h5watermark: watermark,
             }),
-          });
+          );
           setVisible(false);
         }}
       >
-        {WATERMARK_TYPE.map(item => {
-          return (
-            <Checkbox
-              size="small"
-              className="mTop10"
-              checked={_.includes(watermark, item.value)}
-              onClick={checked =>
-                setWatermark(checked ? watermark.filter(i => i !== item.value) : watermark.concat([item.value]))
-              }
-              text={item.text}
-            />
-          );
-        })}
+        <SettingItem className="mTop10">
+          <div className="settingItemTitle">
+            {_l('文字')}
+            <Tooltip placement="bottom" title={_l('限制显示字数为100个字')}>
+              <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+            </Tooltip>
+          </div>
+          <DynamicDefaultValue
+            from={11}
+            hideTitle={true}
+            hideSearchAndFun={true}
+            globalSheetInfo={globalSheetInfo}
+            data={{
+              ...handleAdvancedSettingChange(data, {
+                defsource: JSON.stringify(transferValue(watermark)) || '',
+                defaulttype: '',
+              }),
+              type: 2,
+            }}
+            allControls={allControls.filter(i => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], i.type))}
+            onChange={newData => {
+              const { defsource } = getAdvanceSetting(newData);
+              let fields = '';
+              safeParse(defsource || '[]').forEach(item => {
+                const { cid, rcid, staticValue } = item;
+                if (cid) {
+                  fields += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
+                } else {
+                  fields += staticValue;
+                }
+              });
+              setWatermark(fields);
+            }}
+          />
+        </SettingItem>
       </Dialog>
     </Fragment>
   );

@@ -10,7 +10,6 @@ import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
 import doT from 'dot';
 import taskHtml from './tpl/createCalendar.html';
 import 'src/components/autoTextarea/autoTextarea';
-import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';
 import moment from 'moment';
 import _ from 'lodash';

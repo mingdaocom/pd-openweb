@@ -233,12 +233,6 @@ var staticLanguages = {
     'zh-Hans': '403 ，抱歉禁止访问！',
     'zh-Hant': '403 ，抱歉禁止訪問！',
   },
-  '抱歉，你访问的页面不存在！': {
-    en: 'Sorry, the Page You Visited Does Not Exist!',
-    ja: '申し訳ありませんが、訪問したページは存在しません！',
-    'zh-Hans': '抱歉，你访问的页面不存在！',
-    'zh-Hant': '抱歉，你訪問的頁面不存在！',
-  },
   绑定微信登录: {
     en: 'Bind WeChat Login',
     ja: 'WeChatログインをバインド',

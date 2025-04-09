@@ -14,6 +14,8 @@ rewrite (?i)^/appLibrary /staticfiles/html/appLibrary.html break;
 rewrite (?i)^/appShortCut /staticfiles/html/appShortCut.html break;
 rewrite (?i)^/filedownloaddenied /staticfiles/html/downloadDenied.html break;
 rewrite (?i)^/404 /staticfiles/html/404.html break;
+rewrite (?i)^/wechatmerchantguide /staticfiles/html/wechatmerchantguide.html break;
+rewrite (?i)^/alimerchantguide /staticfiles/html/alimerchantguide.html break;
 
 # 主站 独立入口
 rewrite (?i)^/apps/kcshare/ /kcshare.html break;

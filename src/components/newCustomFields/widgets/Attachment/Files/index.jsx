@@ -7,7 +7,7 @@ import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { formatFileSize, getClassNameByExt } from 'src/util';
+import { formatFileSize, getClassNameByExt, compatibleMDJS } from 'src/util';
 import { browserIsMobile, addBehaviorLog, addToken } from 'src/util';
 import { isWpsPreview } from 'src/pages/kc/utils';
 import attachmentApi from 'src/api/attachment';
@@ -257,15 +257,17 @@ const Files = props => {
 
   // 明道云附件预览
   const handleMDPreview = data => {
-    const { allowShare, allowDownload = false, advancedSetting, projectId, isDraft } = props;
+    const { allowShare, allowDownload = false, advancedSetting, projectId, isDraft, allowEditOnline } = props;
     const { allowedit, onlyeditself } = advancedSetting;
     const hideFunctions = ['editFileName', 'saveToKnowlege']
       .concat(allowDownload ? [] : ['download'])
       .concat(allowShare ? [] : ['share']);
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId: data.fileID, rowId: recordBaseInfo.recordId });
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewImage) {
-      const file = _.find(attachmentData, { fileID: data.fileID }) || {};
-      window.MDJS.previewImage({
+
+    const file = _.find(attachmentData, { fileID: data.fileID }) || {};
+    compatibleMDJS(
+      'previewImage',
+      {
         nameEditing: props.allowEditName, // 默认true, 是否允许修改文件名
         deletion: props.allowEditName, // 默认true, 是否允许删除文件
         sharing: props.allowEditName, // 默认true, 是否允许对外分享, 第三方应用打开
@@ -281,55 +283,59 @@ const Files = props => {
           allowedit === '1' &&
           ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1') &&
           isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true), // @11.1 文档在线编辑
-      });
-      handleTriggerMore(file);
-      return;
-    }
-    previewAttachments(
-      {
-        attachments: attachmentData,
-        index: _.findIndex(attachmentData, { fileID: data.fileID }),
-        callFrom: 'player',
-        sourceID: data.sourceID,
-        commentID: data.commentID,
-        fromType: data.fromType,
-        docversionid: data.docVersionID,
-        showThumbnail: true,
-        showAttInfo: false,
-        hideFunctions: hideFunctions,
-        worksheetId: recordBaseInfo.worksheetId,
-        fileId: data.fileID,
-        recordId: recordBaseInfo.recordId,
-        controlId,
-        projectId,
-        isDraft,
-        masterWorksheetId: _.get(masterData, 'worksheetId'),
-        masterRecordId: _.get(masterData, 'recordId'),
-        masterControlId: _.get(masterData, 'controlId'),
-        allowEdit:
-          allowedit === '1' &&
-          ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1'),
       },
-      {
-        mdReplaceAttachment: newAttachment => {
-          const newAttachmentData = attachmentData.slice();
-          if (newAttachment && newAttachment.docVersionID) {
-            const attachmentIndex = _.findIndex(attachmentData, d => d.docVersionID === newAttachment.docVersionID);
-            if (attachmentIndex > -1) {
-              newAttachmentData[attachmentIndex] = newAttachment;
-              onChangeAttachmentData(newAttachmentData);
-            }
-          }
-        },
-        openControlAttachmentInNewTab: !isMobile && controlId && !isOtherSheet && handleOpenControlAttachmentInNewTab,
+      () => {
+        previewAttachments(
+          {
+            attachments: attachmentData,
+            index: _.findIndex(attachmentData, { fileID: data.fileID }),
+            callFrom: 'player',
+            sourceID: data.sourceID,
+            commentID: data.commentID,
+            fromType: data.fromType,
+            docversionid: data.docVersionID,
+            showThumbnail: true,
+            showAttInfo: false,
+            hideFunctions: hideFunctions,
+            worksheetId: recordBaseInfo.worksheetId,
+            fileId: data.fileID,
+            recordId: recordBaseInfo.recordId,
+            controlId,
+            projectId,
+            isDraft,
+            masterWorksheetId: _.get(masterData, 'worksheetId'),
+            masterRecordId: _.get(masterData, 'recordId'),
+            masterControlId: _.get(masterData, 'controlId'),
+            allowEdit:
+              allowEditOnline &&
+              allowedit === '1' &&
+              ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1'),
+          },
+          {
+            mdReplaceAttachment: newAttachment => {
+              const newAttachmentData = attachmentData.slice();
+              if (newAttachment && newAttachment.docVersionID) {
+                const attachmentIndex = _.findIndex(attachmentData, d => d.docVersionID === newAttachment.docVersionID);
+                if (attachmentIndex > -1) {
+                  newAttachmentData[attachmentIndex] = newAttachment;
+                  onChangeAttachmentData(newAttachmentData);
+                }
+              }
+            },
+            openControlAttachmentInNewTab:
+              !isMobile && controlId && !isOtherSheet && handleOpenControlAttachmentInNewTab,
+          },
+        );
       },
+      () => handleTriggerMore(file),
     );
   };
   // 未保存的知识附件预览
   const handleKCPreview = data => {
     const res = knowledgeAtts.filter(item => item.node).map(item => item.node);
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewImage) {
-      window.MDJS.previewImage({
+    compatibleMDJS(
+      'previewImage',
+      {
         index: _.findIndex(res, { id: data.fileID }),
         files: res,
         filterRegex: _.get(advancedSetting, 'filterRegex'),
@@ -337,15 +343,16 @@ const Files = props => {
         worksheetId: recordBaseInfo.worksheetId,
         rowId: recordBaseInfo.recordId,
         controlId,
-      });
-      return;
-    }
-    previewAttachments({
-      attachments: res,
-      index: _.findIndex(res, { id: data.fileID }),
-      callFrom: 'kc',
-      hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
-    });
+      },
+      () => {
+        previewAttachments({
+          attachments: res,
+          index: _.findIndex(res, { id: data.fileID }),
+          callFrom: 'kc',
+          hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
+        });
+      },
+    );
   };
   // 未保存的七牛云附件预览
   const handlePreview = data => {
@@ -449,21 +456,12 @@ const Files = props => {
           editType: 1, // 1:表单内附件 2:打印模板
         })
         .then(data => {
-          if (window.isMingDaoApp && window.MDJS && window.MDJS.onlineEditingURLLoaded) {
-            window.MDJS.onlineEditingURLLoaded({
-              fileId: file.fileID,
-              url: data.wpsEditUrl,
-            });
-            return;
-          }
-
-          setWpsEditUrls(values => ({ ...values, [file.fileID]: data.wpsEditUrl }));
+          compatibleMDJS('onlineEditingURLLoaded', { fileId: file.fileID, url: data.wpsEditUrl }, () => {
+            setWpsEditUrls(values => ({ ...values, [file.fileID]: data.wpsEditUrl }));
+          });
         });
-    } else if (window.isMingDaoApp && window.MDJS && window.MDJS.onlineEditingURLLoaded) {
-      window.MDJS.onlineEditingURLLoaded({
-        fileId: file.fileID,
-        url: '',
-      });
+    } else {
+      compatibleMDJS('onlineEditingURLLoaded', { fileId: file.fileID, url: '' });
     }
   };
 

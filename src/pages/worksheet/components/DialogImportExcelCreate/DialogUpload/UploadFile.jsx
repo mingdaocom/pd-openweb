@@ -41,6 +41,7 @@ export default class UploadFile extends Component {
   }
 
   initUpload() {
+    const { fileUploaded = () => {}, onFilesAdded = () => {} } = this.props;
     this.uploader = createUploader({
       runtimes: 'html5',
       browse_button: this.uplaodaExcel,
@@ -73,13 +74,14 @@ export default class UploadFile extends Component {
         },
         FilesAdded: up => {
           up.setOption('auto_start', true);
+          onFilesAdded(up);
         },
         UploadProgress: (uploader, file) => {
           this.setState({ file });
         },
         FileUploaded: (up, file, info) => {
           this.setState({ file });
-          this.props.fileUploaded({ ...file, key: info.response.key });
+          fileUploaded({ ...file, key: info.response.key });
         },
       },
     });

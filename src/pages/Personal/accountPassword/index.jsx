@@ -38,7 +38,7 @@ const tipsConfig = {
   mobilePhone: _l(
     '绑定手机号作为你的登录账号。同时也是管理个人账户和使用系统服务的重要依据。为便于您以后的操作及账户安全，请您尽快绑定。',
   ),
-  isTwoauthentication: _l('两步验证是在输入账号密码后，额外增加一道安全屏障（手机短信或邮箱验证码），保障您的帐号安全'),
+  isTwoauthentication: _l('两步验证是在输入账号密码后，额外增加一道安全屏障（手机短信或邮箱验证码），保障您的账号安全'),
 };
 
 const ERROR_MESSAGE = {
@@ -237,7 +237,7 @@ export default class AccountChart extends React.Component {
     });
   }
 
-  // 修改帐号
+  // 修改账号
   handleChangeAccount(type) {
     validateFunc({
       title: type === 'email' ? _l('修改邮箱') : _l('修改手机号码'),
@@ -274,7 +274,7 @@ export default class AccountChart extends React.Component {
     return (
       <Fragment>
         <div className="LineHeight36 accountJoinFrirndBox">
-          <span className="InlineBlock accountLabel Gray_75">{_l('添加我的方式')}</span>
+          <span className="InlineBlock accountLabel Gray_75">{_l('添加我为好友的认证方式')}</span>
           <Select
             value={this.state.joinFriendMode}
             onChange={joinFriendMode =>
@@ -356,11 +356,7 @@ export default class AccountChart extends React.Component {
       { leading: true },
     );
 
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled, { needFeedBack: false }).show();
-    }
+    new captcha(throttled);
   }
 
   //提示框

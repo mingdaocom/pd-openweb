@@ -5,7 +5,8 @@ import _ from 'lodash';
 import Search from 'src/pages/workflow/components/Search';
 import GlobalVarTable from './GlobalVarTable';
 import VarAddOrEditModal from './VarAddOrEditModal';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 

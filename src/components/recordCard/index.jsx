@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+
 import cx from 'classnames';
-import CellControl from 'src/pages/worksheet/components/CellControls';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import './RecordCard.less';
-import _ from 'lodash';
+import CellControl from 'src/pages/worksheet/components/CellControls';
 import RegExpValidator from 'src/util/expression';
+
+import './RecordCard.less';
+
 const FROMS = {
   RECORDDETAIL: 1,
   SELECT_RECORD_DIALOG: 2,
@@ -69,14 +72,17 @@ export default class RecordCard extends Component {
     return coverControlData;
   }
   get cardControls() {
-    const { controls, showControls } = this.props;
+    const { control, controls, showControls } = this.props;
+    const showTitleId = _.get(control, 'advancedSetting.showtitleid');
     const allControls = [
       { controlId: 'ownerid', controlName: _l('拥有者'), type: 26 },
       { controlId: 'caid', controlName: _l('创建人'), type: 26 },
       { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
       { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
     ].concat(controls);
-    return showControls.map(scid => _.find(allControls, c => c.controlId === scid)).filter(c => c && c.attribute !== 1);
+    return showControls
+      .map(scid => _.find(allControls, c => c.controlId === scid))
+      .filter(c => (showTitleId ? showTitleId !== c.controlId : c && c.attribute !== 1));
   }
   render() {
     const {

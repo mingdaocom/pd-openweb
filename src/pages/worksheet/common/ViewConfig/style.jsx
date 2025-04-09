@@ -80,3 +80,51 @@ export const ShowChoose = styled.div`
     }
   }
 `;
+
+export const ViewSettingWrap = styled.div`
+  .withSwitchConfig {
+    display: flex;
+    justify-content: space-between;
+    .configSwitch {
+      display: flex;
+      align-items: center;
+      .icon {
+        vertical-align: middle;
+        &-ic_toggle_on {
+          color: #00c345;
+        }
+        &-ic_toggle_off {
+          color: #bdbdbd;
+        }
+      }
+      .switchText {
+        margin-right: 6px;
+        line-height: 24px;
+      }
+    }
+  }
+  .title {
+    font-weight: bold;
+    // margin-top: 12px;
+    &:first-child {
+      margin: 0;
+    }
+  }
+  .subTitle {
+    color: #515151;
+    &.withDisplayControl {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  .settingContent {
+    margin-top: 8px;
+  }
+  .Dropdown {
+    background-color: #fff;
+    &.disabled {
+      background-color: #f5f5f5;
+    }
+  }
+`;

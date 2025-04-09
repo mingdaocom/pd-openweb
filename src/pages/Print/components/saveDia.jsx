@@ -5,6 +5,7 @@ import { Dialog, Icon } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
 import { typeForCon } from '../config';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 import './saveDia.less';
 
 export default class SaveDia extends React.Component {
@@ -18,23 +19,24 @@ export default class SaveDia extends React.Component {
     };
   }
   componentDidMount() {
-    const { printData, type, viewId } = this.props;
+    const { printData, type, viewId, worksheetId } = this.props;
     sheetAjax
       .getWorksheetInfo({
         getTemplate: true,
         getViews: true,
-        worksheetId: this.props.worksheetId,
+        worksheetId,
       })
       .then(res => {
+        const viewIds = printData.views.filter(l => l !== worksheetId);
         this.setState({
-          views: res.views,
+          views: getShowViews(res.views),
           printData: {
             ...this.state.printData,
             views:
-              printData.views.length <= 0 && type === typeForCon.NEW
-                ? res.views.filter(it => it.viewId === viewId)
+              viewIds.length <= 0 && type === typeForCon.NEW
+                ? res.views.filter(it => it.viewId === viewId && viewId !== worksheetId)
                 : res.views.filter(it => this.state.printData.views.includes(it.viewId)),
-            range: printData.views.length <= 0 && type === typeForCon.NEW ? 3 : printData.range,
+            range: viewIds.length <= 0 && type === typeForCon.NEW ? 3 : printData.range,
           },
         });
       });

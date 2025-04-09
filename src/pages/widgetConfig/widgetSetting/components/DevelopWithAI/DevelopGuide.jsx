@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import { Modal } from 'ming-ui';
-import { IconButton, Icon } from './index';
+import { IconButton, Icon } from './styled';
 import Remarkable from 'remarkable';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';

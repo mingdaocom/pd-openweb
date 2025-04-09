@@ -17,7 +17,6 @@ import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/co
 import SearchInput from 'worksheet/components/SearchInput';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import { controlCanEdit } from 'worksheet/common/BatchEditRecord/BatchEditRecord';
 import ChildTableContext from './ChildTableContext';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
@@ -40,6 +39,7 @@ import {
   filterRowsByKeywords,
   filterEmptyChildTableRows,
   replaceControlsTranslateInfo,
+  controlBatchCanEdit,
 } from 'worksheet/util';
 import ColumnHead from '../BaseColumnHead';
 import RowHead from './ChildTableRowHead';
@@ -50,7 +50,7 @@ import WorksheetTable from '../WorksheetTable';
 import RowDetail from './RowDetailModal';
 import RowDetailMobile from './RowDetailMobileModal';
 import * as actions from './redux/actions';
-import _, { filter, find, findIndex, get, includes, isUndefined, last } from 'lodash';
+import _, { filter, find, findIndex, get, includes, isEmpty, isUndefined, last, omit } from 'lodash';
 import { createRequestPool } from 'worksheet/api/standard';
 import ExportSheetButton from '../ExportSheetButton';
 
@@ -194,6 +194,8 @@ class ChildTable extends React.Component {
       frozenIndex: this.settings.frozenIndex,
       frozenIndexChanged: false,
       disableMaskDataControls: {},
+      rowsLoadingStatus: {},
+      showLoadingMask: false,
     };
     this.state.sheetColumnWidths = this.getSheetColumnWidths();
     this.controls = props.controls;
@@ -395,6 +397,7 @@ class ChildTable extends React.Component {
         control.required = resetedControl.required;
         control.fieldPermission = resetedControl.fieldPermission;
       }
+      control.originalFieldPermission = control.fieldPermission;
       if (!_.find(showControls, scid => control.controlId === scid)) {
         control.fieldPermission = '000';
       } else {
@@ -669,8 +672,40 @@ class ChildTable extends React.Component {
       masterData,
       abortController: this.abortController,
       masterRecordRowId: recordId,
-      onAsyncChange: changes => {
+      updateLoadingItems: loadingInfo => {
+        if (!row || !row.needShowLoading) return;
+        this.setState(prev => {
+          const newRowsLoadingStatus = {
+            ...prev.rowsLoadingStatus,
+            [rowId]: !_.every(Object.values(loadingInfo), b => !b),
+          };
+          const newShowLoadingMask = !Object.values(newRowsLoadingStatus).every(v => v === false);
+          this.setState({
+            showLoadingMask: newShowLoadingMask,
+          });
+          return {
+            ...prev,
+            rowsLoadingStatus: newRowsLoadingStatus,
+          };
+        });
+      },
+      onAsyncChange: (changes, dataFormat) => {
         flushSync(() => {
+          if (rowId && row && row.needShowLoading) {
+            this.setState(prev => {
+              const newRowsLoadingStatus = {
+                ...prev.rowsLoadingStatus,
+                [rowId]: !_.every(Object.values(dataFormat.loadingInfo), b => !b),
+              };
+              this.setState({
+                showLoadingMask: !Object.values(newRowsLoadingStatus).every(v => v === false),
+              });
+              return {
+                ...prev,
+                rowsLoadingStatus: newRowsLoadingStatus,
+              };
+            });
+          }
           if (!_.isEmpty(changes.controlIds)) {
             changes.controlIds.forEach(cid => {
               asyncUpdateCell(cid, changes.value);
@@ -763,9 +798,12 @@ class ChildTable extends React.Component {
         }
         setTimeout(() => {
           addRows(
-            data
-              .slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length)
-              .map(updatedValues => this.newRow(updatedValues, { isCreate: true, isImportFromExcel: true })),
+            data.slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length).map(updatedValues =>
+              this.newRow(omit({ ...updatedValues, needShowLoading: true }, 'rowid'), {
+                isCreate: true,
+                isImportFromExcel: true,
+              }),
+            ),
           );
         }, 0);
       },
@@ -1143,7 +1181,9 @@ class ChildTable extends React.Component {
       isMobileSearchFocus,
       isAddRowByLine,
       disableMaskDataControls,
+      showLoadingMask,
     } = this.state;
+
     const { treeMap = {} } = treeTableViewData;
     const batchAddControls = batchcids.map(id => _.find(controls, { controlId: id })).filter(_.identity);
     const addRowFromRelateRecords = !!batchAddControls.length;
@@ -1171,16 +1211,13 @@ class ChildTable extends React.Component {
     const allowBatch = !_.includes([FROM.DEFAULT], from) && this.settings.allowBatch;
     const allowBatchDelete = allowcancel || (allowadd && !!originRows.filter(r => /^temp/.test(r.rowid)).length);
     const allowImport = this.settings.allowImport && !_.includes([FROM.DEFAULT], from);
-    const showBatchEdit =
-      !isMobile &&
-      !disabled &&
-      allowBatch &&
-      (allowadd || allowcancel) &&
-      !!filterEmptyChildTableRows(tableRows).length;
+    const showBatchEdit = !isMobile && !disabled && allowBatch && !!filterEmptyChildTableRows(tableRows).length;
     const showImport = !isMobile && allowImport && !disabledNew;
+    const showAddRowByLine = !isMobile && !disabledNew && allowAddByLine;
+    const showSelectRecord = !isMobile && !disabledNew && addRowFromRelateRecords;
     const RowDetailComponent = isMobile ? RowDetailMobile : RowDetail;
     const allowEdit = !disabled && allowedit;
-    const allowBatchEditControls = columns.filter(controlCanEdit);
+    const allowBatchEditControls = columns.filter(controlBatchCanEdit);
     if (!columns.length) {
       return <div className="childTableEmptyTag"></div>;
     }
@@ -1356,7 +1393,7 @@ class ChildTable extends React.Component {
             <div className="operate">
               {!isBatchEditing ? (
                 <Fragment>
-                  {!isMobile && !disabledNew && addRowFromRelateRecords && (
+                  {showSelectRecord && (
                     <span
                       className={cx('addRowByDialog', { disabled: isExceed || disabledNew })}
                       onClick={
@@ -1369,7 +1406,7 @@ class ChildTable extends React.Component {
                       </span>
                     </span>
                   )}
-                  {!isMobile && !disabledNew && allowAddByLine && (
+                  {showAddRowByLine && (
                     <span
                       className={cx('addRowByLine', { disabled: isExceed || disabledNew })}
                       onClick={isExceed || disabledNew ? () => {} : this.handleAddRowByLine}
@@ -1389,7 +1426,7 @@ class ChildTable extends React.Component {
                   )}
                   {showBatchEdit && (allowBatchDelete || allowEdit || (allowadd && allowCopy)) && (
                     <Fragment>
-                      <div className="splitter"></div>
+                      {(showImport || showAddRowByLine || showSelectRecord) && <div className="splitter"></div>}
                       <span className="addRowByLine" onClick={() => this.setState({ isBatchEditing: true })}>
                         {_l('批量操作')}
                       </span>
@@ -1505,6 +1542,8 @@ class ChildTable extends React.Component {
           {!isMobile && !loading && (
             <div className="Relative" style={{ height: tableFooter ? tableHeight + tableFooter.height : tableHeight }}>
               <WorksheetTable
+                showLoadingMask={showLoadingMask}
+                loadingMaskChildren={<span className="childTableIsImportingData">{_l('正在导入数据...')}</span>}
                 isTreeTableView={isTreeTableView}
                 treeLayerControlId={treeLayerControlId}
                 treeTableViewData={treeTableViewData}

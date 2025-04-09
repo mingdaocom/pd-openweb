@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Input } from 'antd';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
+import { Dialog, Icon, LoadDiv, QiniuUpload } from 'ming-ui';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../../config';
 import './index.less';
-import 'src/components/uploadAttachment/uploadAttachment';
-import _ from 'lodash';
 
 export default class SubDomain extends Component {
   constructor(props) {
@@ -42,45 +41,7 @@ export default class SubDomain extends Component {
           isCustomImage: homeImage ? this.testHomeImage(homeImage) : false,
           isLoading: false,
         },
-        () => {
-          this.createUploader();
-        },
       );
-    });
-  }
-
-  createUploader() {
-    const _this = this;
-    if (_this.state.isUploading) {
-      return;
-    }
-    $(_this.upload).uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#upload_file',
-      multiSelection: false,
-      maxTotalSize: 2,
-      folder: 'ProjectLogo',
-      fileNamePrefix: 'HomeImage_',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 4, //网络logo
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        _this.setState({ isUploading: true });
-      },
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          var attachment = attachments[0];
-          var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-          _this.setState({
-            homeImage: attachment.fileName + attachment.fileExt,
-            currentHomeImage: `${fullFilePath}?imageView2/2/w/192/h/50/q/90`,
-            isCustomImage: _this.testHomeImage(attachment.fileName),
-            isUploading: false,
-          });
-        }
-      },
     });
   }
 
@@ -162,6 +123,51 @@ export default class SubDomain extends Component {
     });
   }
 
+  handleUploaded = (up, file) => {
+    this.setState({
+      isUploading: false,
+      homeImage: file.fileName,
+      currentHomeImage: file.url,
+      isCustomImage: this.testHomeImage(file.fileName),
+    });
+    up.disableBrowse(false);
+  };
+
+  renderUploadBtn = () => {
+    const { currentHomeImage, isCustomImage } = this.state;
+
+    return (
+      <QiniuUpload
+        className=""
+        ref={this.uploaderWrap}
+        options={{
+          multi_selection: false,
+          filters: {
+            mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+          },
+          max_file_size: '2m',
+          type: 4,
+        }}
+        bucket={4}
+        onUploaded={this.handleUploaded}
+        onAdd={(up, files) => {
+          this.setState({ isUploading: true });
+          up.disableBrowse();
+        }}
+        onError={() => {}}
+      >
+        <div className="avatar-uploader" id="upload_file">
+          <input ref={con => (this.upload = con)} type="hidden" />
+          {isCustomImage ? (
+            <img src={currentHomeImage} alt="avatar" />
+          ) : (
+            <span className="icon-upload_pictures Font16 TxtMiddle" />
+          )}
+        </div>
+      </QiniuUpload>
+    );
+  };
+
   render() {
     const { subDomain, domainName, isLoading, currentHomeImage, visible, isCustomImage } = this.state;
     return (
@@ -242,15 +248,10 @@ export default class SubDomain extends Component {
               <div className="common-info-row mTop40">
                 <div className="common-info-row-label">{_l('自定义')}</div>
                 <div>
-                  <div className="avatar-uploader" id="upload_file">
-                    <input ref={con => (this.upload = con)} type="hidden" />
-                    {isCustomImage ? (
-                      <img src={currentHomeImage} alt="avatar" />
-                    ) : (
-                      <span className="icon-upload_pictures Font16 TxtMiddle" />
-                    )}
+                  {this.renderUploadBtn()}
+                  <div className="domain-describe mTop16">
+                    {_l('推荐尺寸 1920*900，2 M以内，显示在二级域名的登录背景')}
                   </div>
-                  <div className="domain-describe mTop16">{_l('推荐尺寸 1920*900，2 M以内')}</div>
                 </div>
               </div>
               <div className="common-info-row pTop54">

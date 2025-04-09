@@ -5,11 +5,9 @@ import styled from 'styled-components';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import worksheetApi from 'src/api/worksheet';
 import useApi from 'worksheet/hooks/useApi';
-import { find, get, isEmpty, some, isArray, pick, includes, omit, isFunction } from 'lodash';
-import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
-import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { controlState, formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { replaceControlsTranslateInfo, checkCellIsEmpty } from 'worksheet/util';
+import { find, get, isEmpty, some, omit, isFunction } from 'lodash';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { replaceControlsTranslateInfo, checkCellIsEmpty, controlBatchCanEdit } from 'worksheet/util';
 import { handleBatchUpdateRecords, getEditType } from './controller';
 import EditControlItem from './EditControlItem';
 
@@ -67,20 +65,6 @@ const EditCon = styled.div`
   max-height: ${props => (props.maxHeight ? `${props.maxHeight}px` : '400px')};
 `;
 
-export function controlCanEdit(control, view = { controls: [] }) {
-  return (
-    ((control.type < 10000 &&
-      includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
-      !(control.type === 29 && includes(['2', '5', '6'], get(control, 'advancedSetting.showtype'))) &&
-      !(control.type === 14 && includes(['0'], get(control, 'advancedSetting.allowdelete') || '1')) &&
-      !find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
-      !find(view.controls, id => control.controlId === id)) ||
-      control.controlId === 'ownerid') &&
-    controlState(control).visible &&
-    controlState(control).editable
-  );
-}
-
 export default function BatchEditRecord(props) {
   const {
     isCharge,
@@ -123,7 +107,7 @@ export default function BatchEditRecord(props) {
   const [selectedControls, setSelectedControls] = useState([]);
   const controlsForSelect = useMemo(() => {
     const formData = replaceControlsTranslateInfo(appId, worksheetId, get(worksheetInfo, 'template.controls', []));
-    const result = formData.filter(c => controlCanEdit(c, view));
+    const result = formData.filter(c => controlBatchCanEdit(c, view));
     return result;
   }, [worksheetInfo]);
   const filteredSelectedControls = useMemo(() => {

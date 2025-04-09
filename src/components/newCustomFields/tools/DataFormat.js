@@ -1,1024 +1,42 @@
-import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
-import { calcDate, filterEmptyChildTableRows } from 'src/pages/worksheet/util';
-import { Parser } from 'hot-formula-parser';
+import _, { find, get, includes } from 'lodash';
+import moment from 'moment';
 import nzh from 'nzh';
 import { v4 as uuidv4 } from 'uuid';
-import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT, SYSTEM_ENUM } from './config';
-import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
-import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
-import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import {
-  Validator,
-  getRangeErrorType,
-  getCurrentValue,
-  specialTelVerify,
-  compareWithTime,
-  getEmbedValue,
-  isUnTextWidget,
-  controlState,
-  getArrBySpliceType,
-  checkValueByFilterRegex,
-  halfSwitchSize,
-} from './utils';
-import intlTelInput from '@mdfe/intl-tel-input';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
-import moment from 'moment';
-import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
-import { browserIsMobile, getCurrentProject, toFixed, dateConvertToServerZone, getContactInfo } from 'src/util';
-import { checkRuleLocked, isEmptyValue } from './filterFn';
-import _, { find, get, includes } from 'lodash';
 import { createRequestPool } from 'worksheet/api/standard';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
+import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
 import generateSubListStore from 'worksheet/components/ChildTable/redux/store';
 import generateRelateRecordTableStore from 'worksheet/components/RelateRecordTable/redux/store.js';
-import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-
-export const initIntlTelInput = () => {
-  if (window.initIntlTelInput) {
-    return window.initIntlTelInput;
-  }
-
-  const $con = document.createElement('div');
-  const $input = document.createElement('input');
-
-  $con.style.display = 'none';
-  $con.appendChild($input);
-  document.body.appendChild($con);
-
-  window.initIntlTelInput = intlTelInput($input, {
-    initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-    utilsScript: utils,
-  });
-
-  return window.initIntlTelInput;
-};
-
-// 合并筛选filter
-const getItemFilters = (items = []) => {
-  return items.reduce((total, cur) => {
-    return total.concat(cur.isGroup ? cur.groupFilters : [cur]);
-  }, []);
-};
-
-// 时间字段处理
-const formatTimeValue = (control = {}, isCurrent = false, value) => {
-  // 汇总输出格式unit为9
-  const mode = control.unit === '6' || control.unit === '9' ? 'HH:mm:ss' : 'HH:mm';
-  if (isCurrent) return moment(moment().format(mode), mode).format('HH:mm:ss');
-  if (!value) return '';
-  return moment(value).year()
-    ? moment(moment(value).format(mode), mode).format('HH:mm:ss')
-    : moment(value, mode).format('HH:mm:ss');
-};
-
-/**
- *
- * 查询出来的值映射前需要异化处理格式
- */
-export const formatSearchResultValue = ({
-  targetControl = {},
-  currentControl = {},
-  controls = [],
-  searchResult = '',
-}) => {
-  if (_.includes([9, 10, 11], currentControl.type)) {
-    return getControlValue(controls, currentControl, targetControl.controlId, searchResult);
-  } else if (currentControl.type === 2) {
-    return getCurrentValue(
-      _.find(controls, s => s.controlId === targetControl.controlId),
-      searchResult,
-      currentControl,
-    );
-  } else {
-    return searchResult;
-  }
-};
-
-// 处理静态默认值
-const parseStaticValue = (item, staticValue) => {
-  // 手机 当前用户
-  if (item.type === 3 && _.get(safeParse(staticValue), 'accountId') === 'user-self') {
-    return getContactInfo('mobilePhone');
-  }
-  // 邮箱 当前用户
-  if (item.type === 5 && _.get(safeParse(staticValue), 'accountId') === 'user-self') {
-    return getContactInfo('email');
-  }
-
-  // 日期 || 日期时间
-  if (item.type === 15 || item.type === 16) {
-    const unit = TIME_UNIT[item.unit] || 'd';
-    if (staticValue === '2') {
-      return item.type === 15
-        ? moment().format('YYYY-MM-DD')
-        : dateConvertToServerZone(moment().format('YYYY-MM-DD HH:mm:ss'));
-    } else if (staticValue === '3') {
-      return moment()
-        .add(1, unit)
-        .format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
-    }
-  }
-
-  // 时间(此刻)
-  if (item.type === 46 && staticValue === '2') {
-    return formatTimeValue(item, true);
-  }
-
-  // 人员 || 部门
-  if (_.includes([26, 27, 48], item.type)) {
-    const value = safeParse(staticValue);
-
-    if (value.accountId === 'user-self') {
-      if (window.isPublicWorksheet) return '';
-      if ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) return '';
-      const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
-      if (_.isEmpty(obj)) return '';
-      return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
-    }
-    return _.isEmpty(value) ? '' : value;
-  }
-
-  // 关联表、级联
-  if (_.includes([29, 35], item.type)) {
-    const titleControl = _.find(_.get(item, 'relationControls'), i => i.attribute === 1);
-    const isCascaderAllPath = item.type === 35 && _.get(item, 'advancedSetting.allpath') === '1';
-    staticValue = safeParse(staticValue)[0];
-    const name =
-      safeParse(staticValue).name ||
-      (isCascaderAllPath
-        ? safeParse(_.get(safeParse(staticValue), 'path') || '[]').join(' / ')
-        : titleControl
-        ? renderCellText({ ...titleControl, value: safeParse(staticValue)[titleControl.controlId] }) || _l('未命名')
-        : undefined);
-    return JSON.stringify([
-      {
-        sourcevalue: staticValue,
-        type: 8,
-        sid: safeParse(staticValue).rowid,
-        name: name,
-      },
-    ]);
-  }
-  // 子表
-  if (item.type === 34) {
-    let parsedValue;
-    try {
-      parsedValue = safeParse(staticValue);
-      return JSON.stringify(parsedValue.map(r => ({ ...r, initRowIsCreate: false })));
-    } catch (err) {}
-  }
-
-  return staticValue;
-};
-
-// 获取动态默认值
-export const getDynamicValue = (data, currentItem, masterData, embedData) => {
-  if (currentItem.isQueryWorksheetFill && !checkCellIsEmpty(currentItem.value)) {
-    return currentItem.value;
-  }
-  let value = safeParse(currentItem.advancedSetting.defsource).map(item => {
-    if (item.isAsync) return '';
-
-    // 关联他表字段
-    if (item.rcid) {
-      try {
-        if (masterData && item.rcid === masterData.worksheetId) {
-          const targetControl = _.find(masterData.formData, c => c.controlId === item.cid);
-
-          if (_.includes([15, 16], currentItem.type)) {
-            return targetControl.value
-              ? moment(targetControl.value).format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss')
-              : '';
-          }
-
-          if (currentItem.type === 46) {
-            return formatTimeValue(currentItem, false, targetControl.value);
-          }
-
-          //文本类控件(默认值为选项、成员、部门等异化)
-          if (_.includes([2], currentItem.type)) {
-            return getCurrentValue(targetControl, targetControl.value, currentItem);
-          }
-
-          return getControlValue(masterData.formData, currentItem, item.cid);
-        }
-        const parentControl = _.find(data, c => c.controlId === item.rcid);
-        const control = safeParse(parentControl.value || '[]')[0];
-        const sourcevalue = control && safeParse(control.sourcevalue)[item.cid];
-
-        if (_.includes([15, 16], currentItem.type) && _.includes(['ctime', 'utime'], item.cid)) {
-          return (sourcevalue ? moment(sourcevalue) : moment()).format(
-            item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss',
-          );
-        }
-
-        if (currentItem.type === 46) {
-          return formatTimeValue(currentItem, _.includes(['ctime', 'utime'], item.cid), sourcevalue);
-        }
-
-        // 关联表
-        if (_.includes([29, 35], currentItem.type)) {
-          try {
-            return JSON.stringify(safeParse(sourcevalue).filter(r => r.sid));
-          } catch (err) {
-            return '';
-          }
-        }
-
-        // 数值类控件
-        if (
-          _.includes([6, 8, 28, 31], currentItem.type) ||
-          (currentItem.type === 38 && currentItem.enumDefault === 2)
-        ) {
-          try {
-            let cValue = 0;
-            const { options, enumDefault } = _.find(parentControl.relationControls, o => o.controlId === item.cid);
-
-            safeParse(sourcevalue).forEach(key => {
-              cValue += !!enumDefault ? options.find(o => o.key === key).score : 0;
-            });
-
-            return cValue;
-          } catch (err) {
-            return sourcevalue;
-          }
-        }
-
-        //文本类控件(默认值为选项、成员、部门等异化)
-        if (_.includes([2, 41], currentItem.type)) {
-          let currentControl = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
-          if (!currentControl) {
-            if (_.includes(['ownerid', 'caid', 'uaid', 'wfcuaids', 'wfcaid'], item.cid)) {
-              currentControl = { type: 26 };
-            } else if (_.includes(['wfstatus'], item.cid)) {
-              currentControl = { type: 11, controlId: 'wfstatus' };
-            }
-          }
-          return getCurrentValue(currentControl, sourcevalue, currentItem);
-        }
-
-        // 选项处理
-        if (_.includes([9, 10, 11], currentItem.type)) {
-          return getControlValue(parentControl.relationControls || [], currentItem, item.cid, sourcevalue);
-        }
-
-        return sourcevalue;
-      } catch (err) {
-        return '';
-      }
-    }
-
-    // 当前行记录字段
-    if (item.cid) {
-      if (
-        _.includes(
-          [
-            'userId',
-            'phone',
-            'email',
-            'language',
-            'projectId',
-            'appId',
-            'groupId',
-            'worksheetId',
-            'viewId',
-            'recordId',
-            'ua',
-            'timestamp',
-          ],
-          item.cid,
-        )
-      ) {
-        return getEmbedValue(embedData, item.cid);
-      }
-
-      const currentTargetControl = _.find(data, i => i.controlId === item.cid);
-
-      if (
-        currentItem.type === 26 &&
-        _.includes(['caid', 'user-self'], item.cid) &&
-        !(window.isPublicWorksheet && window.publicWorksheetShareId)
-      ) {
-        if (item.cid === 'caid' && (embedData || {}).recordId) {
-          const userValue = _.get(currentTargetControl, 'value');
-          return safeParse(userValue || '[]')[0] || '';
-        }
-        const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
-        if (_.isEmpty(obj)) return '';
-        return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
-      }
-      if (_.includes([15, 16], currentItem.type) && item.cid === 'ctime') {
-        return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
-      }
-
-      if (currentItem.type === 46) {
-        return formatTimeValue(currentItem, item.cid === 'ctime', _.get(currentTargetControl, 'value'));
-      }
-
-      //文本类控件、嵌入控件(默认值为选项、成员、部门等多异化)
-      if (_.includes([2, 41], currentItem.type) || (currentItem.type === 45 && currentItem.enumDefault === 1)) {
-        return getCurrentValue(currentTargetControl, (currentTargetControl || {}).value, currentItem);
-      }
-
-      return getControlValue(data, currentItem, item.cid);
-    }
-
-    if (item.staticValue) {
-      return parseStaticValue(currentItem, item.staticValue);
-    }
-
-    return '';
-  });
-
-  if (_.includes([9, 10, 11, 26, 27, 29, 48], currentItem.type)) {
-    let source = [];
-
-    _.remove(value, o => !o);
-
-    // 合并成新的一维数组
-    value.forEach(obj => {
-      if (typeof obj === 'string' && /[\{|\[]/.test(obj)) {
-        if (_.isArray(safeParse(obj))) {
-          source = source.concat(safeParse(obj));
-        } else {
-          source.push(safeParse(obj));
-        }
-      } else {
-        source.push(obj);
-      }
-    });
-
-    // 筛选出不重复的用户
-    if (currentItem.type === 26) {
-      source = _.uniqBy(source, user => user.accountId);
-    } else if (
-      currentItem.type === 29 &&
-      currentItem.enumDefault === 2 &&
-      _.get(currentItem, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.CARD)
-    ) {
-      source = source.filter(r => _.isObject(r)).map(r => ({ ...r, isNew: true, isFromDefault: true }));
-    } else {
-      source = _.uniqBy(source);
-    }
-
-    // 选项已删除的校验
-    if (_.includes([9, 10, 11], currentItem.type)) {
-      source = source.filter(s => _.find(currentItem.options, c => s.includes(c.key) && !c.isDeleted));
-    }
-
-    value = JSON.stringify(source);
-  } else {
-    value = value.join('');
-  }
-
-  return value;
-};
-
-// 获取他表字段的值
-const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId }) => {
-  try {
-    const parentControl = _.find(data, c => c.controlId === dataSource.slice(1, -1));
-    const record = safeParse(parentControl.value)[0];
-    const sourceControl = parentControl && _.find(parentControl.relationControls, c => c.controlId === sourceControlId);
-    if (sourceControl && _.includes([29, 35], sourceControl.type)) {
-      const sourceControlValue = safeParse(record.sourcevalue)[sourceControlId];
-      const sourceControlValueRecord = safeParse(sourceControlValue)[0];
-      if (sourceControlValueRecord) {
-        return sourceControlValueRecord.name;
-      }
-    } else {
-      return safeParse(record.sourcevalue)[sourceControlId];
-    }
-  } catch (err) {
-    return '';
-  }
-};
-
-// 处理公式
-const parseNewFormula = (data, currentItem = {}) => {
-  const { dot = 2 } = currentItem;
-  const nullzero = _.includes([2, 3, 6], currentItem.enumDefault)
-    ? '1'
-    : _.get(currentItem, 'advancedSetting.nullzero') || '0';
-  const isPercent = _.get(currentItem, 'advancedSetting.numshow') === '1';
-  let columnIsUndefined;
-
-  const formulaStr = currentItem.dataSource
-    .replace(/cSUM/gi, 'SUM')
-    .replace(/cAVG/gi, 'AVERAGE')
-    .replace(/cMIN/gi, 'MIN')
-    .replace(/cMAX/gi, 'MAX')
-    .replace(/cPRODUCT/gi, 'PRODUCT')
-    .replace(/cCOUNTA/gi, 'COUNTA')
-    .replace(/cABS/gi, 'ABS')
-    .replace(/cINT/gi, 'INT')
-    .replace(/cMOD/gi, 'MOD')
-    .replace(/cROUND/gi, 'ROUND')
-    .replace(/cROUNDUP/gi, 'ROUNDUP')
-    .replace(/cROUNDDOWN/gi, 'ROUNDDOWN');
-
-  const expression = formulaStr.replace(/\$.+?\$/g, matched => {
-    const controlId = matched.match(/\$(.+?)\$/)[1];
-    let column = Object.assign(
-      {},
-      _.find(data, obj => obj.controlId === controlId),
-    );
-
-    if (!column) {
-      columnIsUndefined = true;
-      return undefined;
-    }
-
-    if (_.includes([9, 10, 11], column.type)) {
-      const optionValue = getControlValue(data, { type: 31 }, controlId);
-      return nullzero === '1' && optionValue === '' ? 0 : optionValue;
-    }
-
-    // 汇总字段默认按 0 处理
-    if (_.isUndefined(column.value) && column.type === 37 && column.enumDefault2 === 6) {
-      column.value = 0;
-    }
-
-    if ((_.isUndefined(column.value) || column.value === '') && nullzero !== '1') {
-      columnIsUndefined = true;
-    }
-
-    // 不存在按0处理
-    if (nullzero === '1' && !column.value) {
-      column.value = '0';
-    }
-
-    return _.find([6, 8, 28, 31, 37], c => c === column.type || c === column.sourceControlType)
-      ? column.value
-      : formatColumnToText(column, true, true);
-  });
-  const parser = new Parser();
-  parser.setFunction('MOD', function (params) {
-    return params[0] % params[1];
-  });
-  const result = parser.parse(expression);
-  return columnIsUndefined
-    ? { columnIsUndefined }
-    : {
-        result:
-          typeof result.result === 'number'
-            ? parseFloat(
-                handleDotAndRound(
-                  {
-                    ...currentItem,
-                    dot: isPercent ? dot + 2 : dot,
-                  },
-                  toFixed(result.result, dot + 4),
-                  false,
-                ),
-              )
-            : null,
-      };
-};
-
-// 函数处理
-export function calcDefaultValueFunction({ formData, fnControl, forceSyncRun }) {
-  let expression = _.get(safeParse(fnControl.advancedSetting.defaultfunc), 'expression');
-  if (!expression) {
-    return '';
-  }
-  const result = execValueFunction(fnControl, formData, { forceSyncRun });
-  if (result.error) {
-    console.log(result);
-  } else {
-    return String(_.isUndefined(result.value) ? '' : result.value);
-  }
-}
-
-function asyncUpdateMdFunction({ formData, fnControl, update }) {
-  try {
-    execValueFunction(fnControl, formData, { update });
-  } catch (err) {}
-}
-
-// 嵌入字段处理
-const parseValueIframe = (data, currentItem, masterData, embedData) => {
-  return getDynamicValue(
-    data,
-    {
-      ...currentItem,
-      advancedSetting: {
-        ...currentItem.advancedSetting,
-        defsource: JSON.stringify(transferValue(currentItem.dataSource)),
-      },
-    },
-    masterData,
-    embedData,
-  );
-};
-
-/**
- * ignoreAddZero 不走补零逻辑
- */
-export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
-  const isNegative = value < 0;
-  value = Math.abs(value);
-  const roundType = currentItem.advancedSetting.roundtype || (_.includes([6, 8, 31, 37], currentItem.type) ? '2' : '0');
-  // 取整方式 空或者0 向下取整 1 向上取整 2 代表四舍五入
-  let dot = Number(currentItem.dot);
-  if (!dot || _.isNaN(dot)) {
-    dot = 0;
-  }
-  if (roundType === '2') {
-    value = String((Math.round(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-  } else if (roundType === '1') {
-    value = String((Math.ceil(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-  } else {
-    value = String(toFixed(Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
-  }
-  const ignoreZero = currentItem.advancedSetting.dotformat === '1';
-  if (!ignoreZero && dot !== 0 && ignoreAddZero) {
-    value = (value + (value.indexOf('.') > -1 ? '' : '.') + '0000000000000').replace(
-      new RegExp(`(\\d+\\.\\d{${dot}})(0+)$`),
-      '$1',
-    );
-  }
-  return value;
-}
-
-// 处理日期公式
-const parseDateFormula = (data, currentItem, recordCreateTime) => {
-  const roundType = currentItem.advancedSetting.roundtype || '0';
-  const getTime = (str, pos) => {
-    if (str === '$ctime$') {
-      return recordCreateTime || new Date();
-    } else if (str === '$utime$') {
-      return new Date();
-    } else if (/^\$[a-z0-9]{24}\$$/.test(str)) {
-      const column = _.find(data, item => item.controlId === str.slice(1, -1));
-      if (!column) {
-        return;
-      } else {
-        let timestr;
-        if (_.includes([15, 16, 46, 30], column.type)) {
-          timestr = column.value;
-        }
-        if (column.type === 29) {
-          timestr = _.get(safeParse(column.value), '0.name');
-        }
-        if (!timestr) {
-          return;
-        }
-        if (column.type === 15 || (column.type === 30 && column.sourceControlType === 15)) {
-          if (pos === 'start') {
-            timestr = moment(timestr).set({
-              hour: 0,
-              minute: 0,
-              second: 0,
-              millisecond: 0,
-            });
-          } else {
-            timestr = moment(timestr).set({
-              hour: currentItem.strDefault === '1' ? 24 : 0,
-              minute: 0,
-              second: 0,
-              millisecond: 0,
-            });
-          }
-        } else if (column.type === 46) {
-          timestr = moment('2000/1/1 ' + timestr);
-        }
-        return timestr;
-      }
-    } else if (moment.isDate(new Date(str))) {
-      return str;
-    } else {
-      return;
-    }
-  };
-  let value = '';
-
-  if (currentItem.enumDefault === 1) {
-    let startTime = getTime(currentItem.sourceControlId, 'start');
-    let endTime = getTime(currentItem.dataSource, 'end');
-    const startControl = _.find(data, item => item.controlId === currentItem.sourceControlId.slice(1, -1)) || {};
-    const endControl = _.find(data, item => item.controlId === currentItem.dataSource.slice(1, -1)) || {};
-    if (startControl.type === 46 && endControl.type !== 46) {
-      startTime = moment(endTime).format('YYYY-MM-DD') + moment(startTime).format(' HH:mm:ss');
-    } else if (endControl.type === 46 && startControl.type !== 46) {
-      endTime = moment(startTime).format('YYYY-MM-DD') + moment(endTime).format(' HH:mm:ss');
-    }
-    const weekday = currentItem.advancedSetting.weekday || '1234567';
-    const unit = parseInt(currentItem.unit);
-
-    if (!startTime || !endTime) {
-      return;
-    }
-
-    // 天、时、分 工作日的逻辑
-    if (unit < 4 && weekday.length < 7) {
-      // 是否负数
-      const isNegative = moment(endTime) < moment(startTime) ? -1 : 1;
-
-      if (isNegative < 0) {
-        [endTime, startTime] = [startTime, endTime];
-      }
-
-      // 相差天数
-      let timeDiff = moment(moment(endTime).format('YYYY-MM-DD')).diff(moment(startTime).format('YYYY-MM-DD'), 'd');
-
-      // 计算出整数周
-      const weekendCount = Math.floor(timeDiff / 7);
-
-      if (weekendCount) {
-        switch (unit) {
-          case 1:
-            value = weekendCount * weekday.length * 24 * 60;
-            break;
-          case 2:
-            value = weekendCount * weekday.length * 24;
-            break;
-          case 3:
-            value = weekendCount * weekday.length;
-            break;
-        }
-      }
-
-      let weekDayHour = 0;
-      for (let i = 0; i <= timeDiff % 7; i++) {
-        const newStart = moment(startTime).add(i, 'd');
-        const day = newStart.day();
-
-        if (_.includes(weekday.split(''), (day === 0 ? 7 : day).toString())) {
-          // 是同一天
-          if (moment(startTime).isSame(endTime, 'd')) {
-            value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
-          } else {
-            if (i !== timeDiff % 7) {
-              weekDayHour += moment(moment(newStart).add(1, 'd').format('YYYY-MM-DD')).diff(
-                i === 0 ? newStart : newStart.format('YYYY-MM-DD'),
-                TIME_UNIT[currentItem.unit] || 'm',
-                true,
-              );
-            } else {
-              weekDayHour += moment(newStart.format('YYYY-MM-DD') + moment(endTime).format(' HH:mm')).diff(
-                moment(newStart).format('YYYY-MM-DD'),
-                TIME_UNIT[currentItem.unit] || 'm',
-                true,
-              );
-            }
-          }
-        }
-      }
-
-      value = (value + weekDayHour) * isNegative;
-    } else {
-      value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
-    }
-    value = handleDotAndRound(currentItem, value);
-  } else if (currentItem.enumDefault === 2) {
-    let dateColumnType = 0;
-    let formatMode = 'YYYY-MM-DD HH:mm:ss';
-    let formulaResult;
-    let date;
-    let hasUndefinedColumn;
-    if (!currentItem.sourceControlId) {
-      return;
-    } else if (/^\$[a-z0-9]{24}\$$/.test(currentItem.sourceControlId)) {
-      const column = _.find(data, item => item.controlId === currentItem.sourceControlId.slice(1, -1));
-      if (!column) {
-        return;
-      } else {
-        dateColumnType = column.type;
-        try {
-          formatMode = getShowFormat(column);
-        } catch (err) {}
-        date = formatColumnToText(column, true, true, { doNotHandleTimeZone: true });
-      }
-    } else if (currentItem.sourceControlId === '$ctime$') {
-      date = recordCreateTime || new Date();
-    } else if (currentItem.sourceControlId === '$utime$') {
-      date = new Date();
-    } else if (moment.isDate(new Date(currentItem.sourceControlId))) {
-      date = currentItem.sourceControlId;
-    } else {
-      return;
-    }
-    const expression = currentItem.dataSource.replace(/\$.+?\$/g, matched => {
-      const matchedControlId = matched.match(/\$(.+?)\$/)[1];
-      const matchedColumn = _.find(data, item => item.controlId === matchedControlId);
-
-      if (!matchedColumn) {
-        hasUndefinedColumn = true;
-        return undefined;
-      }
-
-      if (_.includes([9, 10, 11], matchedColumn.type)) {
-        return getControlValue(data, currentItem, matchedControlId);
-      }
-
-      if (matchedColumn.type === 46) {
-        const [h, m, s] = moment(matchedColumn.value, 'HH:mm:ss').format('HH:mm:ss').split(':').map(Number);
-        return `${h}h+${m}m+${s}s`;
-      }
-
-      if (_.isUndefined(matchedColumn.value) || matchedColumn.value === '') {
-        hasUndefinedColumn = true;
-      }
-
-      return parseFloat(formatColumnToText(matchedColumn, true, true), 10);
-    });
-    formulaResult = hasUndefinedColumn ? {} : calcDate(date ? moment(date, formatMode) : '', expression);
-    value = formulaResult.error || hasUndefinedColumn ? '' : formulaResult.result.format('YYYY-MM-DD HH:mm:ss');
-  } else if (currentItem.enumDefault === 3) {
-    const unit = TIME_UNIT[currentItem.unit] || 'd';
-    let today = moment();
-    let time = moment(getTime(currentItem.sourceControlId, 'start'));
-    if (!today || !time) {
-      return;
-    }
-    if (
-      currentItem.advancedSetting.dateformulatype === '1' ||
-      _.isUndefined(currentItem.advancedSetting.dateformulatype)
-    ) {
-      value = String(moment(time).diff(today, unit, true));
-    } else {
-      value = String(moment(today).diff(time, unit, true));
-    }
-    value = handleDotAndRound(currentItem, value);
-  }
-
-  return value;
-};
-
-// 获取控件的值（处理特殊选项控件）
-// objValue是外层新值，覆盖obj.value
-const getControlValue = (data, currentItem, controlId, objValue) => {
-  const obj = _.find(data, o => o.controlId === controlId) || {};
-  const value = objValue || obj.value;
-
-  // 非同选项集选项默认值文本匹配
-  if (
-    _.includes([9, 10, 11], obj.type) &&
-    _.includes([9, 10, 11], currentItem.type) &&
-    !(obj.dataSource && obj.dataSource === currentItem.dataSource) &&
-    value
-  ) {
-    const tempValue = safeParse(value || '[]')
-      .map(item => {
-        const isOther = (item || '').includes('other') && _.find(currentItem.options || [], c => c.key === 'other');
-        const itemText = _.get(
-          _.find(obj.options || [], i => i.key === item),
-          'value',
-        );
-
-        const matchOptionKeys = (currentItem.options || []).filter(i => i.value === itemText && !i.isDeleted);
-        return isOther ? item : _.get(_.head(matchOptionKeys), 'key') || '';
-      })
-      .filter(_.identity);
-    return _.isEmpty(tempValue) ? '' : JSON.stringify(tempValue);
-  }
-
-  if (
-    _.includes([9, 10, 11], obj.type) &&
-    (_.includes([6, 8, 28, 31], currentItem.type) || (currentItem.type === 38 && currentItem.enumDefault === 2))
-  ) {
-    // 选项控件的分值可以被数值类控件引用
-    if (!safeParse(value || '[]').length) return '';
-
-    let cValue = 0;
-    safeParse(value || '[]').forEach(key => {
-      // 新增的项默认0
-      cValue += key.indexOf('add_') > -1 || !obj.enumDefault ? 0 : obj.options.find(o => o.key === key).score;
-    });
-
-    return cValue;
-  }
-
-  return _.isUndefined(value) ? '' : value;
-};
-
-// 检测必填
-export const checkRequired = item => {
-  let errorType = '';
-
-  if (
-    item.required &&
-    ((!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value))) ||
-      (_.isString(item.value) && !item.value.trim()) ||
-      (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
-      (item.type === 14 &&
-        ((_.isArray(safeParse(item.value)) && !safeParse(item.value).length) ||
-          (!_.isArray(safeParse(item.value)) &&
-            !safeParse(item.value).attachments.length &&
-            !safeParse(item.value).knowledgeAtts.length &&
-            !safeParse(item.value).attachmentData.length))) ||
-      (_.includes([21, 26, 27, 29, 35, 48], item.type) &&
-        _.isArray(safeParse(item.value)) &&
-        !safeParse(item.value).length) ||
-      (item.type === 29 &&
-        typeof item.value === 'string' &&
-        (item.value.startsWith('deleteRowIds') || item.value === '0')) ||
-      (item.type === 34 &&
-        ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
-      (item.type === 36 && item.value === '0') ||
-      (item.type === 28 && parseFloat(item.value) === 0))
-  ) {
-    errorType = FORM_ERROR_TYPE.REQUIRED;
-  }
-
-  return errorType;
-};
-
-// 验证必填及格式
-export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllControls }) => {
-  let errorType = '';
-  let errorText = '';
-
-  if (!item.hidden && (!item.disabled || verifyAllControls)) {
-    errorType = checkRequired(item);
-
-    if (!errorType) {
-      const value = (item.value || '').toString().trim();
-
-      // 手机
-      if (item.type === 3) {
-        const iti = initIntlTelInput();
-        iti.setNumber(value);
-        // 香港6262开头不识别特殊处理
-        // 中国电话特殊处理
-        errorType =
-          !value ||
-          (iti.isValidNumber() && _.get(iti.getSelectedCountryData(), 'dialCode') === '86'
-            ? specialTelVerify(_.startsWith(value, '+86') ? value : '+86' + value)
-            : iti.isValidNumber() || specialTelVerify(value))
-            ? ''
-            : FORM_ERROR_TYPE.MOBILE_PHONE;
-      }
-
-      // 座机
-      if (item.type === 4) {
-        errorType = !value || Validator.isTelPhoneNumber(value) ? '' : FORM_ERROR_TYPE.TEL_PHONE;
-      }
-
-      // 邮箱
-      if (item.type === 5) {
-        errorType = !value || Validator.isEmailAddress(value) ? '' : FORM_ERROR_TYPE.EMAIL;
-      }
-
-      // 证件
-      if (item.type === 7) {
-        if (!value) {
-          errorType = '';
-        } else if (item.enumDefault === 1 && !Validator.isIdCardNumber(value)) {
-          errorType = FORM_ERROR_TYPE.ID_CARD;
-        } else if (item.enumDefault === 2 && !Validator.isPassportNumber(value)) {
-          errorType = FORM_ERROR_TYPE.PASSPORT;
-        } else if (item.enumDefault === 3 && !Validator.isHkPassportNumber(value)) {
-          errorType = FORM_ERROR_TYPE.HK_PASSPORT;
-        } else if (item.enumDefault === 4 && !Validator.isTwPassportNumber(value)) {
-          errorType = FORM_ERROR_TYPE.TW_PASSPORT;
-        }
-      }
-
-      // 文本
-      if (item.type === 2) {
-        if (item.advancedSetting && item.advancedSetting.filterregex) {
-          const error = checkValueByFilterRegex(item, value, data);
-          if (error) {
-            errorType = FORM_ERROR_TYPE.CUSTOM;
-            errorText = error;
-          }
-        }
-        if (!errorType) {
-          errorType = getRangeErrorType(item);
-        }
-      }
-
-      if (_.includes([6, 8, 10], item.type)) {
-        errorType = getRangeErrorType(item);
-      }
-
-      // 日期 || 日期时间
-      if (_.includes([15, 16], item.type)) {
-        const allowweek = item.advancedSetting.allowweek || '1234567';
-        const allowtime = item.advancedSetting.allowtime || '00:00-24:00';
-        const min = item.advancedSetting.min;
-        const max = item.advancedSetting.max;
-        const [start, end] = allowtime.split('-');
-
-        if (!value) {
-          errorType = '';
-        } else {
-          if (min || max) {
-            const minDate = min
-              ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
-              : '';
-            const maxDate = max
-              ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
-              : '';
-
-            if ((minDate && moment(value) < moment(minDate)) || (maxDate && moment(value) > moment(maxDate))) {
-              errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
-              errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(value, minDate, maxDate);
-            }
-          }
-          if (allowweek.indexOf(moment(value).day() === 0 ? '7' : moment(value).day()) === -1 && !errorType) {
-            errorType = FORM_ERROR_TYPE.DATE;
-          }
-          if (
-            !errorType &&
-            (compareWithTime(start, `${moment(value).hour()}:${moment(value).minute()}`, 'isAfter') ||
-              compareWithTime(end, `${moment(value).hour()}:${moment(value).minute()}`, 'isBefore'))
-          ) {
-            errorType = FORM_ERROR_TYPE.DATE_TIME;
-          }
-        }
-      }
-
-      // 时间
-      if (item.type === 46) {
-        const min = item.advancedSetting.min;
-        const max = item.advancedSetting.max;
-
-        if (!value) {
-          errorType = '';
-        } else if (min || max) {
-          const minDate = min
-            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
-            : '';
-          const maxDate = max
-            ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
-            : '';
-
-          if (
-            (minDate && compareWithTime(value, minDate, 'isBefore')) ||
-            (maxDate && compareWithTime(value, maxDate, 'isAfter'))
-          ) {
-            errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
-            errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(value, minDate, maxDate, true);
-          }
-        }
-      }
-
-      // 其他选项必填
-      if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
-        const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
-        const selectOther = /^\[.*\]$/.test(item.value)
-          ? _.find(safeParse(item.value || '[]'), i => (i || '').includes('other'))
-          : false;
-        if (
-          hasOtherOption &&
-          _.get(item.advancedSetting, 'otherrequired') === '1' &&
-          selectOther &&
-          !(item.isSubList && item.type === 10)
-        ) {
-          if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
-            errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
-            errorText = FORM_ERROR_TYPE_TEXT.OTHER_REQUIRED(item);
-          }
-        }
-      }
-    }
-
-    if (isRelateRecordTableControl(item, { ignoreInFormTable: true })) {
-      errorType = '';
-    }
-
-    if (item.type === 51) {
-      errorType = '';
-    }
-
-    if (item.type === 34) {
-      const { min, max, enablelimit } = item.advancedSetting;
-      if (String(enablelimit) === '1') {
-        const rowsLength = Number(
-          (_.get(item, 'value.rows') && filterEmptyChildTableRows(item.value.rows).length) ||
-            (!_.isObject(item.value) ? item.value : 0) ||
-            0,
-        );
-        if (_.isNumber(rowsLength) && !_.isNaN(rowsLength)) {
-          if (_.isNumber(Number(min)) && !_.isNaN(Number(min)) && rowsLength < Number(min)) {
-            errorType = FORM_ERROR_TYPE.CHILD_TABLE_ROWS_LIMIT;
-          } else if (_.isNumber(Number(max)) && !_.isNaN(Number(max)) && rowsLength > Number(max)) {
-            errorType = FORM_ERROR_TYPE.CHILD_TABLE_ROWS_LIMIT;
-          }
-        }
-      }
-    }
-  }
-
-  if (errorType && !errorText) {
-    errorText =
-      typeof FORM_ERROR_TYPE_TEXT[errorType] !== 'string'
-        ? FORM_ERROR_TYPE_TEXT[errorType](item)
-        : FORM_ERROR_TYPE_TEXT[errorType];
-  }
-
-  return { errorType, errorText };
-};
+import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { checkCellIsEmpty, isRelateRecordTableControl } from 'worksheet/util';
+import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
+import { filterEmptyChildTableRows } from 'src/pages/worksheet/util';
+import { browserIsMobile, compatibleMDJS, getCurrentProject, isEmptyValue, toFixed } from 'src/util';
+import { FORM_ERROR_TYPE, FROM, SYSTEM_ENUM, TIME_UNIT } from './config';
+import { checkRuleLocked } from './formUtils';
+import {
+  asyncUpdateMdFunction,
+  calcDefaultValueFunction,
+  checkValueByFilterRegex,
+  formatSearchResultValue,
+  formatTimeValue,
+  getCurrentValue,
+  getDynamicValue,
+  getItemFilters,
+  getOtherWorksheetFieldValue,
+  handleDotAndRound,
+  onValidator,
+  parseDateFormula,
+  parseNewFormula,
+  parseValueIframe,
+} from './formUtils';
+import { getArrBySpliceType, halfSwitchSize, isUnTextWidget } from './utils';
 
 /**
  * 自定义字段数据格式化
@@ -1079,6 +97,7 @@ export default class DataFormat {
     this.projectId = projectId;
     this.worksheetId = worksheetId;
     this.recordId = recordId;
+    this._debug_flag = [recordId, Math.random()].join('-');
     this.instanceId = instanceId;
     this.workId = workId;
     this.masterRecordRowId = masterRecordRowId;
@@ -1092,7 +111,9 @@ export default class DataFormat {
     this.recordCreateTime = recordCreateTime;
     this.from = from;
     this.searchConfig = searchConfig;
-    this.onAsyncChange = onAsyncChange;
+    this.onAsyncChange = (...args) => {
+      onAsyncChange(...args, this);
+    };
     this.updateLoadingItems = updateLoadingItems;
     this.activeTrigger = activeTrigger;
     this.loopList = [];
@@ -1199,7 +220,7 @@ export default class DataFormat {
           if (this.isMobile && item.type === 29 && _.isString(value) && _.isEmpty(JSON.parse(value))) {
             this.updateDataSource({ controlId: item.controlId, value: null, isInit });
           } else if (value) {
-            if (item.type === 29 && isRelateRecordTableControl(item) && !forceSync) {
+            if (((item.type === 29 && isRelateRecordTableControl(item)) || item.type === 34) && !forceSync) {
               setTimeout(() => {
                 this.updateDataSource({ controlId: item.controlId, value, isInit });
               }, 0);
@@ -1364,7 +385,18 @@ export default class DataFormat {
           worksheetId,
           recordId,
           formData: this.data
-            .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))
+            .map(c =>
+              _.pick(c, [
+                'controlId',
+                'type',
+                'value',
+                'options',
+                'attribute',
+                'enumDefault',
+                'sourceControl',
+                'sourceControlType',
+              ]),
+            )
             .filter(c => !!c.value),
         },
       });
@@ -1456,8 +488,11 @@ export default class DataFormat {
                 params.staticRows = parsedRows;
               }
               if (params.staticRows) {
-                if (loading) {
-                  item.store.waitList.push(() => {
+                if (loading || (get(value, 'fireWhenLoaded') && this.recordId && !item.store.getState().base.loaded)) {
+                  (get(value, 'fireWhenLoaded') && this.recordId && !item.store.getState().base.loaded
+                    ? item.store.waitListForLoadRows
+                    : item.store.waitList
+                  ).push(() => {
                     setRowsFromStaticRows({
                       ...params,
                       triggerSubListControlValueChange: controlValue => {
@@ -2194,8 +1229,9 @@ export default class DataFormat {
 
     if (!ids.length) return;
 
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.getLocation) {
-      window.MDJS.getLocation({
+    compatibleMDJS(
+      'getLocation',
+      {
         success: res => {
           const { cLongitude, cLatitude, longitude, latitude, address, title } = res;
           ids.forEach(controlId => {
@@ -2241,37 +1277,37 @@ export default class DataFormat {
             window.nativeAlert(JSON.stringify(res));
           }
         },
-      });
-      return;
-    }
-
-    new MapLoader().loadJs().then(() => {
-      new MapHandler().getCurrentPos((status, res) => {
-        if (status === 'complete') {
-          ids.forEach(controlId => {
-            this.updateDataSource({
-              controlId,
-              value: JSON.stringify({
-                x: res.position.lng,
-                y: res.position.lat,
-                address: res.formattedAddress || '',
-                title: (res.addressComponent || {}).building || '',
-              }),
-              isInit: true,
-            });
+      },
+      () => {
+        new MapLoader().loadJs().then(() => {
+          new MapHandler().getCurrentPos((status, res) => {
+            if (status === 'complete') {
+              ids.forEach(controlId => {
+                this.updateDataSource({
+                  controlId,
+                  value: JSON.stringify({
+                    x: res.position.lng,
+                    y: res.position.lat,
+                    address: res.formattedAddress || '',
+                    title: (res.addressComponent || {}).building || '',
+                  }),
+                  isInit: true,
+                });
+              });
+              this.onAsyncChange({
+                controlIds: ids,
+                value: JSON.stringify({
+                  x: res.position.lng,
+                  y: res.position.lat,
+                  address: res.formattedAddress || '',
+                  title: (res.addressComponent || {}).building || '',
+                }),
+              });
+            }
           });
-          this.onAsyncChange({
-            controlIds: ids,
-            value: JSON.stringify({
-              x: res.position.lng,
-              y: res.position.lat,
-              address: res.formattedAddress || '',
-              title: (res.addressComponent || {}).building || '',
-            }),
-          });
-        }
-      });
-    });
+        });
+      },
+    );
   }
 
   /**
@@ -2459,6 +1495,9 @@ export default class DataFormat {
    */
   getFilterRowsData = (searchControl, para, controlId, effectControlId) => {
     const formatFilters = getFilter({ control: searchControl, formData: this.data });
+
+    if (!formatFilters) return Promise.reject();
+
     // 增加查询条件对比，由于一些异步更新，未完成时已被记录id,导致更新完被循环拦截(纯id拦截不准确)
     const tempFilterValue = getItemFilters(formatFilters).map(i =>
       _.pick(i, ['controlId', 'value', 'values', 'maxValue', 'minValue']),
@@ -2620,8 +1659,6 @@ export default class DataFormat {
                     name: getCurrentValue(titleControl, nameValue, { type: 2 }),
                   };
                 });
-                // 关联记录空值不赋值，防止死循环
-                if (_.isEmpty(newValue) && (currentControl.value || '').startsWith('deleteRowIds')) return;
                 if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
                   updateData(JSON.stringify(newValue));
                   return;

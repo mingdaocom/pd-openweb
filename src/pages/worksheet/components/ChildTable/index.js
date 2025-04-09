@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider, connect } from 'react-redux';
-import _, { isFunction } from 'lodash';
+import _, { get, isFunction } from 'lodash';
 import ChildTable from './ChildTable';
 import generateStore from './redux/store';
 import './style.less';
@@ -41,20 +41,10 @@ export default class extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { onChange } = nextProps;
     if (nextProps.control.store && nextProps.control.store !== this.store) {
       this.store = nextProps.control.store;
       this.store.init();
       this.bindSubscribe();
-    }
-    const state = this.store.getState() || {};
-    if (nextProps.from === 21 && !_.isEqual(this.props.flag, nextProps.flag) && !_.isEmpty(state.rows)) {
-      // h5草稿箱已有子表值时编辑赋值
-      onChange({
-        rows: state.rows,
-        lastAction: state.lastAction,
-        originRows: state.originRows,
-      });
     }
   }
 
@@ -68,6 +58,11 @@ export default class extends React.Component {
     const { onChange } = this.props;
     this.unsubscribe = this.store.subscribe(() => {
       const state = this.store.getState();
+      if (get(state, 'lastAction.type') === 'LOAD_ROWS_COMPLETE') {
+        this.store.waitListForLoadRows.forEach(fn => fn());
+        this.store.waitListForLoadRows = [];
+        return;
+      }
       onChange({
         rows: state.rows,
         lastAction: state.lastAction,

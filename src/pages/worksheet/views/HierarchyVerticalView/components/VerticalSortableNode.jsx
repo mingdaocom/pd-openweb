@@ -7,6 +7,8 @@ import { RecordInfoModal } from 'mobile/Record';
 import DraggableRecord from './DraggableRecord';
 import styled from 'styled-components';
 import { browserIsMobile, emitter, handlePushState, handleReplaceState } from 'src/util';
+import { getRelateSheetId } from '../../HierarchyView/util'
+import { getCardWidth } from 'worksheet/util';
 
 const isMobile = browserIsMobile();
 
@@ -104,8 +106,7 @@ export default class VerticalSortableRecordItem extends Component {
         return { worksheetId, viewId };
       }
       // 获取关联控件配置的viewId
-      const { worksheetId: relateSheetId } =
-        viewControls && viewControls.length && configIndex > 0 ? viewControls[configIndex - 1] || {} : {};
+      const relateSheetId = getRelateSheetId(view, data.pathId);
       const currentControls = configIndex > 1 ? hierarchyRelateSheetControls[relateSheetId] : controls;
       const configViewId = _.get(
         _.find(currentControls, item => item.controlId === controlId),
@@ -115,7 +116,7 @@ export default class VerticalSortableRecordItem extends Component {
       return {
         worksheetId,
         viewId: configViewId,
-        cardwidth: _.get(viewControlInfo, 'advancedSetting.cardwidth'),
+        viewControl: viewControlInfo,
       };
     }
     return { worksheetId, viewId };
@@ -162,6 +163,8 @@ export default class VerticalSortableRecordItem extends Component {
     const { rowId, path = [], pathId = [] } = data;
     const { rowId: draggingId } = safeParse(localStorage.getItem('draggingHierarchyItem'));
     const recordInfoPara = this.getRecordInfoPara();
+    const cardwidth = getCardWidth(recordInfoPara.viewControl || view);
+
     if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {
       recordInfoPara.rules = worksheetInfo.rules;
     }
@@ -179,7 +182,7 @@ export default class VerticalSortableRecordItem extends Component {
         >
           <DraggableRecord
             {...this.props}
-            width={recordInfoPara.cardwidth || _.get(view, 'advancedSetting.cardwidth')}
+            width={cardwidth}
             viewParaOfRecord={recordInfoPara}
             onDelete={() => deleteHierarchyRecord({ rows: [{ rowid: rowId, allowDelete: true }], path, pathId })}
             onUpdate={(value, relateSheet) =>
@@ -212,6 +215,7 @@ export default class VerticalSortableRecordItem extends Component {
               visible
               recordId={recordInfoRowId}
               projectId={worksheetInfo.projectId}
+              relationWorksheetId={getRelateSheetId(view, data.pathId)}
               currentSheetRows={this.getCurrentSheetRows()}
               hideRecordInfo={() => {
                 this.setState({ recordInfoVisible: false });

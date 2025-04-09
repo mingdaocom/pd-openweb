@@ -1,7 +1,5 @@
 import React, { createRef } from 'react';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
+import intlTelInput from 'ming-ui/components/intlTelInput';
 import { captcha } from 'ming-ui/functions';
 import cx from 'classnames';
 import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
@@ -142,17 +140,9 @@ class TelCon extends React.Component {
     if (this.mobile) {
       this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.mobile, {
-        i18n: {
-          searchPlaceholder: _l('搜索'),
-        },
         customPlaceholder: () => {
           return emailOrTel;
         },
-        autoPlaceholder: 'off',
-        loadUtils: '',
-        initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-        preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
-        utilsScript: utils,
         separateDialCode: false,
       });
       $(this.mobile).on('onBlur', e => this.onChangeAccount(e));
@@ -262,11 +252,7 @@ class TelCon extends React.Component {
         });
       };
 
-      if (md.global.getCaptchaType() === 1) {
-        new captcha(callback);
-      } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-      }
+      new captcha(callback);
     }
   };
 

@@ -59,8 +59,9 @@ function generate() {
       apiMap.workflowPlugin = '/workflow_plugin_api';
     }
 
-    $('head').prepend(`
-       <style>
+    https: $('head').prepend(`
+      <link rel="icon" type="image/png" href="/file/mdpic/ProjectLogo/favicon.png" />
+      <style>
         ::-webkit-scrollbar {
           width: 10px;
           height: 10px;
@@ -178,8 +179,8 @@ function generate() {
           entry.type === 'single'
             ? ['cookies', 'vendors', 'globals']
             : entry.type === 'singleExtractModules'
-            ? ['node_modules', 'cookies', 'common', 'vendors', 'globals']
-            : ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals'];
+              ? ['node_modules', 'cookies', 'common', 'vendors', 'globals']
+              : ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals'];
 
         let manifestData = JSON.parse(
           fs

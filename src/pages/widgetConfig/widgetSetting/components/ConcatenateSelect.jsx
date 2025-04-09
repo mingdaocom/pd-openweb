@@ -8,18 +8,28 @@ import SelectControl from './SelectControl';
 import { getConcatenateControls } from '../../util/data';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
-export default function Concatenate({ data, onChange, allControls }) {
+export default function Concatenate({
+  data,
+  onChange,
+  allControls,
+  hideTitle = false,
+  classNames,
+  withSYS = true,
+  placeholder,
+}) {
   const $tagtextarea = useRef(null);
   const { controlId, dataSource } = data;
   const [visible, setVisible] = useState(false);
-  const availableControls = [...SYSTEM_CONTROL, ...ROW_ID_CONTROL, ...getConcatenateControls(allControls, data)];
+  const availableControls = !withSYS
+    ? [...getConcatenateControls(allControls, data)]
+    : [...SYSTEM_CONTROL, ...ROW_ID_CONTROL, ...getConcatenateControls(allControls, data)];
   useEffect(() => {
     $tagtextarea.current.setValue(dataSource || '');
   }, [controlId]);
   return (
     <Fragment>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('选择字段')}</div>
+      <SettingItem className={classNames}>
+        {!hideTitle && <div className="settingItemTitle">{_l('选择字段')}</div>}
         <div className="settingContent">
           <TagTextarea
             defaultValue={dataSource}
@@ -27,6 +37,7 @@ export default function Concatenate({ data, onChange, allControls }) {
             getRef={tagtextarea => {
               $tagtextarea.current = tagtextarea;
             }}
+            placeholder={placeholder}
             renderTag={(id, options) => {
               const originControl = find(availableControls, item => item.controlId === id);
               const controlName = get(originControl, 'controlName');

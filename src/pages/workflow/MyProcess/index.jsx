@@ -6,23 +6,13 @@ import Card from './Card';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import { getTodoCount } from './Entry';
-import { getDateScope } from './config';
+import { TABS } from './config';
 import FilterConTent from './Filter';
 import './index.less';
 import _ from 'lodash';
 import TodoEntrust from './TodoEntrust';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import ArchivedList from 'src/components/ArchivedList';
-
-const dateScope = getDateScope();
-
-export const TABS = {
-  WAITING_APPROVE: 0, // 待审批
-  WAITING_FILL: 1, // 待填写
-  WAITING_EXAMINE: 2, // 待查看
-  MY_SPONSOR: 3, // 我发起
-  COMPLETE: 4, // 已完成
-};
 
 export const getStateParam = tab => {
   let param = {};
@@ -52,14 +42,18 @@ export const getStateParam = tab => {
 
 class Filter extends Component {
   getFilterLength = () => {
+    const { stateTab } = this.props;
     const filter = _.cloneDeep(this.props.filter);
-
     if (_.isObject(filter)) {
       // 不是筛选项
       delete filter.type;
       delete filter.resultType;
     } else {
       return 0;
+    }
+    if (stateTab !== TABS.COMPLETE) {
+      delete filter.startDate;
+      delete filter.endDate;
     }
     return _.toArray(filter).filter(item => item).length;
   };
@@ -273,6 +267,7 @@ export default class MyProcess extends Component {
     });
   };
   handleChangeTab = tab => {
+    const { filter, archivedItem } = this.state;
     this.setState(
       {
         stateTab: tab,
@@ -281,13 +276,13 @@ export default class MyProcess extends Component {
         pageIndex: 1,
         isMore: true,
         list: [],
-        filter: null,
-        archivedItem: {},
-        // visible: false,
+        filter: _.isEmpty(archivedItem) ? null : { startDate: filter.startDate, endDate: filter.endDate }
       },
       this.getTodoList,
     );
-    getTodoCount().then(countData => {
+    getTodoCount({
+      archivedId: archivedItem.id
+    }).then(countData => {
       this.updateCountData(countData);
     });
   };
@@ -431,7 +426,7 @@ export default class MyProcess extends Component {
   renderHeader = () => {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
-    const { stateTab, filter } = this.state;
+    const { stateTab, filter, archivedItem } = this.state;
 
     return (
       <div className="header card">
@@ -441,26 +436,26 @@ export default class MyProcess extends Component {
         </div>
         <div className="statesTab">
           <div
-            className={cx('item ellipsis', { active: stateTab === TABS.WAITING_APPROVE })}
+            className={cx('item bold ellipsis', { active: stateTab === TABS.WAITING_APPROVE })}
             onClick={() => {
               this.setState({ approveCards: [] });
               this.handleChangeTab(TABS.WAITING_APPROVE);
             }}
           >
             <span>{_l('审批')}</span>
-            {waitingApproval > 0 ? <span className="processCount red">{waitingApproval}</span> : null}
+            {waitingApproval > 0 ? <span className="processCount darkRed">{waitingApproval}</span> : null}
           </div>
           <div
-            className={cx('item ellipsis', { active: stateTab === TABS.WAITING_FILL })}
+            className={cx('item bold ellipsis', { active: stateTab === TABS.WAITING_FILL })}
             onClick={() => {
               this.handleChangeTab(TABS.WAITING_FILL);
             }}
           >
             <span>{_l('填写')}</span>
-            {waitingWrite > 0 ? <span className="processCount red">{waitingWrite}</span> : null}
+            {waitingWrite > 0 ? <span className="processCount darkRed">{waitingWrite}</span> : null}
           </div>
           <div
-            className={cx('item ellipsis', { active: stateTab === TABS.WAITING_EXAMINE })}
+            className={cx('item bold ellipsis', { active: stateTab === TABS.WAITING_EXAMINE })}
             onClick={() => {
               this.handleChangeTab(TABS.WAITING_EXAMINE);
             }}
@@ -469,7 +464,7 @@ export default class MyProcess extends Component {
             {waitingExamine > 0 ? <span className="processCount red">{waitingExamine}</span> : null}
           </div>
           <div
-            className={cx('item ellipsis', { active: stateTab === TABS.MY_SPONSOR })}
+            className={cx('item bold ellipsis', { active: stateTab === TABS.MY_SPONSOR })}
             onClick={() => {
               this.handleChangeTab(TABS.MY_SPONSOR);
             }}
@@ -479,15 +474,50 @@ export default class MyProcess extends Component {
           </div>
           <div className="cuttingLine" />
           <div
-            className={cx('item ellipsis', { active: stateTab === TABS.COMPLETE })}
+            className={cx('item bold ellipsis', { active: stateTab === TABS.COMPLETE })}
             onClick={() => {
               this.handleChangeTab(TABS.COMPLETE);
             }}
           >
-            {_l('已完成')}
+            <span>{_l('已完成')}</span>
           </div>
         </div>
         <div className="flex close">
+          <ArchivedList
+            type={1}
+            archivedItem={archivedItem}
+            showSelectItem={false}
+            onChange={archivedItem => {
+              this.setState({
+                archivedItem,
+                isMore: true,
+                pageIndex: 1,
+                list: [],
+                filter: {
+                  ...filter,
+                  startDate: archivedItem.start,
+                  endDate: archivedItem.end,
+                },
+              }, this.getTodoList);
+              getTodoCount({
+                archivedId: archivedItem.id
+              }).then(countData => {
+                this.updateCountData(countData);
+              });          
+            }}
+            customRender={() => {
+              return (
+                <div data-tip={_l('查看已归档数据')} className="mRight24">
+                  <div
+                    className={cx('flexRow valignWrapper mBottom3 pointer Hover_21', _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor')}
+                  >
+                    <Icon icon="drafts_approval" className="Font24" />
+                    <div className="Font14 mLeft5 nowrap">{_l('归档')}</div>
+                  </div>
+                </div>
+              );
+            }}
+          />
           <TodoEntrust />
           {location.href.indexOf('myprocess') === -1 ? (
             <Fragment>
@@ -530,8 +560,8 @@ export default class MyProcess extends Component {
           {this.state.visible
             ? _l('暂无搜索结果')
             : this.state.stateTab === TABS.MY_SPONSOR
-            ? _l('暂无流程')
-            : _l('没有待办')}{' '}
+              ? _l('暂无流程')
+              : _l('没有待办')}
         </span>
       </div>
     );
@@ -700,37 +730,12 @@ export default class MyProcess extends Component {
       );
     }
     if (stateTab === TABS.COMPLETE) {
-      const { filter, archivedItem } = this.state;
-      const renderArchivedList = () => {
-        return (
-          <ArchivedList
-            type={1}
-            archivedItem={archivedItem}
-            onChange={archivedItem => {
-              this.setState({
-                archivedItem,
-                isMore: true,
-                pageIndex: 1,
-                list: [],
-                filter: {
-                  ...filter,
-                  startDate: archivedItem.start,
-                  endDate: archivedItem.end,
-                },
-              }, this.getTodoList);
-            }}
-          />
-        )
-      }
+      const { filter } = this.state;
       return (
         <Fragment>
-          {!_.isEmpty(archivedItem) && (
-            <div className="mTop20">
-              {renderArchivedList()}
-            </div>
-          )}
           <div className="filterWrapper">
             <Filter
+              stateTab={stateTab}
               visible={visible}
               filter={filter}
               handleOpen={() => this.setState({ visible: true })}
@@ -758,11 +763,6 @@ export default class MyProcess extends Component {
                 );
               }}
             />
-            {_.isEmpty(archivedItem) && (
-              <div className="flex TxtRight">
-                {renderArchivedList()}
-              </div>
-            )}
           </div>
         </Fragment>
       );
@@ -1005,9 +1005,9 @@ export default class MyProcess extends Component {
                   filter: isSampleFilter
                     ? data
                     : {
-                        ...filter,
-                        ...data,
-                      },
+                      ...filter,
+                      ...data,
+                    },
                 },
                 this.getTodoList,
               );
@@ -1022,6 +1022,31 @@ export default class MyProcess extends Component {
             </div>
           ) : (
             <div className="flexColumn">
+              {!_.isEmpty(archivedItem) && (
+                <div className="mTop20 pLeft10 pRight10">
+                <ArchivedList
+                  type={1}
+                  archivedItem={archivedItem}
+                  onChange={archivedItem => {
+                    this.setState({
+                      archivedItem,
+                      isMore: true,
+                      pageIndex: 1,
+                      list: [],
+                      filter: {
+                        ...filter,
+                        startDate: archivedItem.start,
+                        endDate: archivedItem.end,
+                      },
+                    }, this.getTodoList);
+                    getTodoCount().then(countData => {
+                      this.updateCountData(countData);
+                    });                
+                  }}
+                  customRender={() => <Fragment />}
+                />
+                </div>
+              )}
               {this.renderFilter()}
               {this.renderContent()}
             </div>

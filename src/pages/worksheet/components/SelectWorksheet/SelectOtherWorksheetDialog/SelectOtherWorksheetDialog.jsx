@@ -134,7 +134,8 @@ export default class extends Component {
         <div className="btns TxtRight mTop32">
           <Button
             type="link"
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               onHide();
             }}
           >
@@ -142,7 +143,8 @@ export default class extends Component {
           </Button>
           <Button
             disabled={!selectedAppId || (!selectedWorksheetId && !onlyApp)}
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               const selectedWrorkesheet = _.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId);
               onOk(
                 selectedAppId,

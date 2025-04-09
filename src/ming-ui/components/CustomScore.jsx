@@ -104,7 +104,7 @@ class CustomScore extends Component {
 
   render() {
     const { score, lastScore } = this.state;
-    const { data = {}, hideTip, hideText = false, from, backgroundColor } = this.props;
+    const { className, data = {}, hideTip, hideText = false, from, backgroundColor } = this.props;
     const isOldData = !(data.advancedSetting || {}).itemicon;
     const {
       max,
@@ -115,13 +115,14 @@ class CustomScore extends Component {
     const itemcolor = JSON.parse(defaultColor || '{}');
     const itemnames = getAdvanceSetting(data, 'itemnames') || [];
     const list = Array.from({ length: max });
-    let isMobile = browserIsMobile();
+    const isDingTalkPcSlide = window.isDingTalk && (location.search.includes('pc_slide=true') || sessionStorage.getItem('dingtalk_pc_slide'));
+    const isMobile = isDingTalkPcSlide ? false : browserIsMobile();
     const text = _.get(itemnames[lastScore - 1], 'value') || lastScore;
     const selectColor =
       (itemcolor.type === 1 ? itemcolor.color : _.get((itemcolor.colors || [])[score - 1], 'value')) || '#FED156';
 
     return (
-      <div className="Score-wrapper customScoreWrap">
+      <div className={cx('Score-wrapper customScoreWrap', className)}>
         {list.map((item, index) => {
           const tipText = `${_.get(itemnames[index], 'value') || index + 1}`;
           let tipProps = { popupPlacement: 'top', offset: [0, 1] };

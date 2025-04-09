@@ -26,6 +26,7 @@ export default {
   * @param {string} args.endConfirmTime 结束时间
   * @param {string} args.productId 商品Id
   * @param {string} args.orderId 订单Id
+  * @param {} args.productType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -42,6 +43,7 @@ export default {
   * @param {} args.status
   * @param {} args.payOrderType
   * @param {string} args.orderId 订单Id
+  * @param {} args.productType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -72,6 +74,8 @@ export default {
   * @param {} args.getOrderSource
   * @param {} args.buyType
   * @param {string} args.productId
+  * @param {} args.productType
+  * @param {} args.paidType
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -127,6 +131,8 @@ export default {
   * @param {} args.getOrderSource
   * @param {} args.buyType
   * @param {string} args.productId
+  * @param {} args.productType
+  * @param {} args.paidType
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -158,6 +164,8 @@ export default {
   * @param {} args.getOrderSource
   * @param {} args.buyType
   * @param {string} args.productId
+  * @param {} args.productType
+  * @param {} args.paidType
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -189,6 +197,8 @@ export default {
   * @param {} args.getOrderSource
   * @param {} args.buyType
   * @param {string} args.productId
+  * @param {} args.productType
+  * @param {} args.paidType
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -415,6 +425,7 @@ export default {
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
   * @param {string} args.operatorAccountId 操作用户
+  * @param {} args.productType
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -443,6 +454,7 @@ export default {
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
   * @param {string} args.operatorAccountId 操作用户
+  * @param {} args.productType
   * @param {} args.pageFilter
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -477,6 +489,7 @@ export default {
   * @param {string} args.startRefundTime 退款时间起始
   * @param {string} args.endRefundTime 退款时间结束
   * @param {} args.getOrderSource
+  * @param {} args.productType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

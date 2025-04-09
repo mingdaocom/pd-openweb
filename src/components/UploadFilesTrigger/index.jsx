@@ -4,7 +4,6 @@ import Trigger from 'rc-trigger';
 import Icon from 'ming-ui/components/Icon';
 import Button from 'ming-ui/components/Button';
 import UploadFiles from 'src/components/UploadFiles';
-import QiniuUploadUploadFiles from 'src/components/UploadFiles/QiniuUpload';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import _ from 'lodash';
@@ -144,10 +143,9 @@ export default class UploadFilesTrigger extends Component {
   renderPanel(uploadFilesProps) {
     const id = `dropTextarea-${this.id}`;
     const { isComplete } = this.state;
-    const { onUploadComplete, isQiniuUpload, ...otherProps } = uploadFilesProps;
+    const { onUploadComplete, ...otherProps } = uploadFilesProps;
     const { temporaryData, kcAttachmentData } = otherProps;
     const isData = !!(temporaryData.length + kcAttachmentData.length);
-    const Con = isQiniuUpload ? QiniuUploadUploadFiles : UploadFiles;
     return (
       <ClickAwayable
         component="div"
@@ -167,7 +165,7 @@ export default class UploadFilesTrigger extends Component {
       >
         {this.renderHeader()}
         {isData ? this.renderBtns() : null}
-        <Con
+        <UploadFiles
           {...otherProps}
           dropPasteElement={id}
           onUploadComplete={isComplete => {

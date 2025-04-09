@@ -13,7 +13,6 @@ import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import WidgetsVerifyCode from './components/WidgetsVerifyCode';
 import {
   convertControl,
-  controlState,
   loadSDK,
   getControlsByTab,
   getValueStyle,
@@ -24,8 +23,9 @@ import {
 } from './tools/utils';
 import { isRelateRecordTableControl, replaceRulesTranslateInfo } from 'worksheet/util';
 import { FORM_ERROR_TYPE, FROM } from './tools/config';
-import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/filterFn';
-import DataFormat, { checkRequired } from './tools/DataFormat';
+import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/formUtils';
+import DataFormat from './tools/DataFormat';
+import { checkRequired, controlState } from './tools/formUtils';
 import { browserIsMobile } from 'src/util';
 import { formatSearchConfigs, supportDisplayRow, isCustomWidget } from 'src/pages/widgetConfig/util';
 import _, { get, isEmpty } from 'lodash';
@@ -38,6 +38,7 @@ import FreeField from './widgets/FreeField';
 import { dealCustomEvent } from './tools/customEvent';
 import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import FormWidget from './components/FormWidget';
 
 const CustomFormItemControlWrap = styled.div`
   .customFormTextarea {
@@ -97,6 +98,8 @@ const CustomFormItemControlWrap = styled.div`
     i {
       ${props => (props.isMobile ? 'color: #9e9e9e !important;' : '')}
     }
+  }
+  .notSupportWidget {
   }
 `;
 
@@ -466,6 +469,7 @@ export default class CustomFields extends Component {
           <CustomFormItemControlWrap
             className={cx('customFormItemControl', { customFormItemControlCreate: this.isPcCreated })}
             isMobile={isMobile}
+            disabled={disabled}
             {...getValueStyle(item)}
           >
             {this.getWidgets(
@@ -477,6 +481,7 @@ export default class CustomFields extends Component {
                 ...(item.type === 22 ? { setNavVisible } : {}),
               }),
             )}
+
             <RefreshBtn
               {..._.pick(this.props, ['disabledFunctions', 'worksheetId', 'recordId', 'from'])}
               item={item}
@@ -658,6 +663,7 @@ export default class CustomFields extends Component {
       isDraft,
       masterData,
       disabledChildTableCheck,
+      formDidMountFlag,
     } = this.props;
     const { renderData } = this.state;
     // 字段描述显示方式
@@ -700,6 +706,14 @@ export default class CustomFields extends Component {
       return undefined;
     }
 
+    if (item.notSupport) {
+      return (
+        <div className="center Gray_9e GrayBGFA pTop20 pBottom20">
+          {item.notSupportTip || _l('%0暂不支持', item.controlName)}
+        </div>
+      );
+    }
+
     const isEditable = controlState(item, from).editable;
     const maskPermissions =
       (isCharge || _.get(item, 'advancedSetting.isdecrypt[0]') === '1') && !window.shareState.shareId;
@@ -735,7 +749,10 @@ export default class CustomFields extends Component {
     }
 
     return (
-      <React.Fragment>
+      <FormWidget
+        formDidMountFlag={formDidMountFlag}
+        triggerCustomEvent={triggerType => this.triggerCustomEvent({ ...item, triggerType })}
+      >
         <Widgets
           {...item}
           customFields={this}
@@ -811,7 +828,7 @@ export default class CustomFields extends Component {
           submitChildTableCheckData={this.submitChildTableCheckData}
         />
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
-      </React.Fragment>
+      </FormWidget>
     );
   }
 
@@ -957,7 +974,9 @@ export default class CustomFields extends Component {
         ? checkAllValueAvailable(rules, list, recordId, from)
         : [];
     const ids = verifyAllControls
-      ? list.map(it => it.controlId)
+      ? list
+          .filter(item => controlState(item, from).visible && controlState(item, from).editable && item.type !== 52)
+          .map(it => it.controlId)
       : list
           .filter(item => {
             // 标签页隐藏，内部字段报错校验过滤
@@ -1034,6 +1053,9 @@ export default class CustomFields extends Component {
       error = true;
     } else if ($('.recordInfoForm,.formMain').find('.fileUpdateLoading').length) {
       alert(_l('附件正在上传，请稍后'), 3);
+      error = true;
+    } else if ($('.recordInfoForm,.formMain').find('.childTableIsImportingData').length) {
+      alert(_l('子表正在导入，请稍后'), 3);
       error = true;
     } else if (hasRuleError) {
       error = true;
@@ -1135,7 +1157,7 @@ export default class CustomFields extends Component {
   }
 
   renderTab(commonData, tabControls) {
-    const { tabControlProp: { isSplit, splitTabDom } = {}, from, isDraft } = this.props;
+    const { tabControlProp: { isSplit, splitTabDom } = {}, from, isDraft, mobileApprovalRecordInfo } = this.props;
     const { activeTabControlId, renderData } = this.state;
     const isMobile = browserIsMobile();
     const sectionProps = {
@@ -1153,6 +1175,7 @@ export default class CustomFields extends Component {
       return (
         <MobileWidgetSection
           {...sectionProps}
+          mobileApprovalRecordInfo={mobileApprovalRecordInfo}
           onChange={(value, cid, control) => this.handleChange(value, cid, control)}
         />
       );

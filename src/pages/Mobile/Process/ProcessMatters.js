@@ -11,7 +11,8 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
 import ProcessDelegation from './ProcessDelegation';
 import { getRequest } from 'src/util';
-import { verifyPassword, handlePushState, handleReplaceState } from 'src/util';
+import { handlePushState, handleReplaceState } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
@@ -22,24 +23,25 @@ const ModalWrap = styled(Popup)`
   .content {
     background-color: #f3f3f3;
   }
-  .closeBtn, .rejectApprove {
+  .closeBtn,
+  .rejectApprove {
     color: #999;
     text-align: center;
     padding: 4px 15px;
     border-radius: 24px;
-    border: 1px solid #DDDDDD;
+    border: 1px solid #dddddd;
     background-color: #fff;
   }
   .rejectApprove {
     &.select {
-      color: #F44336;
-      border-color: #F44336;
+      color: #f44336;
+      border-color: #f44336;
       background-color: rgba(244, 67, 54, 0.12);
     }
     &.all {
       color: #fff;
-      border-color: #F44336;
-      background-color: #F44336;
+      border-color: #f44336;
+      background-color: #f44336;
     }
   }
 `;
@@ -132,7 +134,7 @@ export default class ProcessMatters extends Component {
       batchApproval: false,
       approveCards: [],
       approveType: null,
-      encryptType: null
+      encryptType: null,
     };
   }
   componentDidMount() {
@@ -345,7 +347,8 @@ export default class ProcessMatters extends Component {
     const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
+    const approveCards =
+      type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
@@ -447,7 +450,9 @@ export default class ProcessMatters extends Component {
       >
         <div className="flexColumn h100 content">
           <div className="flex flexColumn" style={{ overflowY: 'auto' }}>
-            <div className="pLeft10 mTop16 mBottom10 TxtLeft Gray bold">{_l('有%0个可否决的审批事项', rejectCards.length)}</div>
+            <div className="pLeft10 mTop16 mBottom10 TxtLeft Gray bold">
+              {_l('有%0个可否决的审批事项', rejectCards.length)}
+            </div>
             {rejectCards.map(item => (
               <div className="pLeft10 pRight10" key={item.workId}>
                 <Card
@@ -471,7 +476,9 @@ export default class ProcessMatters extends Component {
             ))}
             {!!noRejectCards.length && (
               <Fragment>
-                <div className="pLeft10 mTop6 mBottom10 Gray_75 TxtLeft bold">{_l('不能否决事项')} {noRejectCards.length}</div>
+                <div className="pLeft10 mTop6 mBottom10 Gray_75 TxtLeft bold">
+                  {_l('不能否决事项')} {noRejectCards.length}
+                </div>
                 {noRejectCards.map(item => (
                   <div className="pLeft10 pRight10" key={item.workId}>
                     <Card
@@ -667,13 +674,17 @@ export default class ProcessMatters extends Component {
               className="md-adm-tabs"
               activeLineMode="fixed"
               activeKey={_.get(topTab, 'id')}
-              onChange={(id) => {
+              onChange={id => {
                 this.handleChangeTopTab(_.find(currentTabs, { id }));
               }}
             >
               {currentTabs.map(tab => (
                 <Tabs.Tab
-                  title={<span>{tab.name} {this.renderCount(tab)}</span>}
+                  title={
+                    <span>
+                      {tab.name} {this.renderCount(tab)}
+                    </span>
+                  }
                   key={tab.id}
                 />
               ))}
@@ -730,7 +741,10 @@ export default class ProcessMatters extends Component {
                   {_l('通过')}
                 </div>
                 <div
-                  className={cx('rejectApprove flex', { select: rejectList.length, all: approveCards.length && rejectList.length === approveCards.length })}
+                  className={cx('rejectApprove flex', {
+                    select: rejectList.length,
+                    all: approveCards.length && rejectList.length === approveCards.length,
+                  })}
                   onClick={() => {
                     if (_.isEmpty(approveCards)) {
                       alert(_l('请先勾选需要处理的审批'), 2);
@@ -742,7 +756,9 @@ export default class ProcessMatters extends Component {
                   }}
                 >
                   <span className="mRight5">{_l('否决')}</span>
-                  {!(approveCards.length && rejectList.length === approveCards.length) && !!rejectList.length && rejectList.length}
+                  {!(approveCards.length && rejectList.length === approveCards.length) &&
+                    !!rejectList.length &&
+                    rejectList.length}
                 </div>
               </div>
             </div>
@@ -754,18 +770,18 @@ export default class ProcessMatters extends Component {
               className="md-adm-tabs"
               activeLineMode="fixed"
               activeKey={_.get(bottomTab, 'id')}
-              onChange={(id) => {
+              onChange={id => {
                 this.handleChangeCompleteTab(_.find(tabs, { id }));
               }}
             >
               {tabs.map(tab => (
                 <Tabs.Tab
-                  title={(
+                  title={
                     <div className="flexColumn valignWrapper">
                       <Icon className={tab.className} icon={tab.icon} />
                       <span className="Font12 mTop2">{tab.name}</span>
                     </div>
-                  )}
+                  }
                   key={tab.id}
                 />
               ))}

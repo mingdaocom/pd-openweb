@@ -108,6 +108,14 @@
       width: 36px;
       display: inline-flex;
       justify-content: center;
+      z-index: 1;
+      opacity: 1 !important;
+      &.disabled {
+        border-color: rgba(221, 221, 221, 0.6);
+        i.icon {
+          opacity: 0.6;
+        }
+      }
     }
     .addRowByLine:not(.disabled):hover,
     .importFromFile:not(.disabled):hover,

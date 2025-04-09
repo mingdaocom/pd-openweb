@@ -43,6 +43,7 @@ function ViewComp(props) {
   } = props;
   const { changePageIndex, changePageSize, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+
   return (
     <Con className="SingleViewWrap">
       {showPageTitle && worksheetInfo.name && (

@@ -128,6 +128,7 @@ export default class GroupsList extends Component {
       {
         title: _l('操作'),
         dataIndex: 'option',
+        width: 60,
         render: (text, record) => {
           const menu = (
             <div className="menuOption">

@@ -52,7 +52,7 @@ export default props => {
   }
 
   const getColorConfig = () => {
-    const { colorType, colorGroupId, customColors } = chartColor || {};
+    const { colorType, colorGroupId, customColors, personColor } = chartColor || {};
     const chartColors = getPorjectChartColors(appPkg.projectId);
     const defaultConfig = { name: _l('未配置'), showColors: [] };
     if (!config.chartColor) {
@@ -63,6 +63,11 @@ export default props => {
         name: _l('自定义颜色'),
         showColors: customColors
       };
+    } else if (colorGroupId && colorGroupId.includes('personColor')) {
+      return {
+        name: personColor.name,
+        showColors: personColor.colors
+      }
     } else if (colorGroupId === 'adaptThemeColor') {
       const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(iconColor));
       if (adaptThemeColors.length) {

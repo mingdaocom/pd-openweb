@@ -1,129 +1,175 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Icon, Dropdown } from 'ming-ui';
 import './index.less';
 import { v4 as uuidv4, validate } from 'uuid';
 import { FIELD_TYPE_LIST } from '../../../enum';
 import _ from 'lodash';
+import cx from 'classnames';
 
-export default class ProcessVariables extends Component {
-  addVariables = () => {
-    const { updateSource, processVariables } = this.props;
+const getDefaultParameters = () => {
+  return {
+    controlId: uuidv4(),
+    controlName: '',
+    type: 2,
+    enumDefault: 0,
+    desc: '',
+    processVariableType: 0,
+  };
+};
 
-    updateSource({
-      processVariables: processVariables.concat([
-        { type: 2, controlName: '', enumDefault: 0, controlId: uuidv4(), processVariableType: 0 },
-      ]),
+export default props => {
+  const { updateSource, processVariables } = props;
+  const list = processVariables.filter(item => item.processVariableType === 0);
+  const addParameters = ({ type, dataSource, controlId }) => {
+    let defaultParameters = getDefaultParameters();
+    let index = 0;
+
+    if (!controlId) {
+      index = processVariables.length - 1;
+    } else {
+      processVariables.forEach((item, i) => {
+        if (item.controlId === controlId) {
+          index = i;
+        }
+      });
+    }
+
+    if (type === 10000008 || dataSource) {
+      defaultParameters = Object.assign({}, defaultParameters, { dataSource: dataSource || controlId });
+      processVariables.splice(index + 1, 0, defaultParameters);
+    } else {
+      processVariables.splice(index + 1, 0, defaultParameters);
+    }
+
+    updateSource({ processVariables });
+  };
+  const updateControls = (action, value, { controlId, type, dataSource }, isBlur) => {
+    processVariables.forEach(item => {
+      if (item.controlId === controlId) {
+        item[action] =
+          isBlur &&
+          action === 'controlName' &&
+          !!processVariables
+            .filter(o => o.processVariableType === 0)
+            .filter(o => o.dataSource === dataSource)
+            .find(o => value && o[action] === value && o.controlId !== controlId)
+            ? value +
+              Math.floor(Math.random() * 10000)
+                .toString()
+                .padStart(4, '0')
+            : value;
+
+        if (action === 'type') {
+          item.enumDefault = _.includes([26, 27], type) ? 1 : 0;
+        }
+      }
     });
+
+    // 数组调整类型
+    if (action === 'type' && _.includes([10000007, 10000008], type)) {
+      _.remove(processVariables, o => o.dataSource === controlId);
+    }
+
+    // 普通数组
+    if (action === 'type' && value === 10000007) {
+      processVariables.push(
+        Object.assign({}, getDefaultParameters(), { controlName: 'string', dataSource: controlId }),
+      );
+    }
+
+    updateSource({ processVariables });
   };
 
-  render() {
-    const { updateSource, processVariables, setErrorItems, errorItems } = this.props;
-    const list = processVariables.filter(item => item.processVariableType === 0);
+  return (
+    <div className="workflowProcessVariables">
+      <div className="flexRow">
+        <div style={{ width: 120 }}>{_l('参数类型')}</div>
+        <div className="flex mLeft15">{_l('参数名称')}</div>
+        <div className="flex mLeft15">{_l('说明')}</div>
+      </div>
 
-    return (
-      <div className="workflowProcessVariables">
-        <div className="flexRow">
-          <div style={{ width: 120 }}>{_l('参数类型')}</div>
-          <div className="flex mLeft15">{_l('参数名称')}</div>
-        </div>
+      {list.map((item, index) => {
+        if (item.dataSource && _.find(list, o => o.controlId === item.dataSource).type === 10000007) {
+          return null;
+        }
 
-        {list.map((item, index) => (
-          <div key={index} className="flexRow mTop12 relative">
+        return (
+          <div key={index} className={cx('flexRow mTop12 relative', { pLeft20: item.dataSource })}>
             <Dropdown
-              style={{ width: 120 }}
+              style={{ width: item.dataSource ? 100 : 120 }}
               menuStyle={{ width: '100%' }}
-              data={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27, 48], o.value))}
+              data={FIELD_TYPE_LIST.filter(
+                o =>
+                  _.includes([2, 6, 16, 10000007, 26, 27, 48], o.value) || (!item.dataSource && o.value === 10000008),
+              )}
               value={item.type}
               disabled={!validate(item.controlId)}
               border
-              onChange={type => {
-                updateSource({
-                  processVariables: processVariables.map(o => {
-                    if (o.controlId === item.controlId) {
-                      o.type = type;
-                      o.enumDefault = _.includes([26, 27], type) ? 1 : 0;
-                    }
-                    return o;
-                  }),
-                });
-              }}
+              onChange={type => updateControls('type', type, item)}
             />
+
             <input
               type="text"
-              className="mLeft15 processConfigInput"
-              placeholder={_l('参数名称')}
+              className="flex mLeft15 processConfigInput"
               value={item.controlName}
               maxLength={64}
-              onChange={e => {
-                const value = e.target.value.trim();
-                let error = '';
+              onChange={e => updateControls('controlName', e.target.value, item)}
+              onBlur={e => {
+                let value = e.target.value.trim().replace(/[^a-z\d-_]/gi, '');
 
-                if (value) {
-                  if (!/^[a-zA-Z]{1}\w*$/.test(value)) {
-                    error = 1;
-                  } else if (list.filter(o => value === o.controlName).length > 0) {
-                    error = 2;
-                  } else {
-                    error = '';
-                  }
-                } else {
-                  error = '';
+                if (value && !/^[a-zA-Z]{1}/.test(value)) {
+                  value = 'parameter' + value;
                 }
 
-                const others = list.filter(o => o.controlId !== item.controlId);
-                let repeatControl = {};
-                others.forEach(element => {
-                  if (
-                    !_.find(others, o => o.controlName === element.controlName && o.controlId !== element.controlId)
-                  ) {
-                    repeatControl[element.controlId] = errorItems[element.controlId] === 1 ? 1 : '';
-                  }
-                });
-
-                setErrorItems(Object.assign({}, errorItems, { [item.controlId]: error }, repeatControl));
-                updateSource({
-                  processVariables: processVariables.map(o => {
-                    if (o.controlId === item.controlId) {
-                      o.controlName = value;
-                    }
-                    return o;
-                  }),
-                });
+                updateControls('controlName', value, item, true);
               }}
             />
-            {errorItems[item.controlId] && (
-              <div className="parameterErrorMessage">
-                {errorItems[item.controlId] === 1 ? _l('非法字符') : _l('参数名称不允许重复')}
-                <i className="parameterErrorArrow" />
-              </div>
-            )}
+
+            <input
+              type="text"
+              className="flex mLeft15 processConfigInput"
+              value={item.desc}
+              onChange={e => updateControls('desc', e.target.value, item)}
+              onBlur={evt => updateControls('desc', evt.target.value.trim(), item)}
+            />
 
             <Icon
               icon="task-new-delete"
               className="Font16 mLeft10 Gray_75 processConfigDel"
               onClick={() => {
-                _.remove(processVariables, o => o.controlId === item.controlId);
-                errorItems[item.controlId] = '';
+                let objArrayIds = [];
 
-                list.forEach((element, i) => {
-                  if (!_.find(list, (o, j) => o.controlName === element.controlName && i !== j)) {
-                    errorItems[element.controlId] = '';
+                _.remove(processVariables, o => {
+                  const isDelete = o.controlId === item.controlId || o.dataSource === item.controlId;
+
+                  if (isDelete && o.type === 10000007) {
+                    objArrayIds.push(o.controlId);
                   }
+
+                  return isDelete;
                 });
 
-                setErrorItems(errorItems);
+                // 移除普通数组的子项
+                _.remove(processVariables, o => _.includes(objArrayIds, o.dataSource));
+
                 updateSource({ processVariables });
               }}
             />
-          </div>
-        ))}
 
-        <div className="mTop15">
-          <span className="processConfigAdd" onClick={this.addVariables}>
-            + {_l('新参数')}
-          </span>
-        </div>
+            <Icon
+              icon="add"
+              className="Font20 mLeft10 Gray_75 ThemeHoverColor3 mTop8 pointer"
+              onClick={() => addParameters(item)}
+            />
+          </div>
+        );
+      })}
+
+      <div className="mTop15">
+        <span className="processConfigAdd" onClick={addParameters}>
+          + {_l('新参数')}
+        </span>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};

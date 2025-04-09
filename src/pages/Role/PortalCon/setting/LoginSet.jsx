@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon, QiniuUpload } from 'ming-ui';
 import cx from 'classnames';
-import 'src/components/uploadAttachment/uploadAttachment';
 import { COLORS, BGTYPE } from 'src/pages/Role/PortalCon/tabCon/util';
 import cbg from './img/center.png';
 import cCbg from './img/centerC.png';
@@ -303,88 +302,47 @@ export default function LoginSet(props) {
     setPortalSetModel(portalSetModel);
   }, [props.portalSet]);
 
-  useEffect(() => {
-    postUploader();
-  }, [portalSetModel]);
-
   const updataUrl = data => {
     props.onChangeImg(data);
   };
 
-  const postUploader = () => {
-    if (uploadLoading) {
-      return;
-    }
-    $('#hideUploadImage').uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#upload_image',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'ProjectLogo',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 0,
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        setUploadLoading(true);
-      },
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          setUploadLoading(false);
-
-          updataUrl({
-            logoImageUrl: attachment.url,
-            logoImagePath: attachment.key,
-          });
-        }
-      },
-    });
-    $('#hideUploadBg').uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#upload_imageBg',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'bgImage',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 0, //
-      checkProjectLimitFileSizeUrl: '',
-      uploadProgress: function () {
-        setUploadBgLoading(true);
-      },
-      callback: function (attachments) {
-        setUploadBgLoading(false);
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          updataUrl({
-            backImageUrl: attachment.url,
-            backImagePath: attachment.key,
-          });
-        }
-      },
-    });
-  };
   const renderBgBtn = () => {
+    const uploadParam = {
+      options: {
+        filters: {
+          mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+        },
+        max_file_size: '4m',
+      },
+      onAdd: (up, files) => {
+        if (uploadBgLoading) return;
+        setUploadBgLoading(true);
+        up.disableBrowse();
+      },
+      onUploaded: (up, file, response) => {
+        up.disableBrowse(false);
+        updataUrl({
+          backImageUrl: file.serverName + file.key,
+          backImagePath: file.key,
+        });
+        setUploadBgLoading(false);
+      },
+      onError: () => {
+        alert(_l('文件上传失败'), 2);
+      },
+    };
     return (
       <React.Fragment>
-        <span
-          className="Hand TxtMiddle InlineBlock mTop16 upload_imageBg"
-          onClick={() => {
-            $('#upload_imageBg').click();
-          }}
-        >
+        <QiniuUpload {...uploadParam} className={cx('Hand TxtMiddle InlineBlock mTop16 upload_imageBg')}>
           <Icon className="Font18 TxtMiddle mRight10" type="picture" /> {_l('上传自定义图片')}
           {uploadBgLoading ? (
-            <LoadDiv className="mBottom10 mLeft60 mTop10 InlineBlock" size="small" />
+            <LoadDiv className="mBottom10 mLeft60 InlineBlock" size="small" />
           ) : (
             portalSetModel.backImageUrl && <Icon className="Font18 TxtMiddle mLeft60" type={'done'} />
           )}
-        </span>
+        </QiniuUpload>
         <div className="hideUploadBgTxt mTop8">
-          {_l('建议上传不小于1920*1080px的封面图片，更利于首页展示，推荐免费图库')}{' '}
+          {_l('建议上传不小于1920*1080px的封面图片，更利于首页展示，推荐免费图库')}
           <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">
             https://unsplash.com
           </a>
@@ -392,11 +350,47 @@ export default function LoginSet(props) {
       </React.Fragment>
     );
   };
+
+  const renderLogoCon = () => {
+    const uploadParam = {
+      options: {
+        filters: {
+          mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+        },
+        max_file_size: '4m',
+      },
+      onAdd: (up, files) => {
+        if (uploadLoading) return;
+        setUploadLoading(true);
+        up.disableBrowse();
+      },
+      onUploaded: (up, file, response) => {
+        up.disableBrowse(false);
+        updataUrl({
+          logoImageUrl: file.serverName + file.key,
+          logoImagePath: file.key,
+        });
+        setUploadLoading(false);
+      },
+      onError: () => {
+        alert(_l('文件上传失败'), 2);
+      },
+    };
+    return (
+      <QiniuUpload {...uploadParam} className="w100 h100">
+        {portalSetModel.logoImageUrl ? (
+          <img src={portalSetModel.logoImageUrl} />
+        ) : (
+          <span className="Hand upload_logo InlineBlock" id="upload_image">
+            <Icon className="Font18" type="add1" />
+            <span>{_l('点击上传')}</span>
+          </span>
+        )}
+      </QiniuUpload>
+    );
+  };
   return (
     <Wrap>
-      <input id="hideUploadBg" type="file" className="Hidden" />
-      <input id="upload_imageBg" className="Hidden" />
-      <input id="hideUploadImage" type="file" className="Hidden" />
       <div className="content">
         <h6 className="Font16 Gray Bold mBottom0">{_l('登录页名称')}</h6>
         <input
@@ -434,14 +428,7 @@ export default function LoginSet(props) {
               }}
             />
           )}
-          {portalSetModel.logoImageUrl ? (
-            <img src={portalSetModel.logoImageUrl} />
-          ) : (
-            <span className="Hand upload_logo InlineBlock" id="upload_image">
-              <Icon className="Font18" type="add1" />
-              <span>{_l('点击上传')}</span>
-            </span>
-          )}
+          {renderLogoCon()}
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录页面结构')}</h6>
         <ul className="pageMode mTop16">
@@ -556,15 +543,7 @@ export default function LoginSet(props) {
             <div className="backImageUrl" style={{ 'background-image': `url(${portalSetModel.backImageUrl})` }}></div>
           )}
           <WrapCon className={cx({ isCenterCon: portalSetModel.pageMode === 3, isR: portalSetModel.pageMode !== 3 })}>
-            {portalSetModel.logoImageUrl ? (
-              <img src={portalSetModel.logoImageUrl} height={32} />
-            ) : iconUrl && iconColor ? (
-              <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: iconColor }}>
-                <SvgIcon url={iconUrl} fill={'#fff'} size={28} />
-              </span>
-            ) : (
-              ''
-            )}
+            {portalSetModel.logoImageUrl ? <img src={portalSetModel.logoImageUrl} height={32} /> : ''}
             {portalSetModel.pageTitle && (
               <p className="Font24 Gray mAll0 mTop20 Bold pageTitleDeme ellipsis">{portalSetModel.pageTitle}</p>
             )}

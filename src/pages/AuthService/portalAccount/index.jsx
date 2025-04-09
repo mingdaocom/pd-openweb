@@ -26,7 +26,7 @@ function ContainerCon(props) {
   const [isErrUrl, setIsErrUrl] = useState(false); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
   //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  9 收集信息
   const [status, setStatus] = useState(0);
-  const [isAutoLogin, setAutoLogin] = useState(false); //是否自动登录
+  const [isAutoLogin, setAutoLogin] = useState(true); //是否自动登录
   const [
     { currentAppId, fixInfo, state, documentTitle, customLink, isTpauth, isWXauth, loginForType, authorizerInfo },
     setState,
@@ -215,6 +215,7 @@ function ContainerCon(props) {
         }
         setState({ fixInfo: { fixAccount: res.fixAccount, fixRemark: res.fixRemark }, authorizerInfo });
         setBaseSetInfo(portalSetResult);
+        // setBaseSetInfo({ ...portalSetResult, autoLogin: !false });
         setIsWXOfficialExist(isWXOfficialExist);
         if (statusList.includes(status)) {
           //直接进入相应状态页面
@@ -230,21 +231,10 @@ function ContainerCon(props) {
     return <LoadDiv className="" style={{ margin: '120px auto' }} />;
   }
   if (isWXauth) {
-    let appColor = baseSetInfo.appColor || '#00bcd4';
-    let appLogoUrl =
-      baseSetInfo.appLogoUrl || md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg';
     const { loginMode = {}, registerMode = {} } = baseSetInfo;
     return (
       <WrapWx className="flexColumn">
-        {baseSetInfo.logoImageUrl ? (
-          <img src={baseSetInfo.logoImageUrl} height={40} />
-        ) : appColor && appLogoUrl ? (
-          <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: appColor }}>
-            <SvgIcon url={appLogoUrl} fill={'#fff'} size={28} />
-          </span>
-        ) : (
-          ''
-        )}
+        {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} /> : ''}
         <p className="Font26 Gray mAll0 Bold pageTitle flex" style={{ WebkitBoxOrient: 'vertical' }}>
           {baseSetInfo.pageTitle}
         </p>

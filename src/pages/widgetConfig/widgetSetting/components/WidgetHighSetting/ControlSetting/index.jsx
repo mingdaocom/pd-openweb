@@ -65,23 +65,25 @@ export default function WidgetConfig(props) {
             </Checkbox>
           </div>
         )}
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={sorttype === 'zh'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { sorttype: checked ? 'en' : 'zh' }))}
-          >
-            <span>{_l('支持拼音排序')}</span>
-            <Tooltip
-              placement={'bottom'}
-              title={_l(
-                '勾选后，中文可按拼音A-Z进行排序。注意，勾选了支持拼音排序时排序索引不生效。如无需要，建议不勾选。',
-              )}
+        {!(type === 2 && enumDefault === 3) && (
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={sorttype === 'zh'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { sorttype: checked ? 'en' : 'zh' }))}
             >
-              <i className="icon icon-help Gray_9e Font16"></i>
-            </Tooltip>
-          </Checkbox>
-        </div>
+              <span>{_l('支持拼音排序')}</span>
+              <Tooltip
+                placement={'bottom'}
+                title={_l(
+                  '勾选后，中文可按拼音A-Z进行排序。注意，勾选了支持拼音排序时排序索引不生效。如无需要，建议不勾选。',
+                )}
+              >
+                <i className="icon icon-help Gray_9e Font16"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+        )}
       </Fragment>
     );
   }

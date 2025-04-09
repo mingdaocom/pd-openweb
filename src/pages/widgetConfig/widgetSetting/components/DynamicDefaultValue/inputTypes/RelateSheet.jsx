@@ -3,7 +3,7 @@ import { string, arrayOf, shape, func } from 'prop-types';
 import RecordCardListDialog from 'src/components/recordCardListDialog';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import { getCurrentValue } from 'src/components/newCustomFields/tools/utils';
+import { getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
 import _ from 'lodash';
 
 export default class RelateSheet extends Component {

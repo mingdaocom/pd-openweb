@@ -4,9 +4,11 @@ import { Icon } from 'ming-ui';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { getAdvanceSetting } from 'src/util';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import NumInput from './NumInput';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { useSetState } from 'react-use';
+import { useEffect } from 'react';
 
 export const SwitchStyle = styled.div`
   display: inline-block;
@@ -36,144 +38,155 @@ const Wrap = styled.div`
 `;
 
 // 显示字段
-export default class DisplayControl extends React.Component {
-  render() {
-    const {
-      appId,
-      worksheetControls,
-      view = {},
-      text,
-      handleChange,
-      handleChangeSort,
-      fromRelative,
-      maxCount3,
-      hideShowControlName,
-      isShowWorkflowSys,
-      canShowCount,
-      disableTypes,
-    } = this.props;
-    let data = !fromRelative ? view : this.props;
-    let { displayControls = [], showControlName = true, controlsSorts } = data;
-    const controlIds = isShowWorkflowSys
-      ? worksheetControls.map(o => o.controlId).concat([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT])
-      : worksheetControls.map(o => o.controlId).concat(NORMAL_SYSTEM_FIELDS_SORT);
-    displayControls = displayControls.filter(c => controlIds.includes(c)); //排除已删除的控件
-    const allCanDisplayControls = getCanDisplayControls(worksheetControls, disableTypes);
-    const { appshowtype = '0' } = getAdvanceSetting(view);
-    const showControls = maxCount3 ? displayControls.slice(0, 3) : displayControls;
-    //有效的配置字段
-    const effectiveControls = showControls.filter(o => allCanDisplayControls.find(it => it.controlId === o));
-    return (
-      <div className="mTop32">
-        <div className="title Font13 bold">{_l('显示字段')}</div>
-        {text && <p className="mTop6 Gray_75 viewSetText">{text}</p>}
-        <div className="settingContent mTop8">
-          <SortColumns
-            sortAutoChange
-            isShowColumns
-            //关联表的设置 可拖拽排序
-            noempty={false} //不需要至少显示一列
-            controlsSorts={controlsSorts}
-            downElement={this.props.downElement}
-            showControls={showControls}
-            columns={allCanDisplayControls}
-            viewType={view.viewType}
-            onChange={({ newControlSorts, newShowControls }) => {
-              let showList = newShowControls.filter(c => allCanDisplayControls.map(o => o.controlId).includes(c));
-              if (maxCount3 && showList.length > 3) {
-                alert(_l('一行三列布局时，最多只能设置3个显示字段'), 3);
-                return;
-              } else {
-                handleChangeSort({ newControlSorts, newShowControls: showList });
-              }
-            }}
-          />
-        </div>
-        {/* 移动端只有appshowtype==='1'才能选择是否显示字段名称 */}
-        {(!hideShowControlName || (hideShowControlName && !['0', '2'].includes(appshowtype))) && (
-          <div className="configSwitch mTop10">
-            <SwitchStyle className="flexRow alignItemsCenter">
-              <Icon
-                icon={showControlName ? 'ic_toggle_on' : 'ic_toggle_off'}
-                className="Font28 Hand"
-                onClick={() => {
-                  handleChange({ showControlName: !showControlName, editAttrs: ['showControlName'] });
-                }}
-              />
-              <div className="switchText InlineBlock Normal mLeft10">{_l('显示字段名称')}</div>
-            </SwitchStyle>
-          </div>
-        )}
-        {canShowCount && (
-          <div className="configSwitch mTop4">
-            <SwitchStyle className="flexRow alignItemsCenter">
-              <Icon
-                icon={
-                  !!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0
-                    ? 'ic_toggle_on'
-                    : 'ic_toggle_off'
-                }
-                className="Font28 Hand"
-                onClick={() => {
-                  if (effectiveControls.length <= 0) {
-                    return;
-                  }
-                  const showcount = !!_.get(view, 'advancedSetting.showcount')
-                    ? undefined
-                    : effectiveControls.length > 3
-                      ? 3
-                      : effectiveControls.length;
-                  this.props.updateCurrentView({
-                    ...view,
-                    appId,
-                    advancedSetting: {
-                      showcount,
-                    },
-                    editAttrs: ['advancedSetting'],
-                    editAdKeys: ['showcount'],
-                  });
-                  !!this.props.updateViewShowcount && this.props.updateViewShowcount(showcount);
-                }}
-              />
-              <div className="switchText InlineBlock Normal mLeft10">{_l('允许用户调整字段数量')}</div>
-            </SwitchStyle>
-            {!!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0 && (
-              <Wrap className="flexRow alignItemsCenter mTop10">
-                <span className="mLeft10">{_l('默认显示前')}</span>
-                <div className="flex mLeft12 showCount flexRow alignItemsCenter">
-                  <NumInput
-                    className="flex"
-                    minNum={0}
-                    maxNum={effectiveControls.length}
-                    value={
-                      Number(_.get(view, 'advancedSetting.showcount')) > effectiveControls.length
-                        ? effectiveControls.length
-                        : Number(_.get(view, 'advancedSetting.showcount'))
-                    }
-                    onChange={value => {
-                      let count = JSON.stringify(effectiveControls.length >= value ? value : effectiveControls.length);
-                      if (count === _.get(view, 'advancedSetting.showcount')) {
-                        return;
-                      }
-                      this.props.updateCurrentView({
-                        ...view,
-                        appId,
-                        advancedSetting: {
-                          showcount: count,
-                        },
-                        editAttrs: ['advancedSetting'],
-                        editAdKeys: ['showcount'],
-                      });
-                      !!this.props.updateViewShowcount && this.props.updateViewShowcount(count);
-                    }}
-                  />
-                  <span className="pLeft10">{_l('个')}</span>
-                </div>
-              </Wrap>
-            )}
-          </div>
-        )}
+export default function DisplayControl(props) {
+  const {
+    appId,
+    worksheetControls,
+    view = {},
+    text,
+    handleChange,
+    handleChangeSort,
+    fromRelative,
+    maxCount3,
+    hideShowControlName,
+    isShowWorkflowSys,
+    canShowCount,
+    disableTypes,
+  } = props;
+
+  const [{ data, allCanDisplayControls }, setState] = useSetState({
+    data: !fromRelative ? view : props,
+    allCanDisplayControls: [],
+  });
+
+  useEffect(() => {
+    const info = !fromRelative ? view : props;
+    setState({
+      data: info,
+      allCanDisplayControls: getCanDisplayControls(worksheetControls, disableTypes),
+    });
+  }, [props]);
+
+  let { displayControls = [], showControlName = true, controlsSorts } = data;
+  const controlIds = isShowWorkflowSys
+    ? worksheetControls.map(o => o.controlId).concat([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT])
+    : worksheetControls.map(o => o.controlId).concat(NORMAL_SYSTEM_FIELDS_SORT);
+  displayControls = displayControls.filter(c => controlIds.includes(c)); //排除已删除的控件
+
+  const { appshowtype = '0' } = getAdvanceSetting(view);
+  const showControls = maxCount3 ? displayControls.slice(0, 3) : displayControls;
+  //有效的配置字段
+  const effectiveControls = showControls.filter(o => allCanDisplayControls.find(it => it.controlId === o));
+  return (
+    <div className="mTop32">
+      <div className="title Font13 bold">{_l('显示字段')}</div>
+      {text && <p className="mTop6 Gray_75 viewSetText">{text}</p>}
+      <div className="settingContent mTop8">
+        <SortColumns
+          sortAutoChange
+          isShowColumns
+          //关联表的设置 可拖拽排序
+          noempty={false} //不需要至少显示一列
+          controlsSorts={controlsSorts}
+          downElement={props.downElement}
+          showControls={showControls}
+          columns={allCanDisplayControls}
+          viewType={view.viewType}
+          onChange={({ newControlSorts, newShowControls }) => {
+            let showList = newShowControls.filter(c => allCanDisplayControls.map(o => o.controlId).includes(c));
+            if (maxCount3 && showList.length > 3) {
+              alert(_l('一行三列布局时，最多只能设置3个显示字段'), 3);
+              return;
+            } else {
+              handleChangeSort({ newControlSorts, newShowControls: showList });
+            }
+          }}
+        />
       </div>
-    );
-  }
+      {/* 移动端只有appshowtype==='1'才能选择是否显示字段名称 */}
+      {(!hideShowControlName || (hideShowControlName && !['0', '2'].includes(appshowtype))) && (
+        <div className="configSwitch mTop10">
+          <SwitchStyle className="flexRow alignItemsCenter">
+            <Icon
+              icon={showControlName ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font28 Hand"
+              onClick={() => {
+                handleChange({ showControlName: !showControlName, editAttrs: ['showControlName'] });
+              }}
+            />
+            <div className="switchText InlineBlock Normal mLeft10">{_l('显示字段名称')}</div>
+          </SwitchStyle>
+        </div>
+      )}
+      {canShowCount && (
+        <div className="configSwitch mTop4">
+          <SwitchStyle className="flexRow alignItemsCenter">
+            <Icon
+              icon={
+                !!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0
+                  ? 'ic_toggle_on'
+                  : 'ic_toggle_off'
+              }
+              className="Font28 Hand"
+              onClick={() => {
+                if (effectiveControls.length <= 0) {
+                  return;
+                }
+                const showcount = !!_.get(view, 'advancedSetting.showcount')
+                  ? undefined
+                  : effectiveControls.length > 3
+                    ? 3
+                    : effectiveControls.length;
+                props.updateCurrentView({
+                  ...view,
+                  appId,
+                  advancedSetting: {
+                    showcount,
+                  },
+                  editAttrs: ['advancedSetting'],
+                  editAdKeys: ['showcount'],
+                });
+                !!props.updateViewShowcount && props.updateViewShowcount(showcount);
+              }}
+            />
+            <div className="switchText InlineBlock Normal mLeft10">{_l('允许用户调整字段数量')}</div>
+          </SwitchStyle>
+          {!!_.get(view, 'advancedSetting.showcount') && effectiveControls.length > 0 && (
+            <Wrap className="flexRow alignItemsCenter mTop10">
+              <span className="mLeft10">{_l('默认显示前')}</span>
+              <div className="flex mLeft12 showCount flexRow alignItemsCenter">
+                <NumInput
+                  className="flex"
+                  minNum={0}
+                  maxNum={effectiveControls.length}
+                  value={
+                    Number(_.get(view, 'advancedSetting.showcount')) > effectiveControls.length
+                      ? effectiveControls.length
+                      : Number(_.get(view, 'advancedSetting.showcount'))
+                  }
+                  onChange={value => {
+                    let count = JSON.stringify(effectiveControls.length >= value ? value : effectiveControls.length);
+                    if (count === _.get(view, 'advancedSetting.showcount')) {
+                      return;
+                    }
+                    props.updateCurrentView({
+                      ...view,
+                      appId,
+                      advancedSetting: {
+                        showcount: count,
+                      },
+                      editAttrs: ['advancedSetting'],
+                      editAdKeys: ['showcount'],
+                    });
+                    !!props.updateViewShowcount && props.updateViewShowcount(count);
+                  }}
+                />
+                <span className="pLeft10">{_l('个')}</span>
+              </div>
+            </Wrap>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

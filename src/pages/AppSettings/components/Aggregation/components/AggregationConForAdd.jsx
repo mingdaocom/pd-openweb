@@ -7,6 +7,7 @@ import ChooseControlsForAggregation from './ChooseControlsForAggregation';
 import CalculationDialog from './CalculationDialog';
 import { getNodeInfo, getAggFuncTypes, getRuleAlias, updateConfig, isDelStatus, formatAggConfig } from '../util';
 import { getTranslateInfo } from 'src/util';
+import { AGG_CONTROL_MAX } from './../config';
 
 export default function AddAggregation(props) {
   const { onUpdate } = props;
@@ -36,7 +37,8 @@ export default function AddAggregation(props) {
   const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
   const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
   const isMax =
-    (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length >= 10;
+    (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length >=
+    AGG_CONTROL_MAX;
   const renderAddAgg = () => {
     if (isMax) return null;
     return (

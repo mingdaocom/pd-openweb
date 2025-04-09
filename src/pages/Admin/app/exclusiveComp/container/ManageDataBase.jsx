@@ -5,7 +5,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import { Table, ConfigProvider } from 'antd';
 import Trigger from 'rc-trigger';
-import { Icon, Dropdown, UserHead } from 'ming-ui';
+import { Icon, Dropdown, UserHead, Tooltip } from 'ming-ui';
 import { dialogSelectApp } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -147,7 +147,7 @@ function ManageDataBase(props) {
                 >
                   {_l('迁移到')}
                 </li>
-                {/* <li
+                <li
                   onClick={() => {
                     setActionOp(undefined);
                     setConfirmDialog({
@@ -159,7 +159,7 @@ function ManageDataBase(props) {
                   }}
                 >
                   {_l('移出')}
-                </li> */}
+                </li>
               </ActionOpWrap>
             }
           >
@@ -276,8 +276,11 @@ function ManageDataBase(props) {
       <div className="manageDataBase">
         <div className="HeaderWrap exclusiveCompHeader">
           <span className="icon-backspace Font22 ThemeHoverColor3" onClick={() => history.go(-1)}></span>
-          <span className="dataAuthorizeLabel">{_l('管理数据库')}</span>
-          <span className="dataAuthorizeName Gray_75">{baseInfo.name}</span>
+          <span className="dataAuthorizeLabel">{_l('应用管理')}</span>
+          <span className="dataAuthorizeName Gray_75 flex">{baseInfo.name}</span>
+          <Tooltip text={_l('刷新')}>
+            <Icon icon="refresh1" className="Font22 Gray_9e Hover_21" onClick={() => getApp()} />
+          </Tooltip>
         </div>
         <div className="ContentWrap">
           {renderFilters()}

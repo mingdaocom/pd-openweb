@@ -5,11 +5,10 @@ import { UserHead, SortableList } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, compatibleMDJS } from 'src/util';
 import { dealUserRange } from '../../tools/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -27,12 +26,6 @@ export default class Widgets extends Component {
   state = {
     showSelectUser: false,
   };
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
@@ -57,6 +50,7 @@ export default class Widgets extends Component {
       controlId,
       appId,
       formData = [],
+      onChange = () => {},
     } = this.props;
     const value = this.getUserValue();
     const selectedAccountIds = value.map(item => item.accountId);
@@ -73,6 +67,46 @@ export default class Widgets extends Component {
     }
 
     if (browserIsMobile()) {
+      if (advancedSetting.usertype === '1' && enumDefault2 !== 1) {
+        const selectUsers = this.getUserValue();
+        // 仅限内部用户
+        // 支持全范围选择
+        // 支持限定网络下选择
+        // 不支持指定成员选择
+        // 不支持外部用户选择
+
+        compatibleMDJS(
+          'chooseUsers',
+          {
+            projectId: enumDefault2 === 2 ? projectId : undefined, // 网络ID, 默认为空, 不限制
+            count: enumDefault === 0 ? 1 : '', // 默认为空, 不限制数量
+            //暂不支持 appointed:[], // [accountId], 特定列表, 只加载约定用户
+            selected: selectUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })), // 已选中的用户, 交互上可以取消 [{accountId, fullname, avatar}]
+            //暂不支持 disabled: [], // 禁用的用户, 交互上不可选择 [{accountId}]
+            //暂不支持 additions: ['user-self', ...], // 默认为空, 不支持额外选项
+            // 全部支持项:
+            // user-self: 自己
+            // user-sub: 下属, 回调数据无头像
+            // user-undefined: 未指定, 回调数据无头像
+            // user-workflow: 工作流, 回调数据无头像
+            // user-system: 系统, 回调数据无头像
+            // user-publicform: 公开表单, 回调数据无头像
+            // user-api: API, 回调数据无头像
+            success: function (res) {
+              // 最终选择结果, 完全替换已有数据
+              var results = res.results.map(item => ({ ...item, fullname: item.name })); // [{accountId, fullname, avatar}]
+
+              onChange(JSON.stringify(results));
+            },
+            cancel: function (res) {
+              // 用户取消
+            },
+          },
+          () => this.setState({ showSelectUser: true }),
+        );
+
+        return;
+      }
       this.setState({ showSelectUser: true });
     } else {
       const selectRangeOptions = dealUserRange(this.props, formData);
@@ -149,12 +183,6 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
-
   renderItem({ item, dragging }) {
     const { projectId, disabled, from, appId, dataSource } = this.props;
     const isMobile = browserIsMobile();
@@ -192,7 +220,7 @@ export default class Widgets extends Component {
     const { projectId, disabled, enumDefault, formData = [], appId, masterData = {}, onChange } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
-    const filterAccountIds = _.map(value, 'accountId')
+    const filterAccountIds = _.map(value, 'accountId');
 
     return (
       <div className="customFormControlBox customFormControlUser">

@@ -95,9 +95,6 @@ export const CustomActionWrap = styled.div`
   .RadioGroup {
     width: 70%;
   }
-  .fieldList li {
-    max-width: 100% !important;
-  }
   .splitLine {
     width: 100%;
     margin: 24px 0;

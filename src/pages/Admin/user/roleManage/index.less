@@ -60,7 +60,7 @@
           display: flex;
           flex-wrap: nowrap;
 
-          > span {
+          >span {
             &:not(:first-child) {
               position: relative;
               padding-left: 10px;
@@ -132,6 +132,7 @@
         justify-content: center;
         align-items: center;
         border: 1px solid #e0e0e0;
+
         &:hover {
           background: #f5f5f5;
         }
@@ -247,6 +248,7 @@
         .ant-tree-indent {
           display: none;
         }
+
         .ant-tree-node-content-wrapper {
           flex: 1;
         }
@@ -361,6 +363,7 @@
         }
 
         tr {
+
           th,
           td {
             border-bottom: 1px solid #eaeaea;
@@ -499,8 +502,14 @@
 .actRoleDrop {
   width: 160px;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  padding: 6px 0;
+  background-color: #fff !important;
 
   .ant-menu-item {
+    margin: 0 !important;
+    height: 36px !important;
+    line-height: 36px !important;
+
     &:hover {
       background-color: #f5f5f5;
       color: rgba(0, 0, 0, 0.85);
@@ -510,9 +519,11 @@
   .delRole {
     color: #f51744 !important;
   }
+
   &.importExportMenuWrap {
     width: auto;
   }
+
   .importExportAction {
     .ant-menu-item {
       height: 32px !important;

@@ -26,7 +26,6 @@ class KcLeft extends Component {
     searchNodes: PropTypes.func,
     currentFolder: PropTypes.shape({}),
     getUsage: PropTypes.func,
-    initkcLeftEditRootFn: PropTypes.func,
     currentRoot: PropTypes.oneOfType([PropTypes.number, PropTypes.shape({})]),
   };
 
@@ -75,9 +74,8 @@ class KcLeft extends Component {
     this.searchNodes = this.searchNodes.bind(this);
   }
   componentDidMount() {
-    const { getUsage, initkcLeftEditRootFn } = this.props;
+    const { getUsage } = this.props;
     getUsage();
-    initkcLeftEditRootFn(this.handleEditRoot);
     this._isMounted = true;
     service
       .getRoots({
@@ -762,7 +760,6 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getUsage: bindActionCreators(kcActions.updateKcUsage, dispatch),
   searchNodes: bindActionCreators(kcActions.searchNodes, dispatch),
-  initkcLeftEditRootFn: bindActionCreators(kcActions.initkcLeftEditRootFn, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(KcLeft);

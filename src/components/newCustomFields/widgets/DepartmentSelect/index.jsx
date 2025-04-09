@@ -9,7 +9,6 @@ import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilt
 import { browserIsMobile, getCurrentProject } from 'src/util';
 import { dealRenderValue, dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -23,12 +22,6 @@ export default class Widgets extends Component {
   state = {
     showSelectDepartment: false,
   };
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
@@ -99,12 +92,6 @@ export default class Widgets extends Component {
       : JSON.parse(value || '[]').filter(i => !i.isDelete);
 
     onChange(JSON.stringify(newValue));
-  }
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
   }
 
   renderItem({ item, items = [], dragging }) {

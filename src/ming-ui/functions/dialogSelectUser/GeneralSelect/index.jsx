@@ -1,23 +1,21 @@
 ﻿import React, { Component, Fragment, createRef } from 'react';
 import cx from 'classnames';
-import './style.less';
+import _ from 'lodash';
+import { LoadDiv, Button, ScrollView } from 'ming-ui';
 import userController from 'src/api/user';
-import departmentController from 'src/api/department';
 import groupController from 'src/api/group';
 import structureController from 'src/api/structure';
+import departmentController from 'src/api/department';
+import Result from './Result';
+import NoData from './NoData';
 import GDropdown from './GDropdown';
-import ScrollView from 'ming-ui/components/ScrollView';
+import ExtraUserList from './ExtraUserList';
+import DepartmentTree from './DepartmentTree';
+import DepartmentList from './DepartmentList';
 import DefaultUserList from './DefaultUserList';
 import DepartmentGroupUserList from './DepartmentGroupUserList';
-import DepartmentTree from './DepartmentTree';
-import ExtraUserList from './ExtraUserList';
-import DepartmentList from './DepartmentList';
-import Result from './Result';
-import Button from 'ming-ui/components/Button';
 import { RenderTypes, ChooseType, UserTabsId } from './constant';
-import NoData from './NoData';
-import _ from 'lodash';
-import { LoadDiv } from 'ming-ui';
+import './style.less';
 
 const DefaultUserTabs = isNetwork => {
   return [
@@ -89,8 +87,6 @@ const ResignedTab = {
     getUsers: userController.getProjectResignedUserList,
   },
 };
-
-export { default as DepartmentList } from './DepartmentList';
 
 export default class GeneraSelect extends Component {
   static defaultProps = {
@@ -1157,6 +1153,40 @@ export default class GeneraSelect extends Component {
   /* ---------------------------------------------------------------------------------------------------
     --------------------------------------         渲染        ------------------------------------------
     ---------------------------------------------------------------------------------------------------- */
+
+  refreshOftenUser = () => {
+    const { commonSettings } = this.props;
+    const { mainData } = this.state;
+
+    userController
+      .getOftenMetionedUser({
+        count: 50,
+        filterAccountIds: [_.get(md, 'global.Account.accountId')],
+        includeUndefinedAndMySelf: this.userSettings.includeUndefinedAndMySelf,
+        includeSystemField: this.userSettings.includeSystemField,
+        prefixAccountIds: this.userSettings.prefixAccountIds,
+        projectId: commonSettings.projectId,
+      })
+      .then(res => {
+        const oftenUsersList = _.get(mainData, 'data.oftenUsers.list') || [];
+        const newList = oftenUsersList
+          .filter(l => ['user-undefined', _.get(md, 'global.Account.accountId')].includes(l.accountId))
+          .concat(res);
+
+        this.setState({
+          mainData: {
+            ...mainData,
+            data: {
+              ...mainData.data,
+              oftenUsers: {
+                list: _.unionBy(newList, 'accountId'),
+              },
+            },
+          },
+        });
+      });
+  };
+
   renderUsersList() {
     const { commonSettings } = this.props;
     let mainData = this.state.mainData;
@@ -1179,6 +1209,10 @@ export default class GeneraSelect extends Component {
             keywords={this.state.keywords}
             currentIndex={this.state.currentIndex}
             selectedAccountIds={this.userSettings.selectedAccountIds}
+            hideOftenUsers={this.userSettings.hideOftenUsers}
+            hideManageOftenUsers={this.userSettings.hideManageOftenUsers}
+            refreshOftenUser={this.refreshOftenUser}
+            dialogSelectUser={this.props.dialogSelectUser}
           />
         );
       /** 渲染部门选人列表 */

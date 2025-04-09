@@ -41,7 +41,7 @@ export const ActionResult = {
   failInvalidVerifyCode: 3, // 验证码错误
   userInvalid: 4, // 用户登录信息错误
   userInfoNotFound: 5, // 用户信息不存在
-  userAccountExists: 6, // 用户帐号已存在
+  userAccountExists: 6, // 用户账号已存在
   inviteLinkExpirate: 7, // 邀请链接失效
   sendMobileMessageFrequent: 8, // 短信发送过于频繁
   failPasswordValidate: 9, // 密码格式不正确

@@ -22,10 +22,11 @@ import {
   CUR_OCR_URL_TYPES,
   WATER_MASK_TYPES,
   CUR_EMPTY_TYPES,
+  H5_WATER_MASK_TYPES,
 } from '../config';
 import styled from 'styled-components';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
@@ -150,6 +151,7 @@ export default class SelectOtherField extends Component {
       case OTHER_FIELD_TYPE.OCR:
       case OTHER_FIELD_TYPE.KEYWORD:
       case OTHER_FIELD_TYPE.WATER_MASK:
+      case OTHER_FIELD_TYPE.H5_WATER_MASK:
       case OTHER_FIELD_TYPE.EMPTY:
       case OTHER_FIELD_TYPE.CODE_RESULT:
       case OTHER_FIELD_TYPE.TRIGGER_TIME:
@@ -216,11 +218,14 @@ export default class SelectOtherField extends Component {
       types = (data.type === 2 ? CUR_OCR_URL_TYPES : CUR_OCR_TYPES).concat(types);
     }
     // 附件水印其他字段控件
-    if (DYNAMIC_FROM_MODE.WATER_MASK === this.props.from) {
+    if (this.props.from === DYNAMIC_FROM_MODE.WATER_MASK) {
       types = types.concat(WATER_MASK_TYPES);
     }
-    //子表里的字段默认值没有查询和函数配置
+    if (this.props.from === DYNAMIC_FROM_MODE.H5_WATER_MASK) {
+      types = types.concat(H5_WATER_MASK_TYPES);
+    }
     if (this.props.hideSearchAndFun) {
+      //子表里的字段默认值没有查询和函数配置
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH, OTHER_FIELD_TYPE.FX], item.key));
     }
     //自定义事件没有查询工作表
@@ -422,6 +427,10 @@ export default class SelectOtherField extends Component {
         {fxVisible && (
           <FunctionEditorDialog
             supportJavaScript
+            supportDebug
+            appId={get(this.props, 'globalSheetInfo.appId')}
+            worksheetId={get(this.props, 'globalSheetInfo.worksheetId')}
+            projectId={get(this.props, 'globalSheetInfo.projectId')}
             control={data}
             value={getAdvanceSetting(data, 'defaultfunc')}
             title={data.controlName}

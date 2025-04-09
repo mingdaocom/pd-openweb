@@ -1,13 +1,14 @@
 import React from 'react';
+import _, { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, ScrollView } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import ChildTableContext from '../ChildTable/ChildTableContext';
-import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
+import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
+import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
+import { getTranslateInfo } from 'src/util';
+import ChildTableContext from '../ChildTable/ChildTableContext';
 import ReacordItem from './RecordItem';
-import _, { get, isEmpty } from 'lodash';
 
 export default class RelateRecordList extends React.PureComponent {
   static contextType = ChildTableContext;
@@ -296,7 +297,9 @@ export default class RelateRecordList extends React.PureComponent {
 
   render() {
     const {
+      appId,
       style,
+      entityName,
       maxHeight,
       isCharge,
       recordId,
@@ -323,6 +326,8 @@ export default class RelateRecordList extends React.PureComponent {
     if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
       return null;
     }
+    const createRecordName =
+      getTranslateInfo(appId, null, control.dataSource).createBtnName || _.get(worksheet, 'advancedSetting.btnname');
     const recordItemHeight = showCoverAndControls && showControls.length ? 56 : 36;
     let recordListHeight = records.length * recordItemHeight + 12;
     if (maxHeight) {
@@ -341,10 +346,10 @@ export default class RelateRecordList extends React.PureComponent {
             minHeight: records.length
               ? recordItemHeight
               : !records.length && !keyWords && !loading
-              ? window.innerHeight / 2 > 300
-                ? 300
-                : 100
-              : 50,
+                ? window.innerHeight / 2 > 300
+                  ? 300
+                  : 100
+                : 50,
             height: recordListHeight > 323 ? 323 : recordListHeight,
           }}
         >
@@ -366,7 +371,10 @@ export default class RelateRecordList extends React.PureComponent {
                   <div className="mTop10">
                     {error
                       ? error === 'notCorrectCondition'
-                        ? _l('不存在符合条件的%0', worksheet.entityName || (control && control.sourceEntityName) || '')
+                        ? _l(
+                            '不存在符合条件的%0',
+                            entityName || worksheet.entityName || (control && control.sourceEntityName) || '',
+                          )
                         : _l('没有权限')
                       : _l('暂无记录')}
                     {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
@@ -423,8 +431,9 @@ export default class RelateRecordList extends React.PureComponent {
               }}
             >
               <i className="icon icon-plus"></i>
-              {_.get(worksheet, 'advancedSetting.btnname') ||
+              {createRecordName ||
                 (control && control.sourceBtnName) ||
+                entityName ||
                 worksheet.entityName ||
                 (control && control.sourceEntityName)}
             </div>

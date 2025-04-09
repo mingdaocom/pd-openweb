@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Checkbox, Tooltip, Icon, RadioGroup, Switch } from 'ming-ui';
-import lookPng from './img/look.png';
-import editPng from './img/edit.png';
-import delPng from './img/del.png';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Checkbox, Icon, RadioGroup, Switch, Tooltip } from 'ming-ui';
+import { getTranslateInfo } from 'src/util';
+import delPng from './img/del.png';
+import editPng from './img/edit.png';
+import lookPng from './img/look.png';
 
 const Wrap = styled.div`
   .title {
@@ -67,7 +68,7 @@ function TipsRender(props) {
   }
   const str = userFileds
     .filter(o => (type === 'look' ? true : o.userPermission === 2)) //查看=>显示全部；操作=>拥有的
-    .map(o => o.name)
+    .map(o => getTranslateInfo(props.appId, null, o.id).name || o.name)
     .join(', ');
   return (
     <React.Fragment>
@@ -111,7 +112,9 @@ function TipsRender(props) {
                 onChange(props.value === 30 ? 20 : 30);
               }}
             />
-            <span className="mLeft10">{type === 'look' ? _l('额外包含下属加入的记录') : _l('额外包含下属拥有的记录')}</span>
+            <span className="mLeft10">
+              {type === 'look' ? _l('额外包含下属加入的记录') : _l('额外包含下属拥有的记录')}
+            </span>
             {type !== 'look' && (
               <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')}</span>} popupPlacement="top">
                 <i className="icon-info_outline Font16 mLeft6 Gray_bd" />

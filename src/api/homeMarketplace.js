@@ -2,6 +2,7 @@ export default {
   /**
   * 前台获取场景/行业
   * @param {Object} args 请求参数
+  * @param {integer} args.productType 1= 应用，2 = 插件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -19,9 +20,11 @@ export default {
   * @param {string} args.keywords 关键字
   * @param {array} args.tagIds 场景ids
   * @param {array} args.industryIds 行业ids
+  * @param {array} args.classificationIds 分类ids
   * @param {string} args.developId 开发者id
   * @param {integer} args.developType 开发者类型 1= 个人，2 = 企业
   * @param {integer} args.licenseType 免费 = 0，付费 = 1 （不传不筛选）
+  * @param {integer} args.productType 1= 应用，2 = 插件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

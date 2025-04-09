@@ -4,7 +4,6 @@ import ChildTable from 'worksheet/components/ChildTable';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { browserIsMobile } from 'src/util';
 import _, { find } from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class SubList extends React.Component {
   static contextType = RecordInfoContext;
@@ -24,12 +23,6 @@ export default class SubList extends React.Component {
   constructor(props) {
     super(props);
     this.debounceChange = _.debounce(this.props.onChange, 500);
-  }
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
   }
 
   handleChange = ({ rows, originRows = [], lastAction = {} }, mode) => {
@@ -114,12 +107,6 @@ export default class SubList extends React.Component {
     }
   };
 
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
-
   render() {
     const {
       from,
@@ -158,7 +145,18 @@ export default class SubList extends React.Component {
               recordId,
               worksheetId,
               formData: formData
-                .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))
+                .map(c =>
+                  _.pick(c, [
+                    'controlId',
+                    'type',
+                    'value',
+                    'options',
+                    'attribute',
+                    'enumDefault',
+                    'sourceControl',
+                    'sourceControlType',
+                  ]),
+                )
                 .filter(c => !!c.value),
             }}
             onChange={this.handleChange}

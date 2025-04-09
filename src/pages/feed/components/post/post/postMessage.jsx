@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { findDOMNode } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { createLinksForMessage } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import CreateGroup from 'src/components/group/create/creatGroup';

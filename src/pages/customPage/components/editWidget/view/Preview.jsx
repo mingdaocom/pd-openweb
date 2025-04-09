@@ -57,6 +57,14 @@ const ViewWrap = styled.div`
   .SingleViewBody {
     border: none !important;
   }
+  &.web .addRecord {
+    border-color: var(--app-primary-color);
+    background: var(--app-primary-color);
+    &:hover, &:active, &:focus {
+      border-color: var(--app-primary-hover-color);
+      background: var(--app-primary-hover-color);
+    }
+  }
   &.hideAddRecord .addRecord,
   &.hideAddRecord .addBoardRecord,
   &.hideAddRecord .addRecordItemWrapper,
@@ -116,7 +124,7 @@ const navigateToView = (workSheetId, viewId) => {
 };
 
 export function View(props) {
-  const { appId, setting = {}, className, layoutType, filtersGroup = [] } = props;
+  const { appId, setting = {}, className, layoutType, filtersGroup = [], themeColor } = props;
   const { id, apkId, value, viewId, config = {} } = setting;
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
@@ -146,7 +154,16 @@ export function View(props) {
   }
 
   return (
-    <ViewWrap className={cx(className, { hideAddRecord: window.shareState.shareId ? true : !config.isAddRecord, hideSearchRecord: !config.searchRecord })}>
+    <ViewWrap
+      style={{
+        '--app-primary-color': themeColor,
+        '--app-primary-hover-color': themeColor
+      }}
+      className={cx(className, [layoutType], {
+        hideAddRecord: window.shareState.shareId ? true : !config.isAddRecord,
+        hideSearchRecord: !config.searchRecord,
+      })}
+    >
       <Component
         showHeader
         ref={singleViewRef}

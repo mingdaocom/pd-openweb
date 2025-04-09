@@ -1,5 +1,5 @@
 import worksheetAjax from 'src/api/worksheet';
-import { getNavGroupCount } from './index';
+import { getNavGroupCount } from './navFilter';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';

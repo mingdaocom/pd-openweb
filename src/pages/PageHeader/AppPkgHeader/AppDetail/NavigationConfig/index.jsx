@@ -3,6 +3,7 @@ import { Tabs, Checkbox, Tooltip } from 'antd';
 import { Icon, RadioGroup } from 'ming-ui';
 import Navigation from './Navigation';
 import AppNavStyle from '../AppNavStyle';
+import MobileCustomNav from './MobileCustomNav';
 import cx from 'classnames';
 import './index.less';
 
@@ -281,7 +282,7 @@ export default function NavigationConfig(props) {
         </Tabs.TabPane>
         <Tabs.TabPane tab={_l('移动端')} key="mobile">
           {renderNavStyleConfig('appNaviStyle')}
-          {app.appNaviStyle !== 2 && renderDisplayWay()}
+          {app.appNaviStyle !== 2 ? renderDisplayWay() : <MobileCustomNav app={app} onChangeApp={onChangeApp} />}
         </Tabs.TabPane>
       </Tabs>
     </div>

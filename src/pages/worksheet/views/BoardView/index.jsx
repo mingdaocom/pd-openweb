@@ -188,6 +188,7 @@ function BoardView(props) {
     JSON.stringify(navGroupFilters),
     view.advancedSetting.navsorts,
     view.advancedSetting.customitems,
+    view.advancedSetting.viewtitle,
   ]);
 
   const handleSelectField = obj => {

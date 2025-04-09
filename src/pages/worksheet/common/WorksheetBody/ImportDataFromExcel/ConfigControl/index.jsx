@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import filterXSS from 'xss';
+import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, ScrollView, Tooltip } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { Button, Checkbox, Dropdown, LoadDiv, Dialog, ScrollView, Tooltip, Icon, Menu } from 'ming-ui';
-import './index.less';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import DropDownItem from './DropDownItem';
-import _ from 'lodash';
+import './index.less';
 
 const allowConfigControlTypes = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
@@ -556,10 +556,14 @@ export default class ConfigControl extends Component {
         title: _l('数据导入确认'),
         description: (
           <div className="Font14">
-            <div className="mBottom10 Gray_75">
-              {_l('1.导入的数据')}
-              <span class="Gray Bold">{tigger ? _l('触发工作流') : _l('不会触发工作流')}</span>
-            </div>
+            <div
+              className="mBottom10 Gray_75"
+              dangerouslySetInnerHTML={{
+                __html: tigger
+                  ? _l('1.导入的数据%0触发工作流%1', '<span class="Gray Bold">', '</span>')
+                  : _l('1.导入的数据%0不会触发工作流%1', '<span class="Gray Bold">', '</span>'),
+              }}
+            />
             {repeatRecord ? (
               <div
                 dangerouslySetInnerHTML={{
@@ -783,8 +787,8 @@ export default class ConfigControl extends Component {
                     !repeatConfig.controlId
                       ? () => <span className="Gray_9e">{_l('请选择')}</span>
                       : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
-                      ? () => <span className="repeatConfigError">{_l('已删除')}</span>
-                      : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
+                        ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                        : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
                   }
                   border
                   onChange={controlId => {
@@ -1034,8 +1038,8 @@ export default class ConfigControl extends Component {
               !currentSourceConfig.controlId
                 ? () => <span className="Gray_9e">{_l('请选择')}</span>
                 : currentSourceConfig.controlId && !_.find(controls, o => o.value === currentSourceConfig.controlId)
-                ? () => <span className="repeatConfigError">{_l('已删除')}</span>
-                : () => <span>{_.find(controls, o => o.value === currentSourceConfig.controlId).text}</span>
+                  ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                  : () => <span>{_.find(controls, o => o.value === currentSourceConfig.controlId).text}</span>
             }
             isAppendToBody
             onChange={controlId => {

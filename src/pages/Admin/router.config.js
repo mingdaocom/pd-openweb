@@ -74,6 +74,16 @@ export const menuList = [
         ],
       },
       {
+        name: _l('待办委托'),
+        key: 'delegation',
+        routes: [
+          {
+            path: '/admin/delegation/:projectId',
+            component: () => import('src/pages/Admin/delegation'),
+          },
+        ],
+      },
+      {
         name: _l('群组'),
         key: 'groups',
         routes: [
@@ -159,6 +169,17 @@ export const menuList = [
     icon: 'icon-now_widgets',
     subMenuList: [
       {
+        name: _l('使用分析%15003'),
+        featureId: 17,
+        key: 'analytics',
+        routes: [
+          {
+            path: '/admin/analytics/:projectId',
+            component: () => import('./app/useAnalytics/index.js'),
+          },
+        ],
+      },
+      {
         name: _l('应用'),
         key: 'app',
         menuPath: '/admin/app/:projectId',
@@ -184,6 +205,7 @@ export const menuList = [
           },
         ],
       },
+
       {
         name: _l('聚合表'),
         key: 'aggregationTable',
@@ -234,22 +256,11 @@ export const menuList = [
         ],
       },
       {
-        name: _l('使用分析%15003'),
-        featureId: 17,
-        key: 'analytics',
-        routes: [
-          {
-            path: '/admin/analytics/:projectId',
-            component: () => import('./app/useAnalytics/index.js'),
-          },
-        ],
-      },
-      {
         name: _l('通用设置'),
         key: 'settings',
         routes: [
           {
-            path: '/admin/settings/:projectId',
+            path: '/admin/settings/:projectId/:type?',
             component: () => import('./settings'),
           },
         ],
@@ -257,7 +268,7 @@ export const menuList = [
     ].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.key === 'aggregationTable')),
   },
   {
-    title: _l('商户服务'),
+    title: _l('商户与支付'),
     key: 'pay',
     icon: 'icon-merchant',
     subMenuList: [
@@ -272,20 +283,24 @@ export const menuList = [
             component: () => import('./pay/Merchant'),
           },
           {
+            path: '/admin/expansionservice/(.*)/(merchant)+',
+            component: () => import('./organization/billCenter/expansionService'),
+          },
+        ],
+      },
+      {
+        name: _l('订单'),
+        key: 'order',
+        featureId: 40,
+        menuPath: '/admin/transaction/:projectId(.*)',
+        routes: [
+          {
             path: '/admin/transaction/:projectId',
-            component: () => import('./pay/Merchant'),
+            component: () => import('./pay/OrderList'),
           },
           {
             path: '/admin/refund/:projectId',
-            component: () => import('./pay/Merchant'),
-          },
-          {
-            path: '/admin/withdrawalsrecord/:projectId',
-            component: () => import('./pay/Merchant'),
-          },
-          {
-            path: '/admin/expansionservice/(.*)/(merchant)+',
-            component: () => import('./organization/billCenter/expansionService'),
+            component: () => import('./pay/OrderList'),
           },
         ],
       },
@@ -297,7 +312,7 @@ export const menuList = [
     icon: 'icon-security',
     subMenuList: [
       {
-        name: _l('帐号'),
+        name: _l('账号'),
         key: 'account',
         routes: [
           {

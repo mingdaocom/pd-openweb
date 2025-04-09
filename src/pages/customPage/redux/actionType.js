@@ -1,5 +1,7 @@
 export const ADD_WIDGET = 'ADD_WIDGET';
 export const DEL_WIDGET = 'DEL_WIDGET';
+export const DEL_TABS_WIDGET = 'DEL_TABS_WIDGET';
+export const DEL_WIDGET_TAB = 'DEL_WIDGET_TAB';
 export const UPDATE_WIDGET = 'UPDATE_WIDGET';
 export const COPY_WIDGET = 'COPY_WIDGET';
 export const UPDATE_WIDGET_VISIBLE = 'UPDATE_WIDGET_VISIBLE';

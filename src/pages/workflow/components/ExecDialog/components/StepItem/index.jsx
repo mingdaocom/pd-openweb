@@ -610,7 +610,7 @@ export default class StepItem extends Component {
             <div className={'stepName bold Font15 flex ellipsis'}>
               {flowNode.name}
               {!!signType && `-${SIGN_COUNTERSIGN_TYPE[signType]}`}
-              {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
+              {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}
               {isCC && `(${workItems.length})`}
             </div>
 

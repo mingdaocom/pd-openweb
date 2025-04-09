@@ -1,32 +1,32 @@
 import React, { Fragment, useEffect } from 'react';
-import { useSetState } from 'react-use';
-import { isEmpty } from 'lodash';
-import { RadioGroup, Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
-import Trigger from 'rc-trigger';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import update from 'immutability-helper';
-import styled from 'styled-components';
 import cx from 'classnames';
+import update from 'immutability-helper';
+import { isEmpty } from 'lodash';
+import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
+import Trigger from 'rc-trigger';
+import { useSetState } from 'react-use';
+import styled from 'styled-components';
+import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
+import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { getSortData } from 'src/pages/worksheet/util';
+import { SUPPORT_RELATE_SEARCH } from '../../config';
+import { WHOLE_SIZE } from '../../config/Drag';
+import { useSheetInfo } from '../../hooks';
+import { AnimationWrap, EditInfo, SettingItem } from '../../styled';
+import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, isCustomWidget } from '../../util';
 import {
+  getAdvanceSetting,
+  getControlsSorts,
   getDisplayType,
   handleAdvancedSettingChange,
-  getControlsSorts,
   updateConfig,
-  getAdvanceSetting,
 } from '../../util/setting';
-import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
-import { getSortData } from 'src/pages/worksheet/util';
-import { EditInfo, SettingItem, AnimationWrap } from '../../styled';
-import { useSheetInfo } from '../../hooks';
-import { getFilterRelateControls, isCustomWidget, filterSysControls, formatControlsToDropdown } from '../../util';
-import ConfigRelate from '../components/relateSheet/ConfigRelate';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
-import { WHOLE_SIZE } from '../../config/Drag';
-import WidgetVerify from '../components/WidgetVerify';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import RelateDetailInfo from '../components/RelateDetailInfo';
-import { SUPPORT_RELATE_SEARCH } from '../../config';
+import ConfigRelate from '../components/relateSheet/ConfigRelate';
+import WidgetVerify from '../components/WidgetVerify';
 
 const FILL_TYPES = [
   { text: _l('填满'), value: '0' },
@@ -311,10 +311,15 @@ export default function RelateSheet(props) {
             ghostControlIds={[]}
             showControls={isExtra ? chooseshowIds : showControls}
             columns={filterControls}
-            controlsSorts={getControlsSorts(data, filterControls)}
+            controlsSorts={getControlsSorts(data, filterControls, isExtra ? 'choosecontrolssorts' : undefined)}
             onChange={({ newShowControls, newControlSorts }) => {
               if (isExtra) {
-                onChange(handleAdvancedSettingChange(data, { chooseshowids: JSON.stringify(newShowControls) }));
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    chooseshowids: JSON.stringify(newShowControls),
+                    choosecontrolssorts: JSON.stringify(newControlSorts),
+                  }),
+                );
                 return;
               }
               onChange(

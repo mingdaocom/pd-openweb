@@ -1,8 +1,9 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
+import { saveAs } from 'file-saver';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 
 const PublicqueryHeader = styled.div`
@@ -99,14 +100,8 @@ class WorksheetShareHeader extends React.Component {
     const now = new Date();
     const date = moment(now).format('YYYYMMDDhhmmss');
 
-    // 新建a标签下载文件
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${publicqueryRes.title}_${date}.xlsx`;
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
+    // 下载文件
+    saveAs(blob, `${publicqueryRes.title}_${date}.xlsx`);
   };
 
   render() {

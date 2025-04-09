@@ -114,6 +114,7 @@ export default function FiltersPopup(props) {
             '.ant-tree-select-dropdown',
             '#quickSelectDept',
             '.selectRoleDialog',
+            '.worksheetFilterTextPopup'
           ]}
           onClickAway={() => setPopupVisible(false)}
         >

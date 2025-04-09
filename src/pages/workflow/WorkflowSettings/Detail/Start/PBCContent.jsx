@@ -225,14 +225,14 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
     let defaultParameters = getDefaultParameters();
     let index = 0;
 
-    controls.forEach((item, i) => {
-      if (item.controlId === controlId) {
-        index = i;
-      }
-    });
-
     if (!controlId) {
       index = controls.length - 1;
+    } else {
+      controls.forEach((item, i) => {
+        if (item.controlId === controlId) {
+          index = i;
+        }
+      });
     }
 
     if (type === 10000008 || dataSource) {

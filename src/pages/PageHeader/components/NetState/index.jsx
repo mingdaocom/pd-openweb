@@ -74,7 +74,7 @@ class NetState extends Component {
         navigateTo(`/admin/valueaddservice/${projectId}`);
       } else if (
         _.includes(['worksheet', 'sheetRecord'], serviceType) &&
-        _.includes(['team', 'company'], versionType)
+        _.includes(['team', 'company', 'singleApp'], versionType)
       ) {
         navigateTo(`/admin/upgradeservice/${projectId}`);
       }

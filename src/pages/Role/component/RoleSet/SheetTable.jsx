@@ -82,6 +82,20 @@ export default class extends PureComponent {
     showRoleSet: false,
   };
 
+  componentDidMount() {
+    this.setState({
+      show: this.props.isShow,
+    });
+  }
+
+  componentWillReceiveProps(prevProps, prevState) {
+    if (this.props.isShow !== prevProps.isShow) {
+      this.setState({
+        show: prevProps.isShow,
+      });
+    }
+  }
+
   formatViews = views => {
     const readSize = getViewSize(views, 'canRead');
     const editSize = getViewSize(views, 'canEdit');
@@ -131,28 +145,28 @@ export default class extends PureComponent {
     const { sheet, updateLookPages, updateNavigateHide, projectId, appId } = this.props;
     const { readSize, editSize, removeSize, showRead, showEdit, showRemove } = this.formatViews(sheet.views);
     const showToolTipSetting = showRead || showEdit || showRemove;
+    const viewList = _.filter(sheet.views, l => l.viewId !== sheet.sheetId);
     const AUTH = [
       { size: readSize, key: 'READ' },
       { size: editSize, key: 'EDIT' },
       { size: removeSize, key: 'REMOVE' },
       { key: 'ADD' },
     ];
+
     return (
-      <div className={'tableRow'}>
-        <div className="viewsGroup">
+      <div className={'tableRow w100 flexRow'}>
+        <div className="viewsGroup flex w100">
           <div
-            className={classNames('Hand viewSetting')}
+            className={classNames('Hand viewSetting flexRow w100')}
             onClick={() => {
               this.setState({
                 show: !this.state.show,
               });
             }}
           >
-            <div className={classNames('boxSizing TxtLeft Hand  flexRow viewSettingItemMax')} title={sheet.sheetName}>
-              <span
-                className={classNames(sheet.sheetId && sheet.views && sheet.views.length ? 'pLeft5' : 'pLeft25')}
-              ></span>
-              {!!(sheet.sheetId && sheet.views && sheet.views.length) && (
+            <div className={classNames('boxSizing TxtLeft Hand  flexRow w35')} title={sheet.sheetName}>
+              <span className={classNames(sheet.sheetId && viewList && viewList.length ? 'pLeft5' : 'pLeft25')}></span>
+              {!!(sheet.sheetId && viewList && viewList.length) && (
                 <Icon
                   icon="arrow-right-tip"
                   className={classNames('Gray_75 arrowIcon', {
@@ -194,15 +208,15 @@ export default class extends PureComponent {
                     <Checkbox
                       className="InlineBlock"
                       checked={
-                        item.key === 'ADD' ? (readSize <= 0 ? false : sheet.canAdd) : item.size === sheet.views.length
+                        item.key === 'ADD' ? (readSize <= 0 ? false : sheet.canAdd) : item.size === viewList.length
                       }
-                      clearselected={item.key !== 'ADD' && item.size > 0 && item.size !== sheet.views.length}
+                      clearselected={item.key !== 'ADD' && item.size > 0 && item.size !== viewList.length}
                       onClick={(checked, value, event) => {
                         this.toggleViewAuth(item.key, !checked);
                         event.stopPropagation();
                       }}
                     />
-                    {!!item.size && <div>{item.size === sheet.views.length ? _l('全部') : _l('%0个', item.size)}</div>}
+                    {!!item.size && <div>{item.size === viewList.length ? _l('全部') : _l('%0个', item.size)}</div>}
                   </div>
                 ))
               ) : (
@@ -217,12 +231,12 @@ export default class extends PureComponent {
             </Wrap>
           </div>
           {sheet.sheetId && this.state.show && (
-            <ViewGroup className={'viewGroup'} hasViews={!!(sheet.views && sheet.views.length)}>
-              {_.map(sheet.views, view => {
+            <ViewGroup className={'viewGroup'} hasViews={!!(viewList && viewList.length)}>
+              {_.map(viewList, view => {
                 return (
                   <div className={'viewSetting'} key={view.viewId}>
-                    <div className={'boxSizing TxtLeft overflow_ellipsis viewSettingItemMax'}>
-                      <div className="mLeft52">
+                    <div className={'boxSizing TxtLeft overflow_ellipsis w35'}>
+                      <div className="mLeft52 overflow_ellipsis WordBreak">
                         <Icon
                           className="Gray_bd mRight8 Font14"
                           icon={_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.type] }).icon}

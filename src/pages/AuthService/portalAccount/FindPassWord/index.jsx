@@ -71,6 +71,7 @@ function ContainerCon(props) {
   const tipStyle =
     baseSetInfo.pageMode === 6 && !browserIsMobile() ? { marginTop: document.documentElement.clientHeight / 4 } : {};
   const getWaring = status => {
+    const { isErrUrl } = props;
     switch (status) {
       case 2:
         return _l('您的账号已被停用');
@@ -121,21 +122,8 @@ function ContainerCon(props) {
       >
         <div>
           <div className="flexRow">
-            {baseSetInfo.logoImageUrl ? (
-              <img src={baseSetInfo.logoImageUrl} height={40} />
-            ) : (
-              <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: baseSetInfo.appColor || '#00bcd4' }}>
-                <SvgIcon
-                  url={
-                    baseSetInfo.appLogoUrl ||
-                    md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg'
-                  }
-                  fill={'#fff'}
-                  size={28}
-                />
-              </span>
-            )}
-            <p className="Font26 Gray mAll0 mLeft20 Bold flex" style={{ WebkitBoxOrient: 'vertical' }}>
+            {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} className="mRight20" /> : ''}
+            <p className="Font26 Gray mAll0 Bold flex" style={{ WebkitBoxOrient: 'vertical' }}>
               {baseSetInfo.pageTitle}
             </p>
           </div>

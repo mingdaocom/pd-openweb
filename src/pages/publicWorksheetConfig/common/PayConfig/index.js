@@ -1,21 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { Support, Icon, Dropdown, Switch, LoadDiv, Button, Tooltip } from 'ming-ui';
-import { Select } from 'antd';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import MapField from './components/MapField';
-import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog';
-import FilterViewRange from './components/FilterViewRange';
-import worksheetSettingAjax from 'src/api/worksheetSetting';
-import paymentAjax from 'src/api/payment';
-import worksheetAjax from 'src/api/worksheet';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { navigateTo } from 'src/router/navigateTo';
-import './index.less';
+import { Select, Tag } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import moment from 'moment';
+import { Button, Dropdown, Icon, LoadDiv, Support, Switch, Tooltip } from 'ming-ui';
+import paymentAjax from 'src/api/payment';
+import worksheetAjax from 'src/api/worksheet';
+import worksheetSettingAjax from 'src/api/worksheetSetting';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { navigateTo } from 'src/router/navigateTo';
+import FilterViewRange from './components/FilterViewRange';
+import MapField from './components/MapField';
+import './index.less';
+
+const PAYMENT_CHANNEL = { 0: _l('聚合支付'), 2: _l('微信支付'), 1: _l('支付宝支付') };
 
 const checkIsDeleted = (value, data = []) => !value || _.findIndex(data, v => v.controlId === value) === -1;
 
@@ -27,6 +28,7 @@ const filterDeleteFields = (fieldMaps, controls) => {
         totalFee: '',
         payMethod: '',
         payStatus: '',
+        merchantPaymentChannel: '',
         createOrderTime: '',
         payTime: '',
         refundFee: '',
@@ -124,17 +126,18 @@ export default class PayConfig extends Component {
       const controls = _.get(worksheetInfo, 'template.controls') || [];
       const list = merchantList
         .filter(v => v.status === 3)
-        .map(({ shortName, merchantNo, subscribeMerchant, planExpiredTime }) => ({
+        .map(({ shortName, merchantNo, subscribeMerchant, planExpiredTime, merchantPaymentChannel }) => ({
           text: shortName || merchantNo,
+          label: shortName || merchantNo,
           value: merchantNo,
           subscribeMerchant,
-          disabled: !planExpiredTime || moment().isAfter(planExpiredTime),
+          disabled: md.global.Config.IsLocal ? false : !planExpiredTime,
+          merchantPaymentChannel,
         }));
       const initSettings = {
         ..._.pick(settings, [
           'projectId',
           'worksheetId',
-          'mchid',
           'scenes',
           'payContentControlId',
           'payAmountControlId',
@@ -145,6 +148,7 @@ export default class PayConfig extends Component {
           'isRefundAllowed',
           'isAllowedAddOption',
         ]),
+        mchid: settings.mchid ? settings.mchid.split(',') : [],
         fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
         internalUser: {
           isEnable: _.isUndefined(internalUser.isEnable) ? true : internalUser.isEnable,
@@ -183,12 +187,16 @@ export default class PayConfig extends Component {
   };
 
   changeScenes = (checked, key) => {
-    const { scenes = {}, merchantList = [], mchid, initSettings = {} } = this.state;
-    const { publicWorkSheet, workSheet } = scenes;
+    const { scenes = {}, merchantList = [], mchid = [], initSettings = {} } = this.state;
+    const selectedMerchants = merchantList.filter(v => !v.disabled);
 
     this.setState({
       scenes: { ...scenes, [key]: !checked },
-      mchid: mchid ? mchid : !checked && !_.isEmpty(merchantList) ? merchantList[0].value : initSettings.mchid,
+      mchid: !_.isEmpty(mchid)
+        ? mchid
+        : !checked && !_.isEmpty(selectedMerchants)
+          ? [selectedMerchants[0].value]
+          : initSettings.mchid,
     });
   };
 
@@ -214,7 +222,7 @@ export default class PayConfig extends Component {
     } = this.state;
 
     if (scenes.publicWorkSheet) {
-      if (!mchid || !_.find(merchantList, v => v.value === mchid)) {
+      if (_.isEmpty(mchid) || !_.find(merchantList, v => _.includes(mchid, v.value))) {
         alert(_l('请选择商户'), 2);
         return;
       }
@@ -232,7 +240,7 @@ export default class PayConfig extends Component {
         projectId,
         worksheetId,
         appId,
-        mchid,
+        mchid: mchid.join(','),
         scenes,
         payContentControlId,
         payAmountControlId,
@@ -475,6 +483,9 @@ export default class PayConfig extends Component {
       initSettings,
     } = this.state;
 
+    const isMultipleMerchant =
+      (!_.isEmpty(merchantList) && _.uniq(merchantList.map(item => item.merchantPaymentChannel)).length > 1) ||
+      (mchid && _.isArray(mchid) && mchid.length > 1);
     const isEmptyField = Object.keys(fieldMaps).every(v => !fieldMaps[v]);
     const fieldMapIds = Object.values(fieldMaps);
 
@@ -493,6 +504,8 @@ export default class PayConfig extends Component {
       !dropdownVisible && !_.includes([10, 15, 20, 25, 30], expireTime)
         ? options.concat([{ label: _l('%0分钟', expireTime), value: expireTime }])
         : options;
+
+    const selectedMerchants = _.filter(merchantList, v => _.includes(mchid, v.value));
 
     return (
       <div className="payConfigWrap w100 h100">
@@ -517,7 +530,7 @@ export default class PayConfig extends Component {
                 },
               ].map(item => {
                 return (
-                  <li className="flexColumn">
+                  <li className="flexColumn" key={item.key}>
                     <div className="Font15 bold mBottom10">{item.title}</div>
                     <div className="Gray_9e flex mBottom15">{item.text}</div>
                     {item.key === 'publicWorkSheet' && !isEnabledPublicForm && !scenes.publicWorkSheet ? (
@@ -558,29 +571,68 @@ export default class PayConfig extends Component {
                     {_l('创建商户')}
                   </div>
                 ) : (
-                  <Dropdown
-                    className={cx('w100 merchantList', {
-                      valueDisable: (_.find(merchantList, l => l.value === mchid) || {}).disabled,
-                    })}
-                    menuClass="w100"
-                    border
+                  <Select
+                    className="w100 merchantList"
+                    dropdownClassName="merchantDropDown"
+                    mode={isMultipleMerchant ? 'multiple' : undefined}
+                    showArrow={true}
                     value={mchid}
-                    data={merchantList}
-                    onChange={value => this.setState({ mchid: value })}
-                    renderItem={item => (
-                      <div className="valignWrapper">
-                        <span className="flex overflow_ellipsis">{item.text}</span>
-                        {!item.subscribeMerchant && (
-                          <span
-                            className="Hand ThemeColor option"
-                            onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
-                          >
-                            {_l('去开通收款')}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  />
+                    optionLabelProp="label"
+                    optionFilterProp="label"
+                    suffixIcon={<i className="icon icon-arrow-down-border Gray_9e" />}
+                    onChange={value => this.setState({ mchid: _.isArray(value) ? value : [value] })}
+                    tagRender={props => {
+                      const { value, onClose, disabled } = props;
+                      const name = _.find(merchantList, item => item.value === value) ? props.label : undefined;
+                      const onPreventMouseDown = event => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      };
+                      return (
+                        <Tag
+                          className={cx({ Red: !name, disabledTag: disabled })}
+                          key={value}
+                          onMouseDown={onPreventMouseDown}
+                          closable={true}
+                          onClose={onClose}
+                          style={{ marginRight: 3 }}
+                        >
+                          {name || _l('商户已删除')}
+                        </Tag>
+                      );
+                    }}
+                  >
+                    {merchantList.map(item => {
+                      const disabled =
+                        item.disabled ||
+                        (_.some(
+                          selectedMerchants,
+                          v => v.merchantPaymentChannel === item.merchantPaymentChannel && v.value !== item.value,
+                        ) &&
+                          isMultipleMerchant);
+                      return (
+                        <Select.Option key={item.value} value={item.value} label={item.label} disabled={disabled}>
+                          <div className="valignWrapper">
+                            <span className="flex overflow_ellipsis">
+                              {item.text}
+                              <span className={cx('mLeft10', { Gray_9e: !disabled, Gray_bd: disabled })}>
+                                {PAYMENT_CHANNEL[item.merchantPaymentChannel]}
+                              </span>
+                            </span>
+
+                            {!item.subscribeMerchant && !md.global.Config.IsLocal && (
+                              <span
+                                className="Hand ThemeColor option"
+                                onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
+                              >
+                                {_l('开通收款')}
+                              </span>
+                            )}
+                          </div>
+                        </Select.Option>
+                      );
+                    })}
+                  </Select>
                 )}
                 <div className="subTitle required">{_l('支付内容')}</div>
                 <div className="Gray_9e mBottom16">{_l('订单/支付页面显示的商品/产品简要描述')}</div>

@@ -48,8 +48,10 @@ export default function SwitchType({ data, onChange }) {
         ...nextData,
         enumDefault: 0,
         enumDefault2: 2,
+        handleOpenEditor: true,
         advancedSetting: { analysislink: '1', sorttype: 'en' },
       });
+      window[`${controlId}-handleOpenEditor`] = true;
     }
   };
 

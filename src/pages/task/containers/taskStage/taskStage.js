@@ -14,7 +14,7 @@ import stageList from './tpl/stageList.html';
 import addList from './tpl/addList.html';
 import addNewStage from './tpl/addNewStage.html';
 import addNewStageTask from './tpl/addNewStageTask.html';
-import { expireDialogAsync } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';

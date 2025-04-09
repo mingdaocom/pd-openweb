@@ -1,8 +1,8 @@
 import React from 'react';
-import { Tooltip, Icon, SvgIcon } from 'ming-ui';
-import styled from 'styled-components';
-import { addBehaviorLog } from 'src/util';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { addBehaviorLog } from 'src/util';
 
 const RecordItem = styled.div`
   margin-top: 12px;
@@ -146,9 +146,9 @@ export default function Item(props) {
         )}
         <div
           className="itemIcon flexRow alignItemsCenter justifyContentCenter"
-          style={{ backgroundColor: props.appColor }}
+          style={{ backgroundColor: props.worksheetIconColor }}
         >
-          <SvgIcon url={props.appIconUrl} fill={'#fff'} size={15} />
+          <SvgIcon url={props.worksheetIconUrl} fill={'#fff'} size={15} />
         </div>
         <div className="itemName overflow_ellipsis mLeft12 flex">{props.title}</div>
       </div>

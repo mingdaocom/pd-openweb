@@ -29,13 +29,17 @@ const ChartDisplay = props => {
       setVisible(true);
       return;
     }
-    const chat = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
+    const chart = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
     const checkVisible = () => {
+      if (!chart) {
+        setVisible(true);
+        return;
+      }
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
-        const rect = chat.getBoundingClientRect();
+        const rect = chart.getBoundingClientRect();
         const value = rect.top <= pageRect.bottom;
-        value && setVisible(value);
+        value && setVisible(true);
       }
     }
     customPageContent.addEventListener('scroll', checkVisible, false);

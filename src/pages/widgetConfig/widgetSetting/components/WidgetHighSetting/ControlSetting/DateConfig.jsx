@@ -1,15 +1,15 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Tooltip, Input } from 'antd';
-import { Dropdown as MingDropdown, Support, Dialog, Checkbox } from 'ming-ui';
+import { Dropdown, Input, Tooltip } from 'antd';
 import cx from 'classnames';
-import { useSetState } from 'react-use';
-import { DATE_SHOW_TYPES } from '../../../../config/setting';
-import { getAdvanceSetting, handleAdvancedSettingChange, getDateToEn } from '../../../../util/setting';
-import { DropdownContent, DropdownPlaceholder, SettingItem, EditInfo } from '../../../../styled';
-import DateInput from '../../DynamicDefaultValue/inputTypes/DateInput.jsx';
+import { Checkbox, Dialog, Dropdown as MingDropdown, Support } from 'ming-ui';
 import moment from 'moment';
+import { useSetState } from 'react-use';
+import styled from 'styled-components';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
+import { DATE_SHOW_TYPES } from '../../../../config/setting';
+import { DropdownContent, DropdownPlaceholder, EditInfo, SettingItem } from '../../../../styled';
+import { getAdvanceSetting, getDateToEn, handleAdvancedSettingChange } from '../../../../util/setting';
+import DateInput from '../../DynamicDefaultValue/inputTypes/DateInput.jsx';
 
 const INTERVAL = [1, 5, 10, 15, 30, 60];
 
@@ -69,13 +69,13 @@ const CUSTOM_SHOW_FORMAT = [
 const ERROR_OPTIONS = [_l('*不支持自定义时间格式！'), _l('*无效的格式化规则')];
 
 export function ShowFormatDialog(props) {
-  const { showformat, onClose, onOk } = props;
+  const { showformat, onClose, type, onOk } = props;
   const [value, setValue] = useState(showformat);
 
   const checkError = () => {
     if (value) {
       // 包含时间配置
-      if (/[H|h|m|s|S|Z]/.test(value)) return 1;
+      if (type !== 16 && /[H|h|m|s|S|Z]/.test(value)) return 1;
       const tempValue = moment().format(value.replace(/#EN#$/g, ''));
       if (value === tempValue) return 2;
       return 0;
@@ -176,6 +176,7 @@ export function ShowFormat(props) {
 
       {visible && (
         <ShowFormatDialog
+          type={data.type}
           showformat={isCustom ? showformat : ''}
           onClose={() => setVisible(false)}
           onOk={value => {

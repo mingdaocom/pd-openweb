@@ -3,7 +3,7 @@ import { Radio, Input } from 'antd';
 import { Icon, LoadDiv, VerifyPasswordInput } from 'ming-ui';
 import Config from '../../../config';
 import projectController from 'src/api/project';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import _ from 'lodash';
 import moment from 'moment';
 const { TextArea } = Input;

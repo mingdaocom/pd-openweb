@@ -5,7 +5,8 @@ import { Icon } from 'ming-ui';
 import DownloadAjax from 'src/api/download';
 import moment from 'moment';
 import _ from 'lodash';
-import { buriedUpgradeVersionDialog, getFeatureStatus } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 
 const EXPORT_OPTIONS = [

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Dialog, VerifyPasswordInput } from 'ming-ui';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import { pluginApiConfig, API_EXTENDS, PLUGIN_TYPE } from '../config';
+import ProductLicenseInfo from 'src/components/productLicenseInfo';
+import _ from 'lodash';
 
 const OperateMenu = styled.div`
   position: relative !important;
@@ -43,7 +45,7 @@ const ConfirmDialog = styled(Dialog)`
 `;
 
 export default function OperateColumn(props) {
-  const { pluginId, source, onDeleteSuccess, projectId, pluginType } = props;
+  const { pluginId, source, onDeleteSuccess, projectId, pluginType, license = {} } = props;
   const [visible, setVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [needVerifyPwd, setNeedVerifyPwd] = useState(false);
@@ -71,7 +73,7 @@ export default function OperateColumn(props) {
   };
 
   return (
-    <React.Fragment>
+    <div onClick={e => e.stopPropagation()}>
       <Trigger
         action={['click']}
         popupClassName="moreOption"
@@ -85,10 +87,14 @@ export default function OperateColumn(props) {
         }}
         popup={
           <OperateMenu>
+            {pluginType === 'view' && !_.isEmpty(license) && (
+              <ProductLicenseInfo popupAlign={{ points: ['tr', 'tl'], offset: [-305, -139] }} license={license}>
+                <MenuItem>{_l('订购计划')}</MenuItem>
+              </ProductLicenseInfo>
+            )}
             <MenuItem
               className="isDel"
-              onClick={e => {
-                e.stopPropagation();
+              onClick={() => {
                 setVisible(false);
                 setConfirmVisible(true);
                 verifyPassword({
@@ -125,6 +131,6 @@ export default function OperateColumn(props) {
       >
         {needVerifyPwd && <VerifyPasswordInput onChange={({ password }) => setPassword(password)} />}
       </ConfirmDialog>
-    </React.Fragment>
+    </div>
   );
 }

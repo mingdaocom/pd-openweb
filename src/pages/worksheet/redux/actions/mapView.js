@@ -1,7 +1,9 @@
-import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
-import worksheetAjax from 'src/api/worksheet';
-import { getCurrentView } from '../util';
 import _ from 'lodash';
+import worksheetAjax from 'src/api/worksheet';
+import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
+import { getCurrentView } from '../util';
+
+const mapViewRequest = {};
 
 const getMapViewPara = (sheet = {}, view) => {
   const { base, navGroupFilters = [], quickFilter = [] } = sheet;
@@ -21,8 +23,17 @@ const getMapViewPara = (sheet = {}, view) => {
   });
 };
 
-function getMapViewData({ para, dispatch }, sheet) {
-  worksheetAjax.getFilterRows(para).then(({ data, resultCode }) => {
+function getMapViewData({ para, dispatch, mapViewRequestKey }, sheet) {
+  if (mapViewRequestKey && !!mapViewRequest[mapViewRequestKey] && !!mapViewRequest[mapViewRequestKey].abort) {
+    mapViewRequest[mapViewRequestKey].abort();
+  }
+
+  const mapRequest = worksheetAjax.getFilterRows(para);
+  mapViewRequestKey && (mapViewRequest[mapViewRequestKey] = mapRequest);
+
+  mapRequest.then(({ data, resultCode }) => {
+    mapViewRequestKey && (mapViewRequest[mapViewRequestKey] = null);
+
     dispatch({
       type: 'CHANGE_MAP_VIEW_DATA',
       data: data.reverse(),
@@ -38,7 +49,7 @@ function getMapViewData({ para, dispatch }, sheet) {
   });
 }
 
-export function initMapViewData(view, refreshMap = false) {
+export function initMapViewData(view, refreshMap = false, mapViewRequestKey) {
   return (dispatch, getState) => {
     const { sheet, mobile } = getState();
     const para = getMapViewPara(sheet, view);
@@ -57,7 +68,7 @@ export function initMapViewData(view, refreshMap = false) {
       });
     }
 
-    getMapViewData({ para, dispatch }, sheet);
+    getMapViewData({ para, dispatch, mapViewRequestKey }, sheet);
   };
 }
 

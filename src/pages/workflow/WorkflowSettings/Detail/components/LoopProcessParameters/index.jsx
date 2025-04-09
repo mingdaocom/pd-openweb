@@ -37,29 +37,6 @@ const List = styled.div`
       color: #f44336 !important;
     }
   }
-  .parameterErrorMessage {
-    position: absolute;
-    bottom: 25px;
-    transform: translateY(-7px);
-    z-index: 1;
-    left: 135px;
-    border-radius: 3px;
-    color: #fff;
-    padding: 5px 12px;
-    white-space: nowrap;
-    background: #f44336;
-    font-size: 12px;
-    .parameterErrorArrow {
-      position: absolute;
-      transform: translateY(-5px);
-      z-index: 1;
-      left: 12px;
-      background: transparent;
-      border: 6px solid transparent;
-      border-top-color: #f44336;
-      bottom: -17px;
-    }
-  }
 `;
 
 export default props => {

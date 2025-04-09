@@ -26,7 +26,6 @@ export default function Grid(props) {
     columnCount,
     topFixedCount,
     bottomFixedCount,
-    leftFixedCount,
     rightFixedCount,
     rowHeight,
     cache,
@@ -35,7 +34,12 @@ export default function Grid(props) {
     tableData,
     setRef,
   } = props;
-  const leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
+  let leftFixedCount = props.leftFixedCount;
+  let leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
+  if (leftFixedWidth > width) {
+    leftFixedCount = 1;
+    leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
+  }
   const rightFixedWidth = rightFixedCount ? sum([...new Array(rightFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   let topFixedHeight = topFixedCount ? topFixedCount * columnHeadHeight : 0;
   let bottomFixedHeight = bottomFixedCount ? bottomFixedCount * 28 : 0;

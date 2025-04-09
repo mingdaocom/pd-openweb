@@ -6,6 +6,7 @@ export const PERMISSION_ENUM = {
   ROLE_MENAGE: 10300,
   GROUP_MANAGE: 10500,
   EXTERNAL_USER_MANAGE: 10700,
+  DEPUTE_HANDOVER_MANAGE: 10800,
 
   //账号集成
   THIRD_PLATFORM_INTEGRATION: 10910,
@@ -72,6 +73,7 @@ export const ROUTE_CONFIG = {
   [PERMISSION_ENUM.ROLE_MENAGE]: ['roles'],
   [PERMISSION_ENUM.GROUP_MANAGE]: ['groups'],
   [PERMISSION_ENUM.EXTERNAL_USER_MANAGE]: ['portal'],
+  [PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE]: ['delegation'],
   [PERMISSION_ENUM.THIRD_PLATFORM_INTEGRATION]: ['platformintegration'],
   [PERMISSION_ENUM.WX_PUBLIC_ACCOUNT_INTEGRATION]: ['weixin'],
   [PERMISSION_ENUM.LDAP_LOGIN]: ['integrationothers'],
@@ -93,7 +95,7 @@ export const ROUTE_CONFIG = {
   ],
   [PERMISSION_ENUM.USER_ANALYTICS]: ['analytics'],
   [PERMISSION_ENUM.GENERAL_SETTING]: ['settings'],
-  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'transaction', 'refund', 'withdrawalsrecord'],
+  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant','order', 'transaction', 'refund', 'withdrawalsrecord'],
   [PERMISSION_ENUM.APP_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],

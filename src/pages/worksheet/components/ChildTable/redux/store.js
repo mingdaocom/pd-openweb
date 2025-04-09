@@ -9,13 +9,10 @@ import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { isEmpty } from 'lodash';
 import { handleUpdateDefsourceOfControl } from '../ChildTable';
 import { resetRows, clearRows, loadRows, setRowsFromStaticRows } from './actions';
-import {
-  getSubListError,
-  getSubListUniqueError,
-  parseAdvancedSetting,
-  isRelateRecordTableControl,
-} from 'worksheet/util';
+import { getSubListUniqueError, parseAdvancedSetting, isRelateRecordTableControl } from 'worksheet/util';
+import { getSubListError } from '../utils';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
+import { browserIsMobile } from 'src/util';
 
 function loadWorksheetInfo(worksheetId, { controlId, relationWorksheetId, recordId, instanceId, workId } = {}) {
   const args = { worksheetId, getTemplate: true, getRules: true, relationWorksheetId };
@@ -141,6 +138,7 @@ export default function generateStore(
   }
   store.init = init;
   store.waitList = [];
+  store.waitListForLoadRows = [];
   store.reset = () => {
     store.dispatch({ type: 'RESET' });
     store.dispatch({
@@ -204,6 +202,8 @@ export default function generateStore(
         type: 'UPDATE_CELL_ERRORS',
         value: error,
       });
+    } else if (browserIsMobile) {
+      store.clearSubListErrors();
     }
     return error;
   };

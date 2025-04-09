@@ -1,9 +1,9 @@
-import React, { useState, useEffect, createRef } from 'react';
-import { RichText, Icon } from 'ming-ui';
-import { DynamicValueInputWrap } from '../styled';
-import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
+import React, { createRef, useEffect, useState } from 'react';
 import { Modal } from 'antd';
+import { Icon, RichText } from 'ming-ui';
+import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
@@ -72,8 +72,8 @@ export default function (props) {
           permissionType={100} //可编辑的权限
           isEditing={true}
           cacheKey={'remarkDes'}
-          onSave={value => {
-            handleChange(value);
+          onSave={tempValue => {
+            handleChange(tempValue === null ? value : tempValue);
             setVisible(false);
           }}
           onCancel={() => {

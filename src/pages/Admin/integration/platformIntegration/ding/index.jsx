@@ -438,7 +438,12 @@ export default class Ding extends React.Component {
         </div>
         <div className="Font13 Gray valignWrapper">
           {_l('开启后，平台应用消息会通过钉钉机器人发送给已同步到平台的钉钉用户。')}
-          <Support className="supportLink" type={3} href="https://help.mingdao.com/dingtalk/notification-integration" text={_l('如何配置?')} />
+          <Support
+            className="supportLink"
+            type={3}
+            href="https://help.mingdao.com/dingtalk/notification-integration"
+            text={_l('如何配置?')}
+          />
         </div>
       </div>
     );

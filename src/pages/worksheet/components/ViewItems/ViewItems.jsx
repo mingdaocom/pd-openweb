@@ -5,13 +5,14 @@ import styled from 'styled-components';
 import { withRouter } from 'react-router-dom';
 import Trigger from 'rc-trigger';
 import { Drawer } from 'antd';
-import { Tooltip, Icon, Dialog, Input, SortableList, LoadDiv } from 'ming-ui';
+import { Tooltip, Icon, Dialog, Input, SortableList } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/util/enum';
 import { getFeatureStatus } from 'src/util';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
 import { getDefaultViewSet } from 'worksheet/constants/common';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 import AddViewDisplayMenu from './AddViewDisplayMenu';
 import Item from './Item';
 import HideItem from './HideItem';
@@ -117,8 +118,8 @@ export default class ViewItems extends Component {
         alert(_l('获取视图列表失败'), 2);
       });
   }
-  handleAddView = data => {
-    const { id = 'sheet', name } = data;
+  handleAddView = (data, callback) => {
+    const { id = 'sheet', name, isManageView = false } = data;
     const { worksheetId, viewList, appId, worksheetControls, worksheetInfo } = this.props;
     const titleControl = _.get(
       _.find(worksheetControls, item => item.attribute === 1),
@@ -140,12 +141,16 @@ export default class ViewItems extends Component {
     const view = _.find(VIEW_TYPE_ICON, { id }) || {};
     const viewTypeCount = viewList.filter(n => n.viewType == viewType).length;
     let params = {
-      viewId: '',
+      viewId: isManageView ? worksheetId : '',
       appId,
       viewType,
       displayControls: _.slice(defaultDisplayControls, 0, 2),
       coverCid,
-      name: viewList.length ? `${name || view.text}${viewTypeCount ? viewTypeCount : ''}` : _l('视图'),
+      name: isManageView
+        ? name
+        : viewList.length
+        ? `${name || view.text}${viewTypeCount ? viewTypeCount : ''}`
+        : _l('视图'),
       sortType: 0,
       coverType: 0,
       worksheetId,
@@ -172,6 +177,7 @@ export default class ViewItems extends Component {
         name: newName,
       };
     }
+
     params = getDefaultViewSet(params);
     sheetAjax
       .saveWorksheetView(Object.assign({}, params))
@@ -179,6 +185,7 @@ export default class ViewItems extends Component {
         const newViewList = viewList.concat(result);
         this.props.onAddView(newViewList, result);
         this.handleScrollPosition(0);
+        callback && callback(result);
       })
       .catch(err => {
         alert(_l('新建视图失败'), 2);
@@ -186,7 +193,8 @@ export default class ViewItems extends Component {
   };
   handleRemoveView = view => {
     const { viewList, appId, worksheetId } = this.props;
-    if (viewList.filter(o => ![21].includes(o.viewType)).length === 1 && ![21].includes(view.viewType)) {
+    const showVies = getShowViews(viewList);
+    if (showVies.filter(o => ![21].includes(o.viewType)).length === 1 && ![21].includes(view.viewType)) {
       alert(_l('必须保留一个默认视图'), 3);
       return;
     }
@@ -204,7 +212,7 @@ export default class ViewItems extends Component {
           })
           .then(result => {
             this.props.onRemoveView(
-              viewList.filter(item => item.viewId !== view.viewId),
+              showVies.filter(item => item.viewId !== view.viewId),
               view.viewId,
             );
             this.handleScrollPosition(0);
@@ -291,9 +299,12 @@ export default class ViewItems extends Component {
     }
   };
 
+  getFilterManageViews = viewList => viewList.filter(l => l.viewId !== this.props.worksheetId);
+
   handleSortEnd = (newViewList, type) => {
     const { viewList, worksheetId, appId } = this.props;
-    const otherSortList = _.differenceBy(viewList, newViewList, 'viewId');
+    const list = this.getFilterManageViews(viewList);
+    const otherSortList = _.differenceBy(list, newViewList, 'viewId');
     const newSortList = type ? newViewList.concat(otherSortList) : otherSortList.concat(newViewList);
 
     this.props.updateViewList(newSortList);
@@ -340,6 +351,14 @@ export default class ViewItems extends Component {
     }, 0);
   };
 
+  loadManageView = callback => {
+    const { worksheetId, loadManageView } = this.props;
+
+    if (!!this.getManageView()) return;
+
+    loadManageView(worksheetId, callback);
+  };
+
   changeWorksheetHidden = e => {
     const { setWorksheetHidden, hasClickDrawe } = this.state;
     if (hasClickDrawe && !setWorksheetHidden) {
@@ -350,7 +369,7 @@ export default class ViewItems extends Component {
       hasClickDrawe: false,
     });
     this.handleAutoFocus();
-    this.getWorksheetViews(this.props.worksheetId, 9)
+    this.getWorksheetViews(this.props.worksheetId, 9);
   };
 
   handleExpandRecycle = () => this.setState({ expandRecycle: !this.state.expandRecycle });
@@ -410,7 +429,11 @@ export default class ViewItems extends Component {
       <SortableList
         canDrag
         renderBody={!isNavSort}
-        items={['drawerWorksheetHiddenList', 'sortNav'].includes(type) ? items : items.filter(l => !searchWorksheetListValue || this.hasSearchWords(l.name))}
+        items={
+          ['drawerWorksheetHiddenList', 'sortNav'].includes(type)
+            ? items
+            : items.filter(l => !searchWorksheetListValue || this.hasSearchWords(l.name))
+        }
         itemKey="viewId"
         onSortEnd={newList => this.handleSortEnd(newList, type === 'drawerWorksheetShowList')}
         renderItem={options => (
@@ -442,6 +465,7 @@ export default class ViewItems extends Component {
     return isNavSort ? (
       <div className="viewsScroll" onScroll={this.updateScrollBtnState}>
         <div className="stance" />
+        {this.renderCurrentView()}
         {content}
         <div className="stance" />
       </div>
@@ -488,6 +512,116 @@ export default class ViewItems extends Component {
     );
   };
 
+  getManageView = () => _.find(this.props.viewList, l => l.viewId === this.props.worksheetId);
+
+  toManageView = (manageView, isToView) => {
+    const { getNavigateUrl } = this.props;
+
+    navigateTo(getNavigateUrl(manageView));
+    !isToView && this.handleOpenView(manageView);
+  };
+
+  handleManageItem = (e, type) => {
+    e.stopPropagation();
+    const manageView = this.getManageView();
+    const isToView = type === 'toView';
+
+    if (!manageView) {
+      this.loadManageView(result => this.toManageView(result, isToView));
+
+      return;
+    }
+
+    this.toManageView(manageView, isToView);
+  };
+
+  renderManageViewItem = () => {
+    const { worksheetInfo = {}, isLock, currentViewId } = this.props;
+    const isAdmin = worksheetInfo.roleType === 2;
+
+    if (!isAdmin) return null;
+
+    return (
+      <Tooltip
+        text={_l(
+          '数据管理视图中的记录不受字段属性和业务规则的隐藏、只读、验证影响，始终可查看、编辑所有数据。（仅应用管理员可访问此视图）',
+        )}
+        popupPlacement={'right'}
+      >
+        <div
+          className={cx('manageViewItem Hand valignWrapper mBottom6', {
+            active: currentViewId === worksheetInfo.worksheetId,
+          })}
+          onClick={e => this.handleManageItem(e, 'toView')}
+        >
+          <span className="mLeft14 ellipsis Font13 ">{_l('数据管理')}</span>
+          {!isLock && (
+            <Icon
+              icon="settings1"
+              className="Gray_75 Hover_21 hoverGray manageSettingIcon"
+              onClick={this.handleManageItem}
+            />
+          )}
+        </div>
+      </Tooltip>
+    );
+  };
+
+  renderCurrentView = () => {
+    const {
+      viewList,
+      currentViewId,
+      isCharge,
+      worksheetControls,
+      sheetSwitchPermit,
+      getNavigateUrl,
+      isLock,
+      appId,
+      changeViewDisplayType,
+      worksheetId,
+    } = this.props;
+
+    const currentView = _.find(viewList, { viewId: currentViewId });
+
+    if (
+      ((!_.get(currentView, 'advancedSetting.showhide') ||
+        _.get(currentView, 'advancedSetting.showhide').search(/hide|hpc/g) === -1) &&
+        currentViewId !== worksheetId) ||
+      !isCharge
+    )
+      return null;
+
+    return (
+      !!currentView && (
+        <Item
+          fixed={true}
+          item={currentView}
+          list={viewList}
+          changeViewDisplayType={changeViewDisplayType}
+          currentView={currentView}
+          getNavigateUrl={getNavigateUrl}
+          isCharge={isCharge}
+          isLock={isLock}
+          currentViewId={currentViewId}
+          appId={appId}
+          style={{ zIndex: 999999 }}
+          controls={worksheetControls}
+          sheetSwitchPermit={sheetSwitchPermit}
+          projectId={_.get(this.props, 'worksheetInfo.projectId')}
+          onCopyView={this.handleCopyView}
+          updateAdvancedSetting={this.updateAdvancedSetting}
+          onRemoveView={this.handleRemoveView}
+          updateViewName={this.updateViewName}
+          onOpenView={this.handleOpenView}
+          onShare={this.props.onShare}
+          onExport={this.props.onExport}
+          onExportAttachment={this.props.onExportAttachment}
+          toView={() => navigateTo(getNavigateUrl(options.item))}
+        />
+      )
+    );
+  };
+
   render() {
     const {
       directionVisible,
@@ -499,21 +633,22 @@ export default class ViewItems extends Component {
     } = this.state;
     const { viewList, currentViewId, isCharge, changeViewDisplayType, sheetSwitchPermit, getNavigateUrl, isLock } =
       this.props;
+    const showViewList = this.getFilterManageViews(viewList);
     const isEmpty =
       searchWorksheetListValue &&
       !recycleData.find(l => this.hasSearchWords(l.name)) &&
       _.isEmpty(
-        viewList.filter(
+        showViewList.filter(
           l =>
             (isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0) &&
             this.hasSearchWords(l.name),
         ),
       );
     const currentViewHideValue = _.get(
-      viewList.find(l => l.viewId === currentViewId) || {},
+      showViewList.find(l => l.viewId === currentViewId) || {},
       'advancedSetting.showhide',
     );
-    const hideList = viewList.filter(
+    const hideList = showViewList.filter(
       l =>
         _.get(l, 'advancedSetting.showhide') === 'hide' && (!searchWorksheetListValue || this.hasSearchWords(l.name)),
     );
@@ -550,8 +685,9 @@ export default class ViewItems extends Component {
                 onChange={value => this.setState({ searchWorksheetListValue: value })}
                 placeholder={_l(
                   '%0个视图',
-                  viewList.filter(l => isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0)
-                    .length,
+                  showViewList.filter(
+                    l => isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0,
+                  ).length,
                 )}
                 type="text"
                 className="drawerWorksheetHiddenSearch flex"
@@ -567,13 +703,14 @@ export default class ViewItems extends Component {
                 />
               )}
             </div>
+            {this.renderManageViewItem()}
             {isEmpty ? (
               <EmptyData>{_l('没有搜索到相关视图')}</EmptyData>
             ) : (
               <Fragment>
                 {this.renderSortList(
                   'drawerWorksheetShowList',
-                  viewList.filter(
+                  showViewList.filter(
                     l =>
                       _.get(l, 'advancedSetting.showhide') !== 'hide' &&
                       (isCharge || !(_.get(l, 'advancedSetting.showhide') || '').includes('hpc')),
@@ -618,7 +755,7 @@ export default class ViewItems extends Component {
             this.scrollWraperEl = scrollWraperEl;
           }}
         >
-          {this.renderSortList('sortNav', viewList)}
+          {this.renderSortList('sortNav', showViewList)}
         </div>
         {directionVisible ? (
           <div className="Width95">

@@ -6,7 +6,7 @@ import { getAdvanceSetting } from 'src/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import { ViewSettingWrap } from './util';
+import { ViewSettingWrap } from './style';
 import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import StructureSet from './components/StructureSet';

@@ -32,10 +32,21 @@ class List extends Component {
     const isAllEnd = _.every(React.Children.toArray(), item => {
       return item.props.icon && item.props.iconAtEnd;
     });
-    const header = this.props.header ? cloneElement(this.props.header, { className: cx(this.props.header.props.className, 'List-header') }) : undefined;
-    const footer = this.props.footer ? cloneElement(this.props.footer, { className: cx(this.props.footer.props.className, 'List-footer') }) : undefined;
+    const header = this.props.header
+      ? cloneElement(this.props.header, { className: cx(this.props.header.props.className, 'List-header') })
+      : undefined;
+    const footer = this.props.footer
+      ? cloneElement(this.props.footer, { className: cx(this.props.footer.props.className, 'List-footer') })
+      : undefined;
     return (
-      <div {...this.props} className={cx(this.props.className, 'ming List', { 'List--withIconFront': iconAtFront, 'List--withIconEnd': iconAtEnd })}>
+      <div
+        {...this.props}
+        ref={this.props.setRef}
+        className={cx(this.props.className, 'ming List', {
+          'List--withIconFront': iconAtFront,
+          'List--withIconEnd': iconAtEnd,
+        })}
+      >
         {header}
         <ul className="" style={{ maxHeight: this.props.bodyMaxHeight }}>
           {items}

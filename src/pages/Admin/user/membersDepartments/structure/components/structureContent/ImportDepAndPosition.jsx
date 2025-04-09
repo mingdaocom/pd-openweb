@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
-import cx from 'classnames';
-import UploadFile from './UploadFile';
-import styled from 'styled-components';
-import { updateShowExport, updateImportExportResult, updateImportType, loadDepartments } from '../../actions/entities';
-import departmentController from 'src/api/department';
-import Config from '../../../../../config';
-import { captcha } from 'ming-ui/functions';
-import { IMPORT_EXPORT_SHOWLIST } from 'src/pages/Admin/user/membersDepartments/structure/constant';
 import { Table } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import departmentController from 'src/api/department';
+import { IMPORT_EXPORT_SHOWLIST } from 'src/pages/Admin/user/membersDepartments/structure/constant';
+import Config from '../../../../../config';
+import { loadDepartments, updateImportExportResult, updateImportType, updateShowExport } from '../../actions/entities';
+import UploadFile from './UploadFile';
 
 const ImportWrap = styled.div`
   background: #fff;
@@ -418,11 +418,8 @@ class ImportDepAndPosition extends Component {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
-    }
+
+    new captcha(callback);
   };
   // 返回导入
   backAct = () => {

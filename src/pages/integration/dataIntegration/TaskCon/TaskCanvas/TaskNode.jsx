@@ -13,7 +13,8 @@ import Avator from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/com
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 

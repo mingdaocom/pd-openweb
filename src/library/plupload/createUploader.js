@@ -1,6 +1,7 @@
 import { assign, endsWith, forEach, find, trim } from 'lodash';
 import { getToken } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+import qiniuAjax from 'src/api/qiniu';
 
 const validateFileName = str => {
   str = trim(str);
@@ -153,9 +154,18 @@ export default option => {
           beforeUploadCheck = Promise.reject();
         }
       }
-      getToken(tokenFiles, option.type, option.getTokenParam).then(res => {
+      let fetchAjax
+      if (_.get(option, 'getTokenParam.isFavicon') && md.global.Config.IsLocal) {
+        fetchAjax = qiniuAjax.getFaviconUploadToken()
+      } else {
+        fetchAjax = getToken(tokenFiles, option.type, option.getTokenParam)
+      }
+      fetchAjax.then(data => {
+        let res = data
+        if (_.get(option, 'getTokenParam.isFavicon') && md.global.Config.IsLocal) {
+          res = [data]
+        }
         const exceedFiles = [];
-
         files.forEach((item, i) => {
           if (res[i].size && item.size > res[i].size * 1024 * 1024) {
             exceedFiles.push(item);
@@ -226,7 +236,7 @@ export default option => {
       if (file.size && !native.size) {
         file.notExists = true;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
 

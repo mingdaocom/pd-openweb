@@ -149,7 +149,11 @@ class DialogSelectUser extends Component {
     const commonSettings = {
       projectId: projectId,
       dataRange: dataRange || 0,
-      isSuperWork: projectId && checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) && fromAdmin,
+      isSuperWork:
+        projectId &&
+        !_.get(window, 'isPublicApp') &&
+        checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) &&
+        fromAdmin,
       callback: data => {
         this.props.onCancel();
       },
@@ -171,6 +175,8 @@ class DialogSelectUser extends Component {
       extraTabs: settings.extraTabs,
       selectedAccountIds: settings.selectedAccountIds,
       hideResignedTab: settings.hideResignedTab,
+      hideOftenUsers: settings.hideOftenUsers,
+      hideManageOftenUsers: settings.hideManageOftenUsers,
       callback: (users, departments, group) => {
         settings.callback && settings.callback(users, departments, group);
         this.props.onCancel();
@@ -201,6 +207,7 @@ class DialogSelectUser extends Component {
         groupSettings={SelectGroupSettings}
         isChat={isChat}
         handleCancel={this.props.onCancel}
+        dialogSelectUser={dialogSelectUser}
       />
     );
   };
@@ -247,6 +254,8 @@ export default function dialogSelectUser(opts) {
       dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
       unique: false, // 是否只可以选一个
       selectedAccountIds: [], // 已选择的用户
+      hideOftenUsers: false, // 是否隐藏最常协作
+      hideManageOftenUsers: false, // 是否隐藏管理最常协作人员
       callback: function (data) {},
     },
   };

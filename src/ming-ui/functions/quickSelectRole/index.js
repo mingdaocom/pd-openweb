@@ -5,7 +5,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView, Icon } from 'ming-ui';
-import { dialogSelectOrgRole } from 'ming-ui/functions';
+import dialogSelectOrgRole from '../dialogSelectOrgRole';
 import organizeAjax from 'src/api/organize';
 import { createRoot } from 'react-dom/client';
 

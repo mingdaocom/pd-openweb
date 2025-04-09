@@ -123,7 +123,7 @@ export default function (props) {
               onChange({ verifyType: verifyType === 'password' ? 'verifyCode' : 'password', password: '' });
             }}
           >
-            {verifyType === 'verifyCode' ? _l('使用帐号密码登录') : _l('使用验证码登录')}
+            {verifyType === 'verifyCode' ? _l('使用账号密码登录') : _l('使用验证码登录')}
           </div>
         )}
       {!hideOther && (

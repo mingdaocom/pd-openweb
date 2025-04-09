@@ -1,14 +1,15 @@
-import {
-  RELATION_SHEET_TYPE,
-  filterAndFormatterControls,
-  RENDER_RECORD_NECESSARY_ATTR,
-  getRecordAttachments,
-  getMultiRelateViewConfig,
-} from '../util';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { getAdvanceSetting } from 'src/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import _ from 'lodash';
+import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
+import { getAdvanceSetting } from 'src/util';
+import {
+  filterAndFormatterControls,
+  getMultiRelateViewConfig,
+  getRecordAttachments,
+  RELATION_SHEET_TYPE,
+  RENDER_RECORD_NECESSARY_ATTR,
+} from '../util';
 
 // 获取svg的相关位置数据
 export const getPosition = ($parent, $cur, scale = 1, isStraightLine = false) => {
@@ -43,7 +44,7 @@ export const dealHierarchyData = (
   { worksheetControls, currentView, stateData = {}, hierarchyRelateSheetControls },
 ) => {
   let { displayControls, coverCid, childType, viewControl, viewControls = [] } = currentView;
-  const { abstract = '' } = getAdvanceSetting(getMultiRelateViewConfig(currentView, stateData));
+  const { abstract = '', viewtitle = '' } = getAdvanceSetting(getMultiRelateViewConfig(currentView, stateData));
 
   if (String(childType) === '2') {
     const { path = [] } = stateData;
@@ -60,7 +61,7 @@ export const dealHierarchyData = (
   if (!viewControl && _.isEmpty(viewControls)) return {};
   const getControlById = id => _.find(worksheetControls.concat(SYSTEM_CONTROLS), item => item.controlId === id);
   // const selectControl = getControlById(viewControl);
-  const titleControl = _.find(worksheetControls, item => item.attribute === 1) || {};
+  const titleControl = getTitleControlForCard({ advancedSetting: { viewtitle } }, worksheetControls);
   // if (selectControl) {
   const { pid, rowid: rowId, allowedit: allowEdit, allowdelete: allowDelete, childrenids = '', ...rest } = item;
   const items = [];
@@ -70,10 +71,12 @@ export const dealHierarchyData = (
       value: item[titleControl.controlId],
     });
   }
-  const displayItems = _.filter(displayControls, item => item !== titleControl.controlId).map(key => ({
-    ..._.pick(getControlById(key), RENDER_RECORD_NECESSARY_ATTR),
-    value: item[key],
-  }));
+  const displayItems = _.filter(displayControls, item => item !== (titleControl || {}).controlId)
+    .filter(getControlById)
+    .map(key => ({
+      ..._.pick(getControlById(key), RENDER_RECORD_NECESSARY_ATTR),
+      value: item[key],
+    }));
   items.push(...displayItems);
   let formData = worksheetControls.map(o => {
     return { ...o, value: item[o.controlId] };
@@ -120,4 +123,15 @@ export const hierarchyViewCanSelectFields = ({ controls, worksheetId }) => {
       icon: 'link-worksheet',
     }),
   });
+};
+
+export const getRelateSheetId = (view = {}, pathId) => {
+  const { viewControls, childType } = view;
+  if (String(childType) !== '2' || configIndex === 0 || viewControls.length === 1) return undefined;
+
+  const configIndex = pathId.length - 1;
+  const currentViewControl =
+    viewControls && viewControls.length && configIndex > 0 ? viewControls[configIndex - 1] || {} : {};
+
+  return currentViewControl.worksheetId;
 };

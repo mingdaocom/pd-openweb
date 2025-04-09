@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { UserHead, UserName } from 'ming-ui';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import paymentAjax from 'src/api/payment';
-import { PAY_STATUS } from '../Merchant/config';
+import { PAY_STATUS } from '../config';
 import styled from 'styled-components';
 import _ from 'lodash';
 

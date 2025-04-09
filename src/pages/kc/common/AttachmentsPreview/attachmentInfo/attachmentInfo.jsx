@@ -7,7 +7,8 @@ import { FROM_TYPE } from '../constant/enum';
 import * as Actions from '../actions/action';
 import attachmentAjax from 'src/api/attachment';
 import filterXSS from 'xss';
-import { cutStringWithHtml, htmlEncodeReg, createLinksForMessage } from 'src/util';
+import { cutStringWithHtml, htmlEncodeReg } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import moment from 'moment';
 
 class attachmentInfo extends React.Component {

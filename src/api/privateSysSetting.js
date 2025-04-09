@@ -74,11 +74,13 @@ SsoName:string，SSO 按钮名称
 SsoIcon:string，SSO 图标
 SsoWebUrl:string，SSO Web Url
 SsoAppUrl:string，SSO App Url
-LoginGotoAppId:string，登录后直接进入的应用Id
+LoginGotoAppId:string，登录后直接进入的应用Id，与 LoginGotoUrl 2选1
+LoginGotoUrl:string，登录后直接进入的页面地址（不含WebUrl部分），与 LoginGotoAppId 2选1
 EnablePromptNewVersion:bool，是否开启新版本提醒
 SessionWeb:string，Web（PC/H5) 内部用户会话有效期设置（格式：{t:1,v:5,r:true}）
 SessionApp:string，APP 内部用户会话有效期设置（格式：{t:1,v:5,r:true}）
 SessionWebPortal:string，Web（PC/H5) 外部门户用户会话有效期设置（格式：{t:1,v:5,r:true}）
+SessionExpireRedirectType:int，会话过期后跳转方式 1:停留在原页面（默认） 2:跳转到登录页面
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

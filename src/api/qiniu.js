@@ -33,4 +33,15 @@ export default {
      
      return mdyAPI('Qiniu', 'GetFileUploadToken', args, options);
    },
+  /**
+  * 获取七牛上传 Favicon token
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFaviconUploadToken: function (args, options = {}) {
+     
+     return mdyAPI('Qiniu', 'GetFaviconUploadToken', args, options);
+   },
 };

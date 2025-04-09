@@ -7,6 +7,11 @@ export const sideNavList = [
     key: 'plugin',
     list: [
       {
+        type: 'pluginMarket',
+        text: _l('插件市场'),
+        icon: 'extension_black1',
+      },
+      {
         type: 'view',
         text: _l('视图'),
         icon: 'view_eye',

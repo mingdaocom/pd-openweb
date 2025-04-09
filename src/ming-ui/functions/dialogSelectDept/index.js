@@ -1,13 +1,13 @@
 import React from 'react';
-import departmentController from 'src/api/department';
-import { DepartmentList } from '../dialogSelectUser/GeneralSelect';
-import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
-import { Dialog, LoadDiv, Radio, Checkbox, FunctionWrap } from 'ming-ui';
 import cx from 'classnames';
-import './style.less';
 import _ from 'lodash';
+import { Checkbox, Dialog, FunctionWrap, LoadDiv, Radio } from 'ming-ui';
+import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
+import departmentController from 'src/api/department';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import DepartmentList from '../dialogSelectUser/GeneralSelect/DepartmentList';
+import './style.less';
 
 class DialogSelectDept extends React.Component {
   constructor(props) {
@@ -105,9 +105,11 @@ class DialogSelectDept extends React.Component {
       }));
   }
 
-  selectFn() {
+  async selectFn() {
     const { selectedDepartment } = this.state;
-    const { checkIncludeChilren, allPath } = this.props; //是否选择包含子集
+    const { checkIncludeChilren, allPath, onClose = () => {} } = this.props; //是否选择包含子集
+
+    const checkedHasUser = await this.hasUser();
 
     const selectFn = this.props.selectFn;
     selectFn.call(
@@ -118,7 +120,7 @@ class DialogSelectDept extends React.Component {
           departmentId: dept.departmentId,
           departmentName: dept.departmentName,
           haveSubDepartment: dept.haveSubDepartment,
-          userCount: dept.userCount,
+          userCount: checkedHasUser.includes(dept.departmentId) ? 1 : dept.userCount,
           ...(allPath ? { departmentPath: this.getDepartmentPath(dept) } : {}),
         }),
       ),
@@ -129,12 +131,28 @@ class DialogSelectDept extends React.Component {
               departmentId: dept.departmentId,
               departmentName: dept.departmentName,
               haveSubDepartment: dept.haveSubDepartment,
-              userCount: dept.userCount,
+              userCount: checkedHasUser.includes(dept.departmentId) ? 1 : dept.userCount,
               ...(allPath ? { departmentPath: this.getDepartmentPath(dept) } : {}),
             }),
           )
         : null,
     );
+    onClose();
+  }
+
+  async hasUser() {
+    const { selectedDepartment } = this.state;
+    const { projectId, fetchCount } = this.props;
+
+    if (!fetchCount) return [];
+
+    const { hasMemberIds = [], hasMemberIdsInTree = [] } = await departmentController.keepHasMemberIds({
+      projectId,
+      departmentIds: selectedDepartment.filter(l => !l.checkIncludeChilren).map(l => l.departmentId),
+      departmentIdsInTree: selectedDepartment.filter(l => l.checkIncludeChilren).map(l => l.departmentId),
+    });
+
+    return hasMemberIds.concat(hasMemberIdsInTree);
   }
 
   getDepartmentTree(data, parentId) {
@@ -212,12 +230,12 @@ class DialogSelectDept extends React.Component {
       departrangetype !== '0'
         ? 'appointedDepartment'
         : isAnalysis && isAdmin
-        ? 'pagedProjectDepartmentTrees'
-        : isAnalysis
-        ? 'pagedDepartmentTrees'
-        : isAdmin
-        ? 'searchProjectDepartment2'
-        : 'searchDepartment2'
+          ? 'pagedProjectDepartmentTrees'
+          : isAnalysis
+            ? 'pagedDepartmentTrees'
+            : isAdmin
+              ? 'searchProjectDepartment2'
+              : 'searchDepartment2'
     ](param)
       .then(data => {
         let showProjectAll = true;
@@ -231,8 +249,8 @@ class DialogSelectDept extends React.Component {
         let list = !usePageDepartment
           ? getTree(data)
           : usePageDepartment && this.state.rootPageIndex <= 1
-          ? getTree(data)
-          : this.state.list.concat(getTree(data));
+            ? getTree(data)
+            : this.state.list.concat(getTree(data));
 
         if (departrangetype === '3') {
           list = list.map(l => ({ ...l, disabled: appointedDepartmentIds.includes(l.departmentId) }));
@@ -315,10 +333,10 @@ class DialogSelectDept extends React.Component {
           this.props.isAnalysis && location.href.indexOf('admin') > -1
             ? 'pagedProjectDepartmentTrees'
             : this.props.isAnalysis
-            ? 'pagedDepartmentTrees'
-            : location.href.indexOf('admin') > -1
-            ? 'pagedSubDepartments'
-            : 'getProjectSubDepartmentByDepartmentId'
+              ? 'pagedDepartmentTrees'
+              : location.href.indexOf('admin') > -1
+                ? 'pagedSubDepartments'
+                : 'getProjectSubDepartmentByDepartmentId'
         ](param).then(data => {
           localStorage.removeItem('parentId');
           department.subDepartments =
@@ -398,8 +416,8 @@ class DialogSelectDept extends React.Component {
             notIncludeChilren === true
               ? false
               : department.checkIncludeChilren === undefined
-              ? true
-              : department.checkIncludeChilren,
+                ? true
+                : department.checkIncludeChilren,
         }
       : department;
     if (selectedDepartment.filter(dept => dept.departmentId === department.departmentId).length) {
@@ -570,7 +588,6 @@ class DialogSelectDept extends React.Component {
         onCancel={onClose}
         onOk={() => {
           this.selectFn();
-          onClose();
         }}
       >
         <div>
@@ -678,6 +695,7 @@ export default function (opts) {
     includeProject: false,
     checkIncludeChilren: false,
     allProject: false,
+    fetchCount: false,
     departrangetype: '0',
     appointedDepartmentIds: [],
     appointedUserIds: [],
@@ -706,6 +724,7 @@ export default function (opts) {
     departrangetype: options.departrangetype,
     appointedDepartmentIds: options.appointedDepartmentIds,
     appointedUserIds: options.appointedUserIds,
+    fetchCount: options.fetchCount,
     onClose: options.onClose,
   };
 

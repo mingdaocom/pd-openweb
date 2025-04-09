@@ -3,7 +3,7 @@ import discussionAjax from 'src/api/discussion';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import DiscussInfo from 'mobile/Discuss';
-import { handlePushState } from 'src/util';
+import { handlePushState, compatibleMDJS } from 'src/util';
 import _ from 'lodash';
 
 const ChartCountWrap = styled.div`
@@ -71,6 +71,8 @@ export default class ChatCount extends Component {
       originalData,
       className,
       recordDiscussSwitch,
+      recordLogSwitch,
+      projectId,
       ...rest
     } = this.props;
     const { discussionCount, visible } = this.state;
@@ -79,9 +81,29 @@ export default class ChatCount extends Component {
         <ChartCountWrap
           className={className}
           onClick={() => {
-            handlePushState('page', 'discussInfos');
-            this.setState({ visible: true });
-            onClick();
+            compatibleMDJS(
+              'showDiscussion',
+              {
+                projectId, // 网络ID
+                appId, // 应用ID
+                sheetId: worksheetId, // 工作表ID
+                viewId: viewId, // 视图ID
+                rowId, // 记录ID, 为空则打开工作表讨论/日志
+                showLog: !md.global.Account.isPortal && recordLogSwitch, // 根据应用权限判断是否开启日志显示
+                showDiscussion: recordDiscussSwitch, // 根据应用权限判断是否开启讨论显示
+                controls: (this.props.formData || []).filter(v => v.type === 26), // 传入所有成员字段, 包含创建人, 最近修改人和拥有者
+                success: res => {
+                  // 给到最终讨论数量, 可能会有多次回调, 每次都更新计数即可
+                  let count = res.count;
+                  this.setState({ discussionCount: count });
+                },
+              },
+              () => {
+                handlePushState('page', 'discussInfos');
+                this.setState({ visible: true });
+                onClick();
+              },
+            );
           }}
         >
           <Icon icon={recordDiscussSwitch ? 'chat' : 'assignment'} className="TxtMiddle Font20" />
@@ -97,7 +119,7 @@ export default class ChatCount extends Component {
           rowId={rowId}
           viewId={viewId}
           originalData={originalData}
-          projectId={this.props.projectId}
+          projectId={projectId}
           discussionCount={discussionCount}
           getDiscussionsCount={this.getDiscussionsCount}
           onClose={() => {

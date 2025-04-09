@@ -23,6 +23,19 @@ export const BillInfoWrap = styled.div`
       color: #2196f3;
       margin: 0 8px;
     }
+    .eyeIcon {
+      width: 20px;
+      height: 20px;
+      font-size: 14px;
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 20px;
+      border-radius: 50%;
+      &:hover {
+        background: #f5f5f5;
+      }
+    }
     .recharge,
     .warningBtn {
       display: inline-block;

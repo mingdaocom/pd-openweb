@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
+import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { bindActionCreators } from 'redux';
 import SheetView from './SheetView';
 import HierarchyView from './HierarchyView';
@@ -133,8 +134,8 @@ class View extends Component {
       batchOptVisible,
       batchOptCheckedData,
       batchCheckAll,
-      updateFilters = () => {},
-      updateActiveSavedFilter = () => {},
+      updateFilters = () => { },
+      updateActiveSavedFilter = () => { },
     } = this.props;
 
     const { viewType, advancedSetting = {} } = view;
@@ -226,29 +227,29 @@ class View extends Component {
         {(_.includes([gallery, resource, board, sheet], String(viewType)) ||
           (String(viewType) === detail && view.childType !== 1) ||
           (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
-          <QuickFilterSearch
-            className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
-            showSearch={String(viewType) === customize ? false : true}
-            isFilter={isFilter}
-            filters={filters}
-            detail={detail}
-            view={view}
-            worksheetInfo={worksheetInfo}
-            sheetControls={sheetControls}
-            updateFilters={updateFilters}
-            quickFilterWithDefault={quickFilterWithDefault}
-            savedFilters={savedFilters}
-            activeSavedFilter={activeSavedFilter}
-            updateActiveSavedFilter={updateActiveSavedFilter}
-            base={base}
-          />
-        )}
+            <QuickFilterSearch
+              className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
+              showSearch={String(viewType) === customize ? false : true}
+              isFilter={isFilter}
+              filters={filters}
+              detail={detail}
+              view={view}
+              worksheetInfo={worksheetInfo}
+              sheetControls={sheetControls}
+              updateFilters={updateFilters}
+              quickFilterWithDefault={quickFilterWithDefault}
+              savedFilters={savedFilters}
+              activeSavedFilter={activeSavedFilter}
+              updateActiveSavedFilter={updateActiveSavedFilter}
+              base={base}
+            />
+          )}
         {_.includes(
           [gallery, resource, customize, board],
           String(viewType) || (String(viewType) === detail && view.childType !== 1),
         ) &&
-        needClickToSearch &&
-        _.isEmpty(quickFilter) ? (
+          needClickToSearch &&
+          _.isEmpty(quickFilter) ? (
           <WithoutRows text={_l('执行查询后显示结果')} />
         ) : hasGroupFilter &&
           String(view.viewType) === sheet &&
@@ -300,7 +301,7 @@ export default connect(
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick({ ...worksheetActions, ...actions }, [
+        ..._.pick({ ...worksheetActions, ...actions, ...navFilterActions }, [
           'fetchSheetRows',
           'getNavGroupCount',
           'changeMobielSheetLoading',

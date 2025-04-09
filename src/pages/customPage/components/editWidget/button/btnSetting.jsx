@@ -18,6 +18,7 @@ import SelectProcess from './SelectProcess';
 import ClickConfirm from './ClickConfirm';
 import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { getTranslateInfo } from 'src/util';
+import { getShowViews } from 'src/pages/worksheet/views/util';
 import _ from 'lodash';
 
 const BtnSettingWrap = styled.div`
@@ -298,7 +299,7 @@ function BtnSetting(props) {
         const { views = [], template = {} } = res;
         const controls = replaceControlsTranslateInfo(appId, value, template.controls);
         setDataSource({
-          views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, null, viewId).name || name, value: viewId, type: viewType })),
+          views: getShowViews(views).map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, null, viewId).name || name, value: viewId, type: viewType })),
           controls
         });
         if (action === 1) {

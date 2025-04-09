@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes, { string } from 'prop-types';
 import { Icon } from 'ming-ui';
-import '@mdfe/selectize';
 import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';

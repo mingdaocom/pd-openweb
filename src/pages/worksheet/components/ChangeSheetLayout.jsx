@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
-import { Button } from 'ming-ui';
+import { Icon, Button, Dialog, Checkbox, Tooltip } from 'ming-ui';
 
 const ChangeSheetLayout = styled.span`
   position: absolute;
@@ -45,43 +45,93 @@ const PopupCon = styled.div`
 `;
 
 export default function LayoutChangedIcon(props) {
-  const { className, style, title, description, onSave = () => {}, onCancel = () => {} } = props;
+  const {
+    className,
+    style,
+    title,
+    description,
+    isSheetView,
+    onSave = () => {},
+    onCancel = () => {},
+    applyToAllChecked,
+  } = props;
   const [popupVisible, setPopupVisible] = useState();
+  const cache = useRef({
+    isApplyAll: applyToAllChecked,
+  });
   function closePopup() {
     setPopupVisible(false);
   }
   return (
     <ChangeSheetLayout className={className} style={style}>
-      <Trigger
-        popupVisible={popupVisible}
-        onPopupVisibleChange={newvisible => {
-          setPopupVisible(newvisible);
-        }}
-        popup={
-          <PopupCon>
-            <div className="title">{title || _l('你变更了表格样式，是否保存？')}</div>
-            <div className="description">
-              {description || _l('保存当前表格的列宽、列冻结、列隐藏配置，并应用给所有用户')}
-            </div>
-            <div className="buttons">
-              <Button size="mdnormal" type="ghostgray" onClick={onCancel.bind(this, { closePopup })}>
-                {_l('取消')}
-              </Button>
-              <Button size="mdnormal" onClick={onSave.bind(this, { closePopup })}>
-                {_l('保存')}
-              </Button>
-            </div>
-          </PopupCon>
-        }
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [-13, 8],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-      >
-        <i className="icon icon-save1"></i>
-      </Trigger>
+      {isSheetView ? (
+        <i
+          className="icon icon-save1"
+          onClick={() => {
+            Dialog.confirm({
+              onlyClose: true,
+              title: _l('你变更了表格样式，是否保存？'),
+              description: (
+                <div>
+                  <div>
+                    {description ||
+                      _l('保存当前表格列的冻结、隐藏、汇总、样式（宽度、对齐、显示方式）配置。此配置对所有用户生效')}
+                  </div>
+                  <div className="flexCenter mTop20">
+                    <Checkbox
+                      className="InlineBlock"
+                      defaultChecked={applyToAllChecked}
+                      text={_l('同时将列样式应用到其它所有表格')}
+                      onClick={() => (cache.current.isApplyAll = !cache.current.isApplyAll)}
+                      style={{
+                        color: '#333',
+                        userSelect: 'none',
+                        fontSize: '14px',
+                      }}
+                    />
+                  </div>
+                </div>
+              ),
+              okText: _l('保存'),
+              onOk: () => {
+                onSave({ closePopup, isApplyAll: cache.current.isApplyAll });
+              },
+              onCancel: onCancel.bind(this, { closePopup }),
+            });
+          }}
+        ></i>
+      ) : (
+        <Trigger
+          popupVisible={popupVisible}
+          onPopupVisibleChange={newvisible => {
+            setPopupVisible(newvisible);
+          }}
+          popup={
+            <PopupCon>
+              <div className="title">{title || _l('你变更了表格样式，是否保存？')}</div>
+              <div className="description">
+                {description || _l('保存当前表格的列宽、列冻结、列隐藏配置，并应用给所有用户')}
+              </div>
+              <div className="buttons">
+                <Button size="mdnormal" type="ghostgray" onClick={onCancel.bind(this, { closePopup })}>
+                  {_l('取消')}
+                </Button>
+                <Button size="mdnormal" onClick={onSave.bind(this, { closePopup })}>
+                  {_l('保存')}
+                </Button>
+              </div>
+            </PopupCon>
+          }
+          action={['click']}
+          popupAlign={{
+            points: ['tl', 'bl'],
+            offset: [-13, 8],
+            overflow: { adjustX: true, adjustY: true },
+          }}
+        >
+          <i className="icon icon-save1"></i>
+        </Trigger>
+      )}
     </ChangeSheetLayout>
   );
 }

@@ -7,6 +7,8 @@ import { PERMISSION_WAYS, TEXTS, roleDetailPropType, actionList } from 'src/page
 import styled from 'styled-components';
 import _ from 'lodash';
 import { WrapFooter } from 'src/pages/Role/style.jsx';
+import Search from 'src/pages/workflow/components/Search/index.jsx';
+import BatchDialog from './batch';
 
 const WrapCon = styled.div`
   .optionTxt {
@@ -26,10 +28,34 @@ const WrapCon = styled.div`
   .dropdownTrigger .Dropdown--border {
     border-color: #ddd;
   }
+  .flexShrink {
+    flex-shrink: 0;
+    min-width: 0;
+  }
+  .worksheetSearch {
+    padding: 0 12px;
+    input {
+      background: none;
+      border: none;
+      width: 100%;
+      height: 24px;
+      margin: 0 25px 0 0;
+      &:focus {
+        border-bottom: 1px solid #ccc;
+        border-radius: 0;
+      }
+    }
+    &.workflowSearchWrap {
+      .search {
+        left: 12px;
+      }
+      .close {
+        right: 12px;
+      }
+    }
+  }
 `;
-const Wrap = styled.div`
-  width: 52%;
-`;
+const Wrap = styled.div``;
 
 const PERMISSION_WAYS_WITH_CHECKBOX = [
   PERMISSION_WAYS.OnlyManageSelfRecord,
@@ -61,6 +87,9 @@ export default class extends PureComponent {
       actionList: actionList.filter(o =>
         props.isForPortal ? !['gneralShare', 'generalLogging'].includes(o.key) : true,
       ),
+      keyWord: '',
+      select: [],
+      showBatchDialog: false,
     };
   }
 
@@ -323,7 +352,15 @@ export default class extends PureComponent {
   }
 
   renderAuthTable() {
-    const { roleDetail: { sheets = [], pages = [] } = {}, showRoleSet, projectId, appId } = this.props;
+    const {
+      roleDetail: { sheets = [], pages = [] } = {},
+      showRoleSet,
+      projectId,
+      appId,
+      isForPortal,
+      onChange,
+    } = this.props;
+    const { keyWord = '', showBatchDialog } = this.state;
     const AUTH = [
       { text: _l('查看'), operatorKey: 'READ', key: 'canRead' },
       { text: _l('编辑'), operatorKey: 'EDIT', key: 'canEdit' },
@@ -331,63 +368,125 @@ export default class extends PureComponent {
       { text: _l('新增'), operatorKey: 'ADD', key: 'canAdd' },
     ];
     //将工作表和自定义页面 混合排序
-    const lists = sheets.concat(pages).sort((a, b) => {
-      return a.sortIndex - b.sortIndex;
-    });
+    const lists = sheets
+      .concat(pages)
+      .sort((a, b) => {
+        return a.sortIndex - b.sortIndex;
+      })
+      .filter(
+        o =>
+          (o.sheetName || '').toLowerCase().indexOf(keyWord.toLowerCase()) >= 0 ||
+          (o.name || '').toLowerCase().indexOf(keyWord.toLowerCase()) >= 0 ||
+          (o.views || []).find(a => (a.viewName || '').toLowerCase().indexOf(keyWord.toLowerCase()) >= 0),
+      );
     return (
       <Fragment>
         <div className="Font14 mTop32 Gray_75">{_l('可以访问的视图和数据操作权限')}</div>
         <div className={cx('authTable mTop12')}>
-          <div className={'tableHeader flexRow'}>
-            <div className={'TxtLeft pLeft24 boxSizing tableHeaderItemMax flex'}>{_l('应用项')}</div>
-            <Wrap className="con flexRow">
-              {AUTH.map((item, index) => {
-                let clearselected;
-                let checked;
-                if (item.operatorKey === 'READ') {
-                  checked =
-                    !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length &&
-                    !pages.filter(o => !o.checked).length;
-                  clearselected =
-                    !checked &&
-                    (!!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length ||
-                      !!pages.filter(o => o.checked).length);
-                } else if (item.operatorKey === 'ADD') {
-                  checked = sheets.filter(obj => obj.canAdd).length === sheets.length && sheets.length > 0;
-                  clearselected =
-                    !checked &&
-                    sheets.filter(obj => obj.canAdd).length !== sheets.length &&
-                    sheets.filter(obj => obj.canAdd).length > 0;
-                } else {
-                  let viewsData = [];
-                  let allViews = [];
-                  sheets.map(obj => {
-                    viewsData.push(...obj.views.filter(o => o[item.key]));
-                    allViews.push(...obj.views);
-                  });
-                  checked = viewsData.length === allViews.length && allViews.length > 0;
-                  clearselected = !checked && viewsData.length !== allViews.length && viewsData.length > 0;
-                }
-                return (
-                  <div key={index} className={'tableHeaderItem tableHeaderOther'}>
-                    <Checkbox
-                      className="InlineBlock"
-                      checked={checked}
-                      clearselected={clearselected}
-                      onClick={checked => this.toggleAllViewAuth(item.operatorKey, !checked)}
-                    />
-                    {item.text}
-                  </div>
-                );
-              })}
-            </Wrap>
-            <div className={'tableHeaderItem tableHeaderOption TxtCenter'}>{_l('数据操作权限')}</div>
+          <div className={'tableHeader flexRow Bold'}>
+            <div className="flexRow flex flex-shrink-0">
+              <div className={'TxtLeft pLeft24 boxSizing flexRow w35'}>
+                <span className="flexShrink">{_l('应用项')}</span>
+                <Search
+                  handleChange={keyWord => this.setState({ keyWord })}
+                  className="worksheetSearch flexShrink flex"
+                  placeholder={_l('搜索')}
+                />
+              </div>
+              <Wrap className="con flexRow flex">
+                {AUTH.map((item, index) => {
+                  let clearselected;
+                  let checked;
+                  if (item.operatorKey === 'READ') {
+                    checked =
+                      !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length &&
+                      !pages.filter(o => !o.checked).length;
+                    clearselected =
+                      !checked &&
+                      (!!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length ||
+                        !!pages.filter(o => o.checked).length);
+                  } else if (item.operatorKey === 'ADD') {
+                    checked = sheets.filter(obj => obj.canAdd).length === sheets.length && sheets.length > 0;
+                    clearselected =
+                      !checked &&
+                      sheets.filter(obj => obj.canAdd).length !== sheets.length &&
+                      sheets.filter(obj => obj.canAdd).length > 0;
+                  } else {
+                    let viewsData = [];
+                    let allViews = [];
+                    sheets.map(obj => {
+                      viewsData.push(...obj.views.filter(o => o[item.key]));
+                      allViews.push(...obj.views);
+                    });
+                    checked = viewsData.length === allViews.length && allViews.length > 0;
+                    clearselected = !checked && viewsData.length !== allViews.length && viewsData.length > 0;
+                  }
+                  return (
+                    <div key={index} className={'tableHeaderItem tableHeaderOther'}>
+                      <Checkbox
+                        className="InlineBlock"
+                        checked={checked}
+                        clearselected={clearselected}
+                        onClick={checked => this.toggleAllViewAuth(item.operatorKey, !checked)}
+                      />
+                      {item.text}
+                    </div>
+                  );
+                })}
+              </Wrap>
+            </div>
+            <div className={'tableHeaderItem tableHeaderOption TxtCenter flexRow'}>
+              <span className="flex flexShrink overflow_ellipsis" title={_l('数据操作权限')}>
+                {_l('数据操作权限')}
+              </span>
+              <Tooltip text={<span>{_l('批量编辑')} </span>} popupPlacement="top">
+                <i
+                  className={cx('icon-align_setting Font20 Gray_75 mLeft8 mRight8 TxtMiddle', {
+                    'Hand ThemeHoverColor3': sheets.length > 0,
+                  })}
+                  onClick={() => {
+                    if (sheets.length <= 0) return;
+                    this.setState({ showBatchDialog: true });
+                  }}
+                />
+              </Tooltip>
+              {showBatchDialog && (
+                <BatchDialog
+                  isForPortal={isForPortal}
+                  show={showBatchDialog}
+                  sheets={sheets.sort((a, b) => {
+                    return a.sortIndex - b.sortIndex;
+                  })}
+                  onClose={() => {
+                    this.setState({ showBatchDialog: false });
+                  }}
+                  onOk={data => {
+                    onChange({
+                      ...(_.get(this.props, 'roleDetail') || {}),
+                      sheets: sheets.map(o => {
+                        const info = data.find(it => it.sheetId === o.sheetId);
+                        if (!!info) {
+                          return { ...o, ...info };
+                        } else {
+                          return o;
+                        }
+                      }),
+                    });
+                    this.setState({ showBatchDialog: false });
+                  }}
+                />
+              )}
+            </div>
           </div>
           {lists.length ? (
             _.map(lists, list => {
+              const isShow = !keyWord
+                ? false
+                : !!(list.views || []).find(a => (a.viewName || '').toLowerCase().indexOf(keyWord.toLowerCase()) >= 0);
               return (
                 <SheetTable
                   projectId={projectId}
+                  isShow={isShow}
                   appId={appId}
                   showRoleSet={showRoleSet}
                   isForPortal={this.props.isForPortal}
@@ -403,7 +502,9 @@ export default class extends PureComponent {
               );
             })
           ) : (
-            <div className={'emptyContent'}>{_l('还没有创建工作表或自定义页面')}</div>
+            <div className={'emptyContent'}>
+              {keyWord ? _('没有搜索到工作表或自定义页面') : _l('还没有创建工作表或自定义页面')}
+            </div>
           )}
         </div>
       </Fragment>

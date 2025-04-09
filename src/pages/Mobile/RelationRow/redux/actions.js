@@ -1,9 +1,9 @@
-import sheetAjax from 'src/api/worksheet';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import worksheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
+import sheetAjax from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
+import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
@@ -91,15 +91,17 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
 export const loadRowRelationRows = (relationControl, getType) => async (dispatch, getState) => {
   const { base, loadParams, relationRows, rowInfo } = getState().mobile;
   const { pageIndex } = loadParams;
-  const { instanceId, rowId, worksheetId, controlId } = base;
+  const { instanceId, workId, rowId, worksheetId, controlId } = base;
   const PAGE_SIZE = 10;
   const params = {
     controlId,
     rowId,
     worksheetId,
     getType,
+    instanceId,
+    workId,
   };
-  const control = relationControl || _.find(rowInfo.templateControls, { controlId });
+  const control = relationControl || _.find(rowInfo.templateControls, { controlId }) || {};
 
   dispatch({ type: 'MOBILE_RELATION_LOAD_PARAMS', data: { loading: true } });
 

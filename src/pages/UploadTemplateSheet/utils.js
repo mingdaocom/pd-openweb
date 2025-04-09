@@ -10,11 +10,13 @@ const exportUrl = {
 export const createEditFileLink = async props => {
   const {
     worksheetId,
+    appId,
     downLoadUrl,
     fileType,
     type = 2,
     createCompleted,
     allowDownloadPermission,
+    allowEditAfterPrint,
     editTemplateDownloadPermission = false,
   } = props;
 
@@ -29,6 +31,7 @@ export const createEditFileLink = async props => {
     worksheetId,
     accountId: _.get(md, 'global.Account.accountId'),
     type,
+    appId,
   };
 
   const res = await window.mdyAPI('', '', option, {
@@ -52,6 +55,7 @@ export const createEditFileLink = async props => {
       (await sheetAjax.editTemplateDownloadPermission({
         id: res.data,
         allowDownloadPermission,
+        allowEditAfterPrint,
       }));
 
     const data = await attachmentAjax.getAttachmentEditDetail({

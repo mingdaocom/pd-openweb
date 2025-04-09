@@ -1,20 +1,20 @@
-import { every, find, findIndex, get, includes, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
 import React, { Fragment, memo, useRef } from 'react';
-import { Tooltip } from 'ming-ui';
-import CollapseExpandButton from './CollapseExpandButton';
-import DataCell from './DataCell';
 import cx from 'classnames';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { ROW_HEIGHT } from 'worksheet/constants/enum';
+import { every, find, findIndex, get, includes, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
+import styled from 'styled-components';
+import { Tooltip } from 'ming-ui';
+import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
 import {
   checkCellIsEmpty,
   controlIsNumber,
   getRecordColor,
   getRelateRecordCountOfControlFromRow,
 } from 'worksheet/util';
-import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import styled from 'styled-components';
+import CollapseExpandButton from './CollapseExpandButton';
+import DataCell from './DataCell';
 
 const CellCon = styled.div`
   .hoverShow {
@@ -136,6 +136,7 @@ export function getIndex({
 
 const MemorizedDataCell = memo(DataCell, (prevProps, nextProps) => {
   const compareKeys = [
+    'columnStyle',
     'lineEditable',
     'disableQuickEdit',
     'style',
@@ -166,6 +167,7 @@ function getCellType(id) {
 function Cell(props) {
   const { key, style = {}, data = {} } = props;
   const {
+    columnStyles = {},
     treeTableViewData,
     masterRecord,
     grid = {},
@@ -176,6 +178,7 @@ function Cell(props) {
     allowAdd,
     allowlink,
     isSubList,
+    isRelateRecordList,
     fromModule,
     projectId,
     appId,
@@ -225,6 +228,7 @@ function Cell(props) {
     rowIndex: props.rowIndex,
     ...grid,
   });
+  const leftFixedCount = grid.leftFixedCount || 1;
   const cellStyle = { ...style };
   const cellIndex = rowIndex * cellColumnCount + columnIndex;
   const row = rows[rowIndex] || {};
@@ -233,6 +237,7 @@ function Cell(props) {
     ...(visibleColumns[columnIndex] || {}),
   };
   control.fieldPermission = rulePermissions[`${row.rowid}-${control.controlId}`] || control.fieldPermission || '111';
+  const currentColumnStyle = columnStyles[control.controlId] || {};
   if (row.isSubListFooter) {
     return <span style={{ ...cellStyle, height: 26 }} />;
   }
@@ -265,7 +270,6 @@ function Cell(props) {
         (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'),
       fixedRow: rowIndex === 0,
       lastFixedColumn: columnIndex === fixedColumnCount && fixedColumnCount !== 0,
-      alignRight: controlIsNumber(control),
       // focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
       highlight: needHightLight,
       highlightFromProps: sheetViewHighlightRows[row.rowid],
@@ -293,6 +297,19 @@ function Cell(props) {
         ) &&
         checkCellIsEmpty(value),
     },
+    (() => {
+      if (isUndefined(get(currentColumnStyle, 'direction'))) {
+        return controlIsNumber(control) ? 'alignRight' : '';
+      } else {
+        if (
+          cellType !== 'head' &&
+          !WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(control.type === 30 ? control.sourceControlType : control.type)
+        ) {
+          return '';
+        }
+        return ['', 'alignCenter', 'alignRight'][get(currentColumnStyle, 'direction')];
+      }
+    })(),
   );
   if (grid.id.startsWith('bottom') || grid.id.startsWith('top')) {
     cellStyle.height = 34;
@@ -382,6 +399,7 @@ function Cell(props) {
       from={from}
       isDraft={isDraft}
       allowlink={allowlink}
+      leftFixedCount={leftFixedCount}
       isSubList={isSubList}
       fromModule={fromModule}
       projectId={projectId}
@@ -405,6 +423,7 @@ function Cell(props) {
       rowHeightEnum={rowHeightEnum}
       sheetSwitchPermit={sheetSwitchPermit}
       masterData={masterData}
+      columnStyle={currentColumnStyle}
       // functions
       rowFormData={() =>
         (controls || columns)
@@ -434,8 +453,14 @@ function Cell(props) {
       addParentControl &&
       allowAdd &&
       lineEditable &&
-      controlState(addParentControl).editable &&
-      (find(columns, c => c.controlId === addParentControl.controlId) || !isSubList);
+      controlState({
+        ...addParentControl,
+        ...(isSubList
+          ? {
+              fieldPermission: addParentControl.originalFieldPermission || addParentControl.fieldPermission,
+            }
+          : {}),
+      }).editable;
     return (
       <CellCon
         className={cx('expandCell', `row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex}`, {
@@ -468,7 +493,9 @@ function Cell(props) {
             <Tooltip
               mouseEnterDelay={0.8}
               text={
-                !isSubList && !get(treeTableViewData, 'expandedAllKeys.' + row.key) && _l('Shift + 点击展开所有下级')
+                !(isSubList || isRelateRecordList) &&
+                !get(treeTableViewData, 'expandedAllKeys.' + row.key) &&
+                _l('Shift + 点击展开所有下级')
               }
               popupPlacement="bottom"
             >
@@ -476,8 +503,8 @@ function Cell(props) {
                 onClick={e => {
                   if (isFunction(actions.updateTreeNodeExpansion)) {
                     actions.updateTreeNodeExpansion(row, {
-                      expandAll: !isSubList && e.shiftKey,
-                      forceUpdate: !isSubList && e.shiftKey,
+                      expandAll: !(isSubList || isRelateRecordList) && e.shiftKey,
+                      forceUpdate: !(isSubList || isRelateRecordList) && e.shiftKey,
                     });
                   }
                   delete window[`sheetTableHighlightRow${tableId}`];

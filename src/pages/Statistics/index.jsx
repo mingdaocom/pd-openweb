@@ -44,6 +44,7 @@ const exceptions = [
   '#attachemntsPreviewContainer',
   '#quickSelectDept',
   '.selectRoleDialog',
+  '.fullScreenMarkdown',
 ];
 
 const renderSortableItem = ({ item, DragHandle, otherProps }) => {
@@ -181,7 +182,7 @@ export default class Statistics extends Component {
           });
         },
       );
-  }
+  };
   handleUpdateDialogVisible({ dialogVisible, isRequest }) {
     this.setState({
       dialogVisible,
@@ -258,14 +259,15 @@ export default class Statistics extends Component {
               dragPreviewImage
               itemKey="id"
               items={reports}
-              renderItem={(options) => renderSortableItem({ ...options, otherProps })}
+              renderItem={options => renderSortableItem({ ...options, otherProps })}
               onSortEnd={this.handleSortEnd}
             />
-          {width && Array.from({ length: 6 }).map((item, index) => (
-            <div key={index} className="StatisticsPanel-wrapper statisticsCard-empty">
-              <div className="statisticsCard" />
-            </div>
-          ))}
+            {width &&
+              Array.from({ length: 6 }).map((item, index) => (
+                <div key={index} className="StatisticsPanel-wrapper statisticsCard-empty">
+                  <div className="statisticsCard" />
+                </div>
+              ))}
           </div>
           {pageLoading ? <LoadDiv /> : null}
         </div>

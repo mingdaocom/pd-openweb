@@ -86,6 +86,44 @@ export default {
      return mdyAPI('PrivateGuide', 'GetSupportInfo', args, options);
    },
   /**
+  * 密钥验证
+  * @param {Object} args 请求参数
+  * @param {string} args.licenseCode 授权码
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   verifyLicenseCode: function (args, options = {}) {
+     
+     return mdyAPI('PrivateGuide', 'VerifyLicenseCode', args, options);
+   },
+  /**
+  * 添加授权
+  * @param {Object} args 请求参数
+  * @param {string} args.licenseCode 授权码
+  * @param {array} args.projectIds 组织Id列表
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   bindLicenseCode: function (args, options = {}) {
+     
+     return mdyAPI('PrivateGuide', 'BindLicenseCode', args, options);
+   },
+  /**
+  * 添加增值服务授权
+  * @param {Object} args 请求参数
+  * @param {string} args.licenseCode 授权码
+  * @param {} args.extendFunType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   bindTrialLicenseCode: function (args, options = {}) {
+     
+     return mdyAPI('PrivateGuide', 'BindTrialLicenseCode', args, options);
+   },
+  /**
   * 获取组织列表
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
@@ -109,41 +147,15 @@ export default {
      return mdyAPI('PrivateGuide', 'BindProject', args, options);
    },
   /**
-  * 添加授权（安装流程绑定密钥）
+  * 获取初始化状态
   * @param {Object} args 请求参数
-  * @param {string} args.licenseCode 授权码
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   bindLicenseCode: function (args, options = {}) {
+   getGuideStepStatus: function (args, options = {}) {
      
-     return mdyAPI('PrivateGuide', 'BindLicenseCode', args, options);
-   },
-  /**
-  * 启用授权（废弃）
-  * @param {Object} args 请求参数
-  * @param {string} args.licenseCode 授权码
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   enableLicenseCode: function (args, options = {}) {
-     
-     return mdyAPI('PrivateGuide', 'EnableLicenseCode', args, options);
-   },
-  /**
-  * 添加试用授权
-  * @param {Object} args 请求参数
-  * @param {string} args.licenseCode 授权码
-  * @param {} args.extendFunType
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   bindTrialLicenseCode: function (args, options = {}) {
-     
-     return mdyAPI('PrivateGuide', 'BindTrialLicenseCode', args, options);
+     return mdyAPI('PrivateGuide', 'GetGuideStepStatus', args, options);
    },
   /**
   * 创建管理员账号（安装流程）
@@ -170,16 +182,5 @@ export default {
    addProject: function (args, options = {}) {
      
      return mdyAPI('PrivateGuide', 'AddProject', args, options);
-   },
-  /**
-  * 获取引导步骤状态
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getGuideStepStatus: function (args, options = {}) {
-     
-     return mdyAPI('PrivateGuide', 'GetGuideStepStatus', args, options);
    },
 };

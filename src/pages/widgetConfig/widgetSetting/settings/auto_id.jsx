@@ -1,18 +1,18 @@
 import React, { Fragment } from 'react';
-import styled from 'styled-components';
+import { useSetState } from 'react-use';
+import { Dropdown } from 'antd';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
-import { Dropdown } from 'antd';
-import { useSetState } from 'react-use';
+import styled from 'styled-components';
 import { Menu, MenuItem, SortableList } from 'ming-ui';
 import AutoIcon from '../../components/Icon';
-import { SettingItem, InfoWrap, DropdownPlaceholder } from '../../styled';
+import { DropdownPlaceholder, InfoWrap, SettingItem } from '../../styled';
 import { getControlByControlId, getIconByType, getSortItems } from '../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange, isAutoNumberSelectableControl } from '../../util/setting';
-import SelectControlWithRelate from '../components/SelectControlWithRelate';
-import StrInput from '../components/autoId/StrInput';
 import AutoNumberConfig from '../components/autoId/AutoNumberConfig';
+import StrInput from '../components/autoId/StrInput';
 import TimeFormatConfig from '../components/autoId/TimeFormatConfig';
+import SelectControlWithRelate from '../components/SelectControlWithRelate';
 
 const RuleInfo = styled.li`
   display: flex;
@@ -306,7 +306,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
     <RuleList>
       {_.isEmpty(rules) ? null : (
         <SortableList
-          items={getSortItems(rules, true)}
+          items={getSortItems(rules, true, data.controlId)}
           itemKey="key"
           useDragHandle
           onSortEnd={onSortEnd}

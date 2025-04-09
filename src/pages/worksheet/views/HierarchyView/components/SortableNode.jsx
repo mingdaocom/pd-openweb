@@ -4,11 +4,11 @@ import cx from 'classnames';
 import { isEmpty, isEqual, pick } from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { getPosition } from '../util';
+import { getPosition, getRelateSheetId } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
 import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
-import { handleRecordClick } from 'worksheet/util';
+import { handleRecordClick, getCardWidth } from 'worksheet/util';
 
 const isMobile = browserIsMobile();
 
@@ -146,6 +146,7 @@ export default class SortableRecordItem extends Component {
     handlePushState('page', 'recordDetail');
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
+
   getRecordInfoPara = () => {
     const { worksheetId, viewId, view, data, controls, hierarchyRelateSheetControls } = this.props;
     const { childType, viewControls } = view;
@@ -157,9 +158,9 @@ export default class SortableRecordItem extends Component {
         return { worksheetId, viewId };
       }
       // 获取关联控件配置的viewId
-      const { worksheetId: relateSheetId } =
-        viewControls && viewControls.length && configIndex > 0 ? viewControls[configIndex - 1] || {} : {};
+      const relateSheetId = getRelateSheetId(view, data.pathId);
       const currentControls = configIndex > 1 ? hierarchyRelateSheetControls[relateSheetId] : controls;
+
       const configViewId = _.get(
         _.find(currentControls, item => item.controlId === controlId),
         'viewId',
@@ -168,7 +169,7 @@ export default class SortableRecordItem extends Component {
       return {
         worksheetId,
         viewId: configViewId,
-        cardwidth: _.get(viewControlInfo, 'advancedSetting.cardwidth'),
+        viewControl: viewControlInfo,
       };
     }
     return { worksheetId, viewId };
@@ -215,6 +216,7 @@ export default class SortableRecordItem extends Component {
     const { rowId: draggingId } = safeParse(localStorage.getItem('draggingHierarchyItem'));
     const recordInfoPara = this.getRecordInfoPara();
     const { advancedSetting = {} } = view;
+    const cardwidth = getCardWidth(recordInfoPara.viewControl || view);
 
     if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {
       recordInfoPara.rules = worksheetInfo.rules;
@@ -236,7 +238,7 @@ export default class SortableRecordItem extends Component {
           />
           <DraggableRecord
             {...this.props}
-            width={recordInfoPara.cardwidth || _.get(view, 'advancedSetting.cardwidth')}
+            width={cardwidth}
             viewParaOfRecord={recordInfoPara}
             onDelete={() => deleteHierarchyRecord({ rows: [{ rowid: rowId, allowDelete: true }], path, pathId })}
             onUpdate={(value, relateSheet) =>
@@ -274,6 +276,7 @@ export default class SortableRecordItem extends Component {
               visible
               recordId={recordInfoRowId}
               projectId={worksheetInfo.projectId}
+              relationWorksheetId={getRelateSheetId(view, data.pathId)}
               currentSheetRows={this.getCurrentSheetRows()}
               hideRecordInfo={() => {
                 this.setState({ recordInfoVisible: false });

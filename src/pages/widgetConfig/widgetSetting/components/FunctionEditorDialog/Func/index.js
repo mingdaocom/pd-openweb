@@ -3,6 +3,7 @@ import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Switch } from 'ming-ui';
 import EventEmitter from 'events';
+import { openTestFunctionDialog } from './common/TestFunctionDialog';
 import { validateFnExpression } from 'src/pages/worksheet/util';
 import SelectFnControl from './common/SelectFnControl';
 import CodeEdit from './common/CodeEdit';
@@ -10,7 +11,7 @@ import Tip from './common/Tip';
 import Footer from './common/Footer';
 import './style.less';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 if (!window.emitter) {
   window.emitter = new EventEmitter();
@@ -75,6 +76,13 @@ const ActiveJsSwitchCon = styled.div`
 
 function Func(props, ref) {
   const {
+    supportDebug,
+    isWorksheetFlow,
+    appId,
+    worksheetId,
+    projectId,
+    dialogWidth,
+    dialogHeight,
     control = {},
     setRef,
     supportJavaScript,
@@ -94,7 +102,25 @@ function Func(props, ref) {
   const [codeEditorLoading, setCodeEditorLoading] = useState(false);
   let { controls = [] } = props;
   if (_.isArray(controlGroups)) {
-    controls = _.flatten(controlGroups.map(group => group.controls));
+    controls = _.flatten(controlGroups.map(group => group.controls.map(c => ({ ...c, workflowGroupId: group.id }))));
+    if (isWorksheetFlow) {
+      controls = controls.map(c => ({
+        ...c,
+        type: c.originalType ? c.originalType : c.type,
+        ...(includes([9, 10, 11], c.type) && {
+          enumDefault2: 0,
+        }),
+      }));
+      controlGroups.forEach(group => {
+        group.controls = group.controls.map(c => ({
+          ...c,
+          type: c.originalType ? c.originalType : c.type,
+          ...(includes([9, 10, 11], c.type) && {
+            enumDefault2: 0,
+          }),
+        }));
+      });
+    }
   }
   const codeEditor = useRef();
   const editorFunctions = key => {
@@ -181,6 +207,13 @@ function Func(props, ref) {
           <CodeEditCon>
             {!codeEditorLoading && (
               <CodeEdit
+                isWorksheetFlow={isWorksheetFlow}
+                showTestButton={supportDebug && type !== 'javascript'}
+                dialogWidth={dialogWidth}
+                dialogHeight={dialogHeight}
+                appId={appId}
+                worksheetId={worksheetId}
+                projectId={projectId}
                 control={control}
                 type={type}
                 value={expression}
@@ -189,6 +222,8 @@ function Func(props, ref) {
                 ref={codeEditor}
                 renderTag={renderTag}
                 onChange={onChange}
+                insertTagToEditor={editorFunctions('insertTag')}
+                openTestFunctionDialog={openTestFunctionDialog}
               />
             )}
           </CodeEditCon>

@@ -78,6 +78,15 @@ export default function initWorksheetSocket() {
         recordId,
         closeWhenNotViewData: true,
       });
+      if (window.customWidgetViewIsActive) {
+        emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+          action: 'reload-record-info',
+          value: {
+            recordId,
+            worksheetId,
+          },
+        });
+      }
     }
 
     if (close) {

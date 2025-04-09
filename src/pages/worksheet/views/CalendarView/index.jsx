@@ -59,30 +59,28 @@ const WrapChoose = styled.div`
   }
 `;
 const WrapNum = styled.div`
-   {
-    position: relative;
-    width: 20px;
-    text-align: center;
-    line-height: 20px;
-    .txt {
-      display: block;
-    }
-    .add {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      opacity: 0;
-      transform: translate(-50%, -50%);
-    }
-    &.canAdd {
-      &:hover {
-        .add {
-          line-height: 20px;
-          opacity: 1;
-        }
-        .txt {
-          opacity: 0;
-        }
+  position: relative;
+  width: 20px;
+  text-align: center;
+  line-height: 20px;
+  .txt {
+    display: block;
+  }
+  .add {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+  &.canAdd {
+    &:hover {
+      .add {
+        line-height: 20px;
+        opacity: 1;
+      }
+      .txt {
+        opacity: 0;
       }
     }
   }
@@ -171,7 +169,8 @@ class RecordCalendar extends Component {
       viewId !== this.props.base.viewId ||
       getAdvanceSetting(currentView).begindate !== getAdvanceSetting(preView).begindate ||
       getAdvanceSetting(currentView).colorid !== getAdvanceSetting(preView).colorid ||
-      getAdvanceSetting(currentView).calendarcids !== getAdvanceSetting(preView).calendarcids
+      getAdvanceSetting(currentView).calendarcids !== getAdvanceSetting(preView).calendarcids ||
+      getAdvanceSetting(currentView).viewtitle !== getAdvanceSetting(preView).viewtitle
     ) {
       // 切换视图，或更改开始时间字段 重新更新排期数据
       nextProps.refreshEventList();

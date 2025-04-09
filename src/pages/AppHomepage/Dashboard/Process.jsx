@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import MyProcess, { TABS } from 'src/pages/workflow/MyProcess';
+import MyProcess from 'src/pages/workflow/MyProcess';
+import { TABS } from 'src/pages/workflow/MyProcess/config';
 import cx from 'classnames';
 import { getStateParam } from 'src/pages/workflow/MyProcess';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';

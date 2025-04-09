@@ -1,14 +1,16 @@
 import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import CodeMirror from 'codemirror';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getControlType } from './ControlList';
 import useShowHint from '../lib/show-hint';
 import useMatchBrackets from '../lib/matchbrackets';
 import useCloseBrackets from '../lib/closebrackets';
 import setJavascriptMode from '../lib/javascript';
-import { functions } from '../enum';
+import { checkTypeSupportForFunction, functions } from '../enum';
 import '../lib/show-hint.css';
 import EventEmitter from 'events';
-import _ from 'lodash';
+import _, { get, identity, isEmpty } from 'lodash';
 
 const TagWrapper = ({ onDidMount = () => {}, tag }) => {
   useLayoutEffect(() => {
@@ -27,12 +29,16 @@ useCloseBrackets(CodeMirror);
 useMatchBrackets(CodeMirror);
 useShowHint(CodeMirror);
 
-function createElement(text, style = {}) {
+function createElement(text, style = {}, { tooltip } = {}) {
   const dom = document.createElement('span');
   dom.innerText = text;
   Object.keys(style).forEach(key => {
     dom.style[key] = style[key];
   });
+  if (tooltip) {
+    dom.setAttribute('data-tip', tooltip);
+    dom.classList.add('tip-right', 'tip-no-animation', 'tip-red');
+  }
   return dom;
 }
 
@@ -81,7 +87,17 @@ function groupMatch(text, matchText) {
 export default class Function {
   constructor(
     dom,
-    { value, options = {}, type = 'mdfunction', getControlName = () => {}, renderTag, onChange = () => {} } = {},
+    {
+      value,
+      options = {},
+      type = 'mdfunction',
+      getControlName = () => {},
+      controls = [],
+      renderTag,
+      onChange = () => {},
+      insertTagToEditor = () => {},
+      onError = () => {},
+    } = {},
   ) {
     if (!dom) {
       console.log('target is not a dom element');
@@ -116,10 +132,15 @@ export default class Function {
       });
     }
     this.editor = CodeMirror(dom, args);
+    this.markers = [];
     this.type = type;
     this.getControlName = getControlName;
+    this.controls = controls;
     this.renderTag = renderTag;
     this.onChange = onChange;
+    this.insertTagToEditor = insertTagToEditor;
+    this.onError = onError;
+    this.readOnly = options.readOnly;
     if (value) {
       this.init(value);
     }
@@ -144,8 +165,8 @@ export default class Function {
       const line = this.editor.getLine(cursor.line);
       const beforeChar = line.charAt(cursor.ch - 1);
       const afterChar = line.charAt(cursor.ch);
-      if (/[A-Z]/.test(beforeChar) || /[A-Z]/.test(afterChar)) {
-        const matchs = groupMatch(line, /([a-zA-Z0-9]+)(?=\()/g);
+      if (/[A-Z_]/.test(beforeChar) || /[A-Z_]/.test(afterChar)) {
+        const matchs = groupMatch(line, /([a-zA-Z0-9__]+)(?=\()/g);
         matchs.forEach(match => {
           if (cursor.ch >= match.start && cursor.ch <= match.end) {
             window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', match.str[0]);
@@ -168,16 +189,21 @@ export default class Function {
         //
       }
       this.markElements();
+      if (_.isFunction(this.onChange)) {
+        this.onChange();
+      }
     });
   }
   handleDefaultActiveFn(value = '') {
-    const matchs = groupMatch(value, /([a-zA-Z0-9]+)(?=\()/g);
+    const matchs = groupMatch(value, /([a-zA-Z0-9_]+)(?=\()/g);
     if (matchs.length && matchs[0].str && matchs[0].str[0]) {
       window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', matchs[0].str[0]);
     }
   }
   showHint() {
     const editor = this.editor;
+    const controls = this.controls;
+    const insertTagToEditor = this.insertTagToEditor;
     CodeMirror.showHint(
       editor,
       function () {
@@ -186,16 +212,50 @@ export default class Function {
         const start = token.start;
         const end = cursor.ch;
         const line = cursor.line;
-        return {
-          list: _.sortBy(
-            Object.keys(functions)
-              .filter(fn => fn.indexOf(token.string.toUpperCase()) > -1)
-              .map(fn => ({
-                text: fn,
-                displayText: fn,
+        const filteredFunctions = Object.keys(functions).filter(fn => fn.indexOf(token.string.toUpperCase()) > -1);
+        const filteredControls = controls
+          .filter(c => c.controlName && checkTypeSupportForFunction(c))
+          .filter(control => control.controlName.toUpperCase().indexOf(token.string.toUpperCase()) > -1);
+        let hintData = [];
+        if (filteredControls.length) {
+          hintData = hintData.concat(
+            filteredControls.map(control => ({
+              text: '',
+              displayText: control.controlName,
+              control,
+              render: (parent, data, cur, i, hints) => {
+                const isLast = i === filteredControls.length - 1;
+                const node = document.createElement('div');
+                node.className = 'hint-item';
+                if (isLast && !!filteredFunctions.length) {
+                  parent.style.borderBottom = '1px solid #afdcff';
+                }
+                node.innerHTML = `<i class="icon icon-${getIconByType(getControlType(control) || 2)}"></i> ${
+                  control.controlName
+                }`;
+                parent.appendChild(node);
+              },
+            })),
+          );
+        }
+        if (filteredFunctions.length) {
+          hintData = hintData.concat(
+            _.sortBy(
+              filteredFunctions.map(fnName => ({
+                text: fnName,
+                displayText: fnName,
+                render: (parent, data, cur, i) => {
+                  const node = document.createElement('div');
+                  node.textContent = fnName;
+                  parent.appendChild(node);
+                },
               })),
-            'text',
-          ),
+              'text',
+            ),
+          );
+        }
+        return {
+          list: hintData,
           from: CodeMirror.Pos(line, start),
           to: CodeMirror.Pos(line, end),
           _handlers: {
@@ -211,7 +271,16 @@ export default class Function {
             ],
             pick: [
               function (item) {
-                window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', item.text);
+                if (item.control) {
+                  insertTagToEditor({
+                    value: [get(item, 'control.workflowGroupId', ''), get(item, 'control.controlId')]
+                      .filter(identity)
+                      .join('-'),
+                    text: get(item, 'control.controlName'),
+                  });
+                } else {
+                  window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', item.text);
+                }
               },
             ],
           },
@@ -246,61 +315,7 @@ export default class Function {
     this.insertBrackets();
     editor.focus();
   }
-  // markBrackets(cursor) {
-  //   const line = this.editor.getLine(cursor.line);
-  //   const beforeChar = line.charAt(cursor.ch - 1);
-  //   const afterChar = line.charAt(cursor.ch);
-  //   // console.log({ beforeChar, afterChar });
-  //   const isBracket = /[()]/.test(beforeChar) || /[()]/.test(afterChar);
-  //   if (!isBracket) {
-  //     return;
-  //   }
-  //   const activeBracketPos = { line: cursor.line, ch: /[()]/.test(beforeChar) ? cursor.ch - 1 : cursor.ch };
-  //   // console.log(activeBracketPos);
-  //   const matchedChar = line.charAt(activeBracketPos) === '(' ? ')' : '(';
-  //   let matchedBracketPos;
-  //   let matchCount = 0;
-  //   this.editor
-  //     .getValue()
-  //     .split('\n')
-  //     .slice(activeBracketPos.line)
-  //     .forEach((line, lineNum) => {
-  //       if (matchedBracketPos) {
-  //         return;
-  //       }
-  //       const regexp = /[()]/g;
-  //       const needMatchText = line.slice(lineNum === 0 ? activeBracketPos.ch + 1 : 0);
-  //       var match = regexp.exec(needMatchText);
-  //       while (match != null) {
-  //         if (match[0] === matchedChar) {
-  //           matchCount--;
-  //         } else {
-  //           if (matchCount === 0) {
-  //             matchedBracketPos = { line: cursor.line + lineNum, ch: match.index };
-  //             break;
-  //           } else {
-  //             matchCount++;
-  //           }
-  //         }
-  //         // result.push({
-  //         //   str: match,
-  //         //   start: match.index,
-  //         //   end: match.index + match[0].length,
-  //         //   line: lineNum,
-  //         // });
-  //         match = regexp.exec(needMatchText);
-  //       }
-  //     });
-  //   console.log(matchedBracketPos);
-  //   this.editor.markText(
-  //     { line: matchedBracketPos.line, ch: matchedBracketPos.ch },
-  //     { line: matchedBracketPos.line, ch: matchedBracketPos.ch + 1 },
-  //     {
-  //       replacedWith: createElement(matchedChar === '(' ? ')' : '(', { margin: '0 3px', color: '#F44336' }),
-  //       handleMouseEvents: true,
-  //     },
-  //   );
-  // }
+
   renderColumnTag(id, options = {}, cb = () => {}) {
     let node;
     if (_.isFunction(this.renderTag)) {
@@ -338,7 +353,7 @@ export default class Function {
   }
   markFunction() {
     const value = this.editor.getValue();
-    const matchs = groupMatch(value, /([a-zA-Z0-9]+)(?=\()/g);
+    const matchs = groupMatch(value, /([a-zA-Z0-9_]+)(?=\()/g);
     matchs.forEach(match => {
       this.editor.markText(
         { line: match.line, ch: match.start },
@@ -370,26 +385,161 @@ export default class Function {
   }
   markChineseSymbol() {
     const value = this.editor.getValue();
-    const matchs = groupMatch(value, /[，（）]/g);
+    // 匹配中文逗号、括号及双引号
+    const matchs = groupMatch(value, /[，（）“”]/g);
     matchs.forEach(match => {
-      this.editor.markText(
+      const str = match.str[0];
+      let shouldMark = true;
+
+      // 处理中文双引号
+      const pos = CodeMirror.Pos(match.line, match.start);
+      const token = this.editor.getTokenAt(pos);
+      // 检查是否在字符串内部（token类型包含'string'）
+      if (token.type && token.type.includes('string')) {
+        shouldMark = false;
+      }
+
+      if (shouldMark) {
+        const marker = this.editor.markText(
+          { line: match.line, ch: match.start },
+          { line: match.line, ch: match.end },
+          {
+            replacedWith: createElement(str, {
+              margin: '0 3px',
+              color: '#F44336', // 标红
+            }),
+            handleMouseEvents: true,
+          },
+        );
+        this.markers.push(marker);
+        this.onError({ text: _l('字符错误，请输入英文字符') });
+      }
+    });
+  }
+  markErrorFunctionEnd() {
+    const value = this.editor.getValue();
+    const matchs = groupMatch(value, /(,|\+|-|\*|\/)\)/g);
+    matchs.forEach(match => {
+      const str = match.str[0];
+      const marker = this.editor.markText(
         { line: match.line, ch: match.start },
         { line: match.line, ch: match.end },
         {
-          replacedWith: createElement(match.str[0], { margin: '0 3px', color: '#F44336' }),
+          atomic: false,
+          inclusiveLeft: false,
+          inclusiveRight: false,
+          css: 'color: #F44336',
           handleMouseEvents: true,
         },
       );
+      this.markers.push(marker);
+      this.onError({ text: _l('错误的公式结尾') });
     });
   }
+
+  checkCommaInControls() {
+    const value = this.editor.getValue();
+    const matchs = groupMatch(value, /\$(.+?)\$\$(.+?)\$/g);
+    if (!isEmpty(matchs)) {
+      this.onError({ text: _l('缺少分隔符或运算符') });
+    }
+  }
+
+  markUnclosedBrackets() {
+    const editor = this.editor;
+    const value = editor.getValue();
+    const bracketStack = [];
+    const unclosedBrackets = [];
+
+    // Helper function to find function name
+    const findFunctionName = (line, bracketPos) => {
+      let startCh = bracketPos;
+      while (startCh > 0) {
+        startCh--;
+        const char = line[startCh];
+        if (!/[A-Z_]/.test(char)) {
+          startCh++;
+          break;
+        }
+      }
+      return startCh < bracketPos ? startCh : null;
+    };
+
+    for (let lineNum = 0; lineNum < editor.lineCount(); lineNum++) {
+      const line = editor.getLine(lineNum);
+      for (let ch = 0; ch < line.length; ch++) {
+        const char = line[ch];
+        if (char === '(') {
+          const functionStartCh = findFunctionName(line, ch);
+          bracketStack.push({
+            char: '(',
+            pos: { line: lineNum, ch: ch },
+            functionStartCh: functionStartCh, // Store function start position
+          });
+        } else if (char === ')') {
+          if (bracketStack.length > 0 && bracketStack[bracketStack.length - 1].char === '(') {
+            bracketStack.pop();
+          }
+        }
+      }
+    }
+
+    while (bracketStack.length > 0) {
+      const unclosedBracket = bracketStack.pop();
+      unclosedBrackets.push(unclosedBracket);
+    }
+
+    unclosedBrackets.forEach(unclosedBracket => {
+      // If function name exists, mark from function start to bracket
+      const startPos =
+        unclosedBracket.functionStartCh !== null
+          ? { line: unclosedBracket.pos.line, ch: unclosedBracket.functionStartCh }
+          : unclosedBracket.pos;
+
+      const marker = editor.markText(
+        startPos,
+        { line: unclosedBracket.pos.line, ch: unclosedBracket.pos.ch + 1 },
+        {
+          replacedWith: createElement(
+            editor.getRange(startPos, { line: unclosedBracket.pos.line, ch: unclosedBracket.pos.ch + 1 }),
+            {
+              color: '#F44336',
+            },
+            {
+              tooltip: _l('函数括号未闭合'),
+            },
+          ),
+          handleMouseEvents: true,
+        },
+      );
+      this.markers.push(marker);
+      this.onError({ text: _l('函数括号未闭合') });
+    });
+  }
+
+  clearMarkers() {
+    this.markers.forEach(marker => marker.clear());
+    this.markers = [];
+    this.onError();
+  }
+
   markElements() {
+    // 处理字段
+    this.markControls();
     // 处理函数呈现
     // this.markFunction();
     // 处理符号
     // this.markSymbol();
-    // 高亮显示中文符号
-    this.markChineseSymbol();
-    // 处理字段
-    this.markControls();
+    if (this.type === 'mdfunction' && !this.readOnly) {
+      this.clearMarkers();
+      // 高亮显示中文符号
+      this.markChineseSymbol();
+      // 高亮显示未闭合的括号
+      this.markUnclosedBrackets();
+      // 高亮公式末尾带分隔符或运算符
+      this.markErrorFunctionEnd();
+      // 参数没有分隔符时报错
+      this.checkCommaInControls();
+    }
   }
 }

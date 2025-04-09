@@ -148,6 +148,7 @@ export default class Notice extends Component {
             nodeId={this.props.selectNodeId}
             unique={false}
             accounts={data.accounts}
+            isIncludeSubDepartment={true}
             updateSource={this.updateSource}
             onClose={() => this.setState({ showSelectUserDialog: false })}
           />

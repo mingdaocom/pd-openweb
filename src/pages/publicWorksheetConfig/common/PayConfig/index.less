@@ -143,4 +143,34 @@
   &.valueDisable .Dropdown--input .value {
     color: #999;
   }
+
+  &.ant-select-open .ant-select-selector {
+    border-color: #2196f3;
+    box-shadow: none;
+  }
+  .ant-select-item-option-disabled {
+    color: #bdbdbd !important;
+  }
+  .disabledTag {
+    background: #f5f5f5;
+    color: #bdbdbd;
+  }
+}
+
+.merchantDropDown.ant-select-dropdown {
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
+  .ant-select-item-option-disabled.ant-select-item-option-selected {
+    background-color: #fff !important;
+  }
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: #e6f7ff !important;
+  }
+  .ant-select-item-option-state {
+    margin-left: 10px;
+  }
+  .ant-select-item-option-disabled.ant-select-item-option-selected {
+    .ant-select-item-option-state {
+      display: none !important;
+    }
+  }
 }

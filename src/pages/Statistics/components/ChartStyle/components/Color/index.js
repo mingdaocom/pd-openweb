@@ -67,6 +67,9 @@ export default class ColorEntrance extends Component {
         const chartColors = getPorjectChartColors(projectId);
         if (colorGroupId === 'adaptThemeColor') {
           name = _l('适应主题');
+        } else if (colorGroupId && colorGroupId.includes('personColor')) {
+          const { personColor } = newStyle;
+          name = personColor.name;
         } else if (colorGroupId) {
           name = (_.find(chartColors, { id: colorGroupId }) || chartColors[0]).name;
         } else if (colorGroup[colorGroupIndex]) {
@@ -147,7 +150,8 @@ export default class ColorEntrance extends Component {
     return (
       <div className="mBottom16 flexRow valignWrapper">
         <EntranceWrapper
-          className="flex flexRow valignWrapper pointer pLeft10"
+          style={{ height: 'auto', padding: '5px 10px' }}
+          className="flex flexRow valignWrapper pointer"
           onClick={() => {
             if (colorRules.length) {
               this.setState({ ruleColorModalVisible: true });

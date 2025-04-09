@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Dialog, Icon, Dropdown, Tooltip } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import styled from 'styled-components';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import _ from 'lodash';
+import { Dialog, Dropdown, Icon, Tooltip } from 'ming-ui';
+import styled from 'styled-components';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import '../index.less';
 
 const Row = styled.div`
@@ -29,14 +29,25 @@ export default class MapField extends Component {
       mapFields: [
         { controlId: 'orderNo', controlName: _l('订单编号'), type: [2] },
         { controlId: 'totalFee', controlName: _l('交易金额'), type: [8] },
+        {
+          controlId: 'payStatus',
+          controlName: _l('订单状态'),
+          type: [2, 11],
+          desc: _l('可映射状态：已支付、待支付、已退款、部分退款、退款中'),
+        },
         { controlId: 'payMethod', controlName: _l('支付方式'), type: [2, 11] },
-        { controlId: 'payStatus', controlName: _l('订单状态'), type: [2, 11] },
+        { controlId: 'merchantPaymentChannel', controlName: _l('支付通道'), type: [2, 11] },
         { controlId: 'createOrderTime', controlName: _l('下单时间'), type: [16] },
         { controlId: 'payTime', controlName: _l('支付时间'), type: [16] },
         { controlId: 'refundFee', controlName: _l('退款金额'), type: [8] },
-        { controlId: 'settleFee', controlName: _l('结算金额'), type: [8] },
-        { controlId: 'tradeFee', controlName: _l('结算手续费'), type: [8] },
-        { controlId: 'tradeFeeRate', controlName: _l('结算手续费率'), type: [8] },
+        { controlId: 'settleFee', controlName: _l('结算金额'), type: [8], desc: _l('微信/支付宝直连无法获取结算金额') },
+        { controlId: 'tradeFee', controlName: _l('结算手续费'), type: [8], desc: _l('微信/支付宝直连无法获取手续费') },
+        {
+          controlId: 'tradeFeeRate',
+          controlName: _l('结算手续费率'),
+          type: [8],
+          desc: _l('微信/支付宝直连无法获取手续费率'),
+        },
         { controlId: 'mchId', controlName: _l('商户号'), type: [2] },
         { controlId: 'sourceType', controlName: _l('订单来源'), type: [2, 11] },
         { controlId: 'payAccount', controlName: _l('下单人'), type: [2] },
@@ -88,9 +99,9 @@ export default class MapField extends Component {
         <div className="fieldText flex">
           <Icon className="Font16 Gray_9e mRight10" icon={getIconByType(item.type)} />
           {item.controlName}
-          {item.controlId === 'payStatus' && (
+          {_.includes(['payStatus', 'settleFee', 'tradeFee', 'tradeFeeRate'], item.controlId) && (
             <Tooltip
-              text={<span>{_l('可映射状态：已支付、待支付、已退款、部分退款、退款中')}</span>}
+              text={<span>{item.desc}</span>}
               popupAlign={{
                 points: ['tl', 'bl'],
                 offset: [-15, 0],

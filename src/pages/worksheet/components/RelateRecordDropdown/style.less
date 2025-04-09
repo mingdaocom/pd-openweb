@@ -270,13 +270,15 @@
     line-height: 1em;
     color: #757575;
     padding: 0px 7px;
-    border-right: 1px solid #9e9e9e;
     word-break: break-all;
     overflow: hidden;
     text-overflow: ellipsis;
     -webkit-line-clamp: 3;
     /*! autoprefixer: off */
     -webkit-box-orient: vertical;
+    &:not(:last-child) {
+      border-right: 1px solid #9e9e9e;
+    }
   }
   &-selectedIcon {
     position: absolute;

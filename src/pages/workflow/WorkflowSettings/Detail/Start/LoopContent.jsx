@@ -299,7 +299,7 @@ export default class LoopContent extends Component {
     const list = [
       { text: _l('每分钟都触发'), value: 1 },
       { text: _l('按范围触发'), value: 2 },
-      { text: _l('按固定值触发'), value: 3 },
+      { text: _l('按指定分钟触发'), value: 3 },
       { text: _l('按一定增量触发'), value: 4 },
     ];
 
@@ -329,7 +329,7 @@ export default class LoopContent extends Component {
     const list = [
       { text: _l('每小时都触发'), value: 1 },
       { text: _l('按范围触发'), value: 2 },
-      { text: _l('按固定值触发'), value: 3 },
+      { text: _l('按指定小时触发'), value: 3 },
       { text: _l('按一定增量触发'), value: 4 },
     ];
 
@@ -360,7 +360,7 @@ export default class LoopContent extends Component {
     const list = [
       { text: _l('每天都触发'), value: 1 },
       { text: _l('按范围触发'), value: 2 },
-      { text: _l('按固定值触发'), value: 3 },
+      { text: _l('按指定天触发'), value: 3 },
       { text: _l('按一定增量触发'), value: 4 },
       { text: _l('每月的最后一天触发'), value: 5 },
     ];
@@ -436,7 +436,7 @@ export default class LoopContent extends Component {
     const { data } = this.props;
     const list = [
       { text: _l('每月都触发'), value: 1 },
-      { text: _l('按固定值触发'), value: 3 },
+      { text: _l('按指定月份触发'), value: 3 },
     ];
 
     return (
@@ -563,22 +563,18 @@ export default class LoopContent extends Component {
     const values = data.config[key].values;
     const KEYS_ENUM = {
       minute: {
-        suffix: _l('分钟'),
         min: 0,
         max: 59,
       },
       hour: {
-        suffix: _l('时'),
         min: 0,
         max: 23,
       },
       day: {
-        suffix: _l('日'),
         min: 1,
         max: 31,
       },
       month: {
-        suffix: _l('月'),
         min: 1,
         max: 12,
       },
@@ -610,7 +606,7 @@ export default class LoopContent extends Component {
               {values.map(value => {
                 return (
                   <li key={value} className="tagItem flexRow">
-                    <span className="tag">{value + KEYS_ENUM[key].suffix}</span>
+                    <span className="tag">{value}</span>
                     <span
                       className="delTag"
                       onClick={e => {

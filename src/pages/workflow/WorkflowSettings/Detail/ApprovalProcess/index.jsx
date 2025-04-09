@@ -67,7 +67,10 @@ export default class ApprovalProcess extends Component {
 
         if (sId && !fields) {
           result.fields = [];
-          result.flowNodeMap = Object.assign({ [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE] });
+          result.flowNodeMap = Object.assign({
+            [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
+            [OPERATION_TYPE.EMAIL]: result.flowNodeMap[OPERATION_TYPE.EMAIL],
+          });
         }
 
         if (fields) {

@@ -19,6 +19,7 @@ import UnNormal from 'worksheet/views/components/UnNormal';
 import { getSheetListFirstId, findSheet, moveSheetCache } from './util';
 import './worksheet.less';
 import _, { get, includes } from 'lodash';
+import { browserIsMobile } from 'src/util';
 
 let request = null;
 
@@ -162,6 +163,7 @@ class WorkSheet extends Component {
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     updateBase({
       appId,
       viewId,
@@ -174,7 +176,7 @@ class WorkSheet extends Component {
     document.body.style.overscrollBehaviorX = 'none';
   }
   componentWillReceiveProps(nextProps) {
-    const { updateBase, worksheetId, updateWorksheetLoading, updateSheetListLoading } = nextProps;
+    const { updateBase, worksheetId, updateWorksheetLoading, updateSheetListLoading, views } = nextProps;
     if (/\/app\/[\w-]+$/.test(location.pathname)) {
       return;
     }
@@ -196,9 +198,23 @@ class WorkSheet extends Component {
       if (md.global.Account.isPortal) {
         appId = md.global.Account.appId;
       }
+
+      let defaultViewId = undefined;
+      if (!viewId && this.props.match.params.viewId === worksheetId && worksheetId === nextProps.match.params.worksheetId) {
+        const showViews = views.filter(view => {
+          const showhide = _.get(view, 'advancedSetting.showhide') || '';
+          if (browserIsMobile()) {
+            return !showhide.includes('spc&happ') && !showhide.includes('hide');
+          }
+          return !showhide.includes('hpc') && !showhide.includes('hide');
+        });
+
+        defaultViewId = _.get((showViews.length ? showViews : views)[0], 'viewId');
+      }
+
       updateBase({
         appId,
-        viewId,
+        viewId: defaultViewId || viewId,
         groupId,
         worksheetId: id,
       });
@@ -377,6 +393,7 @@ export default withRouter(
       worksheetId: state.sheet.base.worksheetId,
       isCharge: state.sheet.isCharge,
       appPkg: state.appPkg,
+      views: _.get(state, 'sheet.views'),
     }),
     dispatch =>
       bindActionCreators(

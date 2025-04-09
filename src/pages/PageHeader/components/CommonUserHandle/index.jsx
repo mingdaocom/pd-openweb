@@ -142,30 +142,31 @@ export default class CommonUserHandle extends Component {
     if (window.isPublicApp || !tr) {
       return null;
     }
-
     return (
       <div className={cx('commonUserHandleWrap', { dashboardCommonUserHandleWrap: type === 'dashboard' })}>
-        {type === 'native' && (
+        {['native', 'integration'].includes(type) && (
           <React.Fragment>
-            <Tooltip
-              popupVisible={this.state.addMenuVisible}
-              text={
-                <AddMenu
-                  onClose={() => {
-                    this.setState({ addMenuVisible: false });
-                  }}
-                />
-              }
-              action={['click']}
-              mouseEnterDelay={0.2}
-              themeColor="white"
-              tooltipClass="pAll0"
-              onPopupVisibleChange={this.handleAddMenuVisible.bind(this)}
-            >
-              <div className="addOperationIconWrap mLeft20 mRight15 pointer">
-                <Icon icon="addapplication Font30" />
-              </div>
-            </Tooltip>
+            {type === 'native' && (
+              <Tooltip
+                popupVisible={this.state.addMenuVisible}
+                text={
+                  <AddMenu
+                    onClose={() => {
+                      this.setState({ addMenuVisible: false });
+                    }}
+                  />
+                }
+                action={['click']}
+                mouseEnterDelay={0.2}
+                themeColor="white"
+                tooltipClass="pAll0"
+                onPopupVisibleChange={this.handleAddMenuVisible.bind(this)}
+              >
+                <div className="addOperationIconWrap mLeft20 mRight15 pointer">
+                  <Icon icon="addapplication Font30" />
+                </div>
+              </Tooltip>
+            )}
             <MyProcessEntry type={type} />
           </React.Fragment>
         )}

@@ -392,13 +392,14 @@ export default function SheetWorkflow(props) {
     });
   };
 
-  const handleAction = ({ action, content, userId, backNodeId, signature, files }) => {
+  const handleAction = ({ action, content, userId, backNodeId, signature, files, nextUserRange }) => {
     if (_.includes(['pass', 'overrule', 'return', 'submit', 'revoke'], action)) {
       handleRequest(ACTION_TO_METHOD[action === 'return' ? 'overrule' : action], {
         opinion: content,
         backNodeId,
         signature,
         files,
+        nextUserRange
       }).then(() => {
         setActionVisible(false);
         handleCloseDrawer();
@@ -837,6 +838,7 @@ export default function SheetWorkflow(props) {
             visible={actionVisible}
             action={currentWorkflow.value}
             instanceId={currentWorkflow.instanceId}
+            workId={_.get(currentWorkflow.currentWork, 'workId')}
             selectedUser={{}}
             instance={currentWorkflow}
             onAction={handleAction}
@@ -850,6 +852,7 @@ export default function SheetWorkflow(props) {
             data={currentWorkflow}
             action={currentWorkflow.value}
             instanceId={currentWorkflow.instanceId}
+            workId={_.get(currentWorkflow.currentWork, 'workId')}
             onOk={handleAction}
             onCancel={() => {
               setActionVisible(false);

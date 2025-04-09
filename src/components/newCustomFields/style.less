@@ -61,12 +61,14 @@
       border-color: #e0e0e0 !important;
       &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore):not(
           .customFormControlUser
-        ):not(.customFormControlDropDown) {
+        ):not(.customFormControlDropDown):not(.customFormMarkdown) {
         padding-right: 12px !important;
       }
       &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(
           .customFormControlScore
-        ):not(.customFormControlUser):not(.customFormTextareaBox):not(.customFormControlDropDown) {
+        ):not(.customFormControlUser):not(.customFormTextareaBox):not(.customFormControlDropDown):not(
+          .customFormMarkdown
+        ) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -196,7 +198,7 @@
   }
 
   .customFormItemControlCreate.customFormItemControl {
-    .customFormControlBox,
+    .customFormControlBox:not(.customFormMarkdown),
     .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
       border: 1px solid #ddd;
       background-color: transparent;
@@ -1189,6 +1191,7 @@
 .showRadioTxtAll {
   height: auto !important;
   white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .borderRadiusNone {

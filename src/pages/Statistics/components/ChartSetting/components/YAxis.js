@@ -4,7 +4,8 @@ import { Icon, SortableList } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
 import RenameModal from './RenameModal';
-import { isNumberControl, normTypes, emptyShowTypes } from 'statistics/common';
+import { isNumberControl, emptyShowTypes } from 'statistics/common';
+import { normTypes } from '../../../enum';
 import { reportTypes } from 'statistics/Charts/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
@@ -31,13 +32,13 @@ function arrayMove(array, oldIndex, newIndex) {
   if (oldIndex < 0 || oldIndex >= array.length || newIndex < 0 || newIndex >= array.length) {
     return array;
   }
-  const newArray = [...array]
-  const [movedItem] = newArray.splice(oldIndex, 1)
-  newArray.splice(newIndex, 0, movedItem)
-  return newArray
+  const newArray = [...array];
+  const [movedItem] = newArray.splice(oldIndex, 1);
+  newArray.splice(newIndex, 0, movedItem);
+  return newArray;
 }
 
-const renderOverlay = (props) => {
+const renderOverlay = props => {
   const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, allControls, currentReport } =
     props;
   const { reportType, sorts, xaxes, yaxisList } = currentReport;
@@ -59,32 +60,34 @@ const renderOverlay = (props) => {
       </Menu.Item>
       {isNumberControl(controlType, false) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {normTypes
-            .map(item => (
-              <Menu.Item
-                style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
-                key={item.value}
-                onClick={() => {
-                  onNormType(controlId, item.value);
-                }}
-              >
-                {item.alias || item.text}
-              </Menu.Item>
-            ))}
+          {normTypes.map(item => (
+            <Menu.Item
+              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              key={item.value}
+              onClick={() => {
+                onNormType(controlId, item.value);
+              }}
+            >
+              {item.alias || item.text}
+            </Menu.Item>
+          ))}
         </Menu.SubMenu>
       )}
       {!isNumberControl(controlType) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {(enumDefault === 1 ? normTypes : [
-            {
-              text: _l('计数'),
-              value: 5,
-            },
-            {
-              text: _l('去重计数'),
-              value: 6,
-            },
-          ]).map(item => (
+          {(enumDefault === 1
+            ? normTypes
+            : [
+                {
+                  text: _l('计数'),
+                  value: 5,
+                },
+                {
+                  text: _l('去重计数'),
+                  value: 6,
+                },
+              ]
+          ).map(item => (
             <Menu.Item
               style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
               key={item.value}
@@ -332,7 +335,7 @@ export default class YAxis extends Component {
       onEmptyShowType: this.handleEmptyShowType,
       onChangeControlId: this.handleChangeControlId,
       onChangeCurrentReport: this.props.onChangeCurrentReport,
-    }
+    };
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
@@ -340,7 +343,7 @@ export default class YAxis extends Component {
           useDragHandle
           items={yaxisList}
           itemKey="controlId"
-          renderItem={(options) => renderSortableItem({ ...options, ...otherProps })}
+          renderItem={options => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={this.handleSortEnd}
         />
         {this.renderWithoutFidldItem()}

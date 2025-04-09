@@ -16,7 +16,7 @@ const tipsConfig = {
   mobilePhone: _l(
     '绑定手机号作为你的登录账号。同时也是管理个人账户和使用系统服务的重要依据。为便于您以后的操作及账户安全，请您尽快绑定。',
   ),
-  isTwoauthentication: _l('两步验证是在输入账号密码后，额外增加一道安全屏障（手机短信或邮箱验证码），保障您的帐号安全'),
+  isTwoauthentication: _l('两步验证是在输入账号密码后，额外增加一道安全屏障（手机短信或邮箱验证码），保障您的账号安全'),
   openWeixinLogin: _l('开启后，登录系统会收到微信通知'),
 };
 
@@ -131,9 +131,9 @@ export default class SecuritySetting extends Component {
   checkIsBindWX = () => {
     wxController.checkWeiXinServiceNumberBind().then(res => {
       if (!res) {
-        alert(_l('您的帐号还未绑定微信，请扫描二维码'), 3);
+        alert(_l('您的账号还未绑定微信，请扫描二维码'), 3);
       } else {
-        alert(_l('您的帐号已绑定微信，赶快去开启微信登录提醒吧'));
+        alert(_l('您的账号已绑定微信，赶快去开启微信登录提醒吧'));
       }
     });
   };

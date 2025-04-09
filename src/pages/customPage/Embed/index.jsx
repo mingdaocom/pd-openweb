@@ -35,6 +35,8 @@ export default class EmbedPage extends Component {
         homeAppApi.getApp({ appId }).then(data => {
           this.setState({ loading: false, status });
           window[`timeZone_${this.appId}`] = data.timeZone;
+          document.body.style.setProperty('--app-primary-color', data.iconColor);
+          document.body.style.setProperty('--app-primary-hover-color', data.iconColor);
           store.dispatch(changeAppColor(''));
         });
       })

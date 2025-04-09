@@ -31,11 +31,12 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { getAppFeaturesVisible, getTranslateInfo } from 'src/util';
 import { BatchOperate } from 'worksheet/common';
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
-import { findSheet } from 'worksheet/util';
+import { findSheet, getHighAuthSheetSwitchPermit } from 'worksheet/util';
 import { getAppSectionData, getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 import { navigateTo } from 'src/router/navigateTo';
 import _, { get } from 'lodash';
+import { isHaveCharge } from 'worksheet/redux/actions/util';
 
 const Con = styled.div`
   display: flex;
@@ -88,9 +89,7 @@ const VerticalCenter = styled.div`
 
 function SheetHeader(props) {
   const { appPkg, worksheetInfo, controls, sheetSwitchPermit } = props;
-  const showPublic = isOpenPermit(permitList.statisticsSwitch, sheetSwitchPermit);
-  const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, sheetSwitchPermit);
-  const { type, appId, groupId, view, viewId, isCharge } = props;
+  const { type, appId, groupId, view, viewId, isCharge, views } = props;
   // functions
   const {
     onlyBatchOperate,
@@ -134,7 +133,13 @@ function SheetHeader(props) {
   const [resumeInfo, setResumeInfo] = useState({});
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const sheet = findSheet(worksheetId, sheetList) || {};
-  const canNewRecord = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd;
+  const lastSheetSwitchPermit =
+    isHaveCharge(appPkg.permissionType) && viewId === worksheetId
+      ? getHighAuthSheetSwitchPermit(sheetSwitchPermit, worksheetId)
+      : sheetSwitchPermit;
+  const canNewRecord = isOpenPermit(permitList.createButtonSwitch, lastSheetSwitchPermit) && allowAdd;
+  const showPublic = isOpenPermit(permitList.statisticsSwitch, lastSheetSwitchPermit);
+  const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, lastSheetSwitchPermit);
   const { rows, count, permission, rowsSummary, pageCountAbnormal } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
 
@@ -179,7 +184,7 @@ function SheetHeader(props) {
       selectedRows={sheetSelectedRows}
       selectedLength={selectedLength}
       updateViewPermission={updateViewPermission}
-      sheetSwitchPermit={sheetSwitchPermit}
+      sheetSwitchPermit={lastSheetSwitchPermit}
       rowsSummary={rowsSummary}
       updateRows={updateRows}
       hideRows={hideRows}
@@ -322,7 +327,7 @@ function SheetHeader(props) {
             viewId={viewId}
             worksheetInfo={worksheetInfo}
             controls={controls}
-            sheetSwitchPermit={sheetSwitchPermit}
+            sheetSwitchPermit={lastSheetSwitchPermit}
             // funcs
             setSheetDescVisible={value => {
               setDescIsEditing(true);
@@ -401,7 +406,7 @@ function SheetHeader(props) {
                         chartId={chartId}
                         isCharge={isCharge}
                         appPkg={appPkg}
-                        sheetSwitchPermit={sheetSwitchPermit}
+                        sheetSwitchPermit={lastSheetSwitchPermit}
                         appId={appId}
                         viewId={viewId}
                         projectId={projectId}
@@ -434,7 +439,7 @@ function SheetHeader(props) {
             {/* 工作表讨论权限 && 工作表日志权限 */}
             {!window.isPublicApp &&
               !md.global.Account.isPortal &&
-              !!isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) && (
+              !!isOpenPermit(permitList.discussSwitch, lastSheetSwitchPermit) && (
                 <Tooltip popupPlacement="bottom" text={<span>{_l('讨论')}</span>}>
                   <span className="actionWrap">
                     <Icon
@@ -453,7 +458,7 @@ function SheetHeader(props) {
                 appId={appId}
                 view={view}
                 worksheetInfo={worksheetInfo}
-                sheetSwitchPermit={sheetSwitchPermit}
+                sheetSwitchPermit={lastSheetSwitchPermit}
                 isCharge={isCharge}
                 needCache={false}
                 addNewRecord={props.addRecord}
@@ -511,7 +516,7 @@ function SheetHeader(props) {
           viewId={viewId}
           projectId={projectId}
           worksheetId={worksheetId}
-          discussSwitch={isOpenPermit(permitList.discussSwitch, sheetSwitchPermit)}
+          discussSwitch={isOpenPermit(permitList.discussSwitch, lastSheetSwitchPermit)}
           onClose={() => setDiscussionVisible(false)}
           isWorksheetDiscuss={true}
         />
@@ -531,7 +536,7 @@ function SheetHeader(props) {
       >
         <Statistics
           worksheetId={worksheetId}
-          viewId={viewId}
+          viewId={worksheetId === viewId ? _.get(views.filter(view => view.viewId !== viewId)[0], 'viewId') : viewId}
           appId={appId}
           projectId={projectId}
           roleType={roleType}
@@ -539,7 +544,7 @@ function SheetHeader(props) {
           themeColor={_.get(appPkg, 'iconColor')}
           isLock={_.get(appPkg, 'isLock')}
           permissionType={_.get(appPkg, 'permissionType')}
-          sheetSwitchPermit={sheetSwitchPermit}
+          sheetSwitchPermit={lastSheetSwitchPermit}
           onClose={() => setStatisticsVisible(false)}
         />
       </RightInMotion>

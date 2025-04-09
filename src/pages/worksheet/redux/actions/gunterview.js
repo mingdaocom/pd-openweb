@@ -16,10 +16,9 @@ import {
   formatWeekDay,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
-import { getDynamicValue } from 'src/components/newCustomFields/tools/DataFormat';
+import { getDynamicValue, controlState } from 'src/components/newCustomFields/tools/formUtils';
 import { formatQuickFilter, getFilledRequestParams, handleRecordError } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
@@ -273,7 +272,7 @@ export const updateViewConfig = view => {
     const { advancedSetting, viewControl, displayControls } = base.viewId
       ? (_.find(views, { viewId: base.viewId }) || views[0])
       : views[0];
-    const { unweekday, begindate, enddate, colorid, calendartype, milepost, clicktype } = advancedSetting;
+    const { unweekday, begindate, enddate, colorid, calendartype, milepost, clicktype, viewtitle } = advancedSetting;
     const titleControl = _.find(controls, { attribute: 1 }) || {};
     const startControl = _.find(controls, { controlId: begindate }) || {};
     const endControl = _.find(controls, { controlId: enddate }) || {};
@@ -302,6 +301,7 @@ export const updateViewConfig = view => {
       endDisable: endControl.disabled || !controlState(endControl, 3).editable,
       titleDisable: titleControl.disabled || !controlState(titleControl, 3).editable,
       clickType: clicktype || '0',
+      viewtitle,
     };
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: newConfig });
   };

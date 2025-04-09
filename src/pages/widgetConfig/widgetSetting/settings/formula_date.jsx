@@ -9,9 +9,9 @@ import SelectControl from '../components/SelectControl';
 import PreSuffix from '../components/PreSuffix';
 import PointerConfig from '../components/PointerConfig';
 import { SettingItem, ControlTag } from '../../styled';
-import { getAdvanceSetting, getControlByControlId } from '../../util';
+import { getAdvanceSetting, getControlByControlId, parseDataSource } from '../../util';
 import { getFormulaControls } from '../../util/data';
-import { parseDataSource, handleAdvancedSettingChange } from '../../util/setting';
+import { handleAdvancedSettingChange } from '../../util/setting';
 import { CALC_TYPE, OUTPUT_FORMULA_DATE } from '../../config/setting';
 
 import _ from 'lodash';

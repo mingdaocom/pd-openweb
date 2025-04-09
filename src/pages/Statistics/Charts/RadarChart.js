@@ -7,7 +7,8 @@ import {
   reportTypes,
   formatYaxisList,
   getChartColors,
-  getEmptyChartData
+  getEmptyChartData,
+  getAuxiliaryLineConfig
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
@@ -103,6 +104,7 @@ export default class extends Component {
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
+      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
       nextProps.themeColor !== this.props.themeColor ||
@@ -227,10 +229,12 @@ export default class extends Component {
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const { position } = getLegendType(displaySetup.legendType);
-    const { ydisplay } = displaySetup;
+    const { ydisplay, auxiliaryLines } = displaySetup;
     const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId, ydisplay.minValue, ydisplay.maxValue);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style, themeColor, projectId);
+    const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, { yaxisList, colors });
+
     const baseConfig = {
       data: data.length ? data : getEmptyChartData(reportData),
       appendPadding: [5, 0, 5, 0],
@@ -357,6 +361,23 @@ export default class extends Component {
             }
           }
         : false,
+      annotations: _.flatten(auxiliaryLineConfig.map(item => {
+        const { start, text } = item;
+        const textConfig = {
+          type: 'text',
+          offsetX: 5,
+          position: [0, start[1]],
+          content: text ? text.content : '',
+          style: text ? text.style : undefined
+        }
+        const arcConfig = {
+          type: 'arc',
+          start: ['start', start[1]],
+          end: ['end', 'end'],
+          style: item.style
+        }
+        return [textConfig]
+      }))
     };
 
     this.setCount(newYaxisList);

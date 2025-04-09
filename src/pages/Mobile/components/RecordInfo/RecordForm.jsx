@@ -48,11 +48,7 @@ export default class RecordForm extends Component {
       $('.mobilePayOrderDialog').parent().parent().remove();
     });
   }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.currentTab, nextProps.currentTab)) {
-      this.setState({ loadMoreRelateCards: false });
-    }
-  }
+
   getApproveTodoList() {
     const { recordInfo, recordBase } = this.props;
     instanceVersion
@@ -79,12 +75,10 @@ export default class RecordForm extends Component {
       return;
     }
     const { scrollTop, scrollHeight, clientHeight } = this.formWrap;
-    const targetVlaue = scrollHeight - clientHeight - 30;
+    const targetVlaue = workflow ? scrollHeight - clientHeight - 5 : scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
     const isLoadMore = _.includes([29, 51], currentTab.type) ? relationRow.count : currentTab.value;
-    if (workflow && currentTab.type === 29 && targetVlaue <= scrollTop) {
-      this.setState({ loadMoreRelateCards: true });
-    } else if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
+    if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
       updatePageIndex(pageIndex + 1);
     }
     const wrapEl = document.querySelector(`.mobileSheetRowRecord-${recordBase.recordId}`);
@@ -384,7 +378,6 @@ export default class RecordForm extends Component {
             instanceId: recordBase.instanceId,
             workId: recordBase.workId,
           }}
-          loadMoreRelateCards={this.state.loadMoreRelateCards}
         />
       </div>
     );
@@ -392,7 +385,7 @@ export default class RecordForm extends Component {
 
   // 支付
   handlePay = () => {
-    const { recordBase, payConfig = {} } = this.props;
+    const { recordBase, payConfig = {}, recordInfo, updatePayConfig = () => {} } = this.props;
     const { worksheetId, recordId } = recordBase;
 
     if (payConfig.orderId) {
@@ -403,7 +396,9 @@ export default class RecordForm extends Component {
         rowId: recordId,
         paymentModule: md.global.Account.isPortal ? 3 : 2,
         orderId: payConfig.orderId,
-        onUpdateSuccess: updateObj => {},
+        projectId: recordInfo.projectId,
+        appId: recordInfo.recordId,
+        onUpdateSuccess: updateObj => updatePayConfig(updateObj),
       });
     }
   };

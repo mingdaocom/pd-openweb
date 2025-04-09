@@ -7,9 +7,9 @@ import Empty from '../../../common/TableEmpty';
 import WithdrawalsDialogFunc from './WithdrawReimburseDialog';
 import withdrawalsEmptyImg from '../../images/withdrawals.png';
 import paymentAjax from 'src/api/payment';
-import { buriedUpgradeVersionDialog } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
-import { BALANCE_INFO } from '../config';
+import { BALANCE_INFO } from '../../config';
 
 const BalanceWrap = styled.div`
   padding: 36px 0 25px 32px;

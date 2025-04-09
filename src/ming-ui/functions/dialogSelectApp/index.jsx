@@ -93,6 +93,9 @@ const AppDialog = styled(Dialog)`
   }
 `;
 
+const RESULT_IS_DATA = ['getManagerApps', 'getUserApp', 'getMyApp'];
+const NO_PAGE = ['getManagerApps', 'getUserApp', 'getMyApp'];
+
 const SelectApp = props => {
   const {
     projectId,
@@ -100,10 +103,10 @@ const SelectApp = props => {
     unionId = undefined,
     unique = false,
     ajaxFun = 'getAppsForProject',
+    ajaxParam,
     externParam = {},
     onOk,
     onClose,
-    isGetManagerApps,
     filterFun = l => l,
   } = props;
   const [appList, setAppList] = useState([]);
@@ -116,19 +119,10 @@ const SelectApp = props => {
   const [selectedApps, setSelectedApps] = useState([]);
 
   useEffect(() => {
-    !isGetManagerApps && getProjectAppList();
-  }, [fetchState.loading, fetchState.pageIndex, fetchState.keyWords]);
+    if (NO_PAGE.includes(ajaxFun) && !!appList.length) return;
 
-  useEffect(() => {
-    if (isGetManagerApps) {
-      appManagementApi.getManagerApps({ projectId }).then(res => {
-        if (res) {
-          setAppList(res);
-          setFetchState({ loading: false });
-        }
-      });
-    }
-  }, []);
+    getProjectAppList();
+  }, [fetchState.loading, fetchState.pageIndex, fetchState.keyWords]);
 
   const columns = [
     {
@@ -200,7 +194,9 @@ const SelectApp = props => {
               }}
               size={28}
             />
-            <div className="mLeft10 flex ellipsis">{item.createAccountInfo.fullName}</div>
+            <div className="mLeft10 flex ellipsis">
+              {item.createAccountInfo.fullName || item.createAccountInfo.fullname}
+            </div>
           </div>
         );
       },
@@ -209,25 +205,30 @@ const SelectApp = props => {
 
   const getProjectAppList = () => {
     if (!fetchState.loading) return;
-    appManagementApi[ajaxFun]({
-      projectId,
-      status: '',
-      order: 3,
-      pageSize: 50,
-      unionId,
-      pageIndex: fetchState.pageIndex,
-      keyword: fetchState.keyWords,
-      ...externParam,
-    }).then(({ apps }) => {
-      const list = apps.filter(filterFun);
+    appManagementApi[ajaxFun](
+      ajaxParam || {
+        projectId,
+        status: '',
+        order: 3,
+        pageSize: 50,
+        unionId,
+        pageIndex: fetchState.pageIndex,
+        keyword: fetchState.keyWords,
+        ...externParam,
+      },
+    ).then(res => {
+      const apps = RESULT_IS_DATA.includes(ajaxFun) ? res : res.apps;
+      const list = NO_PAGE.includes(ajaxFun) ? onSort(apps.filter(filterFun)) : apps.filter(filterFun);
       setAppList(fetchState.pageIndex > 1 ? appList.concat(list) : list);
-      setFetchState({ loading: false, noMore: apps.length < 50 });
+      setFetchState({ loading: false, noMore: apps.length < 50 || NO_PAGE.includes(ajaxFun) });
     });
   };
 
+  const onSort = data => data.sort((a, b) => new Date(b.ctime) - new Date(a.ctime));
+
   const onSearch = useCallback(
     _.debounce(value => {
-      setFetchState(isGetManagerApps ? { keyWords: value } : { loading: true, pageIndex: 1, keyWords: value });
+      setFetchState(NO_PAGE.includes(ajaxFun) ? { keyWords: value } : { loading: true, pageIndex: 1, keyWords: value });
     }, 500),
     [],
   );
@@ -270,7 +271,8 @@ const SelectApp = props => {
           <ScrollView className="appListWrapper" onScrollEnd={onScrollEnd}>
             {appList
               .filter(
-                item => !isGetManagerApps || item.appName.toLowerCase().includes(fetchState.keyWords.toLowerCase()),
+                item =>
+                  !NO_PAGE.includes(ajaxFun) || item.appName.toLowerCase().includes(fetchState.keyWords.toLowerCase()),
               )
               .map((appItem, i) => {
                 return (

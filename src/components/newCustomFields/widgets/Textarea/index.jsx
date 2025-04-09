@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Textarea, Linkify, Icon } from 'ming-ui';
+import { Textarea, Linkify, Icon, Markdown } from 'ming-ui';
 import cx from 'classnames';
 import TextScanQRCode from '../../components/TextScanQRCode';
 import { getIsScanQR } from '../../components/ScanQRCode';
@@ -8,6 +8,7 @@ import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/W
 import { browserIsMobile } from 'src/util';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import styled from 'styled-components';
+import TextMarkdown from './TextMarkdown';
 
 const TextareaWrap = styled.div`
   position: relative;
@@ -60,11 +61,8 @@ export default class Widgets extends Component {
     if (this.text) {
       this.text.value = this.getEditValue();
     }
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
 
-    if (this.props.enumDefault === 1 && this.text) {
+    if (this.props.enumDefault !== 2 && this.text) {
       this.text.addEventListener('scroll', this.syncScroll);
     }
   }
@@ -155,10 +153,6 @@ export default class Widgets extends Component {
   };
 
   componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-
     // 穿透pointer-events禁用滚动
     if (this.props.enumDefault === 1 && this.text) {
       this.text.removeEventListener('scroll', this.syncScroll);
@@ -231,6 +225,10 @@ export default class Widgets extends Component {
       hint = _l('请在移动端扫码输入');
     }
 
+    if (enumDefault === 3) {
+      return <TextMarkdown {...this.props} />;
+    }
+
     return (
       <Fragment>
         <TextareaWrap
@@ -252,7 +250,7 @@ export default class Widgets extends Component {
             style={{
               minHeight: enumDefault === 1 ? minHeight : 36,
               ...(disabled ? { wordBreak: 'break-all' } : {}),
-              ...(enumDefault === 1 ? { maxHeight, overflowX: 'hidden' } : {}),
+              ...(enumDefault !== 2 ? { maxHeight, overflowX: 'hidden' } : {}),
             }}
             onClick={this.joinTextareaEdit}
           >

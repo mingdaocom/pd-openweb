@@ -207,11 +207,11 @@ export default class UserDetail extends React.Component {
       <div className="Font13 detail-card border-top border-bottom">
         <div className="detail-info-row half">
           <span className="Gray_75">{_l('生日')}：</span>
-          {moment(birthdate).format('YYYY-MM-DD') || placeHolder}
+          {birthdate ? moment(birthdate).format('YYYY-MM-DD') : placeHolder}
         </div>
         <div className="detail-info-row half">
           <span className="Gray_75">{_l('性别')}：</span>
-          {gender === 1 ? _l('男') : _l('女')}
+          {gender ? (gender === 1 ? _l('男') : _l('女')) : placeHolder}
         </div>
         <div className="detail-info-row half">
           <span className="Gray_75">{_l('微信')}：</span>

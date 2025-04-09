@@ -3,16 +3,20 @@ import worksheetAjax from 'src/api/worksheet';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import { getRowDetail } from 'worksheet/api';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
-import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
-import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { getAppFeaturesPath } from 'src/util';
 import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import _ from 'lodash';
-import { handleRecordError, postWithToken, replaceBtnsTranslateInfo, replaceRulesTranslateInfo } from 'worksheet/util';
-import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
+import {
+  handleRecordError,
+  postWithToken,
+  replaceBtnsTranslateInfo,
+  replaceRulesTranslateInfo,
+  getRecordLandUrl,
+} from 'worksheet/util';
+import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
 import appManagement from 'src/api/appManagement';
 import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
-import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
 
 export function getWorksheetInfo(...args) {
   return worksheetAjax.getWorksheetInfo(...args);
@@ -384,7 +388,7 @@ export function updateRelateRecords({
   });
 }
 
-function isOwner(ownerAccount, formdata) {
+export function isOwner(ownerAccount, formdata) {
   let accountsOfOwner = [];
   let isSettingOwner = false;
   if (ownerAccount && ownerAccount.accountId === md.global.Account.accountId) {
@@ -464,57 +468,6 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
       changeOwner(users, users[0].accountId);
     },
   });
-}
-
-export async function handleShare(
-  { isCharge, appId, worksheetId, viewId, recordId, hidePublicShare, privateShare = true },
-  callback,
-) {
-  try {
-    const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
-    let recordTitle = getTitleTextFromControls(row.formData);
-    let allowChange = isCharge || isOwner(row.ownerAccount, row.formData);
-    let shareRange = row.shareRange;
-    openShareDialog({
-      from: 'recordInfo',
-      title: _l('分享记录'),
-      isPublic: shareRange === 2,
-      isCharge: allowChange,
-      hidePublicShare,
-      privateShare,
-      params: {
-        appId,
-        worksheetId,
-        viewId,
-        rowId: recordId,
-        title: recordTitle,
-      },
-      getCopyContent: (type, url) => `${url} ${row.entityName}：${recordTitle}`,
-    });
-  } catch (err) {
-    alert(_l('分享失败'), 2);
-    console.log(err);
-  }
-}
-
-export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId }) {
-  if (md.global.Account.isPortal) {
-    appId = md.global.Account.appId;
-  }
-  if (!appId) {
-    const res = await getWorksheetInfo({ worksheetId });
-    appId = res.appId;
-  }
-  const appFeaturesPath = getAppFeaturesPath();
-  if (viewId) {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
-      appFeaturesPath ? '?' + appFeaturesPath : ''
-    }`;
-  } else {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${
-      appFeaturesPath ? '?' + appFeaturesPath : ''
-    }`;
-  }
 }
 
 export async function handleOpenInNew({ appId, worksheetId, viewId, recordId }) {

@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { emitter, getCurrentProject } from 'src/util';
+import { emitter, getCurrentProject, getRequest } from 'src/util';
 import { ScrollView, Menu, MenuItem } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import _ from 'lodash';
@@ -79,8 +79,9 @@ const NewMenuItem = styled(MenuItem)`
   }
 `;
 
-function SwitchProject(props) {
-  const projectId = _.get(props, 'match.params.projectId');
+function SwitchProject() {
+  const request = getRequest();
+  const projectId = request.projectId;
   const projects = md.global.Account.projects;
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState({});

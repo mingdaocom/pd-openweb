@@ -94,7 +94,7 @@ export const handleSaveKcCloud = (data, isDownload) => {
         zIndex: 9999,
       })
       .then(result => {
-        import('src/components/saveToKnowledge/saveToKnowledge').then(saveToKnowledge => {
+        import('src/components/kc/saveToKnowledge/saveToKnowledge').then(saveToKnowledge => {
           saveToKnowledge
             .default(nodeType, sourceData)
             .save(result)

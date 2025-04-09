@@ -3,6 +3,7 @@ import Trigger from 'rc-trigger';
 import { Button } from 'ming-ui';
 import styled from 'styled-components';
 import 'rc-trigger/assets/index.css';
+import WorksheetReference from '../../widgetSetting/components/WorksheetReference';
 
 const DeleteConfirmWrap = styled.div`
   width: 320px;
@@ -42,6 +43,7 @@ export default function DeleteConfirm({
   okText = _l('删除'),
   footer,
   content,
+  referenceProps,
   ...rest
 }) {
   return (
@@ -54,6 +56,7 @@ export default function DeleteConfirm({
         offset: [0, 5],
         overflow: { adjustX: true, adjustY: true },
       }}
+      zIndex={99}
       popup={
         content || (
           <DeleteConfirmWrap>
@@ -61,6 +64,7 @@ export default function DeleteConfirm({
             <div className="hint">{hint}</div>
             {footer || (
               <div className="btnList">
+                {referenceProps && <WorksheetReference {...referenceProps} className="TxtLeft flex" />}
                 <div
                   className="cancel"
                   onClick={e => {

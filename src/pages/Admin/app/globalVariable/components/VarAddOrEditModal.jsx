@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer, Select, Tooltip } from 'antd';
-import styled from 'styled-components';
-import { Icon, Input, Checkbox, Textarea, Radio, Button, ScrollView, SvgIcon } from 'ming-ui';
-import { ALLOW_UPDATE_RADIOS, AUTH_SCOPE_RADIOS, REFRESH_TYPE } from '../constant';
+import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Button, Checkbox, Icon, Input, Radio, ScrollView, SvgIcon, Textarea } from 'ming-ui';
+import { dialogSelectApp } from 'ming-ui/functions';
 import variableApi from 'src/api/variable';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
-import { dialogSelectApp } from 'ming-ui/functions';
+import { ALLOW_UPDATE_RADIOS, AUTH_SCOPE_RADIOS, REFRESH_TYPE } from '../constant';
 
 const VarDrawer = styled(Drawer)`
   color: #151515;
@@ -227,7 +227,7 @@ const VAR_TYPE_OPTIONS = [
 
 export default function VarAddOrEditModal(props) {
   const { visible, onClose, isEdit, projectId, appId, defaultFormValue = {}, onRefreshVarList } = props;
-  const initFormData = { name: '', value: '', description: '', controlType: 2, allowEdit: 1, scope: 1, maskType: 0 };
+  const initFormData = { name: '', value: '', description: '', controlType: 2, allowEdit: 0, scope: 1, maskType: 0 };
   const [formData, setFormData] = useSetState(initFormData);
   const [authApps, setAuthApps] = useState([]);
   const [valueFocused, setValueFocused] = useState(false);
@@ -399,8 +399,8 @@ export default function VarAddOrEditModal(props) {
       ? _l('编辑应用变量')
       : _l('编辑组织变量')
     : !!appId
-    ? _l('添加应用变量')
-    : _l('添加组织变量');
+      ? _l('添加应用变量')
+      : _l('添加组织变量');
 
   return (
     <VarDrawer

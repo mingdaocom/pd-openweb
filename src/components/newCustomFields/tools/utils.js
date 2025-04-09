@@ -1,32 +1,18 @@
-import { validate } from 'uuid';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import {
-  formatValuesOfOriginConditions,
-  redefineComplexControl,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, WIDGET_VALUE_ID } from './config';
-import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes, accMul, browserIsMobile, formatStrZero, getContactInfo } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { getShowFormat, getDatePickerConfigs, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { filterEmptyChildTableRows, getRelateRecordCountFromValue, getNewRecordPageUrl } from 'worksheet/util';
+import _, { find, get, isEmpty } from 'lodash';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import {
-  getSwitchItemNames,
-  isCustomWidget,
-  isOldSheetList,
-  isTabSheetList,
-  supportDisplayRow,
-} from 'src/pages/widgetConfig/util';
-import _, { countBy, find, get, includes, isEmpty } from 'lodash';
-import moment from 'moment';
-import renderText from 'src/pages/worksheet/components/CellControls/renderText';
-import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
+import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFromValue } from 'worksheet/util';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
-import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config/index.js';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { isEmptyValue, checkValueAvailable } from './filterFn';
-import { getAttachmentData } from '../widgets/Search/util';
+import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
+import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { browserIsMobile, getStringBytes, isEmptyValue } from 'src/util';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
+
+export function validate(id = '') {
+  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id);
+}
 
 export const convertControl = type => {
   switch (type) {
@@ -160,51 +146,6 @@ export const convertControl = type => {
     default:
       return 'CustomWidgets'; // 自定义组件
   }
-};
-
-const Reg = {
-  // 座机号码
-  telPhoneNumber: /^[+]?([\d\s()\-]+)$/,
-  // 邮箱地址
-  emailAddress: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i,
-  // 身份证号码
-  idCardNumber:
-    /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
-  hkCardNumber: /^[A-Z]{1}(\d{6})(\(\d\)|\d)?$/,
-  moCardNumber: /^[A-Z]{1}\d{6}([A-Z]|\d)?$/,
-  twCardNumber: /^[A-Z][1-2]\d{8}$/,
-  // 护照
-  passportNumber: /^[a-zA-Z0-9]{5,17}$/,
-  // 香港通行证
-  hkPassportNumber: /.*/,
-  // 台湾通行证
-  twPassportNumber: /.*/,
-};
-
-export const Validator = {
-  isTelPhoneNumber: str => {
-    return Reg.telPhoneNumber.test(str);
-  },
-  isEmailAddress: str => {
-    return Reg.emailAddress.test(str);
-  },
-  isIdCardNumber: str => {
-    return (
-      Reg.idCardNumber.test(str) ||
-      Reg.hkCardNumber.test(str) ||
-      Reg.moCardNumber.test(str) ||
-      Reg.twCardNumber.test(str)
-    );
-  },
-  isPassportNumber: str => {
-    return Reg.passportNumber.test(str);
-  },
-  isHkPassportNumber: str => {
-    return Reg.hkPassportNumber.test(str);
-  },
-  isTwPassportNumber: str => {
-    return Reg.twPassportNumber.test(str);
-  },
 };
 
 function formatRowToServer(row, controls = [], { isDraft, isSubList } = {}) {
@@ -578,6 +519,13 @@ export function getTitleControlId(control = {}) {
   return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
 }
 
+export function getTitleControlIdFromRelateControl(control = {}) {
+  let newTitleControlId = get(control, 'advancedSetting.showtitleid');
+  const attributeTitle = find(control.relationControls, { attribute: 1 });
+  const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
+  return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
+}
+
 /**
  * 从关联记录字段获取标题字段文本
  * @param  {} controls 所有控件
@@ -610,7 +558,7 @@ export function getTitleTextFromRelateControl(control = {}, data, options = {}) 
   if (_.includes([9, 10, 11], control.sourceControlType)) {
     if (!_.isEmpty(control.options)) {
       control.relationControls.forEach(c => {
-        if (c.attribute === 1) {
+        if (c.attribute === 1 && isEmpty(c.options)) {
           c.options = control.options;
         }
       });
@@ -640,220 +588,6 @@ export const controlState = (data, from) => {
   }
 
   return state;
-};
-
-export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
-  const formatValue = value => parseFloat(value.replace(/,/g, ''));
-  const { min, max, checkrange } = advancedSetting;
-
-  if (!value || checkrange !== '1') return '';
-
-  if (type === 2) {
-    const stringSize = (value || '').length;
-    if ((min && stringSize < +min) || (max && stringSize > +max)) return FORM_ERROR_TYPE.TEXT_RANGE;
-  }
-
-  if (
-    !isNaN(value) &&
-    _.includes([6, 8], type) &&
-    ((min && +value < formatValue(min)) || (max && +value > formatValue(max)))
-  )
-    return FORM_ERROR_TYPE.NUMBER_RANGE;
-
-  if (type === 10) {
-    const selectedItemsCount = JSON.parse(value || '[]').length;
-    if ((min && selectedItemsCount < +min) || (max && selectedItemsCount > +max))
-      return FORM_ERROR_TYPE.MULTI_SELECT_RANGE;
-  }
-
-  return '';
-};
-
-// 工作表查询部门、地区、用户赋值特殊处理
-export const getCurrentValue = (item, data, control) => {
-  if (!item || !control) return data;
-  switch (control.type) {
-    //当前控件文本
-    case 2:
-    case 41:
-      if (_.includes([6, 31, 37], item.type) && item.advancedSetting && item.advancedSetting.numshow === '1' && data) {
-        data = accMul(parseFloat(data), 100);
-      }
-      switch (item.type) {
-        //用户
-        case 26:
-          return JSON.parse(data || '[]')
-            .map(item =>
-              item.accountId === md.global.Account.accountId ? md.global.Account.fullname : item.name || item.fullname,
-            )
-            .join('、');
-        //部门
-        case 27:
-          return JSON.parse(data || '[]')
-            .map(item => item.departmentName)
-            .join('、');
-        //组织角色
-        case 48:
-          return JSON.parse(data || '[]')
-            .map(item => item.organizeName)
-            .join('、');
-        //地区
-        case 19:
-        case 23:
-        case 24:
-          return JSON.parse(data || '{}').name;
-        // 单选、多选
-        case 9:
-        case 10:
-        case 11:
-          const ids = JSON.parse(data || '[]');
-          return ids
-            .map(i => {
-              let d = '';
-
-              try {
-                const da = JSON.parse(i);
-                if (typeof da === 'object') {
-                  return da.value;
-                } else {
-                  d = i;
-                }
-              } catch (e) {
-                d = i;
-              }
-              if (d.toString().indexOf('add_') > -1) {
-                return d.split('add_')[1];
-              }
-
-              if (item.controlId === 'wfstatus') {
-                return (
-                  _.get(
-                    _.find(WFSTATUS_OPTIONS, t => t.key === d && !t.isDeleted),
-                    'value',
-                  ) || ''
-                );
-              }
-
-              const curValue =
-                _.get(
-                  _.find(item.options || [], t => t.key === d && !t.isDeleted),
-                  'value',
-                ) || '';
-              if (d.toString().indexOf('other:') > -1) {
-                return _.replace(d, 'other:', '') || curValue;
-              }
-              return curValue;
-            })
-            .join(', ');
-        case 14:
-          const fileData = getAttachmentData({ value: data });
-          return fileData.map(f => f.originalFileName || f.originalFilename).join('、');
-        case 15:
-        case 16:
-          const showFormat = getShowFormat(item);
-          return data ? moment(data).format(showFormat) : '';
-        //关联记录单条
-        case 29:
-          const formatData = safeParse(data || '[]', 'array')[0] || {};
-          let titleControl;
-          if (_.get(item, 'relationControls.length')) {
-            titleControl = _.find(item.relationControls, r => r.attribute === 1) || {};
-          } else if (_.get(window, 'worksheetControlsCache.' + item.dataSource)) {
-            titleControl =
-              _.find(_.get(window, 'worksheetControlsCache.' + item.dataSource) || [], r => r.attribute === 1) || {};
-          }
-          return titleControl ? renderText({ ...titleControl, value: formatData.name }) : formatData.name;
-        //公式
-        case 31:
-          const dot = item.dot || 0;
-          const val = Number(data || 0).toFixed(dot);
-          return _.get(item, 'advancedSetting.dotformat') === '1' ? formatStrZero(val) : val;
-        // 级联
-        case 35:
-          return safeParse(data || '[]', 'array')
-            .map(item => item.name)
-            .join();
-        // 检查框
-        case 36:
-          if (_.includes(['1', '2'], item.advancedSetting.showtype)) {
-            const itemnames = getSwitchItemNames(item, { needDefault: true });
-            return (
-              _.get(
-                _.find(itemnames, i => i.key === data),
-                'value',
-              ) || ''
-            );
-          }
-          return data === '1' ? 'true' : 'false';
-        // 定位
-        case 40:
-          const locationData = safeParse(data || '{}');
-          return _.isEmpty(locationData)
-            ? ''
-            : locationData.title || locationData.address
-            ? [locationData.title, locationData.address].filter(o => o).join(' ')
-            : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
-        case 46:
-          return data ? moment(data, 'HH:mm:ss').format(item.unit === '6' ? 'HH:mm:ss' : 'HH:mm') : '';
-        default:
-          return data;
-      }
-    //控件为数值、金额、等级
-    case 6:
-    case 8:
-    case 28:
-      //选项赋分值
-      if (isEnableScoreOption(item)) {
-        const selectOptions = (item.options || []).filter(item => _.includes(JSON.parse(data || '[]'), item.key));
-        if (!selectOptions.length) return '';
-        return selectOptions.reduce((total, cur) => {
-          return total + Number(cur.score || 0);
-        }, 0);
-      } else {
-        return data;
-      }
-    default:
-      return data;
-  }
-};
-
-// 特殊手机号验证是否合法
-export const specialTelVerify = value => {
-  return /\+61\d{9,10}$|\+861[3-9]\d{9}$/.test(value || '');
-};
-
-export const compareWithTime = (start, end, type) => {
-  const startTime = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
-  const endTime = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
-  switch (type) {
-    case 'isBefore':
-      return startTime < endTime;
-    case 'isSameAndBefore':
-      return startTime <= endTime;
-    case 'isAfter':
-      return startTime > endTime;
-    case 'isSameAndAfter':
-      return startTime >= endTime;
-  }
-};
-
-export const getEmbedValue = (embedData = {}, id) => {
-  switch (id) {
-    case 'userId':
-      return md.global.Account.accountId;
-    case 'phone':
-      return getContactInfo('mobilePhone');
-    case 'email':
-      return getContactInfo('email');
-    case 'language':
-      return window.getCurrentLang();
-    case 'ua':
-      return window.navigator.userAgent;
-    case 'timestamp':
-      return new Date().getTime();
-    default:
-      return embedData[id] || '';
-  }
 };
 
 const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
@@ -939,8 +673,8 @@ export const renderCount = item => {
       state.loading && /^\d+$/.test(item.value)
         ? item.value
         : typeof state.tableState.countForShow !== 'undefined'
-        ? state.tableState.countForShow
-        : state.tableState.count;
+          ? state.tableState.countForShow
+          : state.tableState.count;
   }
 
   // 附件
@@ -1181,7 +915,7 @@ export const getValueStyle = data => {
     valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
     type = _.get(item, 'sourceControl.type');
   }
-  return _.includes(HAVE_VALUE_STYLE_WIDGET, type)
+  return canSetWidgetStyle({ ...data, type })
     ? {
         type,
         isTextArea: item.type === 2 && item.enumDefault !== 2, // 多行、加单行line-height: 1.5,单行计算
@@ -1288,30 +1022,6 @@ export const isPublicLink = () => {
     isPublicFormPreview ||
     isPublicWorkflowRecord
   );
-};
-
-export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
-  const filterRegex = safeParse(_.get(data, 'advancedSetting.filterregex') || '[]');
-  if (filterRegex.length) {
-    for (const f of filterRegex) {
-      const { filters = [], value, err } = f;
-      let reg;
-      try {
-        reg = new RegExp(value, 'gm');
-      } catch (error) {
-        console.log(error);
-      }
-
-      const newFormatData = (formData || []).map(i => (i.controlId === data.controlId ? { ...i, value: name } : i));
-
-      if (
-        _.isEmpty(filters) ||
-        _.get(checkValueAvailable({ filters: filters }, newFormatData, recordId), 'isAvailable')
-      ) {
-        return !name || !reg || reg.test(name) ? '' : err || _l('请输入有效文本');
-      }
-    }
-  }
 };
 
 // 后端接口报错

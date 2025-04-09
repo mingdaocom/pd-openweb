@@ -197,6 +197,7 @@ export const stateInit = function () {
       isOpen = true;
       this.props.dispatch(actions.refresh());
     }
+    this.props.dispatch(actions.setSocketState(0));
   });
 };
 

@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import config from '../../utils/config';
-import * as actions from '../../redux/actions';
-import * as socket from '../../utils/socket';
-import * as utils from '../../utils/';
-import Constant from '../../utils/constant';
 import Tooltip from 'ming-ui/components/Tooltip';
 import GroupController from 'src/api/group';
-import { createDiscussion } from '../../utils/group';
 import SettingGroup from 'src/components/group/settingGroup/settingGroups';
+import * as actions from '../../redux/actions';
+import * as utils from '../../utils/';
+import config from '../../utils/config';
+import Constant from '../../utils/constant';
+import { createDiscussion } from '../../utils/group';
+import * as socket from '../../utils/socket';
 
 const { GROUPACTION } = Constant;
 

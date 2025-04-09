@@ -21,7 +21,6 @@ import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } 
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import RegExpValidator from 'src/util/expression';
 import { getValueStyle } from 'src/components/newCustomFields/tools/utils';
@@ -700,16 +699,6 @@ export const openRelationSearchDialog = props => functionWrap(RelationSearchDial
 
 export default function (props) {
   const { isCharge, worksheetId, recordId, disabled, formData, updateWorksheetControls } = props;
-
-  useEffect(() => {
-    if (_.isFunction(props.triggerCustomEvent)) {
-      props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-
-      return () => {
-        props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-      };
-    }
-  }, []);
 
   if (props.advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
     return (

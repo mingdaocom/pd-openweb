@@ -37,7 +37,7 @@ export default {
   /**
   * 获取场景
   * @param {Object} args 请求参数
-  * @param {integer} args.type 类型，0 = 场景，1 = 行业
+  * @param {integer} args.type 类型，0 = 场景，1 = 行业, 2 = 插件分类
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -50,7 +50,7 @@ export default {
   * 添加标签维度
   * @param {Object} args 请求参数
   * @param {string} args.name 标签名称
-  * @param {integer} args.type 类型，0 = 场景，1 = 行业
+  * @param {integer} args.type 类型，0 = 场景，1 = 行业, 2 = 插件分类
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -63,7 +63,7 @@ export default {
   * 编辑标签维度
   * @param {Object} args 请求参数
   * @param {string} args.name 标签名称
-  * @param {integer} args.type 类型，0 = 场景，1 = 行业
+  * @param {integer} args.type 类型，0 = 场景，1 = 行业, 2 = 插件分类
   * @param {string} args.id 标签id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -77,7 +77,7 @@ export default {
   * 删除标签维度
   * @param {Object} args 请求参数
   * @param {string} args.name 标签名称
-  * @param {integer} args.type 类型，0 = 场景，1 = 行业
+  * @param {integer} args.type 类型，0 = 场景，1 = 行业, 2 = 插件分类
   * @param {string} args.id 标签id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -91,7 +91,7 @@ export default {
   * 标签维度排序
   * @param {Object} args 请求参数
   * @param {array} args.sorts 排序
-  * @param {integer} args.type 类型，0 = 场景，1 = 行业
+  * @param {integer} args.type 类型，0 = 场景，1 = 行业, 2 = 插件分类
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -143,7 +143,8 @@ export default {
   /**
   * 发布应用
   * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用id(插件id)
   * @param {string} args.versionNo
   * @param {string} args.readme 更新说明
   * @param {string} args.name 商品名称
@@ -151,6 +152,7 @@ export default {
   * @param {string} args.description 描述
   * @param {array} args.tagIds 场景ids
   * @param {array} args.industryIds 行业ids
+  * @param {array} args.classificationIds 分类ids
   * @param {string} args.icon 图标
   * @param {string} args.iconColor 颜色
   * @param {integer} args.licenseType 套餐类型 0 = 免费，1 = 付费
@@ -162,6 +164,8 @@ export default {
   * @param {boolean} args.onShelves 审核通过后是否直接上架
   * @param {boolean} args.isData 是否携带实例数据
   * @param {integer} args.goodsPushType 商品发布类型, 0 = 产品，1 = 模板
+  * @param {integer} args.productType 商品类型 1 = 应用，2 = 视图插件
+  * @param {string} args.viewUrl 插件预览地址
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -248,7 +252,7 @@ export default {
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
   * @param {string} args.buyerId 买家id
-  * @param {integer} args.type 0 = 场景，1 = 行业
+  * @param {integer} args.type 0 = 场景，1 = 行业,2 = 插件分类
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -263,7 +267,7 @@ export default {
   * @param {string} args.id 商品id（应用id）
   * @param {string} args.tradeId 授权记录id
   * @param {string} args.buyerId 买家id
-  * @param {integer} args.type 0 = 场景，1 = 行业
+  * @param {integer} args.type 0 = 场景，1 = 行业,2 = 插件分类
   * @param {array} args.ids 对应标签类型的id数组
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -276,6 +280,7 @@ export default {
   /**
   * 获取列表总数
   * @param {Object} args 请求参数
+  * @param {integer} args.productType 1= 应用，2 = 插件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -285,6 +290,18 @@ export default {
      return mdyAPI('Marketplace', 'GetStatusTotal', args, options);
    },
   /**
+  * 运营平台列表总数
+  * @param {Object} args 请求参数
+  * @param {integer} args.productType 1= 应用，2 = 插件
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getStatusTotalByOperate: function (args, options = {}) {
+     
+     return mdyAPI('Marketplace', 'GetStatusTotalByOperate', args, options);
+   },
+  /**
   * 获取应用
   * @param {Object} args 请求参数
   * @param {integer} args.pageIndex
@@ -292,6 +309,7 @@ export default {
   * @param {integer} args.order 排序类型，0 = 默认（时间降序） 1=安装量降序，2=安装量升序，3=时间降序，4=时间升序，5=评分降序，6=评分升序，7 = 查看量降序，8 = 查看量升序
   * @param {integer} args.status 状态  11 = 审核中，12 = 已上架，13 = 未通过，14 = 已下架,15 = 待上架
   * @param {string} args.keywords 关键字
+  * @param {integer} args.productType 1= 应用，2 = 插件, 100 = 全部
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -308,6 +326,7 @@ export default {
   * @param {integer} args.order 排序类型，0 = 默认（时间降序） 1=安装量降序，2=安装量升序，3=时间降序，4=时间升序，5=评分降序，6=评分升序，7 = 查看量降序，8 = 查看量升序
   * @param {integer} args.status 状态  11 = 审核中，12 = 已上架，13 = 未通过，14 = 已下架,15 = 待上架
   * @param {string} args.keywords 关键字
+  * @param {integer} args.productType 1= 应用，2 = 插件, 100 = 全部
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -470,6 +489,7 @@ export default {
   * @param {integer} args.status 状态，0 = 全部，1 = 有效，2 = 无效
   * @param {integer} args.pageIndex
   * @param {integer} args.pageSize
+  * @param {integer} args.productType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -485,6 +505,7 @@ export default {
   * @param {integer} args.status 状态，0 = 全部，1 = 有效，2 = 无效
   * @param {integer} args.pageIndex
   * @param {integer} args.pageSize
+  * @param {integer} args.productType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -549,6 +570,7 @@ export default {
   * 应用id获取套餐信息
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -574,6 +596,7 @@ export default {
   * 重新安装
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -581,6 +604,19 @@ export default {
    reinstall: function (args, options = {}) {
      
      return mdyAPI('Marketplace', 'Reinstall', args, options);
+   },
+  /**
+  * 判断市场插件是否存在，不存在重新安装
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.tradeId 交易id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkTradePluginExist: function (args, options = {}) {
+     
+     return mdyAPI('Marketplace', 'CheckTradePluginExist', args, options);
    },
   /**
   * 获取密钥
@@ -607,5 +643,18 @@ export default {
    setSecretKeyForApp: function (args, options = {}) {
      
      return mdyAPI('Marketplace', 'SetSecretKeyForApp', args, options);
+   },
+  /**
+  * 市场升级插件
+  * @param {Object} args 请求参数
+  * @param {string} args.tradeId 已购应用详情id
+  * @param {string} args.id 历史版本id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   marketPluginUpgrade: function (args, options = {}) {
+     
+     return mdyAPI('Marketplace', 'MarketPluginUpgrade', args, options);
    },
 };

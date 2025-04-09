@@ -124,7 +124,7 @@ export const NEED_SPECIAL_DISPLAY_CONTROLS = [
 ];
 
 // 独占一行的控件
-export const FULL_LINE_CONTROL = [21, 22, 34, 41, 52, 10010];
+export const FULL_LINE_CONTROL = [21, 22, 34, 41, 52];
 
 export const NOT_NEED_DELETE_CONFIRM = [22, 25, 30, 31, 32, 37, 38, 43, 52, 53, 10010];
 
@@ -154,7 +154,7 @@ export const HAVE_HIGH_SETTING_WIDGET = [
 export const HAVE_MOBILE_WIDGET = [2, 29, 34, 43];
 
 // 有字段值样式设置的控件
-export const HAVE_VALUE_STYLE_WIDGET = [2, 3, 4, 5, 6, 7, 8, 15, 16, 19, 23, 24, 25, 31, 32, 33, 37, 38, 46, 53];
+export const HAVE_VALUE_STYLE_WIDGET = [3, 4, 5, 6, 7, 8, 15, 16, 19, 23, 24, 25, 31, 32, 33, 37, 38, 46, 53];
 
 // 没有必填的控件
 export const UN_REQUIRED_WIDGET = [31, 38, 33, 25, 32, 43, 47, 45, 49, 30, 21, 37, 22, 51, 52, 53, 54, 10010];

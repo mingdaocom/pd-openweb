@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
 import { getControlTypeName } from '../../../utils';
-import { SingleControlValue, AddOptions } from '../';
-import _ from 'lodash';
+import AddOptions from '../AddOptions';
+import SingleControlValue from '../SingleControlValue';
 
 export default class UpdateFields extends Component {
   static defaultProps = {
@@ -101,7 +102,7 @@ export default class UpdateFields extends Component {
    * 渲染操作类型
    */
   renderOperatorType(item, i) {
-    const { type, isBatch } = this.props;
+    const { isBatch } = this.props;
     const TYPES = [
       { text: _l('设为'), value: 0 },
       { text: _l('增加'), value: 1 },
@@ -117,7 +118,6 @@ export default class UpdateFields extends Component {
     if (
       item.fieldId &&
       (_.includes([6, 8, 9, 10, 11, 14, 26, 27, 48], item.type) || (item.type === 29 && item.enumDefault === 2)) &&
-      type === 1 &&
       !isBatch
     ) {
       return (
@@ -240,10 +240,11 @@ export default class UpdateFields extends Component {
                   filterType={filterType}
                   item={item}
                   i={i}
-                  moreNodesMenuStyle={{ marginLeft: -556, width: 701 }}
+                  moreNodesMenuStyle={{ marginLeft: item.nodeId ? 0 : -556, width: 701 }}
                 />
                 <i className="icon-delete2 Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
               </div>
+              {!!item.desc && <div className="Gray_75 mTop5">{item.desc}</div>}
               {i !== fields.length - 1 && <div className="actionFieldsSplit" />}
             </Fragment>
           );

@@ -110,6 +110,7 @@ class ColorPicker extends Component {
     sysColor: PropTypes.bool, // 左侧系统预设 默认false
     themeColor: PropTypes.string, // 主题色
     lightBefore: false, // 是否浅色在前
+    disabled: false, //是否禁用
   };
 
   static defaultProps = {
@@ -118,6 +119,7 @@ class ColorPicker extends Component {
     isPopupBody: false,
     sysColor: false,
     themeColor: '',
+    disabled: false,
     onChange: () => {},
     handleClose: () => {},
   };
@@ -243,6 +245,7 @@ class ColorPicker extends Component {
       popupAlign = {},
       defaultColors,
       lightBefore,
+      disabled,
     } = this.props;
     const { color, visible, type, defaultExpand, recentExpand, recentColors, themeExpand } = this.state;
     const themeColors = [themeColor, generate(themeColor)[0]];
@@ -266,7 +269,7 @@ class ColorPicker extends Component {
       <span className={cx('ColorPickerPanel ming ColorPicker-wrapper', className)} onClick={e => e.stopPropagation()}>
         <Trigger
           zIndex={1056}
-          action={['click']}
+          action={disabled ? [] : ['click']}
           popupVisible={visible}
           onPopupVisibleChange={visible => {
             this.setState({ visible });

@@ -10,11 +10,6 @@ import { browserIsMobile } from 'src/util';
 import { BrowserRouter } from 'react-router-dom';
 import _ from 'lodash';
 
-export const BUTTON_ACTION_TYPE = {
-  CLOSE: 1,
-  CONTINUE_ADD: 2,
-  OPEN_RECORD: 3,
-};
 function NewRecord(props) {
   const {
     visible,

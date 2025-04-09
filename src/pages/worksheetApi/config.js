@@ -943,24 +943,155 @@ export const MENU_LIST_APPROLE = [
         name: 'sheets',
         required: _l('否'),
         type: 'array',
-        desc: _l('工作表列表'),
+        desc:
+          `[
+            {
+              "sheetId": "",//工作表 id
+              "sheetName": "",//工作表名称
+              "canAdd": false,//新增权限
+              "readLevel": 20,//20：用户加入的，30：包含下属，100：全部
+              "editLevel": 20,//20：用户加入的，30：包含下属，100：全部
+              "removeLevel": 20,//20：用户加入的，30：包含下属，100：全部
+              "views": [
+                {
+                  "viewId": "67cff5821131169abf7ef615",
+                  "viewName": "全部",
+                  "canRead": true,
+                  "canEdit": true,
+                  "canRemove": false,
+                  "type": 0
+                }
+              ],
+              "fields": [//字段权限控制
+                {
+                  "fieldId": "ownerid",//字段id
+                  "type": 26,//字段类型
+                  "fieldName": "拥有者",//字段名称
+                  "notRead": false,//查看权限，false：有权限，true：
+                  "notEdit": false,//编辑权限
+                  "notAdd": false,//新增权限
+                  "isDecrypt": false,
+                  "isReadField": false,
+                  "hideWhenAdded": true,
+                  "isHide": false
+                }
+              ],
+              "worksheetAddRecord": {
+                "enable": true //工作表添加记录
+              },
+              "worksheetShareView": {
+                "enable": true//工作表分享
+              },
+              "worksheetImport": {
+                "enable": true//工作表导入
+              },
+              "worksheetExport": {
+                "enable": true//工作表导出
+              },
+              "worksheetDiscuss": {
+                "enable": true//工作表讨论
+              },
+              "worksheetLogging": {
+                "enable": true//工作表日志
+              },
+              "worksheetBatchOperation": {
+                "enable": true//工作表批量操作
+              },
+              "recordShare": {
+                "enable": true//记录分享
+              },
+              "recordDiscussion": {
+                "enable": true//记录讨论
+              },
+              "recordSystemPrinting": {
+                "enable": true//系统打印
+              },
+              "recordAttachmentDownload": {
+                "enable": true//附件下载
+              },
+              "recordLogging": {
+                "enable": true//日志
+              },
+              "payment": {
+                "enable": true//支付
+              }
+            }
+          ]`
+        ,
         example: [
           {
-            sheetId: '', //工作表 id
-            sheetName: '', //工作表名称
-            canAdd: true, //新增权限
-            views: [
+            "sheetId": "",
+            "sheetName": "",
+            "canAdd": false,
+            "readLevel": 20,
+            "editLevel": 20,
+            "removeLevel": 20,
+            "views": [
               {
-                viewId: '',
-                viewName: '',
-                canRead: true, //查看权限
-                canEdit: true, //编辑权限
-                canRemove: true, //删除权限
-                type: 0, //视图类型
-              },
+                "viewId": "",
+                "viewName": _l('全部'),
+                "canRead": true,
+                "canEdit": true,
+                "canRemove": false,
+                "type": 0
+              }
             ],
-          },
-        ],
+            "fields": [
+              {
+                "fieldId": "ownerid",
+                "type": 26,
+                "fieldName": _l('拥有者'),
+                "notRead": false,
+                "notEdit": false,
+                "notAdd": false,
+                "isDecrypt": false,
+                "isReadField": false,
+                "hideWhenAdded": true,
+                "isHide": false
+              }
+            ],
+            "worksheetAddRecord": {
+              "enable": true
+            },
+            "worksheetShareView": {
+              "enable": true
+            },
+            "worksheetImport": {
+              "enable": true
+            },
+            "worksheetExport": {
+              "enable": true
+            },
+            "worksheetDiscuss": {
+              "enable": true
+            },
+            "worksheetLogging": {
+              "enable": true
+            },
+            "worksheetBatchOperation": {
+              "enable": true
+            },
+            "recordShare": {
+              "enable": true
+            },
+            "recordDiscussion": {
+              "enable": true
+            },
+            "recordSystemPrinting": {
+              "enable": true
+            },
+            "recordAttachmentDownload": {
+              "enable": true
+            },
+            "recordLogging": {
+              "enable": true
+            },
+            "payment": {
+              "enable": true
+            }
+          }
+        ]
+        ,
       },
       {
         name: 'pages',

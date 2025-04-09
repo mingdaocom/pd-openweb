@@ -5,7 +5,7 @@ import { Radio } from 'ming-ui';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import _ from 'lodash';
 import { getAdvanceSetting } from 'src/util';
 

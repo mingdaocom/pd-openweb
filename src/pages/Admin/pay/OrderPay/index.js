@@ -8,7 +8,7 @@ import { browserIsMobile, getRequest, formatNumberThousand } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
-import { getOrderStatusInfo } from '../Merchant/config';
+import { getOrderStatusInfo } from '../config';
 import { formatDate } from '../util';
 import PayErrorIcon from '../components/PayErrorIcon';
 import { match } from 'path-to-regexp';
@@ -51,6 +51,7 @@ export default class OrderPay extends Component {
   }
 
   getData = async orderId => {
+    const { payLoading } = this.state;
     const { params } = fn(location.pathname) || {};
 
     orderId = orderId ? orderId : this.props.orderId ? this.props.orderId : params.orderId;
@@ -83,7 +84,7 @@ export default class OrderPay extends Component {
     } else {
       this.pollOrderStatus(orderInfo);
 
-      if (window.isWeiXin && wechatPayStatus === 2 && code && browserIsMobile()) {
+      if (window.isWeiXin && wechatPayStatus === 2 && code && browserIsMobile() && !payLoading) {
         // 微信环境下&开通微信支付&已授权
         this.getWeChatPayInfo(wechatPayStatus);
       }
@@ -94,6 +95,7 @@ export default class OrderPay extends Component {
 
   // 支付宝支付
   handleAliPay = () => {
+    const { orderInfo } = this.state;
     const { params } = fn(location.pathname) || {};
     const orderId = this.props.orderId ? this.props.orderId : params.orderId;
     if (this.state.payLoading) return;
@@ -103,6 +105,12 @@ export default class OrderPay extends Component {
       .aliPay({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
       .then(res => {
         this.setState({ payLoading: false });
+
+        // 支付宝直连支付
+        if (orderInfo.merchantPaymentChannel) {
+          document.write(res.codeUrl);
+          return;
+        }
 
         window.open(res.codeUrl, '_self');
         return;
@@ -129,7 +137,7 @@ export default class OrderPay extends Component {
 
     if (!window.isWeiXin) return;
 
-    if (!code && !openId) {
+    if (!code) {
       const wxAuthUrl = await paymentAjax.getWxAuthUrl({
         orderId,
         paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
@@ -145,7 +153,7 @@ export default class OrderPay extends Component {
       .wechatPay({
         code,
         orderId,
-        openId,
+        // openId,
         paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
       })
       .then(weChatPayInfo => {
@@ -370,8 +378,18 @@ export default class OrderPay extends Component {
   render() {
     const { params } = fn(location.pathname) || {};
     const { loading, orderInfo = {}, orderStatus, payLoading, expireCountdown, errorMessage } = this.state;
-    const { description, amount, orderId, createTime, aliPayStatus, wechatPayStatus, shortName, expireTime, msg } =
-      orderInfo;
+    const {
+      description,
+      amount,
+      orderId,
+      createTime,
+      aliPayStatus,
+      wechatPayStatus,
+      shortName,
+      expireTime,
+      msg,
+      merchantPaymentChannel,
+    } = orderInfo;
     const isMobile = browserIsMobile();
     const isAli = navigator.userAgent.toLowerCase().indexOf('alipay') !== -1; // 支付宝环境
     const { text } = getOrderStatusInfo(orderStatus, msg || errorMessage);
@@ -435,12 +453,15 @@ export default class OrderPay extends Component {
                   if (payLoading) return;
 
                   if (window.isWeiXin && wechatPayStatus !== 2) {
-                    alert(_l('商户暂不支持微信支付'), 2);
+                    alert(_l(merchantPaymentChannel === 1 ? '微信环境内不支持支付宝支付' : '商户暂不支持微信支付'), 2);
                     return;
                   }
 
                   if (isAli && aliPayStatus !== 2) {
-                    alert(_l('商户暂不支持支付宝支付'), 2);
+                    alert(
+                      _l(merchantPaymentChannel === 2 ? _l('支付宝环境内不支持微信支付') : '商户暂不支持支付宝支付'),
+                      2,
+                    );
                     return;
                   }
 
@@ -476,9 +497,13 @@ export default class OrderPay extends Component {
                 {aliPayStatus === 2 && (
                   <a
                     className="aliPay pLeft24 pRight24 flex"
-                    href={!isMobile ? '#' : `alipays://platformapi/startapp?appId=10000007&qrcode=${currentUrl}`}
+                    href={
+                      !isMobile || merchantPaymentChannel === 1 || location.pathname.includes('orderpay/mp-')
+                        ? '#'
+                        : `alipays://platformapi/startapp?appId=10000007&qrcode=${currentUrl}`
+                    }
                     onClick={() => {
-                      if (!isMobile) {
+                      if (!isMobile || merchantPaymentChannel === 1 || location.pathname.includes('orderpay/mp-')) {
                         this.renderOrderQrCode(orderId, 2);
                       }
                     }}

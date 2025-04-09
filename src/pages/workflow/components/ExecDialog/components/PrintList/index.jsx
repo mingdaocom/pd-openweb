@@ -2,7 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Icon, MenuItem } from 'ming-ui';
 import webCacheAjax from 'src/api/webCache';
 import _ from 'lodash';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -94,6 +95,7 @@ const templatePrint = (props, item) => {
     name: item.name,
     fileTypeNum: parseInt(item.describe),
     allowDownloadPermission: parseInt(item.entityName),
+    allowEditAfterPrint: item.allowEditAfterPrint,
   };
   const printKey = Math.random().toString(36).substring(2);
 
@@ -120,7 +122,13 @@ export default props => {
           rowIds: [props.rowId],
         })
         .then(result => {
-          setPrintList(data.printList.filter(o => !!result.find(item => item.id === o.id && !item.disabled)));
+          setPrintList(
+            data.printList.filter(o => {
+              const it = result.find(item => item.id === o.id && !item.disabled);
+              o.allowEditAfterPrint = _.get(it, 'allowEditAfterPrint');
+              return !!it;
+            }),
+          );
         });
     }
   }, []);

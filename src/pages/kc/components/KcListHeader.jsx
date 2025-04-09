@@ -7,7 +7,7 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
-import { expireDialogAsync } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import Trigger from 'rc-trigger';
 import { NODE_STATUS, PICK_TYPE } from '../constant/enum';
 import _ from 'lodash';
@@ -162,14 +162,6 @@ export default class KcListHeader extends Component {
         )}
 
         <div className="kcRightHeadOperate boxSizing">
-          <span className="tip-con" data-tip={'共享设置'}>
-            <i
-              className={cx('icon-group-members ThemeHoverColor3', { hide: !currentRoot.id || isRecycle })}
-              onClick={() => {
-                editRoot(currentRoot.id);
-              }}
-            />
-          </span>
           <span className="tip-con" data-tip={_l('文件详情')}>
             <i
               className={cx(

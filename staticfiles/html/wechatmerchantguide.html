@@ -1,0 +1,267 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="renderer" content="webkit" />
+        <meta name="force-rendering" content="webkit" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="expires" content="0" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <title>商户号配置指引</title>
+        <style type="text/css">
+            html,
+            body,
+            div,
+            span,
+            p,
+            a,
+            h1,
+            img {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                outline: 0;
+                font-size: 100%;
+                vertical-align: baseline;
+                background: transparent;
+            }
+
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: #f5f5f5;
+            }
+
+            body {
+                font-family:
+                    'Helvetica Neue', 'Luxi Sans', 'DejaVu Sans', 微软雅黑, Tahoma, 'Hiragino Sans GB', STHeiti !important;
+                color: #333;
+                position: relative;
+                display: none;
+            }
+            .wrapper {
+                width: 70%;
+                margin: 70px auto;
+                padding: 40px 80px;
+                box-sizing: border-box;
+                font-size: 14px;
+                background-color: rgb(255, 255, 255);
+            }
+            a {
+                color: #1890ff;
+                text-decoration: none;
+                background-color: transparent;
+                outline: none;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+            .Font28 {
+                font-size: 28px;
+            }
+            .Font20 {
+                font-size: 20px;
+            }
+            .Font18 {
+                font-size: 18px;
+            }
+            .mTop20 {
+                margin-top: 20px;
+            }
+            .mBottom20 {
+                margin-bottom: 20px;
+            }
+            img {
+                width: 100%;
+                border: 1px solid #e6e6e6 !important;
+                display: block !important;
+                margin: 0 auto !important;
+                max-height: 700px;
+            }
+            ul {
+                list-style-type: disc;
+            }
+            ol {
+                list-style-type: none;
+            }
+            ol,
+            ul {
+                margin: unset !important;
+                padding-left: 40px !important;
+            }
+            .circleUl {
+                list-style-type: circle;
+            }
+            li {
+                list-style: unset !important;
+            }
+            .blockquote {
+                background-color: #443b3d1c !important;
+                border-left: 4px solid #b5b0b0 !important;
+                margin: 10px !important;
+                padding: 10px 20px !important;
+                p {
+                    margin-bottom: 0 !important;
+                }
+            }
+            .code {
+                background-color: #f6f7f8;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                border-radius: 3px;
+                padding: 1px 3px;
+            }
+            p {
+                margin-bottom: 1em;
+            }
+        </style>
+        <script src="/staticfiles/staticLanguages.js"></script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <h4 class="Font28 mTop20 mBottom20">微信支付</h4>
+            <p class="mBottom20">
+                配置微信直连支付需要开发者ID(AppID)、商户号、商家简称、商户APIv2密钥信息、商户API证书信息，请按照下方10个步骤进行配置或获取，然后补充到对应栏目中。
+            </p>
+            <p><img src="/staticfiles/images/payGuide/wechat1.png" alt="" /></p>
+            <p class="mTop20 mBottom20 Font20"><strong>特别说明</strong></p>
+            <ul>
+                <li>通过平台表单收到的款项直接汇入你的微信商户号（微信财付通账户）。不支持收款到个人微信钱包。</li>
+                <li>
+                    平台不收取任何微信支付手续费，从微信商户号后台提现到银行卡免费，但提现前需要结算，会按单笔订单收取对应的结算手续费，微信支付商户后台提现介绍
+                    点击查看，具体费率 点击查看。
+                </li>
+                <li>订阅号和企业号无法配置微信支付，请勿尝试。</li>
+                <li>「微信认证服务号」和「微信商户号」可以不是同一主体。</li>
+                <li>请在微信的「账号中心——商户信息」查看自己商户号的类型。</li>
+            </ul>
+            <p class="mTop20 mBottom20 Font20"><strong>配置步骤</strong></p>
+            <ol>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>1.注册微信服务号</strong></p>
+                    <p>
+                        进入<a href="https://mp.weixin.qq.com/">微信公众平台</a
+                        >,点击“立即注册”,选择"服务号"类型，按照微信的提示完成注册，注册完成后需要在服务号后台-设置与开发-微信认证页面完成微信认证。
+                    </p>
+                </li>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>2.申请微信支付商户号</strong></p>
+                    <p>
+                        进入<a href="https://pay.weixin.qq.com/">微信支付商户平台</a>，在二维码下方点击<a
+                            href="https://pay.weixin.qq.com/index.php/apply/applyment_home/guide_normal"
+                            >成为商家</a
+                        >，完成「注册微信支付商户号」。如果已申请过微信普通商户号则不需要重复申请注册。
+                    </p>
+                    <ul class="circleUl">
+                        <li>扫码注册商户号的微信号将做为商户号的超级管理员。</li>
+                        <li>申请接入微信支付不收取任何申请费用。</li>
+                        <li>一般微信支付团队会在 1-2 个工作日内完成审核，审核通过后需在线签约，具体以微信官网为准。</li>
+                    </ul>
+                </li>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>3.设置APIv2密钥</strong></p>
+                    <p>
+                        商户号的超级管理员微信扫码登录<a href="https://pay.weixin.qq.com/">微信支付商户平台</a
+                        >，在"账户中心"—"API安全"中设置APIv2密钥。密钥为32位，推荐使用搜索引擎（如百度）搜索内容：在线密码生成器生成，例如「随机密码生成器」，自己编写密钥无法发起支付。
+                    </p>
+                    <div class="blockquote">
+                        <p>设置成功的APIv2密钥不支持查看，请提前备份。</p>
+                    </div>
+                    <p><img src="/staticfiles/images/payGuide/wechat2.png" alt="" /></p>
+                </li>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>4.设置商户API证书</strong></p>
+                    <p>
+                        在微信支付商户平台的"账户中心"—"API安全"中申请API证书。按照微信的操作指引拿到证书文件，并保存到本地；
+                    </p>
+                    <div class="blockquote">
+                        <p>注意：一定要将文件保存到本地，证书申请后微信不支持查看</p>
+                    </div>
+                    <p><img src="/staticfiles/images/payGuide/wechat3.png" alt="" /></p>
+                    <p><img src="/staticfiles/images/payGuide/wechat4.png" alt="" /></p>
+                    <p><img src="/staticfiles/images/payGuide/wechat5.png" alt="" /></p>
+                    <p>找到文件并解压缩，打开文件夹找到文件：apiclient_cert.p12:</p>
+                    <p><img src="/staticfiles/images/payGuide/wechat6.png" alt="" /></p>
+                    <p>
+                        打开
+                        <a href="https://www.lddgo.net/convert/filebasesix"
+                            >https://www.lddgo.net/convert/filebasesix</a
+                        >
+                        ，上传apiclient_cert.p12文件，将其转成base64的文本内容，将文本内容复制粘贴到商户API证书字段内。
+                    </p>
+                    <p><img src="/staticfiles/images/payGuide/wechat7.png" alt="" /></p>
+                </li>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>5.将商户号与AppID账号关联</strong></p>
+                    <p>如果未配置，会出现"调用支付JSAPI缺少参数：appId"的报错，请按以下步骤解决。</p>
+                    <p>
+                        第一步：在微信支付商户平台的"产品中心"—"AppID账号管理"—"我关联的AppID账号",点击“+关联
+                        AppID”添加服务号的AppID。
+                    </p>
+                    <div class="blockquote">
+                        <p>选择关联的Appid必须是已经授权绑定在本平台的微信服务号。</p>
+                    </div>
+                    <p><img src="/staticfiles/images/payGuide/wechat8.png" alt="" /></p>
+                    <p>
+                        第二步：再登录<a href="https://mp.weixin.qq.com/">微信公众平台</a
+                        >，在"广告与服务"—"微信支付"—"商户号管理"中确认授权申请。
+                    </p>
+                    <p><img src="/staticfiles/images/payGuide/wechat9.png" alt="" /></p>
+                </li>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>6.开通JSAPI支付、Native支付</strong></p>
+                    <p>
+                        在微信商户后台的“产品中心”—“我的产品”页面中开通JSAPI支付和Native支付，如果其中一个支付方式未开通，在配置微信支付时会报“该商户号未开通公众号支付”的错误提示。
+                    </p>
+                    <p><img src="/staticfiles/images/payGuide/wechat10.png" alt="" /></p>
+                    <p><img src="/staticfiles/images/payGuide/wechat11.png" alt="" /></p>
+                </li>
+                <li>
+                    <p class="mTop20 mBottom20 Font18"><strong>7.绑定JSAPI支付授权目录</strong></p>
+                    <p>
+                        在微信商户后台的“产品中心”—“开发配置”—“支付配置”的页面中可以看到“JSAPI支付”——支付授权目录」，点击「添加」，设置后一般10分钟内生效。
+                    </p>
+                    <ul class="circleUl">
+                        <li id="sass">
+                            <p>SaaS组织：</p>
+                            <p>
+                                请选择<span class="code">https://</span>，输入<span class="code">www.mingdao.com/</span>
+                                ，然后点击添加按钮。
+                            </p>
+                        </li>
+                        <li id="private">
+                            <p>私有部署</p>
+                            <p>
+                                1.根据平台部署情况选择<span class="code">https://</span>或
+                                <span class="code">http://</span>
+                            </p>
+                            <p>
+                                2.假如平台域名是<span class="code">dx.domain.com</span>，则输入<span class="code"
+                                    >dx.domain.com/</span
+                                >，然后点击添加按钮。
+                            </p>
+                        </li>
+                    </ul>
+                    <p><img src="/staticfiles/images/payGuide/wechat12.png" alt="" /></p>
+                </li>
+                <li>
+                    <p class="Font18"><strong>8.获取商户号和商家简称</strong></p>
+                    <p>登录微信支付商户平台，进入产品中心——开发配置。</p>
+                    <p><img src="/staticfiles/images/payGuide/wechat13.png" alt="" /></p>
+                </li>
+                <li>
+                    <p class="Font18"><strong>10.将前面步骤获取的信息填写到HAP中</strong></p>
+                    <p><img src="/staticfiles/images/payGuide/wechat14.png" alt="" /></p>
+                </li>
+            </ol>
+        </div>
+        <script>
+            const isSass = location.origin.includes('mingdao.com');
+            if (!isSass) {
+                document.getElementById('sass').style.display = 'none'; // 隐藏元素
+            } else {
+                document.getElementById('private').style.display = 'none'; // 隐藏元素
+            }
+        </script>
+    </body>
+</html>

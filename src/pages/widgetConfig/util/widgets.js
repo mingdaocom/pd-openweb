@@ -2,11 +2,7 @@ import { isEmpty } from 'lodash';
 import update from 'immutability-helper';
 import { WHOLE_SIZE } from '../config/Drag';
 import { FULL_LINE_CONTROL } from '../config';
-import { isSheetDisplay } from './index';
-
-export const getCurrentRowSize = row => {
-  return row.reduce((p, c) => p + c.size, 0);
-};
+import { isSheetDisplay, getCurrentRowSize } from './index';
 
 // 判断当前行是否有空间可以放置新控件
 export const isHaveGap = (row, widget) => {

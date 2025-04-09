@@ -92,12 +92,14 @@ export const getPorjectChartColors = projectId => {
  */
 export const getChartColors = (style, themeColor, projectId) => {
   const chartColors = getPorjectChartColors(projectId);
-  const { colorType, colorGroupIndex, colorGroupId, customColors } = style ? style : {};
+  const { colorType, colorGroupIndex, colorGroupId, customColors, personColor = {} } = style ? style : {};
   if ([0, 1].includes(colorType)) {
     // 新颜色配置
     if (colorGroupId === 'adaptThemeColor' && themeColor) {
       const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).map(n => n.toLocaleUpperCase()).includes(themeColor.toLocaleUpperCase()));
       return (adaptThemeColors[0] || chartColors[0]).colors;
+    } else if (colorGroupId && colorGroupId.includes('personColor')) {
+      return personColor.colors || chartColors[0].colors;
     } else if (colorGroupId) {
       return (_.find(chartColors, { id: colorGroupId }) || chartColors[0]).colors;
     } else if (colorGroup[colorGroupIndex]) {

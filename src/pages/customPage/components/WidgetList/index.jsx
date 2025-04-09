@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { widgets } from '../../enum';
-import EditWidget from '../editWidget';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { containerWidgets, widgets } from '../../enum';
+import { componentCountLimit, getEnumType } from '../../util';
+import EditWidget from '../editWidget';
 
 const WidgetWrap = styled.div`
   box-sizing: border-box;
@@ -46,37 +48,73 @@ const WidgetWrap = styled.div`
 
 function WidgetList({ components, addWidget = _.noop, ...rest }) {
   const [createWidget, setWidget] = useState({});
-
+  const renderWidget = key => {
+    const { icon, name } = { ...widgets, ...containerWidgets }[key];
+    return (
+      <li
+        key={key}
+        onClick={() => {
+          if (!componentCountLimit(components)) return;
+          if (containerWidgets[key]) {
+            const type = getEnumType(key);
+            const componentConfig =
+              key === 'tabs'
+                ? {
+                    showType: 1,
+                    showBorder: true,
+                    name: _l('标签') + (components.filter(c => [9, 'tabs'].includes(c.type)).length || ''),
+                    tabs: Array.from({ length: 3 }, (_, index) => {
+                      return {
+                        id: uuidv4(),
+                        name: _l('标签页%0', index + 1),
+                      };
+                    }),
+                  }
+                : {
+                    showType: 2,
+                    showBorder: true,
+                    showName: true,
+                    name: _l('卡片') + (components.filter(c => [10, 'card'].includes(c.type)).length || ''),
+                    tabs: [],
+                  };
+            addWidget({
+              type,
+              config: {
+                objectId: uuidv4(),
+              },
+              componentConfig,
+            });
+            setTimeout(() => {
+              const componentsWrap = document.querySelector('#componentsWrap');
+              componentsWrap.scrollTop = componentsWrap.scrollHeight;
+            });
+          } else {
+            setWidget({ type: key });
+          }
+        }}
+      >
+        <i className={`Font18 icon-${icon} Gray_75`}></i>
+        <span>{name}</span>
+        <span className="flex" />
+        <i className="add icon-add Font18 Gray_75"></i>
+      </li>
+    );
+  };
   return (
     <WidgetWrap>
       <div className="header">
         <span className="Bold">{_l('添加组件')}</span>
-        {/* <div className="iconWrap" data-tip={_l('添加组件')}>
-          <i className="icon-help Font16 Gray_9e"></i>
-        </div> */}
       </div>
-      <ul className="widgetList">
-        {_.keys(widgets).map(key => {
-          const { icon, name } = widgets[key];
-          return (
-            <li
-              key={key}
-              onClick={() => {
-                setWidget({ type: key });
-              }}
-            >
-              <i className={`Font18 icon-${icon} Gray_75`}></i>
-              <span>{name}</span>
-              <span className="flex" />
-              <i className="add icon-add Font18 Gray_75"></i>
-            </li>
-          );
-        })}
-      </ul>
+      <ul className="widgetList">{_.keys(widgets).map(renderWidget)}</ul>
+      <div className="header mTop10">
+        <span className="Bold">{_l('容器')}</span>
+      </div>
+      <ul className="widgetList">{_.keys(containerWidgets).map(renderWidget)}</ul>
       {!_.isEmpty(createWidget) && (
         <EditWidget mode="add" onClose={() => setWidget({})} widget={createWidget} addWidget={addWidget} {...rest} />
       )}
     </WidgetWrap>
   );
 }
+
 export default WidgetList;

@@ -2,11 +2,13 @@ import React, { Component, Fragment } from 'react';
 import { Icon, UpgradeIcon } from 'ming-ui';
 import CustomIcon from './components/CustomIcon';
 import Config from '../config';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import styled from 'styled-components';
 import CustomColor from './components/CustomColor/index';
+import { navigateTo } from 'src/router/navigateTo';
 
 const ConfigItemWrap = styled.div`
   padding: 0 32px;
@@ -26,7 +28,7 @@ const CONFIGS = [
   {
     key: 'customIcon',
     title: _l('自定义图标'),
-    descrption: _l('上传的图标可用于应用、应用项、工作表等地方'),
+    descrption: _l('上传并管理自定义图标，用于应用配置，支持 SVG 格式'),
     clickFunc: 'openCustomSvg',
   },
   {
@@ -39,38 +41,51 @@ const CONFIGS = [
 export default class GeneralSettings extends Component {
   constructor(props) {
     super(props);
+    const type = _.get(props, 'match.params.type');
     this.state = {
-      uploadSvg: false,
-      customColor: false,
+      uploadSvg: type === 'customicon',
+      customColor: type === 'customcolor',
+      projectId: _.get(props, 'match.params.projectId'),
     };
     Config.setPageTitle(_l('通用设置'));
+  }
+
+  componentDidMount() {
+    const { uploadSvg, customColor } = this.state;
+
+    if (uploadSvg || customColor) {
+      uploadSvg ? this.openCustomSvg(false) : this.openCustomColor(false);
+    }
   }
 
   /**
    * 打开自定义图标
    */
-  openCustomSvg = () => {
+  openCustomSvg = (toLink = true) => {
     const featureType = getFeatureStatus(Config.projectId, VersionProductType.customIcon);
+
     if (featureType === '2') {
       buriedUpgradeVersionDialog(Config.projectId, VersionProductType.customIcon);
-    } else {
-      this.setState({ uploadSvg: true });
+      return;
     }
+
+    toLink && navigateTo(`/admin/settings/${this.state.projectId}/customicon`);
   };
 
-  openCustomColor = () => {
+  openCustomColor = (toLink = true) => {
     this.setState({ customColor: true });
+    toLink && navigateTo(`/admin/settings/${this.state.projectId}/customcolor`);
   };
 
   render() {
     let { uploadSvg, customColor } = this.state;
 
     if (uploadSvg) {
-      return <CustomIcon onClose={() => this.setState({ uploadSvg: false })} projectId={Config.projectId} />;
+      return <CustomIcon projectId={Config.projectId} />;
     }
 
     if (customColor) {
-      return <CustomColor onClose={() => this.setState({ customColor: false })} projectId={Config.projectId} />;
+      return <CustomColor projectId={Config.projectId} />;
     }
 
     return (

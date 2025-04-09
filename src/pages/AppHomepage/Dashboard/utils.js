@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { generate } from '@ant-design/colors';
+import styled from 'styled-components';
 
 export const getGreetingText = () => {
   const hours = new Date().getHours();
@@ -102,3 +103,88 @@ export const MODULE_TYPES = {
   ROW_COLLECTION: 2,
   CHART_COLLECTION: 3,
 };
+
+export const CardItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fff;
+  padding-bottom: 12px;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  margin-bottom: 20px;
+
+  &.bulletinBoard {
+    padding: 0;
+  }
+  &.appCollectCard {
+    min-height: 118px;
+    .autosize {
+      height: auto !important;
+    }
+  }
+  &.recentCard,
+  &.rowCollectCard {
+    max-height: 300px;
+    &.halfWidth {
+      height: 300px;
+    }
+  }
+  &.recentCard {
+    min-height: 118px;
+  }
+  &.rowCollectCard {
+    min-height: 100px;
+  }
+  .cardTitle {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px 0px 20px;
+    position: relative;
+    .titleText {
+      display: flex;
+      align-items: center;
+      font-size: 17px;
+      font-weight: bold;
+      img {
+        width: 24px;
+        height: 24px;
+        margin-right: 4px;
+      }
+    }
+    .viewAll {
+      display: flex;
+      align-items: center;
+      padding: 6px 4px 6px 10px;
+      margin-top: -4px;
+      border-radius: 4px;
+      color: #9e9e9e;
+      cursor: pointer;
+      &:hover {
+        background-color: #f8f8f8;
+      }
+    }
+  }
+  .emptyWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #868686;
+    font-size: 14px;
+    margin-top: 36px;
+    margin-bottom: 36px;
+    img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 8px;
+    }
+    .boldText {
+      font-weight: bold;
+      margin-left: 4px;
+      margin-right: 4px;
+      color: #151515;
+    }
+  }
+`;

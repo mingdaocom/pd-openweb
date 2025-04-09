@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { Input, Collapse, Checkbox, Switch, Tooltip, Select } from 'antd';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import Trigger from 'rc-trigger';
-import { normTypes } from 'statistics/common';
+import { normTypes, defaultNumberChartStyle, sizeTypes } from '../../../enum';
 import RuleColor from './Color/RuleColor';
 import { replaceColor } from 'statistics/Charts/NumberChart';
 
@@ -63,34 +63,6 @@ const EntranceWrapper = styled.div`
   }
 `;
 
-export const sizeTypes = [
-  {
-    name: _l('小'),
-    value: 20,
-    titleValue: 15,
-  },
-  {
-    name: _l('默认'),
-    value: 28,
-    titleValue: 15,
-  },
-  {
-    name: _l('中'),
-    value: 42,
-    titleValue: 18,
-  },
-  {
-    name: _l('大'),
-    value: 80,
-    titleValue: 24,
-  },
-  {
-    name: _l('超大'),
-    value: 120,
-    titleValue: 32,
-  },
-];
-
 const alignTypes = [
   {
     value: 'left',
@@ -134,21 +106,6 @@ const colorTypes = [
 ];
 
 const maxColumnCount = 6;
-
-export const defaultNumberChartStyle = {
-  textAlign: 'center',
-  columnCount: 4,
-  fontSize: 28,
-  fontColor: '#151515',
-  contrastColor: 0,
-  contrastValueDot: 2,
-  lastContrastText: _l('环比'),
-  contrastText: _l('同比'),
-  shape: 'square',
-  iconVisible: false,
-  iconColor: '#2196F3',
-  icon: '3_1_coins',
-};
 
 const CardLayout = props => {
   const { xaxes, yaxisList, numberChartStyle, onChangeNumberStyle } = props;
@@ -200,7 +157,10 @@ const CardLayout = props => {
               <div className="flexColumn">
                 <Icon
                   icon="expand_less"
-                  className={cx('Font20 pointer mBottom2', numberChartStyle.columnCount === maxColumnCount ? 'disabled' : 'Gray_9e')}
+                  className={cx(
+                    'Font20 pointer mBottom2',
+                    numberChartStyle.columnCount === maxColumnCount ? 'disabled' : 'Gray_9e',
+                  )}
                   onClick={() => {
                     let value = Number(numberChartStyle.columnCount);
                     changeColumnCount(value + 1);
@@ -269,7 +229,7 @@ const IconSetting = props => {
             />
           }
         >
-          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10" onClick={() => { }}>
+          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10" onClick={() => {}}>
             <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
           </EntranceWrapper>
         </Trigger>
@@ -602,7 +562,7 @@ export function numberSummaryPanelGenerator(props) {
                 summary: {
                   ...summary,
                   name: event.target.value,
-                }
+                },
               },
               false,
             );

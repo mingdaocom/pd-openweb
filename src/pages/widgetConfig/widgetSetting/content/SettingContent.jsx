@@ -6,13 +6,14 @@ import { EXPAND_ITEMS } from '../../config/widget';
 import { SettingCollapseWrap } from './styled';
 import { supportSettingCollapse } from '../../util';
 import _ from 'lodash';
+import WorksheetReference from '../components/WorksheetReference';
 
 const { Panel } = Collapse;
 
 const totalExpandKeys = EXPAND_ITEMS.map(i => i.key);
 
 export default function SettingContent(props) {
-  const { data: { controlId } = {}, mode } = props;
+  const { data: { controlId } = {}, mode, from } = props;
   const [expandKeys, setExpandKeys] = useState([]);
 
   const getPanelData = () => {
@@ -44,7 +45,11 @@ export default function SettingContent(props) {
     >
       {getPanelData().map(item => {
         return (
-          <Panel header={item.label} key={item.key}>
+          <Panel
+            header={item.label}
+            key={item.key}
+            {...(item.key === 'base' && from !== 'subList' ? { extra: <WorksheetReference {...props} /> } : {})}
+          >
             {item.children}
           </Panel>
         );

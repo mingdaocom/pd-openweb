@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
+import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import sheetAjax from 'src/api/worksheet';
 import { Icon, Input, ScrollView, LoadDiv } from 'ming-ui';
 import { Breadcrumb } from 'antd';
@@ -633,13 +634,13 @@ const GroupFilterList = props => {
     let param = keywords
       ? {}
       : source.type === 35
-      ? {
-          getType: 10,
-        }
-      : {
-          appId,
-          searchType: 1,
-        };
+        ? {
+            getType: 10,
+          }
+        : {
+            appId,
+            searchType: 1,
+          };
 
     if (ajaxRequest && ajaxRequest.abort) {
       ajaxRequest.abort();
@@ -710,7 +711,7 @@ export default connect(
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick({ ...worksheetActions, ...actions }, [
+        ..._.pick({ ...worksheetActions, ...actions, ...navFilterActions }, [
           'fetchSheetRows',
           'getNavGroupCount',
           'changeMobielSheetLoading',

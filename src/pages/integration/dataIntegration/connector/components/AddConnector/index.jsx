@@ -10,7 +10,7 @@ import { CREATE_CONNECTOR_STEP_LIST, CREATE_TYPE, DATABASE_TYPE, ROLE_TYPE } fro
 import dataSourceApi from '../../../../api/datasource';
 import taskFlowApi from '../../../../api/taskFlow';
 import syncTaskApi from '../../../../api/syncTask';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import _ from 'lodash';
 import '../../style.less';
 import { getExtraParams } from '../../../utils';
@@ -442,9 +442,7 @@ export default function AddConnector(props) {
           upgradeVersionDialog({
             projectId: props.currentProjectId,
             hint: _l('余量不足'),
-            explainText: md.global.Config.IsLocal
-              ? _l(`当前版本最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务`)
-              : _l(`免费版最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务`),
+            explainText: _l('当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum),
             isFree: true,
           });
         } else {

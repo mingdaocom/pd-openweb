@@ -1,8 +1,8 @@
 import React from 'react';
-import CoverActiveBg from './images/cover_active.png';
 import CoverBg from './images/cover.png';
-import TopActiveBg from './images/top_active.png';
+import CoverActiveBg from './images/cover_active.png';
 import TopBg from './images/top.png';
+import TopActiveBg from './images/top_active.png';
 
 export const themes = [
   { main: '#E91E63', second: '#FEF3F7' },
@@ -73,7 +73,7 @@ export const PUBLISH_CONFIG_TABS = [
   { text: _l('链接设置'), value: 1 },
   { text: _l('微信增强'), value: 2 },
   { text: _l('来源参数'), value: 3 },
-  { text: _l('嵌入HTML'), value: 4 },
+  { text: _l('嵌入'), value: 4 },
 ];
 
 export const FILL_TIMES_OPTIONS = [
@@ -226,4 +226,17 @@ export const WX_ICON_LIST = [
   'resources/public_wx_31382.png',
   'resources/public_wx_31383.png',
   'resources/public_wx_31384.png',
+];
+
+export const DISPLAY_CONTENT_OPTIONS = [
+  { text: _l('封面'), value: 1 },
+  { text: _l('Logo'), value: 2 },
+  { text: _l('标题'), value: 3 },
+  { text: _l('说明'), value: 4 },
+];
+
+export const BUTTON_POSITION_OPTIONS = [
+  { text: _l('左'), value: 'left' },
+  { text: _l('中'), value: 'center' },
+  { text: _l('右'), value: 'right' },
 ];

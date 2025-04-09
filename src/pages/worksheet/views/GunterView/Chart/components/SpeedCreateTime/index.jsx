@@ -152,7 +152,7 @@ export default class SpeedCreateTime extends Component {
     this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
     gunterView.chartScroll.on('scrollStart', this.handleMouseLeave);
     this.initPeriodList(gunterView);
-    this.setState({ disable: startId.includes('time') || endId.includes('time') });
+    this.setState({ disable: (startId || '').includes('time') || (endId || '').includes('time') });
   }
   componentWillUnmount() {
     const { chartScroll } = this.props.gunterView;

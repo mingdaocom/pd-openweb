@@ -11,7 +11,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import PrintList from './components/PrintList';
 
 export default class Header extends Component {
@@ -138,7 +138,7 @@ export default class Header extends Component {
     }
   };
 
-  handleAction = ({ action, content = '', userId, backNodeId, signature, files, countersignType }) => {
+  handleAction = ({ action, content = '', userId, backNodeId, signature, files, countersignType, nextUserRange }) => {
     const { ignoreRequired } = (this.props.data || {}).flowNode || {};
 
     content = content.trim();
@@ -170,7 +170,7 @@ export default class Header extends Component {
 
       this.request(
         ACTION_TO_METHOD[action],
-        { opinion: content, backNodeId, signature, files },
+        { opinion: content, backNodeId, signature, files, nextUserRange },
         (_.includes(['overrule', 'return'], action) && ignoreRequired) || action === 'revoke',
       );
     }
@@ -445,6 +445,7 @@ export default class Header extends Component {
               data={data}
               action={action}
               instanceId={instanceId}
+              workId={workId}
               onOk={this.handleAction}
               onCancel={() => this.setState({ otherActionVisible: false })}
             />

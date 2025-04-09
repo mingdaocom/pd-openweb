@@ -1,26 +1,33 @@
 import React from 'react';
-import sheetAjax from 'src/api/worksheet';
-import { checkValueAvailable, replaceStr } from './filterFn';
-import { getDynamicValue, calcDefaultValueFunction, formatSearchResultValue } from './DataFormat.js';
-import { getParamsByConfigs } from '../widgets/Search/util.js';
-import { upgradeVersionDialog, browserIsMobile } from 'src/util';
+import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 import { Dialog } from 'ming-ui';
-import { handleUpdateApi } from '../widgets/Search/util.js';
-import { formatControlToServer, getCurrentValue } from './utils.js';
-import { FORM_ERROR_TYPE } from './config.js';
+import fileAjax from 'src/api/file';
+import sheetAjax from 'src/api/worksheet';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import {
-  FILTER_VALUE_ENUM,
   ACTION_VALUE_ENUM,
+  ADD_EVENT_ENUM,
+  FILTER_VALUE_ENUM,
   SPLICE_TYPE_ENUM,
   VOICE_FILE_LIST,
-  ADD_EVENT_ENUM,
 } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import fileAjax from 'src/api/file';
-import _ from 'lodash';
-import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { v4 as uuidv4 } from 'uuid';
 import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
+import { browserIsMobile } from 'src/util';
+import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
+import { getParamsByConfigs } from '../widgets/Search/util.js';
+import { handleUpdateApi } from '../widgets/Search/util.js';
+import { FORM_ERROR_TYPE } from './config.js';
+import { replaceStr } from './formUtils';
+import {
+  calcDefaultValueFunction,
+  checkValueAvailable,
+  formatSearchResultValue,
+  getCurrentValue,
+  getDynamicValue,
+} from './formUtils.js';
+import { formatControlToServer } from './utils.js';
 
 // 显隐、只读编辑等处理
 const dealDataPermission = props => {
@@ -158,20 +165,38 @@ const getSubListData = async props => {
   return listResult.resultCode === 1 ? listResult.data : [];
 };
 
-const getRelateSearchResult = (control, searchResult) => {
-  const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1);
-  const newValue = (searchResult || []).map(itemResult => {
-    const nameValue = titleControl ? itemResult[titleControl.controlId] : undefined;
-    return {
-      isNew: true,
-      isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
-      sourcevalue: JSON.stringify(itemResult),
-      row: itemResult,
-      type: 8,
-      sid: itemResult.rowid,
-      name: getCurrentValue(titleControl, nameValue, { type: 2 }),
-    };
-  });
+const getRelateSearchResult = (control, searchResult, isMix) => {
+  let newValue = [];
+  if (isMix) {
+    newValue = _.isEmpty(searchResult)
+      ? []
+      : (searchResult || []).map(itemResult => {
+          return {
+            isNew: true,
+            isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
+            sourcevalue: itemResult.sourcevalue,
+            row: JSON.parse(itemResult.sourcevalue),
+            type: 8,
+            sid: itemResult.rowid || itemResult.sid,
+            name: itemResult.name,
+          };
+        });
+  } else {
+    const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1);
+    newValue = (searchResult || []).map(itemResult => {
+      const nameValue = titleControl ? itemResult[titleControl.controlId] : undefined;
+      return {
+        isNew: true,
+        isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
+        sourcevalue: JSON.stringify(itemResult),
+        row: itemResult,
+        type: 8,
+        sid: itemResult.rowid,
+        name: getCurrentValue(titleControl, nameValue, { type: 2 }),
+      };
+    });
+  }
+
   if (_.isEmpty(newValue) && _.includes([29], control.type)) {
     if (browserIsMobile()) return JSON.stringify(newValue);
     return 'deleteRowIds: all';
@@ -196,7 +221,7 @@ const handleUpdateSearchResult = props => {
       if (!pid && currentControl) {
         // 关联记录赋值
         if (_.includes([29, 35], currentControl.type)) {
-          const newVal = getRelateSearchResult(currentControl, searchResult);
+          const newVal = getRelateSearchResult(currentControl, safeParse(_.get(searchResult[0], [cid]) || '[]'), isMix);
           handleChange(newVal, currentControl.controlId, false);
           // 子表赋值
         } else if (currentControl.type === 34) {
@@ -257,6 +282,7 @@ const handleUpdateSearchResult = props => {
               action: 'clearAndSet',
               isDefault: true,
               rows: newValue,
+              fireWhenLoaded: true,
             },
             currentControl.controlId,
             false,
@@ -383,7 +409,7 @@ const handleSearchApi = async props => {
   } = props;
   const requestMap = safeParse(advancedSetting.requestmap || '[]');
   const apiFormData = formData.concat([{ controlId: 'rowid', value: recordId }]);
-  const paramsData = getParamsByConfigs(requestMap, apiFormData);
+  const paramsData = getParamsByConfigs(recordId, requestMap, apiFormData);
 
   let params = {
     data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -565,6 +591,7 @@ const triggerCustomActions = async props => {
                       action: 'clearAndSet',
                       isDefault: true,
                       rows: records,
+                      fireWhenLoaded: true,
                     };
                   } catch (err) {
                     console.log(err);

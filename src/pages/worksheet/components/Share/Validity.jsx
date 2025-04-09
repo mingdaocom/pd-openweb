@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Checkbox, Input, DatePicker } from 'antd';
-import { Icon } from 'ming-ui';
+import { Select, Checkbox, Input } from 'antd';
+import { Icon, MdAntDatePicker } from 'ming-ui';
 import moment from 'moment';
 import _ from 'lodash';
-import locale from 'antd/es/date-picker/locale/zh_CN';
-import './Validity.less';
 import { generateRandomPassword } from 'src/util';
+import './Validity.less';
 
 const alwaysValue = '9999-12-31 23:59:59';
 
@@ -81,15 +80,14 @@ export default function Validity(props) {
       <div className="flex flexRow alignItemsCenter mRight10">
         <div className="mRight8">{_l('链接有效期')}</div>
         {type === 5 ? (
-          <DatePicker
+          <MdAntDatePicker
             showTime={{ format: 'HH:mm' }}
             showNow={false}
             autoFocus={true}
             suffixIcon={null}
-            locale={locale}
             open={open}
             onOpenChange={setOpen}
-            format={`YYYY${_l('年')}MM${_l('月')}DD${_l('日')} HH:mm`}
+            format={'YYYY-MM-DD HH:mm'}
             value={customDate}
             clearIcon={<Icon icon="cancel1" className="Gray_bd Font17" />}
             disabledDate={current => {

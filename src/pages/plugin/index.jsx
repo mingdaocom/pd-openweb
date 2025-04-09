@@ -6,7 +6,8 @@ import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { emitter, getCurrentProject } from 'src/util';
 import PluginComponent from './pluginComponent';
 import _ from 'lodash';
-import { upgradeVersionDialog } from 'src/util';
+import { getRequest } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -16,7 +17,8 @@ export default class PluginContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    const projectInfo = this.getProjectInfo();
+    const request = getRequest();
+    const projectInfo = this.getProjectInfo(request.projectId);
     const { projectId = '', companyName } = projectInfo;
 
     this.state = {
@@ -27,25 +29,26 @@ export default class PluginContainer extends React.Component {
   }
 
   componentDidMount() {
+    const request = getRequest();
     $('html').addClass('plugin');
-    this.loadPermissions();
-    emitter.addListener('CHANGE_CURRENT_PROJECT', this.loadPermissions);
+    this.loadPermissions(request.projectId);
+    emitter.addListener('CHANGE_CURRENT_PROJECT', () => this.loadPermissions());
   }
 
   componentWillUnmount() {
     $('html').removeClass('plugin');
-    emitter.removeListener('CHANGE_CURRENT_PROJECT', this.loadPermissions);
+    emitter.removeListener('CHANGE_CURRENT_PROJECT', () => this.loadPermissions());
   }
 
-  getProjectInfo = () => {
-    const projectInfo = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
-      ? getCurrentProject(localStorage.getItem('currentProjectId'))
+  getProjectInfo = initProjectId => {
+    const projectInfo = !_.isEmpty(getCurrentProject(initProjectId || localStorage.getItem('currentProjectId')))
+      ? getCurrentProject(initProjectId || localStorage.getItem('currentProjectId'))
       : _.get(md, 'global.Account.projects.0');
     return projectInfo || {};
   };
 
-  loadPermissions = () => {
-    const projectInfo = this.getProjectInfo();
+  loadPermissions = initProjectId => {
+    const projectInfo = this.getProjectInfo(initProjectId);
     const { projectId = '', companyName } = projectInfo;
     const myPermissions = getMyPermissions(projectId);
     this.setState({

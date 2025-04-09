@@ -255,7 +255,7 @@ class DialogSelectOrgRole extends Component {
                     <Icon
                       icon="task_custom_btn_unfold"
                       className={cx('Gray_9e expendIcon Hand InlineBlock', {
-                        rotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
+                        iconRotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
                       })}
                     />
                     <span className="bold flex overflow_ellipsis mLeft4">{groupItem.orgRoleGroupName}</span>

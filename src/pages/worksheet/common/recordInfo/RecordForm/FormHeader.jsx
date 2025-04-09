@@ -1,14 +1,17 @@
 import React, { useRef } from 'react';
-import PropTypes from 'prop-types';
+
 import cx from 'classnames';
-import { UserHead } from 'ming-ui';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { handleChangeOwner, updateRecordOwner } from '../crtl';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { getTranslateInfo, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
+import { UserHead } from 'ming-ui';
+import PropTypes from 'prop-types';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { dateConvertToUserZone, getTranslateInfo } from 'src/util';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+
+import { handleChangeOwner, updateRecordOwner } from '../crtl';
+
 export default function FormHeader(props) {
   const {
     isLock,
@@ -77,7 +80,7 @@ export default function FormHeader(props) {
             {createTime && isOpenLogs && (
               <span className="lastLog InlineBlock Font12 Gray_9e">
                 {createTimeSpan(dateConvertToUserZone(createTime === updateTime ? createTime : updateTime))}
-                ,&nbsp;
+                &nbsp;
                 {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
                 <span className="mRight3">{createTime === updateTime ? _l('创建') : _l('更新了')}</span>
               </span>

@@ -154,7 +154,8 @@ function Sheet(props) {
     (_.includes([sheet, gallery, board, calendar, gunter, customize, resource, map], String(view.viewType)) ||
       (String(view.viewType) === detail && view.childType === 2) ||
       (String(view.viewType) === structure && view.childType !== 2)) &&
-    !chartId;
+    !chartId &&
+    (String(view.viewType) !== customize || _.get(view, 'pluginInfo.switchSettings.showFastFilter') === '1');
   const noRecords = isEqual(filtersGroup, [{}]);
   const needClickToSearch =
     showQuickFilter &&
@@ -194,6 +195,7 @@ function Sheet(props) {
     showAsSheetView,
     controls,
     refreshSheet,
+    printCharge: config.printCharge,
   };
   const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),

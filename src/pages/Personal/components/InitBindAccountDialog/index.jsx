@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
+import { Dialog, intlTelInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import cx from 'classnames';
-import intlTelInput from '@mdfe/intl-tel-input';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
 import { encrypt } from 'src/util';
 import accountController from 'src/api/account';
 import { captcha } from 'ming-ui/functions';
@@ -63,11 +60,6 @@ export default class InitBindAccountDialog extends Component {
     if (!this.mobile) return;
     this.iti = intlTelInput(this.mobile, {
       customPlaceholder: '',
-      autoPlaceholder: 'off',
-      loadUtils: '',
-      initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
-      preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
-      utilsScript: utils,
       separateDialCode: true,
       showSelectedDialCode: true,
     });
@@ -135,7 +127,7 @@ export default class InitBindAccountDialog extends Component {
                   alert(_l('验证码错误'), 3);
                 }
                 if (data === 12) {
-                  alert(_l('此手机号已被其它帐号绑定'), 2);
+                  alert(_l('此手机号已被其它账号绑定'), 2);
                   _this.mobile.focus();
                 } else {
                   alert(_l('验证码发送失败'), 2);
@@ -149,11 +141,7 @@ export default class InitBindAccountDialog extends Component {
       { leading: true },
     );
 
-    if (md.global.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled, { needFeedBack: false }).show();
-    }
+    new captcha(throttled);
   }
 
   countdown = () => {

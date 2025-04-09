@@ -1,25 +1,25 @@
-import React, { useState, useRef, useEffect, useContext, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
+import _, { get } from 'lodash';
 import { ScrollView, Skeleton } from 'ming-ui';
+import PropTypes from 'prop-types';
 import DocumentTitle from 'react-document-title';
 import { useMeasure } from 'react-use';
+import styled from 'styled-components';
+import DragMask from 'worksheet/common/DragMask';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { emitter } from 'worksheet/util';
 import ViewContext from 'worksheet/views/ViewContext';
 import CustomFields from 'src/components/newCustomFields';
-import DragMask from 'worksheet/common/DragMask';
+import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
-import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
-import FormHeader from './FormHeader';
-import FormCover from './FormCover';
-import Abnormal from './Abnormal';
-import FormSection, { getDefaultIsUnfold } from './FormSection';
-import SectionTableNav from '../../../../../components/newCustomFields/components/SectionTableNav';
-import { browserIsMobile, formatNumberThousand } from 'src/util';
-import _, { get } from 'lodash';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
-import { emitter } from 'worksheet/util';
+import { browserIsMobile, formatNumberThousand } from 'src/util';
+import SectionTableNav from '../../../../../components/newCustomFields/components/SectionTableNav';
+import Abnormal from './Abnormal';
+import FormCover from './FormCover';
+import FormHeader from './FormHeader';
+import FormSection, { getDefaultIsUnfold } from './FormSection';
 
 export const RecordFormContext = React.createContext();
 
@@ -169,6 +169,7 @@ function RecordForm(props) {
     onError,
     masterRecordRowId,
     loadRowsWhenChildTableStoreCreated,
+    formDidMountFlag,
     onWidgetChange = () => {},
     onManualWidgetChange = () => {},
     widgetStyle = {},
@@ -393,6 +394,7 @@ function RecordForm(props) {
   const isMobile = browserIsMobile();
 
   const renderFormSection = () => {
+    if (abnormal || formdata.length === 0) return null;
     return (
       <FormSection
         from={from === 21 ? 21 : dealFrom}
@@ -474,6 +476,8 @@ function RecordForm(props) {
                           rowId: recordId,
                           paymentModule: md.global.Account.isPortal ? 3 : 2,
                           orderId: payConfig.orderId,
+                          projectId: recordinfo.projectId || props.projectId,
+                          appId: recordinfo.appId,
                           onUpdateSuccess: updateObj => {
                             onRefresh();
                           },
@@ -531,6 +535,7 @@ function RecordForm(props) {
                     from={from === 21 ? from : recordId ? 3 : isMobile ? 5 : 2}
                     isDraft={from === RECORD_INFO_FROM.DRAFT || isDraft}
                     flag={formFlag}
+                    formDidMountFlag={formDidMountFlag}
                     widgetStyle={widgetStyle}
                     controlProps={{ ...controlProps, updateWorksheetControls, updateRelateRecordTableCount }}
                     data={formdata.filter(

@@ -681,27 +681,28 @@ function PluginConfig(props) {
 
                 {(hasManagePluginAuth ||
                   md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
-                  belongType === 'myPlugin') && (
-                  <div
-                    className="versionPublishBtn"
-                    onClick={() =>
-                      detailData.source === 2
-                        ? ImportPlugin({
-                            projectId,
-                            pluginType,
-                            pluginId,
-                            onImportCreateSuccess: () => {
-                              fetchDetail();
-                              fetchList(1);
-                            },
-                          })
-                        : setPublishVisible(true)
-                    }
-                  >
-                    <Icon icon="publish" />
-                    <span>{detailData.source === 2 ? _l('导入升级') : _l('发布新版本')}</span>
-                  </div>
-                )}
+                  belongType === 'myPlugin') &&
+                  (detailData.source !== 3 || md.global.Config.IsLocal) && (
+                    <div
+                      className="versionPublishBtn"
+                      onClick={() =>
+                        [2, 3].includes(detailData.source)
+                          ? ImportPlugin({
+                              projectId,
+                              pluginType,
+                              pluginId,
+                              onImportCreateSuccess: () => {
+                                fetchDetail();
+                                fetchList(1);
+                              },
+                            })
+                          : setPublishVisible(true)
+                      }
+                    >
+                      <Icon icon="publish" />
+                      <span>{[2, 3].includes(detailData.source) ? _l('导入升级') : _l('发布新版本')}</span>
+                    </div>
+                  )}
 
                 {publishVisible && (
                   <PublishVersion

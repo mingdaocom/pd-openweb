@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Radio, Checkbox, Tooltip, Dialog } from 'ming-ui';
+import { DatePicker, Select } from 'antd';
+import localeEn from 'antd/es/date-picker/locale/en_US';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
-import externalPortalAjax from 'src/api/externalPortal';
+import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon, Radio, Tooltip } from 'ming-ui';
 import AppManagement from 'src/api/appManagement';
+import externalPortalAjax from 'src/api/externalPortal';
+import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
 import EditAgreementOrPrivacy from 'src/pages/Role/PortalCon/components/EditAgreementOrPrivacy';
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
-import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
-import _ from 'lodash';
-import locale from 'antd/es/date-picker/locale/zh_CN';
-import { DatePicker, Select } from 'antd';
-import moment from 'moment';
 
 const Wrap = styled.div`
   position: relative;
@@ -131,6 +134,9 @@ const DIS_SET = [_l('可见全部讨论'), _l('不可见内部讨论')];
 const ALLOW_TYPE = [_l('任何人'), _l('通过审核的用户'), _l('仅定向邀请的用户')]; //3,6,9
 let ajaxRequest = null;
 export default function BaseSet(props) {
+  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+  const locale = locales[md.global.Account.lang];
+
   let { portalSet = {}, onChangePortalSet, projectId, appId, portal = {} } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
   const { noticeScope = {}, isFrontDomain } = portalSetModel; //isFrontDomain是否为前置域名
@@ -579,6 +585,31 @@ export default function BaseSet(props) {
           {portalSetModel.twoAuthenticationEnabled && (
             <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
               {_l('外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录')}
+            </div>
+          )}
+        </div>
+        <div className="mTop5">
+          <SwitchStyle>
+            <Icon
+              icon={!!portalSetModel.autoLogin ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand"
+              onClick={() => {
+                let data = {
+                  autoLogin: !portalSetModel.autoLogin,
+                };
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    ...data,
+                  },
+                });
+              }}
+            />
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('7天免登录')}</div>
+          </SwitchStyle>
+          {portalSetModel.autoLogin && (
+            <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
+              {_l('登录页面是否显示 7 天免登录的选项')}
             </div>
           )}
         </div>

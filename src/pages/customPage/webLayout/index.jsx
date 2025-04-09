@@ -1,10 +1,12 @@
-import React, { useState, memo, useRef, Fragment } from 'react';
+import React, { useState, memo, useRef, Fragment, useEffect } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { EditWidget, WidgetList, WidgetContent } from '../components';
 import cx from 'classnames';
 import _ from 'lodash';
 import { replaceColor, isLightColor } from 'src/pages/customPage/util';
+import { updatePageInfo } from 'src/pages/customPage/redux/action';
 import { ReactSVG } from 'react-svg';
 import { bgImages } from '../components/ConfigSideWrap/BgConfig';
 import { TinyColor } from '@ctrl/tinycolor';
@@ -57,6 +59,24 @@ const ContentWrap = styled.div`
   }
 `;
 
+const getTabsContainerForCard = event => {
+  const tabContainers = document.querySelectorAll('.widgetContent.tabs, .widgetContent.card');
+  for (let container of tabContainers) {
+    if (container.contains(event.target)) {
+      return container.querySelector('.tabs') || container.querySelector('.card');
+    }
+  }
+  return null;
+}
+const getTabsIdentifierId = (classNames = '') => {
+  const match = classNames.match(/tabs-([a-f0-9-]+)/) || classNames.match(/card-([a-f0-9-]+)/);
+  return match ? match[1] : null;
+}
+const getTabIdentifierId = (classNames = '') => {
+  const match = classNames.match(/tab-([a-f0-9-]+)/);
+  return match ? match[1] : null;
+}
+
 function webLayout(props) {
   const { editable = true, updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, delWidget, ...rest } = props;
   const [editingWidget, setWidget] = useState({});
@@ -69,7 +89,34 @@ function webLayout(props) {
   const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
   const backgroundColor = appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
   const lowAlphaIconColor = new TinyColor(iconColor).setAlpha(0.25).toRgbString();
-  const isSetHeaderBg = [1, 2].includes(pageConfig.titleStyle) && pageConfig.pageStyleType === 'light';
+
+  useEffect(() => {
+    const componentsWrap = document.querySelector('#componentsWrap');
+    const handleClickActiveWrap = event => {
+      const tabsContainer = getTabsContainerForCard(event);
+      if (tabsContainer) {
+        const sectionId = getTabsIdentifierId(tabsContainer.className);
+        const tabId = event.target.classList.contains('tab') ? getTabIdentifierId(event.target.className) : getTabIdentifierId(_.get(tabsContainer.querySelector('.tabsHeader .tab.active') || tabsContainer.querySelector('.tabsHeader .tab'), 'className'));
+        props.updatePageInfo({
+          activeContainerInfo: {
+            sectionId,
+            tabId
+          }
+        });
+      } else {
+        props.updatePageInfo({
+          activeContainerInfo: {}
+        });
+      }
+    }
+    if (editable) {
+      componentsWrap.addEventListener('click', handleClickActiveWrap);
+    }
+    return () => {
+      componentsWrap.removeEventListener('click', handleClickActiveWrap);
+    }
+  }, []);
+
   const renderPageBgImage = () => {
     return (
       <BgImageWrap
@@ -83,6 +130,7 @@ function webLayout(props) {
       />
     );
   }
+
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
@@ -143,7 +191,10 @@ function webLayout(props) {
   );
 }
 
-export default connect(state => ({
-  components: state.customPage.components,
-  apk: state.customPage.apk,
-}))(memo(webLayout));
+export default connect(
+  state => ({
+    components: state.customPage.components,
+    apk: state.customPage.apk,
+  }),
+  dispatch => bindActionCreators({ updatePageInfo }, dispatch)
+)(memo(webLayout));

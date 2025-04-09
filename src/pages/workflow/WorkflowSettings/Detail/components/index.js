@@ -23,6 +23,7 @@ export { default as ParameterList } from './ParameterList';
 export { default as ProcessDetails } from './ProcessDetails';
 export { default as ProcessParameters } from './ProcessParameters';
 export { default as ProcessVariables } from './ProcessVariables';
+export { default as ProcessVariablesInput } from './ProcessVariablesInput';
 export { default as PromptSound } from './PromptSound';
 export { default as PromptSoundDialog } from './PromptSoundDialog';
 export { default as RefreshFieldData } from './RefreshFieldData';

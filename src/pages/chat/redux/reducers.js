@@ -81,6 +81,8 @@ const currentInboxList = (state = [], action) => {
       return Object.assign([], state.concat(action.result));
     case 'REMOVE_INBOX_SESSION':
       return state.filter(item => item.id !== action.id);
+    case 'REMOVE_ALL_INBOX_SESSION':
+      return [];
     case 'UPDATE_INBOX_SESSION':
       return state.map(item => {
         if (item.value === action.id) {

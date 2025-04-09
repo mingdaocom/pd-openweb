@@ -4,9 +4,7 @@ import _ from 'lodash';
 import { getAdvanceSetting } from 'src/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 // 字段
 export default class Controls extends React.Component {
   constructor(props) {

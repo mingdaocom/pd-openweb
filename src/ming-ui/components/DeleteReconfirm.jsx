@@ -14,6 +14,7 @@ export default ({
   description,
   title,
   data,
+  expandBtn,
   onOk = noop,
   onCancel = noop,
   clickOmitText = false,
@@ -35,6 +36,7 @@ export default ({
   const renderFooter = () => {
     return (
       <div className="deleteReconfirmFooter">
+        {expandBtn}
         <Button type="link" onClick={() => handleClick('cancel')}>
           {_l('取消')}
         </Button>

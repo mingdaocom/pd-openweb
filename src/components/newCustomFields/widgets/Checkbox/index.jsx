@@ -11,7 +11,6 @@ import OtherInput from './OtherInput';
 import { getCheckAndOther } from '../../tools/utils';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 class Widgets extends Component {
   static propTypes = {
@@ -31,12 +30,6 @@ class Widgets extends Component {
       isFocus: props.isFocus || false,
       keywords: '',
     };
-  }
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -115,12 +108,6 @@ class Widgets extends Component {
     const otherIds = options.filter(i => !_.find(checkIds, c => c.includes(i.key))).map(i => i.key);
     onChange(JSON.stringify(checkIds.concat(otherIds)));
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   getItemWidth(displayOptions) {
     const { width = '200', direction = '2' } = this.props.advancedSetting;

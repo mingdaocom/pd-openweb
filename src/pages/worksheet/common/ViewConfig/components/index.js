@@ -29,3 +29,6 @@ export { default as CardDisplay } from './CardDisplay';
 export { default as DetailSet } from './DetailSet';
 export { default as RefreshTime } from './RefreshTime';
 export { default as NavSet } from './NavSet';
+export { default as BatchSet } from './BatchSet';
+export { default as TitleControl } from './TitleControl';
+export { default as Sort } from './Sort';

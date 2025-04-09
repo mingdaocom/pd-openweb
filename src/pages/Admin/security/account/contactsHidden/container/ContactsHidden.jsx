@@ -8,7 +8,8 @@ import './index.less';
 import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';
 import cx from 'classnames';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 

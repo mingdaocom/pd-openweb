@@ -18,7 +18,7 @@ import {
   removeTempRecordValueFromLocal,
   KVGet,
 } from 'worksheet/util';
-import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
+import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import RecordInfoContext from './RecordInfoContext';
 import { loadRecord, updateRecord, deleteRecord, RecordApi, handleSubmitDraft } from './crtl';
@@ -105,7 +105,7 @@ export default class RecordInfo extends Component {
     renderAbnormal: PropTypes.func, // 渲染异常
     workflow: PropTypes.element,
     hideEditingBar: PropTypes.bool, // 隐藏编辑提示层
-    switchRecordSuccess: PropTypes.func, //切换记录回调
+    handleSwitchRecord: PropTypes.func, //切换记录回调
     customBtnTriggerCb: PropTypes.func, //自定义按钮回调
     worksheetInfo: PropTypes.shape({}), // 工作表信息（草稿记录弹层使用）
     updateDraftList: PropTypes.func, // 更新草稿列表
@@ -233,7 +233,7 @@ export default class RecordInfo extends Component {
                   value:
                     c.type === 34
                       ? {
-                          // action: 'clearAndSet',
+                          // action: 'clearAndSet',con
                           rows: value[c.controlId],
                         }
                       : value[c.controlId],
@@ -311,7 +311,7 @@ export default class RecordInfo extends Component {
     return sideWidth;
   }
 
-  async loadRecord({ recordId, props, needReLoadSheetSwitch, closeWhenNotViewData, needUpdateControlIds }) {
+  async loadRecord({ recordId, props, needReLoadSheetSwitch, closeWhenNotViewData, needUpdateControlIds, isRefresh }) {
     const {
       from,
       view = {},
@@ -337,10 +337,12 @@ export default class RecordInfo extends Component {
     let { sheetSwitchPermit } = this.state;
     const { isPublicShare } = this;
     const { tempFormData } = this.state;
+    const isManageView = viewId === worksheetId;
     try {
-      if (needReLoadSheetSwitch) {
+      if (needReLoadSheetSwitch && !isManageView) {
         sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId });
       }
+
       const data = await loadRecord({
         appId,
         viewId,
@@ -408,7 +410,6 @@ export default class RecordInfo extends Component {
           return filterResult
             ? {
                 ...newControl,
-                value: undefined,
                 initialValue: c.value,
               }
             : newControl;
@@ -457,10 +458,12 @@ export default class RecordInfo extends Component {
               .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
           : data.formData,
         formFlag: Math.random().toString(),
+
         loading: false,
         refreshBtnNeedLoading: false,
         widgetStyle: data.advancedSetting || this.state.widgetStyle,
         ...(needReLoadSheetSwitch ? { sheetSwitchPermit } : {}),
+        ...(!isRefresh ? { formDidMountFlag: Math.random().toString() } : {}),
       });
       this.loadTempValue({ updateTime: data.updateTime });
     } catch (res) {
@@ -514,7 +517,7 @@ export default class RecordInfo extends Component {
 
   switchRecord = isNext => {
     const { recordId, iseditting, tempFormData, restoreVisible } = this.state;
-    const { switchRecordSuccess } = this.props;
+    const { handleSwitchRecord } = this.props;
 
     if (iseditting || restoreVisible) {
       alert(_l('请先保存或取消当前更改'), 3);
@@ -527,6 +530,10 @@ export default class RecordInfo extends Component {
     });
     const newIndex = isNext ? index + 1 : index - 1;
     if (!currentSheetRows[newIndex]) {
+      return;
+    }
+    if (typeof handleSwitchRecord === 'function') {
+      handleSwitchRecord(currentSheetRows[newIndex]);
       return;
     }
     const newRecordId = currentSheetRows[newIndex].rowid;
@@ -554,9 +561,6 @@ export default class RecordInfo extends Component {
       currentIndex: newIndex,
       ...(worksheetId ? { appId, viewId, worksheetId } : {}),
     });
-    if (typeof switchRecordSuccess === 'function') {
-      switchRecordSuccess(currentSheetRows[newIndex]);
-    }
   };
 
   handleRecordInfoKeyDown = e => {
@@ -968,6 +972,7 @@ export default class RecordInfo extends Component {
         viewId,
         worksheetId,
       },
+      isRefresh: true,
     });
     if (reloadDiscuss) {
       emitter.emit('RELOAD_RECORD_INFO_DISCUSS');
@@ -1049,6 +1054,7 @@ export default class RecordInfo extends Component {
       isRelateRecord,
       customBtnTriggerCb = () => {},
       worksheetInfo = {},
+      printCharge,
     } = this.props;
     const {
       loading,
@@ -1082,6 +1088,7 @@ export default class RecordInfo extends Component {
       isSettingTempData,
       discussCount,
       formSectionWidth,
+      formDidMountFlag,
     } = this.state;
     let { isCharge } = this.props;
     if (_.isUndefined(isCharge) && appId) {
@@ -1121,6 +1128,7 @@ export default class RecordInfo extends Component {
       allowEdit:
         from === RECORD_INFO_FROM.DRAFT ? allowAdd : _.isUndefined(allowEdit) ? recordinfo.allowEdit : allowEdit,
       roleType: recordinfo.roleType,
+      viewType: view.viewType,
     };
     const maskinfo = {
       forceShowFullValue: showFullValue,
@@ -1226,6 +1234,7 @@ export default class RecordInfo extends Component {
               ) && (
                 <Header
                   isCharge={isCharge}
+                  printCharge={printCharge}
                   from={from}
                   isOpenNewAddedRecord={isOpenNewAddedRecord}
                   allowExAccountDiscuss={allowExAccountDiscuss}
@@ -1340,6 +1349,7 @@ export default class RecordInfo extends Component {
                 />
               )}
               <RecordForm
+                formDidMountFlag={formDidMountFlag}
                 iseditting={iseditting}
                 payConfig={payConfig}
                 updatePayConfig={async () => {

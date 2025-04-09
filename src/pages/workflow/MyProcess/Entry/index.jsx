@@ -8,12 +8,12 @@ import _ from 'lodash';
 
 let request = null;
 
-export const getTodoCount = () => {
+export const getTodoCount = (params = {}) => {
   return new Promise((resolve, reject) => {
     if (request) {
       request.abort();
     }
-    request = instance.getTodoCount({});
+    request = instance.getTodoCount(params);
     request.then(list => {
       const mySponsor = list[0]; // 我的发起
       const waitingWrite = list[3]; // 待填写
@@ -48,7 +48,7 @@ export default class Entry extends Component {
     const { countData, onClick, type, renderContent, className } = this.props;
     const count = countData ? (countData.waitingDispose > 99 ? '99+' : countData.waitingDispose) : 0;
     const { waitingExamine = 0 } = countData || {};
-    const isNative = type === 'native';
+    const isNative = ['native', 'integration'].includes(type);
     const { iconColor } = store.getState().appPkg;
     if (_.isFunction(renderContent)) {
       return renderContent({ count, waitingExamine }, onClick);

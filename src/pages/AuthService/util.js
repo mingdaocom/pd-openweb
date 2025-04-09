@@ -2,15 +2,9 @@
 import filterXSS from 'xss';
 import _ from 'lodash';
 import { getRequest, mdAppResponse } from 'src/util';
-import intlTelInput from '@mdfe/intl-tel-input';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
+import { initIntlTelInput, telIsValidNumber } from 'ming-ui/components/intlTelInput';
 import RegExpValidator from 'src/util/expression';
 
-// 特殊手机号验证是否合法
-export const specialTelVerify = value => {
-  return /\+861[3-9]\d{9}$/.test(value || '');
-};
 
 // 当前页面是否有验证码层
 export const hasCaptcha = () => {
@@ -73,23 +67,6 @@ export const toMDApp = ({ emailOrTel = '', dialCode = '' }) => {
       settings: { action: 'registerSuccess', account: dialCode + emailOrTel },
     });
   }
-};
-
-export const initIntlTelInput = () => {
-  if (window.initIntlTelInput) {
-    return window.initIntlTelInput;
-  }
-  const $con = document.createElement('div');
-  const $input = document.createElement('input');
-  $con.style.display = 'none';
-  $con.appendChild($input);
-  document.body.appendChild($con);
-  window.initIntlTelInput = intlTelInput($input, {
-    initialCountry: getDefaultCountry(),
-    preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || [getDefaultCountry()],
-    utilsScript: utils,
-  });
-  return window.initIntlTelInput;
 };
 
 export const isTel = emailOrTel => {
@@ -170,7 +147,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
       };
       //手机号验证
       const isTelRule = () => {
-        if (!iti.isValidNumber() && !specialTelVerify(iti.getNumber())) {
+        if (!(telIsValidNumber(emailOrTel))) {
           warnList.push({ tipDom: 'inputAccount', warnTxt: _l('手机号格式错误') });
           isRight = false;
         }

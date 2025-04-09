@@ -31,6 +31,7 @@ export default ({
   params = {},
   iconClassName,
   onChange = () => {},
+  customRender
 }) => {
   const [showList, setShowList] = useState(false);
   const [list, setList] = useState([]);
@@ -73,17 +74,21 @@ export default ({
           overflow: { adjustX: true, adjustY: true },
         }}
       >
-        <Tooltip title={_l('查看已归档数据')}>
-          <Icon
-            icon="drafts_approval"
-            className={cx(
-              `Font20 pointer ${iconClassName}`,
-              _.isEmpty(selectItem)
-                ? `${iconClassName ? iconClassName : 'Gray_75'} ThemeHoverColor3`
-                : 'ThemeColor3 ThemeHoverColor2 ',
-            )}
-          />
-        </Tooltip>
+        {customRender ? (
+          customRender()
+        ) : (
+          <Tooltip title={_l('查看已归档数据')}>
+            <Icon
+              icon="drafts_approval"
+              className={cx(
+                `Font20 pointer ${iconClassName}`,
+                _.isEmpty(selectItem)
+                  ? `${iconClassName ? iconClassName : 'Gray_75'} ThemeHoverColor3`
+                  : 'ThemeColor3 ThemeHoverColor2 ',
+              )}
+            />
+          </Tooltip>
+        )}
       </Trigger>
     );
   };
@@ -113,7 +118,7 @@ export default ({
                 text,
               }))
             : res;
-        setList(list);
+        setList(list.reverse());
       });
     }
   }, []);

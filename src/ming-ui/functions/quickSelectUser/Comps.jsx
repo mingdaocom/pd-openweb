@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect, Fragment } from 'react';
-import styled from 'styled-components';
-import { Tooltip, UserHead, Icon } from 'ming-ui';
-import { dialogSelectUser } from 'ming-ui/functions';
-import _ from 'lodash';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Tooltip, UserHead } from 'ming-ui';
+import dialogSelectUser from '../dialogSelectUser';
+import { openManageOftenUserDialog } from '../dialogSelectUser/GeneralSelect/ManageOftenUserDialog';
 
 export const Con = styled.div`
   overflow: hidden;
@@ -159,13 +160,24 @@ export function UserList(props) {
     showMore,
     limitNum = 2,
     onSelect,
-    onShowMore = () => {},
     appId,
     projectId,
+    showManageBtn = false,
+    onClose = () => {},
+    onShowMore = () => {},
   } = props;
 
+  const hasManageBtn = showManageBtn && !window.isPublicApp && !md.global.Account.isPortal;
   const [isShowMore, setIsShowMore] = useState(false);
   const [select, setSelect] = useState([]);
+
+  const openManageDialog = () => {
+    openManageOftenUserDialog({
+      userOptions: { projectId },
+      dialogSelectUser: dialogSelectUser,
+    });
+    onClose(true);
+  };
 
   return (
     <UserListCon>
@@ -187,7 +199,17 @@ export function UserList(props) {
           />
         ))}
       {!loading && !list.length && (
-        <div className="empty">{type === 'external' && !keywords ? _l('暂无成员') : _l('没有搜索结果')}</div>
+        <div className="empty">
+          {!keywords ? _l('暂无成员') : _l('没有搜索结果')}
+          {hasManageBtn && (
+            <div>
+              {_l('您也可以')}
+              <span className="ThemeColor Hand hoverColor mLeft4" onClick={openManageDialog}>
+                {_l('管理最常协作人员')}
+              </span>
+            </div>
+          )}
+        </div>
       )}
       {showMore && !isShowMore && list.length > limitNum && (
         <div

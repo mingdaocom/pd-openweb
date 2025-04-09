@@ -186,4 +186,17 @@ export default {
      
      return mdyAPI('AddressBook', 'EditIgnoreFriend', args, options);
    },
+  /**
+  * 管理用户的最常协作联系人
+  * @param {Object} args 请求参数
+  * @param {array} args.accountIds 所有的排序最常协作联系人ID
+从开始到最后排序
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editAddressBookOftenMetioned: function (args, options = {}) {
+     
+     return mdyAPI('AddressBook', 'EditAddressBookOftenMetioned', args, options);
+   },
 };

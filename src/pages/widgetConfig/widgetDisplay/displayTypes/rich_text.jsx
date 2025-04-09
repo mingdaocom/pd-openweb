@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import { CommonDisplay } from '../../styled';
+import { getAdvanceSetting } from '../../util';
 
-export default function Attachment(props) {
-  return <CommonDisplay height={80}></CommonDisplay>;
+export default function RichText(props) {
+  const minHeight = getAdvanceSetting(props.data, 'minheight') || 90;
+  return <CommonDisplay height={minHeight - 2}></CommonDisplay>;
 }

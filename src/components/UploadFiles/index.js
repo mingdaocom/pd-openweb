@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { QiniuUpload } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -19,12 +20,11 @@ import {
   checkFileAvailable,
 } from './utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
-import { formatFileSize, getToken, upgradeVersionDialog } from 'src/util';
+import { formatFileSize } from 'src/util';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import plupload from '@mdfe/jquery-plupload';
-import { navigateTo } from 'src/router/navigateTo';
 import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
 
@@ -39,6 +39,7 @@ export const errorCode = {
 }
 
 import RegExpValidator from 'src/util/expression';
+
 export default class UploadFiles extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -184,10 +185,6 @@ export default class UploadFiles extends Component {
     const { temporaryData, kcAttachmentData } = this.state;
     const { isInitCall, isUpload } = this.props;
 
-    if (isUpload) {
-      this.initPlupload();
-    }
-
     if (isInitCall) {
       this.props.onTemporaryDataUpdate(temporaryData);
       this.props.onKcAttachmentDataUpdate(kcAttachmentData);
@@ -235,256 +232,14 @@ export default class UploadFiles extends Component {
     );
   }
 
-  initPlupload() {
-    const _this = this;
-    let { maxTotalSize } = this.state;
-    const { nativeFile } = this;
-    let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
-    const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
-    const isPublic = from === FROM.PUBLIC_ADD || from === FROM.WORKFLOW || window.isPublicWorksheet || isPublicWorkflow;
-
-    const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
-
-    $(nativeFile).plupload({
-      drop_element: dropPasteElement,
-      paste_element: dropPasteElement,
-      url: md.global.FileStoreConfig.uploadHost,
-      file_data_name: 'file',
-      multi_selection: true,
-      max_file_size: maxTotalSize + 'm',
-      filters: undefined,
-      autoUpload: false,
-      method: {
-        FilesAdded(uploader, files) {
-          _this.props.onDropPasting();
-          let { temporaryData } = _this.state;
-
-          _this._uploading = true;
-          _this.props.onUploadComplete(false);
-
-          // 附件配置控制（包含数量、单个文件大小、类型）
-          if (advancedSetting) {
-            const { temporaryData = [], originCount = 0, kcAttachmentData = [] } = _this.state;
-            const tempCount = originCount + temporaryData.length + kcAttachmentData.length;
-            const isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
-            !isAvailable && _this.onRemoveAll(uploader);
-          }
-
-          // 判断已上传的总大小是否超出限制
-          let filesSize = getFilesSize(files);
-          let currentTotalSize = temporaryData.length
-            ? temporaryData.map(item => item.fileSize).reduce((item, count) => count + item)
-            : 0;
-          let totalSize = parseFloat(currentTotalSize / 1024 / 1024) + parseFloat(filesSize / 1024 / 1024);
-          if (totalSize > maxTotalSize) {
-            alert('附件总大小超过 ' + formatFileSize(maxTotalSize * 1024 * 1024) + '，请您分批次上传', 3);
-            _this.onRemoveAll(uploader);
-            return false;
-          }
-
-
-          //判断应用上传量是否达到上限
-          if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
-            const params = { projectId, fromType: 9 };
-            checkAccountUploadLimit(filesSize, params).then(available => {
-              if (!available) {
-                upgradeVersionDialog({
-                  projectId,
-                  isFree: licenseType === 0,
-                  hint: _l('应用附件上传量已到最大值'),
-                  okText: _l('购买上传量扩展包'),
-                  onOk: () => navigateTo(`/admin/expansionservice/${projectId}/storage`),
-                });
-                // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
-                _this.setState({
-                  temporaryData: _this.state.temporaryData.filter(item => !findIsId(item.fileID || item.id, files)),
-                });
-                _this.onRemoveAll(uploader);
-                return false;
-              }
-            });
-          } else if (!isPublic && !noTotal && !window.isPublicApp) {
-            // 判断个人上传流量是否达到上限
-            checkAccountUploadLimit(filesSize).then(available => {
-              if (!available) {
-                openMdDialog();
-                // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
-                _this.setState({
-                  temporaryData: _this.state.temporaryData.filter(item => !findIsId(item.fileID || item.id, files)),
-                });
-                _this.onRemoveAll(uploader);
-                return false;
-              }
-            });
-          }
-
-          // 判断上传文件的格式
-          if (isValid(files)) {
-            alert(_l('含有不支持格式的文件'), 3);
-            _this.onRemoveAll(uploader);
-            _this.props.onUploadComplete(true);
-            return false;
-          }
-
-          const temporaryDataLength = _this.state.temporaryData.filter(
-            attachment => attachment.fileExt !== '.url',
-          ).length;
-          const filesLength = files.filter(attachment => attachment.fileExt !== '.url').length;
-          const currentFileLength = temporaryDataLength + filesLength;
-
-          // 限制文件数量
-          if (temporaryDataLength > 100) {
-            alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
-            return false;
-          } else if (currentFileLength > 100) {
-            alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
-            const num = currentFileLength - 100;
-            files.splice(files.length - num, num).map(file => {
-              uploader.removeFile({ id: file.id });
-            });
-          }
-
-          const tokenFiles = [];
-          const addFiles = [];
-          // 渲染图片列表
-          files.forEach(item => {
-            let fileExt = `.${RegExpValidator.getExtOfFileName(item.name)}`;
-            let fileName = RegExpValidator.getNameOfFileName(item.name);
-            let isPic = RegExpValidator.fileIsPicture(fileExt);
-            let id = item.id;
-            let base = {
-              isPic,
-              fileExt,
-              fileName,
-              id,
-            };
-            _this.errorFiles.push({
-              id: item.id,
-              info: item.getNative(),
-            });
-            tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
-            addFiles.push({ id: item.id, progress: 0.1, base });
-          });
-
-          _this.setState({
-            temporaryData: _this.state.temporaryData.concat(addFiles),
-          });
-
-          const { appId, worksheetId } = _this.props;
-          getToken(tokenFiles, 0, {
-            projectId,
-            appId,
-            worksheetId,
-          }).then(res => {
-            const exceedFiles = [];
-
-            files.forEach((item, i) => {
-              if (res[i].size && item.size > res[i].size * 1024 * 1024) {
-                exceedFiles.push(item);
-                uploader.removeFile(item);
-              } else {
-                item.token = res[i].uptoken;
-                item.key = res[i].key;
-                item.serverName = res[i].serverName;
-                item.fileName = res[i].fileName;
-                item.url = res[i].url;
-              }
-            });
-
-            if (exceedFiles.length) {
-              _this.setState({ temporaryData: [] });
-              alert(_l('%0个文件无法上传：单个文件大小超过%1MB', exceedFiles.length, res[0].size), 2);
-            }
-
-            uploader.start();
-          });
-        },
-        BeforeUpload(uploader, file) {
-          _this.currentFile = uploader;
-          if (!file.key) {
-            _this.removeUploadingFile(file.id);
-            return;
-          }
-          const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
-
-          uploader.settings.multipart_params = {
-            token: file.token,
-          };
-
-          uploader.settings.multipart_params.key = file.key;
-          uploader.settings.multipart_params['x:serverName'] = file.serverName;
-          uploader.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
-          uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
-          uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
-          );
-          uploader.settings.multipart_params['x:fileExt'] = fileExt;
-        },
-        UploadProgress(uploader, file) {
-          const uploadPercent = ((file.loaded / file.size) * 100).toFixed(1);
-
-          // 给当前正在上传的文件设置进度
-          const newTemporaryData = _this.state.temporaryData.map(item => {
-            if (file.id === item.id && 'progress' in item) {
-              item.progress = uploadPercent;
-            }
-            return item;
-          });
-
-          _this.setState({
-            temporaryData: newTemporaryData,
-          });
-        },
-        FileUploaded(uploader, file, response) {
-          // 上传完成，取消进度条
-          const newTemporaryData = _this.state.temporaryData.map(item => {
-            if (file.id == item.id && 'progress' in item) {
-              item = formatResponseData(file, response.response);
-              item.originalFileName = decodeURIComponent(item.originalFileName);
-              delete item.progress;
-              delete item.base;
-            }
-            return item;
-          });
-
-          _this.setState({
-            temporaryData: newTemporaryData,
-          });
-
-          _this.props.onTemporaryDataUpdate(newTemporaryData);
-        },
-        UploadComplete() {
-          _this._uploading = false;
-          _this.props.onUploadComplete(true);
-        },
-        Error(uploader, error) {
-          if (error.response) {
-            try {
-              const res = JSON.parse(error.response);
-              if (res.code === 50001) {
-                alert(res.message, 2);
-                return;
-              } else if (errorCode[res.code]) {
-                alert(errorCode[res.code], 2);
-                return;
-              }
-            } catch (error) { }
-          }
-          if (error.code === window.plupload.FILE_SIZE_ERROR) {
-            alert(_l('单个文件大小超过%0MB，无法支持上传', maxTotalSize), 2);
-          } else if (error.code !== -500) {
-            alert(_l('上传失败，请稍后再试。'), 2);
-          }
-        },
-      },
-    });
-  }
   onRemoveAll(uploader) {
     uploader.files.forEach(item => {
       setTimeout(() => {
         uploader.removeFile({ id: item.id });
       }, 0);
     });
+    this._uploading = false;
+    this.props.onUploadComplete(true);
   }
   onOpenFolderSelectDialog() {
     selectNode({
@@ -542,10 +297,11 @@ export default class UploadFiles extends Component {
       );
     });
   }
-  removeUploadingFile(id) {
+  removeUploadingFile = id => {
     if (this.currentFile) {
       this.currentFile.stop();
       this.currentFile.removeFile({ id });
+      this.currentFile.start();
     }
     const newTemporaryData = this.state.temporaryData.filter(item => item.id !== id);
     this.setState(
@@ -559,7 +315,7 @@ export default class UploadFiles extends Component {
         }
       },
     );
-  }
+  };
   openLinkDialog(item) {
     const _this = this;
 
@@ -644,15 +400,23 @@ export default class UploadFiles extends Component {
     );
   }
   resetFileName(id, newName) {
+    const { checkValueByFilterRegex } = this.props;
     newName = newName.trim();
 
-    if ((/[\/\\:\*\?"<>\|]/g).test(newName)) {
+    if (/[\/\\:\*\?"<>\|]/g.test(newName)) {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return;
     }
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;
+    }
+    if (checkValueByFilterRegex) {
+      const error = checkValueByFilterRegex(newName);
+      if (error) {
+        alert(error, 2);
+        return;
+      }
     }
     const newTemporaryData = this.state.temporaryData.map(item => {
       if (item.fileID === id) {
@@ -850,6 +614,264 @@ export default class UploadFiles extends Component {
       }
     }
   }
+  renderQiniuUpload() {
+    const _this = this;
+    const { maxTotalSize } = this.state;
+    const { noTotal, dropPasteElement, from, projectId, appId, worksheetId, advancedSetting, checkValueByFilterRegex } =
+      this.props;
+    const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
+    const isPublic = from === FROM.PUBLIC_ADD || from === FROM.WORKFLOW || window.isPublicWorksheet || isPublicWorkflow;
+    const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
+    const getTokenParam = {
+      projectId,
+      appId,
+      worksheetId,
+    };
+
+    return (
+      <div onClick={e => e.stopPropagation()}>
+        <QiniuUpload
+          options={{
+            drop_element: dropPasteElement,
+            paste_element: dropPasteElement,
+            url: md.global.FileStoreConfig.uploadHost,
+            ext_blacklist: ['exe', 'bat', 'vbs', 'cmd', 'com', 'url'],
+            file_data_name: 'file',
+            multi_selection: true,
+            max_file_size: maxTotalSize + 'm',
+            autoUpload: false,
+            getTokenParam,
+            error_callback: () => {
+              alert(_l('含有不支持格式的文件'), 3);
+              return;
+            },
+            remove_files_callback: uploader => {
+              this.onRemoveAll(uploader);
+            },
+          }}
+          onAdd={(uploader, files) => {
+            _this.props.onDropPasting();
+            let { temporaryData } = _this.state;
+
+            if (files.length) {
+              _this._uploading = true;
+              _this.props.onUploadComplete(false);
+            } else {
+              return;
+            }
+
+            // 附件配置控制（包含数量、单个文件大小、类型）
+            if (advancedSetting) {
+              const { temporaryData = [], originCount = 0, kcAttachmentData = [] } = _this.state;
+              const tempCount = originCount + temporaryData.length + kcAttachmentData.length;
+              const isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
+              !isAvailable && _this.onRemoveAll(uploader);
+            }
+
+            // 判断已上传的总大小是否超出限制
+            let filesSize = getFilesSize(files);
+            let currentTotalSize = temporaryData.length
+              ? temporaryData.map(item => item.fileSize).reduce((item, count) => count + item)
+              : 0;
+            let totalSize = parseFloat(currentTotalSize / 1024 / 1024) + parseFloat(filesSize / 1024 / 1024);
+            if (totalSize > maxTotalSize) {
+              alert('附件总大小超过 ' + formatFileSize(maxTotalSize * 1024 * 1024) + '，请您分批次上传', 3);
+              _this.onRemoveAll(uploader);
+              return false;
+            }
+
+            //判断应用上传量是否达到上限
+            if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
+              const params = { projectId, fromType: 9 };
+              checkAccountUploadLimit(filesSize, params).then(available => {
+                if (!available) {
+                  upgradeVersionDialog({
+                    projectId,
+                    isFree: licenseType === 0,
+                    hint: _l('应用附件上传量已到最大值'),
+                    okText: _l('购买上传量扩展包'),
+                    onOk: () => window.open(`/admin/expansionservice/${projectId}/storage`),
+                  });
+                  // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
+                  _this.setState({
+                    temporaryData: _this.state.temporaryData.filter(item => !findIsId(item.fileID || item.id, files)),
+                  });
+                  _this.onRemoveAll(uploader);
+                  return false;
+                }
+              });
+            } else if (!isPublic && !noTotal && !window.isPublicApp) {
+              // 判断个人上传流量是否达到上限
+              checkAccountUploadLimit(filesSize).then(available => {
+                if (!available) {
+                  openMdDialog();
+                  // 这里是异步的，等这个 available 值拿到后 files 可能已经上传完毕渲染完了，也可能正在上传，这个时候需要把 temporaryData 里面的文件（本次上传的文件）清除掉
+                  _this.setState({
+                    temporaryData: _this.state.temporaryData.filter(item => !findIsId(item.fileID || item.id, files)),
+                  });
+                  _this.onRemoveAll(uploader);
+                  return false;
+                }
+              });
+            }
+
+            // 判断上传文件的格式
+            if (isValid(files)) {
+              alert(_l('含有不支持格式的文件'), 3);
+              _this.onRemoveAll(uploader);
+              return false;
+            }
+
+            // 验证拦截空文件
+            for (let i = 0, length = files.length; i < length; i++) {
+              const file = files[i].getNative();
+              if (file.size === 0) {
+                alert(_l('不支持上传空文件'), 3);
+                _this.onRemoveAll(uploader);
+                return false;
+              }
+            }
+
+            // 验证名称
+            if (checkValueByFilterRegex) {
+              const removeFiles = [];
+              const result = files.map(file => {
+                const n = checkValueByFilterRegex(file.name);
+                n && removeFiles.push(file);
+                return n;
+              });
+              const errors = result.filter(n => n);
+              if (errors.length) {
+                errors.forEach(n => {
+                  alert(n, 2);
+                });
+                if (errors.length === files.length) {
+                  _this.onRemoveAll(uploader);
+                  return;
+                } else {
+                  files.forEach(item => {
+                    if (_.find(removeFiles, { id: item.id })) {
+                      setTimeout(() => {
+                        uploader.removeFile({ id: item.id });
+                      }, 0);
+                    }
+                  });
+                  files = files.filter(n => !_.find(removeFiles, { id: n.id }));
+                }
+              }
+            }
+
+            const temporaryDataLength = _this.state.temporaryData.filter(
+              attachment => attachment.fileExt !== '.url',
+            ).length;
+            const filesLength = files.filter(attachment => attachment.fileExt !== '.url').length;
+            const currentFileLength = temporaryDataLength + filesLength;
+
+            // 限制文件数量
+            if (temporaryDataLength > 100) {
+              alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
+              return false;
+            } else if (currentFileLength > 100) {
+              alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
+              const num = currentFileLength - 100;
+              files.splice(files.length - num, num).map(file => {
+                uploader.removeFile({ id: file.id });
+              });
+            }
+
+            const addFiles = [];
+            // 渲染图片列表
+            files.forEach(item => {
+              let fileExt = `.${RegExpValidator.getExtOfFileName(item.name)}`;
+              let fileName = RegExpValidator.getNameOfFileName(item.name);
+              let isPic = RegExpValidator.fileIsPicture(fileExt);
+              let id = item.id;
+              let base = {
+                isPic,
+                fileExt,
+                fileName,
+                id,
+              };
+              _this.errorFiles.push({
+                id: item.id,
+                info: item.getNative(),
+              });
+              addFiles.push({ id: item.id, progress: 0.1, base });
+            });
+
+            _this.setState({
+              temporaryData: _this.state.temporaryData.concat(addFiles),
+            });
+          }}
+          onBeforeUpload={uploader => {
+            _this.currentFile = uploader;
+          }}
+          onUploadProgress={(uploader, file) => {
+            const loaded = file.loaded || 0;
+            const size = file.size || 0;
+            const uploadPercent = ((loaded / size) * 100).toFixed(1);
+
+            // 给当前正在上传的文件设置进度
+            const newTemporaryData = _this.state.temporaryData.map(item => {
+              if (file.id === item.id && 'progress' in item) {
+                item.progress = uploadPercent;
+              }
+              return item;
+            });
+
+            _this.setState({
+              temporaryData: newTemporaryData,
+            });
+          }}
+          onUploaded={(uploader, file, response) => {
+            // 上传完成，取消进度条
+            const newTemporaryData = _this.state.temporaryData.map(item => {
+              if (file.id == item.id && 'progress' in item) {
+                item = formatResponseData(file, response);
+                item.originalFileName = decodeURIComponent(item.originalFileName);
+                delete item.progress;
+                delete item.base;
+              }
+              return item;
+            });
+
+            _this.setState({
+              temporaryData: newTemporaryData,
+            });
+
+            // 分片上传顺序有问题， onUploaded 早于 onUploadComplete ，这里代替 onUploadComplete
+            if (!newTemporaryData.filter(n => n.progress).length) {
+              _this.props.onTemporaryDataUpdate(newTemporaryData);
+              setTimeout(() => {
+                _this.props.onUploadComplete(true);
+              }, 0);
+            }
+          }}
+          onUploadComplete={(up, files) => {
+            _this._uploading = false;
+          }}
+          onError={(uploader, error) => {
+            if (error.code === window.plupload.FILE_SIZE_ERROR) {
+              alert(_l('单个文件大小超过%0MB，无法支持上传', maxTotalSize), 2);
+            } else {
+              alert(_l('上传失败，请稍后再试。'), 2);
+            }
+          }}
+        >
+          <div
+            className="flexRow valignWrapper"
+            id={this.id}
+            ref={nativeFile => {
+              this.nativeFile = nativeFile;
+            }}
+          >
+            <i className="icon icon-knowledge-upload Gray_9e Font19" />
+            <span>{_l('本地')}</span>
+          </div>
+        </QiniuUpload>
+      </div>
+    );
+  }
   render() {
     let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink, canAddKnowledge, from } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
@@ -874,16 +896,7 @@ export default class UploadFiles extends Component {
         {isUpload && (
           <div className="UploadFiles-header">
             <div className="UploadFiles-entrys">
-              <div
-                className="flexRow valignWrapper"
-                id={this.id}
-                ref={nativeFile => {
-                  this.nativeFile = nativeFile;
-                }}
-              >
-                <i className="icon icon-knowledge-upload Gray_9e Font19" />
-                <span>{_l('本地')}</span>
-              </div>
+              {this.renderQiniuUpload()}
               {canAddKnowledge &&
                 !md.global.SysSettings.forbidSuites.includes('4') &&
                 md.global.Account.accountId &&

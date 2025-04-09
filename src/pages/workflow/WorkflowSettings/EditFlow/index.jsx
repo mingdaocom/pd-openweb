@@ -24,13 +24,17 @@ import _ from 'lodash';
 class EditFlow extends Component {
   constructor(props) {
     super(props);
+
+    const { type, operatorId, operator, flowId } = props.urlParams;
+    const isFlowView = type === '1' && operator !== 'execHistory';
+
     this.state = {
       nodeId: '',
-      selectNodeId: '',
-      selectNodeType: '',
+      selectNodeId: isFlowView && operatorId ? operatorId : '',
+      selectNodeType: isFlowView && operator ? _.parseInt(operator) : '',
       scale: 100,
       isCopy: false,
-      selectProcessId: '',
+      selectProcessId: isFlowView && flowId ? flowId : '',
       selectCopyIds: [],
       hideNodes: JSON.parse(localStorage.getItem('workflowHideNodes') || '[]'),
       refreshPosition: '',
@@ -40,8 +44,16 @@ class EditFlow extends Component {
   }
 
   componentDidMount() {
+    const { selectNodeId } = this.state;
+
     this.changeScreenWidth();
     this.setViewCenter();
+
+    if (selectNodeId) {
+      setTimeout(() => {
+        this.setElementVisibleInView(selectNodeId, true);
+      }, 1000);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -101,7 +113,7 @@ class EditFlow extends Component {
     }
   }
 
-  setElementVisibleInView(nodeId) {
+  setElementVisibleInView(nodeId, scrollIntoView = false) {
     if (!nodeId) return;
 
     const $el = $(`.workflowBox[data-id=${nodeId}]`)[0];
@@ -117,6 +129,8 @@ class EditFlow extends Component {
     } else if (x > leftVisibleWidth) {
       $content.scrollLeft($content[0].scrollLeft - (leftVisibleWidth - x));
     }
+
+    scrollIntoView && $el.scrollIntoView({ block: 'center' });
   }
 
   /**
@@ -147,7 +161,7 @@ class EditFlow extends Component {
       this.setState({ nodeId, selectProcessId, isCopy: false });
     }
 
-    this.setElementVisibleInView(nodeId);
+    // this.setElementVisibleInView(nodeId);
   };
 
   /**
@@ -417,7 +431,7 @@ class EditFlow extends Component {
       }
     }
 
-    this.setElementVisibleInView(id);
+    // this.setElementVisibleInView(id);
   };
 
   /**
@@ -546,7 +560,7 @@ class EditFlow extends Component {
   };
 
   render() {
-    const { flowInfo, workflowDetail, instanceId, isPlugin } = this.props;
+    const { flowInfo, workflowDetail, urlParams, isPlugin } = this.props;
     const {
       nodeId,
       selectNodeId,
@@ -568,7 +582,7 @@ class EditFlow extends Component {
     const detailProps = {
       selectNodeId,
       selectNodeType,
-      instanceId,
+      instanceId: urlParams.operator === 'execHistory' && urlParams.operatorId ? urlParams.operatorId : '',
       debugEvents: flowInfo.debugEvents,
       isIntegration: location.href.indexOf('integration') > -1,
       isPlugin,

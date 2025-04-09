@@ -5,6 +5,7 @@ import ProcessDetails from '../ProcessDetails';
 import OperatorEmpty from '../OperatorEmpty';
 import WriteFields from '../WriteFields';
 import CustomTextarea from '../CustomTextarea';
+import EmailApproval from '../EmailApproval';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -68,7 +69,7 @@ export default props => {
   const [tabIndex, setTabIndex] = useState(1);
   const [selected, setSelected] = useState(!!data.processConfig.requiredIds.length);
   const [printList, setPrintList] = useState([]);
-  const worksheetId = selectNodeType === NODE_TYPE.FIRST ? data.appId : data.selectNodeObj.appId;
+  const worksheetId = selectNodeType === NODE_TYPE.FIRST ? data.appId : _.get(data, 'selectNodeObj.appId');
   const InitiatorAction = [
     { text: _l('允许发起人撤回流程'), key: 'allowRevoke' },
     { text: _l('允许发起人催办'), key: 'allowUrge' },
@@ -758,6 +759,29 @@ export default props => {
               <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3 mLeft5" />
             </Tooltip>
           </div>
+
+          <EmailApproval
+            {...props}
+            title={_l('启用邮件通知')}
+            desc={
+              <span>
+                {_l('启用后，审批结果会以邮件的形式发送给发起人。')}
+                {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+                  _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+              </span>
+            }
+            flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
+            updateSource={(obj, callback) =>
+              updateSource(
+                {
+                  flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                    [OPERATION_TYPE.EMAIL]: Object.assign({}, data.flowNodeMap[OPERATION_TYPE.EMAIL], obj),
+                  }),
+                },
+                callback,
+              )
+            }
+          />
         </Fragment>
       )}
 

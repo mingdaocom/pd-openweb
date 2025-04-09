@@ -2,7 +2,7 @@ import './css/quickCreateTask.less';
 import doT from 'dot';
 import ajaxRequest from 'src/api/taskCenter';
 import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import { expireDialogAsync } from 'src/util';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
 import quickCreateTask from './tpl/quickCreateTask.html';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import Store from 'redux/configureStore';

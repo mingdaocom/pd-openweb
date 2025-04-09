@@ -65,6 +65,8 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   FORMULA_FUNC: 53,
   CUSTOM: 54,
   REMARK: 10010,
+  // 特殊异化控件：呈现type异化，实际保存type跟老控件一致
+  INTERNATIONAL_AREA: 90000,
 };
 
 export const DEFAULT_CONFIG = {
@@ -148,6 +150,10 @@ export const DEFAULT_CONFIG = {
     widgetName: _l('地区'),
     intro: _l('从预设的地址中进行选择'),
     moreIntroLink: 'https://help.mingdao.com/worksheet/control-region-city',
+  },
+  INTERNATIONAL_AREA: {
+    icon: 'map',
+    widgetName: _l('国际地区'),
   },
   RELATION: {
     icon: 'device_hub',
@@ -467,6 +473,15 @@ export const DEFAULT_DATA = {
   AREA_PROVINCE: {
     controlName: _l('地区'),
     size: 6,
+    enumDefault: 0,
+  },
+  INTERNATIONAL_AREA: {
+    controlName: _l('国际地区'),
+    size: 6,
+    enumDefault: 1,
+    advancedSetting: {
+      choosetype: '0',
+    },
   },
   RELATION: {
     controlName: _l('自由连接%04008'),
@@ -855,6 +870,7 @@ export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
   'MONEY_CN',
   'EMBED',
   'CUSTOM',
+  // 'INTERNATIONAL_AREA',
 ]);
 
 export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [

@@ -1,19 +1,22 @@
 import React from 'react';
+
+import cx from 'classnames';
+import _, { find, get, uniq } from 'lodash';
+import { ClickAway } from 'ming-ui';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import cx from 'classnames';
-import { ClickAway } from 'ming-ui';
-import styled from 'styled-components';
 import { FROM } from 'src/components/newCustomFields/tools/config';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
-import AutoWidthInput from './AutoWidthInput';
-import './style.less';
-import _, { get, uniq } from 'lodash';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import { getTranslateInfo } from 'src/util';
+import styled from 'styled-components';
+import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { checkIsTextControl } from 'worksheet/util';
+
+import AutoWidthInput from './AutoWidthInput';
+import RelateRecordList from './RelateRecordList';
+import './style.less';
 
 const OnlyScanTip = styled.div`
   width: 310px;
@@ -85,6 +88,7 @@ export default class RelateRecordDropdown extends React.Component {
       activeIndex: undefined,
       deletedIds: [],
       addedIds: [],
+      newOptionsControlsForRelationControls: [],
     };
     this.initSearchControl(props);
     this.focusInput = this.focusInput.bind(this);
@@ -156,6 +160,22 @@ export default class RelateRecordDropdown extends React.Component {
   get allowRemove() {
     const { multiple } = this.props;
     return !multiple || _.get(this.props, 'control.advancedSetting.allowcancel') !== '0';
+  }
+
+  get control() {
+    const { control } = this.props;
+    const { newOptionsControlsForRelationControls } = this.state;
+    return {
+      ...control,
+      relationControls: control.relationControls.map(
+        c => find(newOptionsControlsForRelationControls, { controlId: c.controlId }) || c,
+      ),
+    };
+  }
+
+  get entityName() {
+    const { appId, control } = this.props;
+    return getTranslateInfo(appId, null, control.dataSource).recordName || this.props.entityName;
   }
 
   initSearchControl(props) {
@@ -358,10 +378,11 @@ export default class RelateRecordDropdown extends React.Component {
   };
 
   renderSingle() {
-    const { insheet, isediting, isQuickFilter, control, allowOpenRecord, entityName, staticRecords } = this.props;
+    const { appId, insheet, isediting, isQuickFilter, control, allowOpenRecord, staticRecords } = this.props;
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
-    const title = getTitleTextFromRelateControl(control, selected[0]);
+    const title = getTitleTextFromRelateControl(this.control, selected[0]);
+    const entityName = this.entityName;
     return (
       <React.Fragment>
         {!!selected.length && !keywords && (
@@ -425,7 +446,6 @@ export default class RelateRecordDropdown extends React.Component {
       control,
       worksheetId,
       allowOpenRecord,
-      entityName,
       cellFrom,
       recordId,
       viewId,
@@ -440,7 +460,7 @@ export default class RelateRecordDropdown extends React.Component {
           <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
         )}
         {selected.map((record, i) => {
-          const title = getTitleTextFromRelateControl(control, record);
+          const title = getTitleTextFromRelateControl(this.control, record);
           return active || insheet ? (
             <div
               key={i}
@@ -454,7 +474,9 @@ export default class RelateRecordDropdown extends React.Component {
                 e.stopPropagation();
               }}
             >
-              <span className="name InlineBlock ellipsis">{record.rowid ? title : _l('关联当前%0', entityName)}</span>
+              <span className="name InlineBlock ellipsis">
+                {record.rowid ? title : _l('关联当前%0', this.entityName)}
+              </span>
               {active && (this.allowRemove || record.isNewAdd) && (
                 <i
                   className="icon icon-close"
@@ -566,6 +588,7 @@ export default class RelateRecordDropdown extends React.Component {
             staticRecords={staticRecords}
             ignoreRowIds={uniq(deletedIds.concat(selected.map(r => r.rowid)))}
             maxHeight={renderToTop && cellToTop}
+            entityName={this.entityName}
             style={{
               ...(renderToTop
                 ? {
@@ -697,7 +720,7 @@ export default class RelateRecordDropdown extends React.Component {
     const popup = this.renderPopup({ disabledManualWrite });
     const popupVisible = insheet ? isediting : listvisible;
     const chooseShowIds = safeParse(control.advancedSetting.chooseshowids, 'array');
-    let showCards = (from === FROM.RECORDINFO || from === FROM.NEWRECORD) && !multiple && !!chooseShowIds.length;
+    let showCards = !multiple && !!chooseShowIds.length && !insheet;
     return (
       <div
         className={cx('RelateRecordDropdown', className)}
@@ -751,6 +774,7 @@ export default class RelateRecordDropdown extends React.Component {
               appId={appId}
               recordId={this.props.recordId}
               allowOpenRecord={disabled ? control.advancedSetting.allowlink === '1' : false}
+              cardClassName={disabled && control.advancedSetting.allowlink === '1' ? 'Hand' : undefined}
               control={{
                 ...control,
                 disabled: true,
@@ -794,6 +818,9 @@ export default class RelateRecordDropdown extends React.Component {
               this.setState({ newrecordVisible: false });
             }}
             onAdd={record => this.handleItemClick(record)}
+            updateWorksheetControls={newOptionsControlsForRelationControls => {
+              this.setState({ newOptionsControlsForRelationControls });
+            }}
           />
         )}
         {from !== FROM.PUBLIC_ADD && previewRecord && (

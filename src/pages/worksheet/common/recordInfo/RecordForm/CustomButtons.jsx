@@ -4,9 +4,10 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm, SvgIcon } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
-import { verifyPassword, getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import IconText from 'worksheet/components/IconText';
-import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import FillRecordControls from '../FillRecordControls';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import worksheetAjax from 'src/api/worksheet';
@@ -361,6 +362,41 @@ export default class CustomButtons extends React.Component {
       }
     });
   };
+  handleNewRecord() {
+    const { worksheetId, recordId, projectId } = this.props;
+    const { rowInfo } = this.state;
+    const { activeBtn = {} } = this;
+    addRecord({
+      isCustomButton: true,
+      title: this.activeBtn.name,
+      className: 'worksheetRelateNewRecord recordOperateDialog',
+      worksheetId: this.btnAddRelateWorksheetId,
+      addType: 2,
+      filterRelateSheetrecordbase: worksheetId,
+      masterRecord: this.masterRecord,
+      projectId: projectId,
+      customBtn: {
+        btnId: this.activeBtn.btnId,
+        btnWorksheetId: worksheetId,
+        btnRowId: recordId,
+      },
+      customButtonConfirm: this.customButtonConfirm,
+      defaultRelatedSheet: {
+        worksheetId: this.masterRecord.worksheetId,
+        relateSheetControlId: activeBtn.addRelationControl,
+        value: {
+          sid: this.masterRecord.rowId,
+          sourcevalue: JSON.stringify(
+            [{ rowid: this.masterRecord.rowId }, ...(rowInfo ? rowInfo.formData : [])].reduce((a, b) => ({
+              ...a,
+              [b.controlId]: b.value,
+            })),
+          ),
+        },
+      },
+      onAdd: this.handleAddRecordCallback,
+    });
+  }
 
   overrideValue(controls, data) {
     return controls.map(control => {
@@ -395,7 +431,6 @@ export default class CustomButtons extends React.Component {
         advancedSetting: worksheetInfo.advancedSetting,
       };
     }
-    this.setStateFn({ rowInfo });
     const caseStr = btn.writeObject + '' + btn.writeType;
     const relationControl = _.find(rowInfo.formData, c => c.controlId === btn.relationControl);
     const addRelationControl = _.find(rowInfo.formData || [], c => c.controlId === btn.addRelationControl);
@@ -442,9 +477,7 @@ export default class CustomButtons extends React.Component {
           controlId: addRelationControl.controlId,
           worksheetId: worksheetId,
         };
-        this.setStateFn({
-          newRecordVisible: true,
-        });
+        this.setStateFn({ rowInfo }, this.handleNewRecord);
         break;
       case '21': // 关联记录 - 填写字段
         if (!relationControl || !_.isObject(relationControl)) {
@@ -540,36 +573,30 @@ export default class CustomButtons extends React.Component {
       };
       if (relationControlrelationControl) {
         this.btnAddRelateWorksheetId = relationControlrelationControl.dataSource;
-        this.setStateFn({
-          newRecordVisible: true,
-          rowInfo: data,
-        });
+        this.setStateFn(
+          {
+            rowInfo: data,
+          },
+          () => {
+            this.handleNewRecord();
+          },
+        );
       }
     });
   }
 
-  setStateFn = args => {
+  setStateFn = (args, fn) => {
     const { setCustomButtonActive } = this.props;
-    if (typeof args.fillRecordControlsVisible !== 'undefined' || typeof args.newRecordVisible !== 'undefined') {
-      setCustomButtonActive(args.fillRecordControlsVisible || args.newRecordVisible);
+    if (typeof args.fillRecordControlsVisible !== 'undefined') {
+      setCustomButtonActive(args.fillRecordControlsVisible);
     }
-    this.setState(args);
+    this.setState(args, fn);
   };
 
   renderDialogs() {
-    const {
-      isCharge,
-      worksheetId,
-      viewId,
-      appId,
-      recordId,
-      projectId,
-      isBatchOperate,
-      triggerCallback,
-      sheetSwitchPermit,
-      isDraft,
-    } = this.props;
-    const { rowInfo, fillRecordControlsVisible, newRecordVisible } = this.state;
+    const { isCharge, viewId, appId, projectId, isBatchOperate, triggerCallback, sheetSwitchPermit, isDraft } =
+      this.props;
+    const { fillRecordControlsVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
     return (
@@ -600,43 +627,6 @@ export default class CustomButtons extends React.Component {
             }}
             {...fillRecordProps}
             customButtonConfirm={this.customButtonConfirm}
-          />
-        )}
-        {newRecordVisible && (
-          <NewRecord
-            isCustomButton
-            title={this.activeBtn.name}
-            className="worksheetRelateNewRecord recordOperateDialog"
-            worksheetId={this.btnAddRelateWorksheetId}
-            addType={2}
-            filterRelateSheetrecordbase={worksheetId}
-            visible={newRecordVisible}
-            masterRecord={this.masterRecord}
-            projectId={projectId}
-            customBtn={{
-              btnId: this.activeBtn.btnId,
-              btnWorksheetId: worksheetId,
-              btnRowId: recordId,
-            }}
-            customButtonConfirm={this.customButtonConfirm}
-            defaultRelatedSheet={{
-              worksheetId: this.masterRecord.worksheetId,
-              relateSheetControlId: activeBtn.addRelationControl,
-              value: {
-                sid: this.masterRecord.rowId,
-                sourcevalue: JSON.stringify(
-                  [{ rowid: this.masterRecord.rowId }, ...(rowInfo ? rowInfo.formData : [])].reduce((a, b) => ({
-                    ...a,
-                    [b.controlId]: b.value,
-                  })),
-                ),
-              },
-            }}
-            hideNewRecord={() => {
-              this.setStateFn({ newRecordVisible: false });
-              triggerCallback();
-            }}
-            onAdd={this.handleAddRecordCallback}
           />
         )}
       </React.Fragment>

@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { LoadDiv, UpgradeIcon } from 'ming-ui';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import roleAjax from 'src/api/role';
 import workwxImg from './images/workwx.png';
 import dingIng from './images/ding.png';

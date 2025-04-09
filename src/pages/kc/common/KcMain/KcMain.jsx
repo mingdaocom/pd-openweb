@@ -87,7 +87,6 @@ class KcMain extends Component {
     changeSortBy: PropTypes.func,
     restoreNode: PropTypes.func,
     reloadList: PropTypes.func,
-    kcLeftEditRootFn: PropTypes.func,
     updateKcBaseUrl: PropTypes.func,
     loadListById: PropTypes.func,
     batchDownload: PropTypes.func,
@@ -250,7 +249,6 @@ class KcMain extends Component {
       isRecycle,
       isReadOnly,
       reloadList,
-      kcLeftEditRootFn,
       loadListById,
       batchDownload,
     } = this.props;
@@ -462,7 +460,6 @@ class KcMain extends Component {
             changeKcView={this.changeKcView}
             addLinkFile={addLinkFile}
             loadRecycleBin={reloadList}
-            editRoot={kcLeftEditRootFn}
             toggleDetailAndTogglePin={this.toggleDetailAndTogglePin}
           />
           <div
@@ -656,7 +653,6 @@ const mapStateToProps = state => ({
   isRecycle: state.kc.isRecycle,
   isReadOnly: state.kc.isReadOnly,
   selectedItems: state.kc.selectedItems,
-  kcLeftEditRootFn: state.kc.kcLeftEditRootFn,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -24,6 +24,7 @@ const MobileList = styled.div`
     }
   }
   ul {
+    overflow-y: auto;
     li {
       display: flex;
       align-items: center;
@@ -100,7 +101,7 @@ export default function MobileLayout(props) {
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || apk.iconColor);
   return (
     <Fragment>
-      <MobileList>
+      <MobileList className="flexColumn">
         <div className="title Bold Gray_75">{_l('隐藏组件')}</div>
         {hidedComponents.length > 0 ? (
           <ul>

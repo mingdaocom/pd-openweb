@@ -7,7 +7,7 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 
 const Wrap = styled.div`
   .ming.Dropdown,

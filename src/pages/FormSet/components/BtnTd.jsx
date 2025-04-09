@@ -268,12 +268,7 @@ export default function BtnTd(props) {
                 showMoreOption: false,
               });
             }}
-            setFn={data => {
-              setState({
-                showMoreOption: false,
-                isRename: true,
-              });
-            }}
+            setFn={data => setState(data)}
             deleteFn={() => {
               optionWorksheetBtn({
                 appId,

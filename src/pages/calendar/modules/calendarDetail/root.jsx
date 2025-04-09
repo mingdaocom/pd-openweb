@@ -5,12 +5,10 @@ import '@mdfe/nanoscroller';
 import './style.less';
 import { FREQUENCY, RECURTYPE, MEMBER_STATUS } from './constant';
 import { dialogSelectUser } from 'ming-ui/functions';
-import { Config } from './index';
 import * as Common from './common';
 import Comm from '../comm/comm';
 import { default as postMessageDialog } from './lib/postMessage';
 import { addToken, getAppFeaturesPath } from 'src/util';
-
 import CalendarAction from './container/CalendarAction';
 import CalendarHeader from './container/CalendarHeader';
 import CalendarMain from './container/CalendarMain';
@@ -20,6 +18,8 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import 'src/components/createTask/createTask';
 import _ from 'lodash';
 import moment from 'moment';
+
+const Config = Common.Config;
 
 const getStateIsRecurChange = (oldState, state) => {
   // 重复日程改变

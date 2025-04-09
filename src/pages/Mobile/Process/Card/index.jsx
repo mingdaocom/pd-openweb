@@ -2,14 +2,13 @@ import React, { Fragment, Component } from 'react';
 import { Icon, Button, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import { Checkbox } from 'antd-mobile';
-import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
-import './index.less';
 import OtherAction from 'mobile/ProcessRecord/OtherAction';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import instance from 'src/pages/workflow/api/instance';
-import { processInformTabs } from 'mobile/Process/ProcessInform';
+import { processInformTabs } from '../enum';
+import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -365,6 +364,7 @@ export default class Card extends Component {
             selectedUser={{}}
             instance={instance}
             instanceId={item.id}
+            workId={item.workId}
             onAction={this.handleAction}
             onHide={() => {
               this.setState({

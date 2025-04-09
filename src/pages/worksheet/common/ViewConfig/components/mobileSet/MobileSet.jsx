@@ -63,8 +63,8 @@ export default class MobileSet extends React.Component {
                 {
                   ...view,
                   appId,
-                  advancedSetting: { abstract: value },
-                  editAdKeys: ['abstract'],
+                  advancedSetting: value,
+                  editAdKeys: _.keys(value),
                   editAttrs: ['advancedSetting'],
                 },
                 false,
@@ -105,24 +105,6 @@ export default class MobileSet extends React.Component {
                 false,
               )
             }
-            // 显示位置
-            handleChangePosition={(value, coverTypeValue) => {
-              this.updateView(
-                {
-                  ...view,
-                  appId,
-                  coverType: coverTypeValue,
-                  advancedSetting: { coverposition: value },
-                  editAttrs: ['advancedSetting', 'coverType'],
-                  editAdKeys: ['coverposition'],
-                },
-                false,
-              );
-            }}
-            // 显示方式
-            handleChangeType={value =>
-              this.updateView({ ...view, appId, coverType: value, editAttrs: ['coverType'] }, false)
-            }
             // 允许点击查看
             handleChangeOpencover={value => {
               this.updateView({
@@ -131,6 +113,15 @@ export default class MobileSet extends React.Component {
                 advancedSetting: { opencover: value },
                 editAttrs: ['advancedSetting'],
                 editAdKeys: ['opencover'],
+              });
+            }}
+            handleChangeCoverStyle={value => {
+              this.updateView({
+                ...view,
+                appId,
+                advancedSetting: { coverstyle: value },
+                editAttrs: ['advancedSetting'],
+                editAdKeys: ['coverstyle'],
               });
             }}
           />

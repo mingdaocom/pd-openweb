@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './index.less';
 import * as ajax from '../../utils/ajax';
-import { getClassNameByExt, createLinksForMessage, dateConvertToUserZone } from 'src/util';
+import { getClassNameByExt, dateConvertToUserZone } from 'src/util';
+import createLinksForMessage from 'src/util/createLinksForMessage';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';

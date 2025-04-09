@@ -1,11 +1,8 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 import { Icon, ScrollView, Dialog } from 'ming-ui';
-import { Input } from 'antd';
-import EditInput from './EditInput';
 import sheetApi from 'src/api/worksheet';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { ControlContent } from './Control';
 
 export default function SubTable(props) {
   const { app, comparisonLangId, comparisonLangData, worksheetId, control, translateData, translateInfo } = props;
@@ -82,23 +79,21 @@ export default function SubTable(props) {
         <ScrollView className="flex" ref={scrollViewRef}>
           <div className="pLeft20 pRight20">
             {controls.map(c => (
-              <ControlContent
-                isSubTable={true}
-                app={app}
-                control={c}
-                selectNode={{
-                  workSheetId: worksheetId
-                }}
-                comparisonLangId={comparisonLangId}
-                comparisonLangData={comparisonLangData}
-                translateData={translateData}
-                onSelectedKeys={props.onSelectedKeys}
-                setExpandedKeys={props.setExpandedKeys}
-                onEditAppLang={(data) => {
+              props.renderControlContent({
+                isSubTable: true,
+                app,
+                control: c,
+                selectNode: { workSheetId: worksheetId },
+                comparisonLangId,
+                comparisonLangData,
+                translateData,
+                onSelectedKeys: props.onSelectedKeys,
+                setExpandedKeys: props.setExpandedKeys,
+                onEditAppLang: data => {
                   data.parentId = worksheetId;
                   props.onEditAppLang(data);
-                }}
-              />
+                }
+              })
             ))}
           </div>
         </ScrollView>

@@ -83,10 +83,9 @@ export default class Chart extends Component {
   changeDragValue(direction) {
     const { offsetHeight, offsetWidth } = this.$chartRef.current || {};
     const value = direction === 'vertical' ? offsetHeight : offsetWidth;
-    const storeDragValue = Number(localStorage.getItem(`${direction}ChartSheetDragValue`) || 0);
     const storeSheetSize = Number(localStorage.getItem(`${direction}ChartSheetSheetSize`) || 0);
     this.setState({
-      dragValue: storeDragValue ? storeDragValue : value / 2,
+      dragValue: storeSheetSize ? value - storeSheetSize : value / 2,
       sheetSize: storeSheetSize ? storeSheetSize : value / 2,
       min: (20 / 100) * value,
       max: (80 / 100) * value,
@@ -238,8 +237,7 @@ export default class Chart extends Component {
     const view = _.find(worksheetInfo.views, { viewId });
     const { direction, scopeVisible } = this.props;
     const { dragMaskVisible, min, max, sheetSize, Component } = this.state;
-    const storeDragValue = Number(localStorage.getItem(`${direction}ChartSheetDragValue`) || 0);
-    const dragValue = this.state.dragValue - (scopeVisible && storeDragValue && direction === 'horizontal' ? 320 : 0);
+    const dragValue = this.state.dragValue - (scopeVisible && direction === 'horizontal' ? 320 : 0);
     const { sourceType, permissions, report } = base;
     const idVisible = sourceType === 1 ? isCharge : permissions;
 
@@ -297,7 +295,6 @@ export default class Chart extends Component {
                       this.props.getReportData();
                     }
                   });
-                  safeLocalStorageSetItem(`${direction}ChartSheetDragValue`, dragValue);
                   safeLocalStorageSetItem(`${direction}ChartSheetSheetSize`, sheetSize);
                 }}
               />

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Modal } from 'ming-ui';
+import { IconButton, Icon } from './styled';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { WORKFLOW_SYSTEM_CONTROL, SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
@@ -90,28 +91,6 @@ const EditorHeader = styled.div`
   height: 48px;
   padding: 0 20px;
   flex-shrink: 0;
-`;
-
-export const Icon = styled.i`
-  font-size: ${props => props.size || '18'}px;
-  color: ${props => props.color || '#000'};
-`;
-
-export const IconButton = styled.div`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  .icon {
-    margin-right: 4px;
-  }
-  .text {
-    font-size: 13px;
-    color: ${props => props.textColor || '#000'};
-  }
-  &.disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-  }
 `;
 
 const CodingArea = styled.div`

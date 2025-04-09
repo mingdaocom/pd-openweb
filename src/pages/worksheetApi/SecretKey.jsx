@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import appManagementAjax from 'src/api/appManagement';
 import { Dialog, Checkbox, Switch, RadioGroup, VerifyPasswordInput } from 'ming-ui';
-import { verifyPassword } from 'src/util';
+import verifyPassword from 'src/components/verifyPassword';
 import styled from 'styled-components';
 
 const DialogWrap = styled(Dialog)`

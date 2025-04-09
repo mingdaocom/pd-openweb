@@ -16,9 +16,7 @@ import _ from 'lodash';
 class SheetRows extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      previewRecordId: undefined,
-    };
+    this.state = {};
   }
 
   componentDidMount() {
@@ -29,7 +27,7 @@ class SheetRows extends Component {
     window.removeEventListener('popstate', this.onQueryChange);
   }
   onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => this.setState({ previewRecordId: undefined }));
+    handleReplaceState('page', 'recordDetail', () => this.props.updatePreviewRecordId(''));
   };
 
   handleEndReached = () => {
@@ -39,9 +37,9 @@ class SheetRows extends Component {
     }
   };
   handlePullToRefresh = () => {
-    this.props.updateIsPullRefreshing(true)
-    this.props.changePageIndex(1)
-  }
+    this.props.updateIsPullRefreshing(true);
+    this.props.changePageIndex(1);
+  };
   renderRow = item => {
     const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData, sheetSwitchPermit } =
       this.props;
@@ -79,9 +77,7 @@ class SheetRows extends Component {
           }
           if (browserIsMobile()) {
             handlePushState('page', 'recordDetail');
-            this.setState({
-              previewRecordId: item.rowid,
-            });
+            this.props.updatePreviewRecordId(item.rowid);
           }
           addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.rowid }); // 埋点
         }}
@@ -89,7 +85,6 @@ class SheetRows extends Component {
     );
   };
   render() {
-    const { previewRecordId } = this.state;
     const {
       currentSheetRows,
       sheetRowLoading,
@@ -98,6 +93,7 @@ class SheetRows extends Component {
       view,
       sheetSwitchPermit,
       worksheetInfo = {},
+      previewRecordId,
     } = this.props;
 
     return (
@@ -128,11 +124,7 @@ class SheetRows extends Component {
           loadNextPageRecords={this.props.changePageIndex}
           loadedRecordsOver={!(!sheetRowLoading && sheetView.isMore)}
           changeMobileSheetRows={this.props.changeMobileSheetRows}
-          onClose={() => {
-            this.setState({
-              previewRecordId: undefined,
-            });
-          }}
+          onClose={() => this.props.updatePreviewRecordId('')}
         />
       </Fragment>
     );
@@ -170,7 +162,17 @@ export default connect(
     batchOptVisible: state.mobile.batchOptVisible,
     batchOptCheckedData: state.mobile.batchOptCheckedData,
     sheetSwitchPermit: state.mobile.sheetSwitchPermit,
+    previewRecordId: state.mobile.previewRecordId,
   }),
   dispatch =>
-    bindActionCreators(_.pick(actions, ['changePageIndex', 'changeBatchOptData', 'changeMobileSheetRows', 'updateIsPullRefreshing']), dispatch),
+    bindActionCreators(
+      _.pick(actions, [
+        'changePageIndex',
+        'changeBatchOptData',
+        'changeMobileSheetRows',
+        'updateIsPullRefreshing',
+        'updatePreviewRecordId',
+      ]),
+      dispatch,
+    ),
 )(SheetRows);

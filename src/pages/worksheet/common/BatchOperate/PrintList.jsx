@@ -5,8 +5,10 @@ import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum
 import worksheetAjax from 'src/api/worksheet';
 import webCacheAjax from 'src/api/webCache';
 import IconText from 'worksheet/components/IconText';
-import { printQrBarCode, generatePdf } from 'worksheet/common/PrintQrBarCode';
-import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
+import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { generatePdf } from '../PrintQrBarCode/GeneratingPdf';
+import { getFeatureStatus, addBehaviorLog } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import { PRINT_TYPE_STYLE, PRINT_TYPE, PRINT_TEMP } from 'src/pages/Print/config';
 import _ from 'lodash';
@@ -260,6 +262,7 @@ export default function PrintList(props) {
                         isBatch: true,
                         fileTypeNum: template.type,
                         allowDownloadPermission: template.allowDownloadPermission,
+                        allowEditAfterPrint: template.allowEditAfterPrint,
                       };
                       let printKey = Math.random().toString(36).substring(2);
                       webCacheAjax.add({

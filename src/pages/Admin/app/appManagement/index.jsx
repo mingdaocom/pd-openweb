@@ -28,7 +28,8 @@ import SelectApp from './modules/SelectApp';
 import AppLog from './modules/AppLog';
 import { Drawer, Select } from 'antd';
 import EventEmitter from 'events';
-import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog, getCurrentProject } from 'src/util';
+import { getFeatureStatus, addBehaviorLog, getCurrentProject } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import SelectUser from '../../components/SelectUser';
@@ -711,7 +712,7 @@ export default class AppManagement extends Component {
 
     return (
       <div className="orgManagementWrap appManagementList flex flexColumn">
-        <AdminTitle prefix={_l('应用管理')} />
+        <AdminTitle prefix={_l('应用')} />
 
         <div className="orgManagementHeader flexRow">
           <div className="Font17 bold flex">

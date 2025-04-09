@@ -5,6 +5,8 @@ import { Icon, ScrollView, QiniuUpload, SvgIcon, Checkbox } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
 import './index.less';
 import _ from 'lodash';
+import { saveAs } from 'file-saver';
+import { navigateTo } from 'src/router/navigateTo';
 
 export default class CustomIcon extends Component {
   state = {
@@ -15,6 +17,7 @@ export default class CustomIcon extends Component {
   };
 
   cacheData = [];
+  uploadLoadingKey = undefined;
 
   componentWillMount() {
     this.getList();
@@ -53,20 +56,21 @@ export default class CustomIcon extends Component {
     const { projectId } = this.props;
     const { selected } = this.state;
     window
-    .mdyAPI('', '', { projectId, fileNames: selected }, {
-      ajaxOptions: {
-        url: `${__api_server__.main}Download/CustomIcon`,
-        responseType: 'blob',
-      },
-      customParseResponse: true,
-    }).then(data => {
-      let blobUrl = window.URL.createObjectURL(data);
-      const a = document.createElement('a');
-
-      a.download = 'MDFont_' + new Date().getTime();
-      a.href = blobUrl;
-      a.click();
-    });
+      .mdyAPI(
+        '',
+        '',
+        { projectId, fileNames: selected },
+        {
+          ajaxOptions: {
+            url: `${__api_server__.main}Download/CustomIcon`,
+            responseType: 'blob',
+          },
+          customParseResponse: true,
+        },
+      )
+      .then(data => {
+        saveAs(data, 'MDFont_' + new Date().getTime());
+      });
   };
 
   /**
@@ -82,8 +86,13 @@ export default class CustomIcon extends Component {
     });
   };
 
+  startLoading = () => {
+    this.uploadLoadingKey = +new Date();
+    alert(_l('上传中，请耐心等待...'), 5, 0, undefined, this.uploadLoadingKey);
+  };
+
   render() {
-    const { onClose, projectId } = this.props;
+    const {  projectId } = this.props;
     const { selected, data, preserveColor, cacheKey } = this.state;
 
     return (
@@ -92,7 +101,7 @@ export default class CustomIcon extends Component {
 
         <div className="orgManagementHeader flexRow">
           <div className="flexRow alignItemsCenter">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
+            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={() => navigateTo(`/admin/settings/${projectId}`)} />
             <div className="Font17 bold flex mLeft10">{_l('自定义图标')}</div>
           </div>
           <div className="flexRow alignItemsCenter">
@@ -117,6 +126,7 @@ export default class CustomIcon extends Component {
               }}
               onUploaded={(up, files) => {
                 this.cacheData.push(files);
+                !this.uploadLoadingKey && this.startLoading();
               }}
               onUploadComplete={res => {
                 if (res) {
@@ -129,6 +139,8 @@ export default class CustomIcon extends Component {
                   ajaxRequest.addCustomIcon({ projectId, data }).then(() => {
                     this.cacheData = [];
                     this.getList();
+                    window.destroyAlert(this.uploadLoadingKey);
+                    this.uploadLoadingKey = undefined;
                   });
                 }
               }}
@@ -146,7 +158,7 @@ export default class CustomIcon extends Component {
         <div className="mTop16 mLeft24 mRight24">
           {!selected.length ? (
             <span className="Gray_9e">
-              {_l('上传的图标可用于应用、应用项、工作表的图标选择，使用SVG格式的单色图标')}（{_l('推荐下载地址')}
+              {_l('上传的图标可用于应用配置时的图标选择，建议使用 SVG 格式的单色图标')}（{_l('推荐下载地址')}
               <a className="ThemeColor3 ThemeHoverColor2" href="https://www.iconfont.cn" target="_blank">
                 iconfont
               </a>

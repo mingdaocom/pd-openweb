@@ -10,7 +10,7 @@ import attachmentAjax from 'src/api/attachment';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { getFileExtends, isDocument, formatTime } from './utils';
 import { formatFileSize, downloadFile, getClassNameByExt } from 'src/util';
-import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';
@@ -830,7 +830,7 @@ export default class FileComponent extends Component {
                       }}
                     />
                     <Menu
-                      style={{ width: 120, right: 0, top: 0, zIndex: 100 }}
+                      style={{ width: 120, right: 0, left: 'inherit', top: 0, zIndex: 100 }}
                       className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
                       onClickAway={() => this.setState({ menuVisible: false })}
                     >

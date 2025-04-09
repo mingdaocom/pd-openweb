@@ -380,7 +380,9 @@ export default function DetailList(props) {
               {item.publisher.fullname}
             </span>
             {source === 1 && (
-              <span className="mLeft4 mRight5 nowrap">{publishType === 2 ? _l('(导入)') : _l('(发布)')}</span>
+              <span className="mLeft4 mRight5 nowrap">
+                {publishType === 3 ? _l('(安装)') : publishType === 2 ? _l('(导入)') : _l('(发布)')}
+              </span>
             )}
           </div>
         ),
@@ -432,25 +434,27 @@ export default function DetailList(props) {
               (pluginType === PLUGIN_TYPE.VIEW && item.expireDays === 0 ? (
                 <span className="redBtn">{_l('(已过期)')}</span>
               ) : (
-                <span
-                  className="ThemeColor"
-                  onClick={() => {
-                    Dialog.confirm({
-                      title: _l(`切换到当前版本 （${item.versionCode}）`),
-                      onOk: () => {
-                        pluginApi.rollback({ pluginId, releaseId: item.id, source }, API_EXTENDS).then(res => {
-                          if (res) {
-                            alert(_l('切换版本成功'));
-                            onRefreshList();
-                            onRefreshDetail();
-                          }
-                        });
-                      },
-                    });
-                  }}
-                >
-                  {_l('设为当前版本')}
-                </span>
+                publishType !== 3 && (
+                  <span
+                    className="ThemeColor"
+                    onClick={() => {
+                      Dialog.confirm({
+                        title: _l(`切换到当前版本 （${item.versionCode}）`),
+                        onOk: () => {
+                          pluginApi.rollback({ pluginId, releaseId: item.id, source }, API_EXTENDS).then(res => {
+                            if (res) {
+                              alert(_l('切换版本成功'));
+                              onRefreshList();
+                              onRefreshDetail();
+                            }
+                          });
+                        },
+                      });
+                    }}
+                  >
+                    {_l('设为当前版本')}
+                  </span>
+                )
               ))}
           </div>
         ),

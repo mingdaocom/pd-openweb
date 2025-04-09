@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Radio } from 'ming-ui';
 import cx from 'classnames';
-import { APP_TYPE, RELATION_TYPE } from '../../enum';
-import { SingleControlValue, SelectNodeObject, AddOptions } from '../components';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import _ from 'lodash';
+import { Dropdown, Radio } from 'ming-ui';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { APP_TYPE, NODE_TYPE, RELATION_TYPE } from '../../enum';
+import { AddOptions, SelectNodeObject, SingleControlValue } from '../components';
 
 const getAppList = data =>
   data.appList
@@ -67,8 +67,11 @@ export default class CreateRecordAndTask extends Component {
       <Fragment>
         {data.appType === APP_TYPE.EXTERNAL_USER && (
           <div className="Font14 Gray_75 workflowDetailDesc mBottom20">
-            {_l('向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。')}
-            {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('短信%0/条，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.SmsPrice'))}
+            {_l(
+              '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。',
+            )}
+            {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+              _l('短信%0/条，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.SmsPrice'))}
           </div>
         )}
 
@@ -76,8 +79,8 @@ export default class CreateRecordAndTask extends Component {
           {data.appType === APP_TYPE.SHEET
             ? _l('选择工作表')
             : data.appType === APP_TYPE.EXTERNAL_USER
-            ? _l('应用')
-            : _l('选择项目')}
+              ? _l('应用')
+              : _l('选择项目')}
         </div>
 
         {data.appType !== APP_TYPE.EXTERNAL_USER && (
@@ -93,17 +96,19 @@ export default class CreateRecordAndTask extends Component {
               !data.appId
                 ? () => <span className="Gray_75">{_l('请选择')}</span>
                 : data.appId && !selectAppItem
-                ? () => (
-                    <span className="errorColor">
-                      {data.appType === APP_TYPE.SHEET ? _l('工作表无效或已删除') : _l('项目无效或已删除')}
-                    </span>
-                  )
-                : () => (
-                    <Fragment>
-                      <span>{selectAppItem.name}</span>
-                      {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
-                    </Fragment>
-                  )
+                  ? () => (
+                      <span className="errorColor">
+                        {data.appType === APP_TYPE.SHEET ? _l('工作表无效或已删除') : _l('项目无效或已删除')}
+                      </span>
+                    )
+                  : () => (
+                      <Fragment>
+                        <span>{selectAppItem.name}</span>
+                        {selectAppItem.otherApkName && (
+                          <span className="Gray_75">（{selectAppItem.otherApkName}）</span>
+                        )}
+                      </Fragment>
+                    )
             }
             border
             openSearch
@@ -134,7 +139,17 @@ export default class CreateRecordAndTask extends Component {
                 checked={!isBatch}
                 onClick={() => {
                   this.setState({ isBatch: false });
-                  updateSource({ selectNodeId: '' });
+                  updateSource({
+                    selectNodeId: '',
+                    fields: data.fields.map(o => {
+                      if (o.nodeTypeId === NODE_TYPE.GET_MORE_RECORD) {
+                        o.nodeId = '';
+                        o.fieldValueId = '';
+                      }
+
+                      return o;
+                    }),
+                  });
                 }}
               />
             </div>
@@ -173,8 +188,8 @@ export default class CreateRecordAndTask extends Component {
           {data.appType === APP_TYPE.SHEET
             ? _l('新增记录')
             : data.appType === APP_TYPE.EXTERNAL_USER
-            ? _l('填充用户信息')
-            : _l('创建任务')}
+              ? _l('填充用户信息')
+              : _l('创建任务')}
         </div>
 
         {fields.map((item, i) => {
@@ -206,9 +221,12 @@ export default class CreateRecordAndTask extends Component {
                   <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
                 )}
               </div>
-              {item.fieldId === 'portal_mobile' && (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-                <div className="Gray_75 mTop5">{_l('根据此字段发送邀请短信，短信%0/条', _.get(md, 'global.PriceConfig.SmsPrice'))}</div>
-              )}
+              {item.fieldId === 'portal_mobile' &&
+                (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+                  <div className="Gray_75 mTop5">
+                    {_l('根据此字段发送邀请短信，短信%0/条', _.get(md, 'global.PriceConfig.SmsPrice'))}
+                  </div>
+                )}
               <SingleControlValue
                 companyId={this.props.companyId}
                 relationId={this.props.relationId}

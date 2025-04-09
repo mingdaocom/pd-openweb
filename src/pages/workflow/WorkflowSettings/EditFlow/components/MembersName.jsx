@@ -37,9 +37,9 @@ export default ({ accounts, multipleLevelAccounts, relationType, relationId }) =
       if (_.includes([USER_TYPE.ROLE, USER_TYPE.DEPARTMENT, USER_TYPE.JOB], obj.type)) {
         const department =
           obj.type === USER_TYPE.DEPARTMENT && obj.roleTypeId ? ` - ${DEPARTMENT_ORGANIZE[obj.roleTypeId]}` : '';
-        const text = obj.roleName
-          ? obj.roleName + (appId !== obj.entityId ? `（${obj.entityName}）` : '')
-          : obj.entityName;
+        const text =
+          (obj.roleName ? obj.roleName + (appId !== obj.entityId ? `（${obj.entityName}）` : '') : obj.entityName) +
+          (obj.includeSub ? `(${_l('包含下级部门')})` : '');
 
         if (obj.count === 0) {
           return (

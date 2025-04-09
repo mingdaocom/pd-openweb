@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import { dialogSelectUser } from 'ming-ui/functions';
 
 export default function SelectUser(props) {
-  const { projectId, changeData = () => {}, className, unique = false, placeholder } = props;
+  const { projectId, changeData = () => {}, className, unique = false, placeholder, isAdmin = false } = props;
   const [userInfo, setUserInfo] = useState(props.userInfo);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export default function SelectUser(props) {
 
   const handleSelectUser = () => {
     dialogSelectUser({
-      fromAdmin: true,
+      fromAdmin: isAdmin,
       SelectUserSettings: {
         projectId,
         dataRange: 2,

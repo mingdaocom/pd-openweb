@@ -11,7 +11,14 @@ import './index.less';
 
 // 文件预览&编辑
 function AttachmentAction(props) {
-  const { cauUseWpsPreview, userWps, showEdit, changePreview = () => {}, clickEdit = () => {} } = props;
+  const {
+    cauUseWpsPreview,
+    userWps,
+    showEdit,
+    editLoading = false,
+    changePreview = () => {},
+    clickEdit = () => {},
+  } = props;
   const [showSavePreviewService, setShowSavePreviewService] = useState(false);
   const isMobile = browserIsMobile();
 
@@ -64,7 +71,7 @@ function AttachmentAction(props) {
       {showEdit && (
         <div className={cx('setWPSPreview editFileBtn mLeft10 bold', {})} onClick={clickEdit}>
           <i className="icon icon-hr_edit mRight5 Font18" />
-          {_l('在线编辑')}
+          {editLoading ? _l('请稍等...') : _l('在线编辑')}
         </div>
       )}
     </div>
@@ -256,8 +263,8 @@ export default function CommonHeader(props) {
         )}
         {showRefresh && (
           <div className="refreshNode" onClick={clickRefresh}>
-            <span class="normal" data-tip="刷新">
-              <Icon icon="task-update1" className=""/>
+            <span class="normal" data-tip={_l('刷新')}>
+              <Icon icon="task-update1" className="" />
             </span>
           </div>
         )}

@@ -57,7 +57,7 @@ export default function SortableColumn(props) {
   const renderSortCon = item => {
     return (
       <div
-        className={cx('flex dragCon', { HandImportant: !canDrag })}
+        className={cx('flex dragCon overflow_ellipsis', { HandImportant: !canDrag })}
         onClick={() => {
           if (canDrag || !search) return;
           onClearSearch(item.controlId);
@@ -110,7 +110,7 @@ export default function SortableColumn(props) {
             className="switchIcon Font30 mRight8 Hand"
             onClick={() => onItemClick(item)}
           />
-          {canDrag ? <DragHandle>{renderSortCon(item)}</DragHandle> : renderSortCon(item)}
+          {canDrag ? <DragHandle className="overflow_ellipsis">{renderSortCon(item)}</DragHandle> : renderSortCon(item)}
           {tabColumns && tabColumns.length !== 0 && !search && (
             <Icon
               onClick={() => setRetractTabControlIds(item.controlId, isRetract)}

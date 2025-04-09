@@ -7,7 +7,7 @@ import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import { getRowGetType } from 'worksheet/util';
-import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/utils';
+import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils';
 import Files from './Files';
 import FileEditModal from './Files/FileEditModal';
 import attachmentApi from 'src/api/attachment';
@@ -15,8 +15,7 @@ import downloadApi from 'src/api/download';
 import worksheetApi from 'src/api/worksheet';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, compatibleMDJS } from 'src/util';
 import RegExpValidator from 'src/util/expression';
 import _ from 'lodash';
 import './index.less';
@@ -61,10 +60,6 @@ export default class Widgets extends Component {
     }
     if (_.get(this.props, 'advancedSetting.showtype') === '3') {
       this.detectionShowType();
-    }
-
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
   }
 
@@ -365,54 +360,62 @@ export default class Widgets extends Component {
       });
   };
 
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
-
   mingDaoAppChooseImage = () => {
     const { mingdaoAppError } = this.state;
-    const { projectId, appId, worksheetId, controlId, formData } = this.props;
+    const { projectId, appId, worksheetId, controlId, formData, advancedSetting } = this.props;
     const control = _.find(formData, { controlId }) || {};
-    if (mingdaoAppError && window.MDJS && window.MDJS.showUploadingImage) {
-      window.MDJS.showUploadingImage({
-        sessionId: this.sessionId,
-      });
-      return;
+    let h5watermark = '';
+    if (!mingdaoAppError && advancedSetting.h5watermark) {
+      const h5watermarkArr = advancedSetting.h5watermark.split('$');
+      const data = formData.filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type));
+
+      h5watermark = h5watermarkArr
+        .map(item => {
+          const c = _.find(data, v => v.controlId === item);
+          return _.includes(['user', 'time', 'address', 'xy'], item) ? `$${item}$` : c ? c.value : item;
+        })
+        .join('');
     }
-    if (window.MDJS && window.MDJS.chooseImage) {
-      window.MDJS.chooseImage({
-        sessionId: this.sessionId,
-        knowledge: false,
-        worksheetId,
-        appId,
-        projectId,
-        control,
-        checkValueByFilterRegex: this.checkValueByFilterRegex,
-        success: res => {
-          // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
-          this.sessionId = res.sessionId;
-          const { error, uploading, completed } = res;
-          // 上传中数量
-          this.setState({ mingdaoAppUploading: uploading });
-          // 出错数量
-          this.setState({ mingdaoAppError: error });
-          // 有成功上传的文件就会返回
-          if (completed) {
-            this.setState(
-              {
-                mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
-              },
-              () => {
-                this.handleMobileChangeFiles();
-              },
-            );
+
+    compatibleMDJS(
+      mingdaoAppError ? 'showUploadingImage' : 'chooseImage',
+      mingdaoAppError
+        ? {
+            sessionId: this.sessionId,
           }
-        },
-        cancel: function (res) {},
-      });
-    }
+        : {
+            sessionId: this.sessionId,
+            knowledge: false,
+            worksheetId,
+            appId,
+            projectId,
+            control,
+            watermark: advancedSetting.watermark,
+            h5watermark,
+            checkValueByFilterRegex: this.checkValueByFilterRegex,
+            success: res => {
+              // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
+              this.sessionId = res.sessionId;
+              const { error, uploading, completed } = res;
+              // 上传中数量
+              this.setState({ mingdaoAppUploading: uploading });
+              // 出错数量
+              this.setState({ mingdaoAppError: error });
+              // 有成功上传的文件就会返回
+              if (completed) {
+                this.setState(
+                  {
+                    mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
+                  },
+                  () => {
+                    this.handleMobileChangeFiles();
+                  },
+                );
+              }
+            },
+            cancel: function (res) {},
+          },
+    );
   };
 
   handleMobileChangeFiles = () => {
@@ -495,6 +498,7 @@ export default class Widgets extends Component {
           originCount={originCount}
           disabledGallery={strDefault.split('')[0] === '1'}
           files={[]}
+          formData={this.props.formData}
           onChange={(files, isComplete = false) => {
             this.setState({
               isComplete,
@@ -654,6 +658,7 @@ export default class Widgets extends Component {
       allowEditName: isMobile
         ? allowUpload && controlState(this.props, from).editable && !_.get(window, 'shareState.shareId')
         : !pcDisabled && !_.get(window, 'shareState.shareId'),
+      allowEditOnline: controlState(this.props, from).editable,
       isDraft,
       masterData,
       advancedSetting,
@@ -801,7 +806,6 @@ export default class Widgets extends Component {
         <div className="flexRow valignWrapper spaceBetween">
           {!pcDisabled ? (
             <UploadFilesTrigger
-              isQiniuUpload={true}
               noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
               id={this.id}
               from={from}

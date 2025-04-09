@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
-import config from '../../utils/config';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import chatAjax from 'src/api/chat';
+import GroupController from 'src/api/group';
+import Emotion from 'src/components/emotion/emotion';
+import { errorCode } from 'src/components/UploadFiles';
+import { getToken, setCaretPosition } from 'src/util';
+import RegExpValidator from 'src/util/expression';
+import '../../lib/mentionInput/js/mentionInput';
 import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
-import * as socket from '../../utils/socket';
+import config from '../../utils/config';
 import Constant from '../../utils/constant';
+import * as socket from '../../utils/socket';
 import fileConfirm from '../fileConfirm/fileConfirm';
-import Trigger from 'rc-trigger';
-import GroupController from 'src/api/group';
-import chatAjax from 'src/api/chat';
-import _ from 'lodash';
-import '../../lib/mentionInput/js/mentionInput';
-import { setCaretPosition, getToken } from 'src/util';
-import { errorCode } from 'src/components/UploadFiles';
-import RegExpValidator from 'src/util/expression';
-import Emotion from 'src/components/emotion/emotion';
+import './index.less';
 
 const recurShowFileConfirm = (up, files, i, length, cb) => {
   if (i >= length) {
@@ -113,11 +113,11 @@ export default class SendToolbar extends Component {
   }
   initUpload(data) {
     const { token, key } = data;
-    const { uploadFile } = this;
     const { session } = this.props;
     const _this = this;
 
-    $(uploadFile).plupload({
+    const config = {
+      browse_button: this.uploadFile,
       url: md.global.FileStoreConfig.uploadHost,
       file_data_name: 'file',
       multi_selection: true,
@@ -202,8 +202,8 @@ export default class SendToolbar extends Component {
           const type = isPicture
             ? Constant.MSGTYPE_PIC
             : isVideoFile
-            ? Constant.MSGTYPE_APP_VIDEO
-            : Constant.MSGTYPE_FILE;
+              ? Constant.MSGTYPE_APP_VIDEO
+              : Constant.MSGTYPE_FILE;
           uploadFile.id = file.id;
           uploadFile.name = file.name;
           uploadFile.ft = isPicture ? 1 : 2;
@@ -220,7 +220,37 @@ export default class SendToolbar extends Component {
           }
         },
       },
+    };
+
+    const uploader = new plupload.Uploader(config);
+
+    uploader.bind('FilesAdded', config.method.FilesAdded);
+    uploader.bind('BeforeUpload', config.method.BeforeUpload);
+    uploader.bind('UploadProgress', config.method.UploadProgress);
+    uploader.bind('FileUploaded', config.method.FileUploaded);
+    uploader.bind('PostInit', function bindPluploadPaste(up) {
+      var paste = document.getElementById(config.paste_element);
+      if (paste) {
+        const onPaste = _.throttle(e => {
+          var items = e.originalEvent.clipboardData && e.originalEvent.clipboardData.items;
+          var data = { files: [] };
+          if (items && items.length) {
+            $.each(items, function (index, item) {
+              var file = item.getAsFile && item.getAsFile();
+              if (file) {
+                file.isFromClipBoard = true;
+                data.files.push(file);
+              }
+            });
+            if (data.files.length > 0) {
+              up.addFile(data.files);
+            }
+          }
+        }, 500);
+        $(paste).on('paste', onPaste);
+      }
     });
+    uploader.init();
 
     this.setState(
       {

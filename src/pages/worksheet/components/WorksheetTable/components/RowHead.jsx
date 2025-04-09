@@ -1,16 +1,18 @@
-import PropTypes from 'prop-types';
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
+
 import cx from 'classnames';
-import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
-import { FlexCenter } from 'worksheet/components/Basics';
-import RecordOperate from 'worksheet/components/RecordOperate';
-import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
-import { isEmpty } from 'lodash';
+import { find, get, isEmpty } from 'lodash';
 import _ from 'lodash';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
+import PropTypes, { func } from 'prop-types';
+import Trigger from 'rc-trigger';
 import { handleRowData } from 'src/util/transControlDefaultValue';
+import styled from 'styled-components';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import { FlexCenter } from 'worksheet/components/Basics';
+import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
+import RecordOperate from 'worksheet/components/RecordOperate';
+
 const Con = styled.div`
   user-select: none;
   padding-left: 2px;
@@ -76,7 +78,8 @@ const Con = styled.div`
       display: none;
     }
   }
-  &.hover.hasBatch,
+  &.hover.hasBatch.recordOperateVisible,
+  &.hover.hasBatch.showCheckbox,
   &.selected.hasBatch {
     .number {
       display: none;
@@ -112,6 +115,15 @@ const OpenRecordBtn = styled(FlexCenter)`
   }
 `;
 
+function getApplyToAllChecked(worksheetInfo, viewId) {
+  const view = find(worksheetInfo.views, o => o.viewId === viewId);
+  if (!view) {
+    return false;
+  }
+  const viewListStyle = safeParse(get(view, 'advancedSetting.liststyle'));
+  const worksheetInfoListStyle = safeParse(get(worksheetInfo, 'advancedSetting.liststyle'));
+  return worksheetInfoListStyle.time > viewListStyle.time;
+}
 export default function RowHead(props) {
   const {
     tableType,
@@ -155,12 +167,14 @@ export default function RowHead(props) {
     refreshWorksheetControls = () => {},
     onOpenRecord = () => {},
     columns,
+    printCharge,
   } = props;
   let { className } = props;
   const [selectAllPanelVisible, setSelectAllPanelVisible] = useState();
   const row = data[rowIndex] || {};
   const selected =
     canSelectAll && allWorksheetIsSelected ? !_.includes(selectedIds, row.rowid) : _.includes(selectedIds, row.rowid);
+  const recordOperateVisible = showOperate && !readonly && !isTrash && !isDraftTable;
   function handleCheckAll(force) {
     if (canSelectAll && allWorksheetIsSelected) {
       onSelectAllWorksheet(false);
@@ -178,12 +192,19 @@ export default function RowHead(props) {
   if (isEmpty(row) && rowIndex > -1) {
     return <Con className={cx(className, 'noRightBorder', { selected })} style={style} />;
   }
+
   return (
     <Con
       tableType={tableType}
       rowHeadOnlyNum={rowHeadOnlyNum}
       showOperate={showOperate}
-      className={cx(className, 'flexRow noRightBorder', { selected, hideNumber: !showNumber, hasBatch })}
+      className={cx(className, 'flexRow noRightBorder', {
+        selected,
+        hideNumber: !showNumber,
+        hasBatch,
+        recordOperateVisible,
+        showCheckbox: !readonly && hasBatch,
+      })}
       style={style}
       readonly={readonly || !hasBatch}
       onClick={e => {
@@ -194,9 +215,19 @@ export default function RowHead(props) {
     >
       {rowIndex !== -1 && (
         <React.Fragment>
-          {showOperate && !readonly && !isTrash && !isDraftTable ? (
+          {recordOperateVisible ? (
             <RecordOperate
-              {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge, isDevAndOps, isDraft }}
+              {...{
+                appId,
+                viewId,
+                worksheetId,
+                recordId: row.rowid,
+                projectId,
+                isCharge,
+                isDevAndOps,
+                isDraft,
+                printCharge,
+              }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
               shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
               allowCopy={allowAdd && row.allowedit}
@@ -256,7 +287,7 @@ export default function RowHead(props) {
               }}
             />
           ) : (
-            <span className="moreOperate" style={{ width: 24 }} />
+            <span className="moreOperate" style={{ width: rowHeadOnlyNum ? 0 : 24 }} />
           )}
           {(hasBatch || showNumber) && (
             <div className="numberCon" style={{ marginLeft: 10, width: numberWidth }}>
@@ -285,7 +316,14 @@ export default function RowHead(props) {
       )}
       {!readonly && rowIndex === -1 && (
         <Fragment>
-          {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSheetLayout} />}
+          {layoutChangeVisible && (
+            <ChangeSheetLayout
+              isSheetView
+              onSave={saveSheetLayout}
+              onCancel={resetSheetLayout}
+              applyToAllChecked={getApplyToAllChecked(worksheetInfo, viewId)}
+            />
+          )}
           <div className="topCheckbox" style={{ right: tableType === 'classic' ? 46 : 30, width: numberWidth }}>
             {hasBatch && (
               <div className="checkboxCon mTop3">

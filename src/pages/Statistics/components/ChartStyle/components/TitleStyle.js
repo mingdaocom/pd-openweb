@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { Checkbox, Select, Tooltip } from 'antd';
 import { replaceColor } from 'statistics/Charts/PivotTable';
+import { defaultPivotTableStyle } from '../../../enum';
 
 const Wrap = styled.div`
   .chartTypeSelect {
-    &>div, .active {
+    & > div,
+    .active {
       padding: 3px 8px !important;
     }
   }
@@ -19,7 +21,7 @@ const Wrap = styled.div`
     height: 32px;
     border-radius: 3px;
     padding: 4px;
-    border: 1px solid #DDDDDD;
+    border: 1px solid #dddddd;
     background-color: #fff;
     .colorBlock {
       width: 100%;
@@ -28,32 +30,23 @@ const Wrap = styled.div`
   }
 `;
 
-const alignTypes = [{
-  value: 'left',
-  icon: 'format_align_left',
-  tooltip: _l('左对齐')
-}, {
-  value: 'center',
-  icon: 'format_align_center',
-  tooltip: _l('居中')
-}, {
-  value: 'right',
-  icon: 'format_align_right',
-  tooltip: _l('右对齐')
-}];
-
-export const defaultPivotTableStyle = {
-  cellTextAlign: 'right',
-  columnTextAlign: 'left',
-  lineTextAlign: 'left',
-  columnTextColor: '#757575',
-  columnBgColor: '#fafafa',
-  lineTextColor: '#151515',
-  lineBgColor: '#fff',
-  evenBgColor: '#fafcfd',
-  oddBgColor: '#ffffff',
-  textColor: '#000000d9'
-};
+const alignTypes = [
+  {
+    value: 'left',
+    icon: 'format_align_left',
+    tooltip: _l('左对齐'),
+  },
+  {
+    value: 'center',
+    icon: 'format_align_center',
+    tooltip: _l('居中'),
+  },
+  {
+    value: 'right',
+    icon: 'format_align_right',
+    tooltip: _l('右对齐'),
+  },
+];
 
 const TitleStyle = props => {
   const { name, type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
@@ -62,21 +55,21 @@ const TitleStyle = props => {
   const pivotTableStyle = replaceColor({
     pivotTableStyle: style.pivotTableStyle || defaultPivotTableStyle,
     customPageConfig: {},
-    themeColor
+    themeColor,
   });
   const textColor = type === 'line' ? pivotTableStyle.lineTextColor : pivotTableStyle.columnTextColor;
   const bgColor = type === 'line' ? pivotTableStyle.lineBgColor : pivotTableStyle.columnBgColor;
   const { lines = [] } = pivotTable;
   const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig;
 
-  const handleChangePivotTableStyle = (data) => {
+  const handleChangePivotTableStyle = data => {
     onChangeStyle({
       pivotTableStyle: {
         ...pivotTableStyle,
         ...data,
-      }
+      },
     });
-  }
+  };
 
   const renderAlign = () => {
     const key = `${type}TextAlign`;
@@ -86,17 +79,12 @@ const TitleStyle = props => {
         <div>
           <div className="chartTypeSelect flexRow valignWrapper">
             {alignTypes.map(item => (
-              <Tooltip
-                key={item.value}
-                arrowPointAtCenter
-                title={item.tooltip}
-                placement="bottom"
-              >
+              <Tooltip key={item.value} arrowPointAtCenter title={item.tooltip} placement="bottom">
                 <div
                   className={cx('flex centerAlign pointer Gray_75', { active: item.value === pivotTableStyle[key] })}
                   onClick={() => {
                     handleChangePivotTableStyle({
-                      [key]: item.value
+                      [key]: item.value,
                     });
                   }}
                 >
@@ -108,7 +96,7 @@ const TitleStyle = props => {
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <Wrap className="mBottom16">
@@ -126,13 +114,12 @@ const TitleStyle = props => {
                   value={pivotTableStyle.oddBgColor}
                   onChange={value => {
                     handleChangePivotTableStyle({
-                      oddBgColor: value
+                      oddBgColor: value,
                     });
                   }}
                 >
                   <div className="colorWrap pointer">
-                    <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.oddBgColor }}>
-                    </div>
+                    <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.oddBgColor }}></div>
                   </div>
                 </ColorPicker>
               </div>
@@ -144,13 +131,12 @@ const TitleStyle = props => {
                   value={pivotTableStyle.evenBgColor}
                   onChange={value => {
                     handleChangePivotTableStyle({
-                      evenBgColor: value
+                      evenBgColor: value,
                     });
                   }}
                 >
                   <div className="colorWrap pointer">
-                    <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.evenBgColor }}>
-                    </div>
+                    <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.evenBgColor }}></div>
                   </div>
                 </ColorPicker>
               </div>
@@ -163,13 +149,12 @@ const TitleStyle = props => {
               value={pivotTableStyle.textColor}
               onChange={value => {
                 handleChangePivotTableStyle({
-                  textColor: value
+                  textColor: value,
                 });
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.textColor }}>
-                </div>
+                <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.textColor }}></div>
               </div>
             </ColorPicker>
           </div>
@@ -177,12 +162,12 @@ const TitleStyle = props => {
             <Checkbox
               className="mLeft0"
               checked={displaySetup.mergeCell}
-              onChange={(e) => {
+              onChange={e => {
                 changeCurrentReport({
                   displaySetup: {
                     ...displaySetup,
-                    mergeCell: e.target.checked
-                  }
+                    mergeCell: e.target.checked,
+                  },
                 });
               }}
             >
@@ -213,8 +198,7 @@ const TitleStyle = props => {
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: textColor }}>
-                </div>
+                <div className="colorBlock" style={{ backgroundColor: textColor }}></div>
               </div>
             </ColorPicker>
           </div>
@@ -239,8 +223,7 @@ const TitleStyle = props => {
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: bgColor }}>
-                </div>
+                <div className="colorBlock" style={{ backgroundColor: bgColor }}></div>
               </div>
             </ColorPicker>
           </div>
@@ -254,7 +237,7 @@ const TitleStyle = props => {
                   onChange={event => {
                     const { checked } = event.target;
                     onChangeStyle({
-                      pivotTableLineFreeze: checked
+                      pivotTableLineFreeze: checked,
                     });
                   }}
                 >
@@ -267,7 +250,7 @@ const TitleStyle = props => {
                   suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
                   onChange={value => {
                     onChangeStyle({
-                      pivotTableLineFreezeIndex: value
+                      pivotTableLineFreezeIndex: value,
                     });
                   }}
                 >
@@ -288,7 +271,7 @@ const TitleStyle = props => {
                   onChange={event => {
                     const { checked } = event.target;
                     onChangeStyle({
-                      mobilePivotTableLineFreeze: checked
+                      mobilePivotTableLineFreeze: checked,
                     });
                   }}
                 >
@@ -297,11 +280,13 @@ const TitleStyle = props => {
                 <Select
                   style={{ width: 130 }}
                   className="chartSelect mRight10"
-                  value={_.isNumber(style.mobilePivotTableLineFreezeIndex) ? style.mobilePivotTableLineFreezeIndex : 'all'}
+                  value={
+                    _.isNumber(style.mobilePivotTableLineFreezeIndex) ? style.mobilePivotTableLineFreezeIndex : 'all'
+                  }
                   suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
                   onChange={value => {
                     onChangeStyle({
-                      mobilePivotTableLineFreezeIndex: value
+                      mobilePivotTableLineFreezeIndex: value,
                     });
                   }}
                 >
@@ -314,7 +299,12 @@ const TitleStyle = props => {
                     </Select.Option>
                   ))}
                 </Select>
-                <Tooltip title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')} overlayStyle={{ width: 170 }} placement="bottomRight" arrowPointAtCenter>
+                <Tooltip
+                  title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')}
+                  overlayStyle={{ width: 170 }}
+                  placement="bottomRight"
+                  arrowPointAtCenter
+                >
                   <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
                 </Tooltip>
               </div>
@@ -328,7 +318,7 @@ const TitleStyle = props => {
                   onChange={event => {
                     const { checked } = event.target;
                     onChangeStyle({
-                      pivotTableColumnFreeze: checked
+                      pivotTableColumnFreeze: checked,
                     });
                   }}
                 >
@@ -339,13 +329,18 @@ const TitleStyle = props => {
                   onChange={event => {
                     const { checked } = event.target;
                     onChangeStyle({
-                      mobilePivotTableColumnFreeze: checked
+                      mobilePivotTableColumnFreeze: checked,
                     });
                   }}
                 >
                   {_l('移动')}
                 </Checkbox>
-                <Tooltip title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')} overlayStyle={{ width: 170 }} placement="bottomRight" arrowPointAtCenter>
+                <Tooltip
+                  title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')}
+                  overlayStyle={{ width: 170 }}
+                  placement="bottomRight"
+                  arrowPointAtCenter
+                >
                   <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
                 </Tooltip>
               </div>
@@ -355,6 +350,6 @@ const TitleStyle = props => {
       )}
     </Wrap>
   );
-}
+};
 
 export default TitleStyle;

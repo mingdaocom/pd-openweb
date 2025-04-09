@@ -8,7 +8,11 @@ import worksheetAjax from 'src/api/worksheet';
 import VerifyDel from 'src/pages/worksheet/views/components/VerifyDel';
 import { useSetState } from 'react-use';
 import update from 'immutability-helper';
-import { Abstract, CoverSetting, DisplayControl, CardDisplay } from './index';
+import TitleControl from './TitleControl';
+import Abstract from './Abstract';
+import CoverSetting from './CoverSettingCon';
+import DisplayControl from './DisplayControl';
+import CardDisplay from './CardDisplay';
 import _ from 'lodash';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 
@@ -350,6 +354,21 @@ export default function HierarchyViewSetting(props) {
             </div>
             <div className={cx('config', { visible })}>
               <div className="content">
+                <TitleControl
+                  {...props}
+                  className="mBottom32"
+                  advancedSetting={advancedSetting}
+                  isCard
+                  handleChange={value => {
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      advancedSetting: { viewtitle: value },
+                      editAttrs: ['advancedSetting'],
+                      editAdKeys: ['viewtitle'],
+                    });
+                  }}
+                />
                 {/* abstract：摘要控件ID */}
                 <Abstract
                   {...props}
@@ -358,9 +377,9 @@ export default function HierarchyViewSetting(props) {
                     updateCurrentView({
                       ...view,
                       appId,
-                      advancedSetting: { abstract: value },
+                      advancedSetting: value,
                       editAttrs: ['advancedSetting'],
-                      editAdKeys: ['abstract'],
+                      editAdKeys: _.keys(value),
                     });
                   }}
                 />
@@ -394,17 +413,6 @@ export default function HierarchyViewSetting(props) {
                       editAttrs: ['coverCid'],
                     })
                   }
-                  // 显示位置
-                  handleChangePosition={(value, coverTypeValue) => {
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      coverType: coverTypeValue,
-                      advancedSetting: { coverposition: value },
-                      editAdKeys: ['coverposition'],
-                      editAttrs: ['coverType', 'advancedSetting'],
-                    });
-                  }}
                   handleChangeCoverWidth={value => {
                     updateCurrentView({
                       ...view,
@@ -414,15 +422,6 @@ export default function HierarchyViewSetting(props) {
                       editAttrs: ['advancedSetting'],
                     });
                   }}
-                  // 显示方式
-                  handleChangeType={value =>
-                    updateCurrentView({
-                      ...view,
-                      appId,
-                      coverType: value,
-                      editAttrs: ['coverType'],
-                    })
-                  }
                   // 允许点击查看
                   handleChangeOpencover={value => {
                     updateCurrentView({
@@ -431,6 +430,15 @@ export default function HierarchyViewSetting(props) {
                       advancedSetting: { opencover: value },
                       editAttrs: ['advancedSetting'],
                       editAdKeys: ['opencover'],
+                    });
+                  }}
+                  handleChangeCoverStyle={value => {
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      advancedSetting: { coverstyle: value },
+                      editAdKeys: ['coverstyle'],
+                      editAttrs: ['advancedSetting'],
                     });
                   }}
                 />

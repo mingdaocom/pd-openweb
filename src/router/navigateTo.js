@@ -137,9 +137,8 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
       onlyClose: true,
       closable: false,
       removeCancelBtn: true,
-      buttonType: 'link',
+      buttonType: 'ghostgray',
       okText: _l('登录'),
-      okClassName: 'pLeft0 pRight0 ThemeColor3 ThemeHoverColor2 minWidth0',
       onOk: () => checkLogin(true),
     });
   };

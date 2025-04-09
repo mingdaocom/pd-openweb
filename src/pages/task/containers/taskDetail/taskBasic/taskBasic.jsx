@@ -1,43 +1,42 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import './taskBasic.less';
-import _ from 'lodash';
 import { connect } from 'react-redux';
-import ajaxRequest from 'src/api/taskCenter';
-import Textarea from 'ming-ui/components/Textarea';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Dropdown, UserHead } from 'ming-ui';
 import RichText from 'ming-ui/components/RichText';
-import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
-import {
-  afterUpdateTaskStar,
-  afterUpdateTaskName,
-  afterUpdateTaskCharge,
-  joinProjectPrompt,
-  afterUpdateTaskStage,
-} from '../../../utils/taskComm';
-import { checkIsProject } from '../../../utils/utils';
+import Textarea from 'ming-ui/components/Textarea';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import { Dropdown, UserHead } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { htmlDecodeReg } from 'src/util';
+import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
-  updateTaskName,
-  updateTaskCharge,
-  updateTaskMemberStar,
-  agreeApplyJoinTask,
-  refuseJoinTask,
+  addTaskAttachments,
   addTaskMember,
   addTaskTag,
-  removeTasksTag,
-  addTaskAttachments,
+  agreeApplyJoinTask,
   deleteAttachmentData,
+  refuseJoinTask,
+  removeTasksTag,
+  updateTaskCharge,
+  updateTaskMemberStar,
+  updateTaskName,
   updateTaskStageId,
   updateTaskSummary,
 } from '../../../redux/actions';
-import { Tooltip } from 'antd';
+import {
+  afterUpdateTaskCharge,
+  afterUpdateTaskName,
+  afterUpdateTaskStage,
+  afterUpdateTaskStar,
+  joinProjectPrompt,
+} from '../../../utils/taskComm';
+import { checkIsProject } from '../../../utils/utils';
+import SelectTag from '../SelectTag';
+import './taskBasic.less';
 
-let selectizeLib;
 const FROM_TYPE = {
   1: {
     icon: 'icon-bellSchedule',
@@ -68,25 +67,10 @@ class TaskBasic extends Component {
     };
   }
 
-  componentDidMount() {
-    const { taskId } = this.props;
-    const { data } = this.props.taskDetails[taskId];
-
-    this.bindTags(data.tags, taskId);
-  }
-
   componentWillReceiveProps(nextProps) {
     const { data } = nextProps.taskDetails[nextProps.taskId];
     if (data.taskName !== this.state.taskName) {
       this.setState({ taskName: data.taskName });
-    }
-
-    if (selectizeLib) {
-      const tags = data.tags.map(item => item.tagID);
-
-      if (!_.isEqual(selectizeLib[0].selectize.items.sort(), tags.sort())) {
-        this.bindTags(data.tags, nextProps.taskId);
-      }
     }
 
     if (nextProps.taskId !== this.props.taskId) {
@@ -102,10 +86,7 @@ class TaskBasic extends Component {
     }
 
     if (nextProps.addTags) {
-      this.setState({ showTags: true }, () => {
-        $('.taskTagList .selectize-input input:last').focus();
-      });
-      nextProps.closeAddTags();
+      this.setState({ showTags: true });
     }
   }
 
@@ -556,121 +537,6 @@ class TaskBasic extends Component {
   };
 
   /**
-   * 标签
-   */
-  bindTags(tags, taskId) {
-    const that = this;
-    const tagOptions = [];
-    const tagSelect = [];
-
-    tags.forEach(tag => {
-      tagOptions.push({ text: tag.tagName, id: tag.tagID, color: tag.color });
-      tagSelect.push(tag.tagID);
-    });
-
-    $('.taskTagBox:last').html(
-      '<input type="text" class="taskTagList" value="" tabIndex="-1" style="display: none;" />',
-    );
-
-    selectizeLib = $('.taskTagList:last').selectize({
-      valueField: 'id',
-      plugins: ['remove_button'],
-      delimiter: ',',
-      persist: false,
-      placeholder: _l('+ 添加标签'),
-      create(text) {
-        return {
-          id: 'createNewTagsID',
-          text,
-        };
-      },
-      options: tagOptions,
-      items: tagSelect,
-      preload: 'focus',
-      render: {
-        option(data, escape) {
-          return (
-            '<div class="option"><span class="tagsIcon" style="background:' +
-            (data.color || 'transparent') +
-            '"></span>' +
-            escape(data.text) +
-            '</div>'
-          );
-        },
-        item(data, escape) {
-          return (
-            '<div class="item selectizeiItem"><span class="tagsIcon" style="background:' +
-            (data.color || 'transparent') +
-            ';width:' +
-            (data.color ? '10px' : '0px') +
-            '"></span><span class="tagName">' +
-            escape(data.text) +
-            '</span></div>'
-          );
-        },
-        option_create(data, escape) {
-          return '<div class="create">' + _l('创建标签') + '<strong>' + escape(data.input) + '</strong></div>';
-        },
-      },
-      load(keywords, callback) {
-        that.getTags(keywords, callback);
-      },
-      onItemAdd(tagID, $item) {
-        const tagName = $item.find('.tagName').text();
-        const callback = data => {
-          if (data) {
-            if (!tagID) {
-              selectizeLib[0].selectize.updateOption('createNewTagsID', {
-                id: data.id,
-                text: data.value,
-                color: data.extra,
-              });
-            }
-          } else {
-            selectizeLib[0].selectize.removeOption(tagID || 'createNewTagsID');
-          }
-        };
-
-        that.props.dispatch(addTaskTag(taskId, tagID, tagName, callback));
-      },
-      onDelete(tagID) {
-        $('.taskTagList .selectize-input input:last').blur();
-
-        that.props.dispatch(
-          removeTasksTag(taskId, tagID[0], () => {
-            const selectize = selectizeLib[0].selectize;
-            selectize.addOption([selectize.options[tagID[0]]]);
-          }),
-        );
-      },
-    });
-  }
-
-  /**
-   * 获取标签
-   */
-  getTags(keywords, callback) {
-    const { taskId } = this.props;
-    const { data } = this.props.taskDetails[taskId];
-    const selectTags = data.tags.map(tag => tag.tagID);
-
-    ajaxRequest.getTagsByTaskID({ taskID: taskId, keywords }).then(source => {
-      const selectize = selectizeLib[0].selectize || {};
-
-      $.map(Object.keys(selectize.options), key => {
-        if (selectTags.indexOf(selectize.options[key].id) < 0) {
-          selectize.removeOption(key);
-        }
-      });
-      const list = [];
-      $.map(source.data, item => {
-        list.push({ text: item.tagName, id: item.tagID, color: item.color });
-      });
-      callback(list);
-    });
-  }
-
-  /**
    * 取消上传附件
    */
   cancelAttachment = () => {
@@ -720,13 +586,11 @@ class TaskBasic extends Component {
     if (data.summary !== summary) {
       this.props.dispatch(updateTaskSummary(taskId, summary));
     }
-
-    // this.setState({ isEditing: false });
   };
 
   render() {
     const { taskName, showTags, showAttachment, attachmentData, kcAttachmentData, isEditing } = this.state;
-    const { taskId } = this.props;
+    const { taskId, addTags, closeAddTags } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const hasAuth = data.auth === config.auth.Charger || data.auth === config.auth.Member;
 
@@ -867,7 +731,15 @@ class TaskBasic extends Component {
             </div>
             <div className={cx('detailTaskLable', { Hidden: !showTags })}>
               <i className="icon-task-label taskContentIcon" />
-              <div className="w100 taskTagBox" />
+              <SelectTag
+                focus={addTags}
+                defaultValue={data.tags}
+                taskID={taskId}
+                addTaskTag={addTaskTag}
+                removeTasksTag={removeTasksTag}
+                dispatch={this.props.dispatch}
+                closeAddTags={closeAddTags}
+              />
             </div>
             <div className="taskMembers">
               <span className="taskContentIcon tip-bottom-right" data-tip={_l('任务参与者')}>

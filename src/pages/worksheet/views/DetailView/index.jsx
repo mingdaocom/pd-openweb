@@ -14,6 +14,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import DragMask from 'worksheet/common/DragMask';
 import { getAdvanceSetting } from 'src/util';
+import { getCardWidth } from 'worksheet/util';
 
 const LeftListWrapper = styled.div(
   ({ width }) => `
@@ -98,12 +99,13 @@ function DetailView(props) {
   const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
   const { showtoolbar, showtitle } = getAdvanceSetting(currentView);
   const inputRef = useRef();
+  const cardWidth = getCardWidth(currentView);
 
   const [currentRecord, setCurrentRecord] = useState({});
   const [isOpenGroup, setIsOpenGroup] = useState(true);
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
   const [groupFilterWidth, setGroupFilterWidth] = useState(
-    isOpenGroup ? window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
+    isOpenGroup ? cardWidth || window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
   );
   const [flag, setFlag] = useState(+new Date());
   const isLoading = (detailViewLoading && detailPageIndex === 1) || worksheetInfo.isRequestingRelationControls;
@@ -123,9 +125,11 @@ function DetailView(props) {
 
   useEffect(() => {
     setGroupFilterWidth(
-      isOpenGroup ? window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
+      isOpenGroup
+        ? cardWidth || window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240)
+        : 32,
     );
-  }, [viewId]);
+  }, [viewId, cardWidth]);
 
   useEffect(() => {
     if (preViewId !== currentView.viewId) {
@@ -138,7 +142,7 @@ function DetailView(props) {
         fetchRows(1, detailKeyWords);
       }, 200);
     }
-  }, [currentView]);
+  }, [currentView.viewId, currentView.moreSort, currentView.sortCid, currentView.sortType]);
 
   useEffect(() => {
     if (
@@ -253,7 +257,7 @@ function DetailView(props) {
       {dragMaskVisible && (
         <DragMask
           value={groupFilterWidth}
-          min={240}
+          min={200}
           max={420}
           onChange={value => {
             setDragMaskVisible(false);
@@ -329,7 +333,7 @@ function DetailView(props) {
               notDialog
               flag={flag}
               controls={controls}
-              switchRecordSuccess={newRecord => setCurrentRecord(newRecord)}
+              handleSwitchRecord={newRecord => setCurrentRecord(newRecord)}
               sheetSwitchPermit={sheetSwitchPermit} // 表单权限
               allowAdd={worksheetInfo.allowAdd}
               projectId={worksheetInfo.projectId}

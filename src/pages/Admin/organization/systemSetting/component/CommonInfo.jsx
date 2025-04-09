@@ -1,16 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import SetInfoDialog from '../modules/SetInfoDialog';
 import Config from '../../../config';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import './index.less';
-import { UpgradeIcon } from 'ming-ui';
+import { UpgradeIcon, LoadDiv, QiniuUpload } from 'ming-ui';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
 import ClipboardButton from 'react-clipboard.js';
 import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules/index.jsx';
-
-import 'src/components/uploadAttachment/uploadAttachment';
 import _ from 'lodash';
 import { getCurrentProject } from 'src/util';
 import CertificationButton from 'src/pages/certification/CertificationButton';
@@ -34,6 +31,7 @@ export default class CommonInfo extends Component {
       showDialogSettingInviteRules: false,
       authType: 0, //认证类型
     };
+    this.uploaderWrap = createRef(null);
   }
 
   componentDidMount() {
@@ -73,7 +71,6 @@ export default class CommonInfo extends Component {
             if (Config.project.licenseType === 0) {
               return;
             }
-            this.postUploader();
           },
         );
       },
@@ -137,36 +134,6 @@ export default class CommonInfo extends Component {
     this.setState({ visibleType });
   }
 
-  postUploader() {
-    if (this.state.uploadLoading) {
-      return;
-    }
-    const _this = this;
-    $('#hideUploadImage').uploadAttachment({
-      filterExtensions: 'gif,png,jpg,jpeg,bmp',
-      pluploadID: '#upload_image',
-      multiSelection: false,
-      maxTotalSize: 4,
-      folder: 'ProjectLogo',
-      onlyFolder: true,
-      onlyOne: true,
-      styleType: '0',
-      tokenType: 4, //网络logo
-      checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
-        _this.setState({ uploadLoading: true });
-      },
-      callback: function (attachments) {
-        if (attachments.length > 0) {
-          const attachment = attachments[0];
-          const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-          const logoName = attachment.fileName + attachment.fileExt;
-          _this.setLogo(fullFilePath, logoName);
-        }
-      },
-    });
-  }
-
   setLogo(fullFilePath, logoName) {
     projectSettingController
       .setLogo({
@@ -212,6 +179,54 @@ export default class CommonInfo extends Component {
     }
   };
 
+  handleUploaded = (up, file) => {
+    this.setState({ uploadLoading: false });
+    up.disableBrowse(false);
+    this.setLogo(file.url, file.fileName);
+  };
+
+  renderUploadBtn = () => {
+    const { logo } = this.state;
+
+    return (
+      <QiniuUpload
+        className="h100"
+        ref={this.uploaderWrap}
+        options={{
+          multi_selection: false,
+          filters: {
+            mime_types: [{ extensions: 'gif,png,jpg,jpeg,bmp' }],
+          },
+          max_file_size: '4m',
+          type: 4,
+        }}
+        bucket={4}
+        onUploaded={this.handleUploaded}
+        onAdd={(up, files) => {
+          this.setState({ uploadLoading: true });
+          up.disableBrowse();
+        }}
+        onError={() => {}}
+      >
+        <div className="logoBoxBorder">
+          <img src={logo} alt="avatar" />
+          <div
+            className="logoIconBox"
+            id="upload_image"
+            onClick={() => {
+              if (Config.project.licenseType === 0) {
+                AdminCommon.freeUpdateDialog();
+                return;
+              }
+            }}
+          >
+            <span className="Font15 icon-upload_pictures"></span>
+          </div>
+        </div>
+      </QiniuUpload>
+    );
+  };
+
   render() {
     const {
       isDefaultLogo,
@@ -241,7 +256,7 @@ export default class CommonInfo extends Component {
           {isLoading ? (
             <LoadDiv />
           ) : (
-            <div className="common-info">
+            <div className="common-info mBottom80">
               {showInfo && (
                 <SetInfoDialog
                   projectId={Config.projectId}
@@ -261,24 +276,7 @@ export default class CommonInfo extends Component {
                 </div>
                 <div className="common-info-row-content">
                   <div className="flexRow alignItemsCenter">
-                    <div className="Hand">
-                      <input id="hideUploadImage" type="file" className="Hidden" />
-                      <div className="logoBoxBorder">
-                        <img src={logo} alt="avatar" />
-                        <div
-                          className="logoIconBox"
-                          id="upload_image"
-                          onClick={() => {
-                            if (Config.project.licenseType === 0) {
-                              AdminCommon.freeUpdateDialog();
-                              return;
-                            }
-                          }}
-                        >
-                          <span className="Font15 icon-upload_pictures"></span>
-                        </div>
-                      </div>
-                    </div>
+                    <div className="Hand">{this.renderUploadBtn()}</div>
                     {logo && !isDefaultLogo && (
                       <span className="clearLogo Hand mLeft15" onClick={this.clearLogo}>
                         {_l('清除')}

@@ -4,10 +4,12 @@ import { getWithToken } from 'worksheet/util';
 import { usePasteText } from 'worksheet/hooks';
 import { Dropdown, Button, Tooltip } from 'ming-ui';
 import { useKey } from 'react-use';
+import cx from 'classnames';
 import PreviewTable from './PreviewTable';
 import styled from 'styled-components';
 import UploadFile from 'worksheet/components/DialogImportExcelCreate/DialogUpload/UploadFile';
 import { arrayOf, func, number, shape, string } from 'prop-types';
+import { isKeyBoardInputChar } from 'worksheet/util';
 
 // ctrl Z 撤销最多支持次数
 const CACHE_STACK_LENGTH = 20;
@@ -68,7 +70,7 @@ const Content = styled.div`
     padding: 0;
     outline: none;
     width: 100%;
-    font-size: 14px;
+    font-size: 13px;
   }
 `;
 
@@ -87,6 +89,13 @@ const PasteHeader = styled.div`
   .right {
     flex-shrink: 0;
   }
+`;
+
+const HiddenInput = styled.input`
+  border: none;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
 `;
 
 function splitCsvRows(csvData, splitter) {
@@ -185,6 +194,7 @@ function Input(props) {
     />
   );
 }
+
 Input.propTypes = {
   className: string,
   defaultValue: string,
@@ -229,7 +239,11 @@ function PasteEdit(props) {
   );
   usePasteText(
     text => {
-      if (document.activeElement.tagName.toLowerCase() === 'input') return;
+      if (
+        document.activeElement.tagName.toLowerCase() === 'input' &&
+        document.activeElement.className.indexOf('inputHelper') < 0
+      )
+        return;
       if (importDataActiveType !== 1) {
         return;
       }
@@ -250,49 +264,56 @@ function PasteEdit(props) {
       }
     },
   );
-  useKey(
-    e => _.includes(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'z', 'Tab'], e.key),
-    e => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
-        e.preventDefault();
-        e.stopPropagation();
-        (cacheStoreStack.current || []).pop();
-        const newData = _.last(cacheStoreStack.current || []);
-        if (newData) {
-          setData(newData);
-        }
-        return;
+  function switchCell(e, { ignoreEditing } = {}) {
+    const isRight = e.key === 'ArrowRight' || e.key === 'Tab';
+    if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+      e.preventDefault();
+      e.stopPropagation();
+      (cacheStoreStack.current || []).pop();
+      const newData = _.last(cacheStoreStack.current || []);
+      if (newData) {
+        setData(newData);
       }
-      if (isEditing) {
-        return;
-      }
-      if (!isEditing && !_.isUndefined(activeIndex) && e.key === 'Enter') {
-        setIsEditing(true);
-        return;
-      }
-      if (e.key === 'ArrowLeft' && activeIndex % controls.length === 0) {
-        return;
-      }
-      if (e.key === 'ArrowRight' && (activeIndex + 1) % controls.length === 0) {
-        return;
-      }
-      let newActiveIndex =
-        activeIndex +
-        ({
-          ArrowUp: controls.length * -1,
-          ArrowDown: controls.length * 1,
-          ArrowLeft: -1,
-          ArrowRight: 1,
-        }[e.key] || 0);
-      if (newActiveIndex < 0) {
-        return;
-      }
-      if (newActiveIndex > controls.length * (data.length + 1) - 1) {
-        return;
-      }
-      setActiveIndex(newActiveIndex);
-    },
-  );
+      return;
+    }
+    if (isEditing && !ignoreEditing) {
+      return;
+    }
+    if (!isEditing && !_.isUndefined(activeIndex) && e.key === 'Enter') {
+      setIsEditing(true);
+      return;
+    }
+    if (e.key === 'ArrowLeft' && activeIndex % controls.length === 0) {
+      return;
+    }
+    if (isRight && (activeIndex + 1) % controls.length === 0) {
+      return;
+    }
+    let newActiveIndex =
+      activeIndex +
+      ({
+        ArrowUp: controls.length * -1,
+        ArrowDown: controls.length * 1,
+        ArrowLeft: -1,
+        ArrowRight: 1,
+        Tab: 1,
+      }[e.key] || 0);
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      const columnCount = controls.length;
+      newActiveIndex =
+        e.key === 'ArrowLeft'
+          ? Math.floor(activeIndex / columnCount) * columnCount
+          : Math.ceil((activeIndex + 1) / columnCount) * columnCount - 1;
+    }
+    if (newActiveIndex < 0) {
+      return;
+    }
+    if (newActiveIndex > controls.length * (data.length + 1) - 1) {
+      return;
+    }
+    setActiveIndex(newActiveIndex);
+  }
+  useKey(e => _.includes(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'z', 'Tab'], e.key), switchCell);
   return (
     <div>
       <PasteHeader>
@@ -353,13 +374,11 @@ function PasteEdit(props) {
                 }}
                 onKeyDown={e => {
                   e.stopPropagation();
-                  if (e.key === 'Tab') {
-                    e.preventDefault();
-                  }
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' || e.key === 'Tab') {
                     e.preventDefault();
                     updateCellDataByIndex(index, e.target.value.trim());
                     setIsEditing(false);
+                    switchCell({ key: e.key === 'Tab' ? 'ArrowRight' : 'ArrowDown' }, { ignoreEditing: true });
                   } else if (e.key === 'Escape') {
                     e.preventDefault();
                     setIsEditing(false);
@@ -367,8 +386,37 @@ function PasteEdit(props) {
                 }}
               />
             ) : (
-              <div title={_.get(data, `${rowIndex}.${columnIndex}`)} className="ellipsis">
+              <div
+                title={_.get(data, `${rowIndex}.${columnIndex}`)}
+                className="ellipsis"
+                onKeyDown={e => {
+                  if (!(e.metaKey || e.ctrlKey) && isKeyBoardInputChar(e.key)) {
+                    updateCellDataByIndex(activeIndex, e.key);
+                    e.stopPropagation();
+                    setTimeout(() => {
+                      setIsEditing(true);
+                    }, 0);
+                  }
+                }}
+              >
                 {_.get(data, `${rowIndex}.${columnIndex}`)}
+                {index === activeIndex && (
+                  <HiddenInput
+                    className="inputHelper"
+                    type="text"
+                    autoFocus
+                    onCompositionEnd={e => {
+                      updateCellDataByIndex(activeIndex, e.target.value);
+                      setIsEditing(true);
+                    }}
+                    onKeyDown={e => {
+                      if (e.keyCode !== 229) {
+                        return;
+                      }
+                      e.stopPropagation();
+                    }}
+                  />
+                )}
               </div>
             )
           }
@@ -418,6 +466,7 @@ export default function ImportData(props) {
     onParsePaste,
     setImportDataActiveType,
   } = props;
+  const [loading, setLoading] = useState(false);
   return (
     <Fragment>
       <Header>
@@ -426,8 +475,16 @@ export default function ImportData(props) {
           {Tabs.map((tab, index) => (
             <span
               key={index}
-              className={tab.value === importDataActiveType ? 'tab active' : 'tab'}
-              onClick={() => setImportDataActiveType(tab.value)}
+              className={cx('tab', {
+                active: tab.value === importDataActiveType,
+              })}
+              onClick={() => {
+                if (loading) {
+                  alert(_l('请先完成文件上传'), 3);
+                  return;
+                }
+                setImportDataActiveType(tab.value);
+              }}
             >
               {tab.name}
             </span>
@@ -439,6 +496,9 @@ export default function ImportData(props) {
           <Fragment>
             <UploadFile
               style={{ height: '100%' }}
+              onFilesAdded={() => {
+                setLoading(true);
+              }}
               fileUploaded={async file => {
                 const fileUrl = file.serverName + file.key;
                 const data = await getWithToken(
@@ -449,6 +509,7 @@ export default function ImportData(props) {
                     filePath: fileUrl.replace(/\?.+/, ''),
                   },
                 );
+                setLoading(false);
                 if (_.get(data, 'rows')) {
                   onParseExcel(data, fileUrl);
                 } else {

@@ -3,6 +3,9 @@ import { getAdvanceSetting } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
 import RegExpValidator from 'src/util/expression';
+import { FIELD_REG_EXP } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+
 export const RENDER_RECORD_NECESSARY_ATTR = [
   'controlId',
   'controlName',
@@ -201,4 +204,31 @@ export const getSearchData = sheet => {
   }
 
   return { queryKey: titleControlId, data };
+};
+
+export const renderTitleByViewtitle = (row, controls, view) => {
+  const viewtitle = _.get(view, 'advancedSetting.viewtitle');
+  const controlFields = viewtitle.match(FIELD_REG_EXP) || [];
+  const defaultValue = _.filter(viewtitle.split('$'), v => !_.isEmpty(v));
+  let str = '';
+  defaultValue.map(o => {
+    if (controlFields.includes(`$${o}$`)) {
+      str = str + renderCellText({ ...controls.find(it => it.controlId === o), value: row[o] });
+      return;
+    }
+    str = str + o;
+  });
+  return str;
+};
+
+export const getTitleControlForCard = (currentView, worksheetControls) => {
+  const viewtitle = _.get(currentView, 'advancedSetting.viewtitle');
+  const titleControl = _.find(worksheetControls, item =>
+    viewtitle ? viewtitle === item.controlId : item.attribute === 1,
+  );
+  return titleControl;
+};
+
+export const getShowViews = views => {
+  return views.filter(l => l.viewId !== l.worksheetId);
 };

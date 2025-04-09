@@ -9,7 +9,8 @@ import taskFlowApi from 'src/pages/integration/api/taskFlow';
 import { navigateTo } from 'src/router/navigateTo';
 import onlySyncBg from 'staticfiles/images/onlySync.png';
 import syncWithDealBg from 'staticfiles/images/syncWithDeal.png';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/util/enum';
 
 const SyncTaskWrapper = styled.div`

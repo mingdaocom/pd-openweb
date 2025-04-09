@@ -10,7 +10,7 @@ import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import { wgs84togcj02 } from 'worksheet/util-purejs';
 import { FROM } from '../../tools/config';
-import { browserIsMobile, toFixed, getMapConfig } from 'src/util';
+import { browserIsMobile, toFixed, getMapConfig, compatibleMDJS } from 'src/util';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import {
   bindWeiXin,
@@ -21,7 +21,6 @@ import {
   handleTriggerEvent,
 } from '../../tools/authentication';
 import _ from 'lodash';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const LocationWrap = styled.div`
   .location {
@@ -87,12 +86,6 @@ export default class Widgets extends Component {
   state = {
     visible: false,
   };
-
-  componentDidMount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-  }
 
   handleAuthentication = () => {
     const { strDefault, projectId } = this.props;
@@ -244,9 +237,7 @@ export default class Widgets extends Component {
         content: _l('正在获取取经纬度，请稍后'),
       });
 
-      if (!window.MDJS || !window.MDJS.getLocation) return;
-
-      window.MDJS.getLocation({
+      compatibleMDJS('getLocation', {
         success: res => {
           const { longitude, latitude, address, title } = res;
           onChange(JSON.stringify({ x: longitude, y: latitude, address, title, coordinate: 'wgs84' }));
@@ -260,8 +251,8 @@ export default class Widgets extends Component {
           Toast.clear();
         },
       });
-    } else if (window.MDJS && window.MDJS.chooseLocation) {
-      window.MDJS.chooseLocation({
+    } else {
+      compatibleMDJS('chooseLocation', {
         control,
         success: res => {
           const { longitude, latitude, coordinate, address, title } = res;
@@ -278,9 +269,7 @@ export default class Widgets extends Component {
   };
 
   handleMDAppOpenLocation = location => {
-    if (!window.MDJS || !window.MDJS.openLocation) return;
-
-    window.MDJS.openLocation({
+    compatibleMDJS('openLocation', {
       type: location.coordinate,
       longitude: location.x,
       latitude: location.y,
@@ -331,12 +320,6 @@ export default class Widgets extends Component {
       });
     });
   };
-
-  componentWillUnmount() {
-    if (_.isFunction(this.props.triggerCustomEvent)) {
-      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-    }
-  }
 
   render() {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, from, strDefault } = this.props;

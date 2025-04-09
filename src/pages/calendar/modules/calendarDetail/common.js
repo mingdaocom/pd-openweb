@@ -3,9 +3,10 @@ import { RECURTYPE, FREQUENCY, REMINDTYPE, WEEKDAYS, RECURLAYERS, MEMBER_STATUS 
 import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
 import afterRefreshOp from './lib/afterRefreshOp';
 import createShare from 'src/components/createShare/createShare';
-import { Config } from './index';
 import _ from 'lodash';
 import moment from 'moment';
+
+export let Config = {};
 
 export function getParamsFromUrl() {
   const result = /detail_([^_?]+)_?([^_?]+)?/.exec(location.href);
@@ -130,7 +131,8 @@ export const formatRecur = function (calendar) {
   } else if (frequency === FREQUENCY.MONTH) {
     detail = _l('在第 %0 天', moment(calendar.start).format('D'));
   } else if (frequency === FREQUENCY.YEAR) {
-    detail = _l('在 %0', moment(calendar.start).format('MM月DD日'));
+    const formatText = _l('MM月DD日');
+    detail = _l('在 %0', moment(calendar.start).format(formatText));
   }
 
   if (recurType === RECURTYPE.COUNT) {
@@ -138,7 +140,8 @@ export const formatRecur = function (calendar) {
   } else if (recurType === RECURTYPE.DATE) {
     // 重复日程到某日期结束
     const untilDate = moment(calendar.untilDate);
-    until = _l('，截止到 %0', untilDate.format('YYYY年MM月DD日'));
+    const formatText = _l('YYYY年MM月DD日');
+    until = _l('，截止到 %0', untilDate.format(formatText));
   }
 
   return header + detail + until;

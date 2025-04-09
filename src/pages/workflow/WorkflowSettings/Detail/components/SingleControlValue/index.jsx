@@ -1,29 +1,29 @@
 import React, { Component, Fragment } from 'react';
+import { TimePicker } from 'antd';
 import cx from 'classnames';
+import moment from 'moment';
 import {
-  MultipleDropdown,
-  Dropdown,
-  TagTextarea,
-  Icon,
-  QiniuUpload,
-  CityPicker,
-  Input,
   Checkbox,
-  Switch,
+  CityPicker,
+  Dropdown,
+  Icon,
+  Input,
+  MultipleDropdown,
+  QiniuUpload,
   Radio,
+  Switch,
+  TagTextarea,
 } from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import Tag from '../Tag';
-import SelectOtherFields from '../SelectOtherFields';
-import { getIcons, handleGlobalVariableName, handleExecReturnValue } from '../../../utils';
+import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { TimePicker } from 'antd';
-import { FORMAT_TEXT, NODE_TYPE } from '../../../enum';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
-import moment from 'moment';
+import { formatResponseData } from 'src/components/UploadFiles/utils';
 import RegExpValidator from 'src/util/expression';
+import { FORMAT_TEXT, NODE_TYPE } from '../../../enum';
+import { getIcons, handleExecReturnValue, handleGlobalVariableName } from '../../../utils';
+import SelectOtherFields from '../SelectOtherFields';
+import Tag from '../Tag';
 
 export default class SingleControlValue extends Component {
   constructor(props) {
@@ -42,6 +42,7 @@ export default class SingleControlValue extends Component {
   }
 
   cacheFile = [];
+  updateComponentsKeyMaps = {};
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.item.fieldId !== this.props.item.fieldId) {
@@ -1066,8 +1067,8 @@ export default class SingleControlValue extends Component {
 
               {!JSON.parse(item.fieldValue || '[]').length && !hideOtherField && (
                 <Dropdown
+                  key={this.updateComponentsKeyMaps[item.fieldId] || ''}
                   className={item.nodeId ? 'flowDropdown flex clearBorderRadius' : 'flowDropdownOnlyIcon'}
-                  menuClass={cx({ flowDropdownOnlyIconMenu: !item.nodeId })}
                   menuStyle={moreNodesMenuStyle}
                   data={relationControlsList}
                   value={item.nodeId || undefined}
@@ -1077,7 +1078,10 @@ export default class SingleControlValue extends Component {
                   renderTitle={() =>
                     this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
                   }
-                  onChange={nodeId => this.updateSingleControlValue({ nodeId }, i)}
+                  onChange={nodeId => {
+                    this.updateComponentsKeyMaps[item.fieldId] = +new Date();
+                    this.updateSingleControlValue({ nodeId }, i);
+                  }}
                 />
               )}
             </Fragment>
@@ -1143,18 +1147,25 @@ export default class SingleControlValue extends Component {
         });
       }
 
+      const hasSource = !!relationControlsList.filter(o => o.length).length;
+
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
             <Dropdown
-              className={cx('flowDropdown flex', { clearBorderRadius: !hideOtherField })}
+              className={cx(
+                'flowDropdown flex',
+                { clearBorderRadius: !hideOtherField },
+                { flowDropdownHideArrow: !hasSource },
+              )}
               data={relationControlsList}
               value={item.nodeId || undefined}
+              disabled={!hasSource}
               border
               isAppendToBody
-              placeholder={_l('选择节点对象')}
+              placeholder={hasSource ? _l('选择节点对象') : ''}
               renderTitle={() =>
                 this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
               }

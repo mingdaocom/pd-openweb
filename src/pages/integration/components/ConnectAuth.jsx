@@ -4,9 +4,9 @@ import cx from 'classnames';
 import { Icon, Support, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { CardTopWrap } from '../apiIntegration/style';
-import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPELIST } from 'src/pages/integration/config';
+
 const Wrap = styled.div`
   p {
     margin: 0;
@@ -60,15 +60,25 @@ const Wrap = styled.div`
 
 //连接鉴权设置
 function ConnectAuth(props) {
-  const [{ node, isErr, showEdit, loading }, setState] = useSetState({
-    isErr: false,
+  const [{ node, showEdit, loading }, setState] = useSetState({
     showEdit: false,
     node: props.node || {},
     loading: true,
   });
+  const [Component, setComponent] = useState(null);
+
   useEffect(() => {
     getNodeInfo();
   }, []);
+
+  useEffect(() => {
+    if (showEdit && !Component) {
+      import('src/pages/workflow/WorkflowSettings/Detail').then(component => {
+        setComponent(component.default);
+      });
+    }
+  }, [showEdit]);
+
   // 获取连接详情
   const getInfo = () => {
     if (!node || !node.id) {
@@ -284,9 +294,9 @@ function ConnectAuth(props) {
           : props.canEdit && props.connectType !== 2 && renderBtn()}
       </CardTopWrap>
       {node && node.appType === 31 ? renderBasic() : renderOAuth()}
-      {showEdit && props.canEdit && (
+      {showEdit && props.canEdit && Component && (
         <div className="workflowSettings">
-          <Detail
+          <Component
             companyId={localStorage.getItem('currentProjectId')}
             processId={props.id}
             relationId={props.relationId}

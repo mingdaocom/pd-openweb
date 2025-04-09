@@ -1,21 +1,21 @@
-import sheetAjax from 'src/api/worksheet';
+import _, { get, some } from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { refreshSheet, fireWhenViewLoaded as PcFireWhenViewLoaded } from 'src/pages/worksheet/redux/actions/index.js';
-import { getRequest, getTranslateInfo } from 'src/util';
+import sheetAjax from 'src/api/worksheet';
 import {
-  getFilledRequestParams,
-  replaceControlsTranslateInfo,
-  replaceAdvancedSettingTranslateInfo,
-  replaceRulesTranslateInfo,
-  needHideViewFilters,
   formatQuickFilter,
+  getFilledRequestParams,
+  needHideViewFilters,
+  replaceAdvancedSettingTranslateInfo,
+  replaceControlsTranslateInfo,
+  replaceRulesTranslateInfo,
 } from 'worksheet/util';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
-import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
-import _, { get, some } from 'lodash';
+import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { addBehaviorLog, getRequest, getTranslateInfo } from 'src/util';
 
 function fireWhenViewLoaded(view, { controls = [] } = {}) {
   return (dispatch, getState) => {
@@ -60,7 +60,7 @@ export const updateBase = base => (dispatch, getState) => {
   const viewChanged = prevViewId && base.viewId && prevViewId !== base.viewId;
   const view = _.find(views, v => v.viewId === base.viewId) || {};
   dispatch({ type: 'WORKSHEET_UPDATE_BASE', base });
-  if ((viewChanged || _.includes([1, 7, 21], view.viewType)) && view && !needHideViewFilters(view)) {
+  if ((viewChanged || _.includes([1, 7, 21], view.viewType)) && !_.isEmpty(view) && !needHideViewFilters(view)) {
     dispatch({ type: 'MOBILE_UPDATE_FILTERS' });
     dispatch({ type: 'MOBILE_UPDATE_QUICK_FILTER', filter: [] });
     dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
@@ -111,6 +111,19 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       getSwitchPermit: true,
     })
     .then(workSheetInfo => {
+      const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
+        ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
+        : {};
+
+      if (addBehaviorLogInfo.entityId === base.appId || addBehaviorLogInfo.entityId === base.worksheetId) {
+        sessionStorage.removeItem('addBehaviorLogInfo');
+      } else if (addBehaviorLogInfo.type === 'group') {
+        addBehaviorLog('worksheet', base.worksheetId, {}, true);
+      } else {
+        addBehaviorLog('worksheet', base.worksheetId, {}, true);
+        addBehaviorLog('app', base.appId, {}, true);
+      }
+
       if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
         workSheetInfo.allowAdd = false;
       }
@@ -144,10 +157,13 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       workSheetInfo.views = workSheetInfo.views.map(view => {
         return {
           ...view,
-          name: getTranslateInfo(base.appId, base.worksheetId, view.viewId).name || view.name
-        }
+          name: getTranslateInfo(base.appId, base.worksheetId, view.viewId).name || view.name,
+        };
       });
-      let view = base.viewId ? _.find(workSheetInfo.views, v => v.viewId === base.viewId) : workSheetInfo.views[0];
+      let view =
+        base.viewId && base.viewId !== 'undefined'
+          ? _.find(workSheetInfo.views, v => v.viewId === base.viewId)
+          : workSheetInfo.views[0];
       if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide')) && base.type !== 'single') {
         view = _.find(
           workSheetInfo.views,
@@ -165,7 +181,11 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         );
       }
       if (workSheetInfo.advancedSetting) {
-        workSheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(base.appId, workSheetInfo.worksheetId, workSheetInfo.advancedSetting);
+        workSheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
+          base.appId,
+          workSheetInfo.worksheetId,
+          workSheetInfo.advancedSetting,
+        );
       }
       if (workSheetInfo.rules && workSheetInfo.rules.length) {
         workSheetInfo.rules = replaceRulesTranslateInfo(base.appId, workSheetInfo.worksheetId, workSheetInfo.rules);
@@ -264,7 +284,7 @@ export const fetchSheetRows =
     const { chartId } = getRequest();
     let pageIndex = param.pageIndex || sheetView.pageIndex;
     let extraParams = param;
-    let pageSize = 20;
+    let pageSize = 50;
     if (!worksheetId) {
       return;
     }
@@ -560,4 +580,9 @@ export const updateFilterControls = filterControls => dispatch => {
 
 export const updateIsPullRefreshing = flag => dispatch => {
   dispatch({ type: 'MOBILE_IS_PULL_REFRESHING', flag });
+};
+
+export const updatePreviewRecordId = data => dispatch => {
+  safeLocalStorageSetItem('mobilePreviewRecordId', data);
+  dispatch({ type: 'UPDATE_PREVIEW_RECORD', data });
 };

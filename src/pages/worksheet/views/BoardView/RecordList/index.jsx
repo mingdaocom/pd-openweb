@@ -12,6 +12,7 @@ import { useSetState } from 'react-use';
 import { useDrop } from 'react-dnd-latest';
 import { browserIsMobile } from 'src/util';
 import styled from 'styled-components';
+import { getCardWidth } from 'src/pages/worksheet/util';
 
 const Wrap = styled.div`
   width: ${props => `${(props.width ? props.width : 280) + 12 * 2}px`};
@@ -147,9 +148,10 @@ export default function Board(props) {
     );
   const isMobile = browserIsMobile();
   let param = {};
+
   if (!!_.get(view, 'advancedSetting.cardwidth')) {
     param = {
-      width: Number(_.get(view, 'advancedSetting.cardwidth')),
+      width: getCardWidth(view),
     };
   }
 
