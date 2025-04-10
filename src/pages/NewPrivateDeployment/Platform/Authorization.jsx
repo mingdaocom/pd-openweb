@@ -431,7 +431,7 @@ const AppreciationServer = props => {
             <div className="Font14 mTop2">{_l('超级搜索')}</div>
             {!platformLicenseInfo.sse && renderState(1)}
           </div>
-          <div
+          {!md.global.Config.IsPlatformLocal && (<div
             className="sseWrap flex flexColumn alignItemsCenter pointer"
             onClick={() => {
               platformLicenseInfo.mpc && setServerInfo({
@@ -448,7 +448,7 @@ const AppreciationServer = props => {
             </div>
             <div className="Font14 mTop2">{_l('支付商户号')}</div>
             {!platformLicenseInfo.mpc && renderState(5)}
-          </div>
+          </div>)}
         </div>
       )}
       {!!serverInfo && renderServerInfoDialog()}

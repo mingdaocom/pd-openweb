@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip } from 'ming-ui';
-import cx from 'classnames';
 import { Checkbox } from 'antd-mobile';
-import CellControl from 'src/pages/worksheet/components/CellControls';
-import { getTitleTextFromControls, controlState } from 'src/components/newCustomFields/tools/utils';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { isDocument } from 'src/components/UploadFiles/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
+import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum'
-import './index.less';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getRecordColorConfig, getRecordColor, getControlStyles } from 'src/pages/worksheet/util';
-import { isDocument } from 'src/components/UploadFiles/utils';
-import _ from 'lodash';
-import styled from 'styled-components';
+import CellControl from 'src/pages/worksheet/components/CellControls';
+import { getControlStyles, getRecordColor, getRecordColorConfig } from 'src/pages/worksheet/util';
 import RegExpValidator from 'src/util/expression';
+import './index.less';
 
 const Con = styled.div`
   ${({ controlStyles }) => controlStyles || ''}
@@ -95,7 +95,7 @@ export default class RecordCard extends Component {
         : null;
     if (url && !coverError) {
       const image = new Image();
-      image.onload = () => { };
+      image.onload = () => {};
       image.onerror = () => {
         this.setState({ coverError: true });
       };
@@ -205,6 +205,7 @@ export default class RecordCard extends Component {
     const { cardControls } = this;
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
     const cell = Object.assign({}, visibleControl, { value: data[visibleControl.controlId] });
+    const maxLine = _.get(view, 'advancedSetting.maxlinenum');
 
     return (
       <div className="controlWrapper" key={id}>
@@ -244,7 +245,7 @@ export default class RecordCard extends Component {
         <div className="controlContent">
           {data[visibleControl.controlId] || visibleControl.type === 47 ? (
             <CellControl
-              className={`control-val-${visibleControl.controlId} w100`}
+              className={`control-val-${visibleControl.controlId} maxLine${maxLine} w100`}
               worksheetId={view.worksheetId}
               projectId={projectId}
               rowFormData={() => controls.map(c => Object.assign({}, c, { value: data[c.controlId] }))}

@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import RegisterController from 'src/api/register';
-import { ActionResult } from 'src/pages/AuthService/config.js';
-import { getRequest, mdAppResponse } from 'src/util';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Dropdown, LoadDiv } from 'ming-ui';
 import account from 'src/api/account';
-import { registerSuc, getDepartmentInfo } from 'src/pages/AuthService/register/util.js';
-import { encrypt } from 'src/util';
-import _ from 'lodash';
+import RegisterController from 'src/api/register';
 import DepDropDown from 'src/pages/AuthService/components/DepDropDown.jsx';
-import { useSetState } from 'react-use';
-import styled from 'styled-components';
+import { ActionResult } from 'src/pages/AuthService/config.js';
+import { getDepartmentInfo, registerSuc } from 'src/pages/AuthService/register/util.js';
+import { getRequest, mdAppResponse } from 'src/util';
+import { encrypt } from 'src/util';
 
 const Wrap = styled.div`
   .Dropdown--placeholder,
@@ -206,11 +206,11 @@ export default function (props) {
       workSiteId = '',
       jobNumber = '',
     } = company;
-    const { isMustWorkSite = true, isMustDepartment = true, isMustJobNumber = true, isMustJob = true } = userCard;
+    const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
     let isRight = true;
     let warnList = [];
 
-    if (isMustDepartment && !departmentId) {
+    if (isMustDepartment && (_.get(userCard, 'departments') || []).length > 0 && !departmentId) {
       warnList.push({ tipDom: 'departmentId', warnTxt: _l('请填写部门') });
       isRight = false;
     }

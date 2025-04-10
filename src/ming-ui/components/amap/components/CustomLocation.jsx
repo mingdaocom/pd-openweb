@@ -1,12 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { Input } from 'antd';
 import { Button } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
-import cx from 'classnames';
+import { browserIsMobile, toFixed } from 'src/util';
 
 const DISPLAY_OPTIONS = [
-  { title: _l('经度'), key: 'lng' },
   { title: _l('纬度'), key: 'lat' },
+  { title: _l('经度'), key: 'lng' },
   { title: _l('名称'), key: 'name' },
   { title: _l('详细地址'), key: 'address' },
 ];
@@ -53,7 +52,13 @@ export default class CustomLocation extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.customLocation, this.state.customLocation)) {
+    // 经纬度不同才赋值，防止name被冲掉
+    if (
+      nextProps.customLocation &&
+      this.state.customLocation &&
+      toFixed(nextProps.customLocation.lat, 6) !== toFixed(this.state.customLocation.lat, 6) &&
+      toFixed(nextProps.customLocation.lng, 6) !== toFixed(this.state.customLocation.lng, 6)
+    ) {
       this.setState({ customLocation: nextProps.customLocation });
     }
   }
@@ -72,12 +77,17 @@ export default class CustomLocation extends Component {
         <div className="MDMapCustom">
           <div className="Font17 bold">{_l('添加当前位置')}</div>
           {filterOptions.map(item => {
+            const isLatLng = _.includes(['lat', 'lng'], item.key);
             return (
               <Fragment>
                 <div className="mBottom4 mTop16 bold Gray_75">{item.title}</div>
                 <Input
                   disabled={item.disabled}
-                  value={customLocation[item.key] || ''}
+                  value={
+                    isLatLng && customLocation[item.key]
+                      ? toFixed(customLocation[item.key], 6)
+                      : customLocation[item.key] || ''
+                  }
                   onChange={e =>
                     this.setState({
                       customLocation: {
@@ -87,7 +97,7 @@ export default class CustomLocation extends Component {
                     })
                   }
                   onBlur={() => {
-                    if (_.includes(['lat', 'lng'], item.key) && lat && lng) {
+                    if (isLatLng && lat && lng) {
                       setPosition(lng, lat);
                     }
                   }}

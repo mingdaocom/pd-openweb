@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Icon, Menu, MenuItem, Dialog } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { Dialog, Icon, Menu, MenuItem, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import WorksheetDraftOperate from './WorksheetDraftOperate';
-import WorksheetTable from 'worksheet/components/WorksheetTable';
-import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import { RowHead } from 'worksheet/components/WorksheetTable/components/';
-import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import worksheetAjax from 'src/api/worksheet';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import BaseColumnHead from 'worksheet/components/BaseColumnHead';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
-import { updateDraftTotalInfo } from './utils';
-import styled from 'styled-components';
-import { BrowserRouter } from 'react-router-dom';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { emitter } from 'src/util';
+import { updateDraftTotalInfo } from './utils';
+import WorksheetDraftOperate from './WorksheetDraftOperate';
 
 const Con = styled.div`
   width: 100%;
@@ -102,7 +102,7 @@ function DraftModal(props) {
         : c,
     );
   const recordInfoRef = useRef(null);
-  const numberWidth = 16
+  const numberWidth = 16;
 
   useEffect(() => {
     loadRows({ appId, worksheetId });
@@ -328,6 +328,7 @@ function DraftModal(props) {
 }
 export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
+let request = null;
 function WorksheetDraft(props) {
   const {
     appId,
@@ -348,17 +349,21 @@ function WorksheetDraft(props) {
   const loadDraftDataCount = () => {
     if (window.draftTotalNumInfo && window.draftTotalNumInfo[worksheetId]) return;
 
-    worksheetAjax
-      .getFilterRowsTotalNum({
-        appId,
-        worksheetId,
-        getType: 21,
-      })
-      .then(res => {
-        const total = Number(res) || 0;
-        updateDraftTotalInfo({ worksheetId, total });
-        setTotal(total);
-      });
+    if (request && request.abort) {
+      request.abort();
+    }
+
+    request = worksheetAjax.getFilterRowsTotalNum;
+
+    request({
+      appId,
+      worksheetId,
+      getType: 21,
+    }).then(res => {
+      const total = Number(res) || 0;
+      updateDraftTotalInfo({ worksheetId, total });
+      setTotal(total);
+    });
   };
 
   useEffect(() => {

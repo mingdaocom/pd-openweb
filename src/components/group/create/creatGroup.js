@@ -75,6 +75,7 @@ CreateGroup.createInit = function (settings) {
     CreateGroup.checkIsProjectAdmin();
     CreateGroup.bindHeadAvatar();
     CreateGroup.bindEvent();
+    CreateGroup.options.settings.projectId = '';
   }, 200);
 };
 

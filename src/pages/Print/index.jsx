@@ -478,6 +478,7 @@ class PrintForm extends React.Component {
         systemControl: SYST_PRINTData(res),
         approvalIds: res.approvalIds,
         filters: res.filters,
+        allControls: res.receiveControls,
       };
 
       let infoPromiseList = [];

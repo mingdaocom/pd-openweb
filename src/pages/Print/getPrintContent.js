@@ -1,16 +1,16 @@
 import React from 'react';
 import cx from 'classnames';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
-import { getSwitchItemNames, parseDataSource } from 'src/pages/widgetConfig/util';
-import { USER_CONTROLS } from './config';
-import { RichText, Markdown } from 'ming-ui';
 import _ from 'lodash';
-import Embed from 'src/components/newCustomFields/widgets/Embed';
-import BarCode from 'src/components/newCustomFields/widgets/BarCode';
+import { Markdown, RichText } from 'ming-ui';
 import { getBarCodeValue, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import STYLE_PRINT from './components/exportWordPrintTemCssString';
+import BarCode from 'src/components/newCustomFields/widgets/BarCode';
+import Embed from 'src/components/newCustomFields/widgets/Embed';
+import { getSwitchItemNames, parseDataSource } from 'src/pages/widgetConfig/util';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import RegExpValidator from 'src/util/expression';
+import STYLE_PRINT from './components/exportWordPrintTemCssString';
+import { USER_CONTROLS } from './config';
 
 const getPictureImageUrl = data => {
   return data.previewUrl.indexOf('imageView2') > -1
@@ -158,8 +158,8 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         ? ['ownerid', 'caid'].includes(item.controlId)
           ? 26
           : ['ctime', 'utime'].includes(item.controlId)
-          ? 16
-          : type
+            ? 16
+            : type
         : type,
   };
 
@@ -283,16 +283,16 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
                       {list.type === 38
                         ? renderCellText(item.controls.find(it => it.attribute === 1))
                         : showtitleid
-                        ? getTitleTextFromRelateControl(dataItem, da)
-                        : renderCellText({
-                            ...dataItem,
-                            type:
-                              list.type && ![29, 30, item.sourceControlType].includes(list.type)
-                                ? list.type
-                                : item.sourceControlType,
-                            value: data[list.controlId],
-                            advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
-                          }) || _l('未命名')}
+                          ? getTitleTextFromRelateControl(dataItem, da)
+                          : renderCellText({
+                              ...dataItem,
+                              type:
+                                list.type && ![29, 30, item.sourceControlType].includes(list.type)
+                                  ? list.type
+                                  : item.sourceControlType,
+                              value: data[list.controlId],
+                              advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
+                            }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
                           return '';
@@ -407,10 +407,10 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
               {item.isRelateMultipleSheet
                 ? (records[0] || {}).name
                 : showtitleid
-                ? safeParse(dataItem.value, 'array')
-                    .map(l => getTitleTextFromRelateControl(dataItem, safeParse(l.sourcevalue)))
-                    .join('、')
-                : renderCellText(dataItem)}
+                  ? safeParse(dataItem.value, 'array')
+                      .map(l => getTitleTextFromRelateControl(dataItem, safeParse(l.sourcevalue)))
+                      .join('、')
+                  : renderCellText(dataItem)}
             </span>
           );
         }
@@ -466,16 +466,16 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
                       {list.type === 38
                         ? renderCellText(item.controls.find(it => it.attribute === 1))
                         : showtitleid
-                        ? getTitleTextFromRelateControl(dataItem, safeParse(da.sourcevalue))
-                        : renderCellText({
-                            ...dataItem,
-                            type: type,
-                            value:
-                              type === 27 && da.name
-                                ? JSON.stringify(safeParse(da.name, 'array').filter(l => !l.isDelete))
-                                : da.name,
-                            advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
-                          }) || _l('未命名')}
+                          ? getTitleTextFromRelateControl(dataItem, safeParse(da.sourcevalue))
+                          : renderCellText({
+                              ...dataItem,
+                              type: type,
+                              value:
+                                type === 27 && da.name
+                                  ? JSON.stringify(safeParse(da.name, 'array').filter(l => !l.isDelete))
+                                  : da.name,
+                              advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
+                            }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
                           return '';
@@ -578,7 +578,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
       );
     }
     case 47: {
-      let barCodeData = { ...dataItem, formData: dataItem.controls };
+      let barCodeData = { ...dataItem, formData: dataItem.allControls || dataItem.controls };
       const { enumDefault, enumDefault2, dataSource, recordId, appId, worksheetId, viewIdForPermit, viewId, isView } =
         barCodeData;
 

@@ -176,16 +176,36 @@
     -webkit-box-orient: vertical;
     /* autoprefixer: on */
   }
-  .abstract .ellipsis3 {
-    width: unset !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    word-break: break-all;
-    white-space: normal !important;
+  .abstract {
+    .editableCellCon {
+      .abstractContent {
+        width: unset !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        word-break: break-all;
+        white-space: normal !important;
+      }
+      &.maxLine1 .abstractContent {
+        -webkit-line-clamp: 1 !important;
+      }
+      &.maxLine2 .abstractContent {
+        -webkit-line-clamp: 2 !important;
+      }
+      &.maxLine3 .abstractContent {
+        -webkit-line-clamp: 3 !important;
+      }
+      &.maxLine4 .abstractContent {
+        -webkit-line-clamp: 4 !important;
+      }
+      &.maxLine5 .abstractContent {
+        -webkit-line-clamp: 5 !important;
+      }
+    }
   }
+
   .emptyTag {
     border-radius: 3px;
     display: inline-block;

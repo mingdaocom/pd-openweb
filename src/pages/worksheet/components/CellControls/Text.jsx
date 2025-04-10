@@ -533,7 +533,7 @@ export default class Text extends React.Component {
                             linelimit: needLineLimit,
                             ellipsis: isMobile,
                           })
-                        : cx({ 'ellipsis w100 InlineBlock': isCard, ellipsis3: isCard && isMobile })
+                        : cx({ 'ellipsis w100 InlineBlock': isCard, abstractContent: isCard && isMobile })
                     }
                     title={text}
                     onClick={this.handleUnMask}

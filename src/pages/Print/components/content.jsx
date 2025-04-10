@@ -120,7 +120,7 @@ export default class Con extends React.Component {
   renderControls() {
     const { printData, controls = [] } = this.props;
     let { appId, worksheetId, viewId, rowId, type, from } = this.props.params;
-    const { showData, printOption, rowIdForQr, advanceSettings = [] } = printData;
+    const { showData, printOption, rowIdForQr, advanceSettings = [], allControls } = printData;
     const nameWidth = (advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth;
     const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
     let dataInfo = {
@@ -131,6 +131,7 @@ export default class Con extends React.Component {
       controls,
       fileStyle,
       user_info: safeParse((advanceSettings.find(l => l.key === 'user_info') || {}).value),
+      allControls,
     };
     const controlData = putControlByOrder(
       replaceHalfWithSizeControls(
@@ -442,7 +443,7 @@ export default class Con extends React.Component {
   renderRelations = (tableList, dataInfo) => {
     const { printData, handChange, params } = this.props;
     const { type, from } = params;
-    const { showData, relationStyle = [], orderNumber = [], advanceSettings = [] } = printData;
+    const { showData, relationStyle = [], orderNumber = [], advanceSettings = [], allControls } = printData;
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === tableList.controlId) || []).checked;
     let relationControls = tableList.relationControls || [];
     let relationsList = tableList.relationsData || {};
@@ -590,6 +591,7 @@ export default class Con extends React.Component {
                     dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                     user_info: relationUserInfo,
                     controls: getFormData(controls, o),
+                    allControls:  getFormData(allControls, o),
                   };
 
                   return this.isShow(

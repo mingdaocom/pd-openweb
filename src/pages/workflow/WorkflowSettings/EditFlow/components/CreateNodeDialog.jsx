@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { Radio, ScrollView, Support, Icon, Tooltip, SvgIcon } from 'ming-ui';
-import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import SelectProcess from '../../../components/SelectProcess';
-import _ from 'lodash';
-import CodeSnippet from '../../../components/CodeSnippet';
-import cx from 'classnames';
-import BranchDialog from './BranchDialog';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { Drawer } from 'antd';
-import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
-import pluginAPI from '../../../api/Plugin';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, Radio, ScrollView, Support, SvgIcon, Tooltip } from 'ming-ui';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
+import pluginAPI from '../../../api/Plugin';
+import { checkPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
+import { getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import CodeSnippet from '../../../components/CodeSnippet';
+import SelectProcess from '../../../components/SelectProcess';
+import { ACTION_ID, APP_TYPE, NODE_TYPE, TRIGGER_ID } from '../../enum';
+import BranchDialog from './BranchDialog';
 
 export default class CreateNodeDialog extends Component {
   constructor(props) {
@@ -1203,12 +1203,11 @@ export default class CreateNodeDialog extends Component {
    */
   isConditionalBranch() {
     const { nodeId, flowNodeMap } = this.props;
-    const { typeId, actionId, execute } = flowNodeMap[nodeId] || {};
+    const { typeId, actionId } = flowNodeMap[nodeId] || {};
 
     return (
       _.includes([NODE_TYPE.APPROVAL, NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], typeId) ||
-      (typeId === NODE_TYPE.ACTION && actionId === '20') ||
-      execute
+      (typeId === NODE_TYPE.ACTION && actionId === '20')
     );
   }
 
