@@ -99,6 +99,7 @@ export default class extends Component {
     this.state = {
       dragValue: 0,
       pageSize: paginationSize,
+      pageIndex: 1,
       dropdownVisible: false,
       offset: {},
       match: null,
@@ -736,6 +737,7 @@ export default class extends Component {
     return data;
   }
   getDataSource(result, linesData) {
+    const { pageIndex } = this.state;
     const { reportData } = this.props;
     const { pivotTable, lines, yvalueMap, style } = reportData;
     const { lineSummary, showLineTotal } = pivotTable || reportData;
@@ -829,7 +831,7 @@ export default class extends Component {
       }
     });
 
-    if (showLineTotal && lineSummary.location == 1) {
+    if (showLineTotal && lineSummary.location == 1 && pageIndex === 1) {
       dataSource.unshift(summary);
     }
     if (showLineTotal && lineSummary.location == 2) {
@@ -1226,6 +1228,9 @@ export default class extends Component {
                   showSizeChanger: true,
                   pageSize,
                   pageSizeOptions: [20, 25, 30, 50, 100],
+                  onChange: (pageIndex) => {
+                    this.setState({ pageIndex });
+                  },
                   onShowSizeChange: (current, size) => {
                     this.setState({ pageSize: size });
                   },

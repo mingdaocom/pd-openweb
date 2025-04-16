@@ -1,21 +1,21 @@
 import React, { useEffect, useRef } from 'react';
-import { Wrap } from './style.jsx';
 import DocumentTitle from 'react-document-title';
-import FormContainer from './Form.jsx';
-import { getRequest } from 'src/util';
-import { LoadDiv, Checkbox } from 'ming-ui';
-import { getDataByFilterXSS, getAccountTypes, validation, hasCaptcha } from 'src/pages/AuthService/util.js';
-import ChangeLang from 'src/components/ChangeLang';
-import { navigateTo } from 'src/router/navigateTo';
-import VerifyCode from './verifyCode';
-import BtnList from './BtnList.jsx';
-import loginController from 'src/api/login';
+import { useKey } from 'react-use';
+import { Checkbox, LoadDiv } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
+import loginController from 'src/api/login';
+import ChangeLang from 'src/components/ChangeLang';
+import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
+import { loginCallback } from 'src/pages/AuthService/login/util.js';
+import { getAccountTypes, getDataByFilterXSS, hasCaptcha, validation } from 'src/pages/AuthService/util.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/util';
 import { encrypt } from 'src/util';
 import { removePssId } from 'src/util/pssId';
-import { loginCallback } from 'src/pages/AuthService/login/util.js';
-import { useKey } from 'react-use';
-import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
+import BtnList from './BtnList.jsx';
+import FormContainer from './Form.jsx';
+import { Wrap } from './style.jsx';
+import VerifyCode from './verifyCode';
 
 export default function (props) {
   const {
@@ -28,7 +28,7 @@ export default function (props) {
     linkInvite,
     loading,
     title,
-    onChange = () => {},
+    onChange = () => { },
     projectNameLang,
     companyName,
     loginDisabled,
@@ -248,8 +248,12 @@ export default function (props) {
       let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
       if (returnUrl.indexOf('type=privatekey') > -1) {
         navigateTo('/register?ReturnUrl=' + encodeURIComponent(returnUrl));
+      } else if (request.ReturnUrl && request.from) {
+        navigateTo('/register?ReturnUrl=' + encodeURIComponent(request.ReturnUrl) + '&from=' + request.from);
       } else if (request.unionId) {
         navigateTo(`/register?state=${request.state}&tpType=${request.tpType}&unionId=${request.unionId}`);
+      } else if (request.ReturnUrl) {
+        navigateTo('/register?ReturnUrl=' + encodeURIComponent(request.ReturnUrl));
       } else {
         navigateTo('/register');
       }

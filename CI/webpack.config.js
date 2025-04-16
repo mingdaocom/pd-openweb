@@ -6,7 +6,6 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const InjectPlugin = require('webpack-inject-plugin').default;
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 // const CircularDependencyPlugin = require('circular-dependency-plugin');
@@ -93,9 +92,6 @@ module.exports = function (alonePath = '') {
         path: path.resolve(__dirname, `../build/dist/${alonePath}`),
         prettyPrint: true,
         removeFullPathAutoPrefix: true,
-      }),
-      new InjectPlugin(function () {
-        return `__webpack_public_path__ = window.__webpack_public_path__;`;
       }),
       new MomentLocalesPlugin({ localesToKeep: ['es-us', 'zh-cn', 'zh-tw', 'ja'] }),
       ...(isProduction

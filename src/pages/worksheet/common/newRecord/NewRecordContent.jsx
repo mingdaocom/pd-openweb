@@ -28,7 +28,7 @@ import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import Share from 'src/pages/worksheet/components/Share';
 import { browserIsMobile } from 'src/util';
-import { emitter as ViewEmitter } from 'src/util';
+import { compatibleMDJS, getRequest, emitter as ViewEmitter } from 'src/util';
 import RecordInfoContext from '../recordInfo/RecordInfoContext';
 import MobileRecordRecoverConfirm from './MobileRecordRecoverConfirm';
 import './NewRecord.less';
@@ -71,9 +71,11 @@ function focusInput(formcon) {
   if (!formcon) {
     return;
   }
-  const $firstText = formcon
-    .querySelector('.customFieldsContainer')
-    .querySelector('.customFormItem:first-child .customFormTextareaBox input.smallInput');
+  const $formWrap = formcon.querySelector('.customFieldsContainer');
+  if (!$formWrap) {
+    return;
+  }
+  const $firstText = $formWrap.querySelector('.customFormItem:first-child .customFormTextareaBox input.smallInput');
   if ($firstText) {
     $firstText.click();
   }
@@ -120,8 +122,9 @@ function NewRecordForm(props) {
     onManualWidgetChange = () => {},
     hidePublicShare,
     privateShare,
-    isDraft,
+    isDraft = false,
     handleAddRelation,
+    handOverNavigation = () => {},
   } = props;
   const cache = useRef({});
   const cellObjs = useRef({});
@@ -140,6 +143,8 @@ function NewRecordForm(props) {
   const [errorVisible, setErrorVisible] = useState();
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
+  const [offlineTempId, setOfflineTempId] = useState('');
+  const { offlineUpload } = getRequest();
 
   const isMobile = browserIsMobile();
   function newRecord(options = {}) {
@@ -220,6 +225,19 @@ function NewRecordForm(props) {
             },
           });
           onCancel();
+          if (offlineUpload === '1') {
+            compatibleMDJS(
+              'offlineDataSaved',
+              {
+                tempId: offlineTempId,
+                sheetId: props.worksheetId,
+                recordId: rowData.rowid,
+                draft: true,
+              },
+              () => {},
+            );
+          }
+          handOverNavigation();
         },
         onSubmitEnd: () => {
           onSubmitEnd();
@@ -300,8 +318,17 @@ function NewRecordForm(props) {
             alert(_l('保存成功'), 1, 1000);
             isSubmitting.current = false;
 
+            if (offlineUpload === '1' && offlineTempId) {
+              compatibleMDJS('offlineDataSaved', {
+                tempId: offlineTempId,
+                sheetId: props.worksheetId,
+                recordId: rowData.rowid,
+                draft: isDraft,
+              });
+            }
+
             // APP集成H5前置扫码继续扫码提交下一条
-            if (isContinue) {
+            if (isContinue && offlineUpload !== '1') {
               handleAPPScanCodeFunc(originFormdata);
             }
             let dataForAutoFill = [...formdata];
@@ -342,7 +369,7 @@ function NewRecordForm(props) {
             if (actionType === BUTTON_ACTION_TYPE.OPEN_RECORD) {
               const openViewId = _.get(
                 advancedSetting,
-                isContinue ? 'continueOpenRecordViewId' : 'submitOpenRecordViewId',
+                isContinue && offlineUpload !== '1' ? 'continueOpenRecordViewId' : 'submitOpenRecordViewId',
               );
               if (_.isFunction(openRecord)) {
                 openRecord(rowData.rowid, openViewId);
@@ -481,10 +508,43 @@ function NewRecordForm(props) {
           writeControls,
         });
         newFormdata = newFormdata;
-
-        setFormdata(newFormdata);
         setOriginFormdata(newFormdata);
-        handleAPPScanCodeFunc(newFormdata);
+        setFormdata(newFormdata);
+        // 离线缓存;
+        if (offlineUpload === '1') {
+          compatibleMDJS('offlineDataUpload', {
+            sheetId: props.worksheetId,
+            success: res => {
+              const tempId = res.tempId; // 临时记录ID
+              const controls = res.controls;
+              const data = newFormdata.map(item => {
+                const it = _.find(controls, v => v.controlId === item.controlId) || {};
+
+                if (it.type === 14) {
+                  return {
+                    ...item,
+                    value: JSON.stringify({ attachmentData: [], attachments: it.value, knowledgeAtts: [] }),
+                  };
+                }
+                if (it.type === 42) {
+                  return {
+                    ...item,
+                    value:
+                      _.isArray(it.value) && it.value.length
+                        ? it.value[0].serverName + '/' + it.value[0].key
+                        : undefined,
+                  };
+                }
+                return { ...item, value: it.value ? it.value : item.value };
+              });
+              setOfflineTempId(tempId);
+              setFormdata(data);
+            },
+          });
+        } else {
+          handleAPPScanCodeFunc(newFormdata);
+        }
+
         setFormLoading(false);
         cache.current.focusTimer = setTimeout(() => focusInput(formcon.current), 300);
         handleRestoreTempRecord(newFormdata);

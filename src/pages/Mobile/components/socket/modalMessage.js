@@ -167,6 +167,11 @@ function MessageComp(props) {
           <div className="flex mBottom16 ellipsis">
             {getIcon()}
             <span className="bold Font18 TxtBottom mLeft10">{title}</span>
+            {!duration && (
+              <div className="closeIcon TxtCenter" onClick={hideModalMessage}>
+                <i className="icon icon-close" />
+              </div>
+            )}
           </div>
           {!duration && (
             <div>

@@ -1,29 +1,29 @@
 import { isEmpty, reject } from 'lodash';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
-import { selectUser } from 'mobile/components/SelectUser';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
-import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
-import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
-import { selectRecord } from 'src/components/recordCardListDialog';
-import renderText from 'worksheet/components/CellControls/renderText';
-import selectLocation from './selectLocation';
-import { browserIsMobile, addBehaviorLog, mdAppResponse } from 'src/util';
-import { getFilledRequestParams, emitter } from '../../util';
-
-import worksheetAjax from 'src/api/worksheet';
-import appManagementAjax from 'src/api/appManagement';
-import homeAppAjax from 'src/api/homeApp';
+import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import actionLogAjax from 'src/api/actionLog';
+import appManagementAjax from 'src/api/appManagement';
+import attachmentAjax from 'src/api/attachment';
+import homeAppAjax from 'src/api/homeApp';
+import qiniuAjax from 'src/api/qiniu';
+import worksheetAjax from 'src/api/worksheet';
+import delegationAjax from 'src/pages/workflow/api/delegation';
 import instanceAjax from 'src/pages/workflow/api/instance';
 import instanceVersionAjax from 'src/pages/workflow/api/instanceVersion';
 import processAjax from 'src/pages/workflow/api/process';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import delegationAjax from 'src/pages/workflow/api/delegation';
-import qiniuAjax from 'src/api/qiniu';
-import attachmentAjax from 'src/api/attachment';
+import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
+import { selectUser } from 'mobile/components/SelectUser';
+import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
+import renderText from 'worksheet/components/CellControls/renderText';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { selectRecord } from 'src/components/recordCardListDialog';
+import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
+import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
+import { addBehaviorLog, browserIsMobile, mdAppResponse } from 'src/util';
+import { emitter, getFilledRequestParams } from '../../util';
+import selectLocation from './selectLocation';
 
 export const api = {
   getFilterRowsTotalNum: data => window.mdyAPI('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
@@ -102,6 +102,7 @@ function emitWidgetAction(action, value) {
 
 export const utils = {
   alert: window.alert,
+  previewAttachments,
   openRecordInfo: args => {
     addBehaviorLog('worksheetRecord', args.worksheetId, { rowId: args.recordId }); // 浏览记录埋点
     if (window.isMingDaoApp) {

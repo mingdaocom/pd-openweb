@@ -336,6 +336,11 @@ function RecordForm(props) {
     const scrollConElement = recordForm.current.querySelector('.recordInfoFormScroll');
     const formElement = recordForm.current.querySelector('.recordInfoFormContent .customFieldsContainer');
     const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > .nano-content');
+
+    if (!scrollConElement || !formElement || !scrollContentElement) {
+      return;
+    }
+
     const visible =
       scrollContentElement.scrollTop + scrollConElement.clientHeight <
       formElement.clientHeight + formElement.offsetTop + 58 + 26 + 1;

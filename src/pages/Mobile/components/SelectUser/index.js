@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, Switch, PopupWrapper } from 'ming-ui';
 import { List } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, LoadDiv, PopupWrapper, ScrollView, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
+import userAjax from 'src/api/user';
 import { getAccounts } from 'src/ming-ui/functions/quickSelectUser/util';
 import UserOrDepartmentItem from './components/UserOrDepartmentItem';
 import './index.less';
-import _ from 'lodash';
 
 export default class SelectUser extends Component {
   constructor(props) {
@@ -381,6 +381,10 @@ export default class SelectUser extends Component {
     } else {
       alert(type === 'user' ? _l('请选择人员') : _l('请选择部门'), 3);
     }
+  };
+  onClear = () => {
+    this.props.onClose();
+    this.props.onSave([]);
   };
   handleSearch = () => {
     const { type } = this.props;
@@ -874,7 +878,10 @@ export default class SelectUser extends Component {
             <span
               className="avtive mRight3"
               onClick={() =>
-                this.setState({ portalUserVisible: false, pageIndex: 1, users: [] }, this.requestContactUserList)
+                this.setState(
+                  { portalUserVisible: false, pageIndex: 1, users: [], isMore: true },
+                  this.requestContactUserList,
+                )
               }
             >
               {_l('全体人员')}
@@ -932,15 +939,17 @@ export default class SelectUser extends Component {
   }
   render() {
     const { selectedUsers } = this.state;
-    const { type, visible, onClose, onlyOne } = this.props;
+    const { type, visible, onClose, onlyOne, hideClearBtn = false } = this.props;
     return (
       <PopupWrapper
         bodyClassName="heightPopupBody40"
         visible={visible}
         title={type === 'user' ? _l('人员选择') : _l('部门选择')}
         confirmDisable={!selectedUsers.length}
+        clearDisable={!selectedUsers.length}
         onClose={onClose}
         onConfirm={onlyOne ? null : this.handleSave}
+        onClear={onlyOne && !hideClearBtn ? this.onClear : null}
       >
         <div className="selectUserContentBox flexColumn">{this.renderContent()}</div>
       </PopupWrapper>

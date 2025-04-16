@@ -1,14 +1,14 @@
 import React, { useRef } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import fixedDataAjax from 'src/api/fixedData.js';
 import RegisterController from 'src/api/register';
 import { AccountNextActions } from 'src/pages/AuthService/config.js';
-import { getRequest } from 'src/util';
 import { registerSuc } from 'src/pages/AuthService/util.js';
-import fixedDataAjax from 'src/api/fixedData.js';
-import _ from 'lodash';
+import { getRequest } from 'src/util';
 import RegExpValidator from 'src/util/expression';
-import styled from 'styled-components';
-import { useSetState } from 'react-use';
 
 let request = getRequest();
 const Wrap = styled.div`
@@ -42,6 +42,10 @@ export default function (props) {
         RegisterController.setAccountInfo({ fullname: fullName, email: email })
           .then(data => {
             if (data) {
+              if (request.from === 'hdp' && request.ReturnUrl) {
+                location.href = request.ReturnUrl;
+                return;
+              }
               if (isLink) {
                 if (nextAction == AccountNextActions.createProject) {
                   onChange({ step: 'create' });
@@ -166,7 +170,9 @@ export default function (props) {
         className="btnForRegister Hand"
         onClick={() => {
           if (createAccountLoading) return;
-          doSetAccountInfo(() => onChange({ step: 'createOrAdd' }));
+          doSetAccountInfo(() => {
+            onChange({ step: 'createOrAdd' });
+          });
         }}
       >
         {createAccountLoading ? _l('提交中...') : _l('下一步')}

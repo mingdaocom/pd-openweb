@@ -1,46 +1,46 @@
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import copy from 'copy-to-clipboard';
-import './index.less';
-import ajaxRequest from 'src/api/worksheet';
-import appManagementAjax from 'src/api/appManagement';
+import DocumentTitle from 'react-document-title';
 import JsonView from 'react-json-view';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, ScrollView, Skeleton, SvgIcon, Textarea } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import homeApp from 'src/api/homeApp';
+import ajaxRequest from 'src/api/worksheet';
+import integrationAjax from 'src/pages/integration/api/syncTask';
+import processAjax from 'src/pages/workflow/api/process';
+import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
+import preall from 'src/common/preall';
+import AliasDialog from 'src/pages/FormSet/components/AliasDialog.jsx';
+import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
+import Share from 'src/pages/worksheet/components/Share';
+import { navigateTo } from 'src/router/navigateTo';
+import { setFavicon } from 'src/util';
 import {
+  ADD_API_CONTROLS,
+  ADD_WORKSHEET_SUCCESS,
+  appInfoParameters,
+  appRoleErrorData,
+  appSuccessData,
+  DATA_PIPELINE_FILTERS,
+  DATA_PIPELINE_MENUS,
+  ERROR_CODE,
   MENU_LIST,
   MENU_LIST_APPENDIX,
   MENU_LIST_APPENDIX_HEADER,
   MENU_LIST_APPROLE,
   OPTIONS_FUNCTION_LIST,
-  appInfoParameters,
   sameParameters,
   SIDEBAR_LIST,
-  appRoleErrorData,
-  appSuccessData,
-  ADD_API_CONTROLS,
-  ADD_WORKSHEET_SUCCESS,
   WORKSHEETINFO_SUCCESS_DATA,
-  DATA_PIPELINE_MENUS,
-  DATA_PIPELINE_FILTERS,
-  ERROR_CODE,
 } from './config';
-import homeApp from 'src/api/homeApp';
-import { Icon, Dialog, Textarea, LoadDiv, ScrollView, Skeleton, SvgIcon } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
 import noDataImg from './img/lock.png';
-import AliasDialog from 'src/pages/FormSet/components/AliasDialog.jsx';
 import MoreOption from './MoreOption';
-import processAjax from 'src/pages/workflow/api/process';
-import preall from 'src/common/preall';
 import SecretKey from './SecretKey';
-import styled from 'styled-components';
-import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
-import _ from 'lodash';
-import { setFavicon } from 'src/util';
-import Share from 'src/pages/worksheet/components/Share';
-import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
-import DocumentTitle from 'react-document-title';
-import integrationAjax from 'src/pages/integration/api/syncTask';
+import './index.less';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([
   { text: _l('对象'), value: 10000006, en: 'object' },
@@ -1762,6 +1762,16 @@ class WorksheetApi extends Component {
           )}
           {_l('API说明')}
           <div className="flex"></div>
+          {!md.global.Config.IsLocal && (
+            <a
+              className="shareButton Hand Gray_75 flexRow valignWrapper mRight16"
+              target="_blank"
+              href="https://apifox.mingdao.com/"
+            >
+              <Icon icon="play_arrow" className="mRight8 Font18" />
+              <span className="Font14">{_l('调试')}</span>
+            </a>
+          )}
           {!isSharePage && (
             <div
               className="shareButton Hand Gray_75 flexRow valignWrapper"

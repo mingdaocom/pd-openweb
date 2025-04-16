@@ -18,7 +18,7 @@ import { Icon, Tooltip, LoadDiv } from 'ming-ui';
 // 'privacyText'  注册 需要勾选 使用条款 与 隐私条款
 export default function (props) {
   const {
-    onChange = () => {},
+    onChange = () => { },
     warnList = [],
     titleStr = '',
     createAccountLoading,
@@ -107,13 +107,15 @@ export default function (props) {
   };
 
   const toLoginContain = () => {
-    const { returnUrl } = getRequest();
+    const { ReturnUrl, from } = getRequest();
     onChange({ warnList: [] });
     if (isLink) {
       onChange({ loginForAdd: !loginForAdd, focusDiv: '' });
     } else {
-      if (returnUrl) {
-        navigateTo('/login?ReturnUrl=' + encodeURIComponent(returnUrl));
+      if (ReturnUrl && from) {
+        navigateTo('/login?ReturnUrl=' + encodeURIComponent(ReturnUrl) + '&from=' + from);
+      } else if (ReturnUrl) {
+        navigateTo('/login?ReturnUrl=' + encodeURIComponent(ReturnUrl));
       } else {
         navigateTo('/login');
       }

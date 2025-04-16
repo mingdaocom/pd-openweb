@@ -1,0 +1,70 @@
+.searchInputComp {
+  display: inline-block;
+  border-radius: 3px;
+  height: 36px;
+  background-color: #eaeaea;
+  font-size: 13px;
+  vertical-align: middle;
+  .inputCon {
+    display: flex;
+    padding: 6px 12px;
+    position: relative;
+  }
+  .icon:not(.inherit) {
+    font-size: 22px;
+    color: #cacaca;
+  }
+  input {
+    width: 180px;
+    border: none;
+    padding: 0;
+    color: #151515;
+    text-indent: 5px;
+    background-color: transparent;
+    /*transition: width 0.2s;*/
+    &::placeholder {
+      color: #9e9e9e;
+    }
+  }
+  .icon-cancel {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    &.none {
+      display: none;
+    }
+  }
+  &.default {
+    border: none;
+    background-color: #fff;
+    .icon-search {
+      cursor: pointer;
+    }
+    input {
+      width: 0;
+    }
+  }
+  &.worksheetQueryInput {
+    .icon-search {
+      font-size: 20px !important;
+    }
+    .inputCon {
+      padding: 4px 10px 4px 6px;
+    }
+  }
+  &.mobileQueryInput {
+    &.searchInputComp {
+      background-color: #f5f5f5;
+      &.default {
+        background-color: #fff;
+      }
+    }
+    .inputCon {
+      padding-top: 7px;
+    }
+    .icon:not(.inherit) {
+      font-size: 22px;
+      margin-top: 1px;
+    }
+  }
+}

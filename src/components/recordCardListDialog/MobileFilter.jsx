@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
 import { Popup } from 'antd-mobile';
+import cx from 'classnames';
 import { QuickFilter } from 'mobile/RecordList/QuickFilter';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
@@ -37,41 +37,46 @@ function formatSearchFilters(filters = [], controls = []) {
 }
 
 export default function MobileFilter(props) {
-  const { controls = [], worksheetInfo = {}, searchFilters, filtersVisible, onChangeFiltersVisible, onChangeQuickFilter } = props;
+  const {
+    controls = [],
+    worksheetInfo = {},
+    searchFilters,
+    filtersVisible,
+    onChangeFiltersVisible,
+    onChangeQuickFilter,
+  } = props;
   return (
     <Popup
-      className={cx('quickFilterStepListWrapper', {
-        open: filtersVisible,
-      })}
       bodyStyle={{
         borderRadius: '14px 0 0 14px',
-        overflow: 'hidden'
+        overflow: 'hidden',
       }}
       position="right"
       visible={filtersVisible}
       onMaskClick={() => onChangeFiltersVisible(!filtersVisible)}
       onClose={() => onChangeFiltersVisible(!filtersVisible)}
     >
-      {
-        !!controls.length && (
-          <QuickFilter
-            filterText={false}
-            projectId={worksheetInfo.projectId}
-            appId={worksheetInfo.appId}
-            worksheetId={worksheetInfo.worksheetId}
-            view={{ advancedSetting: { enablebtn: '1' } }}
-            filters={formatSearchFilters(searchFilters.map(f => {
+      {!!controls.length && (
+        <QuickFilter
+          filterText={false}
+          projectId={worksheetInfo.projectId}
+          appId={worksheetInfo.appId}
+          worksheetId={worksheetInfo.worksheetId}
+          view={{ advancedSetting: { enablebtn: '1' } }}
+          filters={formatSearchFilters(
+            searchFilters.map(f => {
               return {
                 ...f,
                 advancedSetting: { direction: '2', allowitem: '1' },
-              }
-            }), controls)}
-            controls={controls}
-            onHideSidebar={() => onChangeFiltersVisible(false)}
-            updateQuickFilter={onChangeQuickFilter}
-          />
-        )
-      }
+              };
+            }),
+            controls,
+          )}
+          controls={controls}
+          onHideSidebar={() => onChangeFiltersVisible(false)}
+          updateQuickFilter={onChangeQuickFilter}
+        />
+      )}
     </Popup>
   );
 }

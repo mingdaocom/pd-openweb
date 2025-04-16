@@ -1,4 +1,6 @@
-﻿:root {
+﻿@import './layer/global.less';
+
+:root {
   --app-primary-color: #1e88e5;
   --app-primary-hover-color: #1565c0;
 }
@@ -1718,6 +1720,10 @@ body .Hidden {
 
 .LineHeight40 {
   line-height: 40px !important;
+}
+
+.LineHeight42 {
+  line-height: 42px !important;
 }
 
 .LineHeight44 {

@@ -1,0 +1,38 @@
+.customFormAttachmentBox {
+  .triggerTraget {
+    width: max-content;
+    padding: 0 16px;
+    border: 1px solid var(--gray-e0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    max-width: 100%;
+    &:not(.mobile):hover {
+      background-color: var(--gray-f5);
+    }
+    &.mobile {
+      .Relative {
+        overflow: hidden !important;
+      }
+    }
+    .addFileName {
+      font-weight: bold;
+    }
+  }
+  .spaceBetween {
+    justify-content: space-between;
+  }
+  .handleBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      color: var(--color-primary) !important;
+      background-color: var(--gray-f9);
+    }
+  }
+}

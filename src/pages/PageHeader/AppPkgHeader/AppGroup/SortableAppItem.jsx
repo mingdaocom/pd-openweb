@@ -1,19 +1,19 @@
 import React, { Component, createRef } from 'react';
-import { string, func, number, shape } from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import { Menu, MenuItem, Icon, MdLink, SvgIcon } from 'ming-ui';
-import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
-import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
-import { compareProps, getIds } from '../../util';
-import { getTranslateInfo } from 'src/util';
-import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
-import styled from 'styled-components';
 import _ from 'lodash';
+import { func, number, shape, string } from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, MdLink, Menu, MenuItem, SvgIcon } from 'ming-ui';
+import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
+import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { getTranslateInfo } from 'src/util';
+import { compareProps, getIds } from '../../util';
+import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
+import 'rc-trigger/assets/index.css';
 
 const LiCon = styled.li`
   &.active {
@@ -201,7 +201,7 @@ export default class SortableAppItem extends Component {
               }
               if (appPkg.pcNaviStyle === 2) {
                 const key = `mdAppCache_${md.global.Account.accountId}_${appPkg.id}`;
-                const storage = JSON.parse(localStorage.getItem(key));
+                const storage = JSON.parse(localStorage.getItem(key)) || {};
                 storage.lastGroupId = appSectionId;
                 safeLocalStorageSetItem(key, JSON.stringify(storage));
               }

@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import _ from 'lodash';
 import cx from 'classnames';
-import { ScrollView, Menu, Radio, MenuItem, LoadDiv, TagTextarea, Tooltip, Support } from 'ming-ui';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { LoadDiv, Menu, MenuItem, Radio, ScrollView, Support, TagTextarea, Tooltip } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
+import project from 'src/api/project';
+import signDialog from 'src/pages/workflow/components/signDialog';
+import { getControlTypeName, handleGlobalVariableName } from '../../utils';
 import {
+  ActionFields,
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
   Member,
   SelectUserDropDown,
   Tag,
-  DetailHeader,
-  DetailFooter,
-  ActionFields,
-  CustomTextarea,
   TestParameter,
 } from '../components';
-import styled from 'styled-components';
-import { handleGlobalVariableName, getControlTypeName } from '../../utils';
-import project from 'src/api/project';
-import signDialog from 'src/pages/workflow/components/signDialog';
 
 const TagBox = styled.div`
   padding: 0 7px;
@@ -267,8 +267,8 @@ export default class Message extends Component {
             {data.messageTemplate.type === 2
               ? _l('营销推广')
               : data.messageTemplate.type === 3
-              ? _l('金融交易')
-              : _l('行业通知')}
+                ? _l('金融交易')
+                : _l('行业通知')}
 
             <div className="mTop15 bold">{_l('内容')}</div>
             <TagTextarea
@@ -531,12 +531,7 @@ export default class Message extends Component {
               onFocus={() => this.setState({ showSignList: true })}
               disabled={!isCertified}
               onBlur={evt => {
-                let value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]+/g, '');
-
-                // 全英文清空
-                if (value.replace(/[\u4e00-\u9fa5]/g, '').length === value.length) {
-                  value = '';
-                }
+                const value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
 
                 this.setState({ showSignList: false, sign: value });
               }}

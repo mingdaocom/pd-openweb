@@ -1,22 +1,22 @@
-import React, { Fragment, useContext, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import { ConfigProvider } from 'antd';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { SortableList } from 'ming-ui';
-import cx from 'classnames';
-import { ConfigProvider } from 'antd';
+import attachmentApi from 'src/api/attachment';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { formatFileSize, getClassNameByExt, compatibleMDJS } from 'src/util';
-import { browserIsMobile, addBehaviorLog, addToken } from 'src/util';
 import { isWpsPreview } from 'src/pages/kc/utils';
-import attachmentApi from 'src/api/attachment';
-import ImageCard from './ImageCard';
-import SmallCard from './SmallCard';
-import ListCard, { ListCardHeader } from './ListCard';
-import LargeImageCard from './LargeImageCard';
-import './index.less';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { compatibleMDJS, formatFileSize, getClassNameByExt } from 'src/util';
+import { addBehaviorLog, addToken, browserIsMobile } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+import ImageCard from './ImageCard';
+import LargeImageCard from './LargeImageCard';
+import ListCard, { ListCardHeader } from './ListCard';
+import SmallCard from './SmallCard';
+import './index.less';
 
 const showTypes = {
   1: 'imageFilesWrap',
@@ -212,6 +212,12 @@ const Files = props => {
     }
   }, [attachments, knowledgeAtts, flag]);
 
+  useEffect(() => {
+    const ele = document.querySelector(`.attachmentsPreview-${controlId}`);
+    if (!isMobile || !ele || !ele.parentNode) return;
+    document.body.removeChild(ele.parentNode);
+  }, []);
+
   // 删除明道云附件
   const handleDeleteMDFile = data => {
     const files = attachmentData.filter(item => item.fileID !== data.fileID);
@@ -232,7 +238,7 @@ const Files = props => {
   const handleResetNameFile = (id, newName) => {
     newName = newName.trim();
 
-    if ((/[\/\\:\*\?"<>\|]/g).test(newName)) {
+    if (/[\/\\:\*\?"<>\|]/g.test(newName)) {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return;
     }
@@ -287,6 +293,7 @@ const Files = props => {
       () => {
         previewAttachments(
           {
+            theme: `attachmentsPreview-${controlId}`,
             attachments: attachmentData,
             index: _.findIndex(attachmentData, { fileID: data.fileID }),
             callFrom: 'player',
@@ -346,6 +353,7 @@ const Files = props => {
       },
       () => {
         previewAttachments({
+          theme: `attachmentsPreview-${controlId}`,
           attachments: res,
           index: _.findIndex(res, { id: data.fileID }),
           callFrom: 'kc',
@@ -362,14 +370,15 @@ const Files = props => {
         path: item.previewUrl
           ? `${item.previewUrl}`
           : item.url
-          ? `${item.url}${item.url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`
-          : `${item.serverName}${item.key}`,
+            ? `${item.url}${item.url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`
+            : `${item.serverName}${item.key}`,
         previewAttachmentType: 'QINIU',
         size: item.fileSize,
         fileid: item.fileID,
       };
     });
     previewAttachments({
+      theme: `attachmentsPreview-${controlId}`,
       attachments: res,
       index: _.findIndex(attachments, { fileID: data.fileID }),
       callFrom: 'chat',
@@ -493,7 +502,7 @@ const Files = props => {
         onResetNameFile={handleResetNameFile}
         onAttachmentName={(id, name) => {
           name = name.trim();
-          if ((/[\/\\:\*\?"<>\|]/g).test(name)) {
+          if (/[\/\\:\*\?"<>\|]/g.test(name)) {
             alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
             return;
           }

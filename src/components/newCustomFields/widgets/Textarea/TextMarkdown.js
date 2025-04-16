@@ -1,54 +1,27 @@
-import React, { useRef, Fragment, useEffect } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
-import { Markdown, Textarea, Icon } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
 import styled from 'styled-components';
-import cx from 'classnames';
+import { Icon, MdMarkdown } from 'ming-ui';
+import MarkdownDialog from 'src/ming-ui/components/MdMarkdown/MarkdownDialog.js';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { createPortal } from 'react-dom';
-
-const FullMarkdownWrap = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  & > div {
-    width: 100%;
-    height: 100%;
-    .rc-md-editor {
-      width: 100%;
-      height: 100%;
-    }
-  }
-  .MdEditorCon {
-    max-height: 100%;
-  }
-`;
+import { browserIsMobile } from 'src/util';
 
 const TextMarkdownWrap = styled.div`
   position: relative;
-  .customFormMarkdown {
-    padding: 0 !important;
-    height: fit-content !important;
-    .rc-md-editor {
-      border-color: ${props => (props.isEditing ? '#2196f3' : props.disabled ? 'transparent' : '#f7f7f7')};
-      ${props => (!props.disabled && !props.isMobile ? 'background: #f7f7f7;' : '')}
-      .editor-container {
-        .section {
-          border-right: none;
-          .section-container {
-            padding: ${props => (props.disabled ? '6px 0' : '6px 15px 6px 12px')};
-          }
-        }
-      }
+  border-radius: 4px;
+  min-height: ${props => `${props.minHeight}px`};
+  height: auto;
+  ${props => (props.maxHeight ? `max-height: ${props.maxHeight}px` : '')};
+  background: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#fff' : '#f7f7f7')} !important;
+
+  .vditor {
+    .vditor-reset {
+      background: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#fff' : '#f7f7f7')} !important;
+      padding: ${props => (props.disabled && !props.isCreate ? '6px 0' : '6px 15px 6px 12px')} !important;
     }
-    .MdEditorCon {
-      height: auto;
-      max-height: 100%;
-    }
+    border-color: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#2196f3' : '#f7f7f7')} !important;
   }
+
   .iconFullScreen {
     position: absolute;
     font-size: 20px;
@@ -56,7 +29,7 @@ const TextMarkdownWrap = styled.div`
     top: 7px;
     right: 7px;
     color: #757575;
-    z-index: 1;
+    z-index: 2;
     &:hover {
       color: #2196f3;
     }
@@ -64,162 +37,98 @@ const TextMarkdownWrap = styled.div`
 `;
 
 export default function TextMarkdown(props) {
-  const { hint = '', value = '', disabled, advancedSetting = {}, onChange, onBlur } = props;
-  const [{ isEditing, originValue, fullScreen }, setState] = useSetState({
+  const {
+    hint = '',
+    value = '',
+    disabled,
+    advancedSetting = {},
+    controlName,
+    appId,
+    projectId,
+    worksheetId,
+    onChange,
+    onBlur,
+    recordId,
+  } = props;
+  const [{ isEditing, originValue, visible }, setState] = useSetState({
     isEditing: false,
     originValue: '',
-    fullScreen: false,
-    isOnComposition: false,
+    visible: false,
   });
+
   const isMobile = browserIsMobile();
   const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
   const maxHeight = isMobile ? 400 : Number(advancedSetting.maxheight || '400');
-  const fullMarkdown = useRef(null);
-  const inputRef = useRef(null);
 
-  const handleFullScreen = e => {
-    e.preventDefault();
-    setState({ fullScreen: true });
+  const getCommonProps = () => {
+    return {
+      minHeight,
+      maxHeight,
+      placeholder: hint,
+      data: value,
+      disabled,
+      appId,
+      projectId,
+      worksheetId,
+      controlName,
+    };
   };
 
-  useEffect(() => {
-    if (fullScreen) {
-      if (fullMarkdown && fullMarkdown.current) {
-        fullMarkdown.current.fullScreen(true);
-        fullMarkdown.current.setView({ md: !disabled, menu: !disabled, html: true });
-        setTimeout(() => {
-          const mdElement = fullMarkdown.current.getMdElement();
-          if (mdElement) {
-            mdElement.focus();
-            mdElement.setSelectionRange(mdElement.value.length, mdElement.value.length);
-          }
-        }, 500);
-
-        fullMarkdown.current.on('fullscreen', isFullScreen => {
-          if (!isFullScreen) {
-            fullMarkdown.current.fullScreen(false);
-            setState({ fullScreen: false });
-            inputRef && inputRef.current && inputRef.current.focus();
-            // 全屏关闭时更新value
-            const newValue = fullMarkdown.current.state.text;
-            if (value !== newValue) {
-              onChange(newValue);
-            }
-          }
-        });
-      }
-    }
-  }, [fullScreen]);
-
-  useEffect(() => {
-    if (inputRef && inputRef.current) {
-      inputRef.current.value = value;
-    }
-  }, [isEditing, value]);
-
-  const handleFocus = e => {
-    const newValue = e.target.value;
-    setState({ originValue: newValue, isEditing: true });
+  const handleFocus = value => {
+    setState({ originValue: value, isEditing: true });
 
     if (_.isFunction(props.triggerCustomEvent)) {
       props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
     }
   };
 
-  const handleBlur = e => {
-    if (fullScreen) return;
-    setState({ isEditing: false });
-    const trimValue = e.target.value;
-    if (trimValue !== value) {
-      onChange(trimValue);
-    }
-    onBlur(originValue, trimValue);
+  const handleChange = value => {
+    onChange(value);
   };
 
-  const renderMarkdown = () => {
-    const editProps = {
-      placeholder: hint,
-      linkify: advancedSetting.analysislink === '1',
-      config: disabled
-        ? { view: { md: false, menu: false, html: true } }
-        : { view: { md: false, menu: false, html: true } },
-      ...(fullScreen
-        ? { ref: fullMarkdown, style: { minHeight, maxHeight: '100%' } }
-        : { style: { minHeight, maxHeight } }),
-    };
-    return (
-      <Markdown
-        value={value}
-        editProps={editProps}
-        {..._.pick(props, ['appId', 'projectId', 'worksheetId'])}
-        onSave={_.debounce(text => {
-          onChange(text);
-        }, 500)}
-      />
-    );
+  const handleBlur = newValue => {
+    setState({ isEditing: false });
+    onBlur(originValue, newValue);
+  };
+
+  const handleFullScreen = e => {
+    e.preventDefault();
+    setState({ visible: true });
   };
 
   return (
-    <Fragment>
-      <TextMarkdownWrap isEditing={isEditing} disabled={disabled} isMobile={isMobile}>
-        {!disabled && isEditing && (
-          <span data-tip={_l('全屏编辑')} className="tip-bottom iconFullScreen" onMouseDown={handleFullScreen}>
-            <Icon icon="fullscreen" />
-          </span>
-        )}
-        {!isEditing ? (
-          <div
-            className={cx(
-              'customFormControlBox',
-              { Gray_bd: !value },
-              { controlDisabled: disabled },
-              { customFormMarkdown: !fullScreen },
-            )}
-            isEditing={isEditing}
-            disabled={disabled}
-            onClick={() => {
-              if (disabled) return;
-              setState({ isEditing: true });
-            }}
-          >
-            {renderMarkdown()}
-          </div>
-        ) : (
-          <Textarea
-            isFocus={isEditing}
-            className="customFormTextarea escclose"
-            minHeight={minHeight}
-            maxHeight={maxHeight}
-            manualRef={text => (inputRef.current = text)}
-            placeholder={isEditing ? hint : ''}
-            spellCheck={false}
-            autoFocus={true}
-            onFocus={handleFocus}
-            onChange={value => {
-              if (!isOnComposition) {
-                _.debounce(() => onChange(value), 500);
-              }
-            }}
-            onBlur={handleBlur}
-            onCompositionStart={() => setState({ isOnComposition: true })}
-            onCompositionEnd={event => {
-              if (event.type === 'compositionend') {
-                setState({ isOnComposition: false });
-              }
+    <TextMarkdownWrap
+      isEditing={isEditing}
+      disabled={disabled}
+      minHeight={minHeight}
+      maxHeight={maxHeight}
+      isCreate={!recordId}
+      className="textMarkdown"
+    >
+      {!disabled && isEditing && (
+        <span data-tip={_l('全屏编辑')} className="tip-bottom iconFullScreen" onMouseDown={handleFullScreen}>
+          <Icon icon="fullscreen" />
+        </span>
+      )}
+      <MdMarkdown
+        {...getCommonProps()}
+        hideToolbar={true}
+        handleFocus={handleFocus}
+        handleBlur={handleBlur}
+        handleChange={handleChange}
+      />
 
-              if (window.isChrome) {
-                onChange(event.target.value);
-              }
-            }}
-          />
-        )}
-      </TextMarkdownWrap>
-
-      {fullScreen &&
-        createPortal(
-          <FullMarkdownWrap className="fullScreenMarkdown">{renderMarkdown()}</FullMarkdownWrap>,
-          document.body,
-        )}
-    </Fragment>
+      {visible && (
+        <MarkdownDialog
+          {...getCommonProps()}
+          handleClose={newValue => {
+            if (newValue !== value.trimEnd()) {
+              onChange(newValue);
+            }
+            setState({ visible: false });
+          }}
+        ></MarkdownDialog>
+      )}
+    </TextMarkdownWrap>
   );
 }

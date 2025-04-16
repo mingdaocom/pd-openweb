@@ -136,7 +136,7 @@ MobileDatePicker.propTypes = {
   /**
    * 头部显示信息
    */
-  customHeader: PropTypes.element,
+  customHeader: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
    * 值为date类型
    */

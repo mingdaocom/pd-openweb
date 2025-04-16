@@ -1,6 +1,4 @@
 import _, { get, some } from 'lodash';
-import homeAppAjax from 'src/api/homeApp';
-import sheetAjax from 'src/api/worksheet';
 import {
   formatQuickFilter,
   getFilledRequestParams,
@@ -9,6 +7,8 @@ import {
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
 } from 'worksheet/util';
+import homeAppAjax from 'src/api/homeApp';
+import sheetAjax from 'src/api/worksheet';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
@@ -154,7 +154,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         sub: sheetTranslateInfo.formSub || advancedSetting.sub,
         continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
       };
-      workSheetInfo.views = workSheetInfo.views.map(view => {
+      workSheetInfo.views = (workSheetInfo.views || []).map(view => {
         return {
           ...view,
           name: getTranslateInfo(base.appId, base.worksheetId, view.viewId).name || view.name,

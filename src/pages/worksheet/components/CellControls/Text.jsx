@@ -208,7 +208,12 @@ export default class Text extends React.Component {
       this.setState({ value });
     }
 
-    if (!isSubList && ([6, 8].includes(cell.type) ? Number(oldValue) === Number(value) : oldValue === value)) {
+    if (
+      !isSubList &&
+      ([6, 8].includes(cell.type)
+        ? Number(oldValue === '' ? undefined : oldValue) === Number(value)
+        : oldValue === value)
+    ) {
       if (this.isNumberPercent && value) {
         this.setState({ oldValue, value });
       }

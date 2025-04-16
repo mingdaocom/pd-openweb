@@ -1,34 +1,33 @@
-
 .mobileRecordCardListDialog {
   height: 100%;
 
   .searchWrapper {
     display: flex;
     align-items: center;
-    background-color: #F8F8F8;
+    background-color: #f8f8f8;
     border-radius: 24px;
     padding: 7px 10px;
     .icon-h5_search {
-      color: #757575;
       font-size: 20px;
     }
     .icon-workflow_cancel {
-      color: #BDBDBD;
+      color: #bdbdbd;
       font-size: 15px;
     }
     input {
       flex: 1;
       border: 0;
       padding: 0 5px;
-      background-color: #F8F8F8;
+      background-color: #f8f8f8;
     }
   }
   .filterWrapper {
-    background-color: #fff;
     padding: 10px;
     border-radius: 50%;
     width: 34px;
     height: 34px;
+    font-size: 16px;
+    background: #f8f8f8;
   }
 
   .worksheetRecordCard {
@@ -57,33 +56,6 @@
     background-color: #fff;
     padding: 0 10px;
     box-sizing: border-box;
-  }
-}
-
-.quickFilterStepListWrapper {
-  -webkit-overflow-scrolling: touch;
-  position: inherit !important;
-  .am-drawer-sidebar {
-    z-index: 100;
-    border-radius: 14px 0 0 14px;
-    background-color: #fff;
-    overflow: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-  &.open {
-    .am-drawer-overlay, .am-drawer-content {
-      position: absolute;
-    }
-  }
-  .am-drawer-overlay, .am-drawer-content {
-    position: inherit;
-  }
-  &.am-drawer-open {
-    z-index: 100;
-    position: fixed;
-  }
-  &.bottom50 {
-    bottom: 50px;
   }
 }
 

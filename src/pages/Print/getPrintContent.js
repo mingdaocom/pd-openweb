@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Markdown, RichText } from 'ming-ui';
+import { MdMarkdown, RichText } from 'ming-ui';
 import { getBarCodeValue, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import Embed from 'src/components/newCustomFields/widgets/Embed';
@@ -682,15 +682,17 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
 
       return textValue;
     case 2:
-      if (dataItem.enumDefault === 3) {
+      if (dataItem.enumDefault === 3 && dataItem.value) {
         return (
           <div className="printMarkdownWrap" style={{ whiteSpace: 'normal' }}>
-            <Markdown
-              value={value}
-              editProps={{
-                linkify: dataItem.advancedSetting.analysislink === '1',
-                config: { view: { md: false, menu: false, html: true } },
-              }}
+            <MdMarkdown
+              disabled
+              data={value}
+              hideToolbar={true}
+              appId={dataItem.appId}
+              projectId={dataItem.projectId}
+              worksheetId={dataItem.worksheetId}
+              controlName={dataItem.controlName}
             />
           </div>
         );

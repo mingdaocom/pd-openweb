@@ -368,7 +368,7 @@ export default class RecordCard extends Component {
         ref={node => (this.cardWrap = node)}
         controlStyles={controlStyles}
         className={cx('mobileWorksheetRecordCard', className, {
-          coverRight: [undefined, '0'].includes(coverPosition),
+          coverRight: ['0'].includes(coverPosition),
           converTop: ['2'].includes(coverPosition),
           batchOptStyle: batchOptChecked,
         })}

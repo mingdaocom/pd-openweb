@@ -1,13 +1,14 @@
-import React, { Fragment, Component } from 'react';
-import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import homeAppApi from 'src/api/homeApp';
-import { Button } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
-import worksheetApi from 'src/api/worksheet';
+import { Button } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import styled from 'styled-components';
-import { getRequest } from 'src/util';
+import State from 'mobile/RecordList/State/index.js';
+import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
+import homeAppApi from 'src/api/homeApp';
+import worksheetApi from 'src/api/worksheet';
 import successPng from 'src/pages/NewRecord/success.png';
+import { getRequest } from 'src/util';
 
 const STATUS = {
   NORMAL: 1,
@@ -37,7 +38,7 @@ export default class AddRecord extends Component {
       loading: true,
       worksheetInfo: undefined,
       status: STATUS.NORMAL,
-      writeControls: []
+      writeControls: [],
     };
   }
   componentDidMount() {
@@ -53,13 +54,15 @@ export default class AddRecord extends Component {
       })
       .then(data => {
         if (btnId) {
-          worksheetApi.getWorksheetBtnByID({
-            appId: params.appId || appId,
-            worksheetId: params.worksheetId || worksheetId,
-            btnId
-          }).then(({ writeControls }) => {
-            this.setState({ loading: false, worksheetInfo: data, writeControls });
-          });
+          worksheetApi
+            .getWorksheetBtnByID({
+              appId: params.appId || appId,
+              worksheetId: params.worksheetId || worksheetId,
+              btnId,
+            })
+            .then(({ writeControls }) => {
+              this.setState({ loading: false, worksheetInfo: data, writeControls });
+            });
         } else {
           this.setState({ loading: false, worksheetInfo: data });
         }
@@ -67,14 +70,17 @@ export default class AddRecord extends Component {
   }
   render() {
     const { params = {} } = this.props.match || {};
-    const { appId, worksheetId, viewId, defaultFormData = {} ,defaultFormDataEditable} = this.props;
+    const { appId, worksheetId, viewId, defaultFormData = {}, defaultFormDataEditable } = this.props;
     const { loading, worksheetInfo, writeControls, status } = this.state;
+
     return (
       <div className="h100" style={{ backgroundColor: '#fff' }}>
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
-            <SpinLoading color='primary' />
+            <SpinLoading color="primary" />
           </div>
+        ) : worksheetInfo.resultCode !== 1 ? (
+          <State type="sheet" />
         ) : (
           <div className="h100 pTop20">
             {status !== STATUS.NORMAL && (

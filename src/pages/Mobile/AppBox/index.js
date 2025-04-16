@@ -22,7 +22,7 @@ export default class AddBox extends Component {
           {md.global.Config.IsLocal ? (
             <AppWarehouse />
           ) : (
-            <iframe src={md.global.Config.MarketUrl} className="w100 h100" style={{ border: 'none' }} />
+            <iframe src={`${md.global.Config.MarketUrl}/apps`} className="w100 h100" style={{ border: 'none' }} />
           )}
         </div>
         <TabBar action="appBox" />

@@ -529,8 +529,8 @@ class RecordAction extends Component {
         }
       } else {
         if (res.resultCode === 11) {
-          if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
-            this.customwidget.current.uniqueErrorUpdate(res.badData);
+          if (customwidget && _.isFunction(customwidget.uniqueErrorUpdate)) {
+            customwidget.uniqueErrorUpdate(res.badData);
           }
         } else {
           handleRecordError(res.resultCode);

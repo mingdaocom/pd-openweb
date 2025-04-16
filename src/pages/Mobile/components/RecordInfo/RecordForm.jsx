@@ -1,24 +1,24 @@
 import React, { Component, Fragment } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, PullToRefreshWrapper } from 'ming-ui';
+import DocumentTitle from 'react-document-title';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import cx from 'classnames';
-import { Icon, PullToRefreshWrapper } from 'ming-ui';
-import CustomFields from 'src/components/newCustomFields';
-import { getTitleTextFromControls, controlState } from 'src/components/newCustomFields/tools/utils';
-import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
-import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
-import DocumentTitle from 'react-document-title';
-import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
-import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
+import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import CustomFields from 'src/components/newCustomFields';
+import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { selectUser } from 'src/pages/Mobile/components/SelectUser';
+import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import { updateRecordOwner } from 'src/pages/worksheet/common/recordInfo/crtl.js';
-import _ from 'lodash';
-import { formatNumberThousand } from 'src/util';
+import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
+import { compatibleMDJS, formatNumberThousand } from 'src/util';
 
 @connect(
   state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
@@ -94,7 +94,8 @@ export default class RecordForm extends Component {
         fixedSheetNameWrapEl && fixedSheetNameWrapEl.classList.remove('fixedSheetNameWrapBG');
       }
     }
-    if (tabsEl && tabsEl.offsetTop - 55 <= scrollTop && !workflow) {
+    const fixedTopHeight = window.shareState.isPublicRecord ? 0 : 55;
+    if (tabsEl && tabsEl.offsetTop - fixedTopHeight <= scrollTop && !workflow) {
       fixedTabsEl && fixedTabsEl.classList.remove('hide');
     } else {
       fixedTabsEl && fixedTabsEl.classList.add('hide');
@@ -235,31 +236,52 @@ export default class RecordForm extends Component {
             className="owner sheetName bold mLeft6"
             onClick={() => {
               if (!ownerEditable) return;
-              selectUser({
-                type: 'user',
-                projectId,
-                appId,
-                onlyOne: true,
-                userType: 3,
-                filterAccountIds: [ownerAccount.accountId],
-                includeUndefinedAndMySelf: true,
-                onSave: async users => {
-                  try {
-                    const { account, record } = await updateRecordOwner({
-                      worksheetId,
-                      recordId,
-                      accountId:
-                        users[0].accountId === 'user-self'
-                          ? _.get(md, ['global', 'Account', 'accountId'])
-                          : users[0].accountId,
-                    });
-                    updateRecordDialogOwner(account, record);
-                    alert(_l('修改成功'));
-                  } catch (err) {
-                    alert(_l('修改失败'), 2);
-                  }
+
+              const handleUpdateOwner = async users => {
+                try {
+                  const { account, record } = await updateRecordOwner({
+                    worksheetId,
+                    recordId,
+                    accountId:
+                      users[0].accountId === 'user-self'
+                        ? _.get(md, ['global', 'Account', 'accountId'])
+                        : users[0].accountId,
+                  });
+                  updateRecordDialogOwner(account, record);
+                  alert(_l('修改成功'));
+                } catch (err) {
+                  alert(_l('修改失败'), 2);
+                }
+              };
+
+              compatibleMDJS(
+                'chooseUsers',
+                {
+                  projectId, // 网络ID, 默认为空, 不限制
+                  count: 1, // 默认为空, 不限制数量
+                  selected: [],
+                  success: function (res) {
+                    // 最终选择结果, 完全替换已有数据
+                    handleUpdateOwner(res.results);
+                  },
+                  cancel: function (res) {
+                    // 用户取消
+                  },
                 },
-              });
+                () => {
+                  selectUser({
+                    type: 'user',
+                    projectId,
+                    appId,
+                    onlyOne: true,
+                    hideClearBtn: true,
+                    userType: 3,
+                    filterAccountIds: [ownerAccount.accountId],
+                    includeUndefinedAndMySelf: true,
+                    onSave: users => handleUpdateOwner(users),
+                  });
+                },
+              );
             }}
           >
             <span className="ellipsis">{_l('拥有者：%0', ownerAccount.fullname)}</span>
@@ -434,8 +456,8 @@ export default class RecordForm extends Component {
                 isEditRecord
                   ? `${_l('编辑')}${entityName}`
                   : recordTitle
-                  ? `${recordTitle}`
-                  : `${entityName}${_l('详情')}`
+                    ? `${recordTitle}`
+                    : `${entityName}${_l('详情')}`
               }
             />
             {this.renderHeader({ formCoverVisible: true })}

@@ -1084,9 +1084,9 @@ export function parseAdvancedSetting(setting = {}) {
     max: setting.enablelimit === '1' ? Number(setting.max || 1000) : undefined, // 最大行数
     rownum: Number(setting.rownum || 15), // 最大高度行数/每页行数
     showtype: setting.showtype || '1', // 显示方式 1滚动 2翻页
-    uniqueControlIds: safeParse(setting.uniquecontrols, 'arrray'), // 显示方式 1滚动 2翻页
+    uniqueControlIds: safeParse(setting.uniquecontrols, 'array'), // 显示方式 1滚动 2翻页
     h5showtype: setting.h5showtype || '1', // 子表移动端web显示样式 1列表 2平铺
-    h5abstractids: safeParse(setting.h5abstractids, 'arrray'), // 子表移动端web摘要字段
+    h5abstractids: safeParse(setting.h5abstractids, 'array'), // 子表移动端web摘要字段
     allowOpenRecord: allowlink === '1', // 允许打开子记录 默认勾选
     allowImport: allowimport === '1', // 允许导入（控制导入新增入口）
     allowCopy: allowcopy === '1', //允许复制 默认勾选

@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, PopupWrapper } from 'ming-ui';
 import { Checkbox } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import organizeAjax from 'src/api/organize.js';
 import './index.less';
-import _ from 'lodash';
 
 export default class SelectOrgRole extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ export default class SelectOrgRole extends Component {
       expendTreeNodeKey: [],
       searchList: [],
       pageIndex: 1,
-      selectedOrgRole: [],
+      selectedOrgRole: props.selectOrgRoles || [],
     };
     this.debounceSearch = _.debounce(() => {
       this.handleSearch();
@@ -123,6 +123,11 @@ export default class SelectOrgRole extends Component {
   handleSave = () => {
     const { selectedOrgRole } = this.state;
     this.props.onSave(selectedOrgRole);
+    this.props.onClose();
+  };
+
+  onClear = () => {
+    this.props.onSave([]);
     this.props.onClose();
   };
 
@@ -258,7 +263,7 @@ export default class SelectOrgRole extends Component {
               onClick={() => this.checkOrgRoles(roleItem)}
             />
           )}
-          <div className="flex organizeName ellipsis Gray">{roleItem.organizeName}</div>
+          <div className="flex organizeName Gray">{roleItem.organizeName}</div>
         </div>
       );
     });
@@ -349,8 +354,10 @@ export default class SelectOrgRole extends Component {
         visible={visible}
         title={_l('组织角色')}
         confirmDisable={!selectedOrgRole.length}
+        clearDisable={!selectedOrgRole.length}
         onClose={onClose}
         onConfirm={unique ? null : this.handleSave}
+        onClear={!unique ? null : this.onClear}
       >
         <div className="selectOrgRoleModal flexColumn">{this.renderContent()}</div>
       </PopupWrapper>

@@ -1,12 +1,13 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import { removeTempRecordValueFromLocal } from 'worksheet/util';
 import MobileDraft from 'src/pages/Mobile/MobileDraft';
+import { compatibleMDJS, getRequest, handleReplaceState } from 'src/util';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import NewRecordContent from './NewRecordContent';
 
@@ -77,6 +78,7 @@ function NewRecord(props) {
   const cache = useRef({});
   const [loading, setLoading] = useState();
   const [autoFill, setAutoFill] = useState(null);
+  const [sessionId, setSessionId] = useState(Date.now().toString());
   const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
   const promptCancelAddRecord = localStorage.getItem('promptCancelAddRecord') === 'true';
   const allowDraft =
@@ -85,16 +87,24 @@ function NewRecord(props) {
     (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1') &&
     showDraftsEntry;
   const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
-  const ua = window.navigator.userAgent.toLowerCase();
+  const { offlineUpload, page } = getRequest();
+
+  const handOverNavigation = () => {
+    compatibleMDJS('handOverNavigation', { sessionId });
+    setSessionId('');
+  };
 
   useEffect(() => {
     const cancel = () => {
-      if (!!location.search) {
+      if (_.isArray(page) && page[page.length - 1] !== 'newRecord') {
         return;
       }
-      const setRestoreVisible = _.get(newRecordContent.current, 'setRestoreVisible');
-      hideNewRecord();
-      setRestoreVisible && setRestoreVisible(false);
+
+      handleReplaceState('page', isArray(page) ? page[page.length - 1] : page, () => {
+        const setRestoreVisible = _.get(newRecordContent.current, 'setRestoreVisible');
+        hideNewRecord();
+        setRestoreVisible && setRestoreVisible(false);
+      });
     };
     if (!notDialog) {
       window.addEventListener('popstate', cancel, false);
@@ -103,6 +113,51 @@ function NewRecord(props) {
       if (!notDialog) {
         window.removeEventListener('popstate', cancel, false);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    compatibleMDJS('takeOverNavigation', {
+      sessionId, // 随机ID
+      appWillGoBack: data => {
+        var sessionId = data.sessionId;
+        var url = data.url;
+        // sessionId: 传入的sessionId
+        // url: App 将返回的页面, 为空则是关闭当前浏览器
+        // 若App执行失败, 将夺回控制权
+
+        // H5决定
+
+        // 1: 允许App执行, 通常伴随交还控制权
+        // 建议在return 1前调用handOverNavigation, 避免上下文丢失
+        // 2: 取消原生返回, H5执行返回
+        // return 1/2;
+        setSessionId(sessionId);
+        // const { page } = getRequest();
+        // if (page && _.isArray(page)) {
+        //   if (page[page.length - 1] !== 'newRecord') {
+        //     history.back();
+        //   } else {
+        //     onCancel();
+        //     history.back();
+        //     return 1;
+        //   }
+        // } else {
+        //   onCancel();
+        //   history.back();
+        //   return 1;
+        // }
+        const { page } = getRequest();
+        if (page && _.isArray(page)) {
+          history.back();
+        }
+        return page && _.isArray(page) ? 2 : 1;
+      },
+    });
+
+    return () => {
+      if (page && _.isArray(page)) return;
+      handOverNavigation();
     };
   }, []);
 
@@ -208,7 +263,7 @@ function NewRecord(props) {
       });
     };
 
-    if (advancedSetting.autoFillVisible && endAction === 2 && _.isNull(autoFill)) {
+    if (advancedSetting.autoFillVisible && endAction === 2 && _.isNull(autoFill) && offlineUpload !== '1') {
       if (isContinue && advancedSetting.autoreserve === '1') {
         setAutoFill(true);
         isRetainFunc(true);
@@ -310,7 +365,15 @@ function NewRecord(props) {
           addNewRecord={props.onAdd}
         />
       )}
-      <i className="icon icon-closeelement-bg-circle Gray_9e Font22" onClick={hideNewRecordModal}></i>
+      <i
+        className="icon icon-closeelement-bg-circle Gray_9e Font22"
+        onClick={() => {
+          hideNewRecordModal();
+          if (location.search) {
+            history.back();
+          }
+        }}
+      ></i>
     </div>
   );
   const content = (
@@ -330,6 +393,7 @@ function NewRecord(props) {
       onSubmitEnd={() => setLoading(false)}
       viewId=""
       handleAdd={handleAdd}
+      handOverNavigation={handOverNavigation}
     />
   );
 
@@ -343,7 +407,7 @@ function NewRecord(props) {
           </div>
         </div>
       )}
-      {advancedSetting.continueBtnVisible && (
+      {advancedSetting.continueBtnVisible && offlineUpload !== '1' && (
         <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={() => handleAdd(true)}>
           {advancedSetting.continueBtnText || _l('提交并继续创建')}
         </Button>
@@ -363,7 +427,13 @@ function NewRecord(props) {
       <div className="flexColumn leftAlign h100">
         {notDialog ? null : header}
         <ScrollView>
-          <div className="pAll20 pTop0 h100">{content}</div>
+          <div
+            className={cx('h100', {
+              'pAll20 pTop0': localStorage.getItem('LOAD_MOBILE_FORM') === 'old',
+            })}
+          >
+            {content}
+          </div>
         </ScrollView>
         {footer}
       </div>

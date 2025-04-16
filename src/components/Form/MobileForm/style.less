@@ -1,0 +1,434 @@
+.customMobileFormContainer {
+  background: var(--color-third);
+  margin: 0 -12px;
+  color: var(--color-secondary);
+  line-height: normal;
+  font-size: 16px;
+  padding: 0 20px;
+
+  &.pBottom60 {
+    padding-bottom: 60px !important;
+  }
+
+  &:after {
+    content: '';
+    clear: both;
+    display: block;
+  }
+
+  // 字段容器
+  .customFormItem {
+    float: left;
+    width: 100%;
+    position: relative;
+    flex-direction: column;
+    padding: 6px 12px;
+    box-sizing: border-box;
+
+    &.customFormItemRow {
+      flex-direction: row;
+      .customFormItemLabel {
+        width: auto;
+        align-items: flex-start;
+      }
+      &::after {
+        display: none;
+      }
+    }
+
+    &:after {
+      content: '';
+      display: block;
+      width: 100%;
+      clear: both;
+    }
+  }
+
+  // 字段之间的分割线
+  .customFormLine {
+    height: 1px;
+    background: var(--gray-f3);
+    clear: both;
+    margin: 0 12px;
+  }
+
+  // 字段标题
+  .customFormItemLabel {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    position: relative;
+    font-weight: bold;
+    width: 100%;
+    line-height: 24px;
+    min-height: 24px;
+    padding-top: 0px;
+    padding-bottom: 4px;
+    transform: translate3d(0, 0, 0);
+
+    .requiredBtnBox {
+      position: absolute;
+      left: -13px;
+      .requiredBtn {
+        color: var(--color-error);
+      }
+    }
+
+    .hideTitleLabel {
+      display: none;
+    }
+
+    .customFormItemLoading {
+      display: block;
+      animation: rotate 2s linear infinite;
+    }
+  }
+
+  // 字段控件容器
+  .customFormItemControl {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .commonControlStyle {
+    color: var(--color-secondary);
+    background: var(--color-third);
+    border: 1px solid var(--gray-e0);
+    border-radius: 3px;
+  }
+
+  .customFormControlBox {
+    .commonControlStyle;
+    box-sizing: border-box;
+    min-height: 36px;
+    padding: 6px 12px;
+    width: 100%;
+    line-height: 1.5;
+    outline: none;
+    -webkit-appearance: none;
+    transform: rotateZ(360deg);
+
+    &.customFormControlCapsuleBox {
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    &.controlDisabled {
+      background: transparent !important;
+      border-color: transparent !important;
+      padding-left: 0;
+      padding-right: 0;
+      position: initial !important;
+    }
+
+    &.controlEditReadonly {
+      background: var(--gray-f9) !important;
+      position: initial !important;
+    }
+
+    // Input相关控件展示层
+    &.customFormControlInputView {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      color: var(--gray-bd);
+    }
+
+    // 人员/部门/组织角色 多选边框无色
+    &.customFormControlNoBorder {
+      min-width: 0;
+      height: auto !important;
+      border-color: var(--color-third) !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+  }
+
+  .customFormControlBox,
+  .customFormTextarea {
+    &:focus {
+      border-color: var(--color-primary);
+    }
+    &:disabled {
+      background: var(--gray-f9);
+    }
+    &::placeholder {
+      color: var(--gray-bd);
+    }
+    &::-webkit-input-placeholder {
+      color: var(--gray-bd);
+    }
+    &::-moz-placeholder {
+      color: var(--gray-bd);
+    }
+    &::-ms-input-placeholder {
+      color: var(--gray-bd);
+    }
+  }
+
+  .customFormNull {
+    width: 22px;
+    height: 6px;
+    background: var(--gray-e0);
+    margin: 15px 0;
+    border-radius: 3px;
+  }
+
+  .commonFormIcon {
+    color: var(--gray-bd);
+  }
+
+  .maskIcon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+  }
+
+  .RefreshBtn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    z-index: 2;
+    transform: translateY(-50%);
+    display: none;
+    i {
+      display: block;
+      &.isLoading {
+        animation: rotate 2s linear infinite;
+        color: var(--color-primary);
+      }
+    }
+  }
+
+  // 只读通用样式
+  .customFormReadonly {
+    padding-right: 30px !important;
+    height: auto !important;
+    min-height: 37px;
+    word-break: break-all;
+
+    &.spacing {
+      letter-spacing: 2px;
+    }
+
+    &.readonlyCheck {
+      border: none !important;
+      padding-left: 0 !important;
+    }
+
+    &.readonlyRefresh {
+      background: var(--gray-f9) !important;
+    }
+  }
+
+  .customFormPlaceholder {
+    color: var(--gray-bd);
+  }
+
+  .customFormAddBtn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gray-e0);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      font-size: 20px;
+      color: var(--gray-9e);
+    }
+  }
+
+  .RefreshBtn {
+    display: inline-block;
+    right: 10px;
+  }
+
+  // 单选、多选
+  .RadioGroupCon,
+  .CheckboxGroupCon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: initial;
+
+    .Radio,
+    .Checkbox {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      white-space: initial;
+
+      &--disabled {
+        color: var(--color-secondary) !important;
+
+        .Radio-box,
+        .Checkbox-box {
+          display: none;
+        }
+      }
+
+      &-box {
+        flex-shrink: 0;
+        margin-top: initial !important;
+        margin-right: 10px !important;
+        vertical-align: initial !important;
+      }
+
+      &-text {
+        font-size: inherit !important;
+        vertical-align: initial !important;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .horizonArrangement {
+    flex-direction: row;
+  }
+
+  .verticalArrangement {
+    flex-direction: column;
+  }
+
+  .customFormButton {
+    display: flex !important;
+    align-items: center;
+    padding: 6px 20px;
+    min-width: 0;
+    min-height: 40px;
+    max-width: 100%;
+    width: min-content;
+    white-space: nowrap;
+
+    .Icon {
+      margin-right: 5px;
+      color: var(--gray-9e);
+
+      &.loading {
+        margin-right: 0;
+        display: block;
+        animation: rotate 2s linear infinite;
+        color: var(--color-primary) !important;
+      }
+
+      &.success {
+        color: var(--color-success);
+      }
+    }
+
+    span {
+      font-weight: 500;
+      font-size: 0.8em;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .cardWrap {
+    position: relative;
+    width: 100%;
+    box-shadow: var(--shadow);
+    border-radius: 4px;
+    background: var(--color-third) center / contain no-repeat;
+
+    .removeBtn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(50%, -50%);
+      font-size: 26px;
+      color: var(--gray-9e);
+    }
+  }
+
+  .overflowEllipsis {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+// 通用胶囊样式
+.customFormCapsule {
+  position: relative;
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 16px;
+  background: var(--gray-f3);
+  word-break: break-all;
+  white-space: pre-wrap;
+
+  &.capsuleLink {
+    color: var(--color-primary);
+  }
+
+  .capsuleDel {
+    color: var(--gray-9e);
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    font-size: 22px;
+  }
+}
+
+// 错误信息
+.customFormErrorMessage {
+  position: absolute;
+  bottom: 100%;
+  transform: translateY(-5px);
+  z-index: 1;
+  left: 0;
+  color: var(--color-third);
+  padding: 3px 8px;
+  white-space: nowrap;
+  background: var(--color-error);
+  font-size: 12px;
+  margin: 0 12px;
+  right: 0;
+  max-width: fit-content;
+
+  &.isChildTable {
+    transform: translateY(15px);
+  }
+
+  span {
+    white-space: normal;
+  }
+
+  .customFormErrorArrow {
+    position: absolute;
+    transform: translateY(-5px);
+    z-index: 1;
+    left: 0;
+    background: transparent;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent var(--color-error);
+    bottom: -11px;
+  }
+}
+
+// 多选弹窗
+.mobileCheckboxDialog {
+  .Checkbox-text {
+    font-size: 15px !important;
+  }
+}

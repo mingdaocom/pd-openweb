@@ -54,6 +54,12 @@ export const routerConfigs = [
     component: () => import('./components/appBackupRestore/ManageBackupFiles'),
   },
   {
+    type: 'appOfflineSubmit',
+    icon: 'offline',
+    text: _l('APP离线提交'),
+    component: () => import('./components/AppOfflineSubmit'),
+  },
+  {
     type: 'language',
     icon: 'language',
     featureId: 35,

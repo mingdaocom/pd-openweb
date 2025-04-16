@@ -108,6 +108,7 @@
     "svg.js": "^2.7.1",
     "twemoji": "^2.0.5",
     "uuid": "^8.3.2",
+    "@mdfe/vditor": "1.0.0",
     "xss": "^1.0.6"
   },
   "devDependencies": {
@@ -165,7 +166,6 @@
     "url-loader": "^0.6.2",
     "webpack": "5.89.0",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-inject-plugin": "1.5.5",
     "webpack-merge": "^5.8.0",
     "webpackbar": "^5.0.2"
   },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { arrayOf, number, shape, string, bool, func } from 'prop-types';
+import { arrayOf, number, shape, string, bool, func, oneOfType } from 'prop-types';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import { Tooltip } from 'ming-ui';
@@ -500,6 +500,6 @@ Steps.propTypes = {
   tipDirection: string,
   data: shape({}),
   options: shape([]),
-  value: number,
+  value: oneOfType([string, number]),
   onChange: func,
 };

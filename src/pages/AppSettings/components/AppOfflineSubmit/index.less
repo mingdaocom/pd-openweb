@@ -1,0 +1,99 @@
+.appOfflineSubmit {
+  .description {
+    background: rgba(33, 150, 243, 0.05);
+    border-radius: 5px;
+    padding: 10px 0 10px 16px;
+  }
+  .listWrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    .header {
+      padding: 13px 0;
+      border-bottom: 1px solid #eaeaea;
+      text-align: left;
+      margin-bottom: 12px;
+    }
+    .row {
+      height: 60px;
+      &:hover {
+        background: #f8f8f8;
+      }
+    }
+    .operator {
+      width: 150px;
+    }
+    .status {
+      width: 120px;
+    }
+    .action {
+      width: 160px;
+      text-align: center;
+      .icon-delete2 {
+        color: #9d9d9d;
+        &:hover {
+          color: #f44336;
+        }
+      }
+    }
+  }
+}
+.menuWrapper {
+  width: 500px;
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  .searchWrapper {
+    padding: 0 10px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #fff;
+    .icon-search {
+      width: 20px;
+      margin: 10px 0 0;
+      text-align: center;
+      font-size: 18px;
+      color: #9e9e9e;
+    }
+    .Input {
+      flex: 1;
+      width: 124px;
+      border: none;
+      font-size: 13px;
+      padding: 0 10px;
+    }
+  }
+  .worksheetListMenu {
+    max-height: 300px;
+    overflow: auto;
+    position: static !important;
+    box-shadow: none !important;
+    .ming.MenuItem {
+      span {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        .icon-done {
+          color: #2196f3 !important;
+        }
+      }
+      .Item-content:not(.disabled):hover .icon {
+        color: #fff !important;
+      }
+    }
+  }
+}
+.deleteOfflineItemDialog {
+  .mui-dialog-default-title {
+    color: #f44336 !important;
+  }
+  .ming.Button--primary {
+    background-color: #f44336;
+  }
+  .ming.Button--primary:hover {
+    background-color: #ba160a;
+  }
+}

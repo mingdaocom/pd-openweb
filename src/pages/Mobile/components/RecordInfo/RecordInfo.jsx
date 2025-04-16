@@ -1,39 +1,39 @@
-import React, { Component, Fragment, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon, WaterMark, LoadDiv } from 'ming-ui';
 import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
-import RecordForm from './RecordForm';
-import RecordFooter from './RecordFooter';
-import { Loading, Abnormal } from './RecordState';
-import RelationAction from 'mobile/RelationRow/RelationAction';
-import ChatCount from 'mobile/components/ChatCount';
-import worksheetApi from 'src/api/worksheet';
+import _ from 'lodash';
+import { Icon, LoadDiv, WaterMark } from 'ming-ui';
 import externalPortalApi from 'src/api/externalPortal';
 import paymentAjax from 'src/api/payment';
-import {
-  KVGet,
-  getRowGetType,
-  checkCellIsEmpty,
-  getRecordTempValue,
-  saveTempRecordValueToLocal,
-  removeTempRecordValueFromLocal,
-  filterHidedSubList,
-  emitter,
-} from 'worksheet/util';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
-import { loadRecord, updateRecord, handleSubmitDraft } from 'worksheet/common/recordInfo/crtl';
-import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
-import MobileRecordRecoverConfirm from 'worksheet/common/newRecord/MobileRecordRecoverConfirm';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
-import { getTranslateInfo } from 'src/util';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
+import worksheetApi from 'src/api/worksheet';
+import ChatCount from 'mobile/components/ChatCount';
 import * as actions from 'mobile/RelationRow/redux/actions';
+import RelationAction from 'mobile/RelationRow/RelationAction';
+import MobileRecordRecoverConfirm from 'worksheet/common/newRecord/MobileRecordRecoverConfirm';
+import { handleSubmitDraft, loadRecord, updateRecord } from 'worksheet/common/recordInfo/crtl';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import {
+  checkCellIsEmpty,
+  emitter,
+  filterHidedSubList,
+  getRecordTempValue,
+  getRowGetType,
+  KVGet,
+  removeTempRecordValueFromLocal,
+  saveTempRecordValueToLocal,
+} from 'worksheet/util';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { controlState, formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { getTranslateInfo } from 'src/util';
+import RecordFooter from './RecordFooter';
+import RecordForm from './RecordForm';
+import { Abnormal, Loading } from './RecordState';
 import './RecordInfo.less';
-import _ from 'lodash';
 
 const imgAndVideoReg = /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4|gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)/i;
 
@@ -671,7 +671,7 @@ export default class RecordInfo extends Component {
   }
   renderChatCount() {
     const { isEditRecord, currentTab, externalPortalConfig, recordBase, recordInfo, tempFormData } = this.state;
-    const { getDataType, isModal, isSubList, chartEntryStyle = {}, canLoadSwitchRecord } = this.props;
+    const { getDataType, isModal, isSubList, chartEntryStyle = {}, canLoadSwitchRecord, workId } = this.props;
     const { allowExAccountDiscuss, exAccountDiscussEnum } = externalPortalConfig;
     const { appId, worksheetId, viewId, recordId } = recordBase;
     const { switchPermit } = recordInfo;
@@ -695,7 +695,7 @@ export default class RecordInfo extends Component {
         <div
           className="extraAction flexRow"
           style={{
-            bottom: _.includes(['approve', 'pay'], currentTab.id) ? 13 : undefined,
+            bottom: _.includes(['approve', 'pay'], currentTab.id) && !workId ? 13 : undefined,
             ...chartEntryStyle,
           }}
         >
@@ -797,7 +797,7 @@ export default class RecordInfo extends Component {
             className="switchRecordEntryWrap"
             onClick={() => this.setState({ isNextRecord: false }, this.loadSwitchRecord)}
           >
-            <i className="icon icon-arrow-up-border Font20 LineHeight44" />
+            <i className="icon icon-arrow-up-border Font20 LineHeight40" />
           </div>
         )}
         {!hideNext && (
@@ -805,7 +805,7 @@ export default class RecordInfo extends Component {
             className="switchRecordEntryWrap mLeft10"
             onClick={() => this.setState({ isNextRecord: true }, this.loadSwitchRecord)}
           >
-            <i className="icon icon-arrow-down-border Font20 LineHeight44" />
+            <i className="icon icon-arrow-down-border Font20 LineHeight42" />
           </div>
         )}
       </Fragment>

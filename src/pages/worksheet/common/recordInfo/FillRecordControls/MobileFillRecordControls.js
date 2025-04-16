@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button } from 'antd-mobile';
 import update from 'immutability-helper';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { filterHidedSubList } from 'worksheet/util';
+import { isRelateRecordTableControl } from 'worksheet/util';
 import CustomFields from 'src/components/newCustomFields';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
@@ -54,10 +55,11 @@ class FillRecordControls extends React.Component {
       props.formData.concat((props.masterFormData || []).map(c => ({ ...c, fromMaster: true }))),
       {
         $apply: formData => {
+          let hasDefaultControls = [];
           const formDataForDataFormat = formData.map(c => {
             const newControl = { ...c };
             const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
-            newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '' };
+            newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '', defaultfunc: '' };
             if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
               newControl.value = '';
               if (_.includes([9, 10, 11], newControl.type)) {
@@ -68,23 +70,65 @@ class FillRecordControls extends React.Component {
                   defsource: writeControl.defsource,
                 };
               }
+              hasDefaultControls.push(newControl);
             }
             return newControl;
           });
-          const defaultFormData = new DataFormat({
-            data: formDataForDataFormat,
-            isCreate: true,
-            from: 2,
-            projectId,
-          })
-            .getDataSource()
-            .filter(
-              c =>
-                _.includes(
-                  props.writeControls.map(c => c.controlId),
-                  c.controlId,
-                ) && !_.includes([30, 31, 37, 38], c.type),
-            );
+          function controlIsReadOnly(c) {
+            const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
+            return writeControl && writeControl.type === 1;
+          }
+          const defaultFormData = hasDefaultControls.length
+            ? new DataFormat({
+                forceSync: true,
+                data: formDataForDataFormat
+                  .filter(c => {
+                    return _.find(
+                      hasDefaultControls,
+                      dc =>
+                        dc.controlId === c.controlId ||
+                        (_.get(dc, 'advancedSetting.defsource') || '').indexOf(c.controlId) > -1,
+                    );
+                  })
+                  .map(c =>
+                    c.type === 29 && c.enumDefault === 2 && get(c, 'advancedSetting.showtype') === '5'
+                      ? { ...c, disabled: controlIsReadOnly(c) }
+                      : c,
+                  ),
+                isCreate: true,
+                from: 2,
+                projectId,
+                onAsyncChange: ({ controlId, value }) => {
+                  const updatedControl = _.find(formData, { controlId });
+                  if (
+                    updatedControl &&
+                    _.includes(
+                      [
+                        26, // 人员
+                        27, // 部门
+                        48, // 组织
+                      ],
+                      updatedControl.type,
+                    )
+                  ) {
+                    setTimeout(() => {
+                      this.setState(oldState => ({
+                        formFlag: Math.random(),
+                        formData: oldState.formData.map(c => (c.controlId === controlId ? { ...c, value } : c)),
+                      }));
+                    }, 500);
+                  }
+                },
+              })
+                .getDataSource()
+                .filter(
+                  c =>
+                    _.includes(
+                      props.writeControls.map(c => c.controlId),
+                      c.controlId,
+                    ) && !_.includes([30, 31, 37, 38], c.type),
+                )
+            : [];
           formData = formData
             .map(c => {
               const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
@@ -93,7 +137,7 @@ class FillRecordControls extends React.Component {
               }
               // 自定义动作异化：标签页不能配置，所以默认都显示
               if (c.type === 52) return { ...c, controlPermissions: '111', fieldPermission: '111' };
-              if (!writeControl) {
+              if (!writeControl || c.fromMaster) {
                 return {
                   ...c,
                   controlPermissions: '000',
@@ -106,14 +150,29 @@ class FillRecordControls extends React.Component {
                   controlPermissions: '000',
                 };
               }
-
+              if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '5') {
+                c.advancedSetting.allowdelete = '0';
+              }
               c.controlPermissions =
                 c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
               c.required = writeControl.type === 3;
               c.fieldPermission = '111';
               const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
-              if (defaultFormControl) {
-                if (c.type === 29) {
+              const needClear = get(safeParse(get(writeControl, 'defsource')), '0.cid') === 'empty';
+              if (defaultFormControl && !needClear) {
+                if (
+                  c.type === 29 &&
+                  c.enumDefault === 2 &&
+                  c.advancedSetting.showtype === '5' &&
+                  defaultFormControl.store
+                ) {
+                  try {
+                    if (!_.isEmpty(defaultFormControl.store.getState().records)) {
+                      c.storeFromDefault = defaultFormControl.store;
+                      this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
+                    }
+                  } catch (err) {}
+                } else if (c.type === 29) {
                   const defaultRecords = _.filter(
                     safeParse(defaultFormControl.value, 'array'),
                     r => r.sid || r.sourcevalue,
@@ -121,12 +180,30 @@ class FillRecordControls extends React.Component {
                   if (!_.isEmpty(defaultRecords)) {
                     c.value = JSON.stringify(defaultRecords);
                     c.count = undefined;
-                    c.hasDefaultValue = true;
-                    this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
                   }
                 } else {
                   c.value = defaultFormControl.value;
                 }
+              }
+              if (needClear) {
+                if (isRelateRecordTableControl(c)) {
+                  this.needRunFunctionsAfterDataReady.push(() => {
+                    this.customwidget.current.dataFormat.data.forEach(item => {
+                      if (item.controlId === c.controlId) {
+                        item.store.dispatch({
+                          type: 'DELETE_ALL',
+                        });
+                        item.store.dispatch({
+                          type: 'UPDATE_TABLE_STATE',
+                          value: { count: 0 },
+                        });
+                      }
+                    });
+                  });
+                } else {
+                  c.value = '';
+                }
+                c.advancedSetting.defsource = '';
               }
               return c;
             })
@@ -178,8 +255,8 @@ class FillRecordControls extends React.Component {
     }
     const { onSubmit, writeControls, customButtonConfirm } = this.props;
     let hasError;
-    const newData = data.filter(item =>
-      _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
+    const newData = data.filter(
+      item => _.find(writeControls, writeControl => writeControl.controlId === item.controlId) && !item.fromMaster,
     );
 
     if (hasError) {
@@ -205,7 +282,10 @@ class FillRecordControls extends React.Component {
       newData
         .filter(c => _.find(updateControlIds, controlId => controlId === c.controlId))
         .map(c =>
-          formatControlToServer(c, { hasDefaultRelateRecordTableControls: this.hasDefaultRelateRecordTableControls }),
+          formatControlToServer(c, {
+            needFullUpdate: true,
+            hasDefaultRelateRecordTableControls: this.hasDefaultRelateRecordTableControls,
+          }),
         ),
       {
         ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
@@ -220,7 +300,7 @@ class FillRecordControls extends React.Component {
   };
   render() {
     const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill, widgetStyle } = this.props;
-    const { submitLoading, isSubmitting, formData, showError } = this.state;
+    const { submitLoading, isSubmitting, formData, showError, formFlag } = this.state;
 
     return (
       <Con>
@@ -238,6 +318,7 @@ class FillRecordControls extends React.Component {
             <CustomFields
               isWorksheetQuery
               ignoreLock
+              flag={formFlag}
               ref={this.customwidget}
               widgetStyle={widgetStyle}
               data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}

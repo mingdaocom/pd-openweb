@@ -1,17 +1,17 @@
-import React, { Fragment, Component } from 'react';
-import { connect } from 'react-redux';
-import { Icon, PullToRefreshWrapper } from 'ming-ui';
-import { bindActionCreators } from 'redux';
+import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
-import CustomRecordCard from 'mobile/RecordList/RecordCard';
-import * as actions from '../redux/actions';
-import { RecordInfoModal } from 'mobile/Record';
-import withoutRows from './assets/withoutRows.png';
-import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import RegExpValidator from 'src/util/expression';
-import { ScrollView } from 'ming-ui';
-import './index.less';
 import _ from 'lodash';
+import { Icon, PullToRefreshWrapper } from 'ming-ui';
+import { ScrollView } from 'ming-ui';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { RecordInfoModal } from 'mobile/Record';
+import CustomRecordCard from 'mobile/RecordList/RecordCard';
+import { addBehaviorLog, browserIsMobile, handlePushState, handleReplaceState } from 'src/util';
+import RegExpValidator from 'src/util/expression';
+import * as actions from '../redux/actions';
+import withoutRows from './assets/withoutRows.png';
+import './index.less';
 
 class SheetRows extends Component {
   constructor(props) {
@@ -27,6 +27,7 @@ class SheetRows extends Component {
     window.removeEventListener('popstate', this.onQueryChange);
   }
   onQueryChange = () => {
+    if (!this.props.previewRecordId) return;
     handleReplaceState('page', 'recordDetail', () => this.props.updatePreviewRecordId(''));
   };
 

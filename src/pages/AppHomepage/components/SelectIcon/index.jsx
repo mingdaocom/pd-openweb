@@ -1,17 +1,18 @@
-import React, { Fragment, Component, createRef } from 'react';
-import { string, number, arrayOf, func, bool, shape } from 'prop-types';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { Tooltip } from 'antd';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import AddColorDialog from './AddColorDialog';
-import './index.less';
+import React, { Component, createRef, Fragment } from 'react';
 import { generate } from '@ant-design/colors';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
-import IconTabs from './IconTabs';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { Icon } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { getThemeColors } from 'src/util';
+import AddColorDialog from './AddColorDialog';
+import IconTabs from './IconTabs';
+import './index.less';
 
 const DEFAULT_COLOR = '#2196f3';
+const NAME_MAX_LENGTH = 100;
 
 @withClickAway
 class SelectIcon extends Component {
@@ -97,7 +98,7 @@ class SelectIcon extends Component {
     const { icon, iconColor, navColor } = this.state;
     if (value) {
       const lightColor = generate(iconColor)[0];
-      this.props.onChange({ icon, iconColor, navColor, lightColor, name: value.trim().slice(0, 50) });
+      this.props.onChange({ icon, iconColor, navColor, lightColor, name: value.trim().slice(0, NAME_MAX_LENGTH) });
     }
   };
 
@@ -231,7 +232,7 @@ class SelectIcon extends Component {
               onFocus={this.handleFocus}
               onChange={e => this.handleInput(e.target.value)}
               onKeyDown={this.handleKeydown}
-              maxLength={50}
+              maxLength={NAME_MAX_LENGTH}
             />
           </div>
         )}

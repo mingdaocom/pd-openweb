@@ -1,22 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { bindActionCreators } from 'redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Icon } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import DocumentTitle from 'react-document-title';
 import { connect } from 'react-redux';
 import { useDeepCompareEffect } from 'react-use';
-import DocumentTitle from 'react-document-title';
-import { loadWorksheet, unshiftSheetRow, updateFiltersGroup } from 'mobile/RecordList/redux/actions';
-import { addNewRecord, updateFilters } from 'src/pages/worksheet/redux/actions';
+import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
-import { Icon, Button } from 'ming-ui';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import View from 'mobile/RecordList/View';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import { openAddRecord } from 'mobile/Record/addRecord';
-import { mdAppResponse } from 'src/util';
+import { loadWorksheet, unshiftSheetRow, updateFiltersGroup } from 'mobile/RecordList/redux/actions';
+import View from 'mobile/RecordList/View';
 import homeAppAjax from 'src/api/homeApp';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SlideGroupFilter from 'src/pages/Mobile/RecordList/GroupFilter/SlideGroupFilter.jsx';
-import _ from 'lodash';
-import cx from 'classnames';
+import { addNewRecord, updateFilters } from 'src/pages/worksheet/redux/actions';
+import { mdAppResponse } from 'src/util';
 
 const Con = styled.div`
   width: 100%;
@@ -110,7 +110,7 @@ function ViewComp(props) {
 
   const getAppInfo = () => {
     const isEmbed = /\/embed\/view\//.test(location.pathname);
-    if (!appId || _.get(window, 'shareState.shareId') || isEmbed) return;
+    if (!appId || _.get(window, 'shareState.shareId') || isEmbed || _.isEmpty(view)) return;
     homeAppAjax.getApp({ appId }).then(data => {
       setAppColor(data.iconColor);
     });

@@ -83,10 +83,6 @@ export const ROUTE_CONFIG = {
     path: '/worksheet/:worksheetId/row/:rowId',
     component: () => import('src/pages/worksheet/pages/WorksheetRowLand'),
   },
-  viewDetail: {
-    path: '/embed/view/:appId/:worksheetId/:viewId?',
-    component: () => import('src/pages/ViewLand'),
-  },
   workflowRecordLand: {
     path: '/app/:appId/workflowdetail/record/:id/:workId',
     component: () => import('src/pages/worksheet/pages/WorkflowRecordLand'),
@@ -348,7 +344,6 @@ const withoutChatPathList = [
   'portaluser',
   'wechatPay',
   'orderpay',
-  'embed/view',
   'aggregation',
   'dataMirrorPreview',
   'certification',

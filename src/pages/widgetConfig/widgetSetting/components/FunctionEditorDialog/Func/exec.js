@@ -164,10 +164,10 @@ function formatFunctionResult(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
     case WIDGETS_TO_API_TYPE_ENUM.MONEY:
       try {
-        result = (result || '').toString().match(/^-?[\d\.]+/)[0];
-        if (_.isNumber(Number(result)) && !_.isNaN(Number(result))) {
-          result = String(Number(toFixed(result, 10)));
-        }
+        result = (result || '')
+          .toFixed(12)
+          .toString()
+          .match(/^-?[\d\.]+/)[0];
       } catch (err) {}
       break;
     case WIDGETS_TO_API_TYPE_ENUM.DATE:

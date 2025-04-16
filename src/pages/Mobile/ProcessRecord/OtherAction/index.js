@@ -88,7 +88,7 @@ export default class extends Component {
   }
 
   handleAction = () => {
-    const { action, instance } = this.props;
+    const { action, instance, projectId } = this.props;
     const {
       content,
       showPassword,
@@ -170,11 +170,12 @@ export default class extends Component {
     };
 
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
-      if (!this.password || !this.password.trim()) {
+      if (showPassword && (!this.password || !this.password.trim())) {
         alert(_l('请输入密码'), 3);
         return;
       }
       verifyPassword({
+        projectId,
         password: this.password,
         closeImageValidation: true,
         isNoneVerification: this.isNoneVerification,
@@ -506,7 +507,7 @@ export default class extends Component {
   }
   renderContent() {
     const { action, instance, projectId } = this.props;
-    const { content, backNodeId, customApproveContent, files, opinionList } = this.state;
+    const { content, backNodeId, customApproveContent, files, opinionList = [] } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
     const { opinionTemplate, flowNode, app = {} } = instance || {};
     const { inputType } = opinionTemplate || {};
@@ -537,7 +538,7 @@ export default class extends Component {
 
     return (
       <Fragment>
-        <div className="flex">
+        <div className="flex otherActionContent">
           <div className="title Gray bold Font15 pTop13">{currentAction.headerText}</div>
           {this.renderVerifyPassword()}
           {!hideContent && (

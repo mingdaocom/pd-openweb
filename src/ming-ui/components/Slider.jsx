@@ -160,7 +160,7 @@ const Input = styled.input`
       }`}
 `;
 const NumberValue = styled.span`
-  margin-left: ${({ isMobile }) => (isMobile ? '4px' : '12px')};
+  margin-left: 12px;
   ${({ disabled }) => (disabled ? 'color: rgba(0,0,0,.3);' : '')}
 `;
 
@@ -248,6 +248,7 @@ export default function Slider(props) {
     triggerWhenMove = false,
     onChange = _.noop,
     liveUpdate = true,
+    inputClassName,
   } = props;
   let min = props.min || 0;
   let max = props.max || 100;
@@ -275,7 +276,7 @@ export default function Slider(props) {
   const isMobile = browserIsMobile();
   const inputAttribute = isMobile
     ? window.isIphone
-      ? { type: 'number', pattern: '\d' }
+      ? { type: 'text' }
       : { inputmode: 'decimal' }
     : {};
   const color = getColor(itemcolor, value, showAsPercent);
@@ -483,6 +484,7 @@ export default function Slider(props) {
       {showInput && !disabled && (
         <InputCon>
           <Input
+            className={inputClassName}
             showAsPercent={showAsPercent && numberIsFocusing && !_.isUndefined(valueForInput)}
             active={numberIsFocusing}
             ref={inputRef}
@@ -556,4 +558,5 @@ Slider.propTypes = {
   ),
   onChange: func,
   liveUpdate: bool,
+  inputClassName: string,
 };

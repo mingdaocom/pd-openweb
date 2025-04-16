@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1742796599704') format('woff2'),
-       url('iconfont.woff?t=1742796599704') format('woff'),
-       url('iconfont.ttf?t=1742796599704') format('truetype');
+  src: url('iconfont.woff2?t=1744337947918') format('woff2'),
+       url('iconfont.woff?t=1744337947918') format('woff'),
+       url('iconfont.ttf?t=1744337947918') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,50 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-zoom_out2:before {
+  content: "\e67e";
+}
+
+.icon-row_height:before {
+  content: "\e67f";
+}
+
+.icon-enlarge1:before {
+  content: "\e680";
+}
+
+.icon-align_vertical_top1:before {
+  content: "\e6c2";
+}
+
+.icon-align_vertical_center:before {
+  content: "\e6c3";
+}
+
+.icon-offline:before {
+  content: "\e67c";
+}
+
+.icon-settings_copy-01:before {
+  content: "\e6c0";
+}
+
+.icon-settings_b:before {
+  content: "\e6c1";
+}
+
+.icon-file-list:before {
+  content: "\e678";
+}
+
+.icon-tile:before {
+  content: "\e67b";
+}
+
+.icon-case:before {
+  content: "\e66e";
 }
 
 .icon-align_horizontal_right:before {
@@ -199,10 +243,6 @@
 
 .icon-file-thumb:before {
   content: "\ecd0";
-}
-
-.icon-file-list:before {
-  content: "\ecd1";
 }
 
 .icon-file-post:before {

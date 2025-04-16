@@ -1442,7 +1442,6 @@ const dayFn = (filterData = {}, value, isGT, currentControl = {}) => {
         dateRange = isFeature ? 3 : 2;
         dateRangeTypeNum = editValue || 1;
         break;
-      case DATE_RANGE_TYPE.MONTH:
       case DATE_RANGE_TYPE.MINUTE:
         dateRangeTypeNum = value || 1;
         break;

@@ -102,6 +102,7 @@ export default class Widgets extends Component {
       Html5QrcodeSupportedFormats.ITF,
       Html5QrcodeSupportedFormats.RSS_14,
       Html5QrcodeSupportedFormats.RSS_EXPANDED,
+      Html5QrcodeSupportedFormats.DATA_MATRIX
     ];
 
     if (scantype === '0') {

@@ -369,9 +369,22 @@ class RelateRecordCards extends Component {
   }
 
   onQueryChange = () => {
-    if (!this.state.previewRecord) return;
-    const recordId = _.get(this.props, 'control.recordId');
-    handleReplaceState('page', `relateRecord-${recordId}`, () => this.setState({ previewRecord: undefined }));
+    const { showMobileSelectRecord, previewRecord, showNewRecord } = this.state;
+    const { recordId, controlId } = _.get(this.props, 'control') || {};
+    if (showMobileSelectRecord && browserIsMobile()) {
+      const ele = document.querySelector(`.mobileSelectRecordWrap-${controlId}`);
+      handleReplaceState('page', `mobileSelectRecord-${controlId}`, () => {
+        ele && document.body.removeChild(ele);
+      });
+    }
+
+    if (showNewRecord) {
+      handleReplaceState('page', `newRelateRecord-${controlId}`, () => this.setState({ showNewRecord: false }));
+    }
+
+    if (previewRecord) {
+      handleReplaceState('page', `relateRecord-${recordId}`, () => this.setState({ previewRecord: undefined }));
+    }
   };
 
   getCoverUrl(coverId, record) {
@@ -574,7 +587,7 @@ class RelateRecordCards extends Component {
   handleClick = evt => {
     const { control } = this.props;
     const { records } = this.state;
-    const { enumDefault2 } = control;
+    const { enumDefault2, controlId } = control;
 
     if (!$(evt.target).closest('.relateRecordBtn').length) return;
     let count = _.isUndefined(this.state.count) ? records.length : this.state.count;
@@ -585,6 +598,7 @@ class RelateRecordCards extends Component {
     if (enumDefault2 !== 10 && enumDefault2 !== 11) {
       this.handleSelectRecord(this.handleAdd);
     } else if (this.allowNewRecord) {
+      handlePushState('page', `newRelateRecord-${controlId}`);
       this.setState({ showNewRecord: true });
     }
   };
@@ -609,6 +623,7 @@ class RelateRecordCards extends Component {
     const { records, deletedIds } = this.state;
     const { disabledManualWrite, isCard } = this;
     const selectOptions = {
+      className: `mobileSelectRecordWrap-${controlId}`,
       control: control,
       recordId,
       isCharge,
@@ -638,11 +653,23 @@ class RelateRecordCards extends Component {
       onOk: onOk,
       formData: formData,
       isDraft,
+      handleReplaceHistoryState: browserIsMobile()
+        ? () => {
+            history.back();
+            this.setState({ showMobileSelectRecord: false });
+          }
+        : null,
       ...(browserIsMobile() && !isCard && !showCoverAndControls
         ? { showControls: [], control: { ...control, showControls: [] } }
         : {}),
     };
-    (browserIsMobile() ? mobileSelectRecord : selectRecord)(Object.assign(selectOptions, options));
+    if (browserIsMobile()) {
+      this.setState({ showMobileSelectRecord: true });
+      handlePushState('page', `mobileSelectRecord-${controlId}`);
+      mobileSelectRecord(Object.assign(selectOptions, options));
+      return;
+    }
+    selectRecord(Object.assign(selectOptions, options));
   }
 
   renderRecordsCon() {

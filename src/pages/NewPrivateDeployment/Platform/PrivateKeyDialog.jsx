@@ -176,7 +176,6 @@ export default props => {
           <Fragment>
             <div className="mBottom10">
               <span className="Gray_75 Font13">{_l('请输入您的密钥')}</span>
-              {!md.global.Config.IsPlatformLocal && <span className="Red Font14">{_l('（多组织下请注意手动绑定组织）')}</span>}
             </div>
             <Textarea
               value={licenseCode}

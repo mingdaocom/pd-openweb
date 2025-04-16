@@ -529,6 +529,7 @@ class Card extends Component {
                 isMove={sourceType ? false : permissions && isCharge}
                 onRemove={sourceType ? false : permissions && onRemove}
                 exportData={{
+                  sorts: this.state.sorts,
                   filters,
                   filtersGroup,
                   linkageFiltersGroup: isLinkageFilter && linkageFiltersGroup,

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import preall from 'src/common/preall';
 import styled from 'styled-components';
 import worksheet from 'src/api/worksheet';
 import { LoadDiv } from 'ming-ui';
@@ -27,7 +29,8 @@ const Con = styled.div`
 
 export default function ViewLand(props) {
   $('body').addClass('fixedScreen');
-  const { appId, worksheetId, viewId } = _.get(props, 'match.params') || {};
+  const pathname = location.pathname.split('/').slice(3);
+  const [appId, worksheetId, viewId] = pathname;
   const [loading, setLoading] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [worksheetInfo, setWorksheetInfo] = useState();
@@ -75,3 +78,9 @@ export default function ViewLand(props) {
     </Con>
   );
 }
+
+
+const Comp = preall(ViewLand);
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Comp />);

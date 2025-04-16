@@ -1,12 +1,12 @@
 import React from 'react';
-import global from 'src/api/global';
-import { redirect, navigateToLogin, navigateTo, navigateToLogout } from 'src/router/navigateTo';
-import { LoadDiv } from 'ming-ui';
-import { getPssId, setPssId } from 'src/util/pssId';
 import _ from 'lodash';
 import moment from 'moment';
+import { LoadDiv } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
+import global from 'src/api/global';
 import { resetPortalUrl } from 'src/pages/AuthService/portalAccount/util.js';
+import { navigateTo, navigateToLogin, navigateToLogout, redirect } from 'src/router/navigateTo';
+import { getPssId, setPssId } from 'src/util/pssId';
 
 /** 存储分发类入口 状态 和 分享id */
 const parseShareId = () => {
@@ -148,6 +148,14 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   md.global.Account.isPortal && resetPortalUrl();
 
   redirect(location.pathname);
+
+  const LOAD_MOBILE_FORM = localStorage.getItem('LOAD_MOBILE_FORM');
+  if (!LOAD_MOBILE_FORM) {
+    const isSelfHost = ['meihua.mingdao.com', 'sandbox.mingdao.com', 'localhost'].includes(location.hostname);
+    const _version = !md.global.Config.IsLocal && isSelfHost ? 'new' : 'old';
+
+    safeLocalStorageSetItem('LOAD_MOBILE_FORM', _version);
+  }
 };
 
 const wrapComponent = function (Comp, { allowNotLogin, requestParams } = {}) {

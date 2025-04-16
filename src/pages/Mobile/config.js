@@ -139,6 +139,11 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       component: () => import('mobile/ChartsCollect'),
       title: _l('图表收藏'),
     },
+    draftList: {
+      path: '/mobile/draft/:appId/:worksheetId',
+      component: () => import('src/pages/Mobile/MobileDraft/MobileDraftPage.jsx'),
+      title: _l('草稿箱'),
+    },
   },
   window.subPath,
 );

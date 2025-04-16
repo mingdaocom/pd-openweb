@@ -1,16 +1,16 @@
 import React, { Component, createRef } from 'react';
-import SetInfoDialog from '../modules/SetInfoDialog';
-import Config from '../../../config';
-import './index.less';
-import { UpgradeIcon, LoadDiv, QiniuUpload } from 'ming-ui';
+import ClipboardButton from 'react-clipboard.js';
+import _ from 'lodash';
+import { LoadDiv, QiniuUpload, UpgradeIcon } from 'ming-ui';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
-import ClipboardButton from 'react-clipboard.js';
 import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules/index.jsx';
-import _ from 'lodash';
-import { getCurrentProject } from 'src/util';
 import CertificationButton from 'src/pages/certification/CertificationButton';
+import { getCurrentProject } from 'src/util';
+import Config from '../../../config';
+import SetInfoDialog from '../modules/SetInfoDialog';
+import './index.less';
 
 export default class CommonInfo extends Component {
   constructor(props) {
@@ -386,6 +386,11 @@ export default class CommonInfo extends Component {
                     </button>
                   </div>
                   {homeImage && <img src={homeImage} className="domain-review" />}
+                  <div className='mTop4 Gray_75'>
+                    {_l(
+                      '通过二级域名可建立组织专属的登录页，会展示组织LOGO与配置的背景图，若配置了LDAP、企业微信、钉钉或飞书集成，也会展示在登录页可快捷登录',
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="common-info-row mTop24">

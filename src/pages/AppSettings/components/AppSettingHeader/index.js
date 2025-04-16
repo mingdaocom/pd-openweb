@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Input, Button, Support, UpgradeIcon } from 'ming-ui';
-import styled from 'styled-components';
-import { func, string, bool, any } from 'prop-types';
 import cx from 'classnames';
+import { any, bool, element, func, string } from 'prop-types';
+import styled from 'styled-components';
+import { Button, Input, Support, UpgradeIcon } from 'ming-ui';
 
 const HeaderWrap = styled.div`
   margin-bottom: 24px;
@@ -48,6 +48,7 @@ export default function AppSettingHeader(props) {
     description,
     extraElement,
     link,
+    customBtn,
     handleSearch = () => {},
     handleAdd = () => {},
   } = props;
@@ -63,13 +64,15 @@ export default function AppSettingHeader(props) {
             <Input className="flex" placeholder={_l('搜索') || placeholder} onChange={handleSearch} />
           </div>
         )}
-        {addBtnName && (
+        {addBtnName ? (
           <Button className={cx(`mLeft20 pLeft20 pRight20`, { needUpgrade })} type="primary" radius onClick={handleAdd}>
             <i className={`icon icon-${addIcon ? addIcon : 'plus'} Font12 mRight5`} />
             {addBtnName}
             {needUpgrade && <UpgradeIcon />}
           </Button>
-        )}
+        ) : customBtn ? (
+          customBtn
+        ) : null}
       </div>
       {description && (
         <div>
@@ -93,4 +96,5 @@ AppSettingHeader.propTypes = {
   extraElement: any,
   handleAdd: func,
   link: string,
+  customBtn: element, // 自定义添加按钮
 };

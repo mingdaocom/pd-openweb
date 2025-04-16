@@ -1,14 +1,14 @@
-import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import { Modal } from 'ming-ui';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { find, get, isEmpty, isFunction, omit, some } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import ControlSelect from 'worksheet/components/ControlSelect';
+import { Modal } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
+import ControlSelect from 'worksheet/components/ControlSelect';
 import useApi from 'worksheet/hooks/useApi';
-import { find, get, isEmpty, some, omit, isFunction } from 'lodash';
+import { checkCellIsEmpty, controlBatchCanEdit, replaceControlsTranslateInfo } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { replaceControlsTranslateInfo, checkCellIsEmpty, controlBatchCanEdit } from 'worksheet/util';
-import { handleBatchUpdateRecords, getEditType } from './controller';
+import { getEditType, handleBatchUpdateRecords } from './controller';
 import EditControlItem from './EditControlItem';
 
 const Con = styled.div`
@@ -246,7 +246,10 @@ export default function BatchEditRecord(props) {
               worksheetId={worksheetId}
               projectId={projectId}
               key={item.control.controlId}
-              control={item.control}
+              control={{
+                ...item.control,
+                ...(view.viewId === worksheetId ? { fieldPermission: '111' } : {}),
+              }}
               type={item.type}
               setRef={ref => {
                 refCache.current[item.id] = ref;

@@ -8,7 +8,6 @@ Thumbs.db
 *.LOCAL
 *.REMOTE
 *~HEAD
-*.min.css
 *.less.js
 /build
 node_modules

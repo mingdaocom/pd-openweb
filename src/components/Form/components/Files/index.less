@@ -1,0 +1,57 @@
+
+.textEllipsis() {
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+}
+
+.attachmentFilesWrap {
+  &.imageFilesWrap, &.smallFilesWrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  &.imageFilesWrap.smallSize, &.smallFilesWrap.smallSize {
+    flex-wrap: inherit;
+    justify-content: inherit;
+    flex-direction: column;
+  }
+  &.listFilesWrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .textEllipsis {
+    .textEllipsis;
+  }
+  .fileEmpty {
+    height: 0;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+  .deleteBtn {
+    color: #fff;
+    background-color: #f44336;
+  }
+  .cancelBtn {
+    background-color: #fff;
+  }
+  .deleteBtn, .cancelBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+    flex: 1;
+    border-radius: 4px;
+    padding: 3px 0;
+  }
+}
+
+.attachmentFilesViewMoreWrap .ThemeColor:hover {
+  color: #0780e0;
+}

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Dropdown } from 'antd';
 import update from 'immutability-helper';
@@ -159,6 +159,9 @@ function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, 
     timeFormatVisible: false,
   });
   const { controlId, rcid, relationControlName, controlName, controlType, format, type, repeatType } = rule;
+  const $addControl = useRef(null);
+  const $addTime = useRef(null);
+
   const getControlInfo = () => {
     if (!controlId) return _l('请选择字段');
     if (!controlName || (!rcid && isEmpty(getControlByControlId(allControls, controlId)))) {
@@ -210,6 +213,7 @@ function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, 
         <Dropdown
           trigger="click"
           className="mTop0"
+          getPopupContainer={() => $addControl.current}
           overlay={
             <SelectControlWithRelate
               {...rest}
@@ -221,7 +225,7 @@ function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, 
             />
           }
         >
-          <DropdownPlaceholder>
+          <DropdownPlaceholder ref={$addControl}>
             {getControlInfo()}
             {<AutoIcon icon="expand_more" />}
           </DropdownPlaceholder>
@@ -234,6 +238,7 @@ function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, 
         <Dropdown
           trigger="click"
           className="mTop0"
+          getPopupContainer={() => $addTime.current}
           overlay={
             <Menu width={'100%'}>
               {TIME_MODE.map(({ value, text }) => (
@@ -244,7 +249,7 @@ function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, 
             </Menu>
           }
         >
-          <DropdownPlaceholder color={format ? '#151515' : '#bdbdbd'}>
+          <DropdownPlaceholder color={format ? '#151515' : '#bdbdbd'} ref={$addTime}>
             {text || 'YYYYMMDD'} <AutoIcon icon="expand_more" />
           </DropdownPlaceholder>
         </Dropdown>
@@ -289,6 +294,8 @@ function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, 
 }
 
 function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd, fromExcel, ...rest }) {
+  const $addRule = useRef(null);
+
   const getTypes = () => {
     return rules.some(item => item.type === 4)
       ? [
@@ -329,6 +336,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
       )}
       <Dropdown
         trigger={['click']}
+        getPopupContainer={() => $addRule.current}
         overlay={
           <Menu style={{ width: '100%' }}>
             {typesData.map(({ value, text }) => (
@@ -339,7 +347,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
           </Menu>
         }
       >
-        <li className="addRule">
+        <li className="addRule" ref={$addRule}>
           <i className="icon-add Font16"></i>
           {_l('添加规则')}
         </li>

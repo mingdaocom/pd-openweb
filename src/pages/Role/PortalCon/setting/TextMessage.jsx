@@ -1,15 +1,14 @@
 import React, { useEffect, Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
+import { Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Support } from 'ming-ui';
+import project from 'src/api/project';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
-import { getCurrentProject } from 'src/util';
-import _ from 'lodash';
-import cx from 'classnames';
-import { Tooltip } from 'antd';
-import project from 'src/api/project';
 import signDialog from 'src/pages/workflow/components/signDialog';
+import { getCurrentProject } from 'src/util';
 
 const Wrap = styled.div`
   .warnTxt {
@@ -151,12 +150,7 @@ export default function TextMessage(props) {
             value={sign}
             disabled={!isCertified}
             onBlur={evt => {
-              let value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]+/g, '');
-
-              // 全英文清空
-              if (value.replace(/[\u4e00-\u9fa5]/g, '').length === value.length) {
-                value = '';
-              }
+              const value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
 
               setSign(value);
               onChangePortalSet({

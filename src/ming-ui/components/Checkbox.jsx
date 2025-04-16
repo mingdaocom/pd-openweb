@@ -142,7 +142,7 @@ class Checkbox extends React.Component {
         title={title}
       >
         <span className={cx(SIZE_LIST.indexOf(size) >= 0 ? 'Checkbox-box--' + size : '', 'Checkbox-box')}>{icon}</span>
-        <span className="Font13">{text}</span>
+        <span className="Font13 Checkbox-text">{text}</span>
         {children}
       </label>
     );

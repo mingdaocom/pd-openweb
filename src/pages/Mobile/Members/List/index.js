@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import * as actions from './redux/actions';
+import { ActionSheet, Button, Dialog, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
-import { Button, List, SpinLoading, ActionSheet, Dialog } from 'antd-mobile';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { connect } from 'react-redux';
+import AppManagement from 'src/api/appManagement.js';
+import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
-import noMmberImg from '../img/noMember.png';
+import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
 import Back from '../../components/Back';
-import SelectUser from '../../components/SelectUser';
 import SelectJob from '../../components/SelectJob';
 import SelectOrgRole from '../../components/SelectOrgRole';
-import AppManagement from 'src/api/appManagement.js';
-import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
+import SelectUser from '../../components/SelectUser';
+import noMmberImg from '../img/noMember.png';
 import './index.less';
-import _ from 'lodash';
+import * as actions from './redux/actions';
 
 let modal = null;
 class MemberList extends Component {
@@ -69,8 +69,8 @@ class MemberList extends Component {
               <Icon className={cx('mRight15 Gray_9e', item.iconClass)} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </Fragment>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -97,7 +97,7 @@ class MemberList extends Component {
           this.setState({ selectOrgnizedRoleVisible: true, type: 'orgnizeRole' });
         }
         this.actionSheetHandler.close();
-      }
+      },
     });
   };
   showActionDepartment = (roleId, userIds, roleType, data) => {
@@ -109,10 +109,8 @@ class MemberList extends Component {
       actions: BUTTONS.map((item, index) => {
         return {
           key: index,
-          text: (
-            <span className="Bold">{item.name}</span>
-          )
-        }
+          text: <span className="Bold">{item.name}</span>,
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -145,7 +143,7 @@ class MemberList extends Component {
           selectDepartmentType: index === 0 ? 'current' : 'all',
         });
         this.actionDepartmentHandler.close();
-      }
+      },
     });
   };
 
@@ -213,22 +211,21 @@ class MemberList extends Component {
         return {
           key: index,
           text: (
-            <div className={cx('flexRow alignItemsCenter', { Red: ['exit_to_app2', 'task-new-delete'].includes(item.icon) })}>
+            <div
+              className={cx('flexRow alignItemsCenter', {
+                Red: ['exit_to_app2', 'task-new-delete'].includes(item.icon),
+              })}
+            >
               <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </div>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
-          <span className="Font13">
-            {_l('人员管理')}
-          </span>
-          <div
-            className="closeIcon"
-            onClick={() => this.actionUserHandler.close()}
-          >
+          <span className="Font13">{_l('人员管理')}</span>
+          <div className="closeIcon" onClick={() => this.actionUserHandler.close()}>
             <Icon icon="close" />
           </div>
         </div>
@@ -253,7 +250,9 @@ class MemberList extends Component {
           } else {
             Dialog.confirm({
               title: <span className="Font16 Gray bold">{_l('确认设置为角色负责人？')}</span>,
-              content: <div className="Font13 Gray pLeft15 pRight15">{_l('角色负责人可添加、移出当前角色下的成员')}</div>,
+              content: (
+                <div className="Font13 Gray pLeft15 pRight15">{_l('角色负责人可添加、移出当前角色下的成员')}</div>
+              ),
               onConfirm: () => {
                 AppManagement.setRoleCharger(param).then(res => {
                   if (res) {
@@ -263,7 +262,7 @@ class MemberList extends Component {
                     alert(_l('设置失败'), 2);
                   }
                 });
-              }
+              },
             });
           }
         } else if (isSysRole && isOwner && isMe && buttonIndex === 0) {
@@ -299,7 +298,7 @@ class MemberList extends Component {
                     },
                   }),
                 );
-              }
+              },
             });
             return;
           }
@@ -320,11 +319,11 @@ class MemberList extends Component {
                   jobIds: jobId ? [jobId] : [],
                 }),
               );
-            }
+            },
           });
         }
         this.actionUserHandler.close();
-      }
+      },
     });
   };
 
@@ -342,7 +341,7 @@ class MemberList extends Component {
     const { detail, list = [] } = this.props.memberList;
     const { selectJobVisible, selectOrgnizedRoleVisible } = this.state;
     const { params } = this.props.match;
-    const data = list.filter(item => item.roleId === params.roleId)[0];
+    const data = _.find(list, item => item.roleId === params.roleId) || {};
     let { isAdmin } = getUserRole(detail.permissionType);
     const canAddUser =
       (data.canSetMembers || isAdmin) &&
@@ -479,31 +478,29 @@ class MemberList extends Component {
       const tag = item.departmentTreeId
         ? _l('部门')
         : item.departmentId
-        ? _l('仅当前部门')
-        : item.projectOrganizeId
-        ? _l('组织角色')
-        : item.jobId
-        ? _l('职位')
-        : '';
+          ? _l('仅当前部门')
+          : item.projectOrganizeId
+            ? _l('组织角色')
+            : item.jobId
+              ? _l('职位')
+              : '';
       const memberCategoryValue = item.accountId
         ? 5
         : item.departmentTreeId
-        ? 1
-        : item.departmentId
-        ? 2
-        : item.projectOrganizeId
-        ? 3
-        : item.jobId
-        ? 4
-        : 5;
+          ? 1
+          : item.departmentId
+            ? 2
+            : item.projectOrganizeId
+              ? 3
+              : item.jobId
+                ? 4
+                : 5;
 
       return (
         <List.Item
           key={key}
           className="listCon"
-          arrow={
-            canEditUser && (item.isOwner ? item.accountId === md.global.Account.accountId : true)
-          }
+          arrow={canEditUser && (item.isOwner ? item.accountId === md.global.Account.accountId : true)}
           onClick={() => {
             canEditUser &&
               (item.isOwner ? item.accountId === md.global.Account.accountId : true) &&
@@ -535,7 +532,9 @@ class MemberList extends Component {
     return (
       <div className="memberListWrapper h100 pBottom44 flexColumn">
         {this.renderBase()}
-        <List className="ListSection flex" style={{ overflow: 'auto' }}>{this.renderItem(data)}</List>
+        <List className="ListSection flex" style={{ overflow: 'auto' }}>
+          {this.renderItem(data)}
+        </List>
         {(data.canSetMembers || isAdmin) &&
           !(
             detail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE && ['all', 'apply', 'outsourcing'].includes(data.roleId)
@@ -556,12 +555,12 @@ class MemberList extends Component {
     if (isListLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }
     const { params } = this.props.match;
-    const data = this.props.memberList.list.filter(item => item.roleId === params.roleId)[0];
+    const data = _.find(this.props.memberList.list || [], item => item.roleId === params.roleId) || {};
     if (
       !data ||
       (!data.users && !data.departmentsInfos) ||

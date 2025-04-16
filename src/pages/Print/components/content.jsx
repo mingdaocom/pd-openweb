@@ -119,7 +119,7 @@ export default class Con extends React.Component {
 
   renderControls() {
     const { printData, controls = [] } = this.props;
-    let { appId, worksheetId, viewId, rowId, type, from } = this.props.params;
+    let { appId, worksheetId, viewId, rowId, type, from, projectId } = this.props.params;
     const { showData, printOption, rowIdForQr, advanceSettings = [], allControls } = printData;
     const nameWidth = (advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth;
     const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
@@ -127,6 +127,7 @@ export default class Con extends React.Component {
       recordId: rowId || rowIdForQr,
       appId,
       worksheetId,
+      projectId,
       viewIdForPermit: viewId,
       controls,
       fileStyle,
@@ -442,7 +443,7 @@ export default class Con extends React.Component {
 
   renderRelations = (tableList, dataInfo) => {
     const { printData, handChange, params } = this.props;
-    const { type, from } = params;
+    const { type, from, projectId } = params;
     const { showData, relationStyle = [], orderNumber = [], advanceSettings = [], allControls } = printData;
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === tableList.controlId) || []).checked;
     let relationControls = tableList.relationControls || [];
@@ -570,7 +571,7 @@ export default class Con extends React.Component {
             }}
             fileStyle={relationFileStyle}
             user_info={relationUserInfo}
-            dataInfo={_.pick(dataInfo, ['recordId', 'appId', 'worksheetId', 'viewIdForPermit'])}
+            dataInfo={_.pick(dataInfo, ['recordId', 'appId', 'worksheetId', 'viewIdForPermit', 'projectId'])}
           />
         ) : (
           // 平铺
@@ -591,6 +592,7 @@ export default class Con extends React.Component {
                     dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                     user_info: relationUserInfo,
                     controls: getFormData(controls, o),
+                    projectId,
                     allControls:  getFormData(allControls, o),
                   };
 
@@ -637,6 +639,7 @@ export default class Con extends React.Component {
                             dataSource: it.type === 47 ? it.dataSource : tableList.controlId,
                             user_info: relationUserInfo,
                             controls: getFormData(controls, o),
+                            projectId,
                           };
 
                           if ([29].includes(it.type)) {

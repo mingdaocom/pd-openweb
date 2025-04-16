@@ -1,5 +1,6 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { ActionSheet } from 'antd-mobile';
+import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { getCurrentProject } from 'src/util';
 import './index.less';
@@ -26,23 +27,27 @@ export default function SelectProject(props) {
   useEffect(() => {
     return () => {
       actionSheetHandler && actionSheetHandler.close();
-    }
+    };
   }, []);
 
   const handleSelectProject = () => {
     actionSheetHandler = ActionSheet.show({
       popupClassName: 'selectProjectWrap',
       actions: projects.map(item => {
+        const isFree = item.licenseType === 0; // 免费版
+        const isTrial = item.licenseType === 2; // 试用版
         return {
           project: item,
           key: item.projectId,
           text: (
             <Fragment key={item.projectId}>
               <span className="flex Bold ellipsis">{item.companyName}</span>
-              {item.projectId === currentProject.projectId && <Icon className="ThemeColor Font20" icon="done" />}
+              <div className={cx('Font12 mLeft10 Gray_9e Normal', { trial: isTrial, free: isFree })}>
+                {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(item, 'version.name')}
+              </div>
             </Fragment>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -52,13 +57,13 @@ export default function SelectProject(props) {
           </div>
         </div>
       ),
-      onAction: (action) => {
+      onAction: action => {
         const { project } = action;
         safeLocalStorageSetItem('currentProjectId', project.projectId);
         setCurrentProject(project);
         changeProject();
         actionSheetHandler.close();
-      }
+      },
     });
   };
 

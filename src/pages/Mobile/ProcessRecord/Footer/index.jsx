@@ -54,7 +54,7 @@ export default class Footer extends Component {
             <Button
               className="Font13 flex bold Gray_75 mRight10"
               onClick={() => {
-                this.actionSheetHandler.close();
+                this.actionVerifyPasswordHandler.close();
               }}
             >
               <span>{_l('取消')}</span>
@@ -73,7 +73,7 @@ export default class Footer extends Component {
                   isNoneVerification: this.isNoneVerification,
                   success: () => {
                     this.request('submit');
-                    this.actionSheetHandler.close();
+                    this.actionVerifyPasswordHandler.close();
                   },
                 });
               }}
@@ -84,7 +84,7 @@ export default class Footer extends Component {
         </div>
       ),
       onAction: action => {
-        this.actionSheetHandler.close();
+        this.actionVerifyPasswordHandler.close();
       },
     });
   };

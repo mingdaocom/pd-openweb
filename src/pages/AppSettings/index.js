@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import Loadable from 'react-loadable';
-import { Icon, LoadDiv, UpgradeIcon, Tooltip } from 'ming-ui';
-import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import homeAppApi from 'api/homeApp';
-import { routerConfigs } from './routerConfig';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import { getAppConfig } from './util';
-import { getFeatureStatus, setFavicon, getTranslateInfo } from 'src/util';
 import cx from 'classnames';
-import './index.less';
+import { Icon, LoadDiv, Tooltip, UpgradeIcon } from 'ming-ui';
+import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
+import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
-import { upgradeVersionDialog, buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { getFeatureStatus, getTranslateInfo, setFavicon } from 'src/util';
+import Beta from './components/Beta';
+import { routerConfigs } from './routerConfig';
+import { getAppConfig } from './util';
+import './index.less';
 
 function UpgradeCom({ projectId, featureId }) {
   return <Fragment>{buriedUpgradeVersionDialog(projectId, featureId, { dialogType: 'content' })}</Fragment>;
@@ -199,7 +200,9 @@ class AppSettings extends Component {
               const { type, icon, text } = item;
               return (
                 <Fragment>
-                  {_.includes(['publish', 'language', 'recyclebin'], type) && <div className="line"></div>}
+                  {_.includes(['publish', 'language', 'recyclebin', 'appOfflineSubmit'], type) && (
+                    <div className="line"></div>
+                  )}
                   <div
                     key={type}
                     className={cx(`configItem ${type}`, {
@@ -226,7 +229,10 @@ class AppSettings extends Component {
                     )}
                     {!collapseAppManageNav && (
                       <Fragment>
-                        <span className="flex">{text}</span>
+                        <span className="flex">
+                          {text}
+                          {['appOfflineSubmit'].includes(type) && <Beta className="mRight15" />}
+                        </span>
                         {item.featureId &&
                           getFeatureStatus(projectId, item.featureId) === '2' &&
                           _.includes(

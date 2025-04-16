@@ -1,32 +1,32 @@
 import React from 'react';
+import {
+  adjustControlSize,
+  checkWidgetMaxNumErr,
+  fixedBottomWidgets,
+  getBoundRowByTab,
+  getControlByControlId,
+  isTabSheetList,
+  notInsetSectionTab,
+  putControlByOrder,
+} from '.';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import _, { filter, find, findIndex, flatten, get, head, includes, isEmpty, last, omit } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { Dialog, Support, Tooltip } from 'ming-ui';
+import homeAppApi from 'src/api/homeApp';
+import sheetAjax from 'src/api/worksheet';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { navigateTo } from 'src/router/navigateTo';
+import { getFeatureStatus } from 'src/util';
 import { CAN_NOT_AS_TEXT_GROUP } from '../config';
 import { DRAG_MODE, WHOLE_SIZE } from '../config/Drag';
-import { navigateTo } from 'src/router/navigateTo';
-import sheetAjax from 'src/api/worksheet';
-import cx from 'classnames';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import update from 'immutability-helper';
-import _, { includes, get, isEmpty, omit, findIndex, filter, find, head, last, flatten } from 'lodash';
-import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
-import { insertControlInSameLine, batchRemoveItems } from './drag';
-import {
-  getControlByControlId,
-  adjustControlSize,
-  putControlByOrder,
-  getBoundRowByTab,
-  fixedBottomWidgets,
-  notInsetSectionTab,
-  isTabSheetList,
-  checkWidgetMaxNumErr,
-} from '.';
-import { getPathById, isHaveGap } from './widgets';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { ControlTag } from '../styled';
-import { Tooltip, Dialog, Support } from 'ming-ui';
-import { v4 as uuidv4 } from 'uuid';
 import { ALL_SYS } from '../config/widget';
-import homeAppApi from 'src/api/homeApp';
+import { ControlTag } from '../styled';
+import { batchRemoveItems, insertControlInSameLine } from './drag';
+import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
+import { getPathById, isHaveGap } from './widgets';
 
 // 获取动态默认值
 export const getDynamicDefaultValue = data => {
@@ -609,6 +609,14 @@ export const formatControlsData = (controls = [], fromSub = false) => {
     // 有一批老数据影响了默认值功能，清空掉
     if (_.get(data, 'default') === '[]') {
       data.default = '';
+    }
+
+    if (
+      ((type === 10 && getAdvanceSetting(data, 'checktype') !== 1) ||
+        (_.includes([9, 11], type) && getAdvanceSetting(data, 'showtype') !== 0)) &&
+      data.hint
+    ) {
+      data.hint = '';
     }
 
     const chooseRange = getAdvanceSetting(data, 'chooserange') || [];

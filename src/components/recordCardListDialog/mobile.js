@@ -1,22 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, PopupWrapper } from 'ming-ui';
 import { Button } from 'antd-mobile';
-import sheetAjax from 'src/api/worksheet';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
+import sheetAjax from 'src/api/worksheet';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
-import RecordCard from 'src/components/recordCard';
-import { fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FROM } from 'src/components/newCustomFields/tools/config';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
+import { FROM } from 'src/components/newCustomFields/tools/config';
+import RecordCard from 'src/components/recordCard';
+import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { handlePushState, handleReplaceState } from 'src/util';
 import RegExpValidator from 'src/util/expression';
 import MobileFilter from './MobileFilter';
 import './mobile.less';
-import _ from 'lodash';
 
 export default class RecordCardListDialog extends Component {
   static propTypes = {
@@ -111,6 +112,7 @@ export default class RecordCardListDialog extends Component {
         this.loadRecorcd();
       }
     }
+    window.addEventListener('popstate', this.onQueryChange, false);
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.keyWords !== nextProps.keyWords) {
@@ -119,6 +121,14 @@ export default class RecordCardListDialog extends Component {
       });
     }
   }
+  onQueryChange = () => {
+    if (this.state.showNewRecord) {
+      const { controlId } = this.props;
+      handleReplaceState('page', `newRelateRecord-${controlId}`, () => {
+        this.setState({ showNewRecord: false });
+      });
+    }
+  };
   abortSearch() {
     if (this.searchAjax && _.isFunction(this.searchAjax.abort)) {
       this.searchAjax.abort();
@@ -354,7 +364,7 @@ export default class RecordCardListDialog extends Component {
   };
 
   handleSelect = (record, selected) => {
-    const { multiple, onOk, onClose, maxCount, selectedCount } = this.props;
+    const { multiple, onOk, onClose, maxCount, selectedCount, handleReplaceHistoryState = () => {} } = this.props;
     const { selectedRecords } = this.state;
 
     if (multiple) {
@@ -369,14 +379,16 @@ export default class RecordCardListDialog extends Component {
     } else {
       onOk([record]);
       onClose();
+      handleReplaceHistoryState();
     }
   };
 
   handleConfirm = () => {
-    const { onOk, onClose } = this.props;
+    const { onOk, onClose, handleReplaceHistoryState = () => {} } = this.props;
     const { selectedRecords, list } = this.state;
     onOk(selectedRecords);
     onClose();
+    handleReplaceHistoryState();
   };
 
   handleSort = (control, isAsc) => {
@@ -452,7 +464,15 @@ export default class RecordCardListDialog extends Component {
   }
   renderSearchWrapper() {
     const isScanQR = getIsScanQR();
-    const { relateSheetId, onOk, onClose, control, formData, parentWorksheetId } = this.props;
+    const {
+      relateSheetId,
+      onOk,
+      onClose,
+      control,
+      formData,
+      parentWorksheetId,
+      handleReplaceHistoryState = () => {},
+    } = this.props;
     const { keyWords, worksheet, worksheetInfo, filtersVisible, quickFilters } = this.state;
     const filterControls = getFilter({ control, formData });
     const { searchfilters = '[]' } = _.get(control, 'advancedSetting') || {};
@@ -462,7 +482,7 @@ export default class RecordCardListDialog extends Component {
     return (
       <div className="flexRow alignItemsCenter justifyContentCenter mTop10 pLeft10 pRight10">
         <div className="searchWrapper flex">
-          <Icon icon="h5_search" />
+          <Icon className="Gray_9e" icon="h5_search" />
           <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
             <input
               className="w100"
@@ -476,6 +496,7 @@ export default class RecordCardListDialog extends Component {
           </form>
           {keyWords ? (
             <Icon
+              className="Gray_9e"
               icon="workflow_cancel"
               onClick={() => {
                 this.handleSearch('');
@@ -492,6 +513,7 @@ export default class RecordCardListDialog extends Component {
                 onChange={data => {
                   onOk([data]);
                   onClose();
+                  handleReplaceHistoryState();
                 }}
                 onOpenRecordCardListDialog={keyWords => {
                   const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
@@ -507,7 +529,7 @@ export default class RecordCardListDialog extends Component {
                   }, 200);
                 }}
               >
-                <Icon className="Font20" icon="qr_code_19" />
+                <Icon className="Font20 Gray_9e" icon="qr_code_19" />
               </RelateScanQRCode>
             )
           )}
@@ -518,7 +540,7 @@ export default class RecordCardListDialog extends Component {
               className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10"
               onClick={() => this.setState({ filtersVisible: true })}
             >
-              <Icon className={cx({ ThemeColor: quickFilters.length })} icon="worksheet_filter" />
+              <Icon className={cx('Font20 Gray_9e', { ThemeColor: quickFilters.length })} icon="filter" />
             </div>
             <MobileFilter
               filtersVisible={filtersVisible}
@@ -557,6 +579,7 @@ export default class RecordCardListDialog extends Component {
       isCharge,
       isDraft,
       staticRecords = [],
+      handleReplaceHistoryState = () => {},
     } = this.props;
     const {
       loading,
@@ -602,6 +625,7 @@ export default class RecordCardListDialog extends Component {
             <div
               className="worksheetRecordCard allowNewRecordBtn valignWrapper flexRow"
               onClick={() => {
+                handlePushState('page', `newRelateRecord-${controlId}`);
                 this.setState({ showNewRecord: true });
               }}
             >
@@ -646,6 +670,7 @@ export default class RecordCardListDialog extends Component {
               } else {
                 onOk([row]);
                 onClose();
+                handleReplaceHistoryState();
               }
             }}
           />
@@ -702,8 +727,8 @@ export default class RecordCardListDialog extends Component {
                       {keyWords
                         ? _l('无匹配的结果')
                         : this.clickSearch
-                        ? _l('输入%0后，显示可选择的记录', this.title)
-                        : _l('暂无%0', entityName)}
+                          ? _l('输入%0后，显示可选择的记录', this.title)
+                          : _l('暂无%0', entityName)}
                     </p>
                   )}
                 </div>
@@ -714,17 +739,41 @@ export default class RecordCardListDialog extends Component {
     );
   }
   render() {
-    const { visible, onClose, multiple, disabledManualWrite } = this.props;
+    const {
+      visible,
+      onClose,
+      multiple,
+      disabledManualWrite,
+      filterRowIds,
+      onClear,
+      className,
+      handleReplaceHistoryState = () => {},
+    } = this.props;
     const { value, worksheet, selectedRecords } = this.state;
+
     return (
       <PopupWrapper
+        className={className}
         bodyClassName="heightPopupBody40"
         visible={visible}
         title={_l('关联记录')}
         confirmDisable={!selectedRecords.length}
         confirmText={selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
-        onClose={onClose}
+        onClose={() => {
+          onClose();
+          handleReplaceHistoryState();
+        }}
         onConfirm={multiple ? this.handleConfirm : null}
+        clearDisable={!multiple && !filterRowIds.length}
+        onClear={
+          !multiple
+            ? () => {
+                onClear();
+                onClose();
+                handleReplaceHistoryState();
+              }
+            : null
+        }
       >
         <div className="flexColumn mobileRecordCardListDialog">
           {!disabledManualWrite && this.renderSearchWrapper()}
