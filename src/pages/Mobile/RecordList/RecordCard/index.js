@@ -15,6 +15,7 @@ import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConf
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getControlStyles, getRecordColor, getRecordColorConfig } from 'src/pages/worksheet/util';
+import { compatibleMDJS, getToken } from 'src/util';
 import RegExpValidator from 'src/util/expression';
 import './index.less';
 
@@ -111,28 +112,43 @@ export default class RecordCard extends Component {
     if (allowdownload === '0') {
       hideFunctions.push('download');
     }
-    previewAttachments({
-      index: index || 0,
-      attachments: attachments.map(attachment => {
-        if (attachment.fileId.slice(0, 2) === 'o_') {
-          return Object.assign({}, attachment, {
-            previewAttachmentType: 'QINIU',
-            path: attachment.previewUrl,
-            name: (attachment.originalFilename || _l('图片')) + attachment.ext,
-          });
-        }
+    const attachmentsData = attachments.map(attachment => {
+      if (attachment.fileId.slice(0, 2) === 'o_') {
         return Object.assign({}, attachment, {
-          previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+          previewAttachmentType: 'QINIU',
+          path: attachment.previewUrl,
+          name: (attachment.originalFilename || _l('图片')) + attachment.ext,
         });
-      }),
-      showThumbnail: true,
-      hideFunctions,
-      disableNoPeimission: true,
-      recordId: data.rowid,
-      controlId: view.coverCid,
-      worksheetId: view.worksheetId,
-      projectId,
+      }
+      return Object.assign({}, attachment, {
+        previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+      });
     });
+    compatibleMDJS(
+      'previewImage',
+      {
+        index: index || 0,
+        files: attachmentsData.map(item => ({ ...item, fileID: item.fileId || item.fileID })),
+        filterRegex: [], // 给到生效中的文件名正则, 修改文件名时需要符合正则要求
+        checkValueByFilterRegex: () => false,
+        worksheetId: view.worksheetId,
+        rowId: data.rowid,
+        controlId: view.coverCid,
+      },
+      () => {
+        previewAttachments({
+          index: index || 0,
+          attachments: attachmentsData,
+          showThumbnail: true,
+          hideFunctions,
+          disableNoPeimission: true,
+          recordId: data.rowid,
+          controlId: view.coverCid,
+          worksheetId: view.worksheetId,
+          projectId,
+        });
+      },
+    );
   }
   handleCoverClick = e => {
     const { view, data } = this.props;
@@ -176,11 +192,16 @@ export default class RecordCard extends Component {
       });
   };
   renderCover() {
-    const { coverType, coverFillType } = getCoverStyle(this.props.view);
+    const { coverType, coverFillType, coverPosition } = getCoverStyle(this.props.view);
     const { coverError, appshowtype } = this.state;
     const { url } = this;
     return (
-      <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${appshowtype || '0'}`)}>
+      <div
+        className={cx('recordCardCover', coverTypes[coverType], `appshowtype${appshowtype || '0'}`, {
+          mLeft10: coverPosition === '1' && _.includes([2, 2], coverType),
+          mRight10: coverPosition === '0' && _.includes([2, 3], coverType),
+        })}
+      >
         {url && !coverError ? (
           coverType ? (
             <img
@@ -190,7 +211,11 @@ export default class RecordCard extends Component {
               role="presentation"
             />
           ) : (
-            <div onClick={this.handleCoverClick} className="img cover" style={{ backgroundImage: `url(${url})` }}></div>
+            <div
+              onClick={this.handleCoverClick}
+              className="img cover"
+              style={{ backgroundImage: `url(${url})`, backgroundSize: coverFillType === 1 ? 'contain' : 'cover' }}
+            ></div>
           )
         ) : (
           <div className="withoutImg img flexRow valignWrapper">

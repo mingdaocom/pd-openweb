@@ -89,9 +89,10 @@ function NewRecord(props) {
   const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
   const { offlineUpload, page } = getRequest();
 
-  const handOverNavigation = () => {
+  const handOverNavigation = isBack => {
     compatibleMDJS('handOverNavigation', { sessionId });
     setSessionId('');
+    (page === 'newRecord' || (isArray(page) && page[page.length - 1] === 'newRecord')) && isBack && history.back();
   };
 
   useEffect(() => {
@@ -133,20 +134,6 @@ function NewRecord(props) {
         // 2: 取消原生返回, H5执行返回
         // return 1/2;
         setSessionId(sessionId);
-        // const { page } = getRequest();
-        // if (page && _.isArray(page)) {
-        //   if (page[page.length - 1] !== 'newRecord') {
-        //     history.back();
-        //   } else {
-        //     onCancel();
-        //     history.back();
-        //     return 1;
-        //   }
-        // } else {
-        //   onCancel();
-        //   history.back();
-        //   return 1;
-        // }
         const { page } = getRequest();
         if (page && _.isArray(page)) {
           history.back();

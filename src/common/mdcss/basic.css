@@ -2331,7 +2331,7 @@ body > object {
 }
 
 .preWrap {
-  white-space: pre-wrap;
+  white-space: pre-wrap !important;
 }
 
 .MdLoader {

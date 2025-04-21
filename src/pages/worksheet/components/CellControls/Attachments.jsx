@@ -1,21 +1,22 @@
-import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
-import { Tooltip } from 'ming-ui';
 import cx from 'classnames';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import { deleteAttachmentOfControl } from 'worksheet/api';
-import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet/controllers/record';
-import { getClassNameByExt, formatFileSize, addBehaviorLog, browserIsMobile } from 'src/util';
-import { bool, func, number, shape, string } from 'prop-types';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils.js';
 import _ from 'lodash';
-import { FROM } from './enum';
+import { bool, func, number, shape, string } from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Tooltip } from 'ming-ui';
+import { deleteAttachmentOfControl } from 'worksheet/api';
+import { downloadAttachmentById, openControlAttachmentInNewTab } from 'worksheet/controllers/record';
+import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils.js';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { addBehaviorLog, browserIsMobile, compatibleMDJS, formatFileSize, getClassNameByExt } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+import { FROM } from './enum';
+
 const Con = styled.div`
   &:hover {
     .CutCon {
@@ -301,41 +302,54 @@ function previewAttachment({
     hideFunctions.push('download', 'share');
   }
   addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
-  previewAttachments(
+  const attachmentsData = attachments.map(attachment => {
+    if (attachment.fileID && attachment.fileID.slice(0, 2) === 'o_') {
+      return Object.assign({}, attachment, {
+        previewAttachmentType: 'QINIU',
+        path: attachment.origin.url || attachment.previewUrl,
+        ext: attachment.ext.slice(1),
+        name: attachment.originalFilename || _l('图片'),
+      });
+    }
+    return Object.assign({}, attachment, {
+      previewAttachmentType: 'COMMON_ID',
+    });
+  });
+  compatibleMDJS(
+    'previewImage',
     {
       index: index || 0,
-      fromType: 4,
-      attachments: attachments.map(attachment => {
-        if (attachment.fileID && attachment.fileID.slice(0, 2) === 'o_') {
-          return Object.assign({}, attachment, {
-            previewAttachmentType: 'QINIU',
-            path: attachment.origin.url || attachment.previewUrl,
-            ext: attachment.ext.slice(1),
-            name: attachment.originalFilename || _l('图片'),
-          });
-        }
-        return Object.assign({}, attachment, {
-          previewAttachmentType: 'COMMON_ID',
-        });
-      }),
-      showThumbnail: true,
-      hideFunctions: hideFunctions,
-      disableNoPeimission: true,
+      files: attachmentsData,
       worksheetId,
-      fileId: attachments[index].fileID,
-      recordId,
+      rowId: recordId,
       controlId,
-      from,
-      allowEdit,
-      onlyEditSelf,
-      projectId,
-      masterWorksheetId,
-      masterRecordId,
-      masterControlId,
-      sourceControlId,
     },
-    {
-      openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
+    () => {
+      previewAttachments(
+        {
+          index: index || 0,
+          fromType: 4,
+          attachments: attachmentsData,
+          showThumbnail: true,
+          hideFunctions: hideFunctions,
+          disableNoPeimission: true,
+          worksheetId,
+          fileId: attachments[index].fileID,
+          recordId,
+          controlId,
+          from,
+          allowEdit,
+          onlyEditSelf,
+          projectId,
+          masterWorksheetId,
+          masterRecordId,
+          masterControlId,
+          sourceControlId,
+        },
+        {
+          openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
+        },
+      );
     },
   );
 }

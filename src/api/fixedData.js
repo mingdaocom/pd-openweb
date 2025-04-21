@@ -24,6 +24,17 @@ export default {
      return mdyAPI('FixedData', 'LoadCityCountyById', args, options);
    },
   /**
+  * 根据id获取城市信息
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getCityByID: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('FixedData', 'GetCityByID', args, options);
+   },
+  /**
   * 加载城市
   * @param {Object} args 请求参数
   * @param {string} args.parentId 上级ID

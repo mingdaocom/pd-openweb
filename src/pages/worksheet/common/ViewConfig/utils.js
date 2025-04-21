@@ -1,8 +1,13 @@
 import _ from 'lodash';
+import { browserIsMobile } from 'src/util';
 
 export const getCoverStyle = data => {
   const coverStyle = safeParse(_.get(data, 'advancedSetting.coverstyle'));
   const style = _.isEmpty(coverStyle) ? _.get(data, 'coverType') : _.get(coverStyle, 'style');
+
+  if (browserIsMobile() && data.viewType === 6) {
+    return { coverPosition: '0', coverType: 0, coverFillType: 0 };
+  }
 
   return {
     coverPosition: _.isEmpty(coverStyle) ? _.get(data, 'advancedSetting.coverposition') : _.get(coverStyle, 'position'),

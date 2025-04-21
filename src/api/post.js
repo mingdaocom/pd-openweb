@@ -30,7 +30,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPost: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'AddPost', args, options);
    },
   /**
@@ -49,7 +49,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPostComment: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'AddPostComment', args, options);
    },
   /**
@@ -61,7 +61,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removePost: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'RemovePost', args, options);
    },
   /**
@@ -74,7 +74,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removePostComment: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'RemovePostComment', args, options);
    },
   /**
@@ -87,7 +87,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPostShareScope: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'EditPostShareScope', args, options);
    },
   /**
@@ -105,7 +105,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPost: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'EditPost', args, options);
    },
   /**
@@ -120,7 +120,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPostDetail: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetPostDetail', args, options);
    },
   /**
@@ -129,7 +129,7 @@ export default {
   * @param {} args.pPara
   * @param {string} args.firstPostDateTime 创建时间大于此时间
   * @param {string} args.lastPostDateTime 创建时间小于此时间
-  * @param {string} args.accountId 要查看的账号id
+  * @param {string} args.accountId 要查看的帐号id
   * @param {string} args.groupId 群组id
   * @param {string} args.listType 列表类型, 为 group,groups,project,ireply,fav,user,myself 中的一个
   * @param {integer} args.pageIndex 页码
@@ -140,7 +140,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPostList: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetPostList', args, options);
    },
   /**
@@ -168,7 +168,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPostListByLegacyPara: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetPostListByLegacyPara', args, options);
    },
   /**
@@ -182,7 +182,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getIRepliedList: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetIRepliedList', args, options);
    },
   /**
@@ -196,7 +196,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLinkViewInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetLinkViewInfo', args, options);
    },
   /**
@@ -208,7 +208,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMorePostComments: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetMorePostComments', args, options);
    },
   /**
@@ -221,7 +221,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getReplyMessage: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetReplyMessage', args, options);
    },
   /**
@@ -233,7 +233,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTopPosts: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetTopPosts', args, options);
    },
   /**
@@ -246,7 +246,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addTopPost: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'AddTopPost', args, options);
    },
   /**
@@ -258,7 +258,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeTopPost: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'RemoveTopPost', args, options);
    },
   /**
@@ -271,7 +271,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    like: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'Like', args, options);
    },
   /**
@@ -284,7 +284,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    favorite: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'Favorite', args, options);
    },
   /**
@@ -296,7 +296,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLikeUsers: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'GetLikeUsers', args, options);
    },
   /**
@@ -309,7 +309,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    votePost: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'VotePost', args, options);
    },
   /**
@@ -322,7 +322,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editVoteDeadline: function (args, options = {}) {
-
+     
      return mdyAPI('Post', 'EditVoteDeadline', args, options);
    },
 };

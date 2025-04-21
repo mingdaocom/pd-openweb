@@ -1,13 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import _ from 'lodash';
-import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
+import PropTypes from 'prop-types';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { browserIsMobile, compatibleMDJS } from 'src/util';
 import EditableCellCon from '../EditableCellCon';
 import { FROM } from './enum';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { browserIsMobile } from 'src/util';
 
 export default class Signature extends React.Component {
   static propTypes = {
@@ -68,17 +68,19 @@ export default class Signature extends React.Component {
       cell: { controlName },
     } = this.props;
 
-    previewAttachments({
-      index: 0,
-      attachments: [
-        {
-          name: controlName + '.png',
-          path: value,
-          previewAttachmentType: 'QINIU',
-        },
-      ],
-      showThumbnail: true,
-      hideFunctions: ['editFileName'],
+    compatibleMDJS('previewSignature', { url: value }, () => {
+      previewAttachments({
+        index: 0,
+        attachments: [
+          {
+            name: controlName + '.png',
+            path: value,
+            previewAttachmentType: 'QINIU',
+          },
+        ],
+        showThumbnail: true,
+        hideFunctions: ['editFileName'],
+      });
     });
   }
 

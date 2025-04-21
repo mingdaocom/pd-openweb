@@ -7,7 +7,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountListInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetAccountListInfo', args, options);
    },
   /**
@@ -18,7 +18,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getContactInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetContactInfo', args, options);
    },
   /**
@@ -29,7 +29,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMyContactInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetMyContactInfo', args, options);
    },
   /**
@@ -41,7 +41,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountDetail: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetAccountDetail', args, options);
    },
   /**
@@ -54,7 +54,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    delAccountDetail: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'DelAccountDetail', args, options);
    },
   /**
@@ -71,7 +71,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAccountBasicInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditAccountBasicInfo', args, options);
    },
   /**
@@ -87,7 +87,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editContactInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditContactInfo', args, options);
    },
   /**
@@ -106,7 +106,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAccountDetail: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditAccountDetail', args, options);
    },
   /**
@@ -120,7 +120,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAccountAvatar: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditAccountAvatar', args, options);
    },
   /**
@@ -131,7 +131,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetAccountInfo', args, options);
    },
   /**
@@ -145,7 +145,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendProjectBindEmail: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'SendProjectBindEmail', args, options);
    },
   /**
@@ -157,7 +157,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    emailValidate: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EmailValidate', args, options);
    },
   /**
@@ -171,7 +171,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPwd: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditPwd', args, options);
    },
   /**
@@ -185,11 +185,11 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editIntergrationAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditIntergrationAccount', args, options);
    },
   /**
-  * 发送修改账号验证码
+  * 发送修改帐号验证码
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
@@ -201,7 +201,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendChangeAccountVerifyCode: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'SendChangeAccountVerifyCode', args, options);
    },
   /**
@@ -217,7 +217,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendVerifyCode: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'SendVerifyCode', args, options);
    },
   /**
@@ -232,7 +232,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'CheckAccount', args, options);
    },
   /**
@@ -250,7 +250,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkAccountIdentity: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'CheckAccountIdentity', args, options);
    },
   /**
@@ -263,7 +263,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditAccount', args, options);
    },
   /**
@@ -276,7 +276,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    unBindAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'UnBindAccount', args, options);
    },
   /**
@@ -289,7 +289,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    exitAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'ExitAccount', args, options);
    },
   /**
@@ -303,7 +303,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectList: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetProjectList', args, options);
    },
   /**
@@ -321,7 +321,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    joinProjectByToken: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'JoinProjectByToken', args, options);
    },
   /**
@@ -339,7 +339,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    joinProjectByCode: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'JoinProjectByCode', args, options);
    },
   /**
@@ -351,7 +351,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    revokedJoinProject: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'RevokedJoinProject', args, options);
    },
   /**
@@ -364,7 +364,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkJoinProjectByTokenWithCard: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'CheckJoinProjectByTokenWithCard', args, options);
    },
   /**
@@ -377,7 +377,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refuseJoin: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'RefuseJoin', args, options);
    },
   /**
@@ -390,7 +390,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editUserCardContactPhone: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'EditUserCardContactPhone', args, options);
    },
   /**
@@ -402,7 +402,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserCard: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetUserCard', args, options);
    },
   /**
@@ -416,7 +416,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendSystemMessageToAdmin: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'SendSystemMessageToAdmin', args, options);
    },
   /**
@@ -432,7 +432,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    validateExitProject: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'ValidateExitProject', args, options);
    },
   /**
@@ -445,7 +445,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    exitProject: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'ExitProject', args, options);
    },
   /**
@@ -456,7 +456,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMyAuthList: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetMyAuthList', args, options);
    },
   /**
@@ -467,7 +467,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUntreatAuthList: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'GetUntreatAuthList', args, options);
    },
   /**
@@ -479,7 +479,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    unbindEmail: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'UnbindEmail', args, options);
    },
   /**
@@ -491,7 +491,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    unbindMobile: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'UnbindMobile', args, options);
    },
   /**
@@ -502,7 +502,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    validateLogoffAccount: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('Account', 'ValidateLogoffAccount', args, options);
    },
   /**
@@ -513,7 +513,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    applyLogOffAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'ApplyLogOffAccount', args, options);
    },
   /**
@@ -524,7 +524,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApplyLogOffAccount: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('Account', 'GetApplyLogOffAccount', args, options);
    },
   /**
@@ -535,7 +535,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    cancelLogOffAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Account', 'CancelLogOffAccount', args, options);
    },
 };

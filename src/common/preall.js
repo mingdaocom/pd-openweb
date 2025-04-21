@@ -109,6 +109,15 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
     if (window.isWeiXin) {
       navigateToLogout();
     } else {
+      if (
+        md.global.Account.isPortal &&
+        location.href.indexOf('theportal.cn') === -1 &&
+        location.href.indexOf('/portal/') === -1 &&
+        md.global.Account.appId
+      ) {
+        location.href = `${window.subPath || ''}/portal/${md.global.Account.appId}`;
+        return;
+      }
       location.href = '/dashboard';
     }
     return;
@@ -149,12 +158,20 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
 
   redirect(location.pathname);
 
-  const LOAD_MOBILE_FORM = localStorage.getItem('LOAD_MOBILE_FORM');
-  if (!LOAD_MOBILE_FORM) {
-    const isSelfHost = ['meihua.mingdao.com', 'sandbox.mingdao.com', 'localhost'].includes(location.hostname);
-    const _version = !md.global.Config.IsLocal && isSelfHost ? 'new' : 'old';
+  const projects = md.global.Account.projects || [];
+  // 是否是明道云网络
+  const IS_MD_PROJECT = projects.some(project => project.projectId === 'fe288386-3d26-4eab-b5d2-51eeab82a7f9');
+  if (IS_MD_PROJECT) {
+    safeLocalStorageSetItem('LOAD_MOBILE_FORM', 'new');
+    safeLocalStorageSetItem('PROJECT_NAME', 'md');
+  } else {
+    const LOAD_MOBILE_FORM = localStorage.getItem('LOAD_MOBILE_FORM');
+    if (!LOAD_MOBILE_FORM) {
+      const isSelfHost = ['meihua.mingdao.com', 'sandbox.mingdao.com', 'localhost'].includes(location.hostname);
+      const _version = !md.global.Config.IsLocal && isSelfHost ? 'new' : 'old';
 
-    safeLocalStorageSetItem('LOAD_MOBILE_FORM', _version);
+      safeLocalStorageSetItem('LOAD_MOBILE_FORM', _version);
+    }
   }
 };
 

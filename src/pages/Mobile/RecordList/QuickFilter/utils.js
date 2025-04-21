@@ -1,9 +1,9 @@
-import { includes, isUndefined, assign, find, get, isEmpty } from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
-import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
-import { getRequest, browserIsMobile } from 'src/util';
+import { assign, find, get, includes, isEmpty, isUndefined } from 'lodash';
 import moment from 'moment';
+import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { browserIsMobile, getRequest } from 'src/util';
 
 export const formatQuickFilter = filter => {
   return filter.map(c => {
@@ -55,7 +55,7 @@ export function getType(control) {
 export function validate(condition) {
   let dataType = getType({ type: condition.dataType });
   if (
-    includes(
+    _.includes(
       [
         WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本
         WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT, // 富文本
@@ -83,7 +83,7 @@ export function validate(condition) {
     return condition.values && condition.values.filter(_.identity).length;
   }
   if (
-    includes(
+    _.includes(
       [
         WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值
         WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额
@@ -100,17 +100,17 @@ export function validate(condition) {
       : isNumberStr(condition.value);
   }
   if (
-    includes(
+    _.includes(
       [
         WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框
       ],
       dataType,
     )
   ) {
-    return includes([FILTER_CONDITION_TYPE.NE, FILTER_CONDITION_TYPE.EQ], condition.filterType);
+    return _.includes([FILTER_CONDITION_TYPE.NE, FILTER_CONDITION_TYPE.EQ], condition.filterType);
   }
   if (
-    includes(
+    _.includes(
       [
         WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期
         WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期时间
@@ -120,12 +120,9 @@ export function validate(condition) {
     )
   ) {
     if (condition.dateRange === 18 && condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
-      return !isUndefined(condition.minValue) && !isUndefined(condition.maxValue);
+      return !!condition.minValue && !!condition.maxValue;
     } else if (condition.dateRange === 18) {
-      if (browserIsMobile()) {
-        return !!condition.value;
-      }
-      return !isUndefined(condition.value);
+      return !_.isUndefined(condition.value) && condition.value !== '';
     } else {
       return !!condition.dateRange;
     }

@@ -1,31 +1,31 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import cx from 'classnames';
-import { mdNotification } from 'ming-ui/functions';
+import { Dialog, Tooltip } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { Tooltip, Dialog } from 'ming-ui';
-import processAjax from 'src/pages/workflow/api/process';
+import { mdNotification } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
-import { copyRow } from 'worksheet/controllers/record';
+import processAjax from 'src/pages/workflow/api/process';
 import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
+import DropMotion from 'worksheet/components/Animations/DropMotion';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
+import { copyRow } from 'worksheet/controllers/record';
+import { canEditApp, canEditData, isHaveCharge } from 'worksheet/redux/actions/util';
 import { checkCellIsEmpty, handleRecordError, replaceBtnsTranslateInfo } from 'worksheet/util';
-import DropMotion from 'worksheet/components/Animations/DropMotion';
-import PrintList from './PrintList';
-import ExportList from './ExportList';
-import SubButton from './SubButton';
-import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth';
-import './BatchOperate.less';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import _ from 'lodash';
-import { canEditData, canEditApp, isHaveCharge } from 'worksheet/redux/actions/util';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { PRINT_TYPE } from 'src/pages/Print/config';
+import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth';
 import { emitter } from 'src/util';
+import ExportList from './ExportList';
+import PrintList from './PrintList';
+import SubButton from './SubButton';
+import './BatchOperate.less';
 
 const CancelTextContent = styled.div`
   display: flex;
@@ -143,7 +143,8 @@ class BatchOperate extends React.Component {
   }
 
   triggerCustomBtn(btn, isAll) {
-    const { worksheetId, viewId, selectedRows, filters, quickFilter, navGroupFilters, clearSelect } = this.props;
+    const { worksheetId, viewId, selectedRows, filters, filtersGroup, quickFilter, navGroupFilters, clearSelect } =
+      this.props;
     const { filterControls, keyWords, searchType } = filters;
     let args = { isAll };
     if (isAll) {
@@ -153,6 +154,7 @@ class BatchOperate extends React.Component {
         filterControls,
         keyWords,
         navGroupFilters,
+        filtersGroup,
       };
       args.fastFilters = (_.isArray(quickFilter) ? quickFilter : []).map(f =>
         _.pick(f, [
@@ -225,6 +227,7 @@ class BatchOperate extends React.Component {
       filters,
       quickFilter,
       navGroupFilters,
+      filtersGroup,
       allWorksheetIsSelected,
       selectedRows,
       worksheetInfo,
@@ -274,6 +277,7 @@ class BatchOperate extends React.Component {
         ]),
       );
       updateArgs.navGroupFilters = navGroupFilters;
+      updateArgs.filtersGroup = filtersGroup;
     }
     (isEditSingle ? worksheetAjax.updateWorksheetRow : worksheetAjax.updateWorksheetRows)(updateArgs).then(data => {
       callback();

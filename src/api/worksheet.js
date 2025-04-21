@@ -650,6 +650,7 @@ export default {
   * @param {array} args.filtersGroup
   * @param {boolean} args.thoroughDelete 彻底删除
   * @param {} args.deleteType
+  * @param {string} args.pushUniqueId 推送ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

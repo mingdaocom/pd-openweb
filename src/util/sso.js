@@ -145,24 +145,26 @@ export const checkLogin = () => {
   return isLoing;
 };
 
-export const getGlobalMeta = cb => {
-  ajax.post({
-    url: __api_server__.main + 'Global/GetGlobalMeta',
-    data: {},
-    async: true,
-    succees: result => {
-      const data = result.data;
-      window.config = data.config;
-      if (!window.md) {
-        window.md = { global: data['md.global'] };
-      } else {
-        window.md.global = data['md.global'];
-      }
-      if (window.md.global && !window.md.global.Account) {
-        window.md.global.Account = {};
-      }
-      cb();
-    },
+export const getGlobalMeta = () => {
+  return new Promise((resolve, reject) => {
+    ajax.post({
+      url: __api_server__.main + 'Global/GetGlobalMeta',
+      data: {},
+      async: true,
+      succees: result => {
+        const data = result.data;
+        window.config = data.config;
+        if (!window.md) {
+          window.md = { global: data['md.global'] };
+        } else {
+          window.md.global = data['md.global'];
+        }
+        if (window.md.global && !window.md.global.Account) {
+          window.md.global.Account = {};
+        }
+        resolve();
+      },
+    });
   });
 };
 

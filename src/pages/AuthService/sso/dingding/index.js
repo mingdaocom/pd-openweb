@@ -1,4 +1,4 @@
-import { ajax, login, browserIsMobile, getRequest, getCurrentTime, checkLogin, replenishRet } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, getGlobalMeta, checkLogin, replenishRet } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 
 const { code, state, i, ret, pc_slide = '' } = getRequest();
@@ -27,20 +27,22 @@ if (checkLogin()) {
     succees: result => {
       const { accountResult, sessionId } = result.data;
       if (accountResult === 1) {
-        setPssId(sessionId);
-        if (ret) {
-          location.href = `/${replenishRet(ret, pc_slide)}`;
-        } else {
-          if (i) {
-            location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+        getGlobalMeta().then(() => {
+          setPssId(sessionId);
+          if (ret) {
+            location.href = `/${replenishRet(ret, pc_slide)}`;
           } else {
             if (i) {
               location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
             } else {
-              location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
+              if (i) {
+                location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+              } else {
+                location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
+              }
             }
           }
-        }
+        });
       } else {
         alert('登录失败');
         login();

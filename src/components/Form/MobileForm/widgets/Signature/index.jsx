@@ -7,12 +7,12 @@ import styled from 'styled-components';
 import { Button, Icon } from 'ming-ui';
 import accountSettingAjax from 'src/api/accountSetting';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getToken } from 'src/util';
+import { compatibleMDJS, getToken } from 'src/util';
 import 'rc-trigger/assets/index.css';
 
 const Footer = styled.div`
   display: flex;
-  justify-content: ${props => (props.canUseLast ? 'space-between;' : 'flex-end;')}
+  justify-content: ${props => (props.canUseLast ? 'space-between;' : 'flex-end;')};
   align-items: center;
   padding: 11px 20px;
   border-top: 1px solid var(--gray-e0);
@@ -142,26 +142,21 @@ const Signature = props => {
   const preview = e => {
     e.nativeEvent.stopImmediatePropagation();
 
-    if (window.isMingDaoApp && window.MDJS && window.MDJS.previewSignature) {
-      window.MDJS.previewSignature({
-        url: value,
+    compatibleMDJS('previewSignature', { url: value }, () => {
+      previewAttachments({
+        attachments: [
+          {
+            previewType: 1,
+            ext: 'png',
+            name: 'signature.png',
+            previewAttachmentType: 'QINIU',
+            path: value,
+          },
+        ],
+        index: 0,
+        callFrom: 'player',
+        hideFunctions: location.href.indexOf('/public/') > -1 ? ['editFileName', 'download'] : ['editFileName'],
       });
-      return;
-    }
-
-    previewAttachments({
-      attachments: [
-        {
-          previewType: 1,
-          ext: 'png',
-          name: 'signature.png',
-          previewAttachmentType: 'QINIU',
-          path: value,
-        },
-      ],
-      index: 0,
-      callFrom: 'player',
-      hideFunctions: location.href.indexOf('/public/') > -1 ? ['editFileName', 'download'] : ['editFileName'],
     });
   };
 

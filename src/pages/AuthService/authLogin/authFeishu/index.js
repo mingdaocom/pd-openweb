@@ -7,6 +7,7 @@ import {
   formatOtherParam,
   addOtherParam,
   checkOriginUrl,
+  getGlobalMeta
 } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 
@@ -31,12 +32,14 @@ if (code) {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
-          setPssId(sessionId);
-          if (checkOriginUrl(url)) {
-            location.href = decodeURIComponent(url);
-          } else {
-            location.href = isMobile ? `/mobile` : `/app`;
-          }
+          getGlobalMeta().then(() => {
+            setPssId(sessionId);
+            if (checkOriginUrl(url)) {
+              location.href = decodeURIComponent(url);
+            } else {
+              location.href = isMobile ? `/mobile` : `/app`;
+            }
+          });
         }
       },
       error: login,

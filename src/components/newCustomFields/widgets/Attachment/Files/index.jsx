@@ -377,13 +377,32 @@ const Files = props => {
         fileid: item.fileID,
       };
     });
-    previewAttachments({
-      theme: `attachmentsPreview-${controlId}`,
-      attachments: res,
-      index: _.findIndex(attachments, { fileID: data.fileID }),
-      callFrom: 'chat',
-      hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
-    });
+    compatibleMDJS(
+      'previewImage',
+      {
+        index: _.findIndex(attachments, { fileID: data.fileID }),
+        files: attachments.map(item => ({
+          ...item,
+          privateDownloadUrl: item.url,
+          viewUrl: item.url,
+          downloadUrl: item.url,
+        })),
+        filterRegex: _.get(props, 'advancedSetting.filterRegex'),
+        checkValueByFilterRegex: props.checkValueByFilterRegex,
+        worksheetId: recordBaseInfo.worksheetId,
+        rowId: recordBaseInfo.recordId,
+        controlId,
+      },
+      () => {
+        previewAttachments({
+          theme: `attachmentsPreview-${controlId}`,
+          attachments: res,
+          index: _.findIndex(attachments, { fileID: data.fileID }),
+          callFrom: 'chat',
+          hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
+        });
+      },
+    );
   };
 
   const handleSortEnd = files => {

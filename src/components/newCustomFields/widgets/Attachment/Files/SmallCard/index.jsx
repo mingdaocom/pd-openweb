@@ -290,6 +290,8 @@ const NotSaveSmallCard = props => {
       ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
       : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
+  const [diffWidth, setDiffWidth] = useState(0);
+  const wrapRef = useRef(null);
 
   const handlePreview = () => {
     if (isEdit) return;
@@ -297,7 +299,21 @@ const NotSaveSmallCard = props => {
   };
 
   return (
-    <div className={cx('attachmentSmallCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}>
+    <div
+      className={cx('attachmentSmallCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}
+      ref={wrapRef}
+      onMouseEnter={() => {
+        const current = _.get(wrapRef, 'current.parentNode.parentNode');
+        if (current) {
+          const diffWidth = current.clientWidth - 300;
+          if (diffWidth < 0) {
+            setDiffWidth(diffWidth + -10);
+          } else {
+            setDiffWidth(0);
+          }
+        }
+      }}
+    >
       <div
         className="fileImageWrap fileImageWrap pointer flexRow alignItemsCenter justifyContentCenter"
         onClick={handlePreview}
@@ -321,7 +337,7 @@ const NotSaveSmallCard = props => {
         <div className="fileSize Gray_75">{fileSize}</div>
       </div>
       {!isMobile && (
-        <div className="operateBtns flexRow alignItemsCenter">
+        <div className="operateBtns flexRow alignItemsCenter" style={{ marginRight: Math.abs(diffWidth) }}>
           {!isKc && (
             <ResetNamePopup
               originalFileName={data.originalFileName}

@@ -447,9 +447,7 @@ class ChildTable extends React.Component {
       : controls
           .filter(
             c =>
-              _.find(control.showControls, scid => scid === c.controlId) &&
               c.type !== 34 &&
-              controlState(c).visible &&
               !isRelateRecordTableControl(c) &&
               !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
           )

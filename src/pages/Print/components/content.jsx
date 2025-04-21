@@ -1097,7 +1097,7 @@ export default class Con extends React.Component {
                       </span>
                     </td>
                     <td style={{ width: '33.3%', textAlign: 'center' }}>
-                      <span className="WordBreak" style={STYLE_PRINT.reqTitle}>
+                      <span className="preWrap WordBreak" style={STYLE_PRINT.reqTitle}>
                         {this.isShow(printData.formName, printData.formNameChecked && formNameSite === '0')
                           ? printData.formName
                           : ''}

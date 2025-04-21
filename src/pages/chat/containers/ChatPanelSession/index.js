@@ -1,20 +1,33 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import MessageView from '../MessageView';
-import MessageSendText from '../../components/MessageSendText';
+import styled from 'styled-components';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { mdNotification } from 'ming-ui/functions';
+import userAJAX from 'src/api/user';
+import { setCaretPosition } from 'src/util';
 import CardToolbar from '../../components/CardToolbar';
+import MessageSendText from '../../components/MessageSendText';
 import SendToolbar from '../../components/SendToolbar';
 import Textarea from '../../components/Textarea';
-import * as socket from '../../utils/socket';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils';
+import Constant from '../../utils/constant';
+import * as socket from '../../utils/socket';
 import ChatPanelHeader from '../ChatPanelHeader';
 import ChatPanelSessionInfo from '../ChatPanelSessionInfo';
-import Constant from '../../utils/constant';
-import { mdNotification } from 'ming-ui/functions';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { setCaretPosition } from 'src/util';
+import MessageView from '../MessageView';
+
+const WarnBox = styled.div`
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+`;
 
 @errorBoundary
 class ChatPanelSession extends Component {
@@ -30,8 +43,13 @@ class ChatPanelSession extends Component {
       searchText: '',
       isOpenFile: false,
       isContact: 'isContact' in session ? session.isContact : true,
+      isSecured: true,
     };
     window[`onChangeChatValue-${id}`] = this.handleChange;
+
+    if (this.state.isContact && !isGroup && !md.global.Config.IsLocal) {
+      this.checkAccountSecured();
+    }
   }
   shouldComponentUpdate(nextProps, nextState) {
     const { session } = this.props;
@@ -48,6 +66,18 @@ class ChatPanelSession extends Component {
     const value = nextProps.currentSession.value;
     value && this.focus(value);
   }
+
+  /**
+   * 获取是否是风险账号
+   */
+  checkAccountSecured() {
+    const { session } = this.props;
+
+    userAJAX.checkAccountSecured({ accountId: session.accountId }).then(isSecured => {
+      this.setState({ isSecured });
+    });
+  }
+
   focus(id) {
     if (typeof id !== 'string') return;
     $(`#ChatPanel-${id} .ChatPanel-Textarea`).find('.Textarea').focus();
@@ -130,7 +160,7 @@ class ChatPanelSession extends Component {
   handleChange = value => {
     this.updateValue(value);
     window.currentCursortPosition = value.length;
-  }
+  };
   updateValue(value) {
     const { session, isWindow } = this.props;
     const { id } = session;
@@ -343,7 +373,7 @@ class ChatPanelSession extends Component {
     }
   }
   render() {
-    const { value, infoVisible, searchText, isOpenFile } = this.state;
+    const { value, infoVisible, searchText, isOpenFile, isSecured } = this.state;
     const { session, referMessage } = this.props;
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     const isContact = this.state.isContact && !hideChat;
@@ -362,6 +392,19 @@ class ChatPanelSession extends Component {
         />
         <div className="ChatPanel-body">
           <div className="ChatPanel-sessionWrapper">
+            {!isSecured && (
+              <WarnBox>
+                <i className="Font20 icon-error1 mRight10" />
+                {_l('此用户未实名认证，谨防诈骗，谨慎沟通。')}
+                <a
+                  href={`https://d557778d685be9b5.share.mingdao.net/public/form/9877cd6f85d447fc9bc630129d523814?source=${session.accountId}`}
+                  target="_blank"
+                  className="mLeft5"
+                >
+                  {_l('举报')}
+                </a>
+              </WarnBox>
+            )}
             <MessageView session={session} />
             <div className="ChatPanel-textarea">
               <div className={cx('sessionTextarea', { disable: !isContact })}>

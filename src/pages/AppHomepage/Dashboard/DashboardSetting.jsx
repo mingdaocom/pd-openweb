@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Icon, Switch, Button, Radio, QiniuUpload, Slider, Dialog, SortableList } from 'ming-ui';
 import { Drawer, Input } from 'antd';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Icon, QiniuUpload, Radio, Slider, SortableList, Switch } from 'ming-ui';
+import projectSettingApi from 'src/api/projectSetting';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import BulletinSetting from './BulletinSetting';
-import projectSettingApi from 'src/api/projectSetting';
 import { themeColors } from './utils';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 
 const SettingDrawer = styled(Drawer)`
   .ant-drawer-header {
@@ -388,7 +388,7 @@ export default function DashboardSetting(props) {
                 <div className="mTop8">
                   <SloganInput
                     showCount={true}
-                    maxLength={20}
+                    maxLength={50}
                     defaultValue={slogan}
                     onBlur={e => updatePlatformSetting({ slogan: e.target.value.trim() })}
                   />

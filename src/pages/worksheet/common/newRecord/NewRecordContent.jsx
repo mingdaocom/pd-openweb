@@ -180,6 +180,7 @@ function NewRecordForm(props) {
         rowStatus: 21,
         setRequesting,
         onSubmitSuccess: ({ rowData, isOverLimit }) => {
+          handOverNavigation(true);
           removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
           if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
             _.get(cache, 'current.tempSaving.cancel')();
@@ -237,7 +238,6 @@ function NewRecordForm(props) {
               () => {},
             );
           }
-          handOverNavigation();
         },
         onSubmitEnd: () => {
           onSubmitEnd();
@@ -306,6 +306,7 @@ function NewRecordForm(props) {
         setRuleError: badData => handleRuleError(badData),
         setServiceError: badData => handleServiceError(badData),
         onSubmitSuccess: ({ rowData, newControls }) => {
+          handOverNavigation(true);
           if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
             if (isDraft && _.isFunction(handleAddRelation)) {
               handleAddRelation([rowData]);

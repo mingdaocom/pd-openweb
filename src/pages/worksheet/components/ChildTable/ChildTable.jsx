@@ -542,16 +542,20 @@ class ChildTable extends React.Component {
     const { treeLayerControlId } = this.settings;
     const { controls } = this.state;
     const hiddenTypes = window.isPublicWorksheet ? [48] : [];
+    const { h5showtype } = parseAdvancedSetting(control.advancedSetting);
     let columns = !controls.length
       ? [{}]
       : controls
-          .filter(
-            c =>
-              _.find(control.showControls, scid => scid === c.controlId) &&
-              c.type !== 34 &&
-              controlState(c).visible &&
-              !isRelateRecordTableControl(c) &&
-              !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
+          .filter(c =>
+            browserIsMobile() && h5showtype == '2'
+              ? c.type !== 34 &&
+                !isRelateRecordTableControl(c) &&
+                !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type)
+              : _.find(control.showControls, scid => scid === c.controlId) &&
+                c.type !== 34 &&
+                controlState(c).visible &&
+                !isRelateRecordTableControl(c) &&
+                !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
           )
           .map(c => _.assign({}, c));
     if (isTreeTableView && columns[0]) {
