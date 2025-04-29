@@ -397,7 +397,8 @@ export default class extends Component {
       },
       tooltip: {
         title: formatterTooltipTitle(xaxes),
-        formatter: ({ value, rightValue, groupName }) => {
+        formatter: (data) => {
+          const { value, rightValue, groupName } = data;
           const { name, id } = formatControlInfo(groupName);
           if (_.isNumber(value)) {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
@@ -415,9 +416,10 @@ export default class extends Component {
               value: _.isNumber(rightValue) ? style.tooltipValueType ? labelValue : rightValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
             };
           }
+          const { emptyShowType, dot } = _.find(yaxisList.concat(rightY.yaxisList), { controlId: id }) || {};
           return {
             name,
-            value: '--',
+            value: emptyShowType === 2 ? '--' : (0).toFixed(dot)
           };
         },
         domStyles: isDark ? {

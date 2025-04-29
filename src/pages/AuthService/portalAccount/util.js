@@ -1,6 +1,6 @@
-import { setPssId } from 'src/util/pssId';
-import { getRequest, browserIsMobile } from 'src/util';
 import externalPortalAjax from 'src/api/externalPortal';
+import { browserIsMobile, getRequest } from 'src/util';
+import { setPssId } from 'src/util/pssId';
 
 export const urlList = [
   'app/',
@@ -85,8 +85,9 @@ export const resetPortalUrl = () => {
   }
   const hasCustomLink = location.pathname.indexOf(`/${customLink}`) >= 0;
   if (hasCustomLink) {
-    const url = location.pathname.replace(`/${customLink}`, '');
-    location.href = url;
+    window.isWaiting = true;
+    location.href = location.href.replace(`/${customLink}`, '');
+    return;
   }
 };
 

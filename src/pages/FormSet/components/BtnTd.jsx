@@ -1,11 +1,12 @@
-import React, { useRef, useEffect } from 'react';
-import { Icon, Dialog, Tooltip, SvgIcon } from 'ming-ui';
-import MoreOption from '../components/MoreOption';
-import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
-import Trigger from 'rc-trigger';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-const confirm = Dialog.confirm;
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, SvgIcon, Tooltip } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
+import MoreOption from '../components/MoreOption';
+
+const confirm = Dialog.confirm;
 
 export default function BtnTd(props) {
   const input = useRef(null);
@@ -73,10 +74,14 @@ export default function BtnTd(props) {
       });
   };
   const renderTxt = () => {
-    const list = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
+    let listviews = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
+    const canBatchViewIds = views
+      .filter(o => o.viewType === 0 || (o.viewType === 2 && _.get(o, 'advancedSetting.hierarchyViewType') === '3'))
+      .map(o => o.viewId);
+    listviews = listviews.filter(o => canBatchViewIds.includes(o));
     const dt = safeParse(_.get(it, 'advancedSetting.detailviews'), 'array');
     const noBatch = (it.writeObject === 2 || it.writeType === 2) && it.clickType === 3; //填写且配置了关联=>不能设置成批量按钮
-    const allList = !noBatch ? [...dt, ...list] : dt;
+    const allList = !noBatch ? [...dt, ...listviews] : dt;
     const data = _.uniq(allList);
     if (data.length > 0) {
       let str = data
@@ -93,10 +98,10 @@ export default function BtnTd(props) {
   const color = !it.color
     ? '#2196f3'
     : it.color === 'transparent' && !it.icon
-    ? '#9e9e9e'
-    : it.color === 'transparent'
-    ? '#151515'
-    : it.color;
+      ? '#9e9e9e'
+      : it.color === 'transparent'
+        ? '#151515'
+        : it.color;
   return (
     <div className="printTemplatesList-tr printBtnsList-tr">
       <div className="name flex mRight20 valignWrapper overflowHidden">

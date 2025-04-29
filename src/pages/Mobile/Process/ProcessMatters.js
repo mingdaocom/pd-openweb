@@ -337,9 +337,16 @@ export default class ProcessMatters extends Component {
       .then(result => {
         if (result) {
           alert(_l('操作成功'), 1);
-          this.setState({ batchApproval: false, approveCards: [] });
-          this.getTodoList();
-          this.getTodoCount();
+          this.setState({
+            batchApproval: false,
+            approveCards: [],
+            list: [],
+            pageIndex: 1,
+            isMore: true
+          }, () => {
+            this.getTodoCount();
+            this.getTodoList();
+          });
         }
       });
   };

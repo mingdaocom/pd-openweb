@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Checkbox, Icon } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SelectNodeObject, CustomTextarea } from '../components';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Checkbox, Dropdown, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { CustomTextarea, DetailFooter, DetailHeader, SelectNodeObject } from '../components';
 
 export default class File extends Component {
   constructor(props) {
@@ -133,6 +133,7 @@ export default class File extends Component {
         />
 
         <div className="mTop20 bold">{_l('打印模板')}</div>
+        <div className="Gray_75 mTop5">{_l('仅支持选择自定义打印模板（Word 或 Excel），暂不支持使用系统模板')}</div>
         <Dropdown
           className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
           data={appList}
@@ -141,8 +142,8 @@ export default class File extends Component {
             !data.appId
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
-              ? () => <span className="errorColor">{_l('模板已删除')}</span>
-              : () => <span>{selectAppItem.text}</span>
+                ? () => <span className="errorColor">{_l('模板已删除')}</span>
+                : () => <span>{selectAppItem.text}</span>
           }
           border
           openSearch
@@ -188,7 +189,10 @@ export default class File extends Component {
         {!data.wpsConfig && <div className="mTop5 Gray_75">{_l('未配置 PDF 转换服务')}</div>}
         {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && data.pdf && (
           <div className="mTop5 Gray_75">
-            {_l('生成PDF文件是由WPS提供的第三方服务，收费标准为%0/次，转换失败的文件将不收取费用。', _.get(md, 'global.PriceConfig.PdfPrice'))}
+            {_l(
+              '生成PDF文件是由WPS提供的第三方服务，收费标准为%0/次，转换失败的文件将不收取费用。',
+              _.get(md, 'global.PriceConfig.PdfPrice'),
+            )}
           </div>
         )}
       </Fragment>

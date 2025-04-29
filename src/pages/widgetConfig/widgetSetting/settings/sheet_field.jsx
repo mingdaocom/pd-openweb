@@ -1,22 +1,24 @@
-import React, { useState, useEffect, createRef } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { LoadDiv, RadioGroup, Dialog, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
+import { find, get, isEmpty } from 'lodash';
+import { Dialog, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
+import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
+import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
+import { WHOLE_SIZE } from '../../config/Drag';
+import { SYS_CONTROLS } from '../../config/widget';
+import { useSheetInfo } from '../../hooks';
+import { DropdownOverlay, DropdownPlaceholder, SettingItem } from '../../styled';
 import {
   filterControlsFromAll,
-  getIconByType,
-  resortControlByColRow,
   filterOnlyShowField,
+  getIconByType,
   parseDataSource,
+  resortControlByColRow,
 } from '../../util';
-import { useSheetInfo } from '../../hooks';
 import { isSingleRelateSheet, updateConfig } from '../../util/setting';
-import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
-import { SettingItem, DropdownPlaceholder, DropdownOverlay } from '../../styled';
-import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
-import { isEmpty, get, find } from 'lodash';
-import { SYS_CONTROLS } from '../../config/widget';
+import { isFullLineControl } from '../../util/widgets';
 import WorksheetReference from '../components/WorksheetReference';
 
 const SHEET_FIELD_TYPES = [
@@ -239,7 +241,7 @@ export default function SheetField(props) {
                           sourceControlId: item.controlId,
                           sourceControl: item,
                           controlName: item.controlName,
-                          size: data.size,
+                          size: isFullLineControl(item) ? WHOLE_SIZE : data.size,
                         });
                         setInfo({ controlDel: false });
                       }}

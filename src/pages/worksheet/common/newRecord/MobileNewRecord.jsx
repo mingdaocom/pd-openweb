@@ -90,6 +90,9 @@ function NewRecord(props) {
   const { offlineUpload, page } = getRequest();
 
   const handOverNavigation = isBack => {
+    if (window.isMingDaoApp) {
+      return;
+    }
     compatibleMDJS('handOverNavigation', { sessionId });
     setSessionId('');
     (page === 'newRecord' || (isArray(page) && page[page.length - 1] === 'newRecord')) && isBack && history.back();

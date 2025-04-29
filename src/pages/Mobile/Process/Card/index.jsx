@@ -331,6 +331,8 @@ export default class Card extends Component {
     } = this.props;
     const { batchApprove } = item.flowNode || {};
     const disabled = !batchApprove;
+    const { projects } = md.global.Account;
+    const currentProjectId = localStorage.getItem('currentProjectId') || _.get(projects[0], 'projectId');
     return (
       <Fragment>
         <div className={cx('mobileProcessCardWrapper flexRow', { batchApproval, approveChecked })}>
@@ -362,6 +364,7 @@ export default class Card extends Component {
             visible={otherActionVisible}
             action={action}
             selectedUser={{}}
+            projectId={currentProjectId}
             instance={instance}
             instanceId={item.id}
             workId={item.workId}

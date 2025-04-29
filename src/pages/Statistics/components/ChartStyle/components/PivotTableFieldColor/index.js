@@ -147,7 +147,7 @@ export default class PivotTableFieldColor extends Component {
           placement="topLeft"
           trigger={['click']}
           overlay={(
-            <Menu>
+            <Menu className="chartMenu">
               {data.map(data => (
                 <Menu.Item
                   key={data.controlId}

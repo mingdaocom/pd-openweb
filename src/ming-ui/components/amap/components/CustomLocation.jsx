@@ -55,9 +55,10 @@ export default class CustomLocation extends Component {
     // 经纬度不同才赋值，防止name被冲掉
     if (
       nextProps.customLocation &&
-      this.state.customLocation &&
-      toFixed(nextProps.customLocation.lat, 6) !== toFixed(this.state.customLocation.lat, 6) &&
-      toFixed(nextProps.customLocation.lng, 6) !== toFixed(this.state.customLocation.lng, 6)
+      (!this.state.customLocation ||
+        (this.state.customLocation &&
+          toFixed(nextProps.customLocation.lat, 6) !== toFixed(this.state.customLocation.lat, 6) &&
+          toFixed(nextProps.customLocation.lng, 6) !== toFixed(this.state.customLocation.lng, 6)))
     ) {
       this.setState({ customLocation: nextProps.customLocation });
     }

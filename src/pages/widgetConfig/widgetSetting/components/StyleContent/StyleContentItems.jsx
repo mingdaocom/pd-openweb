@@ -257,7 +257,7 @@ const TextHeightLimit = props => {
               tempMinValue = 36;
             }
             if (maxheight && tempMinValue > Number(maxheight)) {
-              tempMinValue = max;
+              tempMinValue = maxheight;
             }
             onChange(handleAdvancedSettingChange(data, { minheight: tempMinValue.toString() }));
           }}
@@ -282,7 +282,7 @@ const TextHeightLimit = props => {
               tempMaxValue = 400;
             }
             if (minheight && tempMaxValue < Number(minheight)) {
-              tempMaxValue = min;
+              tempMaxValue = minheight;
             }
             onChange(handleAdvancedSettingChange(data, { maxheight: tempMaxValue.toString() }));
           }}

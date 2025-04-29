@@ -443,7 +443,7 @@ export default class FillWorksheet extends React.Component {
             <span className="InlineBlock ellipsis w100">{submitBtnName}</span>
           </Button>
         </div>
-        {worksheetId && footer !== 'no' && window.top === window.self && (
+        {!md.global.Config.IsLocal && worksheetId && footer !== 'no' && window.top === window.self && (
           <div className="mingdaoCon">
             {_l('由 %0 创建的表单', projectName || '')}
             {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}

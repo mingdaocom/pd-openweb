@@ -507,7 +507,7 @@ export default class MyProcess extends Component {
             }}
             customRender={() => {
               return (
-                <div data-tip={_l('查看已归档数据')} className="mRight24">
+                <div data-tip={_l('查看已归档数据')} className="mRight26">
                   <div
                     className={cx('flexRow valignWrapper mBottom3 pointer Hover_21', _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor')}
                   >

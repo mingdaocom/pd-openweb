@@ -343,7 +343,7 @@ export function init() {
     relateWorksheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
       relateWorksheetInfo.appId,
       relateWorksheetInfo.worksheetId,
-      relateWorksheetInfo.advancedSetting,
+      relateWorksheetInfo.advancedSetting || {},
     );
     dispatch({
       type: 'UPDATE_CONTROLS',

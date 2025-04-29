@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSetState } from 'react-use';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
-import { Icon, Dropdown, Menu, MenuItem, Tooltip, Dialog, Checkbox, UserHead } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import Table from 'src/pages/Role/component/Table';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import departmentController from 'src/api/department';
-import { getIcon, getColor, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import moment from 'moment';
-import { sysRoleType } from 'src/pages/Role/config.js';
-import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem, Tooltip, UserHead } from 'ming-ui';
 import AppManagement from 'src/api/appManagement.js';
+import departmentController from 'src/api/department';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
+import { getColor, getIcon, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
+import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
+import Table from 'src/pages/Role/component/Table';
+import { sysRoleType } from 'src/pages/Role/config.js';
+import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getCurrentProject, dateConvertToUserZone } from 'src/util';
+import { dateConvertToUserZone, getCurrentProject } from 'src/util';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
@@ -601,8 +601,10 @@ function User(props) {
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all', conExternal: isExternal })}>
       <div className="bar flexRow alignItemsCenter barActionCon">
         <div className="title flex flexRow alignItemsCenter">
-          <span className="Font17 Bold">{props.title}</span>
-          <span className="Gray_9e mLeft15 TxtMiddle mRight8 overflow_ellipsis breakAll" title={countTxt}>
+          <span className="Font17 Bold WordBreak overflow_ellipsis" title={props.title}>
+            {props.title}
+          </span>
+          <span className="Gray_9e mLeft15 TxtMiddle mRight8 overflow_ellipsis breakAll flex-shrink-0" title={countTxt}>
             {countTxt}
           </span>
         </div>

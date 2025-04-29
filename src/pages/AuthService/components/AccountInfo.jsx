@@ -19,6 +19,7 @@ const types = {
   1: _l('微信'),
   2: 'QQ',
   13: 'Google',
+  14: 'Microsoft'
 };
 export default function (props) {
   const [{ loading, name, avatar }, setState] = useSetState({ loading: true, name: '', avatar: '' });

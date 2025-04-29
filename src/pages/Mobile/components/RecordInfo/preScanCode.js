@@ -30,8 +30,8 @@ export const handleAPPScanCode = ({
   const scanCodeData = controls
     .filter(
       v =>
-        controlState(v).editable &&
-        controlState(v).visible &&
+        controlState(v, 2).editable &&
+        controlState(v, 2).visible &&
         ((v.type === 2 && v.advancedSetting.scantype) || _.includes([14, 29], v.type)) &&
         v.advancedSetting.getinput === '1',
     )

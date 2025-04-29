@@ -1,31 +1,31 @@
+import localForage from 'localforage';
+import _ from 'lodash';
+import moment from 'moment';
 import qs from 'query-string';
+import { v4 as uuidv4 } from 'uuid';
+import globalApi from 'src/api/global';
+import loginApi from 'src/api/login';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
-import loginApi from 'src/api/login';
-import { getDisabledControls, overridePos } from 'src/pages/publicWorksheetConfig/utils';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { getInfo } from './utils';
-import { browserIsMobile, getRequest } from 'src/util';
-import _ from 'lodash';
-import { WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
-import { canSubmitByLimitFrequency } from './utils';
-import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
-import moment from 'moment';
-import { themes } from 'src/pages/publicWorksheetConfig/enum';
-import globalApi from 'src/api/global';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { v4 as uuidv4 } from 'uuid';
-import { setPssId } from 'src/util/pssId';
-import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
-import preall from 'src/common/preall';
-import { getTranslateInfo, shareGetAppLangDetail } from 'src/util';
 import {
+  replaceAdvancedSettingTranslateInfo,
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
-  replaceAdvancedSettingTranslateInfo,
 } from 'worksheet/util';
+import preall from 'src/common/preall';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { themes } from 'src/pages/publicWorksheetConfig/enum';
+import { getDisabledControls, overridePos } from 'src/pages/publicWorksheetConfig/utils';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { browserIsMobile, getRequest } from 'src/util';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/util';
+import { setPssId } from 'src/util/pssId';
+import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
+import { WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
 import { isSheetDisplay } from '../widgetConfig/util';
-import localForage from 'localforage';
+import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
+import { getInfo } from './utils';
+import { canSubmitByLimitFrequency } from './utils';
 
 function getVisibleControls(data) {
   const disabledControlIds = getDisabledControls(
@@ -49,8 +49,8 @@ function getVisibleControls(data) {
         browserIsMobile() && isSheetDisplay(c)
           ? '1'
           : c.type === 29 && _.includes(['2', '6'], _.get(c, 'advancedSetting.showtype'))
-          ? '5'
-          : _.get(c, 'advancedSetting.showtype'),
+            ? '5'
+            : _.get(c, 'advancedSetting.showtype'),
       allowlink: c.type === 29 ? '0' : _.get(c, 'advancedSetting.allowlink'),
       allowedit: c.type === 29 ? '0' : _.get(c, 'advancedSetting.allowedit'),
     },
@@ -94,6 +94,7 @@ function clearUrl() {
   const search = urlParams.toString();
 
   const targetUrl = search ? `${location.origin}${location.pathname}?${search}` : location.origin + location.pathname;
+
   history.replaceState({ page: 'wechat_redirect' }, '', targetUrl);
   history.pushState({}, '', targetUrl);
 }
@@ -129,7 +130,7 @@ async function getStatus(data, shareId) {
   }
 
   //只允许在微信中填写
-  if (weChatSetting.onlyWxCollect && !window.isWeiXin) {
+  if (weChatSetting.onlyWxCollect && (!window.isWeiXin || window.isWxWork)) {
     return FILL_STATUS.ONLY_WECHAT_FILL;
   }
 
@@ -151,10 +152,11 @@ async function getStatus(data, shareId) {
   }
 
   // 微信打开
-  if ((window.isWeiXin && !window.isWxWork) && returnUrl) {
+  if (window.isWeiXin && !window.isWxWork && returnUrl) {
     if (weChatSetting.isCollectWxInfo || writeScope !== 1) {
       // 记录初始的 url 地址，用于微信鉴权
-      sessionStorage.setItem('entryUrl', location.href);
+      const entryUrl = sessionStorage.getItem('entryUrl');
+      !entryUrl && sessionStorage.setItem('entryUrl', location.href);
       //所有人开启收集微信信息，或平台/组织用户，走微信授权跳转
       const request = getRequest();
       if (request.code && request.state) {
@@ -497,7 +499,11 @@ export function getPublicWorksheet(params, cb = info => {}) {
       });
 
       data.name = getTranslateInfo(data.appId, null, data.worksheetId).name || data.name;
-      data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, data.worksheetId, data.advancedSetting);
+      data.advancedSetting = replaceAdvancedSettingTranslateInfo(
+        data.appId,
+        data.worksheetId,
+        data.advancedSetting || {},
+      );
       data.originalControls = replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls);
 
       data.shareAuthor && (window.shareAuthor = data.shareAuthor);

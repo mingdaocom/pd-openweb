@@ -208,7 +208,7 @@ class PortalSetting extends React.Component {
       if (!smsSignature) {
         alert(_l('短信签名不能为空'), 3);
         return false;
-      } else if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature) || smsSignature.length > 12) {
+      } else if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature) || smsSignature.length > 20) {
         alert(_l('短信签名格式不正确'), 3);
         return false;
       }

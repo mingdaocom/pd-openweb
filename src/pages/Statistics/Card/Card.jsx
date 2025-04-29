@@ -326,7 +326,10 @@ class Card extends Component {
     const isSheetView = ![reportTypes.PivotTable].includes(reportType);
     const translateInfo = getTranslateInfo(appId, null, report.id);
     const getBgColor = () => {
-      const hideNumberChartName = [reportTypes.NumberChart].includes(reportType) ? yaxisList.length === 1 && !xaxes.controlId : !showTitle
+      const hideNumberChartName = [reportTypes.NumberChart].includes(reportType) ? yaxisList.length === 1 && !xaxes.controlId : !showTitle;
+      if (this.state.loading) {
+        return {};
+      }
       if (titleStyle === 1) {
         return {
           '--title-color': hideNumberChartName ? undefined : '#fff',

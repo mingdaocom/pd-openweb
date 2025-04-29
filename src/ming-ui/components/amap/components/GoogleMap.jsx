@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, LoadDiv, Icon } from 'ming-ui';
-import { Popup } from 'antd-mobile';
-import CustomLocation from './CustomLocation';
-import '../../less/MDMap.less';
-import { getMapKey } from '../MapLoader';
-import markImg from '../img/mark_r.png';
-import OperatorIcon from './OperatorIcon';
-import styled from 'styled-components';
 import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
+import { Popup } from 'antd-mobile';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import markImg from '../img/mark_r.png';
+import { getMapKey } from '../MapLoader';
+import CustomLocation from './CustomLocation';
+import OperatorIcon from './OperatorIcon';
+import '../../less/MDMap.less';
 
 const ErrorContent = styled.div`
   display: flex;
@@ -153,23 +153,24 @@ export default function GoogleMapCom(props) {
   const handleClick = e => {
     if (e.placeId) {
       // 根据placeId获取详细地址(包含name)
-      const service = new google.maps.places.PlacesService(map);
-      service.getDetails(
-        { placeId: e.placeId, fields: ['name', 'geometry', 'formatted_address'] },
-        (result, status) => {
-          if (status === 'OK') {
-            const lat = result.geometry.location.lat();
-            const lng = result.geometry.location.lng();
-            setCustomLocation({
-              lat,
-              lng,
-              address: result.formatted_address,
-              name: result.name,
-            });
-            map && map.panTo({ lat, lng });
-          }
-        },
-      );
+      const place = new google.maps.places.Place({
+        id: e.placeId,
+        requestedLanguage: window.getCurrentLang() || 'zh-CN',
+      });
+
+      place.fetchFields({ fields: ['displayName', 'location', 'formattedAddress'] }).then(res => {
+        if (!_.isEmpty(res.place)) {
+          const lat = res.place.location.lat();
+          const lng = res.place.location.lng();
+          setCustomLocation({
+            lat,
+            lng,
+            address: res.place.formattedAddress,
+            name: res.place.displayName,
+          });
+          map && map.panTo({ lat, lng });
+        }
+      });
     } else {
       setPosition(e.latLng.lat(), e.latLng.lng());
     }

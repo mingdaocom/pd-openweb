@@ -732,7 +732,13 @@ export default class Approval extends Component {
                 disabled={data.countersignType === 2}
                 checked={data.isCallBack}
                 onClick={checked => {
-                  this.updateSource({ isCallBack: !checked, callBackType: 0, callBackMultipleLevel: -1 });
+                  this.updateSource({ isCallBack: !checked, callBackType: 0, callBackMultipleLevel: -1 }, () => {
+                    // 允许审批人退回时默认勾选退回意见
+                    if (!checked) {
+                      this.opinionRequiredChange(true, 'overruleTypeList');
+                    }
+                  });
+
                   if (data.selectNodeId && !checked) {
                     this.getCallBackNodeNames(data.selectNodeId, 0);
                   }

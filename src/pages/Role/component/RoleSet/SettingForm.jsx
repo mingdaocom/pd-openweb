@@ -1,14 +1,14 @@
-import React, { PureComponent, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React, { Fragment, PureComponent } from 'react';
 import cx from 'classnames';
-import { ScrollView, Input, Radio, Dropdown, Checkbox, LoadDiv, Tooltip, Icon, Switch } from 'ming-ui';
-import SheetTable, { changeSheetModel } from './SheetTable';
-import { PERMISSION_WAYS, TEXTS, roleDetailPropType, actionList } from 'src/pages/Role/config.js';
-import styled from 'styled-components';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Input, LoadDiv, Radio, ScrollView, Switch, Tooltip } from 'ming-ui';
+import { actionList, PERMISSION_WAYS, roleDetailPropType, TEXTS } from 'src/pages/Role/config.js';
 import { WrapFooter } from 'src/pages/Role/style.jsx';
 import Search from 'src/pages/workflow/components/Search/index.jsx';
 import BatchDialog from './batch';
+import SheetTable, { changeSheetModel } from './SheetTable';
 
 const WrapCon = styled.div`
   .optionTxt {
@@ -606,7 +606,7 @@ export default class extends PureComponent {
                   manualRef={el => {
                     this.input = el;
                   }}
-                  maxLength={20}
+                  maxLength={100}
                   onChange={value => {
                     onChange({
                       name: value,

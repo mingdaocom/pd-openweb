@@ -168,7 +168,7 @@ function CurrentWorkItems(props) {
 }
 
 function WorkflowCard(props) {
-  const { data, currentWorkflow, formWidth, appId, projectId } = props;
+  const { data, currentWorkflow, formWidth, appId, projectId, isCharge } = props;
   const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog, onReset } = props;
   const {
     currents,
@@ -293,6 +293,7 @@ function WorkflowCard(props) {
                       className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
                       projectId={projectId}
                       isBranch={isBranch}
+                      isCharge={isCharge}
                       data={data}
                       currentWorkflow={currentWorkflow}
                       {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
@@ -308,6 +309,7 @@ function WorkflowCard(props) {
           className="mTop20"
           projectId={projectId}
           isBranch={isBranch}
+          isCharge={isCharge}
           data={data}
           currentWorkflow={currentWorkflow}
           {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
@@ -768,6 +770,7 @@ export default function SheetWorkflow(props) {
                   key={data.id}
                   projectId={projectId}
                   appId={appId}
+                  isCharge={isCharge}
                   formWidth={formWidth}
                   data={data}
                   currentWorkflow={currentWorkflow}

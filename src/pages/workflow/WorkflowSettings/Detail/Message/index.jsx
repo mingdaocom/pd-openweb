@@ -516,7 +516,7 @@ export default class Message extends Component {
         <div className="bold mTop20">{_l('短信签名')}</div>
         <div className="Gray_75 mTop10">
           {_l(
-            '签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
+            '签名内容长度为2-20个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
           )}
         </div>
 
@@ -524,7 +524,7 @@ export default class Message extends Component {
           <div className="relative flexRow" style={{ width: 190 }}>
             <input
               type="text"
-              maxLength={12}
+              maxLength={20}
               placeholder={_l('请输入签名')}
               className="ThemeBorderColor3 actionControlBox flex pLeft10 pRight10 pTop0 pBottom0"
               value={sign}

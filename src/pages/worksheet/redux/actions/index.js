@@ -222,7 +222,7 @@ export function loadWorksheet(worksheetId, setRequest) {
           const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));
           infoRes.entityName = translateInfo.recordName || infoRes.entityName;
           if (infoRes.advancedSetting) {
-            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(appId, worksheetId, res.advancedSetting);
+            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(appId, worksheetId, res.advancedSetting || {});
           }
           if (infoRes.rules && infoRes.rules.length) {
             infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, res.rules);

@@ -42,6 +42,7 @@ axios.interceptors.request.use(
             [
               'Worksheet/AddWorksheetRow',
               'Worksheet/UpdateWorksheetRow',
+              'Worksheet/UpdateWorksheetRows',
               'Worksheet/DeleteWorksheetRows',
               'process/startProcessByPBC',
               'process/startProcess',
@@ -488,7 +489,11 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
 
   // 应用库
   if (window.publicAppAuthorization) {
-    if (_.get(md.global.Config, 'IsLocal') && _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2') {
+    if (
+      _.get(md.global.Config, 'IsLocal') &&
+      !/#isPrivateBuild/.test(location.hash) &&
+      _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2'
+    ) {
       serverPath = 'https://www.mingdao.com/api/';
     }
 

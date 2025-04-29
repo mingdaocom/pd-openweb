@@ -605,7 +605,7 @@ const triggerCustomActions = async props => {
         break;
       // 刷新字段值
       case ACTION_VALUE_ENUM.REFRESH_VALUE:
-        if (!recordId) return;
+        if (!recordId || !_.get(md, 'global.Account.accountId')) return;
         actionItems.forEach(async item => {
           const control = _.find(formData, f => f.controlId === item.controlId);
           if (control) {

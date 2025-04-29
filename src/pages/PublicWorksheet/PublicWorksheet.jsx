@@ -107,35 +107,32 @@ export default class PublicWorksheet extends React.Component {
   };
 
   setWxShareConfig(shareConfig, formName) {
-    weixinApi
-      .getWeiXinConfig({
-        url: location.href,
-      })
-      .then(({ data, code }) => {
-        if (code === 1) {
-          window.wx.config({
-            debug: false,
-            appId: data.appId,
-            timestamp: data.timestamp,
-            nonceStr: data.nonceStr,
-            signature: data.signature,
-            jsApiList: ['updateAppMessageShareData'],
-          });
+    const entryUrl = sessionStorage.getItem('entryUrl');
+    weixinApi.getWeiXinConfig({ url: entryUrl || location.href }).then(({ data, code }) => {
+      if (code === 1) {
+        window.wx.config({
+          debug: false,
+          appId: data.appId,
+          timestamp: data.timestamp,
+          nonceStr: data.nonceStr,
+          signature: data.signature,
+          jsApiList: ['updateAppMessageShareData'],
+        });
 
-          wx.ready(function () {
-            //需在用户可能点击分享按钮前就先调用
-            wx.updateAppMessageShareData({
-              title: shareConfig.title || `${formName} - ${_l('公开填写')}`,
-              desc: shareConfig.desc || _l('请填写内容'),
-              link: location.href,
-              imgUrl: shareConfig.icon || md.global.FileStoreConfig.pubHost + WX_ICON_LIST[0],
-              success: function () {
-                console.log('设置成功');
-              },
-            });
+        wx.ready(function () {
+          //需在用户可能点击分享按钮前就先调用
+          wx.updateAppMessageShareData({
+            title: shareConfig.title || `${formName} - ${_l('公开填写')}`,
+            desc: shareConfig.desc || _l('请填写内容'),
+            link: location.href,
+            imgUrl: shareConfig.icon || md.global.FileStoreConfig.pubHost + WX_ICON_LIST[0],
+            success: function () {
+              console.log('设置成功');
+            },
           });
-        }
-      });
+        });
+      }
+    });
   }
 
   onClosePreFillDesc = () => this.setState({ preFillDescVisible: false });

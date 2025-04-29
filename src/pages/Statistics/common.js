@@ -1565,7 +1565,7 @@ const fillTranslate = (result, pageId) => {
         translateValueMap(item.dataSource, item.controlId);
         item.controlName = getTranslateInfo(appId, null, item.dataSource).name || item.controlName;
       } else {
-        item.controlName = getTranslateInfo(appId, parentId, item.controlId).name || item.controlName;
+        item.controlName = getTranslateInfo(appId, null, item.controlId).name || item.controlName;
       }
     });
   }
@@ -1575,7 +1575,7 @@ const fillTranslate = (result, pageId) => {
         translateValueMap(item.dataSource, item.controlId);
         item.controlName = getTranslateInfo(appId, null, item.dataSource).name || item.controlName;
       } else {
-        item.controlName = getTranslateInfo(appId, parentId, item.controlId).name || item.controlName;
+        item.controlName = getTranslateInfo(appId, null, item.controlId).name || item.controlName;
       }
     });
   }

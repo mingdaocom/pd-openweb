@@ -49,7 +49,7 @@ export function getRowDetail(params, controls, options = {}) {
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
-        data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, params.worksheetId, data.advancedSetting);
+        data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, params.worksheetId, data.advancedSetting || {});
         data.formData = (
           controls ||
           replaceControlsTranslateInfo(data.appId, params.worksheetId, data.templateControls || []).concat(SYSTEM_CONTROL) ||

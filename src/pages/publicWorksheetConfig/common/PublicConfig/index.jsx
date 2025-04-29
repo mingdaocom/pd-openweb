@@ -199,6 +199,8 @@ class PublicConfig extends React.Component {
       weChatSetting,
       abilityExpand,
       extendDatas,
+      activeTab,
+      weChatBind,
     } = this.state;
 
     //开启"设置链接开启/停止时间",未设置时间
@@ -296,12 +298,12 @@ class PublicConfig extends React.Component {
     }
 
     //微信设置校验
-    if (weChatSetting.isCollectWxInfo) {
+    if (weChatSetting.isCollectWxInfo && activeTab === 2) {
       if (_.isEmpty(weChatSetting.fieldMaps) || !weChatSetting.fieldMaps[WECHAT_FIELD_KEY.OPEN_ID]) {
         alert(_l('微信OpenID不能为空'), 3);
         return false;
       }
-      if (weChatSetting.collectChannel === 2 && !this.state.weChatBind.isBind) {
+      if (weChatSetting.collectChannel === 2 && !weChatBind.isBind) {
         alert(_l('微信登录必须绑定微信服务号'), 2);
         return false;
       }

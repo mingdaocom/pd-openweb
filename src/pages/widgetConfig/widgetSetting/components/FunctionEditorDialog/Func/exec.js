@@ -164,6 +164,9 @@ function formatFunctionResult(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
     case WIDGETS_TO_API_TYPE_ENUM.MONEY:
       try {
+        if (typeof result === 'string' && /[^0-9\.\-]/.test(result || '')) {
+          result = (result || '').match(/^-?[\d\.]+/)[0];
+        }
         result = (result || '')
           .toFixed(12)
           .toString()

@@ -25,7 +25,7 @@ export const setPssId = (id, verification = false) => {
     }
 
     if (window.top !== window.self || httpOnly) {
-      safeLocalStorageSetItem('md_pss_id', id);
+      window.localStorage.setItem('md_pss_id', id);
     }
   }
 };

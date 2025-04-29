@@ -1,22 +1,22 @@
 ﻿import React, { Fragment, PureComponent } from 'react';
 import { createRoot } from 'react-dom/client';
-import styled from 'styled-components';
-import Avatar from '../baseComponent/avatar';
-import Star from '../baseComponent/star';
-import { formatInboxItem } from '../../util';
-import { getRequest } from 'src/util';
-import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import linkify from 'linkifyjs/html';
-import { navigateTo } from 'src/router/navigateTo';
-import { formatMsgDate } from 'src/pages/chat/utils';
+import styled from 'styled-components';
 import xss from 'xss';
-import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
+import { Icon, SvgIcon, Tooltip } from 'ming-ui';
 import TaskCenterController from 'src/api/taskCenter';
-import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
-import { SvgIcon, Icon, Tooltip } from 'ming-ui';
-import { MSGTYPES, MSG_DONE_TEXT } from '../../constants';
 import processAjax from 'src/pages/workflow/api/process';
 import Emotion from 'src/components/emotion/emotion';
+import { formatMsgDate } from 'src/pages/chat/utils';
+import ExecDialog from 'src/pages/workflow/components/ExecDialog';
+import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/util';
+import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
+import { MSG_DONE_TEXT, MSGTYPES } from '../../constants';
+import { formatInboxItem } from '../../util';
+import Avatar from '../baseComponent/avatar';
+import Star from '../baseComponent/star';
 
 const Dot = styled.span`
   width: 4px;
@@ -164,6 +164,13 @@ export default class SystemMessage extends PureComponent {
           const appId = (href.match(/[\w-]{36}/) || '')[0];
           addBehaviorLog('app', appId);
           return;
+        }
+
+        // map应用审核
+        if (href.indexOf('/admin/applications/') > -1) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.open(href);
         }
       });
     }

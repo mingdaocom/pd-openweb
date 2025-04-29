@@ -383,7 +383,7 @@ export function TaskRevokeAction(props) {
 export default function WorkflowAction(props) {
   const { className, isBranch, hasMore, isCharge, projectId, data, currentWorkflow } = props;
   const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog, onReset } = props;
-  const { workId, status, allowRevoke, allowUrge, flowNode, workItem } = data;
+  const { workId, status, allowRevoke, allowUrge, flowNode, workItem, createAccount } = data;
   const { type, fastApprove, btnMap = {}, callBackType } = flowNode || {};
   const allowBatch = type === 4 && fastApprove;
   const allowApproval = allowBatch && workItem;
@@ -392,7 +392,7 @@ export default function WorkflowAction(props) {
   const { backFlowNodes = [] } = currentWorkflow;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
   const urgeDisable = window[`urgeDisable-workId-${workId}`] || data.urgeDisable || false;
-  const allowReset = status === 6;
+  const allowReset = status === 6 && (isCharge || createAccount.accountId === md.global.Account.accountId);
 
   const handleSkip = () => {
     const description =
@@ -541,7 +541,7 @@ export default function WorkflowAction(props) {
   };
 
   if (!(allowApproval || workItem || allowRevoke || allowUrge || allowReset)) {
-    if (isCharge) {
+    if (isCharge && hasMore) {
       const content = (
         <WrapCon
           onClick={isMobile ? handleMobileMoreAction : () => {}}

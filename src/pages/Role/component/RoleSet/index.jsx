@@ -1,13 +1,13 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import externalPortalAjax from 'src/api/externalPortal';
-import Ajax from 'src/api/appManagement';
-import SettingForm from './SettingForm';
-import { PERMISSION_WAYS } from 'src/pages/Role/config.js';
-import { getTranslateInfo } from 'src/util';
-import styled from 'styled-components';
 import _ from 'lodash';
-import { sysRoleType, sysRoleList } from 'src/pages/Role/config.js';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import Ajax from 'src/api/appManagement';
+import externalPortalAjax from 'src/api/externalPortal';
+import { PERMISSION_WAYS } from 'src/pages/Role/config.js';
+import { sysRoleList, sysRoleType } from 'src/pages/Role/config.js';
+import { getTranslateInfo } from 'src/util';
+import SettingForm from './SettingForm';
 
 const fillTranslateInfo = (appId, roleDetail) => {
   (roleDetail.sheets || []).forEach(sheet => {
@@ -51,7 +51,7 @@ const Wrap = styled.div`
     }
 
     .nameInput {
-      width: 300px;
+      width: 400px;
     }
 
     .subCheckbox :global(.Checkbox-box) {

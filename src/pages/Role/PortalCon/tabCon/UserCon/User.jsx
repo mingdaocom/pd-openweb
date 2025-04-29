@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../../redux/actions';
-import { Icon, MenuItem, Dialog, Dropdown } from 'ming-ui';
-import Table from 'src/pages/Role/component/Table';
-import PortalBar from '../portalComponent/PortalBar';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Icon, MenuItem } from 'ming-ui';
 import appManagement from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
-import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
-import AddUserDialog from 'src/pages/Role/PortalCon/components/AddUserDialog';
-import AddUserByTelDialog from 'src/pages/Role/PortalCon/components/AddUserByTelDialog';
-import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
-import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import { pageSize, renderText, formatPortalData } from '../util';
-import _ from 'lodash';
+import Table from 'src/pages/Role/component/Table';
+import AddUserByTelDialog from 'src/pages/Role/PortalCon/components/AddUserByTelDialog';
+import AddUserDialog from 'src/pages/Role/PortalCon/components/AddUserDialog';
+import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
+import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
+import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
+import * as actions from '../../redux/actions';
+import PortalBar from '../portalComponent/PortalBar';
+import { formatPortalData, pageSize, renderText } from '../util';
 
 const Wrap = styled.div(
   ({ len }) => `
@@ -599,12 +599,14 @@ function User(props) {
   };
   return (
     <Wrap className="flex flexColumn overflowHidden" len={showControls.length}>
-      <div className="topAct">
-        <div className={cx('title flexRow alignItemsCenter', { flex: selectedIds.length > 0 })}>
-          <span className={cx('Font17 Bold pLeft20 mLeft20')}>{props.title}</span>
+      <div className="topAct justifyContentLeft">
+        <div className={cx('title flexRow alignItemsCenter flex')}>
+          <span className={cx('Font17 Bold pLeft20 mLeft20 WordBreak overflow_ellipsis mRight20')} title={props.title}>
+            {props.title}
+          </span>
         </div>
         {selectedIds.length > 0 && (
-          <div>
+          <div className="flex-shrink-0">
             <span
               className="changeRole InlineBlock Hand"
               onClick={() => {
@@ -679,73 +681,75 @@ function User(props) {
           </div>
         )}
         {selectedIds.length <= 0 && (
-          <PortalBar
-            keys={['search', 'refresh', 'columns', 'filter', 'down']}
-            onChange={data => {}}
-            down={down}
-            appId={appId}
-            comp={() => {
-              return (
-                <React.Fragment>
-                  {roleId !== 'all' && canEditApp && (
-                    <div
-                      className="toRole Hand mRight14 TxtTop Bold"
-                      onClick={() => {
-                        setQuickTag({ roleId: roleId, tab: 'roleSet' });
-                      }}
-                    >
-                      {_l('编辑角色')}
-                    </div>
-                  )}
-                  <div className="addUser InlineBlock Hand Bold">
-                    <span
-                      className="lAdd"
-                      onClick={() => {
-                        setAddUserByTelDialog(true);
-                      }}
-                    >
-                      {_l('邀请用户')}
-                    </span>
-                    |
-                    <Trigger
-                      popupVisible={popupVisible}
-                      action={['click']}
-                      onPopupVisibleChange={popupVisible => {
-                        setPopupVisible(popupVisible);
-                      }}
-                      popup={
-                        <WrapPop className="Hand InlineBlock mTop6 uploadUser">
-                          <MenuItem
-                            className=""
-                            onClick={evt => {
-                              setAddUserDialog(true);
-                              setPopupVisible(false);
-                            }}
-                          >
-                            <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
-                            <span className=""> {_l('从Excel导入数据')}</span>
-                          </MenuItem>
-                        </WrapPop>
-                      }
-                      popupAlign={{ points: ['tr', 'br'], offset: [8, 0] }}
-                    >
-                      <span
-                        className="rAdd hand"
+          <div className="InlineFlex flex-shrink-0">
+            <PortalBar
+              keys={['search', 'refresh', 'columns', 'filter', 'down']}
+              onChange={data => {}}
+              down={down}
+              appId={appId}
+              comp={() => {
+                return (
+                  <React.Fragment>
+                    {roleId !== 'all' && canEditApp && (
+                      <div
+                        className="toRole Hand mRight14 TxtTop Bold"
                         onClick={() => {
-                          setPopupVisible(!popupVisible);
+                          setQuickTag({ roleId: roleId, tab: 'roleSet' });
                         }}
                       >
-                        <Icon className="TxtMiddle mLeft6 " type="arrow-down" />
+                        {_l('编辑角色')}
+                      </div>
+                    )}
+                    <div className="addUser InlineBlock Hand Bold">
+                      <span
+                        className="lAdd"
+                        onClick={() => {
+                          setAddUserByTelDialog(true);
+                        }}
+                      >
+                        {_l('邀请用户')}
                       </span>
-                    </Trigger>
-                  </div>
-                </React.Fragment>
-              );
-            }}
-            refresh={() => {
-              getUserList();
-            }}
-          />
+                      |
+                      <Trigger
+                        popupVisible={popupVisible}
+                        action={['click']}
+                        onPopupVisibleChange={popupVisible => {
+                          setPopupVisible(popupVisible);
+                        }}
+                        popup={
+                          <WrapPop className="Hand InlineBlock mTop6 uploadUser">
+                            <MenuItem
+                              className=""
+                              onClick={evt => {
+                                setAddUserDialog(true);
+                                setPopupVisible(false);
+                              }}
+                            >
+                              <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
+                              <span className=""> {_l('从Excel导入数据')}</span>
+                            </MenuItem>
+                          </WrapPop>
+                        }
+                        popupAlign={{ points: ['tr', 'br'], offset: [8, 0] }}
+                      >
+                        <span
+                          className="rAdd hand"
+                          onClick={() => {
+                            setPopupVisible(!popupVisible);
+                          }}
+                        >
+                          <Icon className="TxtMiddle mLeft6 " type="arrow-down" />
+                        </span>
+                      </Trigger>
+                    </div>
+                  </React.Fragment>
+                );
+              }}
+              refresh={() => {
+                getUserList();
+              }}
+            />
+          </div>
         )}
       </div>
       <Table

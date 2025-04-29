@@ -21,15 +21,15 @@ export default class ProcessRecordInfo extends Component {
       errorMsg: '',
       workItem: {},
       instance: {},
-      appInfo: {}
-    }
-    this.RecordInfo = null;
+      appInfo: {},
+      RecordInfo: null,
+    };
   }
   processFooter = React.createRef();
   componentDidMount() {
     this.getWorkItem();
     import('mobile/components/RecordInfo/RecordInfo').then(component => {
-      this.RecordInfo = component.default;
+      this.setState({ RecordInfo: component.default });
     });
   }
   getWorkItem() {
@@ -122,9 +122,9 @@ export default class ProcessRecordInfo extends Component {
         controls={formData}
       />
     );
-  }
+  };
   render() {
-    const { RecordInfo } = this;
+    const { RecordInfo } = this.state;
     const { workId, instanceId, onClose } = this.props;
     const { loading, workItem, instance, error, errorMsg, appInfo } = this.state;
 

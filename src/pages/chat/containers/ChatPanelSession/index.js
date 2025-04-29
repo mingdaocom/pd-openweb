@@ -73,6 +73,9 @@ class ChatPanelSession extends Component {
   checkAccountSecured() {
     const { session } = this.props;
 
+    // 排除文件传输助手
+    if (session.accountId === 'file-transfer') return;
+
     userAJAX.checkAccountSecured({ accountId: session.accountId }).then(isSecured => {
       this.setState({ isSecured });
     });

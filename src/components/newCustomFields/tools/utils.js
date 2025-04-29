@@ -11,7 +11,7 @@ import { browserIsMobile, getStringBytes, isEmptyValue } from 'src/util';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
 
 export function validate(id = '') {
-  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id);
+  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id.toLowerCase());
 }
 
 export const convertControl = type => {

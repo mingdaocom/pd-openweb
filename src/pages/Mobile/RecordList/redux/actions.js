@@ -184,7 +184,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         workSheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
           base.appId,
           workSheetInfo.worksheetId,
-          workSheetInfo.advancedSetting,
+          workSheetInfo.advancedSetting || {},
         );
       }
       if (workSheetInfo.rules && workSheetInfo.rules.length) {

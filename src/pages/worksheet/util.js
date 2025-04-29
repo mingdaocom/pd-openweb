@@ -1725,7 +1725,7 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
   });
 };
 
-export const replaceAdvancedSettingTranslateInfo = (appId, worksheetId, advancedSetting) => {
+export const replaceAdvancedSettingTranslateInfo = (appId, worksheetId, advancedSetting = {}) => {
   const translateInfo = getTranslateInfo(appId, null, worksheetId);
   const data = {
     ...advancedSetting,

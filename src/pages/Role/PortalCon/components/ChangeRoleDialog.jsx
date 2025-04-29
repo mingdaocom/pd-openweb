@@ -1,12 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Dialog } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Dialog, Dropdown } from 'ming-ui';
+
 const ChangeRoleDialogWrap = styled.div`
   display: flex;
   & > span {
     line-height: 36px;
     margin-right: 16px;
+  }
+  .topActDrop {
+    flex-shrink: 0;
+    min-width: 0;
   }
   .Dropdown--input {
     border-radius: 3px;

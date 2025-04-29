@@ -1,21 +1,21 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, MenuItem, Checkbox, SortableList } from 'ming-ui';
-import cx from 'classnames';
-import { Tooltip } from 'antd';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import Trigger from 'rc-trigger';
-import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-import NumInput from 'src/pages/worksheet/common/ViewConfig/components/NumInput.jsx';
-import CalculationDialog from './CalculationDialog';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
-import { handleAdvancedSettingChange } from 'src/util/index.js';
-import { getDefaultOperationDatas, extractBetweenDollars } from 'src/pages/AppSettings/components/Aggregation/util.js';
-import { DEFAULT_COLORS } from '../config';
-import { getRuleAlias, getAllSourceList, isDelStatus, formatAggConfig, getSourceIndex } from '../util';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Icon, MenuItem, SortableList } from 'ming-ui';
+import { extractBetweenDollars, getDefaultOperationDatas } from 'src/pages/AppSettings/components/Aggregation/util.js';
+import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import NumInput from 'src/pages/worksheet/common/ViewConfig/components/NumInput.jsx';
 import { getTranslateInfo } from 'src/util';
+import { handleAdvancedSettingChange } from 'src/util/index.js';
+import { DEFAULT_COLORS } from '../config';
+import { formatAggConfig, getAllSourceList, getRuleAlias, getSourceIndex, isDelStatus } from '../util';
+import CalculationDialog from './CalculationDialog';
 import { WrapS } from './style';
 
 const WrapItem = styled.div`
@@ -220,7 +220,7 @@ export default function AggregationCon(props) {
   const { list, onChange, updateErr, sourceInfos } = props;
 
   const Item = props => {
-    const { item, onUpdate, items, sourceTables, flowData, DragHandle } = props;
+    const { item = {}, onUpdate, items, sourceTables, flowData, DragHandle } = props;
     const { num } = item;
     const [{ showChangeName, showCalculation, popupVisible }, setState] = useSetState({
       showChangeName: false,
@@ -242,7 +242,7 @@ export default function AggregationCon(props) {
     }
     isDelete && updateErr();
 
-    const getInfo = (props.sourceTables || []).find(o => item.oid.indexOf(o.workSheetId) >= 0) || {};
+    const getInfo = (props.sourceTables || []).find(o => (item.oid || '').indexOf(o.workSheetId) >= 0) || {};
 
     return (
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
@@ -291,8 +291,8 @@ export default function AggregationCon(props) {
                     item.oid.indexOf('rowscount') >= 0
                       ? _l('记录数量')
                       : !_.get(item, 'controlSetting')
-                      ? _.get(item, 'alias')
-                      : _.get(item, 'controlSetting.controlName') || _l('未命名')
+                        ? _.get(item, 'alias')
+                        : _.get(item, 'controlSetting.controlName') || _l('未命名')
                   }`}
                 </span>
               }

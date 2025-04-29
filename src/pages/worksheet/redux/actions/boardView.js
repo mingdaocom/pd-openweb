@@ -8,6 +8,7 @@ import { uniqBy } from 'lodash/array';
 import worksheetAjax from 'src/api/worksheet';
 import { wrapAjax } from './util';
 import { updateNavGroup } from './navFilter.js';
+import { getTranslateInfo } from 'src/util';
 
 let boardPromiseObj;
 let boardPromiseViewIds = [];
@@ -148,8 +149,14 @@ function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
         loading: false,
       });
     }
+    const translateInfo = getTranslateInfo(para.appId, para.worksheetId, view.viewControl);
     const formatData = sortDataByCustomItems(data, view, controls);
-    dispatch(changeBoardViewData(formatData));
+    dispatch(changeBoardViewData(formatData.map(data => {
+      return {
+        ...data,
+        name: translateInfo[data.key] || data.name
+      }
+    })));
     dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
 
     dispatch({

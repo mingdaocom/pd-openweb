@@ -131,7 +131,7 @@ export default function TextMessage(props) {
           {_l('签名')}
           <Tooltip
             title={_l(
-              '签名规范：签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
+              '签名规范：签名内容长度为2-20个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
             )}
           >
             <i className="icon-workflow_help mLeft5 Gray_9e"></i>
@@ -146,7 +146,7 @@ export default function TextMessage(props) {
             type="text"
             className="sign"
             placeholder={_l('请输入签名')}
-            maxLength={12}
+            maxLength={20}
             value={sign}
             disabled={!isCertified}
             onBlur={evt => {

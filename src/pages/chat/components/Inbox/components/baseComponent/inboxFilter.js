@@ -1,15 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { DatePicker } from 'antd';
+import { Icon, MdAntDateRangePicker } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
 import 'moment/locale/zh-cn';
-import locale from 'antd/es/date-picker/locale/zh_CN';
 import _ from 'lodash';
 import moment from 'moment';
-
-const { RangePicker } = DatePicker;
 
 const customDate = 8;
 
@@ -235,10 +230,9 @@ export default class InboxFilter extends React.Component {
               ))}
             </div>
             {timeLevel === customDate && (
-              <RangePicker
+              <MdAntDateRangePicker
                 allowClear={false}
                 suffixIcon={null}
-                locale={locale}
                 format="YYYY-MM-DD"
                 onChange={data => {
                   const [start, end] = data;
