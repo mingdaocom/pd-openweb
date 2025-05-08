@@ -466,7 +466,7 @@ function NewRecordForm(props) {
   }
 
   const handleAPPScanCodeFunc = newFormdata => {
-    newFormdata = formdata && !_.isEmpty(formdata) ? formdata : newFormdata;
+    newFormdata = newFormdata && !_.isEmpty(newFormdata) ? newFormdata : formdata;
     const controls = newFormdata.map(item => {
       if (_.get(item, 'advancedSetting.defsource')) {
         return { ...item, value: getDynamicValue(newFormdata, item) };

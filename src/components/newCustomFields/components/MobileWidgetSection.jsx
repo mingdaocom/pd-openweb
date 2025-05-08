@@ -126,8 +126,12 @@ export default function MobileWidgetSection(props) {
   const hideTab = _.get(widgetStyle, 'hidetab') === '1' && tabControls.length === 1 && _.isEmpty(otherTabs);
 
   useEffect(() => {
+    changeMobileTab(tabControls[0]);
+  }, []);
+
+  useEffect(() => {
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
-    changeMobileTab(_.get(tabControls[0], 'controlId'));
+    changeMobileTab(tabControls[0]);
   }, [flag]);
 
   useEffect(() => {

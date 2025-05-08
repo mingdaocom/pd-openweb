@@ -1,11 +1,11 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
-import cx from 'classnames';
-import _, { get } from 'lodash';
-import { ScrollView, Skeleton } from 'ming-ui';
-import PropTypes from 'prop-types';
 import DocumentTitle from 'react-document-title';
 import { useMeasure } from 'react-use';
+import cx from 'classnames';
+import _, { get } from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { ScrollView, Skeleton } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { emitter } from 'worksheet/util';
@@ -630,7 +630,7 @@ function RecordForm(props) {
             resultCode={recordinfo.resultCode}
             entityName={recordinfo.entityName}
             empty={!!formdata.length}
-            renderAbnormal={renderAbnormal && (() => renderAbnormal(recordinfo))}
+            renderAbnormal={renderAbnormal && recordinfo.resultCode === 7 && (() => renderAbnormal(recordinfo))}
           />
         )}
       </div>

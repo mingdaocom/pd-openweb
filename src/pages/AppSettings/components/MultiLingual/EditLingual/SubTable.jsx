@@ -25,7 +25,7 @@ export default function SubTable(props) {
     return null;
   }
 
-  const controls = (sheetInfo.template.controls || []).filter(c => !ALL_SYS.includes(c.controlId));
+  const controls = (_.get(sheetInfo, 'template.controls') || []).filter(c => !ALL_SYS.includes(c.controlId));
 
   const renderSubTableDialog = () => {
     const handlePositionControl = c => {

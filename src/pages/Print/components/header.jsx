@@ -1,12 +1,12 @@
 import React from 'react';
-import './header.less';
-import { Icon, LoadDiv } from 'ming-ui';
-import { fromType, typeForCon } from '../config';
 import cx from 'classnames';
-import _ from 'lodash';
-import html2canvas from 'html2canvas';
-import { addBehaviorLog } from 'src/util';
 import { saveAs } from 'file-saver';
+import html2canvas from 'html2canvas';
+import _ from 'lodash';
+import { Icon, LoadDiv } from 'ming-ui';
+import { addBehaviorLog } from 'src/util';
+import { fromType, typeForCon } from '../config';
+import './header.less';
 
 class Header extends React.Component {
   constructor(props) {
@@ -80,7 +80,7 @@ class Header extends React.Component {
     });
 
     Promise.all(promiseList).then(res => {
-      let content = contentNode.innerHTML.replaceAll('figure', 'p');
+      let content = (contentNode.innerHTML || '').replace(/figure/g, 'p');
       let noPrint = document.querySelector('#printContent .noPrint');
 
       const str = `<!DOCTYPE html>

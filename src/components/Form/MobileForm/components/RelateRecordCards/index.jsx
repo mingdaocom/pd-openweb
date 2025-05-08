@@ -302,6 +302,9 @@ class RelateRecordCards extends Component {
     const { recordId, controlId } = _.get(this.props, 'control') || {};
     if (showMobileSelectRecord) {
       const ele = document.querySelector(`.mobileSelectRecordWrap-${controlId}`);
+      if (!ele) {
+        return;
+      }
       handleReplaceState('page', `mobileSelectRecord-${controlId}`, () => {
         this.setState({ showMobileSelectRecord: false });
         ele && document.body.removeChild(ele);
@@ -600,7 +603,7 @@ class RelateRecordCards extends Component {
       ...(!isCard && !showCoverAndControls ? { showControls: [], control: { ...control, showControls: [] } } : {}),
     };
     this.setState({ showMobileSelectRecord: true });
-    handlePushState('page', `mobileSelectRecord-${controlId}`);
+    window.isMingDaoApp && handlePushState('page', `mobileSelectRecord-${controlId}`);
     mobileSelectRecord(Object.assign(selectOptions, options));
   }
 

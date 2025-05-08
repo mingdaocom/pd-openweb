@@ -373,6 +373,9 @@ class RelateRecordCards extends Component {
     const { recordId, controlId } = _.get(this.props, 'control') || {};
     if (showMobileSelectRecord && browserIsMobile()) {
       const ele = document.querySelector(`.mobileSelectRecordWrap-${controlId}`);
+      if (!ele) {
+        return;
+      }
       handleReplaceState('page', `mobileSelectRecord-${controlId}`, () => {
         ele && document.body.removeChild(ele);
       });
@@ -665,7 +668,7 @@ class RelateRecordCards extends Component {
     };
     if (browserIsMobile()) {
       this.setState({ showMobileSelectRecord: true });
-      handlePushState('page', `mobileSelectRecord-${controlId}`);
+      window.isMingDaoApp && handlePushState('page', `mobileSelectRecord-${controlId}`);
       mobileSelectRecord(Object.assign(selectOptions, options));
       return;
     }

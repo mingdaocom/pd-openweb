@@ -847,7 +847,7 @@ export default class RecordInfo extends Component {
     }
 
     if (abnormal) {
-      if (renderAbnormal) {
+      if (renderAbnormal && recordInfo.resultCode === 7) {
         return renderAbnormal(recordInfo);
       } else {
         const { resultCode, entityName } = recordInfo;

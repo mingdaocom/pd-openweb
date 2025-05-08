@@ -351,7 +351,7 @@ export default class MessageToolbar extends Component {
             this.renderBtn({
               className: isFileTransfer ? 'deleteBtn' : '',
               name: isFileTransfer ? _l('删除') : _l('撤回'),
-              icon: isFileTransfer ? 'icon-delete2' : 'icon-redo',
+              icon: isFileTransfer ? 'icon-delete2' : 'icon-back',
               fn: this.handleWithdraw.bind(this),
             })}
         </div>

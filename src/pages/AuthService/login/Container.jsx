@@ -28,11 +28,13 @@ export default function (props) {
     linkInvite,
     loading,
     title,
-    onChange = () => { },
+    onChange = () => {},
     projectNameLang,
     companyName,
     loginDisabled,
     isCheck,
+    openLDAP,
+    isOpenSystemLogin,
   } = props;
   const showProjectName = isNetwork && !_.get(md, 'global.SysSettings.hideBrandName');
 
@@ -179,47 +181,51 @@ export default function (props) {
         const { unionId, state, tpType } = getRequest();
         return (
           <React.Fragment>
+            {loginDisabled && <div className="loadingLine"></div>}
             <div className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop32' : 'mTop40'}`}>
               <div className="title WordBreak hTitle" style={{ WebkitBoxOrient: 'vertical' }}>
                 {/* 1:手机号邮箱 2:用户名登录 其他:不使用账户登录方式 */}
-                {modeType === 2 ? ldapName || _l('LDAP登录') : _l('登录%14002')}
+                {modeType === 2 && openLDAP ? ldapName || _l('LDAP登录') : _l('登录%14002')}
               </div>
             </div>
-            {unionId && state && tpType && <AccountInfo />}
-            {modeType && (
-              <FormContainer
-                {...props}
-                key={`formContainer_${modeType}`}
-                keys={
-                  modeType === 2
-                    ? ['fullName', 'password']
-                    : verifyType === 'verifyCode'
-                      ? [getAccountTypes(true)]
-                      : [getAccountTypes(true), 'password']
-                }
-              />
-            )}
-            {loginDisabled && <div className="loadingLine"></div>}
-            <div className="mTop24 clearfix Font14">
-              <div
-                className="cbRememberPasswordDiv Gray Font14 Left Hand flexRow alignItemsCenter"
-                onClick={() => onChange({ isCheck: !isCheck })}
-              >
-                <Checkbox checked={isCheck} className="InlineBlock" />
-                {_l('下次自动登录')}
-              </div>
-              {modeType !== 2 && verifyType === 'password' && (
-                <div className="Right">
-                  <a target="_blank" className="findPassword" onClick={() => navigateTo('/findPassword')}>
-                    {_l('忘记密码？')}
-                  </a>
+            {(openLDAP || isOpenSystemLogin) && (
+              <React.Fragment>
+                {unionId && state && tpType && <AccountInfo />}
+                {modeType && (
+                  <FormContainer
+                    {...props}
+                    key={`formContainer_${modeType}`}
+                    keys={
+                      modeType === 2
+                        ? ['fullName', 'password']
+                        : verifyType === 'verifyCode'
+                          ? [getAccountTypes(true)]
+                          : [getAccountTypes(true), 'password']
+                    }
+                  />
+                )}
+                <div className="mTop24 clearfix Font14">
+                  <div
+                    className="cbRememberPasswordDiv Gray Font14 Left Hand flexRow alignItemsCenter"
+                    onClick={() => onChange({ isCheck: !isCheck })}
+                  >
+                    <Checkbox checked={isCheck} className="InlineBlock" />
+                    {_l('下次自动登录')}
+                  </div>
+                  {modeType !== 2 && verifyType === 'password' && (
+                    <div className="Right">
+                      <a target="_blank" className="findPassword" onClick={() => navigateTo('/findPassword')}>
+                        {_l('忘记密码？')}
+                      </a>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <span className="btnForLogin Hand" onClick={() => onLogin(verifyType === 'verifyCode')}>
-              {verifyType !== 'verifyCode' ? _l('登 录') : _l('继 续')}
-              {loginDisabled ? '...' : ''}
-            </span>
+                <span className="btnForLogin Hand" onClick={() => onLogin(verifyType === 'verifyCode')}>
+                  {verifyType !== 'verifyCode' ? _l('登 录') : _l('继 续')}
+                  {loginDisabled ? '...' : ''}
+                </span>
+              </React.Fragment>
+            )}
             <BtnList {...props} />
             {window.isMiniProgram && (
               <div className="flexRow alignItemsCenter justifyContentCenter mTop25 Gray_75">

@@ -278,6 +278,7 @@ export default class RelateRecordDropdown extends React.Component {
     this.setState(
       {
         selected: [],
+        deletedIds: selected.map(r => r.rowid),
         listvisible: false,
       },
       () => {

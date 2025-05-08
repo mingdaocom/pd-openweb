@@ -108,7 +108,7 @@ export default class PublicWorksheet extends React.Component {
 
   setWxShareConfig(shareConfig, formName) {
     const entryUrl = sessionStorage.getItem('entryUrl');
-    weixinApi.getWeiXinConfig({ url: entryUrl || location.href }).then(({ data, code }) => {
+    weixinApi.getWeiXinConfig({ url: encodeURI(entryUrl || location.href) }).then(({ data, code }) => {
       if (code === 1) {
         window.wx.config({
           debug: false,

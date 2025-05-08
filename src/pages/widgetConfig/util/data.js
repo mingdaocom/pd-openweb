@@ -1075,7 +1075,8 @@ export const dealCopyWidgetId = (data = {}) => {
 
     let newWidget = JSON.stringify({ ...newData, dataSource: uuidv4(), relationControls });
     Object.keys(ids).forEach(id => {
-      newWidget = newWidget.replaceAll(id, ids[id]);
+      const reg = new RegExp(id, 'g');
+      newWidget = newWidget.replace(reg, ids[id]);
     });
     newWidget = safeParse(newWidget);
     window.subListSheetConfig[newData.controlId] = {

@@ -1,9 +1,10 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
-import ViewErrorPage from '../components/ViewErrorPage';
 import _ from 'lodash';
+import * as actions from 'mobile/RecordList/redux/actions';
+import 'src/pages/worksheet/views/HierarchyView/index.less';
+import ViewErrorPage from '../components/ViewErrorPage';
 
 class MobileHierarchyView extends Component {
   constructor(props) {
@@ -44,7 +45,7 @@ class MobileHierarchyView extends Component {
     }
 
     if (!Component) return null;
-    
+
     return <Component {...this.props} />;
   }
 }

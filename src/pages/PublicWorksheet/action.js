@@ -155,8 +155,7 @@ async function getStatus(data, shareId) {
   if (window.isWeiXin && !window.isWxWork && returnUrl) {
     if (weChatSetting.isCollectWxInfo || writeScope !== 1) {
       // 记录初始的 url 地址，用于微信鉴权
-      const entryUrl = sessionStorage.getItem('entryUrl');
-      !entryUrl && sessionStorage.setItem('entryUrl', location.href);
+      sessionStorage.setItem('entryUrl', location.href);
       //所有人开启收集微信信息，或平台/组织用户，走微信授权跳转
       const request = getRequest();
       if (request.code && request.state) {

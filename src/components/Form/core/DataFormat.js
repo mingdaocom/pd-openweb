@@ -1662,7 +1662,7 @@ export default class DataFormat {
                 // 关联记录空值不赋值，防止死循环
                 if (_.isEmpty(newValue) && (currentControl.value || '').startsWith('deleteRowIds')) return;
                 if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
-                  updateData(JSON.stringify(newValue));
+                  updateData('');
                   return;
                 }
                 if (_.isEmpty(newValue) && _.includes([29], controlType)) {

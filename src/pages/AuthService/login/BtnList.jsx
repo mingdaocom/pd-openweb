@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Icon } from 'ming-ui';
-import { getWorkWeiXinCorpInfoByApp } from './util';
 import { getRequest } from 'src/util';
+import { getWorkWeiXinCorpInfoByApp } from './util';
 import googleIcon from './img/google.svg';
 
 const integrationInto = {
@@ -110,7 +110,7 @@ export default function (props) {
   return (
     <React.Fragment>
       {/* 手机号邮箱时 可切换验证方式 */}
-      {modeType === 1 &&
+      {modeType === 1 && isOpenSystemLogin &&
         (!md.global.Config.IsLocal ||
           (md.global.Config.IsLocal && md.global.SysSettings.enableVerificationCodeLogin)) && (
           <div
@@ -129,9 +129,11 @@ export default function (props) {
       {!hideOther && (
         <div className="tpLogin">
           {/* 开启了ldap或系统登录,并且存在其他登录方式 */}
-          {modeType && (canChangeSysOrLDAP || intergrationScanEnabled || isOpenSso || isCanWeixin || isCanQQ) && (
-            <div className="title Font14">{_l('或通过以下方式')}</div>
-          )}
+          {(openLDAP || isOpenSystemLogin) &&
+            modeType &&
+            (canChangeSysOrLDAP || intergrationScanEnabled || isOpenSso || isCanWeixin || isCanQQ) && (
+              <div className="title Font14">{_l('或通过以下方式')}</div>
+            )}
           {canChangeSysOrLDAP && renderSysOrLDAPBtn(modeType === 1 && ldapIcon)}
           {isOpenSso && renderSsoBtn()}
           {intergrationScanEnabled && renderIntegrationBtn()}

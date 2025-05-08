@@ -150,8 +150,12 @@ function MobileWidgetSection(props) {
     _.find(allTabs, i => i.controlId === activeTabControlId) || _.get(tabControls[0], 'controlId') || {};
 
   useEffect(() => {
+    changeMobileTab(tabControls[0]);
+  }, []);
+
+  useEffect(() => {
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
-    changeMobileTab(_.get(tabControls[0], 'controlId'));
+    changeMobileTab(tabControls[0]);
   }, [flag]);
 
   useEffect(() => {

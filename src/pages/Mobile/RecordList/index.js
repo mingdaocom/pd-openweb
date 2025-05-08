@@ -286,7 +286,9 @@ class RecordList extends Component {
                           defaultFormDataEditable: true,
                         }
                       : {};
-                  handlePushState('page', 'newRecord');
+                  if (window.isMingDaoApp) {
+                    handlePushState('page', 'newRecord');
+                  }
                   openAddRecord({
                     ...param,
                     className: 'full',

@@ -379,7 +379,7 @@ export default class RecordCardListDialog extends Component {
     } else {
       onOk([record]);
       onClose();
-      handleReplaceHistoryState();
+      window.isMingDaoApp && handleReplaceHistoryState();
     }
   };
 
@@ -388,7 +388,7 @@ export default class RecordCardListDialog extends Component {
     const { selectedRecords, list } = this.state;
     onOk(selectedRecords);
     onClose();
-    handleReplaceHistoryState();
+    window.isMingDaoApp && handleReplaceHistoryState();
   };
 
   handleSort = (control, isAsc) => {
@@ -513,7 +513,7 @@ export default class RecordCardListDialog extends Component {
                 onChange={data => {
                   onOk([data]);
                   onClose();
-                  handleReplaceHistoryState();
+                  window.isMingDaoApp && handleReplaceHistoryState();
                 }}
                 onOpenRecordCardListDialog={keyWords => {
                   const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
@@ -670,7 +670,7 @@ export default class RecordCardListDialog extends Component {
               } else {
                 onOk([row]);
                 onClose();
-                handleReplaceHistoryState();
+                window.isMingDaoApp && handleReplaceHistoryState();
               }
             }}
           />
@@ -761,7 +761,7 @@ export default class RecordCardListDialog extends Component {
         confirmText={selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
         onClose={() => {
           onClose();
-          handleReplaceHistoryState();
+          window.isMingDaoApp && handleReplaceHistoryState();
         }}
         onConfirm={multiple ? this.handleConfirm : null}
         clearDisable={!multiple && !filterRowIds.length}
@@ -770,7 +770,7 @@ export default class RecordCardListDialog extends Component {
             ? () => {
                 onClear();
                 onClose();
-                handleReplaceHistoryState();
+                window.isMingDaoApp && handleReplaceHistoryState();
               }
             : null
         }

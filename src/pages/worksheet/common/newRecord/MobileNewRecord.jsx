@@ -85,12 +85,12 @@ function NewRecord(props) {
     !window.isPublicApp &&
     !isDraft &&
     (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1') &&
-    showDraftsEntry;
+    (showDraftsEntry || location.pathname.includes('addRecord'));
   const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
   const { offlineUpload, page } = getRequest();
 
   const handOverNavigation = isBack => {
-    if (window.isMingDaoApp) {
+    if (!window.isMingDaoApp) {
       return;
     }
     compatibleMDJS('handOverNavigation', { sessionId });

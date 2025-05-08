@@ -182,7 +182,7 @@ export const registerAction = ({ res = {}, info = {}, onChange = () => { }, call
           onChange({ createAccountLoading: false });
           if (data.actionResult == ActionResult.success) {
             setPssId(data.sessionId);
-            registerSuc(accountInfo);
+            registerSuc(info);
           } else {
             registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
           }

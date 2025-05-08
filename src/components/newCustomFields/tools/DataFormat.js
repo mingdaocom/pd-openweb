@@ -1660,7 +1660,7 @@ export default class DataFormat {
                   };
                 });
                 if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
-                  updateData(JSON.stringify(newValue));
+                  updateData('');
                   return;
                 }
                 if (_.isEmpty(newValue) && _.includes([29], controlType)) {

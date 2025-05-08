@@ -554,7 +554,7 @@ class ChildTable extends React.Component {
       },
       onAsyncChange: (changes, dataFormat) => {
         flushSync(() => {
-          if (rowId && row.needShowLoading) {
+          if (rowId && row && row.needShowLoading) {
             this.setState(prev => {
               const newRowsLoadingStatus = {
                 ...prev.rowsLoadingStatus,

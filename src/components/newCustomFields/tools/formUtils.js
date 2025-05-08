@@ -1,38 +1,38 @@
-import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
-import { calcDate, filterEmptyChildTableRows } from 'src/pages/worksheet/util';
 import { Parser } from 'hot-formula-parser';
-import { FORM_ERROR_TYPE, TIME_UNIT, FORM_ERROR_TYPE_TEXT, FROM } from './config';
-import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
-import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
-import {
-  toFixed,
-  dateConvertToServerZone,
-  getContactInfo,
-  accMul,
-  formatStrZero,
-  accDiv,
-  dateConvertToUserZone,
-  isEmptyValue,
-} from 'src/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 import moment from 'moment';
-import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
+import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { checkCellIsEmpty, isRelateRecordTableControl } from 'worksheet/util';
+import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import {
-  CONTROL_FILTER_WHITELIST,
-  FILTER_CONDITION_TYPE,
   API_ENUM_TO_TYPE,
+  CONTROL_FILTER_WHITELIST,
   DATE_OPTIONS,
   DATE_RANGE_TYPE,
+  FILTER_CONDITION_TYPE,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { getTypeKey, redefineComplexControl, getConditionType } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
-import _ from 'lodash';
+import { getConditionType, getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
+import { calcDate, filterEmptyChildTableRows } from 'src/pages/worksheet/util';
+import {
+  accDiv,
+  accMul,
+  dateConvertToServerZone,
+  dateConvertToUserZone,
+  formatStrZero,
+  getContactInfo,
+  isEmptyValue,
+  toFixed,
+} from 'src/util';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, TIME_UNIT } from './config';
 
 export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
   const filterRegex = safeParse(_.get(data, 'advancedSetting.filterregex') || '[]');
@@ -214,8 +214,8 @@ export const getCurrentValue = (item, data, control) => {
           return _.isEmpty(locationData)
             ? ''
             : locationData.title || locationData.address
-            ? [locationData.title, locationData.address].filter(o => o).join(' ')
-            : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
+              ? [locationData.title, locationData.address].filter(o => o).join(' ')
+              : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
         case 46:
           return data ? moment(data, 'HH:mm:ss').format(item.unit === '6' ? 'HH:mm:ss' : 'HH:mm') : '';
         default:
@@ -407,8 +407,8 @@ const parseStaticValue = (item, staticValue) => {
       (isCascaderAllPath
         ? safeParse(_.get(safeParse(staticValue), 'path') || '[]').join(' / ')
         : titleControl
-        ? renderCellText({ ...titleControl, value: safeParse(staticValue)[titleControl.controlId] }) || _l('未命名')
-        : undefined);
+          ? renderCellText({ ...titleControl, value: safeParse(staticValue)[titleControl.controlId] }) || _l('未命名')
+          : undefined);
     return JSON.stringify([
       {
         sourcevalue: staticValue,
@@ -1052,14 +1052,24 @@ const getControlValue = (data, currentItem, controlId, objValue) => {
   return _.isUndefined(value) ? '' : value;
 };
 
+function checkChildTableIsEmpty(control = {}) {
+  const store = control.store;
+  const state = store && store.getState();
+  if (state && state.rows && !state.baseLoading) {
+    return filterEmptyChildTableRows(state.rows).length <= 0;
+  } else {
+    return control.value === '0' || !control.value;
+  }
+}
+
 // 检测必填
 export const checkRequired = item => {
   let errorType = '';
 
   if (
     item.required &&
-    ((!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value))) ||
-      (_.isString(item.value) && !item.value.trim()) ||
+    ((item.type !== 34 && (!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value)))) ||
+      (item.type !== 34 && _.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
       (item.type === 14 &&
         ((_.isArray(safeParse(item.value)) && !safeParse(item.value).length) ||
@@ -1073,8 +1083,7 @@ export const checkRequired = item => {
       (item.type === 29 &&
         typeof item.value === 'string' &&
         (item.value.startsWith('deleteRowIds') || item.value === '0')) ||
-      (item.type === 34 &&
-        ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
+      (item.type === 34 && checkChildTableIsEmpty(item)) ||
       (item.type === 36 && item.value === '0') ||
       (item.type === 28 && parseFloat(item.value) === 0))
   ) {
@@ -1346,8 +1355,8 @@ const getFormatMode = (control = {}, currentControl, type) => {
       curMode = _.includes([15, 16], currentControl.type)
         ? (getDatePickerConfigs(currentControl) || {}).formatMode
         : control.unit === '1'
-        ? 'HH:mm'
-        : 'HH:mm:ss';
+          ? 'HH:mm'
+          : 'HH:mm:ss';
     }
     mode = control.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
   } else {

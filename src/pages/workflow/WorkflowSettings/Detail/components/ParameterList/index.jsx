@@ -9,7 +9,7 @@ export default ({ data, controls, showRequired, updateSource, hideControlType })
         <div className="bold w180 ellipsis">{_l('参数名')}</div>
         {!hideControlType && <div className="bold mLeft15 w70 ellipsis">{_l('类型')}</div>}
         <div className="bold mLeft15 flex ellipsis">{_l('参考值')}</div>
-        {showRequired && <div className="bold mLeft15 w40 ellipsis">{_l('必填')}</div>}
+        {showRequired && <div className="bold mLeft15 ellipsis">{_l('必填')}</div>}
       </div>
       <ul className="webhookList">
         {(controls || []).map((item, i) => {
@@ -21,7 +21,7 @@ export default ({ data, controls, showRequired, updateSource, hideControlType })
                 {item.value}
               </div>
               {showRequired && (
-                <div className="mLeft15 w40">
+                <div className="mLeft15">
                   <Checkbox
                     checked={item.required}
                     onClick={checked => {

@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
+import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import styled from 'styled-components';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
-import RelateRecordOptions from './RelateRecordOptions';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
-import _ from 'lodash';
+import RelateRecordOptions from './RelateRecordOptions';
 
 export default function RelateRecord(props) {
   const { values = [], advancedSetting, onChange = () => {}, appId, worksheetId, filtersData } = props;
@@ -98,8 +98,8 @@ export default function RelateRecord(props) {
             {isMultiple
               ? _l('选择%0项', values.length)
               : values[0].rowid === 'isEmpty'
-              ? values[0].name
-              : _.get(values[0], 'name') || getTitleTextFromControls(control.relationControls, values[0])}
+                ? values[0].name
+                : _.get(values[0], 'name') || getTitleTextFromControls(control.relationControls, values[0])}
           </div>
         )}
       </div>
@@ -142,7 +142,7 @@ export default function RelateRecord(props) {
             let result = newRecords.filter(item => !_.includes(selectedValue, item.rowid)).concat(values);
             handleChange({ values: isMultiple ? result : newRecords });
           }}
-          formData={formData}
+          formData={filtersData}
           fastSearchControlArgs={
             advancedSetting.searchcontrol
               ? {
