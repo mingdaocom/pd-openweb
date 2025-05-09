@@ -522,8 +522,9 @@ function AddWorkflowDialog(props) {
               setAppId(value);
             }}
             onFocus={() => {
-              const input = document.getElementById('selectSearchApp');
-              input.focus();
+              if (searchRef && searchRef.current) {
+                searchRef.current.focus();
+              }
             }}
             dropdownRender={menu => (
               <Fragment>

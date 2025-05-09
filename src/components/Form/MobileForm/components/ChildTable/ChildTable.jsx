@@ -442,6 +442,11 @@ class ChildTable extends React.Component {
 
     const { controls } = this.state;
     const hiddenTypes = window.isPublicWorksheet ? [48] : [];
+
+    if (_.includes(['1', '3'], h5showtype)) {
+      return controls;
+    }
+
     let columns = !controls.length
       ? [{}]
       : controls

@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Checkbox, Dropdown, Radio } from 'ming-ui';
+import _ from 'lodash';
+import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
+import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
 import {
-  DetailHeader,
   DetailFooter,
+  DetailHeader,
+  ProcessVariablesInput,
   SelectNodeObject,
   SpecificFieldsValue,
-  ProcessVariablesInput,
 } from '../components';
-import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
-import _ from 'lodash';
 
 export default class SubProcess extends Component {
   constructor(props) {
@@ -19,6 +19,7 @@ export default class SubProcess extends Component {
       saveRequest: false,
       subProcessDialog: false,
       processVariables: [],
+      cacheKey: +new Date(),
     };
   }
 
@@ -60,6 +61,7 @@ export default class SubProcess extends Component {
       .then(result => {
         this.setState({
           data: _.isEmpty(obj) ? result : { ...result, name: data.name, executeType: data.executeType },
+          cacheKey: +new Date(),
         });
       });
   }
@@ -114,7 +116,7 @@ export default class SubProcess extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data } = this.state;
+    const { data, cacheKey } = this.state;
     const executeTypes = [
       {
         text: _l('并行'),
@@ -268,6 +270,7 @@ export default class SubProcess extends Component {
 
             <ProcessVariablesInput
               {...this.props}
+              key={cacheKey}
               data={data}
               selectProcessId={data.subProcessId}
               desc={_l('向子流程的流程参数传递初始值，供子流程执行时使用')}

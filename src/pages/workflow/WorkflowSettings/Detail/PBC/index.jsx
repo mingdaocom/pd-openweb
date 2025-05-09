@@ -37,6 +37,7 @@ export default class PBC extends Component {
       execCountType: 1,
       showOtherPBC: false,
       selectFieldId: '',
+      cacheKey: +new Date(),
     };
   }
 
@@ -107,7 +108,7 @@ export default class PBC extends Component {
             });
         }
 
-        this.setState({ data: result, execCountType: result.selectNodeId ? 2 : 1 });
+        this.setState({ data: result, execCountType: result.selectNodeId ? 2 : 1, cacheKey: +new Date() });
       });
   }
 
@@ -578,7 +579,7 @@ export default class PBC extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data } = this.state;
+    const { data, cacheKey } = this.state;
     const MODES = [
       { text: _l('执行单次'), value: 0 },
       { text: _l('执行多次'), value: 1 },
@@ -678,6 +679,7 @@ export default class PBC extends Component {
 
             <ProcessVariablesInput
               {...this.props}
+              key={cacheKey}
               data={{
                 ...data,
                 fields: this.splitFields(0),

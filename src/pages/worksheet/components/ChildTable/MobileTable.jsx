@@ -1,16 +1,16 @@
-import React, { Fragment, useState, useRef, useEffect } from 'react';
-import { Icon } from 'ming-ui';
-import PropTypes from 'prop-types';
-import CellControl from 'worksheet/components/CellControls';
-import CustomFields from 'src/components/newCustomFields';
-import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
-import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
-import { isRelateRecordTableControl } from 'worksheet/util';
-import { getAdvanceSetting } from 'src/util';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import CellControl from 'worksheet/components/CellControls';
+import { isRelateRecordTableControl } from 'worksheet/util';
+import CustomFields from 'src/components/newCustomFields';
+import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { getAdvanceSetting } from 'src/util';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
@@ -343,15 +343,28 @@ export default function MobileTable(props) {
               )}
             </div>
             {showControls.map((c, cIndex) => {
-              if (c.type === 36) {
-                const tableFormData = updateRulesData({
-                  rules,
-                  recordId: row.rowid,
-                  data: controls.map(v => ({ ...v, value: row[v.controlId] })),
-                });
+              const tableFormData = updateRulesData({
+                rules,
+                recordId: row.rowid,
+                data: controls.map(v => ({ ...v, value: row[v.controlId] })),
+              });
 
-                const currentCell = _.find(tableFormData, v => v.controlId === c.controlId);
-                c = { ...c, fieldPermission: currentCell.fieldPermission };
+              const currentCell = _.find(tableFormData, v => v.controlId === c.controlId);
+              c = { ...c, fieldPermission: currentCell.fieldPermission };
+
+              const visible =
+                c.fieldPermission[0] === '1' && c.fieldPermission[2] === '1' && c.controlPermissions[2] === '1';
+
+              if (!visible) {
+                return (
+                  <div
+                    key={cIndex}
+                    className="mobileTableItem flex"
+                    onClick={() => {
+                      onOpen(i);
+                    }}
+                  ></div>
+                );
               }
 
               return (

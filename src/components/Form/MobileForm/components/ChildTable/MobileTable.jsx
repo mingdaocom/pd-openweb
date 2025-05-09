@@ -150,7 +150,9 @@ export default function MobileTable(props) {
       : controls.filter(v => _.includes(h5abstractids, v.controlId));
 
   // 根据h5abstractids，重新排序
-  const showControls = showControlsFilter.sort((a, b) => h5abstractids.indexOf(a.controlId) - h5abstractids.indexOf(b.controlId));
+  const showControls = showControlsFilter.sort(
+    (a, b) => h5abstractids.indexOf(a.controlId) - h5abstractids.indexOf(b.controlId),
+  );
 
   const isShowAll = maxShowLength === rows.length;
   let deleteConformAction = null;
@@ -338,7 +340,7 @@ export default function MobileTable(props) {
             key={cIndex}
             className={cx('mobileTableItem flex Font13', { mRight30: cIndex === showControls.length - 1 })}
           >
-            <div className={cx('w100', { 'overflow_ellipsis': !titleWrap })}>{c.controlName}</div>
+            <div className={cx('w100', { overflow_ellipsis: !titleWrap })}>{c.controlName}</div>
           </div>
         ))}
       </div>
@@ -356,15 +358,28 @@ export default function MobileTable(props) {
               </div>
             )}
             {showControls.map((c, cIndex) => {
-              if (c.type === 36) {
-                const tableFormData = updateRulesData({
-                  rules,
-                  recordId: row.rowid,
-                  data: controls.map(v => ({ ...v, value: row[v.controlId] })),
-                });
+              const tableFormData = updateRulesData({
+                rules,
+                recordId: row.rowid,
+                data: controls.map(v => ({ ...v, value: row[v.controlId] })),
+              });
 
-                const currentCell = _.find(tableFormData, v => v.controlId === c.controlId);
-                c = { ...c, fieldPermission: currentCell.fieldPermission };
+              const currentCell = _.find(tableFormData, v => v.controlId === c.controlId);
+              c = { ...c, fieldPermission: currentCell.fieldPermission };
+
+              const visible =
+                c.fieldPermission[0] === '1' && c.fieldPermission[2] === '1' && c.controlPermissions[2] === '1';
+
+              if (!visible) {
+                return (
+                  <div
+                    key={cIndex}
+                    className="mobileTableItem flex"
+                    onClick={() => {
+                      onOpen(i);
+                    }}
+                  ></div>
+                );
               }
 
               return (
