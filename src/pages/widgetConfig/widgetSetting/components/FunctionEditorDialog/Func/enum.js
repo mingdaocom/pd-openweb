@@ -1792,6 +1792,7 @@ export const functionDetails = _.pick(
 export function checkTypeSupportForFunction(control) {
   if (
     [
+      1,
       WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本 2
       WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值 6
       WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额 8
