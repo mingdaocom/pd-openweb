@@ -1,19 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import { Input } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Dropdown, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import { enumWidgetType, getIconByType } from 'src/pages/widgetConfig/util';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
-import { HAS_RADIO_CONTROL, NO_OTHER_CONFIG, EXCEL_CONTROLS, getList } from './config';
-import worksheetAjax from 'src/api/worksheet';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import cx from 'classnames';
-import _ from 'lodash';
+import { EXCEL_CONTROLS, getList, HAS_RADIO_CONTROL, NO_OTHER_CONFIG } from './config';
 
 const ExcelControlSettingWrap = styled.div`
   background: #ffffff;
-  box-shadow: 0 4px 20px rgb(0 0 0 / 13%), 0 2px 6px rgb(0 0 0 / 10%);
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 13%),
+    0 2px 6px rgb(0 0 0 / 10%);
   border-radius: 3px 3px 3px 3px;
   width: 350px;
   padding: 20px;
@@ -117,11 +119,11 @@ export default class ExcelControlSetting extends Component {
   }
 
   render() {
-    const { data = {}, worksheetList = [], createType } = this.props;
+    const { data = {}, worksheetList = [], createType, projectId } = this.props;
     const { step, visible, controls, loading } = this.state;
     const { type, controlName, dataSource, sourceConfig = {} } = data;
     const ENUM_TYPE = enumWidgetType[type];
-    const allProps = { data, onChange: this.handleChange };
+    const allProps = { data, onChange: this.handleChange, globalSheetInfo: { projectId } };
     const SettingComponent = Settings[ENUM_TYPE];
 
     const SETTING_WIDGETS =

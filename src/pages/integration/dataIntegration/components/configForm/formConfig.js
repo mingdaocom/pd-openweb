@@ -309,7 +309,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
         },
         {
           key: 'SASL_PLAINTEXT',
-          value: _l('账号密码'),
+          value: _l('账号密码（SASL）'),
           index: 2,
           isDeleted: false,
           color: '#2196F3',
@@ -321,6 +321,42 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
     },
     ...(_.get(formData, ['extraParams', 'authType']) === 'SASL_PLAINTEXT'
       ? [
+          {
+            controlId: 'saslMechanism',
+            controlName: _l('加密方式'),
+            type: 11,
+            row: 3,
+            col: 1,
+            size: 6,
+            options: [
+              {
+                key: 'PLAIN',
+                value: 'PLAIN',
+                index: 1,
+                isDeleted: false,
+                color: '#2196F3',
+                score: 0,
+              },
+              {
+                key: 'SCRAM-SHA-256',
+                value: 'SCRAM-SHA-256',
+                index: 2,
+                isDeleted: false,
+                color: '#08C9C9',
+                score: 0,
+              },
+              {
+                key: 'SCRAM-SHA-512',
+                value: 'SCRAM-SHA-512',
+                index: 3,
+                isDeleted: false,
+                color: '#00C345',
+                score: 0,
+              },
+            ],
+            required: false,
+            value: `["${_.get(formData, ['extraParams', 'saslMechanism']) || 'PLAIN'}"]`,
+          },
           {
             controlId: 'user',
             controlName: _l('账号'),
@@ -350,86 +386,129 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
                   isdecrypt: '1',
                 },
           },
-          {
-            controlId: 'saslMechanism',
-            controlName: _l('加密方式'),
-            type: 11,
-            row: 5,
-            col: 0,
-            size: 12,
-            options: [
-              {
-                key: 'PLAIN',
-                value: 'PLAIN',
-                index: 1,
-                isDeleted: false,
-                color: '#2196F3',
-                score: 0,
-              },
-              // {
-              //   key: 'SHA256',
-              //   value: 'SHA256',
-              //   index: 2,
-              //   isDeleted: false,
-              //   color: '#08C9C9',
-              //   score: 0,
-              // },
-              // {
-              //   key: 'SHA512',
-              //   value: 'SHA512',
-              //   index: 3,
-              //   isDeleted: false,
-              //   color: '#00C345',
-              //   score: 0,
-              // },
-            ],
-            required: false,
-            value: '["PLAIN"]',
-          },
         ]
       : []),
-    // [
-    //     {
-    //       controlId: 'clientConfig',
-    //       controlName: _l('Kerberos 客户端配置'),
-    //       type: 14,
-    //       row: 4,
-    //       col: 0,
-    //       required: true,
-    //       size: 12,
-    //       value: _.get(formData, 'clientConfig') || '',
-    //     },
-    //     {
-    //       controlId: 'keyTabFile',
-    //       controlName: _l('Keytab 文件'),
-    //       type: 14,
-    //       row: 5,
-    //       col: 0,
-    //       required: true,
-    //       size: 12,
-    //       value: _.get(formData, 'keyTabFile') || '',
-    //     },
-    //     {
-    //       controlId: 'principal',
-    //       controlName: _l('服务主体（principal）'),
-    //       type: 2,
-    //       row: 6,
-    //       col: 0,
-    //       required: true,
-    //       size: 6,
-    //       value: _.get(formData, 'principal') || '',
-    //     },
-    //     {
-    //       controlId: 'serverName',
-    //       controlName: _l('服务的名称'),
-    //       type: 2,
-    //       row: 6,
-    //       col: 1,
-    //       required: true,
-    //       size: 6,
-    //       value: _.get(formData, 'serverName') || '',
-    //     },
-    //   ]
+
+    {
+      controlId: 'enableSsl',
+      controlName: 'SSL',
+      hint: _l('使用 SSL 连接'),
+      type: 36,
+      row: 5,
+      col: 0,
+      required: false,
+      size: 6,
+      value: _.get(formData, ['extraParams', 'enableSsl']),
+    },
+    ...(_.get(formData, ['extraParams', 'enableSsl']) === '1'
+      ? [
+          {
+            controlId: 'sslVerifyType',
+            controlName: _l('验证方式'),
+            type: 11,
+            row: 5,
+            col: 1,
+            size: 6,
+            options: [
+              { key: '0', value: _l('单向'), index: 1, isDeleted: false },
+              { key: '1', value: _l('双向'), index: 2, isDeleted: false },
+            ],
+            required: true,
+            value: `["${_.get(formData, ['extraParams', 'sslVerifyType']) || '0'}"]`,
+          },
+          {
+            controlId: 'trustStorePath',
+            controlName: _l('Truststore文件'),
+            type: 14,
+            row: 6,
+            col: 0,
+            required: true,
+            size: 6,
+            value: _.get(formData, ['extraParams', 'trustStorePath']) || '',
+            hint: _l('点击上传.jks文件'),
+            advancedSetting: {
+              maxcount: '1',
+              filetype: '{"type":"0","values":["jks"]}',
+            },
+          },
+          {
+            controlId: 'trustStorePwd',
+            controlName: _l('Truststore密码'),
+            type: 2,
+            row: 6,
+            col: 1,
+            required: true,
+            desc: _l('保存密码后将加密存储，不可查看密码原文'),
+            size: 6,
+            value: _.get(formData, ['extraParams', 'trustStorePwd']) || '',
+            enumDefault: 2,
+            advancedSetting: allFieldDisabled
+              ? {}
+              : {
+                  masktype: 'all',
+                  datamask: '1',
+                  isdecrypt: '1',
+                },
+          },
+          ...(_.get(formData, ['extraParams', 'sslVerifyType']) === '1'
+            ? [
+                {
+                  controlId: 'keyStorePath',
+                  controlName: _l('Keystore文件'),
+                  type: 14,
+                  row: 7,
+                  col: 0,
+                  required: true,
+                  size: 6,
+                  value: _.get(formData, ['extraParams', 'keyStorePath']) || '',
+                  hint: _l('点击上传.jks文件'),
+                  advancedSetting: {
+                    maxcount: '1',
+                    filetype: '{"type":"0","values":["jks"]}',
+                  },
+                },
+                {
+                  controlId: 'keyStorePwd',
+                  controlName: _l('Keystore密码'),
+                  type: 2,
+                  row: 7,
+                  col: 1,
+                  required: true,
+                  desc: _l('保存密码后将加密存储，不可查看密码原文'),
+                  size: 6,
+                  value: _.get(formData, ['extraParams', 'keyStorePwd']) || '',
+                  enumDefault: 2,
+                  advancedSetting: allFieldDisabled
+                    ? {}
+                    : {
+                        masktype: 'all',
+                        datamask: '1',
+                        isdecrypt: '1',
+                      },
+                },
+                {
+                  controlId: 'keyPrivatePwd',
+                  controlName: _l('Keystore私钥密码'),
+                  type: 2,
+                  row: 8,
+                  col: 0,
+                  required: false,
+                  desc: _l('保存密码后将加密存储，不可查看密码原文'),
+                  size: 12,
+                  value: _.get(formData, ['extraParams', 'keyPrivatePwd']) || '',
+                  enumDefault: 2,
+                  advancedSetting: allFieldDisabled
+                    ? {}
+                    : {
+                        masktype: 'all',
+                        datamask: '1',
+                        isdecrypt: '1',
+                      },
+                },
+              ]
+            : []),
+        ]
+      : []),
   ];
 
   let data;

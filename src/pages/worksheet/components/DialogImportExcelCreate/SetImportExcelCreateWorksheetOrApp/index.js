@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Button, Icon, Checkbox, Menu, MenuItem, Tooltip, Support, LoadDiv } from 'ming-ui';
-import { Select } from 'antd';
-import Trigger from 'rc-trigger';
-import WorksheetItem from './WorksheetItem';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget.js';
-import { FILEDS_TYPE_INFO } from '../util';
-import { canSetAsTitle } from 'src/pages/widgetConfig/util';
-import './index.less';
-import ExcelControlSetting from './ExcelControlSetting';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import { Select } from 'antd';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, Support, Tooltip } from 'ming-ui';
+import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget.js';
+import { canSetAsTitle } from 'src/pages/widgetConfig/util';
+import { FILEDS_TYPE_INFO } from '../util';
+import ExcelControlSetting from './ExcelControlSetting';
+import WorksheetItem from './WorksheetItem';
+import './index.less';
 
 const ImportLoadingWrap = styled.div`
   position: absolute;
@@ -40,6 +40,7 @@ const getWorksheetList = (list = []) => {
 const { Option } = Select;
 @connect(({ appPkg }) => ({
   worksheetList: getWorksheetList(appPkg.appGroups || []),
+  projectId: appPkg.projectId,
 }))
 export default class SetImportExcelCreateWorksheetOrApp extends Component {
   constructor(props) {
@@ -258,7 +259,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
   };
 
   renderHeader = rowItem => {
-    const { currentSheetInfo = {}, worksheetList = [], createType } = this.props;
+    const { currentSheetInfo = {}, worksheetList = [], createType, projectId } = this.props;
     const { matchControl = [], rowNum, selectCells = [] } = currentSheetInfo;
     const rowItemCells = rowItem.cells.filter(it => _.includes(selectCells, it.columnNumber));
     return (
@@ -288,11 +289,13 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                       bottom: { points: ['tl', 'bl'] },
                     }}
                     action={['click']}
+                    zIndex={1000}
                     destroyPopupOnHide={true}
                     popup={() => (
                       <ExcelControlSetting
                         data={{ ...control }}
                         createType={createType}
+                        projectId={projectId}
                         onChange={newControl => {
                           const copyMatchControl = _.map(matchControl, i =>
                             i.controlId === newControl.controlId ? newControl : i,

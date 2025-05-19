@@ -6,7 +6,10 @@ export default function FormWidget(props) {
 
   useEffect(() => {
     if (_.isFunction(triggerCustomEvent)) {
-      triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+      const showEventTimer = setTimeout(() => {
+        triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+        clearTimeout(showEventTimer);
+      }, 500);
 
       return () => {
         triggerCustomEvent(ADD_EVENT_ENUM.HIDE);

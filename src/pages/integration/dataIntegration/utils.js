@@ -319,9 +319,18 @@ export const getExtraParams = (type, formData) => {
       break;
     case DATABASE_TYPE.KAFKA:
       extraParams = {
-        topic: formData.topic,
         authType: JSON.parse(formData.authType)[0],
         saslMechanism: !!formData.saslMechanism ? JSON.parse(formData.saslMechanism)[0] : undefined,
+        sslVerifyType: !!formData.sslVerifyType ? JSON.parse(formData.sslVerifyType)[0] : undefined,
+        ..._.pick(formData, [
+          'topic',
+          'enableSsl',
+          'trustStorePath',
+          'trustStorePwd',
+          'keyStorePath',
+          'keyStorePwd',
+          'keyPrivatePwd',
+        ]),
       };
     default:
       break;

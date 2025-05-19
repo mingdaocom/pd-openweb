@@ -677,7 +677,9 @@ export default class Workwx extends React.Component {
     }
     return (
       <div className="orgManagementWrap workwxMainContent platformIntegrationContent">
-        {!this.state.isPassApply && !(!this.state.CorpId && !md.global.Config.IsLocal) && intergrationType !== 2 ? (
+        {!this.state.isPassApply &&
+        !(!this.state.CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)) &&
+        intergrationType !== 2 ? (
           <div className="TxtMiddle">
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (

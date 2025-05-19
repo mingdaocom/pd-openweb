@@ -25,6 +25,26 @@
     margin: 0.9em auto;
     min-width: 50px;
   }
+  .ck-content .table {
+    display: table;
+    margin: 0.9em auto;
+    table {
+      border: 1px double #b3b3b3;
+      border-collapse: collapse;
+      border-spacing: 0;
+      height: 100%;
+      width: 100%;
+    }
+    & > figcaption {
+      caption-side: top;
+      display: table-caption;
+      font-size: 0.75em;
+      outline-offset: -1px;
+      padding: 0.6em;
+      text-align: center;
+      word-break: break-word;
+    }
+  }
 }
 
 .ck.ck-splitbutton {
@@ -174,6 +194,14 @@
         vertical-align: middle !important;
       }
       & > input {
+        -webkit-appearance: none;
+        border: 0;
+        display: inline-block;
+        margin-left: 0;
+        margin-right: -15px;
+        position: relative;
+        right: 0;
+        vertical-align: middle;
         width: 16px !important;
         height: 16px !important;
         left: -25px;

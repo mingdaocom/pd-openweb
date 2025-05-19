@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Icon, Checkbox } from 'ming-ui';
-import { SettingItem, AnimationWrap, DisplayMode } from '../../../styled';
-import WidgetColor from '../WidgetColor';
 import cx from 'classnames';
-import { handleAdvancedSettingChange, updateConfig, canSetWidgetStyle } from '../../../util/setting';
-import { SectionItem } from '../SplitLineConfig/style';
-import { isCustomWidget, notExplainDisplay, getAdvanceSetting } from '../../../util';
+import { Checkbox, Icon } from 'ming-ui';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import { AnimationWrap, DisplayMode, SettingItem } from '../../../styled';
+import { getAdvanceSetting, isCustomWidget, notExplainDisplay } from '../../../util';
+import { canSetWidgetStyle, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
+import { SectionItem } from '../SplitLineConfig/style';
+import WidgetColor from '../WidgetColor';
 
 const DISPLAY_STYLE_TYPES = [
   { icon: 'format_bold', value: 0 },
@@ -269,7 +269,7 @@ const TextHeightLimit = props => {
       <SectionItem>
         <div className="label Gray_75">{_l('最大')}</div>
         <InputValue
-          value={maxheight}
+          value={maxheight || undefined}
           className="w100"
           type={2}
           placeholder={_l('自适应')}
@@ -277,13 +277,14 @@ const TextHeightLimit = props => {
             onChange(handleAdvancedSettingChange(data, { maxheight: value }));
           }}
           onBlur={value => {
-            let tempMaxValue = Number(value);
-            if (type === 2 && tempMaxValue > 400) {
+            let tempMaxValue = value === '' ? '' : Number(value);
+            if (type === 2 && value && tempMaxValue > 400) {
               tempMaxValue = 400;
             }
-            if (minheight && tempMaxValue < Number(minheight)) {
+            if (minheight && value && tempMaxValue < Number(minheight)) {
               tempMaxValue = minheight;
             }
+
             onChange(handleAdvancedSettingChange(data, { maxheight: tempMaxValue.toString() }));
           }}
         />
