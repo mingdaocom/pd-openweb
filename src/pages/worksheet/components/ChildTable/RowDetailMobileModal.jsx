@@ -31,6 +31,12 @@ export default function RowDetailModal(props) {
 
   // 切换上一条/下一条
   const handleSwitch = type => {
+
+    if ($('.childTableRowDetailMobileDialog').find('.fileUpdateLoading').length) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return
+    }
+
     if (!switchDisabled[type]) {
       const hasError = formContent.current.handleSave(false, true);
 

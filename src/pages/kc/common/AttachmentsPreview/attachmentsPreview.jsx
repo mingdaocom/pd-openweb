@@ -1,30 +1,28 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import postController from 'src/api/post';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Button from 'ming-ui/components/Button';
-
-import ExtIcon from '../../components/ExtIcon';
-
-import { PREVIEW_TYPE, LOADED_STATUS } from './constant/enum';
-import * as Actions from './actions/action';
-import * as previewUtil from './constant/util';
-import VideoPlayer from './VideoPlayer';
-import ImageViewer from './imageViewer/imageViewer';
-import CodeViewer from './codeViewer/codeViewer';
-import ThumbnailGuide from './thumbnailGuide';
-import AttachmentInfo from './attachmentInfo';
-import PreviewHeader from './previewHeader/previewHeader';
-import AttachmentsLoading from './attachmentsLoading';
-import { formatFileSize, getClassNameByExt, addToken } from 'src/util';
-import { isWpsPreview, defaultWpsPreview } from '../../utils';
-import './attachmentsPreview.less';
-import { getPssId } from 'src/util/pssId';
+import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Button from 'ming-ui/components/Button';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import postController from 'src/api/post';
+import { addToken, browserIsMobile, formatFileSize, getClassNameByExt } from 'src/util';
+import { getPssId } from 'src/util/pssId';
+import ExtIcon from '../../components/ExtIcon';
+import { defaultWpsPreview, isWpsPreview } from '../../utils';
+import * as Actions from './actions/action';
+import AttachmentInfo from './attachmentInfo';
+import AttachmentsLoading from './attachmentsLoading';
+import CodeViewer from './codeViewer/codeViewer';
+import { LOADED_STATUS, PREVIEW_TYPE } from './constant/enum';
+import * as previewUtil from './constant/util';
+import ImageViewer from './imageViewer/imageViewer';
+import PreviewHeader from './previewHeader/previewHeader';
+import ThumbnailGuide from './thumbnailGuide';
+import VideoPlayer from './VideoPlayer';
+import './attachmentsPreview.less';
 
 class AttachmentsPreview extends React.Component {
   static propTypes = {
@@ -248,6 +246,7 @@ class AttachmentsPreview extends React.Component {
     }
 
     const isFullScreen = this.props.fullscreen; // ***** TODO 全屏
+    const cauUseWpsPreview = !md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext));
 
     return (
       <div
@@ -268,7 +267,14 @@ class AttachmentsPreview extends React.Component {
           isDraft={options.isDraft}
           allowEdit={options.allowEdit}
         />
-        <div className="previewPanel" style={!this.state.attInfoFolded && showAttInfo ? { right: 328 } : {}}>
+        <div
+          className="previewPanel"
+          style={
+            !this.state.attInfoFolded && showAttInfo
+              ? { right: 328, top: isFullScreen ? 0 : browserIsMobile() && cauUseWpsPreview ? 108 : 54 }
+              : { top: isFullScreen ? 0 : browserIsMobile() && cauUseWpsPreview ? 108 : 54 }
+          }
+        >
           <div
             className="previewContainer"
             ref={previewCon => {
