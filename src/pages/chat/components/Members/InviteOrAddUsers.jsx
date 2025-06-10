@@ -49,7 +49,6 @@ export default class InviteOrAddUsers extends Component {
         trigger={['click']}
         placement="bottom"
         overlayClassName="addMembersMoreAction"
-        getPopupContainer={() => this.$wrap}
         overlay={
           <Menu onClick={this.handleClick}>
             {ITEMS.map(i => (

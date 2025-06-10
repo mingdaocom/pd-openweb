@@ -21,6 +21,7 @@ rewrite (?i)^/alimerchantguide /staticfiles/html/alimerchantguide.html break;
 rewrite (?i)^/apps/kcshare/ /kcshare.html break;
 rewrite (?i)^/apps/kcsharelocal /kcshare.html break;
 rewrite (?i)^/apps/kcsharefolder/ /kcsharefolder.html break;
+rewrite (?i)^/recordfileupload /recordfileupload.html break;
 rewrite (?i)^/recordfile /kcshare.html break;
 rewrite (?i)^/rowfile /kcshare.html break;
 rewrite (?i)^/mobileChart /mobileChart.html break;
@@ -121,6 +122,9 @@ rewrite (?i)^/aggregation /index.html break;
 rewrite (?i)^/dataMirrorPreview /index.html break;
 rewrite (?i)^/certification /index.html break;
 rewrite (?i)^/certificationDetail /index.html break;
+
+# 个人身份认证
+rewrite (?i)^/identityAuth /identityAuth.html break;
 
 # 购买入口
 rewrite (?i)^/orderpay /orderPay.html break;

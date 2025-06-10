@@ -1,17 +1,17 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
-import { Checkbox, Icon, Support, UpgradeIcon } from 'ming-ui';
-import { SettingItem, EditInfo } from 'src/pages/widgetConfig/styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { DISPLAY_MASK, CUSTOM_DISPLAY } from 'src/pages/widgetConfig/config/setting';
-import MaskSettingDialog from './MaskSettingDialog';
-import EncryptSettingDialog from './EncryptSettingDialog';
-import styled from 'styled-components';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, Support, UpgradeIcon } from 'ming-ui';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
+import { EditInfo, SettingItem } from 'src/pages/widgetConfig/styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import EncryptSettingDialog from './EncryptSettingDialog';
+import MaskSettingDialog from './MaskSettingDialog';
 
 const ViewWrap = styled.div`
   display: flex;

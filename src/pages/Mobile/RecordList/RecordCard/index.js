@@ -14,9 +14,10 @@ import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { getControlStyles, getRecordColor, getRecordColorConfig } from 'src/pages/worksheet/util';
-import { compatibleMDJS, getToken } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { getControlStyles } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+import { compatibleMDJS } from 'src/utils/project';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 import './index.less';
 
 const Con = styled.div`

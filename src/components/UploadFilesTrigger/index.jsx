@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import Icon from 'ming-ui/components/Icon';
-import Button from 'ming-ui/components/Button';
-import UploadFiles from 'src/components/UploadFiles';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import Button from 'ming-ui/components/Button';
+import Icon from 'ming-ui/components/Icon';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import UploadFiles from 'src/components/UploadFiles';
+import { generateRandomPassword } from 'src/utils/common';
 import './index.less';
-import { generateRandomPassword } from 'src/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 

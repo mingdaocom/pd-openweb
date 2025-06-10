@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Icon, MobileDatePicker, MdAntTimePicker } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import { Icon, MdAntTimePicker, MobileDatePicker } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 import { FROM } from '../../tools/config';
 import { getDynamicValue } from '../../tools/formUtils';
-import { browserIsMobile } from 'src/util';
-import moment from 'moment';
-import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

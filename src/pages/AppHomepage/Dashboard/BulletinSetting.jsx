@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dialog, Icon, Button, Input, QiniuUpload, LoadDiv, SortableList, Tooltip } from 'ming-ui';
 import { Input as AntdInput } from 'antd';
-import _ from 'lodash';
 import cx from 'classnames';
-import RegExpValidator from 'src/util/expression';
-import { coverUrls } from './utils';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Icon, Input, LoadDiv, QiniuUpload, SortableList, Tooltip } from 'ming-ui';
+import RegExpValidator from 'src/utils/expression';
 import suggestImg from './image/suggest.png';
+import { coverUrls } from './utils';
 import './style.less';
 
 const BulletinDialog = styled(Dialog)`

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import _ from 'lodash';
-import { getClassNameByExt, formatFileSize, browserIsMobile } from 'src/util';
+import Trigger from 'rc-trigger';
+import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
 import '../WorksheetRecordLogValue.less';
-import RegExpValidator from 'src/util/expression';
+
 function PicturePreview(props) {
   const { url, name, filesize, isPicture } = props;
   return (

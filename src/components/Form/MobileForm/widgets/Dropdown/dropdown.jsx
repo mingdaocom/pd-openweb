@@ -2,17 +2,10 @@ import React, { Fragment, memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { Icon, MobileRadio } from 'ming-ui';
-import { isLightColor } from 'src/util';
 import { getCheckAndOther } from '../../../core/utils';
+import { CustomOptionCapsule } from '../../style';
 import OtherInput from '../Checkbox/OtherInput';
-
-const ItemBox = styled.span`
-  ${props => props.enumDefault2 === 1 && `background: ${props.color} !important;`}
-  word-break: break-all;
-  white-space: pre-wrap;
-`;
 
 const Dropdown = props => {
   const { value, disabled, advancedSetting = {}, enumDefault2, options, hint, selectProps = {}, formDisabled } = props;
@@ -28,22 +21,19 @@ const Dropdown = props => {
   });
   const mobileCheckItems = noDelOptions.concat(delOptions).filter(i => _.includes(checkIds, i.key));
 
-  const renderItem = item => {
+  const renderItem = (item, inPopup = false) => {
     const { otherValue } = getCheckAndOther(value);
+    const content = item.key === 'other' && otherValue && disabled ? otherValue : item.value;
 
-    return (
-      <ItemBox
-        enumDefault2={enumDefault2}
-        color={item.color}
-        className={cx({
-          customFormCapsule: enumDefault2 === 1,
-          White: enumDefault2 === 1 && !isLightColor(item.color),
-          isEmpty: item.key === 'isEmpty',
-        })}
-      >
-        {item.key === 'other' ? (otherValue && disabled ? otherValue : item.value) : item.value}
-      </ItemBox>
-    );
+    if (enumDefault2 === 1) {
+      return (
+        <CustomOptionCapsule tagColor={item.color} inPopup={inPopup}>
+          {content}
+        </CustomOptionCapsule>
+      );
+    }
+
+    return <span className="breakAllWrap">{content}</span>;
   };
 
   const onChange = value => {
@@ -58,7 +48,7 @@ const Dropdown = props => {
         data={noDelOptions}
         delOptions={delOptions}
         callback={onChange}
-        renderText={renderItem}
+        renderText={item => renderItem(item, true)}
         {...props}
         value={mobileCheckItems}
       >

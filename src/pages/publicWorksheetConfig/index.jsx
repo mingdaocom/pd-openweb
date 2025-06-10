@@ -1,24 +1,24 @@
-import React, { useState, useEffect, createRef, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React, { createRef, Fragment, useEffect, useState } from 'react';
 import DocumentTitle from 'react-document-title';
-import { navigateToApp } from 'src/pages/widgetConfig/util/data';
-import worksheetAjax from 'src/api/worksheet';
-import Header from 'src/components/worksheetConfigHeader';
-import ErrorState from 'src/components/errorPage/errorState';
-import FillEnablePanel from './common/FillEnablePanel';
-import QueryEnablePanel from './common/QueryEnablePanel';
-import PayConfig from './common/PayConfig/index';
-import { ScrollView, CardNav } from 'ming-ui';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper.jsx';
-import VerifyModifyDialog from 'src/pages/widgetConfig/widgetSetting/components/VerifyModifyDialog';
-import { NAV_NAME } from './enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { saveSelectExtensionNavType } from 'worksheet/util';
-import './index.less';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { CardNav, ScrollView } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import ErrorState from 'src/components/errorPage/errorState';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import Header from 'src/components/worksheetConfigHeader';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper.jsx';
+import { navigateToApp } from 'src/pages/widgetConfig/util/data';
+import VerifyModifyDialog from 'src/pages/widgetConfig/widgetSetting/components/VerifyModifyDialog';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { saveSelectExtensionNavType } from 'src/utils/worksheet';
+import FillEnablePanel from './common/FillEnablePanel';
+import PayConfig from './common/PayConfig/index';
+import QueryEnablePanel from './common/QueryEnablePanel';
+import { NAV_NAME } from './enum';
+import './index.less';
 
 export default function PublicWorksheetConfig(props) {
   const { match = { params: {} } } = props;
@@ -33,7 +33,7 @@ export default function PublicWorksheetConfig(props) {
   const isloading = _.isEmpty(worksheetInfo);
   const hasCharge = [2, 4, 6].includes(roleType); //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者 6:开发者+运营者
   const payConfigRef = createRef();
-  const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
+  const featureType = !isloading && !hasCharge ? false : getFeatureStatus(projectId, VersionProductType.PAY);
 
   // 检查支付配置信息是否保存
   const checkPayConfig = () => {

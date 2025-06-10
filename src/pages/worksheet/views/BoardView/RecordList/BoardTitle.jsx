@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon, UserHead } from 'ming-ui';
-import styled from 'styled-components';
-import { FlexCenter } from 'worksheet/styled';
-import { isLightColor } from 'src/util';
-import { CAN_AS_BOARD_OPTION } from '../config';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, UserHead } from 'ming-ui';
+import { FlexCenter } from 'worksheet/styled';
+import { isLightColor } from 'src/utils/control';
+import { CAN_AS_BOARD_OPTION } from '../config';
 
 const BoardTitleWrap = styled(FlexCenter)`
   border-radius: 18px;
@@ -111,9 +111,9 @@ export default class BoardTitle extends Component {
     if (type === 26) {
       const { accountId, avatar: userHead, fullname } = JSON.parse(name) || {};
       return (
-        <div className="avatarWrap">
+        <div className="avatarWrap overflow_ellipsis">
           <UserHead className="mRight5" user={{ userHead, accountId }} size={24} appId={appId} projectId={projectId} />
-          <span className="Font14 Bold">{fullname}</span>
+          <span className="Font14 Bold overflow_ellipsis">{fullname}</span>
         </div>
       );
     }

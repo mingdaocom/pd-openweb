@@ -8,8 +8,8 @@ import functionWrap from 'ming-ui/components/FunctionWrap';
 import { captcha } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import verifyPassword from 'src/components/verifyPassword';
-import { generateRandomPassword } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { generateRandomPassword } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 
 const PasswordInputBox = styled.div`
   line-height: 34px;

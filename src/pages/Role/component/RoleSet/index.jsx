@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import Ajax from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import { PERMISSION_WAYS } from 'src/pages/Role/config.js';
-import { sysRoleList, sysRoleType } from 'src/pages/Role/config.js';
-import { getTranslateInfo } from 'src/util';
+import { sysRoleType } from 'src/pages/Role/config.js';
+import { getTranslateInfo } from 'src/utils/app';
 import SettingForm from './SettingForm';
 
 const fillTranslateInfo = (appId, roleDetail) => {
@@ -231,7 +231,7 @@ export default class RoleSet extends PureComponent {
   }
 
   fetchRoleDetail(props = this.props) {
-    let { roleId, appId, roleList } = props;
+    let { roleId, appId, roleList, isForPortal } = props;
     roleId = roleId === 'new' ? '' : roleId;
     const data = roleList.find(o => o.roleId === roleId) || {};
 
@@ -247,12 +247,14 @@ export default class RoleSet extends PureComponent {
       this.promise = Ajax.getRoleDetail({
         roleId,
         appId,
+        isPortal: isForPortal,
       });
 
       promise = this.promise;
     } else {
       this.promise = Ajax.getAddRoleTemplate({
         appId,
+        isPortal: isForPortal,
       });
 
       promise = this.promise.then(roleDetail => {

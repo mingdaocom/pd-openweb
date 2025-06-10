@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { arrayOf, func, number, shape, string, bool } from 'prop-types';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 import Conditions from './Conditions';
-import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;
@@ -40,6 +40,7 @@ function QuickFilter(props) {
   const {
     mode,
     isDark,
+    showTextAdvanced,
     base = {},
     from,
     noExpand,
@@ -128,6 +129,7 @@ function QuickFilter(props) {
     <Con isConfigMode={isConfigMode} className="quickFilterWrap">
       <Conditions
         from={from}
+        showTextAdvanced={showTextAdvanced}
         isDark={isDark}
         worksheetId={worksheetId}
         isFilterComp={from === 'filterComp'}

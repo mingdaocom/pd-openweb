@@ -1,24 +1,25 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import cx from 'classnames';
-import { string, func, number, oneOf } from 'prop-types';
-import { Dialog } from 'ming-ui';
 import { Popup } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import { func, number, oneOf, string } from 'prop-types';
+import { Dialog } from 'ming-ui';
 import projectApi from 'src/api/project';
-import { navigateTo } from 'src/router/navigateTo';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { navigateTo } from 'src/router/navigateTo';
+import { browserIsMobile } from 'src/utils/common';
 import {
-  INDIVIDUAL_NET_TEXT,
-  PAID_VERSION_TO_TEXT,
-  EXPERIENCE_VERSION_TO_TEXT,
-  OVERDUE_NET_TEXT,
-  MODULE_NUMBER_TO_TYPE,
-  VERSION,
   COMMON,
+  EXPERIENCE_VERSION_TO_TEXT,
+  INDIVIDUAL_NET_TEXT,
+  MODULE_NUMBER_TO_TYPE,
+  OVERDUE_NET_TEXT,
+  PAID_VERSION_TO_TEXT,
+  VERSION,
 } from './config';
 import './index.less';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
+
 class NetState extends Component {
   static propTypes = {
     onClose: func,

@@ -4,7 +4,7 @@ export const WFSTATUS_OPTIONS = [
     color: '#4caf50',
     index: 1,
     enumDefault2: 1,
-    value: _l('通过'),
+    value: _l('同意'),
   },
   {
     key: 'refuse',

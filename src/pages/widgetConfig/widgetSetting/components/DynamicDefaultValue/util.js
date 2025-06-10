@@ -1,33 +1,34 @@
+import _ from 'lodash';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { getConcatenateControls } from 'src/pages/widgetConfig/util/data';
 import {
-  CONTROL_TYPE,
-  DATE_TYPES,
-  TIME_TYPES,
-  CAN_SHOW_CLEAR_FIELD,
-  CAN_AS_TEXT_DYNAMIC_FIELD,
-  CAN_AS_EMAIL_DYNAMIC_FIELD,
-  CAN_AS_TIME_DYNAMIC_FIELD,
-  CAN_AS_DATE_TIME_DYNAMIC_FIELD,
   CAN_AS_AREA_DYNAMIC_FIELD,
-  CAN_AS_USER_DYNAMIC_FIELD,
-  CAN_AS_DEPARTMENT_DYNAMIC_FIELD,
-  CAN_AS_SCORE_DYNAMIC_FIELD,
-  CAN_AS_SWITCH_DYNAMIC_FIELD,
-  CAN_AS_NUMBER_DYNAMIC_FIELD,
-  CAN_AS_EMBED_DYNAMIC_FIELD,
-  CAN_AS_ORG_ROLE_DYNAMIC_FIELD,
   CAN_AS_ARRAY_DYNAMIC_FIELD,
   CAN_AS_ARRAY_OBJECT_DYNAMIC_FIELD,
-  CAN_AS_RICH_TEXT_DYNAMIC_FIELD,
+  CAN_AS_DATE_TIME_DYNAMIC_FIELD,
+  CAN_AS_DEPARTMENT_DYNAMIC_FIELD,
+  CAN_AS_EMAIL_DYNAMIC_FIELD,
+  CAN_AS_EMBED_DYNAMIC_FIELD,
   CAN_AS_LOCATION_DYNAMIC_FIELD,
-  FIELD_REG_EXP,
+  CAN_AS_NUMBER_DYNAMIC_FIELD,
+  CAN_AS_ORG_ROLE_DYNAMIC_FIELD,
+  CAN_AS_RICH_TEXT_DYNAMIC_FIELD,
+  CAN_AS_SCORE_DYNAMIC_FIELD,
+  CAN_AS_SWITCH_DYNAMIC_FIELD,
+  CAN_AS_TEXT_DYNAMIC_FIELD,
+  CAN_AS_TIME_DYNAMIC_FIELD,
+  CAN_AS_USER_DYNAMIC_FIELD,
+  CAN_SHOW_CLEAR_FIELD,
   CHECKBOX_TYPES,
-  EMEBD_FIELDS,
+  CONTROL_TYPE,
   CUR_TIME_TYPES,
   CURRENT_TYPES,
+  DATE_TYPES,
+  EMEBD_FIELDS,
+  FIELD_REG_EXP,
+  TIME_TYPES,
 } from './config';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import _ from 'lodash';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { DYNAMIC_FROM_MODE } from './config';
 
 // 新建子表并配置成员、部门等默认值，后端relationControls不处理，没有补全配置返回
@@ -46,8 +47,8 @@ export const dealIds = (type, dynamicValue) => {
         item.staticValue === 'user-self'
           ? 'accountId'
           : item.staticValue === 'user-departments'
-          ? 'departmentId'
-          : 'organizeId';
+            ? 'departmentId'
+            : 'organizeId';
       return { ...item, staticValue: JSON.stringify({ [id]: item.staticValue, name }) };
     } else {
       return item;
@@ -180,10 +181,6 @@ export const FILTER = {
   // 日期
   15: item => _.includes(CAN_AS_DATE_TIME_DYNAMIC_FIELD, item.type) || isFormulaResultAsDate(item),
   16: item => _.includes(CAN_AS_DATE_TIME_DYNAMIC_FIELD, item.type) || isFormulaResultAsDateTime(item),
-  // 地区
-  19: item => _.includes(CAN_AS_AREA_DYNAMIC_FIELD, item.type),
-  23: item => _.includes(CAN_AS_AREA_DYNAMIC_FIELD, item.type),
-  24: item => _.includes(CAN_AS_AREA_DYNAMIC_FIELD, item.type),
 
   // 多选可以选择单选字段 单选不能选多选字段
   // 必须是同类型用户
@@ -224,6 +221,19 @@ export const filterControls = (data = {}, controls = []) => {
 export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
+  if (
+    _.includes(
+      [
+        DYNAMIC_FROM_MODE.SEARCH_PARAMS,
+        DYNAMIC_FROM_MODE.USER_CONFIG,
+        DYNAMIC_FROM_MODE.ORG_CONFIG,
+        DYNAMIC_FROM_MODE.DEPART_CONFIG,
+      ],
+      from,
+    )
+  ) {
+    controls = controls.map(c => (c.type === 30 ? { ...c, type: c.sourceControlType, originType: c.type } : c));
+  }
   //文本字段值可选 关联记录自动编号，不能是当前表单,查询工作表都可
   if (_.includes([2], type) && isCurrent && !_.includes([DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)) {
     controls = controls.filter(con => con.type !== 33);
@@ -233,7 +243,11 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
     controls = controls.filter(con => !_.includes([32, 33, 47], con.type));
   }
 
-  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 40, 41, 45, 46, 10000007, 10000008], type))
+  if (from === DYNAMIC_FROM_MODE.PRINT_TEMP) {
+    return getConcatenateControls(controls, data);
+  }
+
+  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 28, 36, 40, 41, 45, 46, 10000007, 10000008], type))
     return _.filter(controls, filterFn);
 
   if (_.includes([7], type)) {
@@ -244,6 +258,13 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
     const filterControls = _.filter(controls, item => _.includes([9, 10, 11], item.type));
     // isEqualSource同源异化显示
     return filterControls.map(i => (dataSource && i.dataSource === dataSource ? { ...i, isEqualSource: true } : i));
+  }
+
+  if (_.includes([24], type)) {
+    return _.filter(
+      controls,
+      item => _.includes(CAN_AS_AREA_DYNAMIC_FIELD, item.type) && item.enumDefault === enumDefault,
+    );
   }
 
   if (_.includes([26], type)) {

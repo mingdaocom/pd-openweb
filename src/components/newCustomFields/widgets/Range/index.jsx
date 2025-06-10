@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { CustomScore } from 'ming-ui';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
+import PropTypes from 'prop-types';
+import { CustomScore } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 
 export default class Widgets extends Component {
   static propTypes = {

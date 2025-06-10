@@ -1,12 +1,11 @@
 import React from 'react';
-import { string } from 'prop-types';
-import { Radio } from 'ming-ui';
-import { isLightColor } from 'src/util';
 import cx from 'classnames';
-import { OptionsWrap, OptionWrap } from '../../styled';
-import { getOptions, getAdvanceSetting, parseOptionValue, getItemOptionWidth } from '../../util/setting';
 import { includes } from 'lodash';
+import { Radio } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { isLightColor } from 'src/utils/control';
+import { OptionsWrap, OptionWrap } from '../../styled';
+import { getAdvanceSetting, getItemOptionWidth, getOptions, parseOptionValue } from '../../util/setting';
 
 function FlatMenu({ data, fromType }) {
   const { direction = '2', width = '200' } = getAdvanceSetting(data);

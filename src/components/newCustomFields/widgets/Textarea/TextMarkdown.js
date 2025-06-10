@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon, MdMarkdown } from 'ming-ui';
 import MarkdownDialog from 'src/ming-ui/components/MdMarkdown/MarkdownDialog.js';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 
 const TextMarkdownWrap = styled.div`
   position: relative;

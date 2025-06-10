@@ -211,13 +211,14 @@ export default class extends Component {
             }
           }
         });
-
-        this.resizeObserver = new ResizeObserver(entries => {
-          for (let entry of entries) {
-            this.scene.map.resize();
-          }
-        });
-        this.resizeObserver.observe(this.chartEl);
+        if (this.chartEl) {
+          this.resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+              this.scene.map.resize();
+            }
+          });
+          this.resizeObserver.observe(this.chartEl); 
+        }
       },
     );
   }

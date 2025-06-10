@@ -3,8 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Radio } from 'ming-ui';
-import { isLightColor } from 'src/util';
 import { getCheckAndOther } from '../../../core/utils';
+import { CustomOptionCapsule } from '../../style';
 import OtherInput from '../Checkbox/OtherInput';
 
 const RadioWidget = props => {
@@ -17,17 +17,13 @@ const RadioWidget = props => {
 
   const renderItem = (item, checkIds) => {
     const { otherValue } = getCheckAndOther(value);
-    return (
-      <span
-        className={cx({
-          customFormCapsule: enumDefault2 === 1,
-          White: enumDefault2 === 1 && !isLightColor(item.color),
-        })}
-        style={{ background: enumDefault2 === 1 ? item.color : checkIds.length > 1 ? 'var(--gray-f3)' : '' }}
-      >
-        {otherValue && disabled ? otherValue : item.value}
-      </span>
-    );
+    const content = otherValue && disabled ? otherValue : item.value;
+
+    if (enumDefault2 === 1) {
+      return <CustomOptionCapsule tagColor={item.color}>{content}</CustomOptionCapsule>;
+    }
+
+    return <span style={{ background: checkIds.length > 1 ? 'var(--gray-f3)' : '' }}>{content}</span>;
   };
 
   const onChange = key => {

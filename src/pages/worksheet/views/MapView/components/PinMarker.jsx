@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { arrayOf, func, number, shape } from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import { TinyColor } from '@ctrl/tinycolor';
+import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, func, number, shape } from 'prop-types';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
+import SheetContext from 'worksheet/common/Sheet/SheetContext';
+import { sortControlByIds } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
+import { getRecordColorConfig } from 'src/utils/record';
 import EditableCard from '../../components/EditableCard';
 import Marker from '../amap/Maker';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { getRecordColorConfig, handleRecordClick, sortControlByIds } from 'worksheet/util';
-import worksheetAjax from 'src/api/worksheet';
-import { addBehaviorLog } from 'src/util';
-import cx from 'classnames';
 
 const wrapStyles = `
 .iconCon {
@@ -39,7 +42,7 @@ const wrapStyles = `
 .pinIcon {
   color: #f44336 !important;
 }
-.content {
+.markCon > .content {
   margin-left: 6px;
   white-space: nowrap;
   background-color: transparent;
@@ -99,7 +102,9 @@ const PinCardCon = styled.div`
   width: 300px;
   border-radius: 3px;
   background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 4px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
+  box-shadow:
+    rgba(0, 0, 0, 0.12) 0px 1px 4px 0px,
+    rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
   color: #151515;
   display: block;
   overflow: hidden;
@@ -159,12 +164,15 @@ export default function MarkerCard(props) {
     isCharge,
     worksheetInfo,
     sheetSwitchPermit,
+    sheetButtons,
+    printList,
     viewId,
     mobileCloseCard,
     groupId,
     isMobile,
     type = 'AMap',
     onChangeRecordId = () => {},
+    handleRefresh = () => {},
     getData,
     updateNavGroup,
   } = props;
@@ -270,6 +278,7 @@ export default function MarkerCard(props) {
             style={{
               visibility: active ? 'visible' : 'hidden',
             }}
+            onMouseLeave={() => document.body.dispatchEvent(new Event('mousedown'))}
             onTouchStartCapture={e => {
               e.stopPropagation();
               handleRecordClick(view, marker.record, () => {
@@ -283,36 +292,55 @@ export default function MarkerCard(props) {
               });
             }}
           >
-            <EditableCard
-              type="board"
-              showNull={true}
-              data={{
-                abstractValue: marker.abstract,
-                allAttachments: safeParse(marker.cover, 'array'),
-                allowDelete: record.allowdelete,
-                allowEdit: false,
-                coverData: coverControl,
-                coverImage: coverUrl
-                  ? coverUrl.indexOf('imageView2') > -1
-                    ? coverUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
-                    : `${coverUrl}&imageView2/0/h/200`
-                  : '',
-                fields: formData.filter(l => _.includes((view.displayControls || []).concat([titleId]), l.controlId)),
-                rawRow: JSON.stringify(marker.record),
-                rowId: marker.record.rowid,
-                formData: formData,
-                recordColorConfig: getRecordColorConfig(view),
+            <SheetContext.Provider
+              value={{
+                isCharge,
+                projectId: worksheetInfo.projectId,
+                appId,
+                groupId,
+                worksheetId: worksheetInfo.worksheetId,
+                config: { props },
+                isRequestingRelationControls: worksheetInfo.isRequestingRelationControls,
+                controls,
+                view,
+                sheetButtons,
+                printList,
+                sheetSwitchPermit,
               }}
-              hoverShowAll
-              canDrag={false}
-              isCharge={isCharge}
-              currentView={{ ...view, appId, projectId: worksheetInfo.projectId }}
-              allowCopy={worksheetInfo.allowAdd}
-              allowRecreate={worksheetInfo.allowAdd}
-              sheetSwitchPermit={sheetSwitchPermit}
-              onUpdate={(updated, item) => {}}
-              updateTitleData={updateTitleControlData}
-            />
+            >
+              <EditableCard
+                type="board"
+                showNull={true}
+                data={{
+                  abstractValue: marker.abstract,
+                  allAttachments: safeParse(marker.cover, 'array'),
+                  allowDelete: record.allowdelete,
+                  allowEdit: false,
+                  coverData: coverControl,
+                  coverImage: coverUrl
+                    ? coverUrl.indexOf('imageView2') > -1
+                      ? coverUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
+                      : `${coverUrl}&imageView2/0/h/200`
+                    : '',
+                  fields: formData.filter(l => _.includes((view.displayControls || []).concat([titleId]), l.controlId)),
+                  rawRow: JSON.stringify(marker.record),
+                  rowId: marker.record.rowid,
+                  formData: formData,
+                  recordColorConfig: getRecordColorConfig(view),
+                }}
+                hoverShowAll
+                canDrag={false}
+                isCharge={isCharge}
+                currentView={{ ...view, appId, projectId: worksheetInfo.projectId }}
+                allowCopy={worksheetInfo.allowAdd}
+                allowRecreate={worksheetInfo.allowAdd}
+                sheetSwitchPermit={sheetSwitchPermit}
+                onUpdate={(updated, item) => {}}
+                onDelete={handleRefresh}
+                onCopySuccess={handleRefresh}
+                updateTitleData={updateTitleControlData}
+              />
+            </SheetContext.Provider>
           </PinCardCon>
         </div>
       </div>

@@ -1,17 +1,17 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Menu, MenuItem, Icon, Dialog, UserHead, Tooltip } from 'ming-ui';
 import { Switch } from 'antd';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import SyncTask from 'src/pages/integration/api/syncTask.js';
-import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+import styled from 'styled-components';
+import { Dialog, Icon, Menu, MenuItem, Tooltip, UserHead } from 'ming-ui';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
+import SyncTask from 'src/pages/integration/api/syncTask.js';
 import customApi from 'statistics/api/custom.js';
+import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import { getTranslateInfo } from 'src/utils/app';
 import MoveDialog from './MoveDialog';
-import { getTranslateInfo } from 'src/util';
 
 const Wrap = styled.div`
   .flexShrink0 {
@@ -84,14 +84,92 @@ const WrapDialog = styled.div`
   }
 `;
 
+const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }) => {
+  const [reCheck, setReCheck] = useState(false);
+  const [reCheckLoading, setReCheckLoading] = useState(true);
+  const [aggNameList, setAggNameList] = useState([]);
+
+  useEffect(() => {
+    setReCheckLoading(true);
+    setAggNameList([]);
+    AggTableAjax.preReSyncCheck(
+      {
+        projectId,
+        appId,
+        aggTableId,
+      },
+      { isAggTable: true },
+    ).then(res => {
+      setReCheck(true);
+      setReCheckLoading(false);
+      setAggNameList(res.aggNameList);
+    });
+  }, []);
+
+  const handleOk = () => {
+    setReCheckLoading(true);
+    AggTableAjax.reSync(
+      {
+        projectId,
+        appId,
+        aggTableId,
+      },
+      { isAggTable: true },
+    ).then(res => {
+      let isSucceeded = (res || {}).isSucceeded;
+      const { errorMsg, errorMsgList } = res;
+      if (isSucceeded) {
+        onChange(
+          items.map(o => {
+            if (o.aggTableId === aggTableId) {
+              return { ...o, taskStatus: TASK_STATUS_TYPE.RUNNING };
+            } else {
+              return o;
+            }
+          }),
+        );
+        alert(_l('重新同步成功'));
+      } else {
+        alert(errorMsg ? errorMsg : errorMsgList ? errorMsgList[0] : _l('重新同步失败，请稍后再试'), 2);
+      }
+      onClose();
+    });
+  };
+
+  return (
+    <Dialog
+      width={480}
+      visible={true}
+      title={_l('重新同步')}
+      onCancel={onClose}
+      okDisabled={reCheckLoading}
+      okText={reCheckLoading && !reCheck ? _l('检测中...') : _l('确定')}
+      onOk={handleOk}
+    >
+      <div class="">
+        <div class="Gray Font14">{_l('重新获取数据源数据')}</div>
+        {reCheck && aggNameList.length > 0 && (
+          <div class="mTop5">
+            <div className="Gray_9e">{_l('以下%0个聚合表使用该数据源', aggNameList.length)}</div>
+            {aggNameList.map(o => {
+              return <div className="mTop8">{o}</div>;
+            })}
+          </div>
+        )}
+      </div>
+    </Dialog>
+  );
+};
+
 export default function ItemCard(props) {
   const { item, items, onEdit, onChange, projectId, displayType, appId, onRefresh, canEdit } = props;
   const trigger = useRef(null);
-  const [{ showChangeName, showMoreOption, updating, showMoveDialog }, setState] = useSetState({
+  const [{ showChangeName, showMoreOption, updating, showMoveDialog, showReSync }, setState] = useSetState({
     showChangeName: false,
     showMoreOption: false,
     updating: false,
     showMoveDialog: false,
+    showReSync: false,
   });
 
   const updateName = name => {
@@ -253,6 +331,7 @@ export default function ItemCard(props) {
       }
     });
   };
+
   return (
     <Wrap className="flexRow alignItemsCenter">
       <div
@@ -420,6 +499,17 @@ export default function ItemCard(props) {
                 >
                   <div className="mLeft16 Gray">{_l('移动到')}</div>
                 </MenuItem>
+                {item.taskStatus === TASK_STATUS_TYPE.RUNNING && (
+                  <MenuItem
+                    onClick={event => {
+                      setState({ showMoreOption: false, showReSync: true });
+                      event.stopPropagation();
+                    }}
+                    icon={<Icon className="Font16" icon={'ic_refresh_black'} />}
+                  >
+                    <div className="mLeft16 Gray">{_l('重新同步')}</div>
+                  </MenuItem>
+                )}
                 {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
                   <MenuItem
                     icon={<Icon icon={'delete1'} className="Red Font16" />}
@@ -464,6 +554,16 @@ export default function ItemCard(props) {
           </Trigger>
         )}
       </div>
+      {showReSync && (
+        <ReSyncDialog
+          aggTableId={item.aggTableId}
+          onClose={() => setState({ showReSync: false })}
+          onChange={onChange}
+          items={items}
+          projectId={projectId}
+          appId={appId}
+        />
+      )}
       {showChangeName && (
         <ChangeName
           name={item.name}

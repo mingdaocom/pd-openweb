@@ -7,7 +7,6 @@ import SessionList from '../SessionList';
 import Btns from '../Btns';
 import * as socket from '../../utils/socketEvent';
 import * as actions from '../../redux/actions';
-import accountSettingApi from 'src/api/accountSetting';
 
 class Chat extends Component {
   constructor(props) {
@@ -35,14 +34,13 @@ class Chat extends Component {
       );
     });
     // 获取新消息通知配置
-    accountSettingApi.getAccountSettings({}).then(data => {
-      const settings = {
-        isOpenMessageSound: data.isOpenMessageSound,
-        isOpenMessageTwinkle: data.isOpenMessageTwinkle,
-        backHomepageWay: data.backHomepageWay || 1,
-      }
-      Object.assign(window, settings);
-    });
+    const { Account } = md.global;
+    const settings = {
+      isOpenMessageSound: Account.isOpenMessageSound,
+      isOpenMessageTwinkle: Account.isOpenMessageTwinkle,
+      backHomepageWay: Account.backHomepageWay || 1,
+    }
+    Object.assign(window, settings);
   }
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.visible !== this.props.visible) {

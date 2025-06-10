@@ -1,7 +1,7 @@
 import React from 'react';
-import { ScrollView, CardNav } from 'ming-ui';
+import { CardNav, ScrollView } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import { saveSelectExtensionNavType } from 'worksheet/util';
+import { saveSelectExtensionNavType } from 'src/utils/worksheet';
 
 class Sidenav extends React.Component {
   handleClickNav = navType => {

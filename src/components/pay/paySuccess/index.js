@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import PayHeader from '../payHeader';
 import DocumentTitle from 'react-document-title';
-import orderController from 'src/api/order';
-import { getRequest } from 'src/util';
 import moment from 'moment';
 import styled from 'styled-components';
+import orderController from 'src/api/order';
+import preall from 'src/common/preall';
+import { getRequest } from 'src/utils/common';
+import PayHeader from '../payHeader';
 
 const PaySuccessWrap = styled.div`
   .successWrap {

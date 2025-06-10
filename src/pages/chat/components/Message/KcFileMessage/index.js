@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import ImageMessage from '../ImageMessage';
-import FileMessage from '../FileMessage';
 import kc from 'src/api/kc';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
+import FileMessage from '../FileMessage';
+import ImageMessage from '../ImageMessage';
+
 export default class KcFileMessage extends Component {
   constructor(props) {
     super(props);

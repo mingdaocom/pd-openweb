@@ -1,14 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import EditableCellCon from '../EditableCellCon';
-import renderText from './renderText';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
-import { CityPicker, Input } from 'ming-ui';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import { CityPicker, Input } from 'ming-ui';
+import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { browserIsMobile } from 'src/utils/common';
+import { isKeyBoardInputChar } from 'src/utils/common';
+import { renderText } from 'src/utils/control';
+import EditableCellCon from '../EditableCellCon';
 
 const InputWrap = styled(Input)`
   border: none !important;
@@ -92,7 +92,6 @@ export default class Date extends React.Component {
 
   handleChange = (array, panelIndex, autoClose = true) => {
     const { tableFromModule, cell, updateCell, updateEditingStatus } = this.props;
-    let level = this.getAreaLevel(cell.type);
     const last = _.last(array);
     const anylevel = _.get(cell, 'advancedSetting.anylevel');
     const index = last.path.split('/').length;
@@ -100,12 +99,12 @@ export default class Date extends React.Component {
     this.state.search && this.setState({ search: '', keywords: '' });
 
     // 必须选择最后一级
-    if (anylevel === '1' && !last.last && level > index) {
+    if (anylevel === '1' && !last.last && (cell.enumDefault === 1 ? true : cell.enumDefault2 > index)) {
       return;
     }
 
     const newValue = JSON.stringify({ code: last.id, name: last.path });
-    if (!last || (last.path.split('/').length < level && !last.last)) {
+    if (!last || (last.path.split('/').length < cell.enumDefault2 && !last.last)) {
       this.setState({ tempValue: newValue });
       return;
     }
@@ -139,19 +138,6 @@ export default class Date extends React.Component {
     updateEditingStatus(false);
   };
 
-  getAreaLevel(type) {
-    if (type === 19) {
-      return 1; // 省
-    }
-    if (type === 23) {
-      return 2; // 省-市
-    }
-    if (type === 24) {
-      return 3; // 省-市-县
-    }
-    return 3;
-  }
-
   onFetchData = _.debounce(keywords => {
     this.setState({ keywords });
   }, 500);
@@ -168,20 +154,23 @@ export default class Date extends React.Component {
       updateEditingStatus,
       updateCell,
       onClick,
+      projectId,
     } = this.props;
     const { tempValue, value, search, keywords } = this.state;
     const isMobile = browserIsMobile();
-    const level = this.getAreaLevel(cell.type);
     const anylevel = _.get(cell, 'advancedSetting.anylevel');
+    const chooserange = _.get(cell, 'advancedSetting.chooserange');
 
     return (
       <CityPicker
         search={keywords}
         popupVisible={isediting}
+        chooserange={chooserange}
         hasContentContainer={false}
         popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
         defaultValue={[]}
-        level={level}
+        level={cell.enumDefault2}
+        projectId={projectId}
         manual={true}
         mustLast={anylevel === '1'}
         popupAlign={{
@@ -194,11 +183,14 @@ export default class Date extends React.Component {
         }}
         callback={this.handleChange}
         handleClose={(array = []) => {
-          const anylevel = _.get(cell, 'advancedSetting.anylevel');
           const last = _.last(array);
           const valueParse = safeParse(tempValue);
 
-          if (!last || (anylevel === '1' && (!last.last || last.path.split('/').length < level))) {
+          if (
+            _.isEmpty(valueParse) ||
+            !last ||
+            (anylevel === '1' && (!last.last || last.path.split('/').length < cell.enumDefault2))
+          ) {
             updateEditingStatus(false);
             return;
           }

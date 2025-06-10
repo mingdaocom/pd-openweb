@@ -1,11 +1,11 @@
 import React from 'react';
-import { Input } from 'ming-ui';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { func, number, string } from 'prop-types';
-import { formatNumberFromInput } from 'src/util';
-import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import _ from 'lodash';
+import { func, number, string } from 'prop-types';
+import styled from 'styled-components';
+import { Input } from 'ming-ui';
+import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { formatNumberFromInput } from 'src/utils/control';
 
 const Con = styled.div`
   display: flex;

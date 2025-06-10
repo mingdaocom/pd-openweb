@@ -23,6 +23,14 @@ export const currentSheetRows = (state = [], action) => {
     case 'MOBILE_UNSHIFT_SHEET_ROWS':
       state.unshift(action.data);
       return Object.assign([], state);
+    case 'MOBILE_UPDATE_SHEET_ROW_BY_ROWID':
+      const newState = state.map(row => {
+        if (action.rowId === row.rowid) {
+          return action.isViewData ? { ...row, ...action.rowUpdatedValue } : null;
+        }
+        return row;
+      });
+      return newState.filter(Boolean);
     default:
       return state;
   }

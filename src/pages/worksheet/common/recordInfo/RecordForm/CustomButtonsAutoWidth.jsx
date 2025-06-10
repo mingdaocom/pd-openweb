@@ -1,6 +1,6 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -34,15 +34,55 @@ const MoreBtn = styled.span`
 const DropButton = styled(Button)`
   padding: 0 !important;
   text-align: center;
-  background-color: transparent !important;;
-  border-color: rgb(204, 204, 204) !important;;
-  color: rgb(51, 51, 51) !important;;
-}
+  background-color: transparent !important;
+  border: 1px solid rgb(204, 204, 204) !important;
+  color: rgb(51, 51, 51) !important;
   .dropIcon {
     display: inline-block;
   }
   &.active .dropIcon {
     transform: rotate(180deg);
+  }
+  ${props =>
+    props.operateHeight &&
+    `&.ming.Button.isOperates {
+    height: ${props.operateHeight}px !important;
+    line-height: ${props.operateHeight - 2}px !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+    width: auto;
+    min-width: ${props.moreWidth || 26}px;
+    min-height: ${props.operateHeight}px;
+    .icon {
+      margin: 0;
+      line-height: ${props.operateHeight - 2}px;
+    }
+    &:hover {
+      &::before {
+        display: none;
+      }
+    }
+  }
+    `}
+  &.operates-icon {
+    border-color: transparent !important;
+    &:hover {
+      background: rgba(0, 0, 0, 0.03) !important;
+    }
+  }
+  &.operates-text {
+    border-color: transparent !important;
+    background: transparent !important;
+    &:hover {
+      border-color: transparent !important;
+      background: rgba(0, 0, 0, 0.03) !important;
+    }
+  }
+  &.operates-standard {
+    background: #fff !important;
+    &:hover {
+      background: rgba(0, 0, 0, 0.03) !important;
+    }
   }
 `;
 
@@ -80,6 +120,7 @@ function getButtonWidth(button, type) {
 function Buttons(props) {
   const {
     type = 'iconText',
+    isOperates,
     isCharge,
     count,
     width,
@@ -91,32 +132,41 @@ function Buttons(props) {
     selectedRows = [],
     isAll,
     buttons,
+    visibleNum,
     handleTriggerCustomBtn,
     handleUpdateWorksheetRow,
     onUpdateRow,
   } = props;
   const cache = useRef({});
   const [popupVisible, setPopupVisible] = useState(false);
+  const operateHeight = (props.rowHeight && props.rowHeight) > 34 || props.isInCard ? 32 : 26;
+  const moreWidth = props.isInCard ? 32 : 26;
   const hideDisabled = type === 'iconText' || !viewId;
-  const sumWidth = _.sum(buttons.map(button => getButtonWidth(button, type)));
-  const moreButtonWidth = getButtonWidth({ name: _l('更多') }, type) - 6;
   let buttonShowNum = 1;
-  if (sumWidth < width) {
-    buttonShowNum = buttons.length;
+  if (typeof visibleNum === 'number') {
+    buttonShowNum = visibleNum;
   } else {
-    while (true) {
-      if (
-        buttonShowNum <= buttons.length &&
-        _.sum(buttons.slice(0, buttonShowNum + 1).map(button => getButtonWidth(button, type))) < width - moreButtonWidth
-      ) {
-        buttonShowNum += 1;
-      } else {
-        break;
+    const sumWidth = _.sum(buttons.map(button => getButtonWidth(button, type)));
+    const moreButtonWidth = getButtonWidth({ name: _l('更多') }, type) - 6;
+    if (sumWidth < width) {
+      buttonShowNum = buttons.length;
+    } else {
+      while (true) {
+        if (
+          buttonShowNum <= buttons.length &&
+          _.sum(buttons.slice(0, buttonShowNum + 1).map(button => getButtonWidth(button, type))) <
+            width - moreButtonWidth
+        ) {
+          buttonShowNum += 1;
+        } else {
+          break;
+        }
       }
     }
   }
   const buttonsProps = {
     isFromBatchEdit: true,
+    operateHeight,
     count,
     appId,
     viewId,
@@ -130,16 +180,64 @@ function Buttons(props) {
     onUpdateRow,
     ...props,
   };
+  const showMore = buttonShowNum < buttons.length;
+  buttonShowNum < buttons.length;
   const updatePopupVisible = useCallback(newValue => {
     if (cache.current.customButtonActive && !newValue) {
       return;
     }
     setPopupVisible(newValue);
   });
+  let moreContent;
+  if (isOperates) {
+    moreContent = (
+      <DropButton
+        className={cx(
+          'recordCustomButton overflowHidden transparentButton moreButtons',
+          {
+            active: popupVisible,
+            isOperates,
+          },
+          get(buttons, '0.className', ''),
+        )}
+        operateHeight={operateHeight}
+        moreWidth={moreWidth}
+      >
+        <i className="icon icon-more_horiz Gray_9d Font20"></i>
+      </DropButton>
+    );
+  } else if (type === 'button') {
+    moreContent = (
+      <DropButton
+        className={cx('recordCustomButton overflowHidden transparentButton moreButtons', {
+          active: popupVisible,
+          isOperates,
+        })}
+        size="small"
+        type="ghost"
+      >
+        <span className="breakAll overflow_ellipsis">{_l('更多')}</span>
+        <i className="dropIcon icon icon-arrow-down Font12 mLeft6 mRight0 Gray_9d" />
+      </DropButton>
+    );
+  } else {
+    moreContent = (
+      <MoreBtn>
+        {_l('更多')}
+        <i className="icon icon-arrow-down-border"></i>
+      </MoreBtn>
+    );
+  }
+  useEffect(() => {
+    return () => {
+      console.log('unmount');
+    };
+  }, []);
   return (
-    <Con>
+    <Con className={cx('customButtonsCon')}>
       <CustomButtons
         {...buttonsProps}
+        showMore={showMore}
         className={type}
         isCharge={isCharge}
         hideDisabled={hideDisabled}
@@ -147,15 +245,16 @@ function Buttons(props) {
         type={type}
         buttons={buttons.slice(0, buttonShowNum)}
       />
-      {buttonShowNum < buttons.length && (
+      {showMore && (
         <Trigger
           popupVisible={popupVisible}
           zIndex={1000}
-          action={['hover']}
+          action={[isOperates ? 'click' : 'hover']}
           popupAlign={{
             points: ['tl', 'bl'],
             overflow: {
               adjustX: true,
+              adjustY: true,
             },
             offset: type === 'button' ? [0, 6] : [],
           }}
@@ -201,23 +300,7 @@ function Buttons(props) {
             </Menu>
           }
         >
-          {type === 'button' ? (
-            <DropButton
-              className={cx('recordCustomButton overflowHidden transparentButton moreButtons', {
-                active: popupVisible,
-              })}
-              size="small"
-              type="ghost"
-            >
-              <span className="breakAll overflow_ellipsis">{_l('更多')}</span>
-              <i className="dropIcon icon icon-arrow-down Font12 mLeft6 mRight0 Gray_9d" />
-            </DropButton>
-          ) : (
-            <MoreBtn>
-              {_l('更多')}
-              <i className="icon icon-arrow-down-border"></i>
-            </MoreBtn>
-          )}
+          {moreContent}
         </Trigger>
       )}
     </Con>

@@ -6,7 +6,7 @@ const config = webpackConfig();
 
 module.exports = {
   resolve: Object.assign({}, config.resolve, {
-    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/util/uuid' }),
+    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/utils/uuid' }),
   }),
   plugins: [
     new webpack.DefinePlugin({

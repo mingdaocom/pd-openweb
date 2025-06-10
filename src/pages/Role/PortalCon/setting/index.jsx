@@ -1,17 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/PortalCon/redux/actions';
-import { Icon, Dialog } from 'ming-ui';
 import { Drawer } from 'antd';
-import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import BaseSet from './BaseSet';
 import InfoSet from './InfoSet';
 import LoginSet from './LoginSet';
 import TextMessage from './TextMessage';
-import externalPortalAjax from 'src/api/externalPortal';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   position: fixed;
@@ -184,7 +184,13 @@ class PortalSetting extends React.Component {
   editPortal = noClose => {
     const { portalSet = {} } = this.state;
     const { closeSet, appPkg = {} } = this.props;
-    const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {}, epDiscussWorkFlow = {} } = portalSet;
+    const {
+      portalSetModel = {},
+      controlTemplate = {},
+      authorizerInfo = {},
+      epDiscussWorkFlow = {},
+      extendAttr = [],
+    } = portalSet;
     let {
       pageTitle,
       smsSignature,
@@ -200,6 +206,8 @@ class PortalSetting extends React.Component {
       customizeName,
     } = portalSetModel;
 
+    smsSignature = smsSignature.trim();
+
     if (!customizeName) {
       alert(_l('外部门户名称不能为空'), 3);
       return false;
@@ -208,7 +216,7 @@ class PortalSetting extends React.Component {
       if (!smsSignature) {
         alert(_l('短信签名不能为空'), 3);
         return false;
-      } else if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature) || smsSignature.length > 20) {
+      } else if (!/^[\u4E00-\u9FA5A-Za-z ]+$/.test(smsSignature) || smsSignature.length > 20) {
         alert(_l('短信签名格式不正确'), 3);
         return false;
       }
@@ -265,7 +273,8 @@ class PortalSetting extends React.Component {
             'internalControls',
             'externalControls',
             'addressExt',
-            'autoLogin'
+            'autoLogin',
+            'extendAttr',
           ]),
           epDiscussWorkFlow,
           appId,
@@ -363,7 +372,7 @@ class PortalSetting extends React.Component {
               onSave={() => {
                 this.editPortal(true);
               }}
-              onChangeImg={data => {
+              onChangePortalSetModel={data => {
                 this.setState({
                   hasChange: true,
                   portalSet: {

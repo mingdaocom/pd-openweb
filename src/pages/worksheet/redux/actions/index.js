@@ -1,48 +1,48 @@
-import worksheetAjax from 'src/api/worksheet';
-import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
+import _, { find, flatten, get, includes, some, values } from 'lodash';
+import appManagementAjax from 'src/api/appManagement';
+import worksheetAjax from 'src/api/worksheet';
 import addRecord from 'worksheet/common/newRecord/addRecord';
-import {
-  refresh as sheetViewRefresh,
-  addRecord as sheetViewAddRecord,
-  setViewLayout,
-  setHighLightOfRows,
-} from './sheetview';
-import { refresh as galleryViewRefresh } from './galleryview';
-import { refresh as calendarViewRefresh } from './calendarview';
-import { refresh as resourceViewRefresh } from './resourceview';
-import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunterview';
-import { initBoardViewData } from './boardView';
-import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
-import { updateGunterSearchRecord } from './gunterview';
-import { refresh as detailViewRefresh } from './detailView';
-import { refresh as customWidgetViewRefresh } from './customWidgetView';
-import { refreshBtnData } from 'src/pages/FormSet/util';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import {
-  getFilledRequestParams,
-  needHideViewFilters,
-  replaceControlsTranslateInfo,
-  replaceAdvancedSettingTranslateInfo,
-  replaceRulesTranslateInfo,
-  getHighAuthSheetSwitchPermit,
-  getHighAuthControls,
-} from 'src/pages/worksheet/util';
-import _, { find, get, some } from 'lodash';
-import { getTranslateInfo, addBehaviorLog } from 'src/util';
-import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
 import {
   formatFilterValues,
   formatFilterValuesToServer,
   handleConditionsDefault,
   validate,
 } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { refreshBtnData } from 'src/pages/FormSet/util';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { getHighAuthControls } from 'src/utils/control';
+import { needHideViewFilters } from 'src/utils/filter';
+import { addBehaviorLog } from 'src/utils/project';
+import {
+  replaceAdvancedSettingTranslateInfo,
+  replaceControlsTranslateInfo,
+  replaceRulesTranslateInfo,
+} from 'src/utils/translate';
+import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
+import { initBoardViewData } from './boardView';
+import { refresh as calendarViewRefresh } from './calendarview';
+import { refresh as customWidgetViewRefresh } from './customWidgetView';
+import { refresh as detailViewRefresh } from './detailView';
+import { refresh as galleryViewRefresh } from './galleryview';
+import { addNewRecord as addGunterNewRecord, resetLoadGunterView } from './gunterview';
+import { updateGunterSearchRecord } from './gunterview';
+import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
+import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
+import { getNavGroupCount, updateNavGroup } from './navFilter.js';
+import { refresh as resourceViewRefresh } from './resourceview';
+import {
+  setHighLightOfRows,
+  setViewLayout,
+  addRecord as sheetViewAddRecord,
+  refresh as sheetViewRefresh,
+} from './sheetview';
 import { isHaveCharge } from './util';
-import { updateNavGroup, getNavGroupCount } from './navFilter.js';
 
 export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
   return (dispatch, getState) => {
@@ -74,6 +74,60 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
       dispatch(updateQuickFilterWithDefault(newFastFilters));
     } else {
       dispatch(updateQuickFilterWithDefault(view.fastFilters));
+    }
+  };
+}
+
+export function handleLoadOperateButtons({ worksheetInfo }) {
+  return (dispatch, getState) => {
+    const sheet = getState().sheet;
+    const { base } = sheet;
+    const actionColumn = flatten(
+      worksheetInfo.views.map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
+    );
+    const needLoadCustomButtons = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'btn');
+    const needLoadPrintList = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'print');
+    if (!needLoadCustomButtons && !needLoadPrintList) {
+      dispatch({
+        type: 'WORKSHEET_UPDATE_OPERATE_BUTTON_LOADING',
+        loading: false,
+      });
+    }
+    const loadingStatus = {
+      customButtons: !!needLoadCustomButtons,
+      printList: !!needLoadPrintList,
+    };
+    function handleUpdateOperateButtonLoading() {
+      if (values(loadingStatus).every(v => !v)) {
+        dispatch({
+          type: 'WORKSHEET_UPDATE_OPERATE_BUTTON_LOADING',
+          loading: false,
+        });
+      }
+    }
+    if (needLoadCustomButtons) {
+      dispatch(
+        loadCustomButtons(
+          {
+            appId: worksheetInfo.appId,
+            worksheetId: worksheetInfo.worksheetId,
+          },
+          () => {
+            loadingStatus.customButtons = false;
+            handleUpdateOperateButtonLoading();
+          },
+        ),
+      );
+    }
+    if (needLoadPrintList) {
+      worksheetAjax.getPrintList({ worksheetId: worksheetInfo.worksheetId }).then(data => {
+        dispatch({
+          type: 'WORKSHEET_UPDATE_PRINT_LIST',
+          printList: data,
+        });
+        loadingStatus.printList = false;
+        handleUpdateOperateButtonLoading();
+      });
     }
   };
 }
@@ -222,7 +276,11 @@ export function loadWorksheet(worksheetId, setRequest) {
           const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));
           infoRes.entityName = translateInfo.recordName || infoRes.entityName;
           if (infoRes.advancedSetting) {
-            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(appId, worksheetId, res.advancedSetting || {});
+            infoRes.advancedSetting = replaceAdvancedSettingTranslateInfo(
+              appId,
+              worksheetId,
+              res.advancedSetting || {},
+            );
           }
           if (infoRes.rules && infoRes.rules.length) {
             infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, res.rules);
@@ -248,6 +306,7 @@ export function loadWorksheet(worksheetId, setRequest) {
                   },
             ),
           });
+          dispatch(handleLoadOperateButtons({ worksheetInfo: infoRes }));
           const currentView = find(infoRes.views, { viewId });
           if (currentView) {
             dispatch(fireWhenViewLoaded(currentView, { controls: infoRes.template.controls }));
@@ -280,7 +339,7 @@ export const updateWorksheetInfo = info => ({
   info,
 });
 
-export function loadCustomButtons({ appId, viewId, rowId, worksheetId }) {
+export function loadCustomButtons({ appId, viewId, rowId, worksheetId }, cb = () => {}) {
   return dispatch => {
     if (!worksheetId || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
       return;
@@ -304,6 +363,7 @@ export function loadCustomButtons({ appId, viewId, rowId, worksheetId }) {
             buttons,
           });
         }
+        cb();
       });
   };
 }
@@ -350,7 +410,7 @@ export const updateView = view => ({
 export function saveView(viewId, newConfig, cb) {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
-    const { base, views, navGroupFilters } = sheet;
+    const { base, views, navGroupFilters, worksheetInfo } = sheet;
     const view = _.find(views, v => v.viewId === viewId);
     const saveParams = { ...newConfig };
     const editAttrs = Object.keys(saveParams).filter(o => 'editAdKeys' !== o);
@@ -367,6 +427,7 @@ export function saveView(viewId, newConfig, cb) {
     if (saveParams.filters) {
       saveParams.filters = saveParams.filters.map(formatValuesOfCondition);
     }
+    dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: true });
     worksheetAjax
       .saveWorksheetView({
         ..._.pick(base, ['appId', 'worksheetId']),
@@ -396,6 +457,16 @@ export function saveView(viewId, newConfig, cb) {
           dispatch(updateGroupFilter([], nextView));
           dispatch(getNavGroupCount());
         }
+        if (includes(saveParams.editAdKeys, 'actioncolumn')) {
+          dispatch(
+            handleLoadOperateButtons({
+              worksheetInfo: {
+                ...worksheetInfo,
+                views: worksheetInfo.views.map(v => (v.viewId === nextView.viewId ? nextView : v)),
+              },
+            }),
+          );
+        }
         dispatch({
           type: 'WORKSHEET_UPDATE_VIEW',
           view: data,
@@ -411,9 +482,11 @@ export function saveView(viewId, newConfig, cb) {
         if (typeof cb === 'function') {
           cb(nextView);
         }
+        dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       })
       .catch(err => {
         alert(_l('视图配置保存失败'), 3);
+        dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       });
   };
 }

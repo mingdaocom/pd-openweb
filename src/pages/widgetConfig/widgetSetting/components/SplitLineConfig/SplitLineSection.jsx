@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Icon, SvgIcon } from 'ming-ui';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
-import { SectionItemWrap } from './style';
-import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStatus.jsx';
-import { browserIsMobile } from 'src/util';
-import { getExpandWidgetIds } from './config';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Icon, SvgIcon } from 'ming-ui';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStatus.jsx';
+import { browserIsMobile } from 'src/utils/common';
+import { getExpandWidgetIds } from './config';
+import { SectionItemWrap } from './style';
 
 export default function SplitLineSection(props) {
   // fromType = 'display' 表单详情

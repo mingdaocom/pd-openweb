@@ -1,18 +1,18 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import WorksheetShareHeader from './header';
+import _ from 'lodash';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import preall from 'src/common/preall';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import WorksheetListShare from './worksheetListShare';
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import PublicQuery from './publicquery';
-import './index.less';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
-import { shareGetAppLangDetail } from 'src/util';
-import _ from 'lodash';
+import { shareGetAppLangDetail } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import WorksheetShareHeader from './header';
+import PublicQuery from './publicquery';
+import WorksheetListShare from './worksheetListShare';
+import './index.less';
 
 class WorksheetSahre extends React.Component {
   constructor(props) {
@@ -51,7 +51,7 @@ class WorksheetSahre extends React.Component {
   getShareInfo = id => {
     publicWorksheetAjax
       .getPublicQueryById({
-        queryId: id
+        queryId: id,
       })
       .then(async (res = {}) => {
         const { appId = '', worksheetId = '', projectId, template } = res.worksheet || {};

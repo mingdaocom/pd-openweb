@@ -3,8 +3,6 @@ import _ from 'lodash';
 import moment from 'moment';
 import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, isRelateRecordTableControl } from 'worksheet/util';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
@@ -19,19 +17,18 @@ import {
   FILTER_CONDITION_TYPE,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getConditionType, getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
-import { calcDate, filterEmptyChildTableRows } from 'src/pages/worksheet/util';
+import { accDiv, accMul, calcDate } from 'src/utils/common';
 import {
-  accDiv,
-  accMul,
-  dateConvertToServerZone,
-  dateConvertToUserZone,
   formatStrZero,
-  getContactInfo,
-  isEmptyValue,
+  getSwitchItemNames,
+  isRelateRecordTableControl,
+  renderText as renderCellText,
   toFixed,
-} from 'src/util';
+} from 'src/utils/control';
+import { checkCellIsEmpty, isEmptyValue } from 'src/utils/control';
+import { dateConvertToServerZone, dateConvertToUserZone, getContactInfo } from 'src/utils/project';
+import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, TIME_UNIT } from './config';
 
 export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
@@ -1052,24 +1049,14 @@ const getControlValue = (data, currentItem, controlId, objValue) => {
   return _.isUndefined(value) ? '' : value;
 };
 
-function checkChildTableIsEmpty(control = {}) {
-  const store = control.store;
-  const state = store && store.getState();
-  if (state && state.rows && !state.baseLoading) {
-    return filterEmptyChildTableRows(state.rows).length <= 0;
-  } else {
-    return control.value === '0' || !control.value;
-  }
-}
-
 // 检测必填
 export const checkRequired = item => {
   let errorType = '';
 
   if (
     item.required &&
-    ((item.type !== 34 && (!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value)))) ||
-      (item.type !== 34 && _.isString(item.value) && !item.value.trim()) ||
+    ((!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value))) ||
+      (_.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
       (item.type === 14 &&
         ((_.isArray(safeParse(item.value)) && !safeParse(item.value).length) ||
@@ -1083,7 +1070,8 @@ export const checkRequired = item => {
       (item.type === 29 &&
         typeof item.value === 'string' &&
         (item.value.startsWith('deleteRowIds') || item.value === '0')) ||
-      (item.type === 34 && checkChildTableIsEmpty(item)) ||
+      (item.type === 34 &&
+        ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
       (item.type === 36 && item.value === '0') ||
       (item.type === 28 && parseFloat(item.value) === 0))
   ) {
@@ -1451,7 +1439,6 @@ const dayFn = (filterData = {}, value, isGT, currentControl = {}) => {
         dateRange = isFeature ? 3 : 2;
         dateRangeTypeNum = editValue || 1;
         break;
-      case DATE_RANGE_TYPE.MONTH:
       case DATE_RANGE_TYPE.MINUTE:
         dateRangeTypeNum = value || 1;
         break;

@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import { Dropdown } from 'antd';
-import { DropdownOverlay, DropdownPlaceholder } from '../styled';
-import { isEmptyValue } from 'src/util';
 import _ from 'lodash';
+import { isEmptyValue } from 'src/utils/control';
+import { DropdownOverlay, DropdownPlaceholder } from '../styled';
 
 export default function DropdownWrapper(props) {
   const {

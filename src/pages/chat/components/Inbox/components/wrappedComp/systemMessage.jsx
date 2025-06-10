@@ -11,8 +11,8 @@ import { formatMsgDate } from 'src/pages/chat/utils';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/util';
-import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
+import { getRequest } from 'src/utils/common';
+import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
 import { MSG_DONE_TEXT, MSGTYPES } from '../../constants';
 import { formatInboxItem } from '../../util';
 import Avatar from '../baseComponent/avatar';
@@ -86,10 +86,10 @@ export default class SystemMessage extends PureComponent {
           const { type, gid } = getRequest(href.slice(href.indexOf('?')));
 
           if (type === 'group' && gid) {
-            import('src/components/group/settingGroup/settingGroups').then(func => {
+            import('src/pages/Group/settingGroup').then(func => {
               func.default({
-                groupId: gid,
-                viewType: 1,
+                groupID: gid,
+                isApprove: true,
               });
             });
           } else {
@@ -114,6 +114,10 @@ export default class SystemMessage extends PureComponent {
             <ExecDialog
               id={ids[0]}
               workId={ids[1]}
+              onLoad={() => {
+                const refreshBtn = document.querySelector('.ChatPanel-active .inboxHeader .refreshBtn');
+                refreshBtn && refreshBtn.click();
+              }}
               onClose={() => {
                 root.unmount();
               }}
@@ -142,6 +146,7 @@ export default class SystemMessage extends PureComponent {
         // MAP平台
         if (href.indexOf('map/admin') > -1 || href.indexOf('map/packages') > -1) {
           evt.preventDefault();
+          evt.stopPropagation();
           window.open(href);
           return;
         }
@@ -164,13 +169,6 @@ export default class SystemMessage extends PureComponent {
           const appId = (href.match(/[\w-]{36}/) || '')[0];
           addBehaviorLog('app', appId);
           return;
-        }
-
-        // map应用审核
-        if (href.indexOf('/admin/applications/') > -1) {
-          evt.preventDefault();
-          evt.stopPropagation();
-          window.open(href);
         }
       });
     }

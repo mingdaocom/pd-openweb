@@ -1,15 +1,16 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
+import { useSetState } from 'react-use';
+import { Dropdown, Tooltip } from 'antd';
 import cx from 'classnames';
+import { isEqual } from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
-import { Dropdown, Tooltip } from 'antd';
-import { useSetState } from 'react-use';
-import { isEqual } from 'lodash';
-import { handleAdvancedSettingChange } from '../../../../util/setting';
+import fixedDataController from 'src/api/fixedData';
+import { DropdownPlaceholder, SettingItem } from '../../../../styled';
 import { getAdvanceSetting } from '../../../../util';
-import allData, { COMMON_DEFAULT_COUNTRY } from './telData';
+import { handleAdvancedSettingChange } from '../../../../util/setting';
 import SelectDialog, { SelectCountryDropdown } from './SelectDialog';
-import { DropdownPlaceholder } from '../../../../styled';
+import allData, { COMMON_DEFAULT_COUNTRY } from './telData';
 
 const TelConfigWrap = styled.div`
   .allowSelectDisplay,
@@ -29,8 +30,8 @@ const TelConfigWrap = styled.div`
   }
 `;
 
-export default function TelConfig({ data, onChange }) {
-  const { enumDefault } = data;
+export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
+  const { enumDefault = 0 } = data;
 
   const [{ allowSelectVisible, commonUseVisible, defaultCountryVisible }, setVisible] = useSetState({
     allowSelectVisible: false,
@@ -41,6 +42,25 @@ export default function TelConfig({ data, onChange }) {
   const allowData = getAdvanceSetting(data, 'allowcountries') || [];
   const commonData = getAdvanceSetting(data, 'commcountries') || [];
   const defaultCountry = getAdvanceSetting(data, 'defaultarea') || {};
+
+  useEffect(() => {
+    if (enumDefault === 0 && _.isEmpty(defaultCountry)) {
+      fixedDataController.getRegionConfigInfos({ projectId: globalSheetInfo.projectId }).then(res => {
+        let code = 'CN';
+        if (!_.isEmpty(res)) {
+          code = _.get(res, 'code');
+        }
+        const defaultGeoCountry = _.find(allData, a => a.iso2 === code.toLocaleLowerCase());
+        if (defaultGeoCountry) {
+          onChange(
+            handleAdvancedSettingChange(data, {
+              defaultarea: JSON.stringify(defaultGeoCountry),
+            }),
+          );
+        }
+      });
+    }
+  }, [data.controlId]);
 
   const getCommonData = () => {
     if (commonData.length > 0) return commonData;
@@ -63,12 +83,10 @@ export default function TelConfig({ data, onChange }) {
     }, []);
   };
 
-  const selectableCountry = allowData.length > 0 ? allowData : allData;
-
   const getCommonDisplayText = () => {
     if (commonData.length > 0) {
       if (commonData.length === COMMON_DEFAULT_COUNTRY.length && isEqual(commonData, COMMON_DEFAULT_COUNTRY)) {
-        return <div className="text Gray_bd">{_l('默认')}</div>;
+        return <div className="text Gray_75">{_l('默认')}</div>;
       }
       return <div className="text">{_l('%0个', commonData.length)}</div>;
     }
@@ -76,7 +94,37 @@ export default function TelConfig({ data, onChange }) {
   };
   return (
     <Fragment>
-      <div className="labelWrap">
+      <SettingItem>
+        <div className="settingItemTitle">{_l('默认区号')}</div>
+        <Dropdown
+          trigger={['click']}
+          visible={defaultCountryVisible}
+          onVisibleChange={visible => setVisible({ defaultCountryVisible: visible })}
+          overlay={
+            <SelectCountryDropdown
+              style={{ width: '300px' }}
+              unique
+              selectableData={allData}
+              setData={item => {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    defaultarea: JSON.stringify(item),
+                  }),
+                );
+                setVisible({ defaultCountryVisible: false });
+              }}
+            />
+          }
+        >
+          <DropdownPlaceholder>
+            <div className={cx('text', { Gray_bd: !defaultCountry.name })}>
+              {defaultCountry.name ? `+${defaultCountry.dialCode} ${defaultCountry.name}` : _l('请选择')}
+            </div>
+            <i className="icon-arrow-down-border Font14 Gray_9e"></i>
+          </DropdownPlaceholder>
+        </Dropdown>
+      </SettingItem>
+      <div className="labelWrap mTop16">
         <Checkbox
           size="small"
           checked={enumDefault === 0}
@@ -85,48 +133,22 @@ export default function TelConfig({ data, onChange }) {
           }}
         >
           <span>{_l('启用 国家/地区 选择')}</span>
-          <Tooltip
-            placement={'bottom'}
-            title={_l('未启用时，默认输入中国号码，国际号码需要手动输入国家/地区代码。启用后，可选择国家/地区代码。')}
-          >
-            <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
-          </Tooltip>
         </Checkbox>
       </div>
       {enumDefault === 0 && (
         <TelConfigWrap>
-          <div className="title">{_l('允许的国家/地区')}</div>
+          <div className="title">{_l('允许选择的国家/地区')}</div>
           <div className="allowSelectDisplay pointer" onClick={() => setVisible({ allowSelectVisible: true })}>
-            <div className={cx('text', { Gray_bd: allowData.length < 1 })}>
+            <div className={cx('text', { Gray_75: allowData.length < 1 })}>
               {allowData.length > 0 ? _l('%0个', allowData.length) : _l('全部')}
             </div>
           </div>
-          <div className="title">{_l('默认的国家/地区')}</div>
-          <Dropdown
-            trigger={['click']}
-            visible={defaultCountryVisible}
-            onVisibleChange={visible => setVisible({ defaultCountryVisible: visible })}
-            overlay={
-              <SelectCountryDropdown
-                unique
-                selectableData={selectableCountry}
-                setData={item => {
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      defaultarea: JSON.stringify(item),
-                    }),
-                  );
-                  setVisible({ defaultCountryVisible: false });
-                }}
-              />
-            }
-          >
-            <DropdownPlaceholder>
-              <div className={cx('text', { Gray_bd: !defaultCountry.name })}>{defaultCountry.name || _l('请选择')}</div>
-              <i className="icon-arrow-down-border Font14 Gray_9e"></i>
-            </DropdownPlaceholder>
-          </Dropdown>
-          <div className="title">{_l('常用的国家/地区')}</div>
+          <div className="title">
+            {_l('常用的国家/地区')}
+            <Tooltip popupPlacement="bottom" title={<span>{_l('常用的将优先显示在选择列表')}</span>}>
+              <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+            </Tooltip>
+          </div>
           <div className="commonUseDisplay pointer" onClick={() => setVisible({ commonUseVisible: true })}>
             {getCommonDisplayText()}
           </div>
@@ -135,17 +157,12 @@ export default function TelConfig({ data, onChange }) {
       {allowSelectVisible && (
         <SelectDialog
           type="allowData"
-          title={_l('允许的国家/地区')}
+          title={_l('允许选择的国家/地区')}
           data={allowData}
           onOk={list => {
             const nextCommonData = genNextCommonData(list);
-            const area =
-              list.length > 0
-                ? list[0]
-                : COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry'));
             onChange({
               ...handleAdvancedSettingChange(data, {
-                defaultarea: JSON.stringify(area),
                 allowcountries: JSON.stringify(list),
                 commcountries: JSON.stringify(nextCommonData),
               }),

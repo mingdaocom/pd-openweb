@@ -1,9 +1,10 @@
 ﻿import React from 'react';
-import uploadNewVersionDailog from './kcUploadNewVersion/kcUploadNewVersion';
 import service from '../api/service';
 import createUploader from 'src/library/plupload/createUploader';
+import RegExpValidator from 'src/utils/expression';
 import { UPLOAD_ERROR } from '../constant/enum';
-import RegExpValidator from 'src/util/expression';
+import uploadNewVersionDailog from './kcUploadNewVersion/kcUploadNewVersion';
+
 class UploadNewVersion extends React.Component {
   static propTypes() {
     return {

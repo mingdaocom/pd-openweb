@@ -1,16 +1,16 @@
-import React, { Fragment, Component } from 'react';
-import { Icon, Button, SvgIcon } from 'ming-ui';
-import cx from 'classnames';
+import React, { Component, Fragment } from 'react';
 import { Checkbox } from 'antd-mobile';
-import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
-import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
-import OtherAction from 'mobile/ProcessRecord/OtherAction';
-import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import instance from 'src/pages/workflow/api/instance';
-import { processInformTabs } from '../enum';
-import './index.less';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import { Button, Icon, SvgIcon } from 'ming-ui';
+import instance from 'src/pages/workflow/api/instance';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import OtherAction from 'mobile/ProcessRecord/OtherAction';
+import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
+import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
+import { processInformTabs } from '../enum';
+import './index.less';
 
 const TABS = {
   WAITING_DISPOSE: 1, // 待处理
@@ -213,7 +213,7 @@ export default class Card extends Component {
                 this.handleApprove(event, 'pass');
               }}
             >
-              {btnMap[4] || _l('通过')}
+              {btnMap[4] || _l('同意')}
             </Button>
           )}
           {fastApprove && '5' in btnMap && (
@@ -225,7 +225,7 @@ export default class Card extends Component {
                 this.handleApprove(event, 'overrule');
               }}
             >
-              {btnMap[5] || _l('否决')}
+              {btnMap[5] || _l('拒绝')}
             </Button>
           )}
         </div>

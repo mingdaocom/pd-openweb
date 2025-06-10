@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import _ from 'lodash';
+import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import DownloadAjax from 'src/api/download';
-import moment from 'moment';
-import _ from 'lodash';
-import { getFeatureStatus } from 'src/util';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const EXPORT_OPTIONS = [
   {

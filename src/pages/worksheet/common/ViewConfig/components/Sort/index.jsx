@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import SortConditions from '../SortConditions';
-import { CAN_NOT_AS_VIEW_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { useSetState } from 'react-use';
-import { Icon, Dropdown, Checkbox, Tooltip } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { Divider } from 'antd';
-import { getCanSelectColumnsForSort, getSortTypes } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Tooltip } from 'ming-ui';
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget.js';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { CAN_NOT_AS_VIEW_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { getCanSelectColumnsForSort, getSortTypes } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import SortConditions from '../SortConditions';
 
 const Wrap = styled.div`
   .custom {
@@ -31,7 +31,13 @@ const Wrap = styled.div`
 
 export default function (props) {
   const { appId, columns, view = {}, updateCurrentView, sortConditions } = props;
-  const canSortLIst = columns.filter(o => !CAN_NOT_AS_VIEW_SORT.includes(o.type));
+  const canSortLIst = columns.filter(
+    o =>
+      !(
+        CAN_NOT_AS_VIEW_SORT.includes(o.type === 30 ? o.sourceControlType : o.type) ||
+        (o.type === 30 && o.strDefault === '10')
+      ),
+  );
   const [{ moreSort, defaultsort }, setState] = useSetState({
     moreSort: view.moreSort || [],
     defaultsort: _.get(view, 'advancedSetting.defaultsort')

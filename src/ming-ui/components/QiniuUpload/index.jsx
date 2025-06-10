@@ -1,8 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import createUploader from 'src/library/plupload/createUploader';
-import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
+
 export default class QiniuUpload extends React.Component {
   static propTypes = {
     className: PropTypes.string,

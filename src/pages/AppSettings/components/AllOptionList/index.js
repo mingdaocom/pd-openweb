@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Icon } from 'ming-ui';
-import cx from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
 import update from 'immutability-helper';
-import { groupBy, maxBy, head, keys, sortBy, isEmpty } from 'lodash';
+import { groupBy, head, isEmpty, keys, maxBy, sortBy } from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import EditOptionList from 'src/pages/widgetConfig/widgetSetting/components/OptionList/EditOptionList';
+import { getTranslateInfo } from 'src/utils/app';
+import { getOptions } from '../../../widgetConfig/util/setting';
 import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
-import { getOptions } from '../../../widgetConfig/util/setting';
-import { useSetState } from 'react-use';
 import OperateList from './OperateList';
-import { getTranslateInfo } from 'src/util';
 
 const MAX_HEIGHT = 530;
 const LINE_HEIGHT = 30;

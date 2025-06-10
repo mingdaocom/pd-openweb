@@ -1,15 +1,15 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { ScrollView, Icon } from 'ming-ui';
 import { Popup } from 'antd-mobile';
-import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { RecordInfoModal } from 'mobile/Record';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import './index.less';
-import { dateFormat } from '../util.js';
-import withoutRows from '../../../../SheetRows/assets/withoutRows.png';
 import _ from 'lodash';
+import { Icon, ScrollView } from 'ming-ui';
+import { RecordInfoModal } from 'mobile/Record';
+import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import withoutRows from '../../../../SheetRows/assets/withoutRows.png';
+import { dateFormat } from '../util.js';
+import './index.less';
 
 class CurrentDateInfo extends Component {
   constructor(props) {
@@ -68,8 +68,8 @@ class CurrentDateInfo extends Component {
       isSearch && searchResultData.length
         ? searchResultData
         : !isSearch && mobileCurrentCalendatData.length
-        ? mobileCurrentCalendatData
-        : [];
+          ? mobileCurrentCalendatData
+          : [];
     return (
       <Fragment>
         <Popup
@@ -155,7 +155,7 @@ class CurrentDateInfo extends Component {
                       >
                         {item.title}
                       </div>
-                      {(flag && <div style={radioStyle}>{value}</div>) || null}
+                      {flag ? value ? <div style={radioStyle}>{value}</div> : <div className="null"></div> : null}
                       {item.start && (
                         <div className="Gray_9e Font13 mTop2 flexRow">
                           {dateFormat(item.start, item.end)}

@@ -1,34 +1,20 @@
-import _, {
-  get,
-  keys,
-  flatten,
-  sortBy,
-  omit,
-  isEmpty,
-  upperFirst,
-  findIndex,
-  isArray,
-  isObject,
-  includes,
-  isString,
-} from 'lodash';
+import { compose } from 'redux';
 import update from 'immutability-helper';
+import _, { findIndex, flatten, get, includes, isArray, isEmpty, isObject, keys, omit, sortBy } from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
-import { WHOLE_SIZE } from '../config/Drag';
+import { browserIsMobile } from 'src/utils/common';
 import {
-  NOT_AS_TITLE_CONTROL,
+  HAVE_HIGH_SETTING_WIDGET,
+  HAVE_MASK_WIDGET,
+  HAVE_MOBILE_WIDGET,
   HAVE_OPTION_WIDGET,
   HAVE_TABLE_STYLE_WIDGET,
-  HAVE_HIGH_SETTING_WIDGET,
-  HAVE_MOBILE_WIDGET,
-  HAVE_MASK_WIDGET,
   NO_DES_WIDGET,
+  NOT_AS_TITLE_CONTROL,
 } from '../config';
-import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
-import { compose } from 'redux';
-import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS, ALL_SYS } from '../config/widget';
-import { browserIsMobile } from 'src/util';
-import { COMMON_DEFAULT_COUNTRY } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/telData.js';
+import { WHOLE_SIZE } from '../config/Drag';
+import { RELATION_OPTIONS } from '../config/setting';
+import { ALL_SYS, DEFAULT_CONFIG, DEFAULT_DATA, SYS_CONTROLS, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
 
 const FORMULA_FN_LIST = [
   'SUM',
@@ -353,36 +339,6 @@ export const filterOnlyShowField = (controls = []) => {
   return controls.filter(i => !((i.type === 30 || i.originType === 30) && (i.strDefault || '')[0] === '1'));
 };
 
-export const getSwitchItemNames = (data, { needDefault, isShow } = {}) => {
-  const itemnames = getAdvanceSetting(data, 'itemnames') || [];
-  const showtype = getAdvanceSetting(data, 'showtype');
-  const defaultData = DEFAULT_TEXT[showtype];
-  // 筛选按默认来
-  if (isShow) {
-    return (
-      DEFAULT_TEXT[showtype] || [
-        { key: '1', value: _l('选中') },
-        { key: '0', value: _l('未选中') },
-      ]
-    );
-  }
-
-  // 需要兜底显示
-  if (needDefault) {
-    return defaultData.map(i => {
-      const cur = _.find(itemnames, it => it.key === i.key);
-      return _.get(cur, 'value') ? cur : i;
-    });
-  }
-
-  // radio框必须要文案
-  if (showtype === 2) {
-    return itemnames.every(i => !!i.value) ? itemnames : defaultData;
-  }
-
-  return itemnames;
-};
-
 export const levelSafeParse = value => {
   let levelValue = parseFloat(value, 10);
   if (!_.isNumber(levelValue) || _.isNaN(levelValue)) {
@@ -579,7 +535,6 @@ export const supportSettingCollapse = (props, key) => {
           return _.includes([2, 6, 15, 16], enumDefault2);
         default:
           if (_.includes([2, 6, 46, 10], type) && isCustom) return false;
-          if (_.includes([19, 23, 24], type) && enumDefault === 1) return false;
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
       }
     case 'security':
@@ -623,12 +578,6 @@ export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle 
 // 过滤系统字段专用
 export const filterSysControls = (controls = []) => {
   return controls.filter(c => !_.includes(ALL_SYS, c.controlId));
-};
-
-export const getDefaultarea = () => {
-  return JSON.stringify(
-    COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry')),
-  );
 };
 
 // 拖拽补key,完成去key

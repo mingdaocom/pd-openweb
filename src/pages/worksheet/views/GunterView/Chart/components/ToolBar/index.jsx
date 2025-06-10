@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon, Tooltip } from 'ming-ui';
+import { Select } from 'antd';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
-import styled, { css } from 'styled-components';
-import { Select } from 'antd';
-import Zoom from './Zoom';
-import { PERIODS } from 'worksheet/views/GunterView/config';
-import { browserIsMobile } from 'src/util';
-import { getSearchData } from 'worksheet/views/util';
-import './index.less';
 import _ from 'lodash';
+import styled, { css } from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import { PERIODS } from 'worksheet/views/GunterView/config';
+import { getSearchData } from 'worksheet/views/util';
+import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
+import { browserIsMobile } from 'src/utils/common';
+import Zoom from './Zoom';
+import './index.less';
 
 const ToolBarWrap = styled.div(
   ({ isMobile }) => `
@@ -169,7 +169,9 @@ export default class ToolBar extends Component {
               className="Gray_75 Font18 mRight14 pointer mLeft24"
               onClick={() => {
                 const { base } = this.props;
-                window.open(`/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`);
+                window.open(
+                  `${window.subPath || ''}/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`,
+                );
               }}
             />
           </Tooltip>

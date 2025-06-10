@@ -1,16 +1,16 @@
 import React, { Fragment, useState } from 'react';
+import cx from 'classnames';
+import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import _, { get, identity } from 'lodash';
-import { validate } from 'uuid';
-import cx from 'classnames';
-import { CardButton } from '../Basics';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { browserIsMobile } from 'src/util';
-import { getTitleTextFromRelateControl, getTitleControlId } from 'src/components/newCustomFields/tools/utils';
-import { getRecordCardStyle } from 'worksheet/util';
-import CardCellControls from './CardCellControls';
 import { className } from 'twemoji';
+import { validate } from 'uuid';
+import { getTitleControlId, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
+import { browserIsMobile } from 'src/utils/common';
+import { getRecordCardStyle } from 'src/utils/control';
+import { CardButton } from '../Basics';
+import CardCellControls from './CardCellControls';
 
 const Con = styled.div`
   ${({ isMobile }) => (isMobile ? 'margin-bottom:10px' : 'display: inline-flex;')}
@@ -18,6 +18,7 @@ const Con = styled.div`
   border-radius: 3px;
   background-color: #fff;
   border: 1px solid #eaeaea;
+  width: 100%;
   .operateButton {
     position: absolute;
     display: flex;
@@ -36,8 +37,16 @@ const Con = styled.div`
   .hoverShow {
     visibility: hidden;
   }
+  .dragger {
+    position: absolute;
+    top: 14px;
+    left: 1px;
+    cursor: grab;
+  }
   &.Hand:hover {
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
+    box-shadow:
+      rgba(0, 0, 0, 0.12) 0px 4px 12px 0px,
+      rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
     ${({ isMobile }) => (isMobile ? ' box-shadow:unset' : '')};
   }
   &:hover {
@@ -100,6 +109,7 @@ export default function RecordCoverCard(props) {
     hideTitle,
     disabled,
     showAddAsDropdown,
+    DragHandle,
     style = {},
     containerWidth,
     controls,
@@ -108,6 +118,7 @@ export default function RecordCoverCard(props) {
     allowReplaceRecord,
     onClick,
     onDelete,
+    appId,
     projectId,
     viewId,
     allowlink,
@@ -188,6 +199,11 @@ export default function RecordCoverCard(props) {
         small={containerWidth < 420}
       >
         {coverComp}
+        {DragHandle && (
+          <DragHandle>
+            <i className="icon icon-drag dragger hoverShow Gray_9e Font16 ThemeHoverColor3"></i>
+          </DragHandle>
+        )}
         <Content>
           {!hideTitle && (
             <Title
@@ -215,6 +231,7 @@ export default function RecordCoverCard(props) {
             </Title>
           )}
           <CardCellControls
+            appId={appId}
             fullShowCard={fullShowCard}
             parentControl={parentControl}
             controls={controls.filter(identity).filter(c => c.controlId !== titleControlId || hideTitle)}

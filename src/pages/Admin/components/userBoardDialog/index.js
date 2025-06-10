@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Dialog, VerifyPasswordConfirm, Checkbox, UserHead } from 'ming-ui';
-import userController from 'src/api/user';
-import functionWrap from 'ming-ui/components/FunctionWrap';
 import moment from 'moment';
-import './index.less';
-import { getCurrentProject } from 'src/util';
+import { Checkbox, Dialog, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import userController from 'src/api/user';
+import { getCurrentProject } from 'src/utils/project';
 import { downloadFile } from '../../util';
+import './index.less';
 
 class UserBoardDialog extends Component {
   constructor(props) {

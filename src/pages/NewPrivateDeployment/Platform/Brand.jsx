@@ -4,9 +4,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, Input, QiniuUpload, Switch } from 'ming-ui';
-import { formatNumberFromInput } from 'src/util';
+import { formatNumberFromInput } from 'src/utils/control';
 import { updateSysSettings } from '../common';
 import logo from '../images/logo.png';
+import UploadFavicon from './UploadFavicon';
 
 const Wrap = styled.div`
   max-width: 880px;
@@ -352,9 +353,8 @@ export const BrandHomeImage = () => {
 };
 
 const FaviconSet = () => {
-
   const defaultFaviconUrl = `${md.global.FileStoreConfig.pictureHost}ProjectLogo/favicon.png`;
-  const getUrlWithTimestamp = (url) => `${url}?t=${Date.now()}`;
+  const getUrlWithTimestamp = url => `${url}?t=${Date.now()}`;
   const [faviconUrl, setfaviconUrl] = useState(getUrlWithTimestamp(defaultFaviconUrl));
 
   return (
@@ -364,25 +364,10 @@ const FaviconSet = () => {
         {_l('请上传尺寸 128*128 px 的 PNG 格式文件，用于浏览器标签页和收藏栏显示')}
       </div>
       <div className="flexRow alignItemsCenter">
-        <QiniuUpload
-          className="h100"
-          getTokenParam={{ isFavicon: true }}
-          options={{
-            multi_selection: false,
-            filters: {
-              mime_types: [{ extensions: 'png' }],
-            },
-            max_file_size: '2m',
-            type: 4,
-          }}
-          bucket={4}
+        <UploadFavicon
           onUploaded={(up, file) => {
             setfaviconUrl(getUrlWithTimestamp(defaultFaviconUrl));
-          }}
-          onError={() => {
-            alert(_l('上传失败'), 3);
-          }}
-        >
+          }}>
           <div
             id="uploadBrandHomeImage"
             className={cx('uploadingImageWrap flexRow valignWrapper pointer Relative noBorder')}
@@ -394,7 +379,7 @@ const FaviconSet = () => {
               </div>
             </Fragment>
           </div>
-        </QiniuUpload>
+        </UploadFavicon>
       </div>
     </Wrap>
   );

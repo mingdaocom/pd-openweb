@@ -1,9 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import CustomFields from 'src/components/newCustomFields';
-import _ from 'lodash';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl } from 'src/utils/control';
 
 export default class RowDetail extends React.Component {
   static propTypes = {

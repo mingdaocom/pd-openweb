@@ -1,27 +1,10 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from '../RecordInfoContext';
 import CustomButtonsAutoWidth from './CustomButtonsAutoWidth';
-import _ from 'lodash';
 
 // TODO 更新记录
-
-function getButtonWidth(button) {
-  let width;
-  const div = document.createElement('div');
-  div.style.position = 'absolute';
-  div.style.left = '-10000px';
-  div.style.top = '-10000px';
-  div.style.zIndex = '99999';
-  div.style.border = '1px solid';
-  div.innerHTML = `<span class="InlineBlock borderBox"><button type="button" class="ming Button--small Button--ghost Button recordCustomButton overflowHidden"><div class="content ellipsis">${
-    button.icon ? `<i class="${`icon icon-${button.icon}`}"></i>` : ''
-  }<span class="breakAll overflow_ellipsis">${button.name}</span></div></button></span>`;
-  document.body.appendChild(div);
-  width = div.offsetWidth;
-  document.body.removeChild(div);
-  return width;
-}
 
 export default class Operates extends Component {
   static contextType = RecordInfoContext;
@@ -40,7 +23,6 @@ export default class Operates extends Component {
   };
 
   state = {
-    buttonShowNum: 3,
     btnDisable: {},
     customBtns: [],
   };
@@ -100,9 +82,9 @@ export default class Operates extends Component {
       onUpdate,
       customBtnTriggerCb,
       sheetSwitchPermit,
-      isDraft
+      isDraft,
     } = this.props;
-    const { customBtns, buttonShowNum, btnDisable } = this.state;
+    const { customBtns, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
     const { projectId } = recordinfo;
     return (

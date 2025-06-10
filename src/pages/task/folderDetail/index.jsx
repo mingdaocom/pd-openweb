@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
+import { emitter } from 'src/utils/common';
 import TaskCenter from './containers/taskCenter/taskCenter';
-import { emitter } from 'src/util';
 
 export default class FolderEntrypoint extends Component {
   componentDidMount() {

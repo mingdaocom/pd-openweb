@@ -3,7 +3,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import RefreshBtn from '../components/RefreshBtn';
 import { FROM } from '../core/config';
 import { mobileFormPropTypes } from '../core/formPropTypes';
 import { controlState, getControlsByTab, getHideTitleStyle } from '../core/utils';
@@ -11,9 +10,9 @@ import { useFormStore } from '../index';
 import { updateEmSizeNumAction } from '../store/actions';
 import FormLabel from './components/FormLabel';
 import MobileWidgetSection from './components/MobileWidgetSection';
+import RefreshBtn from './components/RefreshBtn';
 // import { FIELD_SIZE_OPTIONS } from './tools/config';
-import { getValueStyle } from './tools/utils';
-import { supportDisplayRow } from './tools/utils';
+import { getValueStyle, showRefreshBtn, supportDisplayRow } from './tools/utils';
 import widgets from './widgets';
 import './style.less';
 
@@ -26,6 +25,7 @@ const CONTROL_HEIGHT_MAP = {
 };
 
 const CustomFormItemControlWrap = styled.div`
+  ${props => props.isShowRefreshBtn && (props.type === 14 || props.type === 41) && 'padding-right: 30px !important;'}
   .controlValueHeight {
     ${props =>
       props.size
@@ -38,6 +38,7 @@ const CustomFormItemControlWrap = styled.div`
   .customFormControlBox {
     ${props => (props.size ? `font-size: ${props.size} !important; height: ${CONTROL_HEIGHT_MAP[props.size]};` : '')}
     ${props => (_.includes([25, 31, 32, 33, 37, 38, 53], props.type) ? props.valueStyle : '')}
+    ${props => props.isShowRefreshBtn && 'padding-right: 30px !important;'}
     & > span:first-child {
       ${props => (_.includes([2, 3, 4, 5, 6, 7, 8, 15, 16, 19, 23, 24, 46], props.type) ? props.valueStyle : '')}
     }
@@ -94,8 +95,19 @@ const MobileForm = props => {
     const richTextControlCount = data.filter(c => c.type === 41).length;
 
     data.forEach(item => {
+      const { enumDefault2 } = item;
+      const { hidetitle } = item.advancedSetting || {};
       // 自由连接不显示
       if (item.type === 21) return;
+      // 分段字段，隐藏标题且不可折叠
+      if (item.type === 22 && hidetitle === '1' && enumDefault2 === 0) {
+        if (!disabled) {
+          formList.push(
+            <div className="customFormItemSplitLine" key={`clearfix-${worksheetId}-${item.controlId}`}></div>,
+          );
+        }
+        return;
+      }
 
       if (disabled && !preIsSection && prevRow > -1) {
         formList.push(<div className="customFormLine" key={`clearfix-${worksheetId}-${item.controlId}`} />);
@@ -103,6 +115,7 @@ const MobileForm = props => {
 
       const hideTitleStyle = getHideTitleStyle(item, data) || {};
       const displayRow = titlelayout_app === '2' && supportDisplayRow(item);
+      const isShowRefreshBtn = showRefreshBtn({ ..._.pick(props, ['disabledFunctions', 'recordId', 'from']), item });
 
       formList.push(
         <div
@@ -134,11 +147,16 @@ const MobileForm = props => {
               loadingItems={loadingItems}
               widgetStyle={{ ...widgetStyle, displayRow, ...hideTitleStyle }}
               disabled={disabled}
+              formDisabled={item.disabled}
               handleChange={handleChange}
             />
           )}
 
-          <CustomFormItemControlWrap className="customFormItemControl" {...getValueStyle(item)}>
+          <CustomFormItemControlWrap
+            className="customFormItemControl"
+            {...getValueStyle(item)}
+            isShowRefreshBtn={isShowRefreshBtn}
+          >
             {renderFormItem(
               Object.assign({}, item, controlProps, {
                 instanceId,
@@ -149,11 +167,13 @@ const MobileForm = props => {
               }),
               widgets,
             )}
-            <RefreshBtn
-              {..._.pick(props, ['disabledFunctions', 'worksheetId', 'recordId', 'from'])}
-              item={item}
-              onChange={handleChange}
-            />
+            {isShowRefreshBtn && (
+              <RefreshBtn
+                {..._.pick(props, ['disabledFunctions', 'worksheetId', 'recordId', 'from'])}
+                item={item}
+                onChange={handleChange}
+              />
+            )}
             {renderVerifyCode(item)}
           </CustomFormItemControlWrap>
         </div>,

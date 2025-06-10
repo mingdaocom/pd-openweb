@@ -42,12 +42,16 @@ export default class TimeBlock extends Component {
           !item.hide && (
             <div
               className="groupingBlock"
-              style={{ top: groupingIndex * lineHeight + (lineHeight / 2 - groupingBlockHeight / 2), left: item.left, width: item.width }}
+              style={{
+                top: groupingIndex * lineHeight + (lineHeight / 2 - groupingBlockHeight / 2),
+                left: item.left, width: item.width,
+                color: item.color,
+              }}
               onClick={() => {
                 updateGroupSubVisible(item.key);
               }}
             >
-              <span className="recordTitle">{<GroupContent group={item} />}</span>
+              <span className="recordTitle Gray">{<GroupContent group={item} />}</span>
             </div>
           )
         }

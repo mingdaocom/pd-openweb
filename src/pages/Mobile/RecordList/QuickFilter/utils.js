@@ -3,7 +3,7 @@ import moment from 'moment';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { browserIsMobile, getRequest } from 'src/util';
+import { browserIsMobile, getRequest } from 'src/utils/common';
 
 export const formatQuickFilter = filter => {
   return filter.map(c => {

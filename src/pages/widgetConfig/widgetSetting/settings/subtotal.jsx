@@ -1,25 +1,25 @@
-import React, { useState, useEffect, Fragment, useRef } from 'react';
-import { RadioGroup, Dropdown, Checkbox, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import _, { get, includes, isEmpty } from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, RadioGroup, Tooltip } from 'ming-ui';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import WidgetDropdown from '../../components/Dropdown';
+import { SYSTEM_CONTROL } from '../../config/widget';
+import { useSheetInfo } from '../../hooks';
 import { SettingItem } from '../../styled';
 import {
   filterControlsFromAll,
   getControlByControlId,
   getIconByType,
-  resortControlByColRow,
   isShowUnitConfig,
   parseDataSource,
+  resortControlByColRow,
 } from '../../util';
-import { filterByTypeAndSheetFieldType, handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
-import { useSheetInfo } from '../../hooks';
-import { FilterItemTexts, FilterDialog } from '../components/FilterData';
-import WidgetDropdown from '../../components/Dropdown';
+import { filterByTypeAndSheetFieldType, getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import { FilterDialog, FilterItemTexts } from '../components/FilterData';
 import PointerConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
-import { SYSTEM_CONTROL } from '../../config/widget';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import cx from 'classnames';
 
 const DATE_FORMULA_UNIT = [_l('分钟'), _l('小时'), _l('天'), _l('月'), _l('年')];
 

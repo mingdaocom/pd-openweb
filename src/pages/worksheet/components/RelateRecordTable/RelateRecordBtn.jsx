@@ -1,10 +1,10 @@
 import React, { Fragment, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Menu, MenuItem } from 'ming-ui';
 import { get, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Menu, MenuItem } from 'ming-ui';
 
 const Con = styled.div`
   position: relative;
@@ -34,6 +34,7 @@ export const Button = styled.div`
     display: inline-flex;
     align-items: center;
     font-weight: bold;
+    max-width: 150px;
     > .icon {
       color: #9e9e9e;
       font-weight: normal;
@@ -135,7 +136,7 @@ export default function RelateRecordBtn(props) {
               <Button onClick={btnClick}>
                 <div className="content">
                   <i className={`icon ${iconName} mRight5 Font16`}></i>
-                  {btnText || _l('记录')}
+                  <span className="overflow_ellipsis WordBreak">{btnText || _l('记录')}</span>
                 </div>
                 {addVisible && selectVisible && (
                   <DropIcon

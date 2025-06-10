@@ -1,19 +1,19 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
-import UserController from 'src/api/user';
-import GroupController from 'src/api/group';
-import placements from './placements';
+import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
-import store from 'redux/configureStore';
-import * as actions from 'src/pages/chat/redux/actions';
-import { LoadDiv } from 'ming-ui';
-import './css/userCard.less';
 import { v4 as uuidv4 } from 'uuid';
+import { LoadDiv } from 'ming-ui';
+import GroupController from 'src/api/group';
+import UserController from 'src/api/user';
+import * as actions from 'src/pages/chat/redux/actions';
 import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
+import { browserIsMobile } from 'src/utils/common';
+import placements from './placements';
+import './css/userCard.less';
 
 const USER_STATUS = {
   DEFAULT: 0, // 辅助
@@ -25,7 +25,9 @@ const USER_STATUS = {
 
 const CardContentBoxWrap = styled.div`
   position: relative;
-  box-shadow: 0 9px 12px -6px rgba(0, 0, 0, 0.2), 0 19px 29px 2px rgba(0, 0, 0, 0.14),
+  box-shadow:
+    0 9px 12px -6px rgba(0, 0, 0, 0.2),
+    0 19px 29px 2px rgba(0, 0, 0, 0.14),
     0 7px 36px 6px rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   background: #fff;
@@ -56,6 +58,9 @@ const CardContentBoxWrap = styled.div`
   .cardContent-wrapper {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 `;
 
@@ -105,10 +110,6 @@ const BusinessCardWrap = styled.div`
       border-radius: 4px;
       color: #757575;
     }
-  }
-
-  .cardContentDesc.userCard {
-    min-height: 35px;
   }
 
   .cardContentDesc .contentItem {
@@ -233,7 +234,7 @@ class UserCard extends React.Component {
     const id = (type === 1 ? accountId : groupId) || sourceId;
     const isPublic = location.pathname.startsWith('/public/') || location.pathname.startsWith('/app/lib/');
 
-    if (isMobile || disabled || !id || isPublic) return;
+    if (isMobile || disabled || !id || isPublic || !md.global.Account.accountId) return;
 
     this.setState({
       isLoading: true,
@@ -313,7 +314,11 @@ class UserCard extends React.Component {
     const { data } = this.state;
     const isPortal = _.includes(sourceId, '#');
 
-    return data.status === USER_STATUS.INACTIVE || md.global.Account.isPortal || isPortal || type !== 1
+    return data.status === USER_STATUS.INACTIVE ||
+      md.global.Account.isPortal ||
+      isPortal ||
+      type !== 1 ||
+      !data.isContact
       ? 'javascript:void(0);'
       : '/user_' + data.accountId;
   };
@@ -339,6 +344,7 @@ class UserCard extends React.Component {
     const isSecret = !sourceId && !accountId && !groupId;
     const noInfo = md.global.Account.accountId.includes('#') && !isPortal;
     const currentProjectId = getCurrentProjectId();
+    const notContact = type === 1 && !data.isContact;
 
     if (!isSourceValid) {
       if (![1, 2].includes(type)) return null;
@@ -369,8 +375,8 @@ class UserCard extends React.Component {
             projectId && !data.currentProjectName && !isPortal
               ? data.companyName
               : currentProjectId === projectId
-              ? ''
-              : data.currentProjectName,
+                ? ''
+                : data.currentProjectName,
         },
         {
           key: _l('职位'),
@@ -383,7 +389,8 @@ class UserCard extends React.Component {
         { key: _l('邮箱'), value: data.email },
       ].filter(l => l.value);
       const portalValues = (data.portalValues || []).filter(l => l.value);
-      const flag = isPortal || data.status === USER_STATUS.INACTIVE || type !== 1 || md.global.Account.isPortal;
+      const flag =
+        isPortal || data.status === USER_STATUS.INACTIVE || type !== 1 || md.global.Account.isPortal || notContact;
       const hideChat = md.global.SysSettings.forbidSuites.includes('6');
 
       return (
@@ -416,10 +423,8 @@ class UserCard extends React.Component {
                   )}
                   {this.renderInfo(infos)}
                   {this.renderInfo(portalValues)}
-                  {type === 1 && !infos.length && !portalValues.length && (
-                    <span className="overflow_ellipsis contentItem Gray_c">
-                      {isPortal ? _l('没有可见信息') : _l('这个家伙什么也没有留下')}
-                    </span>
+                  {type === 1 && !infos.length && !portalValues.length && isPortal && (
+                    <span className="overflow_ellipsis contentItem Gray_c">{_l('没有可见信息')}</span>
                   )}
                 </Fragment>
               )}
@@ -447,7 +452,9 @@ class UserCard extends React.Component {
                 ![md.global.Account.accountId, 'user-workflow'].includes(data.accountId) &&
                 !md.global.Account.isPortal &&
                 !isPortal &&
-                chatButton && !hideChat && (
+                chatButton &&
+                !notContact &&
+                !hideChat && (
                   <span className="Hand" data-tip={_l('发消息')} onClick={this.openChat}>
                     <span className="actionButton icon-chat-session ThemeColor3" />
                   </span>
@@ -485,7 +492,7 @@ class UserCard extends React.Component {
       zIndex: 10002,
     };
 
-    if (isMobile || disabled || isPublic) return this.props.children;
+    if (isMobile || disabled || isPublic || !md.global.Account.accountId) return this.props.children;
 
     return (
       <Trigger key={wrapKey} {...props}>

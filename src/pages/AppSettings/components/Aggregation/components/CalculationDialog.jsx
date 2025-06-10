@@ -1,12 +1,13 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Input, Button, Dialog, Checkbox } from 'ming-ui';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import Formula from 'src/pages/widgetConfig/widgetSetting/components/formula/Formula.jsx';
-import { handleAdvancedSettingChange } from 'src/util/index.js';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Input } from 'ming-ui';
 import 'src/pages/Role/PortalCon/components/AddUserByTelDialog.less';
 import { getVerifyInfo } from 'src/pages/widgetConfig/util/setting.js';
+import FormulaFunc from 'src/pages/widgetConfig/widgetSetting/settings/formula_func.jsx';
+import FormulaNumber from 'src/pages/widgetConfig/widgetSetting/settings/formula_number.jsx';
+import { handleAdvancedSettingChange } from 'src/utils/control';
 
 const Wrap = styled.div`
   .enumDefaultType {
@@ -59,8 +60,39 @@ export default function CalculationDialog(props) {
         dot: 2,
       },
       dot: 2,
+      type: 31,
     },
   });
+  const getData = () => {
+    return {
+      ...calculation,
+      enumDefault: calculation.enumDefault || 1, //默认自定义
+      enumDefault2: calculation.enumDefault2,
+      type: calculation.type || 31,
+      controlName: calculation.controlName,
+      dataSource: calculation.dataSource,
+      advancedSetting: {
+        ...calculation.advancedSetting,
+        numshow: '1', //不配置单位
+      },
+      dot: Number(_.get(calculation, 'advancedSetting.dot')) || 2,
+    };
+  };
+
+  const onChange = result => {
+    setState({
+      calculation: {
+        ...calculation,
+        ...result,
+        advancedSetting: {
+          ...calculation.advancedSetting,
+          ...result.advancedSetting,
+          ..._.pick(result, ['dot']),
+          numshow: _.get(calculation, 'advancedSetting.numshow'),
+        },
+      },
+    });
+  };
 
   return (
     <Dialog
@@ -75,10 +107,21 @@ export default function CalculationDialog(props) {
         if (!calculation.controlName) {
           return alert(_l('请设置名称'), 3);
         }
-        const info = getVerifyInfo({ ...calculation, type: 31, enumDefault: 1 }, { controls: allControls });
-        if (!info.isValid) {
-          return alert(info.text, 3);
+
+        const info = getVerifyInfo(
+          { ...calculation, type: calculation.type || 31, enumDefault: calculation.enumDefault || 1 },
+          { controls: allControls },
+        );
+        const funcObj = safeParse(calculation.dataSource || '{}');
+        if (!info.isValid || (calculation.type === 53 && _.get(funcObj, 'status') === -1)) {
+          alert(info.text || _l('表达式错误，请修改后保存'), 3);
+          return;
         }
+        if (calculation.type === 53 && calculation.enumDefault2 !== 6) {
+          onOk({ ..._.omit(calculation, 'dot'), advancedSetting: { ..._.omit(calculation.advancedSetting, 'dot') } });
+          return;
+        }
+
         onOk(calculation);
       }}
     >
@@ -98,65 +141,55 @@ export default function CalculationDialog(props) {
           maxLength={60}
           autoFocus
         />
-        <Formula
-          data={{
-            enumDefault: 1, //默认自定义
-            type: 31,
-            controlName: calculation.controlName,
-            dataSource: calculation.dataSource,
-            advancedSetting: {
-              ...calculation.advancedSetting,
-              numshow: '1', //不配置单位
-            },
-            dot: Number(_.get(calculation, 'advancedSetting.dot')),
-          }}
-          className="AggregationFormula"
-          fromAggregation
-          allControls={allControls}
-          dataSourceTitle={_l('表达式')}
-          onChange={result => {
-            setState({
-              calculation: {
-                ...calculation,
-                ...result,
-                advancedSetting: {
-                  ...calculation.advancedSetting,
-                  ...result.advancedSetting,
-                  numshow: _.get(calculation, 'advancedSetting.numshow'),
-                },
-              },
-            });
-          }}
-        />
-        <div className="Bold mTop24">{_l('数据格式')}</div>
-        <div className="labelWrap mTop12">
-          <Checkbox
-            className="InlineBlock"
-            checked={_.get(calculation, 'advancedSetting.thousandth') !== '1'}
-            onClick={checked => {
-              setState({
-                calculation: handleAdvancedSettingChange(calculation, {
-                  thousandth: checked ? '1' : '0',
-                }),
-              });
-            }}
-            text={_l('显示千分位')}
+        {calculation.type !== 31 ? (
+          <FormulaFunc
+            fromAggregation
+            className="AggregationFormula"
+            data={getData()}
+            allControls={allControls}
+            onChange={onChange}
           />
-          <Checkbox
-            className="InlineBlock mLeft60"
-            checked={_.get(calculation, 'advancedSetting.numshow') === '1'}
-            onClick={checked => {
-              setState({
-                calculation: handleAdvancedSettingChange(calculation, {
-                  suffix: checked ? '' : '%',
-                  prefix: '',
-                  numshow: checked ? '0' : '1',
-                }),
-              });
-            }}
-            text={_l('按百分比显示')}
-          />
-        </div>
+        ) : (
+          <React.Fragment>
+            <FormulaNumber
+              data={getData()}
+              className="AggregationFormula"
+              fromAggregation
+              allControls={allControls}
+              dataSourceTitle={_l('表达式')}
+              onChange={onChange}
+            />
+            <div className="Bold mTop24">{_l('数据格式')}</div>
+            <div className="labelWrap mTop12">
+              <Checkbox
+                className="InlineBlock"
+                checked={_.get(calculation, 'advancedSetting.thousandth') !== '1'}
+                onClick={checked => {
+                  setState({
+                    calculation: handleAdvancedSettingChange(calculation, {
+                      thousandth: checked ? '1' : '0',
+                    }),
+                  });
+                }}
+                text={_l('显示千分位')}
+              />
+              <Checkbox
+                className="InlineBlock mLeft60"
+                checked={_.get(calculation, 'advancedSetting.numshow') === '1'}
+                onClick={checked => {
+                  setState({
+                    calculation: handleAdvancedSettingChange(calculation, {
+                      suffix: checked ? '' : '%',
+                      prefix: '',
+                      numshow: checked ? '0' : '1',
+                    }),
+                  });
+                }}
+                text={_l('按百分比显示')}
+              />
+            </div>
+          </React.Fragment>
+        )}
       </Wrap>
     </Dialog>
   );

@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { Tooltip, Icon } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
 import discussionAjax from 'src/api/discussion';
-import { emitter } from 'worksheet/util';
-import IconBtn from './IconBtn';
-import SwitchRecord from './SwitchRecord';
-import Operates from './Operates';
-import MoreMenu from './MoreMenu';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
+import favoriteApi from 'src/api/favorite.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
-import favoriteApi from 'src/api/favorite.js';
-import { getCurrentProject } from 'src/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import PrintList from 'src/pages/worksheet/common/recordInfo/RecordForm/PrintList';
+import { emitter } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import IconBtn from './IconBtn';
+import MoreMenu from './MoreMenu';
+import Operates from './Operates';
+import SwitchRecord from './SwitchRecord';
 
 const SideBarIcon = styled(IconBtn)`
   display: flex;
@@ -37,6 +37,7 @@ export default function InfoHeader(props) {
     loading,
     sheetSwitchPermit,
     sideVisible,
+    sideBarBtnVisible = true,
     recordbase,
     recordinfo,
     iseditting,
@@ -96,11 +97,12 @@ export default function InfoHeader(props) {
     viewId !== worksheetId;
   const showOrder = payConfig.rowDetailIsShowOrder;
   const showSideBar =
-    (!isPublicShare && showOrder) ||
-    (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
-    (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
-    (md.global.Account.isPortal && props.approved && workflowVisible) ||
-    from === RECORD_INFO_FROM.WORKFLOW;
+    sideBarBtnVisible &&
+    ((!isPublicShare && showOrder) ||
+      (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
+      (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
+      (md.global.Account.isPortal && props.approved && workflowVisible) ||
+      from === RECORD_INFO_FROM.WORKFLOW);
   function loadDiscussionsCount() {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
       return;
@@ -141,7 +143,7 @@ export default function InfoHeader(props) {
     };
   }, []);
 
-  let header = renderHeader && renderHeader(recordinfo);
+  let header = renderHeader && renderHeader({ ...recordinfo, isLoading: refreshRotating, onRefresh });
 
   if (viewId) {
     header = null;

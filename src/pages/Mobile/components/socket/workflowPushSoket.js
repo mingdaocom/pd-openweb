@@ -1,8 +1,8 @@
-import { PUSH_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
 import homeAppAjax from 'src/api/homeApp';
-import { equalToLocalPushUniqueId } from 'worksheet/util';
+import { PUSH_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
+import { equalToLocalPushUniqueId } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
 import modalMessage from './modalMessage';
-import { compatibleMDJS } from 'src/util';
 
 const getAppSimpleInfo = workSheetId => {
   return homeAppAjax.getAppSimpleInfo({ workSheetId }, { silent: true });

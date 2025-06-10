@@ -1,12 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { Menu, MenuItem } from 'ming-ui';
-import { emitter, fieldCanSort, getSortData } from 'worksheet/util';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
+import { emitter } from 'src/utils/common';
+import { getSortData } from 'src/utils/control';
+import { fieldCanSort } from 'src/utils/control';
 
 export default function ColumnHead(props) {
   const {

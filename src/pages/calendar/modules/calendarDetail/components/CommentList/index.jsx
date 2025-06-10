@@ -1,11 +1,12 @@
 ﻿import React, { Component } from 'react';
+import _ from 'lodash';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import CheckBox from 'ming-ui/components/Checkbox';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import { htmlDecodeReg } from 'src/util';
-import _ from 'lodash';
-import moment from 'moment';
+import { htmlDecodeReg } from 'src/utils/common';
+
 export default class CalendarCommentList extends Component {
   constructor(props) {
     super(props);

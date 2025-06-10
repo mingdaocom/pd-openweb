@@ -1,11 +1,12 @@
 import React from 'react';
+import cx from 'classnames';
+import _, { get, identity } from 'lodash';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
-import { checkCellIsEmpty, getRecordCardStyle, checkControlCanSetStyle } from 'worksheet/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import _, { get, identity } from 'lodash';
-import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { getRecordCardStyle } from 'src/utils/control';
+import { checkCellIsEmpty, checkControlCanSetStyle } from 'src/utils/control';
 
 function getCellContentPaddingTop(control, isNotEmpty) {
   if (!isNotEmpty) {
@@ -110,8 +111,18 @@ const Control = styled.div`
 `;
 
 export default function CardCellControls(props) {
-  const { fullShowCard, controls, data, parentControl, projectId, worksheetId, viewId, isCharge, sheetSwitchPermit } =
-    props;
+  const {
+    appId,
+    fullShowCard,
+    controls,
+    data,
+    parentControl,
+    projectId,
+    worksheetId,
+    viewId,
+    isCharge,
+    sheetSwitchPermit,
+  } = props;
   const isMobile = browserIsMobile();
 
   return (
@@ -154,6 +165,7 @@ export default function CardCellControls(props) {
             >
               {isNotEmpty ? (
                 <CellControl
+                  appId={appId}
                   cell={Object.assign({}, control, { value: data[control.controlId] })}
                   row={data}
                   worksheetId={worksheetId}

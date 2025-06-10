@@ -10,8 +10,10 @@ import charts from 'statistics/Charts';
 import { reportTypes } from 'statistics/Charts/common';
 import { isOptionControl } from 'statistics/common';
 import { Abnormal, WithoutData } from 'statistics/components/ChartStatus';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { getAppFeaturesPath, getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesPath } from 'src/utils/app';
 import './index.less';
 
 const Content = styled.div`
@@ -145,7 +147,7 @@ function ChartWrapper(props) {
     onLoadNextData,
     ...chartProps
   } = props;
-  const { data, isHorizontal } = chartProps;
+  const { data, isHorizontal, themeColor, pageConfig } = chartProps;
   const isVertical = window.orientation === 0;
   const isMobileChartPage = location.href.includes('mobileChart');
   const index = _.findIndex(pageComponents, { value: data.reportId });
@@ -153,42 +155,53 @@ function ChartWrapper(props) {
   const nextAllow = index < pageComponents.length - 1;
   const translateInfo = getTranslateInfo(props.appId, null, data.reportId);
   const { showTitle = true } = _.get(data, 'displaySetup') || {};
-
+  const pageTitleStyles = pageConfig.titleStyles || {};
+  const titleStyles = _.get(data, 'style.titleStyles') || { ...defaultTitleStyles, fontSize: 17 };
+  const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   return (
     <Fragment>
-      <div className={cx('mBottom10 flexRow valignWrapper', { mRight20: isHorizontal })}>
-        <div className="Font17 Gray ellipsis name flex">{showTitle ? translateInfo.name || data.name : ''}</div>
-        {data.status > 0 && (
-          <Fragment>
-            {isHorizontal && (
-              <Fragment>
-                <Icon
-                  icon="navigate_before"
-                  className={cx('Font24 Gray_9e mRight10', { allow: beforeAllow })}
-                  onClick={beforeAllow && onLoadBeforeData.bind(this, index - 1)}
-                />
-                <Icon
-                  icon="navigate_next"
-                  className={cx('Font24 Gray_9e mRight20', { allow: nextAllow })}
-                  onClick={nextAllow && onLoadNextData.bind(this, index + 1)}
-                />
-              </Fragment>
-            )}
-            <Icon className="Font20 Gray_9e mRight10" icon="swap_vert" onClick={onOpenFilterModal} />
-            {isHorizontal ? (
-              <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />
-            ) : (
-              isVertical && (
-                <Icon
-                  className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })}
-                  icon="task-new-fullscreen"
-                  onClick={onOpenZoomModal}
-                />
-              )
-            )}
-          </Fragment>
-        )}
-      </div>
+      {!loading && (
+        <div className={cx('mBottom10 flexRow valignWrapper chartHeader', { mRight20: isHorizontal })}>
+          <div
+            className={cx('ellipsis name flex', { centerAlign: newTitleStyles.textAlign === 'center' })}
+            style={{
+              ...replaceTitleStyle(newTitleStyles, themeColor),
+            }}
+          >
+            {showTitle ? translateInfo.name || data.name : ''}
+          </div>
+          {data.status > 0 && (
+            <Fragment>
+              {isHorizontal && (
+                <Fragment>
+                  <Icon
+                    icon="navigate_before"
+                    className={cx('Font24 Gray_9e mRight10', { allow: beforeAllow })}
+                    onClick={beforeAllow && onLoadBeforeData.bind(this, index - 1)}
+                  />
+                  <Icon
+                    icon="navigate_next"
+                    className={cx('Font24 Gray_9e mRight20', { allow: nextAllow })}
+                    onClick={nextAllow && onLoadNextData.bind(this, index + 1)}
+                  />
+                </Fragment>
+              )}
+              <Icon className="Font20 Gray_9e mRight10" icon="swap_vert" onClick={onOpenFilterModal} />
+              {isHorizontal ? (
+                <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />
+              ) : (
+                isVertical && (
+                  <Icon
+                    className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })}
+                    icon="task-new-fullscreen"
+                    onClick={onOpenZoomModal}
+                  />
+                )
+              )}
+            </Fragment>
+          )}
+        </div>
+      )}
       <Content className={cx('flexColumn overflowHidden', `statisticsCard-${_.get(widget, 'value')}`)}>
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">

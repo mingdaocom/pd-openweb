@@ -1,21 +1,21 @@
-import React, { useEffect, useState, Fragment } from 'react';
-import { SpinLoading } from 'antd-mobile';
-import { Drawer } from 'antd';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
-import cx from 'classnames';
-import worksheetApi from 'src/api/worksheet';
-import Filters from './Filters';
+import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../redux/actions';
 import { bindActionCreators } from 'redux';
-import { formatFilters } from 'src/pages/customPage/components/editWidget/filter/util';
-import { updatePageInfo, updateFiltersGroup } from 'src/pages/customPage/redux/action';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import store from 'redux/configureStore';
-import { getTranslateInfo } from 'src/util';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { Drawer } from 'antd';
+import { SpinLoading } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import worksheetApi from 'src/api/worksheet';
+import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { formatFilters } from 'src/pages/customPage/components/editWidget/filter/util';
+import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import * as actions from '../redux/actions';
+import Filters from './Filters';
 
 const Wrap = styled.div`
   &.disableFiltersGroup {
@@ -24,7 +24,7 @@ const Wrap = styled.div`
 `;
 
 const FilterEntry = styled.div`
-  background-color: #fff;
+  background-color: transparent;
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
   padding: 0 7px 0 10px;
@@ -37,6 +37,9 @@ const FilterEntry = styled.div`
     .icon {
       color: #2196f3 !important;
     }
+  }
+  .name {
+    color: var(--title-color);
   }
 `;
 
@@ -79,7 +82,7 @@ function FilterContent(props) {
             ...filtersGroup,
             filters: filtersGroup.filters.map(f => {
               f.objectControls.forEach(item => {
-                item.control = replaceControlsTranslateInfo(ids.appId, item.worksheetId, [item.control])[0];
+                item.control = replaceControlsTranslateInfo(ids.appId, item.worksheetId, item.control ? [item.control] : [])[0];
               });
               return {
                 ...f,
@@ -151,7 +154,7 @@ function FilterContent(props) {
       >
         <Icon className="Font20 Gray_9e" icon="filter" />
         <div className="flexRow valignWrapper w100">
-          <span className="Font15 flex mLeft5">{_l('筛选')}</span>
+          <span className="Font15 flex mLeft5 name">{_l('筛选')}</span>
           {!!otherFiltersGroup.length && (
             <span className="mLeft5 mRight6">{_l('已筛%0项', otherFiltersGroup.length)}</span>
           )}

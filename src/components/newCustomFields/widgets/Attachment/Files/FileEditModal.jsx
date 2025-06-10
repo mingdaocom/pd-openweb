@@ -27,7 +27,7 @@ export default props => {
   // const [attachments, onChangeAttachments] = useState(filesProps.attachments);
   // const [knowledgeAtts, onChangeKnowledgeAtts] = useState(filesProps.knowledgeAtts);
   const [attachmentData, onChangeAttachmentData] = useState(filesProps.attachmentData);
-  const isShare = md.global.Account.isPortal || _.get(window, 'shareState.shareId');
+  const isShare = _.get(window, 'shareState.shareId');
 
   useEffect(() => {
     onChangeAttachmentData(filesProps.attachmentData);

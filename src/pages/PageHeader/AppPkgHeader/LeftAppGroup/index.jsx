@@ -1,35 +1,35 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import homeAppApi from 'api/homeApp';
-import { Icon, ScrollView, Menu, MenuItem, Skeleton, Tooltip, SvgIcon } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {
-  addAppSection,
-  updateALLSheetList,
-  clearSheetList,
-  createAppItem,
-  getSheetList,
-  getAllAppSectionDetail,
-} from 'worksheet/redux/actions/sheetList';
-import DelAppGroup from '../AppGroup/DelAppGroup';
-import Drag from 'worksheet/common/WorkSheetLeft/Drag';
-import { DndProvider } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
+import { DndProvider } from 'react-dnd-latest';
+import { TinyColor } from '@ctrl/tinycolor';
+import homeAppApi from 'api/homeApp';
+import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Menu, MenuItem, ScrollView, Skeleton, SvgIcon, Tooltip } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
+import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
+import Drag from 'worksheet/common/WorkSheetLeft/Drag';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
-import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import SinglelLeftGroup from './SinglelLeftGroup';
-import { formatLeftSectionDetail } from 'worksheet/redux/actions/sheetList';
+import {
+  addAppSection,
+  clearSheetList,
+  createAppItem,
+  getAllAppSectionDetail,
+  getSheetList,
+  updateALLSheetList,
+} from 'worksheet/redux/actions/sheetList';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/app';
+import { findSheet } from 'src/utils/worksheet';
 import { getIds } from '../../util';
-import { findSheet } from 'worksheet/util';
-import { getTranslateInfo, getAppFeaturesVisible } from 'src/util';
-import _ from 'lodash';
-import { TinyColor } from '@ctrl/tinycolor';
-import styled from 'styled-components';
-import appManagementApi from 'src/api/appManagement';
+import DelAppGroup from '../AppGroup/DelAppGroup';
 import { ICON_ROLE_TYPE } from '../config';
+import SinglelLeftGroup from './SinglelLeftGroup';
 import './index.less';
 
 const RoleSelectWrap = styled.div(
@@ -78,6 +78,7 @@ const AppSectionItem = props => {
   const [dialogImportExcel, setDialogImportExcel] = useState(false);
   const [isDrag, setIsDrag] = useState(false);
   const [createType, setCreateType] = useState('');
+  const [sectionsHeight, setSectionsHeight] = useState({});
   const isActive = !childrenVisible && isCurrentChildren;
   const singleRef = useRef();
 
@@ -210,7 +211,7 @@ const AppSectionItem = props => {
 
   return (
     <div
-      className={cx('appGroupWrap', {
+      className={cx('appGroupWrap', `appGroupWrap-${item.workSheetId}`, {
         treeAppGroupWrap: currentPcNaviStyle === 3 && !hideAppSection(),
         hideFirstSection: currentPcNaviStyle === 3 && appPkg.hideFirstSection && item.index === 0,
       })}
@@ -236,6 +237,17 @@ const AppSectionItem = props => {
               const { classList } = e.target;
               if (classList.contains('appGroup') || classList.contains('nameWrap') || classList.contains('arrowIcon')) {
                 props.setUnfoldAppSectionId(!childrenVisible ? item.workSheetId : null);
+                const elWrap = document.querySelector(`.appGroupWrap-${item.workSheetId} .workSheetLeft>.flex`);
+                const childrens = elWrap.querySelectorAll('&>div');
+                let height = 8;
+                childrens.forEach(el => {
+                  const groupItems = el.querySelector('.groupItems');
+                  height = height + 44 + (groupItems ? parseFloat(groupItems.style.height) : 0);
+                });
+                setSectionsHeight({ ...sectionsHeight, [item.workSheetId]: height });
+                setTimeout(() => {
+                  setSectionsHeight({ ...sectionsHeight, [item.workSheetId]: undefined });
+                }, 300);
                 setTimeout(() => {
                   setChildrenVisible(!childrenVisible);
                   if (childrenVisible) {
@@ -314,7 +326,18 @@ const AppSectionItem = props => {
             )}
           </div>
         )}
-        <div className={cx({ hide: !childrenVisible || isDrag })}>
+        <div
+          className={cx('overflowHidden heightTransition', {
+            hide: sectionsHeight[item.workSheetId] ? false : !childrenVisible || isDrag,
+          })}
+          style={{
+            height: sectionsHeight[item.workSheetId]
+              ? !childrenVisible || isDrag
+                ? 0
+                : sectionsHeight[item.workSheetId]
+              : undefined,
+          }}
+        >
           <SinglelLeftGroup
             ref={singleRef}
             projectId={projectId}
@@ -523,8 +546,8 @@ const LeftAppGroup = props => {
               {roleSelectValue.length === 0
                 ? _l('选择角色')
                 : roleSelectValue.length === 1
-                ? roleSelectValue[0].name
-                : _l('%0个角色', roleSelectValue.length)}
+                  ? roleSelectValue[0].name
+                  : _l('%0个角色', roleSelectValue.length)}
             </span>
             <Tooltip disable={!roleSelectValue.length} placement="bottom" text={_l('清空调试')}>
               <Icon

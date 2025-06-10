@@ -1,17 +1,17 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import privateSysSettingApi from 'src/api/privateSysSetting';
-import cx from 'classnames';
-import { Switch, Menu, Icon, LoadDiv, MenuItem, Dialog, Input } from 'ming-ui';
-import { encrypt } from 'src/util';
+import { Tooltip } from 'antd';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import copy from 'copy-to-clipboard';
+import { Dialog, Icon, Input, LoadDiv, Menu, MenuItem, Switch } from 'ming-ui';
+import privateSysSettingApi from 'src/api/privateSysSetting';
+import { encrypt } from 'src/utils/common';
 import googleIcon from '../images/google.svg';
-import wxIcon from '../images/weixinIcon.png';
+import microsoftIcon from '../images/microsoft.png';
 import qqIcon from '../images/personalQQIcon.png';
-import _ from 'lodash';
-import { Tooltip } from 'antd';
+import wxIcon from '../images/weixinIcon.png';
 
 export const EmptyWrap = styled.div`
   height: 48px;
@@ -70,6 +70,14 @@ const list = [
     txt: 'Google',
     redirectUri: `${md.global.Config.WebUrl}orgsso/google/callback`,
     icon: googleIcon,
+  },
+  {
+    tpType: 14,
+    key: 'clientId',
+    idKey: 'clientSecret',
+    txt: 'Microsoft',
+    redirectUri: `${md.global.Config.WebUrl}orgsso/microsoft/callback`,
+    icon: microsoftIcon,
   },
 ];
 function Item(props) {
@@ -262,7 +270,7 @@ export default function (props) {
           />
         );
       })}
-      {ssoInfo.length < 3 && (
+      {ssoInfo.length < list.length && (
         <Trigger
           popupVisible={visible}
           onPopupVisibleChange={value => setVisible(value)}

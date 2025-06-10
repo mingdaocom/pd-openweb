@@ -1,10 +1,10 @@
-﻿import StructureController from 'src/api/structure';
-import { getCurrentProject } from 'src/util';
+﻿import _ from 'lodash';
+import StructureController from 'src/api/structure';
+import { getCurrentProject } from 'src/utils/project';
+import Config from '../../config';
 
 const COMPANY_FAKE_ACCOUNTID = '';
 
-import Config from '../../config';
-import _ from 'lodash';
 // 打开关闭节点折叠
 export const OPEN_COLLAPSE = 'OPEN_COLLAPSE';
 export const CLOSE_COLLAPSE = 'CLOSE_COLLAPSE';
@@ -221,7 +221,13 @@ export const fetchRootSubordinates =
         dispatch({ type: ADD_STRUCTURES, payload: { source } });
         dispatch({
           type: UPDATE_ENTITY_CHILDS,
-          payload: { id: parentId, source, pageIndex, moreLoading: false, totalCount },
+          payload: {
+            id: parentId,
+            source,
+            pageIndex,
+            moreLoading: false,
+            totalCount,
+          },
         });
         dispatch({ type: UPDATE_IS_LOADING, payload: { data: false } });
         dispatch({ type: UPDATE_FIRST_LEVEL_LOADING, payload: { data: false } });

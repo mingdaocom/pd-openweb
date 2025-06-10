@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { handleMessageFilePreview } from '../MessageToolbar';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import Constant from '../../../utils/constant';
+import { handleMessageFilePreview } from '../MessageToolbar';
 import './index.less';
-import { formatFileSize, getClassNameByExt } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+
 export default class FileMessage extends Component {
   constructor(props) {
     super(props);

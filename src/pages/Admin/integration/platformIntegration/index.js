@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { LoadDiv, UpgradeIcon } from 'ming-ui';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import roleAjax from 'src/api/role';
-import workwxImg from './images/workwx.png';
-import dingIng from './images/ding.png';
-import welinkImg from './images/welink.png';
-import feishuImg from './images/feishu.png';
-import Workwx from './workwx';
-import Ding from './ding';
-import Welink from './welink';
-import FeiShu from './feishu';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { getFeatureStatus } from 'src/utils/project';
 import Config from '../../config';
+import Ding from './ding';
+import FeiShu from './feishu';
+import dingIng from './images/ding.png';
+import feishuImg from './images/feishu.png';
+import welinkImg from './images/welink.png';
+import workwxImg from './images/workwx.png';
+import Welink from './welink';
+import Workwx from './workwx';
 import './index.less';
 
 const configs = [
@@ -99,17 +99,35 @@ export default class PlatformIntegration extends Component {
     const { projectId } = _.get(this.props, 'match.params') || {};
     const { workwxVisible, dingVisible, welinkVisible, feishuVisible, larkVisible, projectIntergrationType } =
       this.state;
+    const { featureId } = _.find(configs, ({ type }) => this.state[`${type}Visible`]) || {};
+    let featureType = getFeatureStatus(projectId, featureId);
 
     if (workwxVisible) {
-      return <Workwx projectId={projectId} onClose={() => this.setState({ workwxVisible: false })} />;
+      return (
+        <Workwx
+          projectId={projectId}
+          featureType={featureType}
+          featureId={featureId}
+          onClose={() => this.setState({ workwxVisible: false })}
+        />
+      );
     } else if (dingVisible) {
-      return <Ding projectId={projectId} onClose={() => this.setState({ dingVisible: false })} />;
+      return (
+        <Ding
+          projectId={projectId}
+          featureType={featureType}
+          featureId={featureId}
+          onClose={() => this.setState({ dingVisible: false })}
+        />
+      );
     } else if (welinkVisible) {
       return <Welink projectId={projectId} onClose={() => this.setState({ welinkVisible: false })} />;
     } else if (feishuVisible || larkVisible) {
       return (
         <FeiShu
           type={feishuVisible ? 'feishu' : 'lark'}
+          featureType={featureType}
+          featureId={featureId}
           projectIntergrationType={projectIntergrationType}
           projectId={projectId}
           onClose={() => this.setState({ feishuVisible: false, larkVisible: false })}

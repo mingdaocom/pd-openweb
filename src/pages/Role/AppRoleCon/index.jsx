@@ -1,22 +1,22 @@
 import React from 'react';
-import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
-import { WrapCon, WrapHeader, WrapContext } from 'src/pages/Role/style';
-import AppAjax from 'src/api/appManagement';
-import { ROLE_CONFIG } from 'src/pages/Role/config';
-import UserCon from './UserCon';
-import RoleCon from './RoleCon';
-import { Checkbox, Tooltip } from 'ming-ui';
-import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import cx from 'classnames';
 import _ from 'lodash';
-import OthersCon from './OthersCon';
-import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { Checkbox, Tooltip } from 'ming-ui';
+import LoadDiv from 'ming-ui/components/LoadDiv';
 import { dialogSelectUser } from 'ming-ui/functions';
+import AppAjax from 'src/api/appManagement';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
+import { ROLE_CONFIG } from 'src/pages/Role/config';
+import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
+import { WrapCon, WrapContext, WrapHeader } from 'src/pages/Role/style';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import OthersCon from './OthersCon';
+import RoleCon from './RoleCon';
+import UserCon from './UserCon';
 
 const conList = [
   {

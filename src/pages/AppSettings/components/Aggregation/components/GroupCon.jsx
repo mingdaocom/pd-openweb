@@ -1,26 +1,26 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, MenuItem, SortableList } from 'ming-ui';
-import cx from 'classnames';
-import { useSetState } from 'react-use';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import { Tooltip } from 'antd';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { canArraySplit, DEFAULT_COLORS } from '../config';
 import {
-  getRuleAlias,
-  isDateTimeGroup,
-  getDefaultOperationForGroup,
-  isTimeGroup,
   getAllSourceList,
-  isDelStatus,
-  setResultFieldSettingByAggFuncType,
+  getDefaultOperationForGroup,
+  getRuleAlias,
   getSourceIndex,
+  isDateTimeGroup,
+  isDelStatus,
+  isTimeGroup,
+  setResultFieldSettingByAggFuncType,
 } from '../util';
 import { WrapS } from './style';
-import Trigger from 'rc-trigger';
-import { getTranslateInfo } from 'src/util';
-import { DEFAULT_COLORS, canArraySplit } from '../config';
-import _ from 'lodash';
 
 const WrapItem = styled.div`
   height: 36px;

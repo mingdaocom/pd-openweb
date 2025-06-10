@@ -1,28 +1,29 @@
-import worksheetAjax from 'src/api/worksheet';
-import reportConfigAjax from '../api/reportConfig';
+import _ from 'lodash';
 import reportRequestAjax from '../api/report';
+import reportConfigAjax from '../api/reportConfig';
+import worksheetAjax from 'src/api/worksheet';
+import { reportTypes } from 'statistics/Charts/common';
+import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { fillUrl } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { getFilledRequestParams } from 'src/utils/common';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import {
-  initConfigDetail,
-  fillValueMap,
-  getNewReport,
-  mergeReportData,
-  isAreaControl,
-  isTimeControl,
-  isNumberControl,
-  isXAxisControl,
   areaParticleSizeDropdownData,
+  fillValueMap,
   filterDisableParticleSizeTypes,
   filterTimeParticleSizeDropdownData,
+  getNewReport,
+  initConfigDetail,
+  isAreaControl,
+  isNumberControl,
+  isTimeControl,
+  isXAxisControl,
+  mergeReportData,
 } from '../common';
-import { reportTypes } from 'statistics/Charts/common';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { getAppFeaturesPath, getTranslateInfo } from 'src/util';
-import { replaceControlsTranslateInfo, getFilledRequestParams } from 'src/pages/worksheet/util';
-import { fillUrl } from 'src/router/navigateTo';
-import _ from 'lodash';
 
 export const changeBase = data => {
   return (dispatch, getState) => {
@@ -66,7 +67,7 @@ export const getReportConfigDetail = (data, callBack) => {
       reportType,
       appId,
       pageId,
-      appType: appId ? appType : undefined
+      appType: appId ? appType : undefined,
     });
     reportConfigDetailRequest.then(result => {
       const { id } = window.appInfo || {};
@@ -83,7 +84,7 @@ export const getReportConfigDetail = (data, callBack) => {
           type: 'CHANGE_STATISTICS_BASE',
           data: {
             ...base,
-            appType: result.appType
+            appType: result.appType,
           },
         });
       }
@@ -124,18 +125,6 @@ export const getReportData = ({ reload = false } = {}) => {
     const data = getNewReport(getState().statistics);
     const success = result => {
       const data = fillValueMap(result);
-      const { id } = window.appInfo || {};
-      if (data.xaxes && data.xaxes.controlId) {
-        data.xaxes.controlName = getTranslateInfo(id, null, data.xaxes.controlId).name || data.xaxes.controlName;
-      }
-      if (data.yaxisList) {
-        data.yaxisList = data.yaxisList.map(data => {
-          return {
-            ...data,
-            controlName: getTranslateInfo(id, null, data.controlId).name || data.controlName,
-          };
-        });
-      }
       if (permissions) {
         const param = mergeReportData(currentReport, result, report.id);
         dispatch({
@@ -143,6 +132,7 @@ export const getReportData = ({ reload = false } = {}) => {
           data: {
             ...currentReport,
             ...param,
+            // yaxisList: data.yaxisList || currentReport.yaxisList
           },
         });
       } else {
@@ -174,7 +164,7 @@ export const getReportData = ({ reload = false } = {}) => {
         data: false,
       });
     };
-    const fail = (error) => {
+    const fail = error => {
       const { errorCode } = error || {};
       dispatch({
         type: 'CHANGE_STATISTICS_REPORT_DATA',
@@ -216,7 +206,7 @@ export const getReportData = ({ reload = false } = {}) => {
         version,
         reload,
         filters: [],
-        ...getFilledRequestParams({})
+        ...getFilledRequestParams({}),
       };
       if (!_.isEmpty(filters)) {
         params.filters.push(filters);
@@ -965,9 +955,9 @@ export const addValueAxis = (key, control, isRequest = true) => {
           percent: {
             enable: false,
             type: 2,
-            dot: "2",
-            dotFormat: "1",
-            roundType: 2
+            dot: '2',
+            dotFormat: '1',
+            roundType: 2,
           },
           normType: isNumber ? 1 : 5,
           emptyShowType: 0,
@@ -1002,9 +992,9 @@ export const addTargetValueAxis = (index, control) => {
       percent: {
         enable: false,
         type: 2,
-        dot: "2",
-        dotFormat: "1",
-        roundType: 2
+        dot: '2',
+        dotFormat: '1',
+        roundType: 2,
       },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
@@ -1067,9 +1057,9 @@ export const addYaxisList = (data, isRequest = true) => {
       percent: {
         enable: false,
         type: 2,
-        dot: "2",
-        dotFormat: "1",
-        roundType: 2
+        dot: '2',
+        dotFormat: '1',
+        roundType: 2,
       },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
@@ -1135,9 +1125,9 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       percent: {
         enable: false,
         type: 2,
-        dot: "2",
-        dotFormat: "1",
-        roundType: 2
+        dot: '2',
+        dotFormat: '1',
+        roundType: 2,
       },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
@@ -1312,9 +1302,9 @@ export const addRightYaxisList = (data, isRequest = true) => {
       percent: {
         enable: false,
         type: 2,
-        dot: "2",
-        dotFormat: "1",
-        roundType: 2
+        dot: '2',
+        dotFormat: '1',
+        roundType: 2,
       },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,

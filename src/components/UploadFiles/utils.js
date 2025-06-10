@@ -1,10 +1,11 @@
-import kcCtrl from 'src/api/kc';
 import React from 'react';
-import 'src/pages/PageHeader/components/NetState/index.less';
-import { formatFileSize } from 'src/util';
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
-import RegExpValidator from 'src/util/expression';
+import kcCtrl from 'src/api/kc';
+import 'src/pages/PageHeader/components/NetState/index.less';
+import { formatFileSize } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+
 export const QiniuUpload = {
   Tokens: {
     upMediaToken: '', // 私信token 公开空间

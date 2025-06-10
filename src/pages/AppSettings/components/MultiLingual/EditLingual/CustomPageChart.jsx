@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Input } from 'antd';
 import cx from 'classnames';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Input } from 'antd';
-import EditInput from './EditInput';
 import customApi from 'statistics/api/custom';
 import reportApi from 'statistics/api/report';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 export default function CustomPageChart(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -17,13 +17,15 @@ export default function CustomPageChart(props) {
 
   useEffect(() => {
     setLoading(true);
-    customApi.getPage({
-      appId: selectNode.workSheetId
-    }).then(data => {
-      const { components } = data;
-      setLoading(false);
-      setList(components.filter(c => c.type === 1));
-    });
+    customApi
+      .getPage({
+        appId: selectNode.workSheetId,
+      })
+      .then(data => {
+        const { components } = data;
+        setLoading(false);
+        setList(components.filter(c => c.type === 1));
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -36,9 +38,7 @@ export default function CustomPageChart(props) {
 
   if (!list.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">
-        {_l('没有统计图表')}
-      </div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有统计图表')}</div>
     );
   }
 
@@ -46,11 +46,13 @@ export default function CustomPageChart(props) {
     const el = document.querySelector(`.navItem-${item.value}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.itemName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const renderNav = item => {
     const data = _.find(translateData, { correlationId: item.value }) || {};
@@ -79,8 +81,8 @@ export default function CustomPageChart(props) {
         type: LANG_DATA_TYPE.customePageStatistics,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -91,16 +93,20 @@ export default function CustomPageChart(props) {
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('图表名称')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : item.name} disabled={true} />
-          <EditInput
-            className="flex"
-            value={translateInfo.name}
-            onChange={value => handleSave({ name: value })}
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.name : item.name}
+            disabled={true}
           />
+          <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('图表说明')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.description : item.reportDesc} disabled={true} />
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.description : item.reportDesc}
+            disabled={true}
+          />
           <EditInput
             className="flex"
             disabled={!item.reportDesc}
@@ -111,18 +117,22 @@ export default function CustomPageChart(props) {
         {item.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('标题行')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.title : item.title} disabled={true} />
-            <EditInput
-              className="flex"
-              value={translateInfo.title}
-              onChange={value => handleSave({ title: value })}
+            <Input
+              className="flex mRight20"
+              value={comparisonLangId ? comparisonLangInfo.title : item.title}
+              disabled={true}
             />
+            <EditInput className="flex" value={translateInfo.title} onChange={value => handleSave({ title: value })} />
           </div>
         )}
         {item.mobile.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('移动端标题行')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.mobileTitle : item.mobile.title} disabled={true} />
+            <Input
+              className="flex mRight20"
+              value={comparisonLangId ? comparisonLangInfo.mobileTitle : item.mobile.title}
+              disabled={true}
+            />
             <EditInput
               className="flex"
               value={translateInfo.mobileTitle}
@@ -132,7 +142,7 @@ export default function CustomPageChart(props) {
         )}
       </div>
     );
-  }
+  };
 
   return (
     <div className="flexRow pAll10 h100">
@@ -143,7 +153,7 @@ export default function CustomPageChart(props) {
             placeholder={_l('统计图')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
@@ -152,17 +162,11 @@ export default function CustomPageChart(props) {
           )}
         </div>
         <ScrollView className="flex">
-          {list.filter(item => item.name.includes(searchValue)).map(item => (
-            renderNav(item)
-          ))}
+          {list.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
       <ScrollView className="flex" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {list.map(item => (
-            renderContent(item)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{list.map(item => renderContent(item))}</div>
       </ScrollView>
     </div>
   );

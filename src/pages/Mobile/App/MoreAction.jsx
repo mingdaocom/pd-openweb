@@ -187,13 +187,14 @@ export default function MoreAction(props) {
         </div>
         <div className="actionContent">
           {!window.isPublicApp && (
-            <div onClick={() => dealMarked(!detail.isMarked ? true : false)}>
+            <div className="flexCenter" onClick={() => dealMarked(!detail.isMarked)}>
               <Icon icon="star_3" className={cx('Gray_9e mRight24 Font20 TxtMiddle', { active: detail.isMarked })} />
               <span className="Font15">{detail.isMarked ? _l('取消收藏') : _l('收藏应用')}</span>
             </div>
           )}
           {roleEntryVisible && (
             <div
+              className="flexCenter"
               onClick={() => {
                 window.mobileNavigateTo(`/mobile/members/${detail.id}`);
                 onClose();
@@ -204,13 +205,14 @@ export default function MoreAction(props) {
             </div>
           )}
           {appLangs.length > 0 && (
-            <div onClick={() => setLanguageVisible(true)}>
+            <div className="flexCenter" onClick={() => setLanguageVisible(true)}>
               <Icon icon="language" className="Gray_9e mRight24 Font20 TxtMiddle" />
               <span className="Font15">{_l('应用语言')}</span>
             </div>
           )}
           {(canEditApp(detail.permissionType, detail.isLock) || canEditData(detail.permissionType)) && (
             <div
+              className="flexCenter"
               onClick={() => {
                 dealViewHideNavi(viewHideNavi ? false : true);
                 onClose();

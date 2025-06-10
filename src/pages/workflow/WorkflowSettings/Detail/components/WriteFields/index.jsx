@@ -65,6 +65,7 @@ export default class WriteFields extends Component {
     updateSource: () => {},
     showCard: false,
     addNotAllowView: false,
+    allowExport: false,
   };
 
   state = {
@@ -366,7 +367,7 @@ export default class WriteFields extends Component {
   }
 
   render() {
-    const { data, addNotAllowView, showCard, updateSource, hideTypes } = this.props;
+    const { data, addNotAllowView, showCard, updateSource, hideTypes, allowExport } = this.props;
     const { showTableControls, selectItem } = this.state;
 
     return (
@@ -432,25 +433,27 @@ export default class WriteFields extends Component {
                         { text: _l('可新增明细'), key: 'allowAdd' },
                         { text: _l('可编辑已有明细'), key: 'allowEdit' },
                         { text: _l('可删除已有明细'), key: 'allowCancel' },
-                      ].map(item => (
-                        <Checkbox
-                          key={item.key}
-                          className="mTop15"
-                          text={item.text}
-                          checked={selectItem[item.key] === '1'}
-                          onClick={checked =>
-                            this.setState({
-                              selectItem: Object.assign({}, selectItem, { [item.key]: !checked ? '1' : '0' }),
-                            })
-                          }
-                        />
-                      ))}
+                      ]
+                        .concat(allowExport ? { text: _l('允许导出'), key: 'allowExport' } : [])
+                        .map(item => (
+                          <Checkbox
+                            key={item.key}
+                            className="mTop15"
+                            text={item.text}
+                            checked={selectItem[item.key] === '1'}
+                            onClick={checked =>
+                              this.setState({
+                                selectItem: Object.assign({}, selectItem, { [item.key]: !checked ? '1' : '0' }),
+                              })
+                            }
+                          />
+                        ))}
                     </div>
                     <Line />
                   </Fragment>
                 )}
 
-                <div className="flex">
+                <div className="flex minWidth0">
                   <div className="bold">{_l('列权限')}</div>
                   {this.renderContent({ data: selectItem.subFormProperties, isChildTable: true })}
                 </div>

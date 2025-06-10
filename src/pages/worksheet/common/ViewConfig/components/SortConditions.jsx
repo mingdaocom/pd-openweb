@@ -1,16 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import update from 'immutability-helper';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Dropdown, Tooltip, Support, SortableList } from 'ming-ui';
+import update from 'immutability-helper';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Dropdown, Icon, SortableList, Support, Tooltip } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { getSortData } from 'src/pages/worksheet/util';
+import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { filterSysControls, getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
-import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { getCanSelectColumnsForSort } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { getSortData } from 'src/utils/control';
 
 const Wrap = styled.div`
   .addCondition .Dropdown--input {
@@ -95,8 +95,8 @@ const Item = props => {
           {...(isOtherShowFeild(control)
             ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
             : !control
-            ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
-            : {})}
+              ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
+              : {})}
         />
         <Dropdown
           border

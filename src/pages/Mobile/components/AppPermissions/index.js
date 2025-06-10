@@ -1,16 +1,16 @@
 import React, { Fragment } from 'react';
-import { Dialog, Button, SpinLoading, Popup } from 'antd-mobile';
+import { Button, Dialog, Popup, SpinLoading } from 'antd-mobile';
+import styled from 'styled-components';
 import { Textarea } from 'ming-ui';
-import homeAppApi from 'src/api/homeApp';
 import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import FixedPage from 'src/pages/Mobile/App/FixedPage';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getAppLangDetail } from 'src/utils/app';
+import Back from '../Back';
+import noRoleImg from './img/lock.png';
 import noAppImg from './img/noApp.png';
 import noAppListImg from './img/noList.png';
-import noRoleImg from './img/lock.png';
-import FixedPage from 'src/pages/Mobile/App/FixedPage';
-import Back from '../Back';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getAppLangDetail } from 'src/util';
-import styled from 'styled-components';
 
 const ApplyJoinAppPopup = styled(Popup)`
   .adm-popup-body {

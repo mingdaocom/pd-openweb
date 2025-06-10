@@ -1,22 +1,22 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import ChooseControls from './ChooseControls';
+import 'src/pages/integration/dataIntegration/connector/style.less';
+import { getTranslateInfo } from 'src/utils/app';
+import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, isUnique } from '../config';
 import {
-  getNodeInfo,
-  getRuleAlias,
-  updateConfig,
   getGroupFields,
   getGroupInfo,
-  setResultFieldSettingByAggFuncType,
   getLimitControlByRelativeNum,
+  getNodeInfo,
+  getRuleAlias,
+  setResultFieldSettingByAggFuncType,
+  updateConfig,
 } from '../util';
+import ChooseControls from './ChooseControls';
 import { WrapDropW } from './style';
-import 'src/pages/integration/dataIntegration/connector/style.less';
-import { getTranslateInfo } from 'src/util';
-import { canArraySplit, isUnique, GROUPMAX, GROUPLIMITTYPES } from '../config';
-import { useSetState } from 'react-use';
 
 export default function (props) {
   const { onUpdate, flowData, sourceInfos } = props;

@@ -1,13 +1,13 @@
-﻿// define(function (require, exports, module) {
-// define(function (require, exports, module) {
-import './style.less';
-import { formatFileSize, getClassNameByExt, getUrlByBucketName } from 'src/util';
-import mainTpl from './tpl/main.html';
+﻿import React from 'react';
 import doT from 'dot';
+import { Button, Dialog } from 'ming-ui';
 import kcAjax from 'src/api/kc';
-import { Dialog, Button } from 'ming-ui';
-import React from 'react';
-import RegExpValidator from 'src/util/expression';
+import { formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { getUrlByBucketName } from '../../utils';
+import mainTpl from './tpl/main.html';
+import './style.less';
+
 var UploadNewVersion = function (item, file, callback) {
   var NV = this;
   NV.item = item;

@@ -1,17 +1,17 @@
 import React, { Fragment } from 'react';
+import { Prompt } from 'react-router-dom';
 import { connect } from 'react-redux';
+import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, LoadDiv, Support } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import { showEditFn, getRulesAll, deleteRules, saveFn } from '../actions/action';
-import { Prompt } from 'react-router-dom';
-import './index.less';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { deleteRules, getRulesAll, saveFn, showEditFn } from '../actions/action';
 import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';
-import cx from 'classnames';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import _ from 'lodash';
+import './index.less';
 
 let rules = [
   { type: 'hiddeRules', title: _l('隐藏的成员'), description: _l('被隐藏的成员 ，不会显示在通讯录中') },

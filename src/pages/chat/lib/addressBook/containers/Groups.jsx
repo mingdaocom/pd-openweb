@@ -1,20 +1,17 @@
 ﻿import React from 'react';
-import PropTypes from 'prop-types';
-
-import ListSearchBar from '../components/ListSearchBar';
-import GroupList from '../components/GroupList';
-import GroupDetail from '../components/GroupDetail';
-import JoinGroup from '../components/JoinGroup';
-import GroupFilter from '../components/GroupFilter';
-
-import API from '../api';
-
-import { SEARCH_GROUP_TYPES, GROUP_STATUS } from '../constants';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import API from '../api';
+import GroupDetail from '../components/GroupDetail';
+import GroupFilter from '../components/GroupFilter';
+import GroupList from '../components/GroupList';
+import JoinGroup from '../components/JoinGroup';
+import ListSearchBar from '../components/ListSearchBar';
+import { GROUP_STATUS, SEARCH_GROUP_TYPES } from '../constants';
 
 const formatGroupsData = (store, list) => {
   const result = store || {};
-  _.each(list, (item) => {
+  _.each(list, item => {
     const { firstCode } = item;
     const title = /[A-Z]/.test(firstCode.toUpperCase()) ? firstCode.toUpperCase() : '#';
     if (!result[title]) {
@@ -84,7 +81,7 @@ export default class ProjectGroups extends React.Component {
     const { projectId } = this.props;
     const params = { pageIndex, keywords, projectId, searchGroupType };
     this.promise = API.fetchAllGroups(keywords ? { ...params } : { ...params, groupStatus });
-    return this.promise.then((data) => {
+    return this.promise.then(data => {
       const { listData } = this.state;
       if (keywords) {
         this.setState({
@@ -106,7 +103,7 @@ export default class ProjectGroups extends React.Component {
     this.setState({
       isLoading: true,
     });
-    this.fetchGroups().then((_hasMore) => {
+    this.fetchGroups().then(_hasMore => {
       this.setState({
         pageIndex: pageIndex + 1,
         isLoading: false,
@@ -115,22 +112,22 @@ export default class ProjectGroups extends React.Component {
     });
   }
 
-  updateGroupModel(groupId, isOpen) {
+  updateGroupModel(groupId, info) {
     const { listData } = this.state;
     const keys = _.keys(listData);
     const result = {};
-    _.forEach(keys, (key) => {
+    _.forEach(keys, key => {
       const list = listData[key];
-      result[key] = _.map(list, (group) => {
+      result[key] = _.map(list, group => {
         if (group.groupId === groupId) {
           return {
             ...group,
-            isOpen,
+            ...info,
           };
         } else {
           return group;
         }
-      });
+      }).filter(l => !l.isDelete);
     });
     this.setState({
       listData: result,
@@ -144,9 +141,9 @@ export default class ProjectGroups extends React.Component {
       result = _.find(listData, group => group.groupId === groupId);
     } else {
       const keys = _.keys(listData);
-      _.forEach(keys, (key) => {
+      _.forEach(keys, key => {
         const list = listData[key];
-        result = _.find(list, (group) => {
+        result = _.find(list, group => {
           return group.groupId === groupId;
         });
         if (result) return false;
@@ -184,7 +181,7 @@ export default class ProjectGroups extends React.Component {
         listData: null,
         selectedGroupId: null,
       },
-      this.fetch
+      this.fetch,
     );
   }
 
@@ -196,7 +193,7 @@ export default class ProjectGroups extends React.Component {
         listData: null,
         searchGroupType,
       },
-      this.fetch
+      this.fetch,
     );
   }
 
@@ -257,12 +254,12 @@ export default class ProjectGroups extends React.Component {
   // }
 
   renderDetail() {
-    const { selectedGroupId } = this.state;
+    const { selectedGroupId, groupStatus } = this.state;
     const selectedGroup = this.getGroupModel(selectedGroupId);
     if (selectedGroupId && selectedGroup && !selectedGroup.isMember) {
       return <JoinGroup groupId={selectedGroupId} />;
     }
-    return <GroupDetail group={selectedGroup} updateGroupModel={this.updateGroupModel} />;
+    return <GroupDetail group={selectedGroup}  groupStatus={groupStatus} updateGroupModel={this.updateGroupModel} />;
   }
 
   render() {
@@ -274,7 +271,7 @@ export default class ProjectGroups extends React.Component {
           {keywords ? null : this.renderFilter()}
           <div
             className="contacts-list-content"
-            ref={(el) => {
+            ref={el => {
               this.listContent = el;
             }}
           >

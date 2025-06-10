@@ -8,6 +8,7 @@
     padding-top: 54px;
   }
   .common-info-row-label {
+    min-width: 140px;
     width: 140px;
     color: #757575;
     display: flex;
@@ -55,6 +56,9 @@
   }
   .delete {
     color: #ff6d6c;
+  }
+  .editBtn {
+    margin-left: -32px;
   }
 }
 
@@ -380,33 +384,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  .hisListContainer {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    .tableViewContent {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      &.hidden {
-        display: none;
-      }
-      .tableUser {
-        width: 40%;
-      }
-      .tableOption,
-      .tableTime {
-        width: 30%;
-      }
-      .closeNetTableContent {
-        flex: 1;
-        min-height: 0;
-        overflow-x: hidden;
-      }
-    }
-  }
+
   #stepOne {
     .title {
       color: #151515;
@@ -419,60 +397,22 @@
       height: 36px;
     }
   }
-  .confirmBtn {
-    margin-top: 48px;
-    width: 148px;
-    height: 42px;
-    border-radius: 32px;
-  }
+
   .error {
     color: #f54336;
   }
-  #stepTwo {
-    .content {
-      display: flex;
-      flex-direction: column;
-      label {
-        input {
-          display: none;
-        }
-      }
-    }
-    .inputText {
-      width: 240px;
-      min-height: 40px;
-      padding-left: 25px;
-    }
+
+  .Red_e828 {
+    color: #e82828 !important;
   }
-  #stepThree {
-    .rowDetail {
-      display: flex;
-      align-items: center;
-      color: #151515;
-      font-size: 13px;
-    }
-    .rowLabel {
-      width: 80px;
-      display: flex;
-      justify-content: flex-start;
-    }
+  .projectInfoCard {
+    padding: 24px;
+    border-radius: 5px;
+    border: 1px solid #eaeaea;
   }
-  table {
-    font-size: 13px;
-    th {
-      color: #757575;
-      font-weight: 600;
-      border-bottom: 1px solid #eaeaea;
-      text-align: left;
-    }
-    tbody {
-      color: #151515;
-    }
-  }
-  .verifyPasswordInput {
-    width: 430px;
-    .verifyPasswordTitle {
-      font-size: 14px !important;
-    }
+  .explain {
+    line-height: 32px;
+    margin-top: 58px;
+    margin-bottom: 72px;
   }
 }

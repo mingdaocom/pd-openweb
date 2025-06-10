@@ -1,21 +1,21 @@
-import './css/batchTask.less';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import doT from 'dot';
-import config from '../../config/config';
-import batchTaskTpl from './tpl/batchTask.html';
-import { htmlEncodeReg } from 'src/util';
-import ajaxRequest from 'src/api/taskCenter';
-import Store from 'redux/configureStore';
-import { errorMessage, checkIsProject, taskStatusDialog } from '../../utils/utils';
-import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
-import _ from 'lodash';
-import moment from 'moment';
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import styled from 'styled-components';
-import { LoadDiv, Dialog, Checkbox } from 'ming-ui';
 import { renderToString } from 'react-dom/server';
+import Store from 'redux/configureStore';
+import doT from 'dot';
+import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Checkbox, Dialog, LoadDiv } from 'ming-ui';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
+import { htmlEncodeReg } from 'src/utils/common';
+import config from '../../config/config';
+import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
+import { checkIsProject, errorMessage, taskStatusDialog } from '../../utils/utils';
 import SelectTag from '../taskDetail/SelectTag';
+import batchTaskTpl from './tpl/batchTask.html';
+import './css/batchTask.less';
 
 const SearchFolderCon = styled.ul`
   width: 438px;
@@ -23,8 +23,12 @@ const SearchFolderCon = styled.ul`
   max-height: 400px;
   padding: 6px 0;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   background: #fff;
   padding: 6px 0;
   z-index: 9999;

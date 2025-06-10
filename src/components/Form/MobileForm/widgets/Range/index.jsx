@@ -9,6 +9,10 @@ const RangeWrap = styled.div`
   display: flex;
   align-items: center;
   min-height: 37px;
+
+  .scoreIcon {
+    font-size: 24px !important;
+  }
 `;
 
 const Range = props => {

@@ -206,6 +206,15 @@ const Wrap = styled.div`
       font-size: 13px;
     }
   }
+
+  .countInput {
+    .disabled {
+      color: #ddd;
+    }
+    .ant-input-suffix {
+      width: 38px !important;
+    }
+  }
 `;
 
 export const defaultConfig = {

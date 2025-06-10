@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { emitter } from 'worksheet/util';
+import { emitter } from 'src/utils/common';
 
 export default function useListenedValue(key) {
   const [value, setValue] = useState();

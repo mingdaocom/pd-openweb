@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getCanSelectControls, formatControls, isIn, canAgg, canChooseForParent, sourceIsMax } from '../util';
 import { isFormulaResultAsSubtotal } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import _ from 'lodash';
+import { canAgg, canChooseForParent, formatControls, getCanSelectControls, isIn, sourceIsMax } from '../util';
 
 const Wrap = styled.div`
   width: 240px;
@@ -116,7 +116,10 @@ function ChooseControl(props) {
             controlsByKey.map(o => {
               const isFull =
                 o.isFull || ([29, 34, 35].includes(o.type) && !canChooseForParent(props.flowData, o.dataSource));
-              const disable = o.disableChoose || o.isLimit || isFull;
+              const isValidName = name => {
+                return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
+              };
+              const disable = o.disableChoose || o.isLimit || isFull || !isValidName(o.controlName);
               const hs = controlId === o.controlId;
               return (
                 <div

@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import { Icon, Dialog, UserHead } from 'ming-ui';
-import { Dropdown, Menu, Checkbox } from 'antd';
-import { Popup, ActionSheet, Button, Dialog as MobileDialog } from 'antd-mobile';
-import SelectUser from 'mobile/components/SelectUser';
+import { Checkbox, Dropdown, Menu } from 'antd';
+import { ActionSheet, Button, Dialog as MobileDialog, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
+import { Dialog, Icon, UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
+import SelectUser from 'mobile/components/SelectUser';
+import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
 
@@ -58,7 +58,8 @@ const WrapCon = styled.div`
       }
       background-color: rgba(244, 67, 54, 0.13);
     }
-    &.return, &.taskRevoke {
+    &.return,
+    &.taskRevoke {
       .icon {
         color: rgba(255, 152, 45, 1);
       }
@@ -86,6 +87,7 @@ const WrapCon = styled.div`
 
 const UpdateUserWrap = styled.div`
   .original {
+    min-width: 0;
     padding-right: 10px;
     border-right: 1px solid #dddddd;
   }
@@ -100,7 +102,7 @@ const UpdateUserWrap = styled.div`
 `;
 
 function UpdateUserDialog(props) {
-  const { visible, projectId, data } = props;
+  const { visible, appId, projectId, data } = props;
   const { onCancel, onOK } = props;
   const currentWorkItems = data.currentWorkItems || [];
   const [selectAccountIds, setSelectAccountIds] = useState(
@@ -121,7 +123,6 @@ function UpdateUserDialog(props) {
       },
     });
   };
-
   return (
     <Dialog
       visible={visible}
@@ -166,12 +167,14 @@ function UpdateUserDialog(props) {
               }}
             >
               <Checkbox className="flexRow" checked={selectAccountIds.includes(data.workItemAccount.accountId)} />
-              <div className="flexRow valignWrapper mLeft15">
+              <div className="flexRow flex valignWrapper mLeft15">
                 <UserHead
+                  appId={appId}
+                  projectId={projectId}
                   size={28}
                   user={{ userHead: data.workItemAccount.avatar, accountId: data.workItemAccount.accountId }}
                 />
-                <div className="mLeft12">{data.workItemAccount.fullName}</div>
+                <div className="mLeft12 ellipsis flex">{data.workItemAccount.fullName}</div>
               </div>
             </div>
           ))}
@@ -372,22 +375,27 @@ export function TaskRevokeAction(props) {
   const { className, onClick } = props;
   return (
     <WrapCon className={cx('flexRow valignWrapper approveBtnWrapper', className, { hoverBtnWrap: !isMobile })}>
-        <div className="btn taskRevoke" onClick={() => { onClick() }}>
-          <Icon icon="rotate" className="Font17 mRight3" />
-          {_l('撤回')}
-        </div>
+      <div
+        className="btn taskRevoke"
+        onClick={() => {
+          onClick();
+        }}
+      >
+        <Icon icon="rotate" className="Font17 mRight3" />
+        {_l('撤回')}
+      </div>
     </WrapCon>
   );
 }
 
 export default function WorkflowAction(props) {
-  const { className, isBranch, hasMore, isCharge, projectId, data, currentWorkflow } = props;
+  const { className, isBranch, hasMore, isCharge, appId, projectId, data, currentWorkflow } = props;
   const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog, onReset } = props;
   const { workId, status, allowRevoke, allowUrge, flowNode, workItem, createAccount } = data;
   const { type, fastApprove, btnMap = {}, callBackType } = flowNode || {};
   const allowBatch = type === 4 && fastApprove;
   const allowApproval = allowBatch && workItem;
-  const allOverrule = ('5' in btnMap) && fastApprove && workItem;
+  const allOverrule = '5' in btnMap && fastApprove && workItem;
   const allowCallBack = callBackType !== -1 && !allOverrule && fastApprove && workItem;
   const { backFlowNodes = [] } = currentWorkflow;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
@@ -401,7 +409,7 @@ export default function WorkflowAction(props) {
       MobileDialog.confirm({
         title: _l('确认跳过当前节点 ?'),
         content: description,
-        onConfirm: () => onSkip(data)
+        onConfirm: () => onSkip(data),
       });
     } else {
       Dialog.confirm({
@@ -417,7 +425,7 @@ export default function WorkflowAction(props) {
       MobileDialog.confirm({
         title: _l('确认中止此条流程 ?'),
         confirmText: <span className="Red">{_l('确认')}</span>,
-        onConfirm: () => onEndInstance(data)
+        onConfirm: () => onEndInstance(data),
       });
     } else {
       Dialog.confirm({
@@ -505,8 +513,8 @@ export default function WorkflowAction(props) {
               <Icon className={cx('mRight10 Font18', item.className || 'Gray_75')} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </div>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -518,7 +526,7 @@ export default function WorkflowAction(props) {
       ),
       onAction: (action, index) => {
         actionHandler.close();
-      }
+      },
     });
   };
 
@@ -530,6 +538,7 @@ export default function WorkflowAction(props) {
           ...data,
           currentWorkItems: (data.currentWorkItems || []).filter(c => c.operationType === 0),
         }}
+        appId={appId}
         projectId={projectId}
         visible={updateUserDialogVisible}
         onCancel={() => setUpdateUserDialogVisible(false)}
@@ -575,13 +584,13 @@ export default function WorkflowAction(props) {
         {allowApproval && (
           <div className="btn pass" onClick={() => onAction(data, 'pass')}>
             <Icon icon="done" className="Font17 mRight3" />
-            <span className="ellipsis">{btnMap[4] || _l('通过')}</span>
+            <span className="ellipsis">{btnMap[4] || _l('同意')}</span>
           </div>
         )}
         {allOverrule && (
           <div className="btn overrule" onClick={() => onAction(data, 'overrule')}>
             <Icon icon="clear" className="Font17 mRight3" />
-            <span className="ellipsis">{btnMap[5] || _l('否决')}</span>
+            <span className="ellipsis">{btnMap[5] || _l('拒绝')}</span>
           </div>
         )}
       </Fragment>
@@ -598,7 +607,7 @@ export default function WorkflowAction(props) {
       )}
       {allowReset && (
         <div className="btn reset" onClick={() => onReset(data)}>
-          <Icon icon="refresh1" className="Font17 mRight3"/>
+          <Icon icon="refresh1" className="Font17 mRight3" />
           <span className="ellipsis">{_l('重新发起')}</span>
         </div>
       )}
@@ -608,7 +617,12 @@ export default function WorkflowAction(props) {
         </div>
       )}
       {((allowRevoke && allowApproval) || workItem ? false : allowRevoke) && !isBranch && (
-        <div className="btn revoke" onClick={() => { onRevoke(data) }}>
+        <div
+          className="btn revoke"
+          onClick={() => {
+            onRevoke(data);
+          }}
+        >
           {_l('撤回')}
         </div>
       )}

@@ -1,10 +1,11 @@
-import { createStore, applyMiddleware, compose } from 'redux';
-import reducer from './reducer';
-import { init, refresh } from './action';
+import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import { v4 } from 'uuid';
 import { find, get, includes, isEmpty } from 'lodash';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { v4 } from 'uuid';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import { init, refresh } from './action';
+import reducer from './reducer';
+
 
 export default function generateStore(
   control,

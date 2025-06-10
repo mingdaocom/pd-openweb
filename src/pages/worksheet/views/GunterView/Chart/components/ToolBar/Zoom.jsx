@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import { Icon, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
-import { PERIODS, PERIOD_TYPE } from 'worksheet/views/GunterView/config';
-import { browserIsMobile } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import { PERIOD_TYPE, PERIODS } from 'worksheet/views/GunterView/config';
+import { browserIsMobile } from 'src/utils/common';
 
 const IconWrap = styled(Icon)`
   &.disable {
@@ -50,7 +50,7 @@ export default class Zoom extends Component {
         }
       }
     });
-  }
+  };
   handleAdd = () => {
     if (!window.isZoom) {
       return;
@@ -72,7 +72,7 @@ export default class Zoom extends Component {
         }
       }
     });
-  }
+  };
   render() {
     const { periodType } = this.props;
     const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value: periodType }) || {};
@@ -82,7 +82,10 @@ export default class Zoom extends Component {
       <Fragment>
         <Tooltip disable={this.isMobile} text={<span>{_l('缩小')}</span>}>
           <IconWrap
-            className={cx('Font18 Gray_75 pointer mRight12 mLeft12', { disable: reduceDisable, hoverColor: !this.isMobile })}
+            className={cx('Font18 Gray_75 pointer mRight12 mLeft12', {
+              disable: reduceDisable,
+              hoverColor: !this.isMobile,
+            })}
             icon="minus"
             onClick={reduceDisable ? _.noop : this.handleReduce}
           />

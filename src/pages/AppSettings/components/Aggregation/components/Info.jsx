@@ -1,34 +1,34 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { useSetState } from 'react-use';
-import cx from 'classnames';
-import { LoadDiv, Icon, Dialog, Support } from 'ming-ui';
-import { Tooltip } from 'antd';
-import CheckBox from 'ming-ui/components/Checkbox';
-import './style.less';
-import GroupDialog from './GroupDialog';
-import GroupCon from './GroupCon';
-import AggregationCon from './AggregationCon';
-import 'src/pages/workflow/components/Switch/index.less';
-import sheetAjax from 'src/api/worksheet';
-import SyncTask from 'src/pages/integration/api/syncTask.js';
-import AggTableAjax from 'src/pages/integration/api/aggTable.js';
-import {
-  getNodeInfo,
-  updateConfig,
-  getGroupFields,
-  setGroupFields,
-  getSourceMaxCountByVersion,
-  getAllSourceList,
-} from '../util';
-import Preview from './Preview';
-import { Wrap, Header } from './style';
-import 'src/pages/integration/dataIntegration/connector/style.less';
-import SourceCon from './SourceCon';
-import AddAggregation from './AggregationConForAdd';
-import { getTranslateInfo } from 'src/util';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import DocumentTitle from 'react-document-title';
-import { systemControls, GROUPMAX, AGG_CONTROL_MAX } from '../config';
+import { useSetState } from 'react-use';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
+import { Dialog, Icon, LoadDiv, Support } from 'ming-ui';
+import CheckBox from 'ming-ui/components/Checkbox';
+import sheetAjax from 'src/api/worksheet';
+import AggTableAjax from 'src/pages/integration/api/aggTable.js';
+import SyncTask from 'src/pages/integration/api/syncTask.js';
+import 'src/pages/integration/dataIntegration/connector/style.less';
+import 'src/pages/workflow/components/Switch/index.less';
+import { getTranslateInfo } from 'src/utils/app';
+import { AGG_CONTROL_MAX, GROUPMAX, systemControls } from '../config';
+import {
+  getAllSourceList,
+  getGroupFields,
+  getNodeInfo,
+  getSourceMaxCountByVersion,
+  setGroupFields,
+  updateConfig,
+} from '../util';
 import AddGroup from './AddGroup';
+import AggregationCon from './AggregationCon';
+import AddAggregation from './AggregationConForAdd';
+import GroupCon from './GroupCon';
+import GroupDialog from './GroupDialog';
+import Preview from './Preview';
+import SourceCon from './SourceCon';
+import { Header, Wrap } from './style';
+import './style.less';
 
 export default function Info(props) {
   const scrollDivRef = useRef(null);
@@ -592,6 +592,7 @@ export default function Info(props) {
           <div className="preview flex h100">
             <Preview
               {...props}
+              updateLoading={updateLoading}
               updating={updating}
               sourceHasChange={sourceHasChange}
               sourceInfos={sourceInfos}

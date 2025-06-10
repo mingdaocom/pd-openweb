@@ -1,29 +1,31 @@
-﻿import _ from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import { Menu, MenuItem, Dialog } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAway = createDecoratedComponent(withClickAway);
-import postEnum from '../../../constants/postEnum';
-const { POST_TYPE } = postEnum;
-import {
-  addTop,
-  removeTop,
-  remove,
-  removeComment,
-  editVoteEndTimeSuccess,
-  editShareScopeSuccess,
-} from '../../../redux/postActions';
+﻿import React from 'react';
 import { connect } from 'react-redux';
-import EditPostDialog from './EditPostDialog';
-import EditVoteEndTimeDialog from './EditVoteEndTimeDialog';
-import createTask from 'src/components/createTask/createTask';
-import './postOperateList.css';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Dialog, Menu, MenuItem } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import createCalendar from 'src/components/createCalendar/createCalendar';
 import addOldTask from 'src/components/createTask/addOldTask';
+import createTask from 'src/components/createTask/createTask';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import postEnum from '../../../constants/postEnum';
+import {
+  addTop,
+  editShareScopeSuccess,
+  editVoteEndTimeSuccess,
+  remove,
+  removeComment,
+  removeTop,
+} from '../../../redux/postActions';
 import editShareScope from '../postComponent/editShareScope/editShareScope';
+import EditPostDialog from './EditPostDialog';
+import EditVoteEndTimeDialog from './EditVoteEndTimeDialog';
+import './postOperateList.css';
+
+const ClickAway = createDecoratedComponent(withClickAway);
+
+const { POST_TYPE } = postEnum;
 
 /**
  * 动态的操作列表

@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { edit } from '../../../redux/postActions';
-import { htmlDecodeReg } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import UploadFiles from 'src/components/UploadFiles';
-import { Dialog, Textarea, Button } from 'ming-ui';
 import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import styled from 'styled-components';
+import { Button, Dialog, Textarea } from 'ming-ui';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import UploadFiles from 'src/components/UploadFiles';
+import { htmlDecodeReg } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import RegExpValidator from 'src/utils/expression';
+import { edit } from '../../../redux/postActions';
 
 const FooterWrap = styled.div`
   display: flex;
@@ -186,7 +186,10 @@ export default class EditPostDialog extends React.Component {
   handleChangeGroup = value => {
     this.setState({
       scope:
-        !value.isMe && !(value.shareGroupIds || []).length && !(value.shareProjectIds || []).length && !(value.radioProjectIds || []).length
+        !value.isMe &&
+        !(value.shareGroupIds || []).length &&
+        !(value.shareProjectIds || []).length &&
+        !(value.radioProjectIds || []).length
           ? undefined
           : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']),
     });

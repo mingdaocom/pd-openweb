@@ -1,7 +1,8 @@
-import Remarkable from 'remarkable';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import { replaceEntities, escapeHtml } from 'remarkable/lib/common/utils';
 import _ from 'lodash';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import Remarkable from 'remarkable';
+import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
+import filterXss from 'xss';
 
 export const SORT_TYPE = {
   ASC: 'ASC',
@@ -20,7 +21,7 @@ export const getMarkdownContent = text => {
     return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
   };
 
-  return md.render(text);
+  return filterXss(md.render(text));
 };
 
 export const getPluginOperateText = (recentOperation = {}) => {

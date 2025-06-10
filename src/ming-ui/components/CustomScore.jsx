@@ -1,15 +1,15 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Icon from './Icon';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Tooltip } from 'ming-ui';
 import { getDefaultData } from 'src/pages/widgetConfig/config/score.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { getStringBytes } from 'src/utils/common';
+import Icon from './Icon';
 import './less/Score.less';
-import cx from 'classnames';
-import { Tooltip } from 'ming-ui';
-import { getStringBytes } from 'src/util';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const CustomScoreIcon = styled.div`
   .scoreIcon {
@@ -115,7 +115,8 @@ class CustomScore extends Component {
     const itemcolor = JSON.parse(defaultColor || '{}');
     const itemnames = getAdvanceSetting(data, 'itemnames') || [];
     const list = Array.from({ length: max });
-    const isDingTalkPcSlide = window.isDingTalk && (location.search.includes('pc_slide=true') || sessionStorage.getItem('dingtalk_pc_slide'));
+    const isDingTalkPcSlide =
+      window.isDingTalk && (location.search.includes('pc_slide=true') || sessionStorage.getItem('dingtalk_pc_slide'));
     const isMobile = isDingTalkPcSlide ? false : browserIsMobile();
     const text = _.get(itemnames[lastScore - 1], 'value') || lastScore;
     const selectColor =

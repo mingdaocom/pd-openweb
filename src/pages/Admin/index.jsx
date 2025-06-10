@@ -1,20 +1,20 @@
 import React, { PureComponent } from 'react';
+import { Route, Switch } from 'react-router-dom';
+import Loadable from 'react-loadable';
+import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
 import { LoadDiv, WaterMark } from 'ming-ui';
-import Config from './config';
+import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import AdminCommon from './common/common';
-import { Switch, Route } from 'react-router-dom';
+import Empty from './common/TableEmpty';
+import Config from './config';
+import { PERMISSION_ENUM, ROUTE_CONFIG } from './enum';
 import Menu from './menu';
 import ApplyRole from './organization/roleAuth/apply';
 import MyRole from './organization/roleAuth/myRole';
-import Empty from './common/TableEmpty';
 import { menuList } from './router.config.js';
-import { ROUTE_CONFIG, PERMISSION_ENUM } from './enum';
-import Loadable from 'react-loadable';
-import { navigateTo } from 'router/navigateTo';
-import { getCurrentProject, getFeatureStatus } from 'src/util';
 import './index.less';
-import _ from 'lodash';
-import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
 
 const getComponent = component =>
   Loadable({

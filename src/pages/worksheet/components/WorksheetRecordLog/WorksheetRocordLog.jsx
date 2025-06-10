@@ -1,39 +1,40 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef, Fragment } from 'react';
-import { Icon, ScrollView, LoadDiv, Tooltip, UserHead, PreferenceTime, PullToRefreshWrapper } from 'ming-ui';
-import { Divider } from 'antd';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useState } from 'react';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import moment from 'moment';
-import filterXSS from 'xss';
+import { Divider } from 'antd';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import AddCondition from '../../common/WorkSheetFilter/components/AddCondition';
-import TriggerSelect from './component/TriggerSelect';
-import DatePickSelect from '../DatePickerSelect';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import filterXSS from 'xss';
+import { Icon, LoadDiv, PreferenceTime, PullToRefreshWrapper, ScrollView, Tooltip, UserHead } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import './WorksheetRocordLog.less';
+import ArchivedList from 'src/components/ArchivedList';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { browserIsMobile } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import AddCondition from '../../common/WorkSheetFilter/components/AddCondition';
+import DatePickSelect from '../DatePickerSelect';
+import ExportTrigger from './component/ExportTrigger';
+import OperatePicker from './component/OperatePicker';
+import TriggerSelect from './component/TriggerSelect';
+import UserPicker from './component/UserPicker';
+import WorksheetRecordLogItem from './component/WorksheetRecordLogItem';
+import { EDIT_TYPE_TEXT, GET_SYSTEM_USER, SUBLIST_FILE_EDIT_TYPE } from './enum.js';
 import {
   assembleListData,
   assembleNewLogListData,
-  renderTitleName,
-  renderTitleAvatar,
-  renderTitleText,
   getExtendParams,
   hasHiddenControl,
-  isUser,
   isPublicFileDownload,
+  isUser,
+  renderTitleAvatar,
+  renderTitleName,
+  renderTitleText,
 } from './util';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile, getFeatureStatus } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import { GET_SYSTEM_USER, EDIT_TYPE_TEXT, SUBLIST_FILE_EDIT_TYPE } from './enum.js';
-import copy from 'copy-to-clipboard';
-import UserPicker from './component/UserPicker';
-import OperatePicker from './component/OperatePicker';
-import ArchivedList from 'src/components/ArchivedList';
-import WorksheetRecordLogItem from './component/WorksheetRecordLogItem';
-import ExportTrigger from './component/ExportTrigger';
-import { VersionProductType } from 'src/util/enum';
+import './WorksheetRocordLog.less';
 
 const reg = new RegExp('<[^<>]+>', 'g');
 const PAGE_SIZE = 20;
@@ -160,14 +161,17 @@ function WorksheetRecordLog(props, ref) {
       lastMark: undefined,
       loadouted: false,
     });
-    loadNewEdition({
-      lastMark: undefined,
-      opeartorIds: undefined,
-      filedId: undefined,
-      startDateTime: undefined,
-      endDateTime: undefined,
-      requestType: 0,
-    }, isPullRefresh);
+    loadNewEdition(
+      {
+        lastMark: undefined,
+        opeartorIds: undefined,
+        filedId: undefined,
+        startDateTime: undefined,
+        endDateTime: undefined,
+        requestType: 0,
+      },
+      isPullRefresh,
+    );
   }
 
   const getParams = (param = {}) => {
@@ -201,47 +205,51 @@ function WorksheetRecordLog(props, ref) {
     let promise = filterUniqueIds
       ? sheetAjax.batchGetWorksheetOperationLogs({ ...param, filterUniqueIds: filterUniqueIds })
       : sheetAjax.getWorksheetOperationLogs(param);
-    promise.then(res => {
-      setMark({ loading: false, loadingAll: false, lastMark: res.lastMark });
-      let data = res.logs;
-      setOldData({ newEditionData: pageIndexs.newLogIndex === 1 ? [] : newEditionData.concat(data) });
+    promise
+      .then(res => {
+        setMark({ loading: false, loadingAll: false, lastMark: res.lastMark });
+        let data = res.logs;
+        setOldData({ newEditionData: pageIndexs.newLogIndex === 1 ? [] : newEditionData.concat(data) });
 
-      if (data.length) {
-        // 去重
-        let _data = assembleNewLogListData(data.filter(l => !DISCUSS_LOG_ID.includes(m => m === l.id)));
-        const loadNewLogEnd = data.length < PAGE_SIZE || data[data.length - 1].operatContent.type === 1;
-        DISCUSS_LOG_ID.concat(data.map(l => l.operatContent.uniqueId));
+        if (data.length) {
+          // 去重
+          let _data = assembleNewLogListData(data.filter(l => !DISCUSS_LOG_ID.includes(m => m === l.id)));
+          const loadNewLogEnd = data.length < PAGE_SIZE || data[data.length - 1].operatContent.type === 1;
+          DISCUSS_LOG_ID.concat(data.map(l => l.operatContent.uniqueId));
 
-        setNewData({ newEditionList: pageIndexs.newLogIndex === 1 ? _data : newEditionList.concat(_data) });
-        setMark({
-          sign: {
-            ...sign,
-            newDataEnd: loadNewLogEnd,
-            showLodOldButton: loadNewLogEnd
-              ? !data.find(l => l.operatContent.type === 1 || l.operatContent.type === 4)
-              : sign.showLodOldButton,
-          },
-        });
-      } else {
-        setMark({
-          sign: {
-            ...sign,
-            newDataEnd: true,
-          },
-          showDivider: pageIndexs.newLogIndex === 1 ? true : showDivider,
-        });
-
-        if (pageIndexs.newLogIndex === 1) {
-          setPara({
-            pageIndexs: {
-              ...pageIndexs,
-              oldLogIndex: 1,
+          setNewData({ newEditionList: pageIndexs.newLogIndex === 1 ? _data : newEditionList.concat(_data) });
+          setMark({
+            sign: {
+              ...sign,
+              newDataEnd: loadNewLogEnd,
+              showLodOldButton: loadNewLogEnd
+                ? !data.find(l => l.operatContent.type === 1 || l.operatContent.type === 4)
+                : sign.showLodOldButton,
             },
           });
-          setNewData({ newEditionList: [] });
+        } else {
+          setMark({
+            sign: {
+              ...sign,
+              newDataEnd: true,
+            },
+            showDivider: pageIndexs.newLogIndex === 1 ? true : showDivider,
+          });
+
+          if (pageIndexs.newLogIndex === 1) {
+            setPara({
+              pageIndexs: {
+                ...pageIndexs,
+                oldLogIndex: 1,
+              },
+            });
+            setNewData({ newEditionList: [] });
+          }
         }
-      }
-    });
+      })
+      .catch(err => {
+        setMark({ loading: false, loadingAll: false });
+      });
   }
 
   function loadLog() {
@@ -631,7 +639,7 @@ function WorksheetRecordLog(props, ref) {
 
     initLog(true);
     if (refreshDiscussCount) refreshDiscussCount();
-  }
+  };
 
   return (
     <ScrollView className="logScroll flex worksheetRecordLog" onScrollEnd={handleScroll}>
@@ -640,85 +648,87 @@ function WorksheetRecordLog(props, ref) {
           {renderSelectCon()}
           {renderEmpty()}
           {!loadingAll &&
-          newEditionList.map((item, index) => {
-            const { child } = item;
-            const ua = getExtendParams(child[0].operatContent.extendParams, 'user_agent');
+            newEditionList.map((item, index) => {
+              const { child } = item;
+              const ua = getExtendParams(child[0].operatContent.extendParams, 'user_agent');
 
-            return (
-              <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
-                <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
-                  {renderLogCardTitle(item)}
-                  {!!ua && (
-                    <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
-                      <span
-                        className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
-                        onClick={() => {
-                          copy(ua);
-                          alert(_l('复制成功'));
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <PreferenceTime
-                    value={item.time}
-                    className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 timeDataTip"
-                  />
+              return (
+                <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
+                  <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
+                    {renderLogCardTitle(item)}
+                    {!!ua && (
+                      <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
+                        <span
+                          className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
+                          onClick={() => {
+                            copy(ua);
+                            alert(_l('复制成功'));
+                          }}
+                        />
+                      </Tooltip>
+                    )}
+                    <PreferenceTime
+                      value={item.time}
+                      className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 timeDataTip"
+                    />
+                  </div>
+
+                  {item.child.map((childData, index) => {
+                    const showTooltips = hasHiddenControl(childData.operatContent.logData, controlsArray);
+                    const updateControlCount = childData.operatContent.logData.filter(
+                      l => (l.oldValue || l.oldText) !== '' || (l.newValue || l.newText) !== '',
+                    ).length;
+                    const editType = _.get(childData, 'operatContent.logData[0].editType');
+                    const editTypeText = editType ? EDIT_TYPE_TEXT[editType] : undefined;
+                    const control = SUBLIST_FILE_EDIT_TYPE.includes(editType)
+                      ? controls.find(l => l.controlId === _.get(childData, 'operatContent.logData[0].id'))
+                      : undefined;
+
+                    return (
+                      <div
+                        key={`worksheetRocordLogCardHrCon-${item.accountName}-${index}`}
+                        className="worksheetRocordLogCardHrCon"
+                      >
+                        {childData.operatContent.createTime !== item.time && (
+                          <div className="worksheetRocordLogCardHrTime">
+                            <span>
+                              {!!updateControlCount && (
+                                <Fragment>
+                                  {!!editTypeText && updateControlCount === 1
+                                    ? editTypeText
+                                    : _l('更新了 %0个字段', updateControlCount)}
+                                  {control && <span className="Gray mLeft8">{control.controlName}</span>}
+                                  {showTooltips && (
+                                    <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
+                                      <Icon icon="info_outline" className="Font14 mLeft5" />
+                                    </Tooltip>
+                                  )}
+                                </Fragment>
+                              )}
+                            </span>
+                            <PreferenceTime value={childData.operatContent.createTime} className="timeDataTip" />
+                          </div>
+                        )}
+                        <WorksheetRecordLogItem
+                          childData={childData}
+                          recordInfo={props}
+                          extendParam={{
+                            selectField: selectField,
+                            moreList: moreList,
+                            setMoreList: setMoreList,
+                            lastMark: lastMark,
+                            showFilter: showFilter,
+                          }}
+                          selectFieldChange={control =>
+                            changeSelect(undefined, { selectField: control }, { filedId: control.controlId })
+                          }
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
-
-                {item.child.map((childData, index) => {
-                  const showTooltips = hasHiddenControl(childData.operatContent.logData, controlsArray);
-                  const updateControlCount = childData.operatContent.logData.filter(
-                    l => (l.oldValue || l.oldText) !== '' || (l.newValue || l.newText) !== '',
-                  ).length;
-                  const editType = _.get(childData, 'operatContent.logData[0].editType');
-                  const editTypeText = editType ? EDIT_TYPE_TEXT[editType] : undefined;
-                  const control = SUBLIST_FILE_EDIT_TYPE.includes(editType) ? controls.find(l => l.controlId === _.get(childData, 'operatContent.logData[0].id')) : undefined;
-
-                  return (
-                    <div
-                      key={`worksheetRocordLogCardHrCon-${item.accountName}-${index}`}
-                      className="worksheetRocordLogCardHrCon"
-                    >
-                      {childData.operatContent.createTime !== item.time && (
-                        <div className="worksheetRocordLogCardHrTime">
-                          <span>
-                            {!!updateControlCount && (
-                              <Fragment>
-                                {!!editTypeText && updateControlCount === 1
-                                  ? editTypeText
-                                  : _l('更新了 %0个字段', updateControlCount)}
-                                {control && <span className='Gray mLeft8'>{control.controlName}</span>}
-                                {showTooltips && (
-                                  <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
-                                    <Icon icon="info_outline" className="Font14 mLeft5" />
-                                  </Tooltip>
-                                )}
-                              </Fragment>
-                            )}
-                          </span>
-                          <PreferenceTime value={childData.operatContent.createTime} className="timeDataTip" />
-                        </div>
-                      )}
-                      <WorksheetRecordLogItem
-                        childData={childData}
-                        recordInfo={props}
-                        extendParam={{
-                          selectField: selectField,
-                          moreList: moreList,
-                          setMoreList: setMoreList,
-                          lastMark: lastMark,
-                          showFilter: showFilter,
-                        }}
-                        selectFieldChange={control =>
-                          changeSelect(undefined, { selectField: control }, { filedId: control.controlId })
-                        }
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+              );
+            })}
           {!loadingAll && !isFilter() && sign.showLodOldButton && discussList.length === 0 && (
             <p className="loadOldLog">
               <span

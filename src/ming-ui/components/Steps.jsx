@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { arrayOf, number, shape, string, bool, func, oneOfType } from 'prop-types';
-import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
-import { Tooltip } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
+import { arrayOf, bool, func, number, oneOfType, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Tooltip } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
 

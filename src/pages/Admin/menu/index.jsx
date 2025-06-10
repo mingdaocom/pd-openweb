@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Tooltip, UpgradeIcon, MdLink } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
-import { pathToRegexp, compile } from 'path-to-regexp';
+import { compile, pathToRegexp } from 'path-to-regexp';
+import Trigger from 'rc-trigger';
+import { MdLink, Tooltip, UpgradeIcon } from 'ming-ui';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import './index.less';
 
 @withRouter
 export default class AdminLeftMenu extends Component {
@@ -28,14 +28,12 @@ export default class AdminLeftMenu extends Component {
       location: { pathname },
       menuList,
     } = this.props;
-    md.global.Account.projects &&
-      md.global.Account.projects.map(item => {
-        if (item.projectId === projectId) {
-          this.setState({
-            currentCompanyName: item.companyName,
-          });
-        }
-      });
+
+    const currentProject = getCurrentProject(projectId, true);
+
+    this.setState({
+      currentCompanyName: currentProject.companyName,
+    });
 
     const nav = _.find(menuList, item =>
       _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => pathToRegexp(path).test(pathname))),

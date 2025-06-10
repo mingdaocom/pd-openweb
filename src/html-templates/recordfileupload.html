@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title content=""></title>
+        <style>
+            html,
+            body,
+            #app {
+                margin: 0;
+                height: 100vh;
+                background-color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            const defaultLang = new URL(location.href).searchParams.get('lang');
+            if (defaultLang) {
+                window.defaultLang = defaultLang;
+            }
+        </script>
+        <script src="webpack[single]?src/pages/ScanQrUploadFile"></script>
+    </body>
+</html>

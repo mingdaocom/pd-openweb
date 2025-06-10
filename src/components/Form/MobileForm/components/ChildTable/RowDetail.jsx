@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import CustomFields from 'src/components/newCustomFields';
+import { isRelateRecordTableControl } from 'src/utils/control';
 
 export default class RowDetail extends React.Component {
   static propTypes = {
@@ -48,19 +48,11 @@ export default class RowDetail extends React.Component {
   formcon = React.createRef();
   customwidget = React.createRef();
 
-  handleChange = () => {
-    const { data, isMobile, onSave } = this.props;
-    if (!this.customwidget.current || isMobile) {
-      return;
-    }
-    const submitData = this.customwidget.current.getSubmitData({ silent: true });
-    const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
-    const formdata = submitData.fullData;
-    const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-    onSave({ ...data, ...row, empty: false }, updateControlIds);
+  isVerified = () => {
+    return this.handleSave(false, false, false, true);
   };
 
-  handleSave = (nextContinue, isSwitchSave, ignoreAlert) => {
+  handleSave = (nextContinue, isSwitchSave, ignoreAlert, isCopy = false) => {
     if (!this.customwidget.current) {
       return;
     }
@@ -75,7 +67,7 @@ export default class RowDetail extends React.Component {
       const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
       !disabled && onSave({ ...data, ...row, empty: false }, updateControlIds);
       if (isSwitchSave) {
-        return;
+        return row;
       } else if (nextContinue) {
         this.setState({ flag: Math.random() }, () => {
           if (this.formcon.current) {
@@ -87,11 +79,10 @@ export default class RowDetail extends React.Component {
             }
           }
         });
-        onClose();
         openNextRecord();
-      } else {
-        onClose();
       }
+      if (!isCopy) onClose();
+      return row;
     }
   };
 
@@ -177,7 +168,6 @@ export default class RowDetail extends React.Component {
             projectId={projectId}
             appId={appId}
             checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}
-            onChange={this.handleChange}
             onRulesLoad={onRulesLoad}
             ignoreSection
             widgetStyle={widgetStyle}

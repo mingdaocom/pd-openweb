@@ -9,7 +9,7 @@ import orderController from 'src/api/order';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
 import projectSetting from 'src/api/projectSetting';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 import PortalProgress from './PortalProgress';
 import './style.less';

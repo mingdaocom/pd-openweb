@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import './index.less';
-import login from 'src/api/login';
-import { navigateTo } from 'src/router/navigateTo';
-import { Support, Tooltip, LoadDiv, Dialog } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { removePssId } from 'src/util/pssId';
+import localForage from 'localforage';
 import _ from 'lodash';
+import { Dialog, LoadDiv, Support, Tooltip } from 'ming-ui';
+import accountSetting from 'src/api/accountSetting';
+import login from 'src/api/login';
 import weixin from 'src/api/weixin';
 import langConfig from 'src/common/langConfig';
-import accountSetting from 'src/api/accountSetting';
+import { navigateTo } from 'src/router/navigateTo';
 import { navigateToLogin } from 'src/router/navigateTo';
-import localForage from 'localforage';
+import { removePssId } from 'src/utils/pssId';
 import Avatar from '../Avatar';
+import './index.less';
 
 export default function UserMenu(props) {
   const { leftCommonUserHandleWrap } = props;

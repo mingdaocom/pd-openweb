@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
 import './index.less';
 
 export default function SelectProject(props) {

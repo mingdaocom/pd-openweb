@@ -1,12 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { list, dataIntegrationList } from './config';
+import { MdLink } from 'ming-ui';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus } from 'src/util';
-import { MdLink } from 'ming-ui';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { dataIntegrationList, list } from './config';
 
 const Wrap = styled.div`
   width: 241px;

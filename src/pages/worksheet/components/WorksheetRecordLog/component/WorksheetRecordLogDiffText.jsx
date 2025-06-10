@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Dialog, RichText } from 'ming-ui';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import { diffChars } from 'diff';
+import _ from 'lodash';
+import { Dialog, RichText } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
-import { browserIsMobile } from 'src/util';
 import '../WorksheetRecordLogValue.less';
 
 const TEXT_MAX_LENGTH = 500;

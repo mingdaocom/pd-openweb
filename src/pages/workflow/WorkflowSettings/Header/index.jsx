@@ -1,26 +1,26 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import './index.less';
 import cx from 'classnames';
-import { updatePublishState } from '../../redux/actions';
-import process from '../../api/process';
-import Switch from '../../components/Switch';
-import { Button, Icon, Checkbox, MenuItem, LoadDiv, SvgIcon, ScrollView, Tooltip, Support } from 'ming-ui';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
-import PublishErrorDialog from '../../components/PublishErrorDialog';
-import { APP_TYPE, NODE_TYPE } from '../enum';
-import { selectRecord } from 'src/components/recordCardListDialog';
-import sheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
 import moment from 'moment';
-import { getAppFeaturesPath } from 'src/util';
-import HistoryVersion from './HistoryVersion';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { getIcons, getStartNodeColor } from '../utils';
+import { Button, Checkbox, Icon, LoadDiv, MenuItem, ScrollView, Support, SvgIcon, Tooltip } from 'ming-ui';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
+import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import flowNode from '../../api/flowNode';
+import process from '../../api/process';
+import sheetAjax from 'src/api/worksheet';
+import { selectRecords } from 'src/components/SelectRecords';
+import { getAppFeaturesPath } from 'src/utils/app';
+import PublishErrorDialog from '../../components/PublishErrorDialog';
+import Switch from '../../components/Switch';
+import { updatePublishState } from '../../redux/actions';
 import { ProcessParameters } from '../Detail/components';
+import { APP_TYPE, NODE_TYPE } from '../enum';
+import { getIcons, getStartNodeColor } from '../utils';
+import HistoryVersion from './HistoryVersion';
+import './index.less';
 
 const TABS_OPTS = [
   { tabIndex: 1, name: _l('流程') },
@@ -416,8 +416,8 @@ class Header extends Component {
                       isPlugin
                         ? 'icon-workflow'
                         : flowInfo.child
-                        ? 'icon-subprocess'
-                        : getIcons(typeId, appType, triggerId),
+                          ? 'icon-subprocess'
+                          : getIcons(typeId, appType, triggerId),
                     )}
                   />
                 )}
@@ -473,12 +473,12 @@ class Header extends Component {
         flowInfo.startAppType,
       )
     ) {
-      selectRecord({
+      selectRecords({
         canSelectAll: false,
         pageSize: 25,
         multiple: false,
         singleConfirm: true,
-        relateSheetId: flowInfo.startAppId,
+        worksheetId: flowInfo.startAppId,
         onText: _l('开始测试'),
         allowNewRecord: true,
         allowAdd: true,

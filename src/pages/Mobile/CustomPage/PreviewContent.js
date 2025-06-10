@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Button, SpinLoading } from 'antd-mobile';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Button, SpinLoading } from 'antd-mobile';
-import { PreviewWraper } from 'src/pages/customPage/components/previewContent';
-import cx from 'classnames';
 import share from 'src/api/share';
-import { getIconNameByExt } from 'src/util';
+import { PreviewWraper } from 'src/pages/customPage/components/previewContent';
 import { genUrl } from 'src/pages/customPage/util';
+import { getIconNameByExt } from 'src/utils/common';
 
 const PreviewContentWrapper = styled.div`
   height: 100%;
@@ -73,7 +73,7 @@ function KcShareFolderPreviewContent(props) {
     <PreviewContentWrapper>
       {loading ? (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       ) : node ? (
         <div className="flexColumn valignWrapper fileWrapper h100">
@@ -120,7 +120,7 @@ function KcShareNodePreviewContent(props) {
     <PreviewContentWrapper>
       {loading ? (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       ) : node ? (
         <div className="flexColumn valignWrapper fileWrapper h100">

@@ -1,43 +1,46 @@
-import PropTypes from 'prop-types';
-import { createPortal } from 'react-dom';
 import React, { Component, Fragment } from 'react';
+import { createPortal } from 'react-dom';
 import { Dialog as MobileDialog } from 'antd-mobile';
-import { LoadDiv, Dialog } from 'ming-ui';
+import cx from 'classnames';
+import _, { get, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import sheetAjax from 'src/api/worksheet';
-import cx from 'classnames';
-import widgets from './widgets';
-import WidgetsDesc from './components/WidgetsDesc';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
+import { formatSearchConfigs, isCustomWidget, supportDisplayRow } from 'src/pages/widgetConfig/util';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
+import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
+import { browserIsMobile } from 'src/utils/common';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import { replaceRulesTranslateInfo } from 'src/utils/translate';
+import FormLabel from './components/FormLabel';
+import FormWidget from './components/FormWidget';
+import MobileWidgetSection from './components/MobileWidgetSection';
+import RefreshBtn from './components/RefreshBtn';
+import WidgetsDesc from './components/WidgetsDesc';
+import WidgetSection from './components/WidgetSection';
 import WidgetsVerifyCode from './components/WidgetsVerifyCode';
+import { FORM_ERROR_TYPE, FROM } from './tools/config';
+import { dealCustomEvent } from './tools/customEvent';
+import DataFormat from './tools/DataFormat';
+import { checkAllValueAvailable, getRuleErrorInfo, replaceStr, updateRulesData } from './tools/formUtils';
+import { checkRequired, controlState } from './tools/formUtils';
 import {
   convertControl,
-  loadSDK,
-  getControlsByTab,
-  getValueStyle,
-  getHideTitleStyle,
   formatControlValue,
-  isUnTextWidget,
+  getControlsByTab,
+  getHideTitleStyle,
   getServiceError,
+  getValueStyle,
+  isUnTextWidget,
+  loadSDK,
 } from './tools/utils';
-import { isRelateRecordTableControl, replaceRulesTranslateInfo } from 'worksheet/util';
-import { FORM_ERROR_TYPE, FROM } from './tools/config';
-import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/formUtils';
-import DataFormat from './tools/DataFormat';
-import { checkRequired, controlState } from './tools/formUtils';
-import { browserIsMobile } from 'src/util';
-import { formatSearchConfigs, supportDisplayRow, isCustomWidget } from 'src/pages/widgetConfig/util';
-import _, { get, isEmpty } from 'lodash';
-import FormLabel from './components/FormLabel';
-import WidgetSection from './components/WidgetSection';
-import MobileWidgetSection from './components/MobileWidgetSection';
-import styled from 'styled-components';
-import RefreshBtn from './components/RefreshBtn';
+import widgets from './widgets';
 import FreeField from './widgets/FreeField';
-import { dealCustomEvent } from './tools/customEvent';
-import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import FormWidget from './components/FormWidget';
+import './style.less';
 
 const CustomFormItemControlWrap = styled.div`
   .customFormTextarea {
@@ -291,6 +294,13 @@ export default class CustomFields extends Component {
       updateLoadingItems: loadingItems => {
         this.setState({ loadingItems });
       },
+      updateLoadingItemsWithAutoSubmit: loadingItems => {
+        this.setState({ loadingItems: { ...this.state.loadingItems, ...loadingItems } }, () => {
+          if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
+            this.submitFormData();
+          }
+        });
+      },
       activeTrigger: () => {
         if (!this.changeStatus && this.dataFormat) {
           this.props.onChange(this.dataFormat.getDataSource(), this.dataFormat.getUpdateControlIds(), {
@@ -478,6 +488,17 @@ export default class CustomFields extends Component {
                 richTextControlCount,
                 isDraft: isDraft || from === FROM.DRAFT,
                 ...(item.type === 22 ? { setNavVisible } : {}),
+                setLoadingInfo: (key, status) => {
+                  this.dataFormat.loadingInfo[key] = status;
+                  this.setState(
+                    { loadingItems: { ...this.state.loadingItems, ...this.dataFormat.loadingInfo } },
+                    () => {
+                      if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
+                        this.submitFormData();
+                      }
+                    },
+                  );
+                },
               }),
             )}
 
@@ -598,7 +619,7 @@ export default class CustomFields extends Component {
    */
   triggerCustomEvent(props) {
     const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = this.props;
-    const { searchConfig = [], renderData = [] } = this.state;
+    const { searchConfig = [], renderData = [], loadingItems } = this.state;
 
     const customProps = {
       ...props,
@@ -608,6 +629,13 @@ export default class CustomFields extends Component {
       searchConfig: searchConfig.filter(i => i.eventType === 1),
       checkRuleValidator: (controlId, errorType, errorMessage) => {
         this.dataFormat.setErrorControl(controlId, errorType, errorMessage);
+      },
+      checkEventComplete: value => {
+        this.setState({ loadingItems: { ...loadingItems, ...value } }, () => {
+          if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
+            this.submitFormData();
+          }
+        });
       },
       setErrorItems: errorInfo => {
         this.setState({ customErrorItems: errorInfo });
@@ -641,6 +669,7 @@ export default class CustomFields extends Component {
    */
   getWidgets(item) {
     const {
+      isEditing,
       initSource,
       flag,
       projectId,
@@ -754,6 +783,7 @@ export default class CustomFields extends Component {
       >
         <Widgets
           {...item}
+          isEditing={isEditing}
           customFields={this}
           mobileApprovalRecordInfo={mobileApprovalRecordInfo}
           flag={flag}
@@ -992,7 +1022,7 @@ export default class CustomFields extends Component {
       .filter(c => c.type === 34)
       .map(c => ({
         controlId: c.controlId,
-        error: c.store && c.store.getErrors(),
+        error: c.store && getSubListErrorOfStore(c.store),
       }))
       .filter(c => !isEmpty(c.error));
     const totalErrors = errorItems

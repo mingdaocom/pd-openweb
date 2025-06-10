@@ -9,7 +9,7 @@ export default function (props) {
   const { keys = [] } = props;
   return (
     <React.Fragment>
-      <div className="messageBox mTop24">
+      <div className="messageBox mTop36">
         <Warn {...props} />
         {(keys.includes('tel') || keys.includes('email') || keys.includes('emailOrTel')) && <Account {...props} />}
         {keys.includes('code') && <VerifyCode {...props} />}

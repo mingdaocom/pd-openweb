@@ -1,15 +1,15 @@
 import React, { setState, useState } from 'react';
-import styled from 'styled-components';
-import { Dropdown, MdAntDateRangePicker } from 'ming-ui';
-import DatePicker from 'src/components/newCustomFields/widgets/Date';
 import cx from 'classnames';
-import { func, shape, string } from 'prop-types';
-import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
 import _, { includes } from 'lodash';
 import moment from 'moment';
+import { func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Dropdown, MdAntDateRangePicker } from 'ming-ui';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
+import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
+import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
 function getPicker(type) {
   return {
@@ -178,7 +178,7 @@ export default function DateTime(props) {
         <PickerCon>
           <MdAntDateRangePicker
             className="customAntPicker"
-            value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+            value={minValue && maxValue ? [moment(minValue, valueFormat), moment(maxValue, valueFormat)] : []}
             showTime={timeFormat ? { format: timeFormat } : false}
             picker={getPicker(showType)}
             format={showValueFormat}
@@ -229,7 +229,7 @@ export default function DateTime(props) {
             data={dateOptions.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))}
             onChange={newValue => {
               const change = {
-                filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
+                filterType: props.originalFilterType || filterType || FILTER_CONDITION_TYPE.DATEENUM,
                 dateRange: newValue,
                 minValue: undefined,
                 maxValue: undefined,

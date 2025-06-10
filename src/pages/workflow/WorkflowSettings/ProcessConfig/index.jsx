@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Icon, Checkbox, LoadDiv, Dropdown, Radio, Support, ScrollView, Switch } from 'ming-ui';
-import './index.less';
+import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support, Switch } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
 import process from '../../api/process';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import SelectWorkflow from '../../components/SelectWorkflow';
 import { updatePublishState } from '../../redux/actions';
 import { ProcessVariables } from '../Detail/components';
-import { Member, SelectUserDropDown, SelectNodeObject, CustomTextarea } from '../Detail/components';
-import cx from 'classnames';
-import copy from 'copy-to-clipboard';
-import SetControlName from './components/SetControlName';
-import _ from 'lodash';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { CustomTextarea, Member, SelectNodeObject, SelectUserDropDown } from '../Detail/components';
 import { APP_TYPE, USER_TYPE } from '../enum';
-import { quickSelectUser } from 'ming-ui/functions';
+import SetControlName from './components/SetControlName';
+import './index.less';
 
 const TRIGGER_TYPE = {
   ALLOW: 0,
@@ -619,7 +619,10 @@ class ProcessConfig extends Component {
                 type="text"
                 className="webhookLink flex"
                 style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-                value={data.pbcConfig.url}
+                value={data.pbcConfig.url.replace(
+                  '/hooks/',
+                  _.includes([2, 4, 5], data.pbcConfig.outType) ? '/hooks2/' : '/hooks/',
+                )}
                 disabled
               />
               <input

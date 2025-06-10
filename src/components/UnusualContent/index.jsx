@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import { oneOf } from 'prop-types';
-import { Dialog, Textarea, Skeleton, SvgIcon, UserHead, Button } from 'ming-ui';
+import { Button, Dialog, Skeleton, SvgIcon, Textarea, UserHead } from 'ming-ui';
 import api from 'src/api/appManagement';
 import marketplaceApi from 'src/api/marketplace';
-import unauthorizedPic from './unauthorized.png';
-import turnoffPic from './turnoff.png';
+import { checkCertification } from 'src/components/checkCertification';
 import overduePic from './overdue.png';
-import _ from 'lodash';
+import turnoffPic from './turnoff.png';
+import unauthorizedPic from './unauthorized.png';
 import './index.less';
 
 const STATUS_TO_TEXT = {
@@ -133,7 +134,16 @@ export default class UnusualContent extends Component {
           )}
           {_.includes([4], status) &&
             !md.global.Account.isPortal && ( //外部门户无法申请
-              <Button onClick={() => this.setState({ applyJoinAppVisible: true })}>{_l('申请加入')}</Button>
+              <Button
+                onClick={() => {
+                  checkCertification({
+                    projectId: appPkg.projectId,
+                    checkSuccess: () => this.setState({ applyJoinAppVisible: true }),
+                  });
+                }}
+              >
+                {_l('申请加入')}
+              </Button>
             )}
           {_.includes([31], status) && (
             <Button onClick={this.reinstall} loading={reinstallLoading}>

@@ -1,26 +1,26 @@
 import React, { Component, Fragment } from 'react';
-import { navigateTo } from 'src/router/navigateTo';
-import './index.less';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import processVersion from '../api/processVersion';
-import flowNode from '../api/flowNode';
-import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, Dialog, Switch, Tooltip, UserHead, MdLink } from 'ming-ui';
-import MsgTemplate from './components/MsgTemplate';
-import Search from '../components/Search';
-import PublishBtn from './components/PublishBtn';
-import { START_APP_TYPE } from './utils/index';
-import appManagement from 'src/api/appManagement';
-import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
-import WorkflowMonitor from './components/WorkflowMonitor';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { checkIsAppAdmin } from 'ming-ui/functions';
-import Config from 'src/pages/Admin/config';
-import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
-import SelectUser from 'src/pages/Admin/components/SelectUser';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import { Dialog, Icon, LoadDiv, MdLink, ScrollView, Switch, Tooltip, UserHead } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { checkIsAppAdmin } from 'ming-ui/functions';
+import flowNode from '../api/flowNode';
+import processVersion from '../api/processVersion';
+import appManagement from 'src/api/appManagement';
+import projectSetting from 'src/api/projectSetting';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
+import SelectUser from 'src/pages/Admin/components/SelectUser';
+import Config from 'src/pages/Admin/config';
+import { navigateTo } from 'src/router/navigateTo';
+import Search from '../components/Search';
+import MsgTemplate from './components/MsgTemplate';
+import PublishBtn from './components/PublishBtn';
+import WorkflowMonitor from './components/WorkflowMonitor';
+import { START_APP_TYPE } from './utils/index';
+import './index.less';
 
 const tablist = [
   { tab: 'workflowList', tabName: _l('工作流') },
@@ -68,8 +68,8 @@ export default class AdminWorkflowList extends Component {
       activeTab: location.href.includes('monitor')
         ? 'monitorTab'
         : localStorage.getItem('workflowTab')
-        ? localStorage.getItem('workflowTab')
-        : 'workflowList',
+          ? localStorage.getItem('workflowTab')
+          : 'workflowList',
     });
     Config.setPageTitle(_l('工作流'));
   }
@@ -416,7 +416,7 @@ export default class AdminWorkflowList extends Component {
       { label: _l('开启'), value: 1 },
       { label: _l('关闭'), value: 2 },
     ];
-    const licenseType = md.global.Account.projects.find(o => o.projectId === params.projectId).licenseType;
+
     return (
       <div className="adminWorkflowList flex flexColumn orgManagementWrap">
         <div className="flexRow orgManagementHeader">

@@ -1,29 +1,31 @@
-﻿import { getCurrentProject } from 'src/util';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-var AdminCommon = {};
-import Config from '../config';
-import roleApi from 'src/api/role';
-import './common.less';
-import _ from 'lodash';
-import { PERMISSION_ENUM } from '../enum';
+﻿import _ from 'lodash';
 import projectSettingApi from 'src/api/projectSetting';
-import { getMyPermissions, canPurchase, hasBackStageAdminAuth } from 'src/components/checkPermission';
+import roleApi from 'src/api/role';
+import { canPurchase, getMyPermissions, hasBackStageAdminAuth } from 'src/components/checkPermission';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { getCurrentProject } from 'src/utils/project';
+import Config from '../config';
+import { PERMISSION_ENUM } from '../enum';
+import './common.less';
+
+var AdminCommon = {};
 
 AdminCommon.getAuthority = async () => {
   Config.getParams();
-  Config.project = getCurrentProject(Config.projectId);
+  Config.project = getCurrentProject(Config.projectId, true);
   let res = [];
+  let isNotProjectUser = false;
 
   // 不在这个网络
   if (!Config.project.projectId) {
     return [PERMISSION_ENUM.NOT_MEMBER];
   }
 
-  const userPermission = await roleApi.getProjectPermissionsByUser({
-    projectId: Config.projectId,
+  await roleApi.getProjectPermissionsByUser({ projectId: Config.projectId }, { silent: true }).catch(error => {
+    isNotProjectUser = true;
   });
 
-  if (userPermission.IsNotProjectUser) {
+  if (isNotProjectUser) {
     return [PERMISSION_ENUM.NOT_MEMBER]; //不是组织成员
   }
 

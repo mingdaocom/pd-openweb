@@ -4,7 +4,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import Tooltip from 'ming-ui/components/Tooltip';
 import GroupController from 'src/api/group';
-import SettingGroup from 'src/components/group/settingGroup/settingGroups';
+import settingGroup from 'src/pages/Group/settingGroup';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils/';
 import config from '../../utils/config';
@@ -93,9 +93,10 @@ class ChatPanelHeader extends Component {
       triggerVisible,
     });
   }
-  handleSettingGroup() {
+
+  handleSettingGroup = () => {
     const { session } = this.props;
-    SettingGroup({
+    settingGroup({
       groupID: session.id,
       isApprove: false,
       isChat: true,
@@ -122,13 +123,17 @@ class ChatPanelHeader extends Component {
           case GROUPACTION.FORBID_INVITE:
             // this.props.dispatch(actions.updateForbIdInvite(data.groupId, data.isForbidInvite));
             break;
+          case GROUPACTION.VERIFY:
+            this.props.dispatch(actions.updateVerify(data.groupId, data.isVerified));
+            break;
           default:
             break;
         }
       },
     });
     this.handleTriggerChange(false);
-  }
+  };
+
   handleUpdateGroupPushNotice() {
     const { session } = this.props;
     const isPushNotice = !session.isPushNotice;
@@ -207,24 +212,21 @@ class ChatPanelHeader extends Component {
         {isSet ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
             <i className="icon-set_top" />
-            <div className="menuItem-text">{isTop ? _l('取消置顶') : _l('置顶')}</div>
+            <div className="menuItem-text overflow_ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
           </div>
         ) : undefined}
         {isGroup ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleUpdateGroupPushNotice.bind(this)}>
             {session.isGroup ? this.renderIcon() : undefined}
-            <div className="menuItem-text">{session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}</div>
+            <div className="menuItem-text overflow_ellipsis">
+              {session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}
+            </div>
           </div>
         ) : undefined}
-        {/* <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
-          <i className="icon-text" />
-          <div className="menuItem-text">{_l('字体大小')}</div>
-          <i className="icon-arrow-right-tip" style={{marginLeft: 60, fontSize: 12}}/>
-        </div> */}
         {!hideChat && isGroup ? (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleSettingGroup.bind(this)}>
+          <div className="menuItem ThemeBGColor3" onClick={this.handleSettingGroup}>
             <i className="icon-group" />
-            <div className="menuItem-text">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>
+            <div className="menuItem-text overflow_ellipsis">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>
           </div>
         ) : undefined}
       </div>

@@ -1,6 +1,6 @@
-import { browserIsMobile } from 'src/util';
-import render from '../shareMobile';
+import { browserIsMobile } from 'src/utils/common';
 import renderPc from '../entrypoints/sharePc';
+import render from '../shareMobile';
 
 require.ensure([], require => {
   if (

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import Commenter from 'src/components/comment/commenter';
-import { UserHead } from 'ming-ui';
-import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
+import { UserHead } from 'ming-ui';
+import Commenter from 'src/components/comment/commenter';
+import { getCurrentProject } from 'src/utils/project';
 
 export default class WorkSheetCommenter extends Component {
   render() {
@@ -16,6 +16,8 @@ export default class WorkSheetCommenter extends Component {
       forReacordDiscussion,
       entityType,
       atData,
+      instanceId,
+      workId,
     } = this.props;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
     const props = {
@@ -44,6 +46,8 @@ export default class WorkSheetCommenter extends Component {
       selectGroupOptions: { position: 'top' },
       storageId: id,
       extendsId: `${appId || ''}|${viewId || ''}`,
+      instanceId,
+      workId,
       onSubmit: discussion => {
         scrollToListTop();
         change({

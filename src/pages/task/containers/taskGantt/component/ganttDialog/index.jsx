@@ -1,23 +1,22 @@
 import React, { Component, Fragment } from 'react';
+import axios from 'axios';
+import html2canvas from 'html2canvas';
+import _ from 'lodash';
+import moment from 'moment';
 import PropTypes from 'prop-types';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Dialog from 'ming-ui/components/Dialog';
+import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import taskReq from 'src/api/taskCenter';
+import ErrorState from 'src/components/errorPage/errorState';
+import { downloadFile, getToken } from 'src/utils/common';
+import TaskDetail from '../../../taskDetail/taskDetail';
+import config from './config';
+import GanttContent from './GanttContent';
 import GanttHeader from './GanttHeader';
 import GanttSideBar from './GanttSideBar';
-import GanttContent from './GanttContent';
-import taskReq from 'src/api/taskCenter';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { momentTime, durDays } from './time';
+import { durDays, momentTime } from './time';
 import './index.less';
-import config from './config';
-import TaskDetail from '../../../taskDetail/taskDetail';
-import ErrorState from 'src/components/errorPage/errorState';
-import moment from 'moment';
-import html2canvas from 'html2canvas';
-import qiniuAjax from 'src/api/qiniu';
-import { downloadFile, getToken } from 'src/util';
-import axios from 'axios';
-import _ from 'lodash';
 
 export default class GanttDialog extends Component {
   static propTypes = {

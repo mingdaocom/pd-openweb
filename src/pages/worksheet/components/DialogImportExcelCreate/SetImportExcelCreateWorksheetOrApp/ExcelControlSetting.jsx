@@ -19,7 +19,8 @@ const ExcelControlSettingWrap = styled.div`
   border-radius: 3px 3px 3px 3px;
   width: 350px;
   padding: 20px;
-  max-height: 450px;
+  max-height: 400px;
+  overflow-x: hidden;
   .name {
     display: flex;
     align-items: center;
@@ -92,18 +93,20 @@ export default class ExcelControlSetting extends Component {
 
   handleChange = obj => {
     const extra = _.includes([15, 16], obj.type);
-    const newObj = _.includes([10, 11], obj.type)
-      ? {
-          ...obj,
-          options: [],
-          enumDefault: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault,
-          enumDefault2: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault2,
-        }
-      : {
-          ...obj,
-          enumDefault: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault,
-          enumDefault2: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault2,
-        };
+    const newObj = !obj.type
+      ? obj
+      : _.includes([10, 11], obj.type)
+        ? {
+            ...obj,
+            options: [],
+            enumDefault: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault,
+            enumDefault2: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault2,
+          }
+        : {
+            ...obj,
+            enumDefault: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault,
+            enumDefault2: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault2,
+          };
     let newData = { ...this.props.data, ...newObj };
     if (newData.type !== 29) {
       delete newData.sourceConfig;

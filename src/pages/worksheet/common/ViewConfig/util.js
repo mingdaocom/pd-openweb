@@ -1,7 +1,7 @@
 import update from 'immutability-helper';
 import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getSortData } from 'src/pages/worksheet/util';
+import { getSortData } from 'src/utils/control';
 
 export const updateViewAdvancedSetting = (view, obj) => {
   const { navfilters } = obj;

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Icon, Button } from 'ming-ui';
+import { Button, Icon } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
 import Result from 'ming-ui/functions/dialogSelectUser/GeneralSelect/Result';
 import InviteController from 'src/api/invitation';
-import { existAccountHint } from 'src/util';
-import { dialogSelectUser } from 'ming-ui/functions';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
+import { existAccountHint } from 'src/utils/common';
 
 export default class AddressBookInvite extends Component {
   constructor(props) {

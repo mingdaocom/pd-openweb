@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Dropdown, Menu } from 'antd';
-import DialogCreateAndEditPosition from './components/DialogCreateAndEditPosition';
-import PositionContent from './components/PositionContent';
-import ImportDeptAndRole from 'src/pages/Admin/components/ImportDeptAndRole';
-import EmptyStatus from './components/EmptyStatus';
-import * as actions from '../../../../redux/position/action';
-import jobAjax from 'src/api/job';
-import Config from '../../../../config';
-import { downloadFile } from '../../../../util';
-import { getCurrentProject } from 'src/util';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import jobAjax from 'src/api/job';
+import ImportDeptAndRole from 'src/pages/Admin/components/ImportDeptAndRole';
+import { getCurrentProject } from 'src/utils/project';
+import Config from '../../../../config';
+import * as actions from '../../../../redux/position/action';
+import { downloadFile } from '../../../../util';
+import DialogCreateAndEditPosition from './components/DialogCreateAndEditPosition';
+import EmptyStatus from './components/EmptyStatus';
+import PositionContent from './components/PositionContent';
+import './index.less';
 
 // 导入职位模版
 const positionTemplatePaths = {

@@ -1,16 +1,17 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Dialog } from 'ming-ui';
-import cx from 'classnames';
-import paymentAjax from 'src/api/payment.js';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import moment from 'moment';
-import { browserIsMobile } from 'src/util';
-import { infoKeys, statusList, refundInfoKeys, refundStatusList } from './config';
-import reimburseDialogFunc from 'src/pages/Admin/pay/Merchant/components/WithdrawReimburseDialog';
+import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
+import paymentAjax from 'src/api/payment.js';
 import { agreeOrRefuseRefundConfirm } from 'src/pages/Admin/pay/components/MobileRefundModal';
 import { refundConfirmFunc } from 'src/pages/Admin/pay/components/MobileRefundModal';
-import _ from 'lodash';
+import reimburseDialogFunc from 'src/pages/Admin/pay/Merchant/components/WithdrawReimburseDialog';
+import { browserIsMobile } from 'src/utils/common';
+import { infoKeys, refundInfoKeys, refundStatusList, sourceTypeInfo, statusList } from './config';
 
 const WrapCon = styled.div`
   overflow: auto;
@@ -98,6 +99,20 @@ const MobileEmptyWrap = styled.div`
     height: 80px;
     border-radius: 80%;
     background-color: #e0e0e0;
+  }
+`;
+
+const Btn = styled.div`
+  flex: 1;
+  height: 36px;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    color: #2196f3;
+    border: 1px solid #2196f3;
   }
 `;
 
@@ -272,7 +287,7 @@ export default function PayLog(props) {
   };
 
   const renderRefund = o => {
-    // 状态 0 退款中 1 退款失败 2 已退款 3 待处理 4 已拒绝 5 已取消 6 同意退款
+    // 状态 0 退款中 1 退款失败 2 已退款 3 待处理 4 已拒绝 5 已取消 6 同意退款 8 已取消（组织后台手动取消）
     const text = refundStatusList.find(it => it.key === o.status).text;
     return (
       <Wrap className={cx('Font13', isMobile ? 'mTop10' : 'mTop20')}>
@@ -304,8 +319,10 @@ export default function PayLog(props) {
                 {['createTime', 'refundTime'].includes(a.key)
                   ? moment(o[a.key]).format('YYYY-MM-DD HH:mm:ss')
                   : ['payAccountInfo', 'operatorAccountInfo'].includes(a.key)
-                  ? _.get(o, `${a.key}.fullname`)
-                  : o[a.key]}
+                    ? a.key === 'payAccountInfo' && o.sourceType === 6
+                      ? '-'
+                      : _.get(o, `${a.key}.fullname`)
+                    : o[a.key]}
                 {['amount', 'payAmount'].includes(a.key) ? <span className="pLeft5">{_l('元')} </span> : ''}
               </span>
             </div>
@@ -376,19 +393,23 @@ export default function PayLog(props) {
             <div className={cx('flexRow alignItemsCenter', { mBottom12: i < list.length - 1 })}>
               <span className={cx('payTitle Gray_75 Bold')}>{o.txt}</span>
               <span className={cx('con mLeft15 WordBreak Gray')}>
-                {o.key === 'payOrderType'
-                  ? payOrder.payOrderType === 0 //payOrderType 0支付宝 1微信 -1未支付
-                    ? _l('支付宝')
-                    : payOrder.payOrderType === 1
-                    ? _l('微信')
-                    : '-'
-                  : isNull
-                  ? '-'
-                  : ['createTime', 'paidTime'].includes(o.key)
-                  ? moment(payOrder[o.key]).format('YYYY-MM-DD HH:mm:ss')
-                  : ['payAccountInfo'].includes(o.key)
-                  ? _.get(payOrder, `${o.key}.fullname`)
-                  : payOrder[o.key]}
+                {o.key === 'sourceType'
+                  ? sourceTypeInfo[payOrder[o.key]]
+                  : o.key === 'payOrderType'
+                    ? payOrder.payOrderType === 0 //payOrderType 0支付宝 1微信 -1未支付
+                      ? _l('支付宝')
+                      : payOrder.payOrderType === 1
+                        ? _l('微信')
+                        : '-'
+                    : isNull
+                      ? '-'
+                      : ['createTime', 'paidTime'].includes(o.key)
+                        ? moment(payOrder[o.key]).format('YYYY-MM-DD HH:mm:ss')
+                        : ['payAccountInfo'].includes(o.key)
+                          ? o.key === 'payAccountInfo' && payOrder.sourceType === 6
+                            ? '-'
+                            : _.get(payOrder, `${o.key}.fullname`)
+                          : payOrder[o.key]}
                 {['taxAmount', 'refundAmount', 'settlementAmount', 'amount'].includes(o.key) && !isNull ? (
                   <span className="pLeft5">{_l('元')} </span>
                 ) : (
@@ -404,6 +425,20 @@ export default function PayLog(props) {
             onClick={() => onRefund()}
           >
             {_l('申请退款')}
+          </div>
+        )}
+        {payOrder.status === 0 && !isMobile && (
+          <div className="flexRow mTop12">
+            <Btn
+              className="mRight6"
+              onClick={() => {
+                copy(`${md.global.Config.WebUrl}orderpay/${payOrder.orderId}`);
+                alert(_l('链接已复制'));
+              }}
+            >
+              <i className="icon icon-add_link Font22 LineHeight36 mRight8 TxtMiddle" />
+              <span className="TxtMiddle">{_l('获取支付链接')}</span>
+            </Btn>
           </div>
         )}
       </Wrap>

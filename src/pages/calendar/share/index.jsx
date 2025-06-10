@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import ajaxRequest from 'src/api/calendar';
 import moment from 'moment';
-import { addToken, htmlEncodeReg } from 'src/util';
+import ajaxRequest from 'src/api/calendar';
+import preall from 'src/common/preall';
+import { addToken, htmlEncodeReg } from 'src/utils/common';
 import './style.css';
 
 class CalendarShare extends Component {

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, Dropdown, Dialog } from 'ming-ui';
+import { Dialog, Dropdown, Icon } from 'ming-ui';
 import CustomFields from 'src/components/newCustomFields';
 
-import cx from 'classnames';
 const UserInfoDialogWrap = styled.div`
   display: flex;
   width: 100%;
@@ -34,8 +34,12 @@ export default function UserInfoDialog(props) {
         setShow(false);
       }}
       onOk={() => {
-        let { data, hasError } = customwidget.current.getSubmitData();
+        let { data = [], hasError } = customwidget.current.getSubmitData();
         if (hasError) {
+          return;
+        }
+        if (data.find(o => o.type === 29 && safeParse(o.value, 'array').length > 5)) {
+          alert(_l('最多只能关联 5 条记录'), 3);
           return;
         }
         props.onOk(data, ids);

@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { formatNumberFromInput } from 'src/util';
+import PropTypes from 'prop-types';
+import { formatNumberFromInput } from 'src/utils/control';
 import './less/Input.less';
 
 const SIZE_LIST = ['small', 'default'];

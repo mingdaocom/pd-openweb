@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import Ajax from 'src/api/workWeiXin';
-import Config from '../../../config';
-import { Switch } from 'ming-ui';
 import { Button, Input } from 'antd';
 import cx from 'classnames';
-import styled from 'styled-components';
-import RegExpValidator from 'src/util/expression';
-import { encrypt } from 'src/util';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Switch } from 'ming-ui';
+import Ajax from 'src/api/workWeiXin';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import Config from '../../../config';
 
 const SetInitialPassword = styled.div`
   padding: 20px 0;

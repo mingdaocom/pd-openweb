@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import { DynamicValueInputWrap } from '../styled';
 import _ from 'lodash';
 import MDMap from 'ming-ui/components/amap/MDMap';
-import { getMapConfig } from 'src/util';
+import { getMapConfig } from 'src/utils/control';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default class LocationInput extends Component {
   constructor(props) {

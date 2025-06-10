@@ -1,6 +1,6 @@
-
 .customFormAttachmentBox {
-  .triggerTraget {
+  .triggerTraget,
+  .uploadFromMobile {
     width: max-content;
     padding: 0 16px;
     border: 1px solid #ddd;
@@ -9,12 +9,18 @@
     justify-content: center;
     border-radius: 3px;
     max-width: 100%;
+    cursor: pointer;
     &:not(.mobile):hover {
       background-color: #f5f5f5;
     }
     &.mobile {
       .Relative {
         overflow: hidden !important;
+      }
+    }
+    &.active {
+      .Gray_9e {
+        color: #2196f3 !important;
       }
     }
     .addFileName {
@@ -32,9 +38,8 @@
     align-items: center;
     justify-content: center;
     &:hover {
-      color: #2196F3 !important;
-      background-color: #FAFAFA;
+      color: #2196f3 !important;
+      background-color: #fafafa;
     }
   }
 }
-

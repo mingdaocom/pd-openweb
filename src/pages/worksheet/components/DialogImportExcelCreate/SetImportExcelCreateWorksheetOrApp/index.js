@@ -279,6 +279,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                   {control.attribute === 1 && <Icon icon="ic_title " className="ThemeColor mRight5 Font16" />}
                   <Icon icon={cellIcon} className="Gray_9d Font16" />
                   <Trigger
+                    popupClassName="excelControlSettingWrap"
                     popupVisible={it.editFieldVisible}
                     onPopupVisibleChange={editFieldVisible => {
                       this.updateTriggerVisible(it, 'editFieldVisible', editFieldVisible);

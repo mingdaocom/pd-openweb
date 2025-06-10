@@ -1,7 +1,7 @@
-import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import api from 'src/api/homeApp';
-import { browserIsMobile } from 'src/util';
+import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import { navigateToLogout } from 'src/router/navigateTo';
+import { browserIsMobile } from 'src/utils/common';
 
 export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
   //工作表老路由id补齐

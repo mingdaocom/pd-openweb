@@ -1,21 +1,13 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import {
-  accMul,
-  accDiv,
-  accAdd,
-  accSub,
-  toFixed,
-  formatStrZero,
-  browserIsMobile,
-  formatNumberThousand,
-} from 'src/util';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { accAdd, accDiv, accMul, accSub, browserIsMobile } from 'src/utils/common';
+import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
 
 const NumWrap = styled.span`
   ${props => (props.isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
@@ -81,7 +73,7 @@ export default class Widgets extends Component {
     }
   };
 
-  onChange = _.debounce((event, tempValue) => {
+  onChange = (event, tempValue) => {
     let { advancedSetting = {} } = this.props;
 
     let value =
@@ -110,7 +102,7 @@ export default class Widgets extends Component {
     }
 
     this.props.onChange(value);
-  }, 300);
+  };
 
   onBlur = () => {
     let { value, dot, onChange, onBlur, advancedSetting = {} } = this.props;
@@ -191,7 +183,13 @@ export default class Widgets extends Component {
     let { value } = this.props;
     const { type, disabled, hint, dot, unit, enumDefault, advancedSetting = {}, maskPermissions } = this.props;
     const { isEditing, maskStatus } = this.state;
-    const { prefix, suffix = unit, thousandth, numshow, showtype } = advancedSetting;
+    const { thousandth, numshow, showtype, showformat, currency } = advancedSetting;
+    let { prefix, suffix = unit } = advancedSetting;
+    if (type === 8 && _.includes(['1', '2'], showformat)) {
+      const { currencycode, symbol } = safeParse(currency || '{}');
+      suffix = '';
+      prefix = showformat === '1' ? symbol : currencycode;
+    }
     const isStepNumber = showtype === '3';
     if (numshow === '1' && value) {
       value = accMul(value, 100);
@@ -239,9 +237,9 @@ export default class Widgets extends Component {
                 if (disabled && isMask) this.setState({ maskStatus: false });
               }}
             >
-              {value ? prefix : ''}
+              {value && prefix ? `${prefix} ` : ''}
               {value || hint}
-              {value ? suffix : ''}
+              {value && suffix ? ` ${suffix}` : ''}
               {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
             </NumWrap>
 

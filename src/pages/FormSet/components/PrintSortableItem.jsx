@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Trigger from 'rc-trigger';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
 import { Icon, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { formatValuesOfCondition, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { selectRecords } from 'src/components/SelectRecords';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
+import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
+import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
 import MoreOption from './MoreOption';
 import RangeDrop from './RangeDrop';
-import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
-import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
-import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { redefineComplexControl, formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
-import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
-import sheetAjax from 'src/api/worksheet';
-import { selectRecord } from 'src/components/recordCardListDialog';
 
 export default function PrintSortableItem(props) {
   const { item, worksheetInfo = {}, worksheetControls = [], updatePrint, changeState, loadPrint, DragHandle } = props;
@@ -154,6 +154,7 @@ export default function PrintSortableItem(props) {
           id: item.id,
           range: item.range,
           viewsIds: item.views.map(o => o.viewId),
+          worksheetId,
         })
         .then(res => {
           if (!res) {
@@ -175,7 +176,7 @@ export default function PrintSortableItem(props) {
   };
 
   const onClickPreview = () => {
-    selectRecord({
+    selectRecords({
       canSelectAll: false,
       pageSize: 25,
       multiple: false,
@@ -183,7 +184,7 @@ export default function PrintSortableItem(props) {
       onText: _l('开始预览'),
       allowNewRecord: true,
       allowAdd: true,
-      relateSheetId: worksheetId,
+      worksheetId,
       onOk: selectedRecords => {
         const rowId = _.get(selectedRecords, '[0].rowid');
         onPreview(false, { previewRowId: rowId });

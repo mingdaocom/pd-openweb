@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import styled from 'styled-components';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import variableApi from 'src/api/variable';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { Tooltip } from 'antd';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { CONTROL_NAME, REFRESH_TYPE } from '../constant';
 import { formatVarList } from '../utils';
 import OptionColumn from './OptionColumn';
-import variableApi from 'src/api/variable';
 import VarLog from './VarLog';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 
 const Wrapper = styled.div`
   height: 100%;

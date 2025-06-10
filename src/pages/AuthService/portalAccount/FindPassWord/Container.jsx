@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
-import externalPortalAjax from 'src/api/externalPortal';
-import { setAutoLoginKey, toApp } from '../util';
+import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
-import Form from './Form';
-import { encrypt } from 'src/util';
+import externalPortalAjax from 'src/api/externalPortal';
 import { validation } from 'src/pages/AuthService/util.js';
+import { encrypt } from 'src/utils/common';
+import { setAutoLoginKey, toApp } from '../util';
+import Form from './Form';
 
 const Wrap = styled.div`
   ul {
@@ -51,8 +51,8 @@ function LoginContainer(props) {
         registerMode.email && registerMode.phone
           ? _l('请输入手机/邮箱！')
           : registerMode.phone
-          ? _l('请输入手机号！')
-          : _l('请输入手机！');
+            ? _l('请输入手机号！')
+            : _l('请输入手机！');
       updateWarn([{ tipDom: 'inputAccount', warnTxt: way }]);
       return;
     }

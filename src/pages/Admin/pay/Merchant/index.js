@@ -4,8 +4,9 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, UpgradeIcon } from 'ming-ui';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { getFeatureStatus, getRequest } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { getRequest } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import Config from '../../config';
 import MerchantCom from './components/MerchantCom';
 

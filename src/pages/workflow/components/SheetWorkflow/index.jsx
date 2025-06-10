@@ -1,21 +1,20 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { Icon, LoadDiv, Dialog, ScrollView, UserHead } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
-import instance from 'src/pages/workflow/api/instance';
-import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import StepHeader from '../ExecDialog/StepHeader';
-import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
-import ExecDialog from 'src/pages/workflow/components/ExecDialog';
-import MobileProcessRecord from 'src/pages/Mobile/ProcessRecord';
-import OtherAction from 'src/pages/workflow/components/ExecDialog/components/OtherAction';
-import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
-import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
-import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
-import WorkflowAction, { TaskRevokeAction } from './Action';
-import { browserIsMobile, dateConvertToUserZone, handlePushState, handleReplaceState } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import instance from 'src/pages/workflow/api/instance';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
+import OtherAction from 'src/pages/workflow/components/ExecDialog/components/OtherAction';
+import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
+import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
+import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
+import { browserIsMobile } from 'src/utils/common';
+import { dateConvertToUserZone, handlePushState, handleReplaceState } from 'src/utils/project';
+import StepHeader from '../ExecDialog/StepHeader';
+import WorkflowAction, { TaskRevokeAction } from './Action';
 import './index.less';
 
 const isMobile = browserIsMobile();
@@ -291,6 +290,7 @@ function WorkflowCard(props) {
                     {renderContent(data)}
                     <WorkflowAction
                       className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
+                      appId={appId}
                       projectId={projectId}
                       isBranch={isBranch}
                       isCharge={isCharge}
@@ -307,6 +307,7 @@ function WorkflowCard(props) {
       {!isBranch && !completed && (
         <WorkflowAction
           className="mTop20"
+          appId={appId}
           projectId={projectId}
           isBranch={isBranch}
           isCharge={isCharge}
@@ -338,6 +339,7 @@ export default function SheetWorkflow(props) {
   const [viewWorkflow, setViewWorkflow] = useState(null);
   const [actionVisible, setActionVisible] = useState(false);
   const [allowTaskRevokeBackNodeId, setAllowTaskRevokeBackNodeId] = useState(null);
+  const [ProcessRecord, setProcessRecord] = useState(null);
 
   const getList = () => {
     return new Promise((resolve, reject) => {
@@ -401,7 +403,7 @@ export default function SheetWorkflow(props) {
         backNodeId,
         signature,
         files,
-        nextUserRange
+        nextUserRange,
       }).then(() => {
         setActionVisible(false);
         handleCloseDrawer();
@@ -497,7 +499,7 @@ export default function SheetWorkflow(props) {
           value: 'taskRevoke',
           cardData,
           currentWork,
-          instanceId: data.id,
+          instanceId: data.instanceId,
         });
         setActionVisible(true);
       });
@@ -634,6 +636,18 @@ export default function SheetWorkflow(props) {
   };
 
   useEffect(() => {
+    if (isMobile) {
+      import('src/pages/Mobile/ProcessRecord').then(component => {
+        setProcessRecord(component);
+      });
+    } else {
+      import('src/pages/workflow/components/ExecDialog').then(component => {
+        setProcessRecord(component);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     handleCloseDrawer();
     getList();
   }, [recordId]);
@@ -735,6 +749,7 @@ export default function SheetWorkflow(props) {
                 hasMore={true}
                 isCharge={isCharge}
                 isBranch={!!parentCurrents.length}
+                appId={appId}
                 projectId={projectId}
                 data={cardData}
                 currentWorkflow={currentWorkflow}
@@ -808,9 +823,9 @@ export default function SheetWorkflow(props) {
       >
         {renderStepItem()}
       </Drawer>
-      {viewWorkflow &&
+      {viewWorkflow && ProcessRecord &&
         (isMobile ? (
-          <MobileProcessRecord
+          <ProcessRecord.default
             isModal={true}
             visible={true}
             instanceId={viewWorkflow.id}
@@ -821,7 +836,7 @@ export default function SheetWorkflow(props) {
             }}
           />
         ) : (
-          <ExecDialog
+          <ProcessRecord.default
             id={viewWorkflow.id}
             workId={viewWorkflow.workId}
             onClose={() => {

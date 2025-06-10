@@ -1,100 +1,40 @@
 import React, { Component } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import './index.less';
-import { Icon, LoadDiv } from 'ming-ui';
-import cx from 'classnames';
-import SelectField from '../components/SelectField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getAdvanceSetting, browserIsMobile, addBehaviorLog, dateConvertToServerZone } from 'src/util';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import moment from 'moment';
-import LunarCalendar from 'lunar-calendar';
-import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
-import worksheetAjax from 'src/api/worksheet';
-import External from './External';
-import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
-import {
-  getHoverColor,
-  isTimeStyle,
-  isEmojiCharacter,
-  getShowExternalData,
-  getCalendartypeData,
-  isIllegalFormat,
-} from './util';
-import { isLightColor } from 'src/util';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { permitList } from 'src/pages/FormSet/config';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import CurrentDateInfo from 'mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
-import Trigger from 'rc-trigger';
-import autoSize from 'ming-ui/decorators/autoSize';
-import styled from 'styled-components';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-const Wrap = styled.div`
-  width: 100%;
-  height: 100%;
-  background: #f5f5f5;
-  overflow: hidden;
-`;
-const WrapChoose = styled.div`
-  width: 200px;
-  background: #ffffff;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
-  opacity: 1;
-  border-radius: 2px;
-  padding: 6px 0;
-  .setLi {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 16px;
-    &:hover {
-      background: #f5f5f5;
-    }
-  }
-`;
-const WrapNum = styled.div`
-  position: relative;
-  width: 20px;
-  text-align: center;
-  line-height: 20px;
-  .txt {
-    display: block;
-  }
-  .add {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    opacity: 0;
-    transform: translate(-50%, -50%);
-  }
-  &.canAdd {
-    &:hover {
-      .add {
-        line-height: 20px;
-        opacity: 1;
-      }
-      .txt {
-        opacity: 0;
-      }
-    }
-  }
-`;
-
-import { getTimeControls } from './util';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import cx from 'classnames';
 import _ from 'lodash';
-import { handleRecordClick } from 'worksheet/util';
+import LunarCalendar from 'lunar-calendar';
+import moment from 'moment';
+import { Icon, LoadDiv } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
+import worksheetAjax from 'src/api/worksheet';
+import CurrentDateInfo from 'mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
+import { permitList } from 'src/pages/FormSet/config';
+import { isOpenPermit } from 'src/pages/FormSet/util';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
+import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { browserIsMobile } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import { isLightColor } from 'src/utils/control';
+import { addBehaviorLog, dateConvertToServerZone } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
+import SelectField from '../components/SelectField';
+import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
+import { eventDidMount } from './CalendarEvent';
+import CalendarIds from './CalendarIds';
+import { CALENDAR_BUTTON_TEXT, CALENDAR_VIEW_FORMATS, TAB_LIST } from './constants';
+import External from './External';
+import { Wrap, WrapNum } from './styles';
+import { getCalendartypeData, getHoverColor, getRows, getShowExternalData, isIllegalFormat, isTimeStyle } from './util';
+import { changeEndStr, getCurrentView, getTimeControls, renderLine } from './util';
+import './index.less';
 
-let tabList = [
-  { key: 'eventAll', txt: _l('全部') },
-  { key: 'eventScheduled', txt: _l('已排期') },
-  { key: 'eventNoScheduled', txt: _l('未排期') },
-];
 let time;
 let clickData = null;
 @autoSize
@@ -119,6 +59,8 @@ class RecordCalendar extends Component {
       popupVisible: '',
       addDataList: [],
       random: parseInt(Math.random() * 1000000000000),
+      fullCalendarKey: JSON.stringify(Math.random()),
+      isMove: false,
     };
   }
   componentDidMount() {
@@ -146,8 +88,8 @@ class RecordCalendar extends Component {
     }
     const { calendarData = {}, calendarFormatData } = calendarview;
     const { viewId } = base;
-    const currentView = this.getCurrentView(nextProps);
-    const preView = this.getCurrentView(this.props);
+    const currentView = getCurrentView(nextProps);
+    const preView = getCurrentView(this.props);
     const { initialView } = calendarData;
     if (nextProps.height !== this.props.height) {
       $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
@@ -164,6 +106,7 @@ class RecordCalendar extends Component {
         this.calendarComponentRef.current.getApi().changeView(browserIsMobile() ? 'dayGridMonth' : initialView); // 更改视图类型
       nextProps.fetchExternal();
       this.getEventsFn();
+      this.setState({ fullCalendarKey: JSON.stringify(Math.random()) });
     }
     if (
       viewId !== this.props.base.viewId ||
@@ -201,33 +144,6 @@ class RecordCalendar extends Component {
 
   browserIsMobile = () => {
     return browserIsMobile() || !_.isEmpty(this.props.mobileCalendarSetting);
-  };
-
-  getCurrentView = props => {
-    const { views = [], base = {} } = props;
-    const { viewId } = base;
-    return views.find(o => o.viewId === viewId) || {};
-  };
-
-  renderLine = () => {
-    const { random } = this.state;
-    if ($('.fc-day-today').length > 0) {
-      if ($(`.boxCalendar_${random} .fc-timegrid-body .linBox`).length > 0) {
-        return;
-      }
-      let data = new Date();
-      let hourH = 18 * 2;
-      let h = parseFloat(data.getHours() * hourH + parseFloat((data.getMinutes() / 60).toFixed(2)) * hourH) - 3 + 'px';
-      let div =
-        '<div class="linBox" style="text-align:right;width: 100%;top:' +
-        h +
-        ';position: absolute;z-index: 100000;left:43px;">';
-      div += '<div class="rect"></div><div class="rectLine"></div>';
-      div += '</div>';
-      $(`.boxCalendar_${random} .fc-timegrid-body`).append(div);
-    } else {
-      $(`.boxCalendar_${random} .fc-timegrid-body .linBox`).remove();
-    }
   };
 
   dbClickDay = () => {
@@ -280,7 +196,7 @@ class RecordCalendar extends Component {
       };
       this.props.changeCalendarTime(beginTime, endTime);
       this.props.fetch(Object.assign({}, filters, searchData));
-      this.renderLine();
+      renderLine(this.state.random, getCurrentView(this.props));
     }, 200);
   };
 
@@ -320,30 +236,9 @@ class RecordCalendar extends Component {
       });
   };
 
-  addRecordInfo = defaultFormData => {
-    const { base = {} } = this.props;
-    const { worksheetId } = base;
-    addRecord({
-      showFillNext: true,
-      worksheetId: worksheetId,
-      defaultFormData,
-      defaultFormDataEditable: true,
-      directAdd: true,
-      onAdd: record => {
-        $('.fc-highlight').remove();
-        this.getEventsFn();
-        this.props.updateCalendarEventIsAdd(true);
-        clickData = null;
-        this.setState({
-          changeData: null,
-        });
-      },
-    });
-  };
-
   // 显示农历
   getLunar = item => {
-    const { unlunar } = getAdvanceSetting(this.getCurrentView(this.props)); // 默认显示农历
+    const { unlunar } = getAdvanceSetting(getCurrentView(this.props)); // 默认显示农历
     if (unlunar !== '0') {
       return '';
     }
@@ -401,20 +296,6 @@ class RecordCalendar extends Component {
     });
   };
 
-  changeEndStr = (end, allDay) => {
-    const { calendarview = {} } = this.props;
-    const { calendarData = {} } = calendarview;
-    const { endFormat } = calendarData;
-
-    // 日期字段，结束时间按前一天的23:59:59处理（即减去一天）
-    // return moment(endData.type === 16 ? end : moment(end).subtract(1, 'day')).format(endFormat);
-    if (!allDay) {
-      return moment(end).format(endFormat);
-    } else {
-      return `${moment(end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`;
-    }
-  };
-
   showTip = (event, flag) => {
     if (!this.state.canNew) {
       return;
@@ -468,27 +349,6 @@ class RecordCalendar extends Component {
     return false;
   };
 
-  getRows = (start, end) => {
-    const { calendarview = {} } = this.props;
-    const { calendarFormatData = [] } = calendarview;
-    let list = calendarFormatData;
-    let rows = [];
-    list = list
-      .filter(o => !!o.start)
-      .sort((a, b) => {
-        return new Date(a.start) - new Date(b.start);
-      });
-    list.map(o => {
-      if (
-        (moment(o.start).isSameOrBefore(start, 'day') && moment(o.end).isSameOrAfter(end, 'day')) ||
-        moment(o.start).isSame(start, 'day')
-      ) {
-        rows.push(o.extendedProps);
-      }
-    });
-    return rows;
-  };
-
   // 获取点击日期当天数据
   getMoreClickData = date => {
     let { calendarFormatData } = this.state;
@@ -509,121 +369,39 @@ class RecordCalendar extends Component {
     this.props.changeMobileCurrentData(tempData);
   };
 
-  useViewInfoUpdate = (o, item) => {
-    const { selectTimeInfo = {}, changeData } = this.state;
-    if (!controlState(o.startData).editable) {
-      return alert(_l('当前日期字段不可编辑'), 3);
-    }
-    if (changeData && changeData.rowid) {
-      this.changeEventFn({
-        ...item,
-        ...selectTimeInfo,
-        ...changeData,
-        rowId: changeData.rowid,
-        data: o,
-        calendar: {
-          start: changeData[o.begin],
-          end: changeData[o.end],
-        },
-      });
-    } else {
-      let startT = moment(selectTimeInfo.startStr ? selectTimeInfo.startStr : item.date).format(o.startFormat);
-      let endT = selectTimeInfo.endStr
-        ? !selectTimeInfo.allDay
-          ? moment(selectTimeInfo.endStr).format(o.endFormat)
-          : `${moment(selectTimeInfo.endStr).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`
-        : '';
-      let data = selectTimeInfo.startStr
-        ? {
-            [o.begin]: dateConvertToServerZone(startT),
-            [o.end]: dateConvertToServerZone(endT),
-          }
-        : {
-            [o.begin]: dateConvertToServerZone(startT),
-          };
-      this.addRecordInfo(data);
-      this.setState({
-        selectTimeInfo: {},
-      });
-    }
+  showChooseTrigger = (data, type) => {
+    setTimeout(() => {
+      const { random, canNew } = this.state;
+      if (!canNew) {
+        return;
+      }
+      let date = moment(data).format('YYYY-MM-DD');
+      $(`span[data-date=${date}-${random}]`)[0].click();
+    }, 500);
   };
 
-  renderPopup = item => {
-    const { calendarview = {} } = this.props;
+  renderCalendarItem = item => {
+    const { base, calendarview = {}, updateCalendarEventIsAdd } = this.props;
     const { calendarData = {} } = calendarview;
     const { calendarInfo = [] } = calendarData;
     return (
-      <WrapChoose>
-        {calendarInfo.map(o => {
-          return (
-            <div
-              className="setLi Hand WordBreak overflow_ellipsis"
-              onClick={() => {
-                this.setState({
-                  popupVisible: '',
-                });
-                this.useViewInfoUpdate(o, item);
-              }}
-            >
-              {_l('使用%0', o.mark || o.startData.controlName)}
-            </div>
-          );
-        })}
-      </WrapChoose>
-    );
-  };
-
-  renderCalendarIds = (item, calendarInfo, isHide) => {
-    if (!this.state.canNew) {
-      return;
-    }
-    const { popupVisible, random } = this.state;
-    let date = moment(item.date).format('YYYY-MM-DD');
-    return (
-      <Trigger
-        popupVisible={popupVisible === `${date}`}
-        action={['click']}
-        popup={this.renderPopup(item)}
-        getPopupContainer={() => document.body}
-        onPopupVisibleChange={visible => {
-          if (browserIsMobile()) return;
-          if (visible) {
-            if (calendarInfo.length <= 1) {
-              this.useViewInfoUpdate(calendarInfo[0], item);
-            } else {
-              this.setState({
-                popupVisible: `${date}`,
-              });
-            }
-          } else {
-            this.setState({
-              popupVisible: '',
-            });
-          }
+      <CalendarIds
+        item={item}
+        calendarInfo={calendarInfo}
+        {..._.cloneDeep(this.state)}
+        isHide={true}
+        calendarview={calendarview}
+        changeEventFn={this.changeEventFn}
+        onChangeState={state => this.setState({ ...state })}
+        base={base}
+        getEventsFn={this.getEventsFn}
+        updateCalendarEventIsAdd={updateCalendarEventIsAdd}
+        clickData={clickData}
+        onChangeClickData={data => {
+          clickData = data;
         }}
-        popupAlign={{
-          points: ['tc', 'bc'],
-          offset: [0, 12],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-      >
-        <span
-          className={cx('add', { isTop: item.view.type !== 'dayGridMonth', Alpha0: isHide })}
-          data-date={`${date}-${random}`}
-        >
-          +
-        </span>
-      </Trigger>
+      />
     );
-  };
-
-  showChooseTrigger = (data, type) => {
-    const { random, canNew } = this.state;
-    if (!canNew) {
-      return;
-    }
-    let date = moment(data).format('YYYY-MM-DD');
-    $(`span[data-date=${date}-${random}]`)[0].click();
   };
 
   render() {
@@ -641,7 +419,7 @@ class RecordCalendar extends Component {
     const { calendarData = {}, editable, calenderEventList = {} } = calendarview;
     const { eventScheduled = [] } = calenderEventList;
     const { appId, worksheetId, viewId } = base;
-    const currentView = this.getCurrentView(this.props);
+    const currentView = getCurrentView(this.props);
     let {
       begindate = '',
       enddate = '',
@@ -713,6 +491,27 @@ class RecordCalendar extends Component {
         </Wrap>
       );
     }
+    let others = {};
+    if (_.get(currentView, 'advancedSetting.showtime')) {
+      const times = _.get(currentView, 'advancedSetting.showtime').split('-');
+      others.slotMinTime = times[0];
+      others.slotMaxTime = times[1];
+    }
+
+    const eventClick = eventInfo => {
+      // 点击任务 获得任务id或其他相关内容
+      const { extendedProps } = eventInfo.event._def;
+      handleRecordClick(currentView, extendedProps, () => {
+        this.setState({
+          recordId: extendedProps.rowid,
+          recordInfoVisible: true,
+          rows: getRows(eventInfo.event.start, eventInfo.event.start, calendarview),
+          showPrevNext: true,
+        });
+        addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
+      });
+    };
+
     return (
       <div className={`boxCalendar boxCalendar_${random}`}>
         {this.state.showExternal && (
@@ -741,10 +540,14 @@ class RecordCalendar extends Component {
                 });
               });
             }}
-            tabList={tabList}
+            tabList={TAB_LIST}
           />
         )}
-        <div className="calendarCon">
+        <div
+          className={cx('calendarCon', {
+            boldEvent: _.get(currentView, 'advancedSetting.rowHeight') === '1',
+          })}
+        >
           {!this.browserIsMobile() && (
             <div
               className={cx('scheduleBtn Hand', { show: this.state.showExternal })}
@@ -777,6 +580,7 @@ class RecordCalendar extends Component {
           )}
           {!isLoading ? (
             <FullCalendar
+              key={this.state.fullCalendarKey}
               dragScroll={true}
               themeSystem="bootstrap"
               height={height}
@@ -787,32 +591,16 @@ class RecordCalendar extends Component {
                 center: this.browserIsMobile() ? 'prev,title next' : 'title',
                 left: '',
               }}
-              views={{
-                dayGridMonth: {
-                  titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-                  // dayMaxEventRows: 5,
-                },
-                timeGridWeek: {
-                  titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-                },
-                timeGridDay: {
-                  titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-                },
-                dayGridWeek: {
-                  titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-                },
-                dayGridDay: {
-                  titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-                },
-              }}
+              eventDragStart={() => this.setState({ isMove: true })}
+              eventDragStop={() => this.setState({ isMove: false })}
+              views={CALENDAR_VIEW_FORMATS}
               dayCellContent={item => {
                 return (
                   <React.Fragment>
                     {item.view.type === 'dayGridMonth' && this.getLunar(item)}
                     <WrapNum className={cx('num Hand', { canAdd: this.state.canNew })}>
                       <span className="txt">{item.dayNumberText.replace('日', '')}</span>
-                      {!['timeGridDay', 'timeGridWeek'].includes(item.view.type) &&
-                        this.renderCalendarIds(item, calendarInfo)}
+                      {!['timeGridDay', 'timeGridWeek'].includes(item.view.type) && this.renderCalendarItem(item)}
                     </WrapNum>
                   </React.Fragment>
                 );
@@ -823,6 +611,7 @@ class RecordCalendar extends Component {
                 }
                 $(item.el).on({
                   mousemove: event => {
+                    if ($('.fc-more-popover').length > 0) return;
                     this.showTip(event, true);
                   },
                   mouseout: event => {
@@ -852,8 +641,7 @@ class RecordCalendar extends Component {
                     {item.view.type !== 'dayGridMonth' && !this.browserIsMobile() && this.getLunar(item)}
                     <div className="num">
                       {st}
-                      {['timeGridDay', 'timeGridWeek'].includes(item.view.type) &&
-                        this.renderCalendarIds(item, calendarInfo, true)}
+                      {['timeGridDay', 'timeGridWeek'].includes(item.view.type) && this.renderCalendarItem(item)}
                     </div>
                   </React.Fragment>
                 );
@@ -865,12 +653,7 @@ class RecordCalendar extends Component {
               }}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               locale="zh-cn"
-              buttonText={{
-                today: _l('今天'),
-                month: _l('月'),
-                week: _l('周'),
-                day: _l('天'),
-              }}
+              buttonText={CALENDAR_BUTTON_TEXT}
               allDayText={_l('全天')}
               hiddenDays={
                 unweekday.length >= 7
@@ -882,10 +665,7 @@ class RecordCalendar extends Component {
                         return +o;
                       })
               } // 隐藏周几
-              editable={
-                true
-                // ['ctime', 'utime'].includes(begindate) || ['ctime', 'utime'].includes(enddate) ? false : editable
-              }
+              editable={true}
               firstDay={weekbegin ? Number(weekbegin) % 7 : 1} // 周一至周六为1～6，周日为0
               slotLabelFormat={{
                 hour: '2-digit',
@@ -900,9 +680,7 @@ class RecordCalendar extends Component {
                 this.calendarActionFn();
                 this.getEventsFn();
               }}
-              viewWillUnmount={info => {
-                this.calendarActionOff();
-              }}
+              viewWillUnmount={this.calendarActionOff}
               viewClassNames={'worksheetFullCalendar'}
               eventTimeFormat={{
                 hour: 'numeric',
@@ -913,74 +691,22 @@ class RecordCalendar extends Component {
               }} // 任务的时间
               eventOrder={'start'} //String / Array / Function, default: "start,-duration,allDay,title"
               displayEventEnd={false} // 让月视图的任务既显示开始时间又显示结束时间
-              eventClick={eventInfo => {
-                // 点击任务 获得任务id或其他相关内容
-                const { extendedProps } = eventInfo.event._def;
-                handleRecordClick(currentView, extendedProps, () => {
-                  this.setState({
-                    recordId: extendedProps.rowid,
-                    recordInfoVisible: true,
-                    rows: this.getRows(eventInfo.event.start, eventInfo.event.start),
-                    showPrevNext: true,
-                  });
-                  addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
-                });
-              }}
-              eventDidMount={info => {
-                let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
-                $(info.el.offsetParent).attr('title', info.event._def.title);
-                if (!_.get(info, ['event', 'extendedProps', 'editable'])) {
-                  $(info.el).css({ cursor: 'not-allowed' });
-                }
-                let time = info.event._def.extendedProps[info.event._def.extendedProps.begin] || '';
-                let d = $(info.el.offsetParent).find('.fc-event-time');
-                if (!isTimeStyle(startData)) {
-                  //日期视图 不显示时间
-                  d.html(``);
-                } else {
-                  if (!info.event.allDay && info.view.type !== 'dayGridMonth') {
-                    if (!this.browserIsMobile()) {
-                      d.html(moment(time).format('HH:mm'));
-                    } else {
-                      d.html(``);
-                    }
-                  } else {
-                    if (hour24 === '0') {
-                      //12小时
-                      let hour = new Date(time.replace(/\-/g, '/')).getHours();
-                      let mm = new Date(time.replace(/\-/g, '/')).getMinutes();
-                      let h = hour % 12 <= 0 ? 12 : hour % 12;
-                      if (!this.browserIsMobile()) {
-                        d.html(`${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`);
-                      } else {
-                        d.html(``);
-                      }
-                    } else {
-                      //24小时
-                      if (!this.browserIsMobile()) {
-                        d.html(moment(time).format('HH:mm'));
-                      } else {
-                        d.html(``);
-                      }
-                    }
-                  }
-                }
-                let mark = _.get(info, ['event', 'extendedProps', 'mark']);
-                let title = _.get(info, ['event', 'title']);
-                mark &&
-                  $(info.el)
-                    .find('.fc-event-title')
-                    .html(
-                      `<span class="titleTxt">${title}</span><span class="mLeft10 Normal markTxt ${
-                        isEmojiCharacter(mark) ? '' : 'Alpha4'
-                      }">${mark}</span>`,
-                    );
-                if (info.event.allDay) {
-                  $(info.el).find('.fc-event-title').css({
-                    'font-weight': 'bold',
-                  });
-                }
-              }}
+              eventClick={eventClick}
+              eventDidMount={info =>
+                eventDidMount(
+                  info,
+                  this.browserIsMobile(),
+                  currentView,
+                  controls,
+                  worksheetInfo,
+                  base,
+                  sheetSwitchPermit,
+                  isCharge,
+                  this.props,
+                  () => eventClick(info),
+                  this.state.isMove,
+                )
+              }
               eventDrop={info => {
                 let endData = _.get(info, ['event', 'extendedProps', 'endData']) || {};
                 let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
@@ -1004,7 +730,7 @@ class RecordCalendar extends Component {
                     ? isNotAllDay
                       ? moment(info.event.start).add(1, 'hours').format(startFormat)
                       : moment(info.event.start).format('YYYY-MM-DD') + ' 23:59:59'
-                    : this.changeEndStr(info.event.end, info.event.allDay);
+                    : changeEndStr(info.event.end, info.event.allDay, calendarview);
                   control.push({
                     controlId: endData.controlId,
                     controlName: endData.controlName,
@@ -1029,7 +755,7 @@ class RecordCalendar extends Component {
                       controlId: endData.controlId,
                       controlName: endData.controlName,
                       type: endData.type,
-                      value: dateConvertToServerZone(this.changeEndStr(info.event.end, info.event.allDay)),
+                      value: dateConvertToServerZone(changeEndStr(info.event.end, info.event.allDay, calendarview)),
                     },
                   ],
                   info.event.extendedProps.rowid,
@@ -1135,7 +861,7 @@ class RecordCalendar extends Component {
                   (!item.event.allDay && item.view.type === 'dayGridMonth')
                 ) {
                   $(item.el).find('.fc-daygrid-event-dot').css({
-                    'border-color': colorHover,
+                    'border-color': item.event.backgroundColor,
                   });
                 } else {
                   $(item.el).css({
@@ -1155,9 +881,9 @@ class RecordCalendar extends Component {
                   (!isTimeStyle(startData) && !item.event.allDay) ||
                   (!item.event.allDay && item.view.type === 'dayGridMonth')
                 ) {
-                  $(item.el).find('.fc-daygrid-event-dot').css({
-                    'border-color': item.event.backgroundColor,
-                  });
+                  // $(item.el).find('.fc-daygrid-event-dot').css({
+                  //   'border-color': item.event.backgroundColor,
+                  // });
                 } else {
                   $(item.el).css({
                     'background-color': item.event.backgroundColor,
@@ -1170,9 +896,8 @@ class RecordCalendar extends Component {
                     });
                 }
               }}
-              // eventMaxStack={1}  //日 时间视图事件 最大显示数
-              // slotEventOverlap={false} //日 时间视图事件显示方式 并列
               {...mobileCalendarSetting}
+              {...others}
             />
           ) : (
             <LoadDiv />
@@ -1252,6 +977,8 @@ export default connect(
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     worksheetInfo: state.sheet.worksheetInfo,
     mobileMoreClickVisible: state.sheet.calendarview.mobileMoreClickVisible,
+    sheetButtons: state.sheet.sheetButtons,
+    printList: state.sheet.printList,
   }),
   dispatch => bindActionCreators({ ...Actions, saveView, updateWorksheetControls }, dispatch),
 )(RecordCalendar);

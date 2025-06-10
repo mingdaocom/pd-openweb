@@ -5,10 +5,10 @@
   background-color: #eaeaea;
   margin: 15px 0;
 }
-.childTableCon {
+.mobileChildTableCon {
   line-height: 1.5715;
   margin: 2px 0 12px;
-  min-height: 74px;
+  min-height: 0 !important;
   .operates {
     position: absolute;
     right: 0px;
@@ -127,7 +127,7 @@
   }
 }
 
-.childTableRowDetailMobileDialog {
+.mobileChildTableRowDetailDialog {
   .forCon {
     overflow-y: auto;
     overflow-x: hidden;
@@ -152,5 +152,75 @@
   }
   .customFormLine {
     display: none !important;
+  }
+}
+
+.settingRowHeightModal {
+  .adm-popup-body {
+    padding: 0 16px;
+  }
+  .header {
+    width: 100%;
+    line-height: 24px;
+    padding: 16px 0px 10px;
+    justify-content: space-between;
+    color: #9e9e9e;
+    .closeIcon {
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      border-radius: 50%;
+      background-color: #e6e6e6;
+      .icon {
+        line-height: 24px;
+      }
+    }
+  }
+  .rowHeightItem {
+    padding: 12px 0px;
+    font-weight: bold;
+  }
+}
+
+.expandChildTable {
+  font-size: 16px;
+  .adm-popup-body {
+    padding-left: 20px;
+  }
+  .controlLabelName {
+    font-size: 1em;
+    color: #151515;
+    font-weight: bold;
+  }
+  .customMobileFormContainer {
+    .controlLabelName {
+      text-align: left;
+      font-size: 0.8em;
+      color: #757575;
+    }
+  }
+  .header {
+    padding: 16px 0;
+    align-items: center;
+    padding-right: 20px;
+  }
+  .operates {
+    height: 36px;
+    align-items: center;
+    .operateBtnBox {
+      display: flex;
+      align-items: center;
+      .icon {
+        font-size: 20px;
+        color: #9e9e9e;
+      }
+    }
+  }
+  .mobileChildTableCon {
+    margin-right: 20px;
+  }
+  .expandChildTableCon {
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }

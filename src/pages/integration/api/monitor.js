@@ -3,6 +3,20 @@ import base, { controllerName } from './base';
 var monitor = {
 
   /**
+   * 获取任务算力使用数据
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getTaskUsageByMonth: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'monitor/getTaskUsageByMonth';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'monitorgetTaskUsageByMonth', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 获取任务运行时间
    *
    * @param {Object} args 请求参数
@@ -21,6 +35,20 @@ var monitor = {
   },
 
   /**
+   * 修复任务算力(仅限于客户组织算力异常时使用-同步任务目的地为工作表)
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  fixTaskUsageByMonth: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'monitor/fixTaskUsageByMonth';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'monitorfixTaskUsageByMonth', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 获取任务总数
    *
    * @param {Object} args 请求参数
@@ -36,6 +64,20 @@ var monitor = {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTasksTotal';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'monitorgetTasksTotal', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 获取所有组织已使用算力
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAllUsedRows: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'monitor/getAllUsedRows';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'monitorgetAllUsedRows', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -93,7 +135,7 @@ var monitor = {
   },
 
   /**
-   * 获取组织下任务数/总任务数
+   * 获取组织下任务数/总任务数--&gt;获取数据集成仅同步和etl任务数以及总数
    *
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.

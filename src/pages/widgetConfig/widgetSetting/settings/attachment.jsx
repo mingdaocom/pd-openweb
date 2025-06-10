@@ -1,17 +1,28 @@
 import React, { Fragment } from 'react';
-import { Dropdown, Icon, Checkbox } from 'ming-ui';
-import { Input } from 'antd';
-import { SettingItem, AnimationWrap, DisplayMode } from '../../styled';
-import WidgetVerify from '../components/WidgetVerify';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import _ from 'lodash';
+import { Input, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { AnimationWrap, DisplayMode, SettingItem } from '../../styled';
 import { SectionItem } from '../components/SplitLineConfig/style';
+import WidgetVerify from '../components/WidgetVerify';
 
 const SORT_TYPE = [
   { value: 1, text: _l('新的在前') },
   { value: 2, text: _l('旧的在前') },
-  { value: 3, text: _l('自定义') },
+  {
+    value: 3,
+    subText: _l('自定义'),
+    text: (
+      <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
+        <span>{_l('自定义')}</span>
+        <Tooltip title={_l('附件默认旧文件在前，可拖拽调整顺序，但新上传文件仍会按默认规则排序')} placement="bottom">
+          <span className="icon-info1 Gray_9e Font16 subText" />
+        </Tooltip>
+      </div>
+    ),
+  },
 ];
 
 const FILL_TYPE = [
@@ -85,7 +96,7 @@ export default function Attachment(props) {
                 }}
               >
                 <div className="mBottom4">
-                  <Icon icon={item.img} className="Font20" />
+                  <Icon icon={item.img} className={cx(item.value === '3' ? 'Font28' : 'Font20')} />
                 </div>
                 <span className="text">{item.text}</span>
               </div>
@@ -157,7 +168,12 @@ export default function Attachment(props) {
         <div className="settingItemTitle">{_l('排序')}</div>
         <Dropdown
           border
+          showItemTitle={false}
           data={SORT_TYPE}
+          renderTitle={selectData => {
+            const selectOption = _.find(SORT_TYPE, s => s.value === selectData.value) || {};
+            return selectOption.subText || selectOption.text;
+          }}
           value={enumDefault || 3}
           onChange={value => onChange({ enumDefault: value })}
         />

@@ -1,13 +1,13 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Drawer } from 'antd';
-import Trigger from 'rc-trigger';
-import MoreOption from '../components/MoreOption';
-import worksheetAjax from 'src/api/worksheet';
-import { CreateIndex } from 'worksheet/common';
-import { Support, Icon, LoadDiv, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { CreateIndex } from 'worksheet/common';
+import MoreOption from '../components/MoreOption';
 import '../components/MoreOption.less';
 
 const Con = styled.div`
@@ -341,8 +341,8 @@ function FormIndexSetting(props) {
                     item.uniqueIndex && !item.wildcardIndex
                       ? 1
                       : item.wildcardIndex || item.indexFields.some(item => item.indexType === 'text')
-                      ? 2
-                      : 0;
+                        ? 2
+                        : 0;
 
                   return (
                     <div className="printTemplatesList-tr" key={`formIndexSetting-${item.indexConfigId}`}>
@@ -409,8 +409,8 @@ function FormIndexSetting(props) {
                                 {it.isDelete && !item.isSystem
                                   ? _l('字段已删除')
                                   : _.get(getFieldObjById(it.fieldId), 'name')
-                                  ? _.get(getFieldObjById(it.fieldId), 'name')
-                                  : it.fieldId}
+                                    ? _.get(getFieldObjById(it.fieldId), 'name')
+                                    : it.fieldId}
                               </span>
                               <span className="rule Gray_9e">
                                 {!isSpecial ? `（${sortRules[it.indexType]}）` : `（${it.indexType}）`}
@@ -475,7 +475,7 @@ function FormIndexSetting(props) {
                               description={_l('确定删除索引吗？删除后将无法恢复')}
                               showMoreOption={showMoreOption}
                               setFn={data => {
-                                setIsRename(true);
+                                data.isRename && setIsRename(true);
                                 setShowMoreOption(false);
                               }}
                               deleteFn={data => {

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { useSetState } from 'react-use';
-import { RichText, LoadDiv, Markdown, Icon } from 'ming-ui';
-import cx from 'classnames';
-import privateLegalApi from 'src/api/privateLegal';
-import styled from 'styled-components';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/util/index.js';
 import { createRoot } from 'react-dom/client';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Markdown, RichText } from 'ming-ui';
+import privateLegalApi from 'src/api/privateLegal';
+import preall from 'src/common/preall';
+import { getRequest } from 'src/utils/common';
 
 const WrapPage = styled.div`
   .headerPage {

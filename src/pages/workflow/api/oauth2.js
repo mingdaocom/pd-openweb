@@ -43,10 +43,23 @@ var oauth2 = {
     return mdyAPI(controllerName, 'oauth2getMyAccessTokenList', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 客户端凭证刷新日志列表
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId或者连接id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getRefreshClientCredentialsLogs: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/oauth2/getRefreshClientCredentialsLogs';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'oauth2getRefreshClientCredentialsLogs', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 刷新token日志列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
+   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId或者连接id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -59,7 +72,7 @@ var oauth2 = {
    * 重新授权
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
+   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId或者连接id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -69,10 +82,23 @@ var oauth2 = {
     return mdyAPI(controllerName, 'oauth2refreshAuthorize', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 客户端凭证重新授权
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId或者连接id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  refreshClientCredentials: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/oauth2/refreshClientCredentials';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'oauth2refreshClientCredentials', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 刷新token
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
+   * @param {RequestOAuth2RefreshAuthorize} {endDate:结束时间 yyyy-MM-dd(string),id:authId或者连接id(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),startDate:开始时间 yyyy-MM-dd(string),status:状态(integer),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

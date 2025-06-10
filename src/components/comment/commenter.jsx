@@ -1,22 +1,22 @@
 ﻿import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { AT_ALL_TEXT } from './config';
-import Icon from 'ming-ui/components/Icon';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Button from 'ming-ui/components/Button';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import Icon from 'ming-ui/components/Icon';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import UploadFiles from 'src/components/UploadFiles';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import discussionAjax from 'src/api/discussion';
 import postAjax from 'src/api/post';
-import { SOURCE_TYPE } from './config';
 import 'src/components/autoTextarea/autoTextarea';
-import 'src/components/mentioninput/mentionsInput';
-import './css/commenter.less';
-import { generateRandomPassword } from 'src/util';
-import _ from 'lodash';
 import Emotion from 'src/components/emotion/emotion';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import 'src/components/mentioninput/mentionsInput';
+import UploadFiles from 'src/components/UploadFiles';
+import { generateRandomPassword } from 'src/utils/common';
+import { AT_ALL_TEXT } from './config';
+import { SOURCE_TYPE } from './config';
+import './css/commenter.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -250,8 +250,19 @@ class Commenter extends React.Component {
 
       this.setState({ disabled: true });
 
-      const { sourceId, sourceType, replyId, appId, remark, extendsId, entityType, forReacordDiscussion, onSubmit } =
-        this.props;
+      const {
+        sourceId,
+        sourceType,
+        replyId,
+        appId,
+        instanceId,
+        workId,
+        remark,
+        extendsId,
+        entityType,
+        forReacordDiscussion,
+        onSubmit,
+      } = this.props;
 
       if (sourceType === SOURCE_TYPE.POST) {
         const { accountId } = this.props;
@@ -289,6 +300,8 @@ class Commenter extends React.Component {
             knowledgeAtts: JSON.stringify(kcAttachmentData),
             appId,
             extendsId,
+            instanceId,
+            workId,
             entityType: forReacordDiscussion && entityType === 2 ? 2 : 0, //后端接口只区分0 2
           })
           .then(res => {
@@ -382,6 +395,7 @@ class Commenter extends React.Component {
       appId,
       projectId,
       sourceId,
+      sourceType,
       placeholder,
       activePlaceholder,
       fromAppId,
@@ -470,6 +484,8 @@ class Commenter extends React.Component {
         </div>
         <div className={cx('commentAttachmentsBox', { Hidden: !this.state.showAttachment || !isEditing })}>
           <UploadFiles
+            callFrom="commenter"
+            allowUploadFileFromMobile={_.includes([SOURCE_TYPE.WORKSHEET, SOURCE_TYPE.WORKSHEETROW], sourceType)}
             projectId={projectId}
             appId={fromAppId}
             worksheetId={worksheetId}

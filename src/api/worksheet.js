@@ -30,6 +30,7 @@ export default {
   * 获取工作表的扩展属性选项控件信息
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表Id
+  * @param {boolean} args.isPortal
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -384,6 +385,7 @@ export default {
   * @param {array} args.fastFilters 快递筛选
   * @param {string} args.instanceId
   * @param {string} args.workId
+  * @param {string} args.appId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1247,6 +1249,21 @@ export default {
      return mdyAPI('Worksheet', 'SortWorksheetViews', args, options);
    },
   /**
+  * 复制视图配置
+  * @param {Object} args 请求参数
+  * @param {string} args.viewId 视图Id
+  * @param {array} args.copyKeys 用户选中的配置
+  * @param {string} args.worksheetId 工作表Id
+  * @param {array} args.targetViewIds 目标视图Id集合
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   copyWorksheetViewConfig: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'CopyWorksheetViewConfig', args, options);
+   },
+  /**
   * 获取按钮列表
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用ID
@@ -1255,6 +1272,7 @@ export default {
   * @param {string} args.worksheetId 工作表ID
   * @param {string} args.btnId
   * @param {integer} args.status 状态 1：正常 9：回收站
+  * @param {array} args.btnIds 批量获取按钮的id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1262,6 +1280,24 @@ export default {
    getWorksheetBtns: function (args, options = {}) {
      
      return mdyAPI('Worksheet', 'GetWorksheetBtns', args, options);
+   },
+  /**
+  * 验证按钮是否满足行记录
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用ID
+  * @param {string} args.viewId 视图ID
+  * @param {string} args.rowId 行记录ID
+  * @param {string} args.worksheetId 工作表ID
+  * @param {string} args.btnId
+  * @param {integer} args.status 状态 1：正常 9：回收站
+  * @param {array} args.btnIds 批量获取按钮的id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkWorksheetRowBtn: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'CheckWorksheetRowBtn', args, options);
    },
   /**
   * 获取按钮详情
@@ -1272,6 +1308,7 @@ export default {
   * @param {string} args.worksheetId 工作表ID
   * @param {string} args.btnId
   * @param {integer} args.status 状态 1：正常 9：回收站
+  * @param {array} args.btnIds 批量获取按钮的id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1766,6 +1803,22 @@ export default {
      return mdyAPI('Worksheet', 'EditPrint', args, options);
    },
   /**
+  * 编辑打印模板文件属性
+  * @param {Object} args 请求参数
+  * @param {string} args.id 模板id
+  * @param {string} args.name 模板名称
+  * @param {} args.allowDownloadPermission
+  * @param {boolean} args.allowEditAfterPrint 允许编辑后打印
+  * @param {array} args.advanceSettings 额外配置数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintFile: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditPrintFile', args, options);
+   },
+  /**
   * 保存记录二维码打印模板配置
   * @param {Object} args 请求参数
   * @param {string} args.id 模板id
@@ -1802,6 +1855,7 @@ export default {
   * 修改打印模板范围
   * @param {Object} args 请求参数
   * @param {string} args.id
+  * @param {string} args.worksheetId
   * @param {} args.range
   * @param {array} args.viewsIds 视图Ids
   * @param {Object} options 配置参数
@@ -1824,20 +1878,6 @@ export default {
    editPrintFilter: function (args, options = {}) {
      
      return mdyAPI('Worksheet', 'EditPrintFilter', args, options);
-   },
-  /**
-  * 修改模板下载权限
-  * @param {Object} args 请求参数
-  * @param {string} args.id 打印模板id
-  * @param {} args.allowDownloadPermission
-  * @param {boolean} args.allowEditAfterPrint 允许编辑后再打印
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editTemplateDownloadPermission: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditTemplateDownloadPermission', args, options);
    },
   /**
   * 修改打印模板排序
@@ -2453,5 +2493,16 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    saveExportConfig: function (args, options = {}) {
      
      return mdyAPI('Worksheet', 'SaveExportConfig', args, options);
+   },
+  /**
+  * 获取工作表币种类型
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetCurrencyInfos: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetWorksheetCurrencyInfos', args, options);
    },
 };

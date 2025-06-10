@@ -1,10 +1,13 @@
-import _ from 'lodash';
+import _, { get, isEmpty } from 'lodash';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { filterEmptyChildTableRows, checkRulesErrorOfRow, checkCellIsEmpty } from 'worksheet/util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
-import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/formUtils';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { browserIsMobile } from 'src/utils/common';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { filterEmptyChildTableRows } from 'src/utils/record';
+import { checkRulesErrorOfRow } from 'src/utils/rule';
 
 function getControlCompareValue(c, value) {
   if (c.type === 26) {
@@ -80,8 +83,8 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
           errorItem.errorType === FORM_ERROR_TYPE.CUSTOM
             ? checkValueByFilterRegex(errorControl, _.get(errorControl, 'value'), controldata)
             : typeof FORM_ERROR_TYPE_TEXT[errorItem.errorType] === 'string'
-            ? FORM_ERROR_TYPE_TEXT[errorItem.errorType]
-            : FORM_ERROR_TYPE_TEXT[errorItem.errorType](errorControl);
+              ? FORM_ERROR_TYPE_TEXT[errorItem.errorType]
+              : FORM_ERROR_TYPE_TEXT[errorItem.errorType](errorControl);
       });
     });
     const uniqueControls = controls.filter(
@@ -115,4 +118,28 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
     console.log(err);
     throw err;
   }
+}
+
+export function getSubListErrorOfStore(store) {
+  const state = store.getState();
+  const { rows, base = {} } = state;
+  const { recordId, control = {} } = base;
+  const error = getSubListError(
+    {
+      rows,
+      rules: get(base, 'worksheetInfo.rules'),
+    },
+    base.controls,
+    control.showControls,
+    recordId ? 3 : 2,
+  );
+  if (!isEmpty(error)) {
+    store.dispatch({
+      type: 'UPDATE_CELL_ERRORS',
+      value: error,
+    });
+  } else if (browserIsMobile()) {
+    store.clearSubListErrors();
+  }
+  return error;
 }

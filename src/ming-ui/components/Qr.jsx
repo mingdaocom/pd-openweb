@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { number, string } from 'prop-types';
 import genQr from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
 
@@ -15,7 +15,7 @@ export default function Qr(props) {
     });
     setUrl(data);
   }, [content]);
-  return url ? <img style={{ width, height }} src={url} alt={content} /> : <span></span>;
+  return url ? <img style={{ width, height }} src={url} alt={content} /> : <div style={{ width, height }}></div>;
 }
 
 Qr.propTypes = {

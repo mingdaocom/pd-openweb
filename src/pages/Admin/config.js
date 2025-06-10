@@ -1,7 +1,7 @@
-import { htmlEncodeReg } from 'src/util';
-import AdminController from 'src/api/adminManage';
-import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
+import AdminController from 'src/api/adminManage';
+import { htmlEncodeReg } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
 
 var Config = {
   params: null, // parameters from url， eg: /admin/:routeType/:projectId

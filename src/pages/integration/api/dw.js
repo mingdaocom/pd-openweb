@@ -96,20 +96,6 @@ var dw = {
   },
 
   /**
-   * 清空double 库
-   *
-   * @param {Object} args 请求参数
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  clearDoubleWrite: function (args, options) {
-    base.ajaxOptions.url = base.server(options) + 'dw/clearDoubleWrite';
-    base.ajaxOptions.type = 'POST';
-    return mdyAPI(controllerName, 'dwclearDoubleWrite', JSON.stringify(args), $.extend(base, options));
-  },
-
-  /**
    * 根据id查询对应的异常信息
    *
    * @param {Object} args 请求参数

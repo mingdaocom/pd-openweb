@@ -1,16 +1,16 @@
 import React, { Fragment, useRef } from 'react';
+import { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { ScrollView, Icon } from 'ming-ui';
-import moment from 'moment';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
-import EmptyStatus from '../../EmptyStatus';
-import { quickSelectUser } from 'ming-ui/functions';
-import DatePickSelect from 'src/pages/worksheet/components/DatePickerSelect';
-import appManagementAjax from 'src/api/appManagement';
 import cx from 'classnames';
 import _ from 'lodash';
-import { useEffect } from 'react';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
+import appManagementAjax from 'src/api/appManagement';
+import DatePickSelect from 'src/pages/worksheet/components/DatePickerSelect';
+import EmptyStatus from '../../EmptyStatus';
 
 const Header = styled.div`
   display: flex;
@@ -110,9 +110,6 @@ const ActionLogWrap = styled.div`
   .actContent {
     color: #151515;
     padding-left: 8px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     .changeBefore {
       color: #bdbdbd;
       text-decoration: line-through;
@@ -196,6 +193,7 @@ export default function ActionLogs(props) {
       selectRangeOptions: false,
       includeSystemField: true,
       prefixOnlySystemField: true,
+      prefixAccountIds: ['user-system'],
       rect: selectUserRef.current.getBoundingClientRect(),
       tabType: 3,
       appId: appId,

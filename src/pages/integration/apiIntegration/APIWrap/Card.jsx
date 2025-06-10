@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { Icon, Support, LoadDiv, Tooltip, Checkbox } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { CardTopWrap, WrapBtn } from '../style';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Checkbox, Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { renderValue } from 'src/pages/integration/apiIntegration/util';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
-import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import { JSONAnalysis } from 'src/pages/workflow/WorkflowSettings/Detail/components';
+import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { CardTopWrap, WrapBtn } from '../style';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
 
@@ -180,23 +181,6 @@ export default function Card(props) {
     };
     sortList(arr, '', 0);
     return list;
-  };
-  const renderValue = (formulaValue, node) => {
-    const arr = formulaValue.match(/\$[^ \r\n]+?\$/g);
-    if (arr) {
-      arr.forEach(obj => {
-        const data = obj
-          .replace(/\$/g, '')
-          .split(/([a-zA-Z0-9#]{24,32})-/)
-          .filter(item => item);
-        const { formulaMap = {} } = node;
-        formulaValue = formulaValue.replace(
-          obj,
-          `{${(formulaMap[data[0]] || {}).name || ''}.${(formulaMap[data.join('-')] || {}).name || ''}}`,
-        );
-      });
-    }
-    return formulaValue;
   };
   const renderCon = () => {
     const { controls = [], outputs = [] } = node || {};

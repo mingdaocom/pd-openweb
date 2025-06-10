@@ -36,7 +36,7 @@ const ImageCard = props => {
     masterData,
     isSubListFile,
   } = props;
-  const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
+  const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName, onChangeIsEditing } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const fullShow = coverType === '1';
   const previewUrl = data.previewUrl.replace(
@@ -64,6 +64,10 @@ const ImageCard = props => {
         });
     }
   }, []);
+
+  useEffect(() => {
+    onChangeIsEditing(isEdit);
+  }, [isEdit]);
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative" onClick={e => e.stopPropagation()}>
@@ -325,7 +329,7 @@ const ImageCard = props => {
 // 渲染未保存的附件
 const NotSaveImageCard = props => {
   const { data, isMobile, coverType } = props;
-  const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
+  const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview, onChangeIsEditing } = props;
   const { isKc, fileClassName, fileSize, url } = props;
   const size = 'w/200/h/140';
   const mode = coverType === '1' ? 2 : 1;
@@ -351,6 +355,10 @@ const NotSaveImageCard = props => {
         });
     }
   }, []);
+
+  useEffect(() => {
+    onChangeIsEditing(isEdit);
+  }, [isEdit]);
 
   const handleFocus = e => {
     setTimeout(() => {

@@ -1,15 +1,18 @@
-import React, { useState, Component, Fragment, useEffect } from 'react';
-import { Dropdown, Input, AutoComplete } from 'antd';
-import styled from 'styled-components';
-import { Tooltip, Icon } from 'ming-ui';
-import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
+import React, { useEffect, useState } from 'react';
+import { AutoComplete, Dropdown } from 'antd';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
 
 const Wrapper = styled.div`
   background-color: #fff;
-  box-shadow: 0 3px 6px -4px rgb(0 0 0 / 12%), 0 6px 16px 0 rgb(0 0 0 / 8%), 0 9px 28px 8px rgb(0 0 0 / 5%);
+  box-shadow:
+    0 3px 6px -4px rgb(0 0 0 / 12%),
+    0 6px 16px 0 rgb(0 0 0 / 8%),
+    0 9px 28px 8px rgb(0 0 0 / 5%);
   border-radius: 4px;
   margin-right: -33px;
   .ant-select-auto-complete {

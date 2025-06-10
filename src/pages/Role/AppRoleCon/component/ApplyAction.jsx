@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import styled from 'styled-components';
-import _ from 'lodash';
+
 const Wrap = styled.div`
   .search {
     .conSearch {
@@ -56,7 +57,7 @@ export default class ApplyAction extends PureComponent {
     return (
       <Wrap>
         <Menu style={{ position: 'static' }}>
-          <div className="search InlineBlock">
+          <div className="search InlineBlock w100">
             <SearchInput
               className="conSearch"
               placeholder={placeholder || _l('搜索角色名称')}

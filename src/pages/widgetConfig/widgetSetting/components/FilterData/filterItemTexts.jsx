@@ -1,8 +1,8 @@
 import React from 'react';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _, { isEmpty } from 'lodash';
 import styled from 'styled-components';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getAdvanceSetting } from '../../../util/setting';
 import './filterDialog.less';
 import './filterText.less';
@@ -135,8 +135,8 @@ export default class FilterItemTexts extends React.Component {
   render() {
     let {
       data = {},
-      allControls,
-      controls,
+      allControls = [],
+      controls = [],
       editFn,
       loading = true,
       globalSheetControls = [],

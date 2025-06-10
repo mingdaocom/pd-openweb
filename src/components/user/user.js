@@ -1,14 +1,15 @@
+import { getRequest } from 'src/utils/common';
+import './user.less';
+
 __webpack_public_path__ = window.__webpack_public_path__;
-var util = require('src/util');
+
 var common = require('./common');
 var User = {};
 var type = 'acount'; // 账户一览
 var projectId = '';
 
-import './user.less';
-
 User.init = function () {
-  var request = util.getRequest();
+  var request = getRequest();
   if (request.type) {
     type = request.type;
   }
@@ -19,10 +20,7 @@ User.init = function () {
     .off()
     .on('click', 'li', function () {
       var $this = $(this);
-      $this
-        .addClass('ThemeBGColor8')
-        .siblings('li')
-        .removeClass('ThemeBGColor8');
+      $this.addClass('ThemeBGColor8').siblings('li').removeClass('ThemeBGColor8');
       var typeTag = $this.attr('typeTag');
       common.url({ type: typeTag });
       common.init();
@@ -30,9 +28,7 @@ User.init = function () {
     });
   var guideSettings = md.global.Account.guideSettings;
   if (guideSettings.accountEmail || guideSettings.accountMobilePhone) {
-    $('.accountTab')
-      .find('.warnLight')
-      .show();
+    $('.accountTab').find('.warnLight').show();
   }
   User.reloadList(type);
 };
@@ -82,10 +78,7 @@ User.reloadList = function (typeTag) {
       });
       break;
   }
-  event
-    .addClass('ThemeBGColor8')
-    .siblings('li')
-    .removeClass('ThemeBGColor8');
+  event.addClass('ThemeBGColor8').siblings('li').removeClass('ThemeBGColor8');
 };
 
 module.exports = User;

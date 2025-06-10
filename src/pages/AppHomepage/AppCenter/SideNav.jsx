@@ -8,7 +8,7 @@ import privateSource from 'src/api/privateSource';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { navigateTo } from 'src/router/navigateTo';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
 import PopupLinks from './components/PopupLinks';
 import ThirdApp from './components/ThirdApp';
 
@@ -40,7 +40,7 @@ const Con = styled.div`
   &.isExpanded {
     width: 180px;
     .moduleEntry,
-    .resourceEntry {
+    .resourceEntry:not(.expandBtn) {
       flex-direction: row;
       justify-content: start;
       padding: 0 12px;
@@ -53,11 +53,11 @@ const Con = styled.div`
         align-items: center;
       }
     }
-    .resourceEntry {
+    .resourceEntry:not(.expandBtn) {
       width: 156px;
     }
     .expandBtn {
-      justify-content: end;
+      margin-right: 4px;
     }
   }
 `;
@@ -425,18 +425,20 @@ export default function SideNav(props) {
           <Spacer />
           <ResourceEntries>
             {sourcesList.map((entry, index) => renderResourceItem(entry, index))}
-            <ResourceEntry
-              className="resourceEntry expandBtn"
-              onClick={() => {
-                setIsExpanded(!isExpanded);
-                safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
-              }}
-            >
-              <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
+            <Tooltip popupPlacement="right" text={isExpanded ? _l('收起导航') : _l('展开导航')}>
+              <ResourceEntry
+                className="resourceEntry expandBtn"
+                onClick={() => {
+                  setIsExpanded(!isExpanded);
+                  safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
+                }}
+              >
+              <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>                
                 {'v' + md.global.Config.Version}
               </span>
               <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
-            </ResourceEntry>
+              </ResourceEntry>
+            </Tooltip>
           </ResourceEntries>
         </Content>
       </ScrollView>

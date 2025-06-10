@@ -15,7 +15,7 @@ module.exports = {
     // react-库
     '^(@?react-).+',
     // 第三方组件库，支持子模块导入
-    '^(antd|antd-mobile|@ant-design)(\/.+)?$',
+    '^(antd|antd-mobile|@ant-design|@fullcalendar/react)(\/.+)?$',
     // 剩余第三方库
     '<THIRD_PARTY_MODULES>',
     // ming-ui组件库，支持子模块导入

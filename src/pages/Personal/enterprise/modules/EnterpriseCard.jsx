@@ -1,22 +1,37 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import common from '../../common';
-import account from 'src/api/account';
-import { LoadDiv, Dialog, Icon } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
-import ValidPassword from './ValidPassword';
-import ExitDialog from './ExitDialog';
-import EditCardInfo from './EditCardInfo';
+import cx from 'classnames';
+import moment from 'moment';
 import { navigateTo } from 'router/navigateTo';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import './index.less';
+import { Dialog, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import account from 'src/api/account';
+import projectAjax from 'src/api/project';
+import roleAjax from 'src/api/role';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import common from '../../common';
+import EditCardInfo from './EditCardInfo';
+import ExitDialog from './ExitDialog';
+import ValidPassword from './ValidPassword';
+import './index.less';
 
 const optionsList = [
   { icon: 'icon-edit_17', label: _l('编辑组织名片'), click: 'handleEdit', key: 'editCard' },
   { icon: 'icon-enterprise_tool', label: _l('组织管理'), click: 'handleGoAdmin', key: 'manage' },
   { icon: 'icon-manage', label: _l('我的汇报关系'), click: 'handleRelation', key: 'reportRelation' },
   { icon: 'icon-exit', label: _l('退出组织'), click: 'handleExit', key: 'exit' },
+];
+
+const closeOptionsList = [
+  {
+    icon: 'icon-back',
+    label: _l('恢复组织'),
+    click: 'handleRecover',
+    key: 'recover',
+    isSuperAdmin: true,
+    disabledKey: 'recoverDisabled',
+  },
+  optionsList[3],
 ];
 
 export default class EnterpriseCard extends Component {
@@ -27,6 +42,7 @@ export default class EnterpriseCard extends Component {
       loading: false,
       userInfo: {},
       hasProjectAdminAuth: false,
+      recoverDisabled: false,
     };
   }
 
@@ -34,7 +50,7 @@ export default class EnterpriseCard extends Component {
   formatProjectStatus(item) {
     const PROJECT_STATUS_TYPES = common.PROJECT_STATUS_TYPES;
     const USER_STATUS = common.USER_STATUS;
-    const { userStatus, projectStatus } = item;
+    const { userStatus, projectStatus, isSuperAdmin } = item;
 
     let result = {
       buttonState: 'default', //右侧处理类型（review: '待审核‘ | ’open: '开通' |  trial: '试用' | default: '按成员类型展示'）
@@ -42,6 +58,7 @@ export default class EnterpriseCard extends Component {
       reportRelation: false, //查看汇报关系
       exit: false, //退出
       manage: false, //管理后台
+      recover: isSuperAdmin, // 恢复组织
     };
 
     if (userStatus === USER_STATUS.UNAUDITED) {
@@ -128,8 +145,47 @@ export default class EnterpriseCard extends Component {
     });
   }
 
-  //退出
-  handleExit(item) {
+  checkIsLastSuperAdmin = async projectId => {
+    const res = await roleAjax.isLastSuperAdmin({ projectId });
+
+    return res;
+  };
+
+  exitProject(projectId) {
+    account.exitProject({ projectId: projectId }).then(res => {
+      if (res === 1) alert(_l('退出成功'));
+    });
+  }
+
+  onCancelExit(item, closeProject) {
+    if (!closeProject) return;
+
+    navigateTo(`/admin/sysinfo/${item.projectId}`);
+  }
+
+  onOkExit(item, isLastSuperAdmin, isClose) {
+    const { card } = this.props;
+
+    if (!isLastSuperAdmin) {
+      this.exitProject(item.projectId);
+      this.props.getData();
+      return null;
+    }
+
+    if (isClose) {
+      VerifyPasswordConfirm.confirm({
+        onOk: () => {
+          this.exitProject(item.projectId);
+          this.props.getData();
+        },
+      });
+      return null;
+    }
+
+    navigateTo(card.effectiveUserCount > 1 ? `/admin/sysroles/${item.projectId}` : `/admin/sysinfo/${item.projectId}`);
+  }
+
+  handleNormalUserExit(item) {
     Dialog.confirm({
       title: _l('提示'),
       dialogClasses: 'dialogBoxValidate',
@@ -147,15 +203,54 @@ export default class EnterpriseCard extends Component {
     });
   }
 
+  //退出
+  handleExit = async (item, isClose) => {
+    const { card } = this.props;
+    const isLastSuperAdmin = await this.checkIsLastSuperAdmin(item.projectId);
+    const hasOtherUser = card.effectiveUserCount > 1;
+
+    if (!isClose && !isLastSuperAdmin) return this.handleNormalUserExit(item);
+
+    let description = null;
+
+    if (isLastSuperAdmin && isClose) {
+      description = _l('您一旦退出后，将没有人可以再恢复组织');
+    } else if (isLastSuperAdmin && !isClose) {
+      description = hasOtherUser
+        ? _l(
+            '当前组织内有其他 %0 个用户，为避免您退出后组织无法正常使用，请添加其他超级管理员后再退出组织。如果您已确定不需要使用此组织，可以选择关闭组织',
+            card.effectiveUserCount - 1,
+          )
+        : _l('当前组织内有其他 0 个用户。如果您已不需要使用此组织，可以选择关闭组织');
+    }
+
+    Dialog.confirm({
+      title: isLastSuperAdmin
+        ? _l('您是组织：%0  中唯一一个超级管理员', item.companyName)
+        : _l('退出组织：%0', item.companyName),
+      description: description,
+      dialogClasses: 'dialogBoxValidate',
+      onlyClose: true,
+      buttonType: isClose ? 'danger' : 'primary',
+      okText: !isClose && isLastSuperAdmin ? (hasOtherUser ? _l('添加超级管理员') : _l('关闭组织')) : _l('退出组织'),
+      cancelText: !isClose && isLastSuperAdmin && hasOtherUser ? _l('关闭组织') : _l('取消'),
+      removeCancelBtn: !isClose && isLastSuperAdmin && !hasOtherUser,
+      onOk: () => this.onOkExit(item, isLastSuperAdmin, isClose),
+      onCancel: () => this.onCancelExit(item, !isClose && isLastSuperAdmin && hasOtherUser),
+    });
+  };
+
   // 指定同事
   transferAdminProject = (projectId, companyName, password, type) => {
+    const needTransfer = type === 3;
+
     Dialog.confirm({
       dialogClasses: 'dialogBoxTransferAdminProject',
-      title: _l('提示'),
+      title: needTransfer ? _l('您是组织：Mingdao App Room  中唯一一个管理员') : _l('退出组织：%0', companyName),
       noFooter: true,
       children: (
         <ExitDialog
-          needTransfer={type === 3}
+          needTransfer={needTransfer}
           companyName={companyName}
           projectId={projectId}
           password={password}
@@ -262,16 +357,39 @@ export default class EnterpriseCard extends Component {
       .catch();
   }
 
+  handleRecover(card) {
+    Dialog.confirm({
+      title: _l('恢复组织：%0', card.companyName),
+      okText: _l('恢复组织'),
+      description: (
+        <span className="Font14 Gray_75">
+          {_l('关闭超过90天的组织，所有应用已自动进入回收站，进入回收站60天后，所有应用会被彻底物理删除')}
+        </span>
+      ),
+      onOk: () => {
+        projectAjax
+          .recoverProject({
+            projectId: card.projectId,
+          })
+          .then(res => {
+            alert(res ? _l('恢复组织成功') : _l('恢复组织失败', 2));
+            res && this.props.getData();
+          });
+      },
+    });
+  }
+
   render() {
     const { showItem, userInfo, loading, hasProjectAdminAuth } = this.state;
     const { departmentInfos = [], jobInfos = [] } = userInfo;
-    const { card, DragHandle } = this.props;
-    const { currentLicense = {} } = card;
+    const { card, DragHandle, isClose } = this.props;
+    const { currentLicense = {}, isSuperAdmin, closedOperatorName, closedTime } = card;
     const parmas = this.formatProjectStatus(card);
     //待开通状态
     const isWaitOpen =
       card.projectStatus === common.PROJECT_STATUS_TYPES.FREE ||
       card.projectStatus === common.PROJECT_STATUS_TYPES.TOPAID;
+
     return (
       <div className={cx('enterpriseCardItem', { active: showItem })} onClick={e => this.handleChangeShow(e)}>
         {DragHandle && (
@@ -283,19 +401,23 @@ export default class EnterpriseCard extends Component {
           <div className="cardItemLeft">
             <div className="Font17 Bold mBottom12 Gray">{card.companyName}</div>
             <div className="cardItemInfo">
-              <div className={cx('itemTag', isWaitOpen ? 'grayActive' : 'active')}>
-                {currentLicense.version ? currentLicense.version.name : _l('免费版')}
+              <div className={cx('itemTag', isClose ? 'closeActive' : isWaitOpen ? 'grayActive' : 'active')}>
+                {isClose ? _l('已关闭') : currentLicense.version ? currentLicense.version.name : _l('免费版')}
               </div>
               <div className="mLeft24 mRight24 itemDivice"></div>
-              <div className="Gray_75 hover_blue">
-                <ClipboardButton
-                  component="span"
-                  data-clipboard-text={card.projectCode}
-                  onSuccess={this.handleCopyTextSuccess.bind(this)}
-                >
-                  <span className="childTag">{_l('组织门牌号：%0', card.projectCode)}</span>
-                  <span className="icon-content-copy Font12 mLeft5 childTag"></span>
-                </ClipboardButton>
+              <div className={cx('Gray_75', { hover_blue: !isClose })}>
+                {isClose ? (
+                  _l('%0 于%1关闭', closedOperatorName, closedTime ? createTimeSpan(closedTime) : '-')
+                ) : (
+                  <ClipboardButton
+                    component="span"
+                    data-clipboard-text={card.projectCode}
+                    onSuccess={this.handleCopyTextSuccess.bind(this)}
+                  >
+                    <span className="childTag">{_l('组织门牌号：%0', card.projectCode)}</span>
+                    <span className="icon-content-copy Font12 mLeft5 childTag"></span>
+                  </ClipboardButton>
+                )}
               </div>
               {md.global.Config.IsLocal && (
                 <div className="Gray_75 hover_blue mLeft16">
@@ -312,7 +434,7 @@ export default class EnterpriseCard extends Component {
             </div>
           </div>
           <div className="cardItemRight">
-            {this.renderOption(parmas.buttonState)}
+            {!isClose && this.renderOption(parmas.buttonState)}
             <span className={cx('Font20 mLeft12 Gray_70', showItem ? 'icon-expand_more' : 'icon-navigate_next')}></span>
           </div>
         </div>
@@ -341,12 +463,12 @@ export default class EnterpriseCard extends Component {
                 </div>
               </div>
               <div className="extendItemBox Gray_75">
-                {optionsList.map((item, index) => {
+                {(isClose ? closeOptionsList : optionsList).map((item, index) => {
                   return (
                     <span
                       key={index}
                       className={cx('flexRow mRight40', parmas[item.key] ? 'Hand Gray hover_blue' : 'Gray_9e')}
-                      onClick={() => (parmas[item.key] ? this[item.click](userInfo) : null)}
+                      onClick={() => (parmas[item.key] ? this[item.click](userInfo, isClose) : null)}
                     >
                       <span className={cx('mRight12 LineHeight20 childTag', item.icon)}></span>
                       {item.key === 'manage' ? (

@@ -6,11 +6,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import CustomFields from 'src/components/newCustomFields';
-import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
-import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
-import { getAdvanceSetting } from 'src/util';
+import { onValidator, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { getAdvanceSetting } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/control';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {

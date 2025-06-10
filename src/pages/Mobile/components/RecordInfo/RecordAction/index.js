@@ -9,14 +9,16 @@ import processAjax from 'src/pages/workflow/api/process';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import { RecordInfoModal } from 'mobile/Record';
 import { getRowDetail } from 'worksheet/api';
-import { appendDataToLocalPushUniqueId, emitter, handleRecordError } from 'worksheet/util';
 import verifyPassword from 'src/components/verifyPassword';
 import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
-import { getCurrentProject, getRequest, getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { appendDataToLocalPushUniqueId, emitter, getRequest } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import { handleRecordError } from 'src/utils/record';
 import CustomButtons from './CustomButtons';
 import { doubleConfirmFunc } from './DoubleConfirm';
 import './index.less';
@@ -48,15 +50,14 @@ class RecordAction extends Component {
     customBtnWorkflow();
     emitter.on('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
   }
-  componentWillUnmount() {
-    emitter.off('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
-  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.recordActionVisible !== this.props.recordActionVisible && this.props.isBatchOperate) {
       customBtnWorkflow();
     }
   }
   componentWillUnmount() {
+    emitter.off('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
+
     if (!window.IM) return;
     IM.socket.off('workflow');
   }
@@ -488,7 +489,7 @@ class RecordAction extends Component {
       .then(({ isSuccess }) => {
         if (isSuccess) {
           alert(_l('删除成功'));
-          handleDeleteSuccess(recordId);
+          handleDeleteSuccess(rowId);
         } else {
           alert(_l('删除失败'), 2);
         }
@@ -705,6 +706,14 @@ class RecordAction extends Component {
                       <Icon icon="share" className="Font18 delIcon Gray_9e" />
                       <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
                         {_l('分享')}
+                      </div>
+                    </div>
+                  )}
+                  {_.isFunction(this.props.handlePrint) && window.isMingDaoApp && (
+                    <div className="flexRow extraBtnItem">
+                      <Icon icon="install" className="Font24 delIcon Gray_9e" />
+                      <div className="flex Font15 Gray" onClick={this.props.handlePrint}>
+                        {_l('打印')}
                       </div>
                     </div>
                   )}

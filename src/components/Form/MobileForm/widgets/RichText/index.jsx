@@ -45,12 +45,11 @@ const RichTextWidget = props => {
       id={flag}
       data={value || ''}
       isRemark={type === 10010}
-      className={{ pRight20: disabled }}
       disabled={disabled}
       onActualSave={onChange}
       onSave={onBlur}
       minHeight={90}
-      maxHeight={500}
+      maxHeight={10000}
       autoSize={{ height: displayRow ? 'auto' : '100%' }}
       handleFocus={() => triggerCustomEvent(ADD_EVENT_ENUM.FOCUS)}
     />

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Avatar, Icon } from 'ming-ui';
-import TextHeightLine from './TextHeightLine';
+import { getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import { GLOBAL_SEARCH_LIST_SETTING } from '../enum';
-import { getClassNameByExt } from 'src/util';
 import { getImgUrl } from '../utils';
-import RegExpValidator from 'src/util/expression';
+import TextHeightLine from './TextHeightLine';
+
 const Box = styled.div`
   padding-bottom: 12px;
   .title {

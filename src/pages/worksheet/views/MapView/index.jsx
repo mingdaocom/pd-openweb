@@ -13,7 +13,9 @@ import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { browserIsMobile, getMapConfig, handlePushState, handleReplaceState } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { getMapConfig } from 'src/utils/control';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
 import { updateWorksheetControls } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import { filterAndFormatterControls } from '../util';
@@ -56,6 +58,10 @@ function MapView(props) {
   const [recordInfoRowId, setRecordInfoRowId] = useState(null);
   const [mobileCloseCard, setMobileCloseCard] = useState(0);
   const mapViewRequest = useRef(null);
+
+  const handleRefresh = () => {
+    initMapViewData(undefined, true, mapViewRequest.current);
+  };
 
   useEffect(() => {
     if (!mapViewRequest.current) mapViewRequest.current = uuidv4();
@@ -188,6 +194,8 @@ function MapView(props) {
         'viewId',
         'groupId',
         'updateNavGroup',
+        'sheetButtons',
+        'printList',
       ]),
       mapViewState: mapViewState,
       controls: controls,
@@ -220,6 +228,7 @@ function MapView(props) {
                     key={`PinMark-${marker.record.rowid}`}
                     isCurrent={_.get(mapViewState, 'searchData.rowid') === marker.record.rowid}
                     marker={marker}
+                    handleRefresh={handleRefresh}
                   />
                 );
               })}
@@ -243,6 +252,8 @@ function MapView(props) {
           rowId={recordInfoRowId}
           onClose={() => setRecordInfoRowId(null)}
           refreshCollectRecordList={() => init()}
+          updateRow={() => init()}
+          deleteRow={() => init()}
         />
       )}
     </div>
@@ -251,7 +262,15 @@ function MapView(props) {
 
 const ConnectedMapView = connect(
   state => ({
-    ..._.pick(state.sheet, ['mapView', 'worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
+    ..._.pick(state.sheet, [
+      'mapView',
+      'worksheetInfo',
+      'filters',
+      'controls',
+      'sheetSwitchPermit',
+      'sheetButtons',
+      'printList',
+    ]),
   }),
   dispatch =>
     bindActionCreators({ ...viewActions, ...baseAction, ...navFilterActions, updateWorksheetControls }, dispatch),

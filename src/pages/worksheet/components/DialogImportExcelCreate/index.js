@@ -1,32 +1,32 @@
 import React, { Component, Fragment } from 'react';
-import { LoadDiv, antNotification } from 'ming-ui';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import DialogUpload from './DialogUpload';
-import SetImportExcelCreateWorksheetOrApp from './SetImportExcelCreateWorksheetOrApp';
-import {
-  changeDialogUploadVisible,
-  changeSetDataDialogVisible,
-  changeDialogCreateAppVisible,
-  changeCreateAppLoading,
-  updateExcelDetailData,
-  updateCurrentSheetInfo,
-  updateSelectedImportSheetIds,
-  updateAppInfo,
-} from 'src/pages/worksheet/redux/actions/excelCreateAppAndSheet';
-import DialogCreateApp from './DialogCreateApp';
-import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
-import appManagementController from 'src/api/appManagement';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { getFeatureStatus } from 'src/util';
+import PropTypes from 'prop-types';
+import { antNotification, LoadDiv } from 'ming-ui';
+import appManagementController from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
+import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
+import {
+  changeCreateAppLoading,
+  changeDialogCreateAppVisible,
+  changeDialogUploadVisible,
+  changeSetDataDialogVisible,
+  updateAppInfo,
+  updateCurrentSheetInfo,
+  updateExcelDetailData,
+  updateSelectedImportSheetIds,
+} from 'src/pages/worksheet/redux/actions/excelCreateAppAndSheet';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import DialogCreateApp from './DialogCreateApp';
+import DialogUpload from './DialogUpload';
+import SetImportExcelCreateWorksheetOrApp from './SetImportExcelCreateWorksheetOrApp';
 
 export const wsexcelbatchSocketInit = () => {
   IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, appId, appName, errorCount }) => {

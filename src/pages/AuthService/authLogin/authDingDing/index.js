@@ -1,5 +1,15 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam, checkOriginUrl, getGlobalMeta } from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+import { setPssId } from 'src/utils/pssId';
+import {
+  addOtherParam,
+  ajax,
+  browserIsMobile,
+  checkLogin,
+  checkOriginUrl,
+  formatOtherParam,
+  getGlobalMeta,
+  getRequest,
+  login,
+} from 'src/utils/sso';
 
 const { code, state, url, p, ...otherParam } = getRequest();
 const isMobile = browserIsMobile();
@@ -20,7 +30,7 @@ if (code) {
         type: 2,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           getGlobalMeta().then(() => {
@@ -54,7 +64,7 @@ if (code) {
         projectId,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { clientId, state } = result.data;
         const defaultCallBackUrl = 'https://login.dingtalk.com/oauth2/auth';
         const redirect_uri = encodeURIComponent(

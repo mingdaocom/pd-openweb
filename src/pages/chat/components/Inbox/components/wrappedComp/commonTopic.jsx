@@ -1,8 +1,8 @@
 import React from 'react';
-import BaseMessageComponent from '../baseComponent/messageContent';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import { formatInboxItem, buildSourceLink } from '../../util';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { SOURCE_TYPE } from '../../constants';
+import { buildSourceLink, formatInboxItem } from '../../util';
+import BaseMessageComponent from '../baseComponent/messageContent';
 
 function mergeFromSourceState(inboxItem) {
   let { discussion: { name, entityName, sourceId, extendsId, sourceType } = {} } = inboxItem;

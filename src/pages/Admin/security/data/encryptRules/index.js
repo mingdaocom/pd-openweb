@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
-import { Icon, Input, Switch, Menu, MenuItem, Tooltip, ScrollView, LoadDiv, Button, UserHead } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { Select } from 'antd';
-import AddEditRulesDialog from './AddEditRulesDialog';
-import { encryptDetailCon } from './EncryptDetail';
-import projectEncryptAjax from 'src/api/projectEncrypt';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import Empty from 'src/pages/Admin/common/TableEmpty';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { encryptList, statusList } from './constant';
-import Trigger from 'rc-trigger';
-import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import { Button, Icon, Input, LoadDiv, Menu, MenuItem, ScrollView, Switch, Tooltip, UserHead } from 'ming-ui';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
+import projectEncryptAjax from 'src/api/projectEncrypt';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import Empty from 'src/pages/Admin/common/TableEmpty';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import AddEditRulesDialog from './AddEditRulesDialog';
+import { encryptList, statusList } from './constant';
+import { encryptDetailCon } from './EncryptDetail';
+import './index.less';
 
 const { Option } = Select;
 

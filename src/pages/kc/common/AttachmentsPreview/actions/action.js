@@ -1,21 +1,22 @@
 ﻿/**
  * init -> formatAttachment -> loadAttachment
  */
-import attachmentAjax from 'src/api/attachment';
-import kcAjax from 'src/api/kc';
-import fileAjax from 'src/api/file';
-import { getToken, addBehaviorLog, getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
-import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
-import kcService from '../../../api/service';
-import { EXT_TYPE_DIC, PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
-import { splitFileName } from '../constant/util';
-import { defaultWpsPreview, isWpsPreview } from '../../../utils';
-import ACTION_TYPES from '../constant/actionTypes';
-import * as ajax from '../ajax';
 import _, { isEmpty } from 'lodash';
+import kcService from '../../../api/service';
+import attachmentAjax from 'src/api/attachment';
+import fileAjax from 'src/api/file';
+import kcAjax from 'src/api/kc';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
+import { getToken } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
+import { defaultWpsPreview, isWpsPreview } from '../../../utils';
+import * as ajax from '../ajax';
+import ACTION_TYPES from '../constant/actionTypes';
+import { EXT_TYPE_DIC, LOADED_STATUS, PREVIEW_TYPE } from '../constant/enum';
+import { splitFileName } from '../constant/util';
 
 function addViewCount(attachment) {
   if (
@@ -125,8 +126,8 @@ function loadAttachment(attachment, options = {}) {
           _.get(window, 'shareState.isPublicPage')
             ? 3
             : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
-            ? 11
-            : 14;
+              ? 11
+              : 14;
       }
       if (options.from === 21) {
         args.type = 21;
@@ -294,8 +295,8 @@ function formatAttachment(attachments, callfrom) {
         previewAttachmentType === 'COMMON'
           ? attachment.viewUrl || attachment.filepath + attachment.filename
           : previewAttachmentType === 'KC'
-          ? attachment.viewUrl
-          : attachment.path;
+            ? attachment.viewUrl
+            : attachment.path;
     } else if (previewType === PREVIEW_TYPE.CODE || previewType === PREVIEW_TYPE.MARKDOWN) {
       if (size > 512 * 1024) {
         // 大于 0.5M 的文件不预览

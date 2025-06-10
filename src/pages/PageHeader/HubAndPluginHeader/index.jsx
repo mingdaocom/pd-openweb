@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
 import { Motion, spring } from 'react-motion';
+import { string } from 'prop-types';
+import styled from 'styled-components';
+import { navigateTo } from 'src/router/navigateTo';
 import CommonUserHandle from '../components/CommonUserHandle';
 import IndexSide from '../components/IndexSide';
 import SwitchProject from '../components/SwitchProject';
 import '../NativeHeader/index.less';
-import { navigateTo } from 'src/router/navigateTo';
-import styled from 'styled-components';
+
 const HomeEntry = styled.div`
   display: inline-block;
   width: 28px;
@@ -66,7 +67,7 @@ export default class HubAndPluginHeader extends Component {
       <Wrap className="nativeHeaderWrap flexRow">
         <div className="flex flexRow alignItemsCenter">
           <div className="nativeModuleLogo">
-            <HomeEntry data-tip={_l('首页')} onClick={() => navigateTo('/dashboard')}>
+            <HomeEntry data-tip={_l('工作台')} onClick={() => navigateTo('/dashboard')}>
               <i className="icon-home_page Font18"></i>
             </HomeEntry>
             <div className="nativeTitle">{isPlugin ? _l('插件') : _l('集成')}</div>

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Table, Spin, ConfigProvider } from 'antd';
-import { LoadDiv, Icon, Dialog } from 'ming-ui';
+import { ConfigProvider, Spin, Table } from 'antd';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
-import CreateOrEditDialog from '../modules/CreateOrEditDialog';
-import MergeDialog from '../modules/MergeDialog';
-import EditMemberDialog from '../modules/EditMemberDialog';
-import Config from '../../../config';
 import Empty from 'src/pages/Admin/common/TableEmpty';
+import Config from '../../../config';
+import CreateOrEditDialog from '../modules/CreateOrEditDialog';
+import EditMemberDialog from '../modules/EditMemberDialog';
+import MergeDialog from '../modules/MergeDialog';
 import './index.less';
 
 export default class WorkPlace extends Component {
@@ -264,7 +264,7 @@ export default class WorkPlace extends Component {
                 getData={this.getData.bind(this)}
               />
             )}
-            <div className="clearfix pBottom35 pTop25 pLeft25 pRight25">
+            <div className="clearfix pBottom35 pLeft25 pRight25">
               <div className="Left">
                 {selectedRowKeys.length ? (
                   <div className="workSiteToolbox">

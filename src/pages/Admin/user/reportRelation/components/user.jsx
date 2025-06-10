@@ -12,7 +12,14 @@ function User(props) {
     <div className="userItem" {..._props}>
       <img src={avatar} className="avatar" />
       <div className="info">
-        <div className="name">{fullname}</div>
+        <div className="name flexRow alignItemsCenter">
+          <span className="ellipsis flex">{fullname}</span>
+          {subTotalCount && subTotalCount > 0 && props.status !== 1 ? (
+            <span className="resignedTag mRight16">{_l('已离职')}</span>
+          ) : (
+            ''
+          )}
+        </div>
         <div className="department">{department}</div>
         <div className="job">{job}</div>
       </div>
@@ -21,6 +28,8 @@ function User(props) {
           <span className="icon-charger Gray_a TxtMiddle Font14" />
           <span className="TxtMiddle Gray mLeft5">{subTotalCount}</span>
         </div>
+      ) : props.status !== 1 ? (
+        <span className="resignedTag">{_l('已离职')}</span>
       ) : null}
     </div>
   );

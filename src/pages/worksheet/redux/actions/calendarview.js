@@ -1,12 +1,13 @@
-import sheetAjax from 'src/api/worksheet';
-import { formatQuickFilter } from 'worksheet/util';
-import { getAdvanceSetting, browserIsMobile, dateConvertToUserZone } from 'src/util';
-import { setDataFormat, getShowExternalData } from 'src/pages/worksheet/views/CalendarView/util';
-import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
-import { isTimeStyle, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
 import moment from 'moment';
-import { getFilledRequestParams } from 'worksheet/util';
+import sheetAjax from 'src/api/worksheet';
+import { getShowExternalData, setDataFormat } from 'src/pages/worksheet/views/CalendarView/util';
+import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
+import { getCalendartypeData, getTimeControls, isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import { formatQuickFilter } from 'src/utils/filter';
+import { dateConvertToUserZone } from 'src/utils/project';
 
 let getRows;
 let getRowsIds = [];
@@ -477,8 +478,8 @@ export function getEventList({
           [typeEvent]: !isAdd
             ? events
             : isUp
-            ? events.concat(calenderEventList[typeEvent])
-            : calenderEventList[typeEvent].concat(events),
+              ? events.concat(calenderEventList[typeEvent])
+              : calenderEventList[typeEvent].concat(events),
           [`${typeEvent}Dt`]: l,
           [`${typeEvent}IsAll`]: isUp ? calenderEventList[`${typeEvent}IsAll`] : s.length < 20,
           [`${typeEvent}Index`]: isUp ? calenderEventList[`${typeEvent}Index`] : pageIndex,

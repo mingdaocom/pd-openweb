@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
+import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { arrayOf, func, string, shape } from 'prop-types';
 import { CityPicker, Input } from 'ming-ui';
 import { BaseSelectedItem } from './Styles';
-import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -49,12 +49,13 @@ const InputWrap = styled(Input)`
   }
 `;
 export default function Areas(props) {
-  const { values = [], control, isMultiple, onChange = () => {} } = props;
+  const { values = [], control = {}, isMultiple, onChange = () => {}, projectId } = props;
   const [active, setActive] = useState();
   const [search, setSearch] = useState(undefined);
   const [keywords, setKeywords] = useState('');
   const [defaultValue, setDefaultValue] = useState(null);
   const tempArea = useRef();
+  const { enumDefault2, advancedSetting: { chooserange = 'CN' } = {} } = control;
 
   const onFetchData = _.debounce(value => {
     setKeywords(value);
@@ -71,7 +72,9 @@ export default function Areas(props) {
       search={keywords}
       destroyPopupOnHide
       defaultValue={defaultValue}
-      level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
+      chooserange={chooserange}
+      level={enumDefault2}
+      projectId={projectId}
       callback={area => {
         const last = _.last(area);
 

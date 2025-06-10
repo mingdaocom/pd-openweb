@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useRef } from 'react';
-import { Dropdown as MDDropdown, LoadDiv, Icon, SvgIcon } from 'ming-ui';
-import { ConfigProvider, Button } from 'antd';
+import { useSetState } from 'react-use';
+import { Button, ConfigProvider } from 'antd';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import homeAppAjax from 'src/api/homeApp';
+import { Icon, LoadDiv, Dropdown as MDDropdown, SvgIcon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
-import { useSetState } from 'react-use';
-import update from 'immutability-helper';
-import cx from 'classnames';
-import _ from 'lodash';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { DropdownPlaceholder } from '../../../styled';
 
 const SelectItem = styled.div`
@@ -23,7 +23,9 @@ const SelectItem = styled.div`
 const SelectSheetWrap = styled.div`
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.15);
   .tabNav {
     display: flex;
     padding-left: 20px;

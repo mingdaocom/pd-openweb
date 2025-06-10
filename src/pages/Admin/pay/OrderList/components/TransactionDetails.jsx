@@ -4,7 +4,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, Tooltip, UserHead, UserName } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -13,8 +13,8 @@ import MaskText from 'src/pages/Admin/components/MaskText';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import { navigateTo } from 'src/router/navigateTo';
-import { formatNumberThousand } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { formatNumberThousand } from 'src/utils/control';
+import { VersionProductType } from 'src/utils/enum';
 import DatePickerFilter from '../../../common/datePickerFilter';
 import Empty from '../../../common/TableEmpty';
 import { DATE_CONFIG, INCOME_INFO, ORDER_SOURCE, ORDER_STATUS, PAY_CHANNEL_TXT, PAY_METHOD } from '../../config';
@@ -169,8 +169,11 @@ export default class TransactionDetails extends Component {
         dataIndex: 'accountId',
         width: 160,
         render: (text, record) => {
-          const { payAccountInfo = {} } = record;
+          const { payAccountInfo = {}, sourceType } = record;
           const { accountId, fullname, avatar, isPortal } = payAccountInfo;
+          if (sourceType === 6) {
+            return '-';
+          }
           return (
             <div className="flexRow">
               <UserHead
@@ -214,7 +217,7 @@ export default class TransactionDetails extends Component {
         dataIndex: 'paidTime',
         width: 220,
         render: (text, record) => {
-          return _.includes([0, 4], record.status) ? '-' : text;
+          return _.includes([0, 4, 8], record.status) ? '-' : text;
         },
       },
       { title: _l('收款商户'), dataIndex: 'shortName', width: 300, ellipsis: true },
@@ -282,7 +285,7 @@ export default class TransactionDetails extends Component {
         title: _l('操作'),
         dataIndex: 'action',
         fixed: 'right',
-        width: 180,
+        width: 'auto',
         render: (text, record) => {
           // 开票： 已开票、开票中不展示，同时申请退款、退款中、已退款不展示开票按钮；状态是申请开票、开票失败、已支付才可点击开票
           // 退款：已退款、退款中、订单状态（已完结）也不展示此操作项；订单状态已支付、退款失败才可点击退款
@@ -333,6 +336,11 @@ export default class TransactionDetails extends Component {
                 </span>
               ) : (
                 ''
+              )}
+              {_.includes([0], status) && (
+                <span className="Hand Red" onClick={() => this.deletePayOrder(record.orderId)}>
+                  {_l('取消订单')}
+                </span>
               )}
               {/* {(_.includes([3, 4], invoicingStatus) || status === 2) && (
                 <span className="ThemeColor Hand">{_l('开票')}</span>
@@ -497,6 +505,32 @@ export default class TransactionDetails extends Component {
           : [];
         this.setState({ worksheetList });
       });
+  };
+
+  deletePayOrder = orderId => {
+    const { projectId } = this.props;
+    const copyList = _.clone(this.state.list);
+
+    Dialog.confirm({
+      width: 560,
+      title: _l('是否取消当前订单'),
+      okText: _l('确认'),
+      buttonType: 'danger',
+      onOk: () => {
+        paymentAjax.deletePayOrder({ orderId, projectId }).then(res => {
+          if (res) {
+            const index = _.findIndex(copyList, v => v.orderId === orderId);
+            if (index > -1) {
+              copyList[index] = { ...copyList[index], status: 8 };
+            }
+            this.setState({ list: copyList });
+            alert(_l('取消成功'));
+          } else {
+            alert(_l('取消失败'), 2);
+          }
+        });
+      },
+    });
   };
 
   getConditions = () => {
@@ -860,7 +894,7 @@ export default class TransactionDetails extends Component {
                         <i className="icon icon-info Gray_9e Font14 mRight5" />
                       </Tooltip>
                     )}
-                    ¥
+                    <span className="mLeft3">¥</span>
                   </span>
                 )}
                 <span

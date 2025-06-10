@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import { TagTextarea, Tooltip } from 'ming-ui';
-import { includes, get, find } from 'lodash';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { SettingItem, SelectFieldsWrap, ControlTag } from '../../styled';
-import { SYSTEM_CONTROL, ROW_ID_CONTROL } from '../../config/widget';
-import SelectControl from './SelectControl';
-import { getConcatenateControls } from '../../util/data';
+import { find, get, includes } from 'lodash';
+import { TagTextarea, Tooltip } from 'ming-ui';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { ROW_ID_CONTROL, SYSTEM_CONTROL } from '../../config/widget';
+import { ControlTag, SelectFieldsWrap, SettingItem } from '../../styled';
+import { getConcatenateControls } from '../../util/data';
+import SelectControl from './SelectControl';
 
 export default function Concatenate({
   data,
@@ -45,7 +45,9 @@ export default function Concatenate({
                 originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
               return (
                 <Tooltip text={<span>{_l('ID: %0', id)}</span>} popupPlacement="bottom" disable={controlName}>
-                  <ControlTag className={cx({ invalid: !controlName || invalidError, Hand: !controlName })}>
+                  <ControlTag
+                    className={cx('WordBreak', { invalid: !controlName || invalidError, Hand: !controlName })}
+                  >
                     {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('字段已删除')}
                   </ControlTag>
                 </Tooltip>

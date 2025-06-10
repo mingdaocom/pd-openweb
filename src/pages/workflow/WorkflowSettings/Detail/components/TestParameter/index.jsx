@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useMemo } from 'react';
-import { Dialog, Input, QiniuUpload, Icon } from 'ming-ui';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
+import React, { Fragment, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import RegExpValidator from 'src/util/expression';
+import { Dialog, Icon, Input, QiniuUpload } from 'ming-ui';
+import { formatResponseData } from 'src/components/UploadFiles/utils';
+import RegExpValidator from 'src/utils/expression';
 import { ACTION_ID } from '../../../enum';
 import SelectAuthAccount from '../SelectAuthAccount';
 

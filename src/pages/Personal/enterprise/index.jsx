@@ -1,17 +1,18 @@
 import React, { Fragment } from 'react';
-import account from 'src/api/account';
-import { LoadDiv, Dialog, SortableList } from 'ming-ui';
-import EnterpriseCard from './modules/EnterpriseCard';
 import cx from 'classnames';
-import InvitationList from './modules/InvitationList';
-import './index.less';
-import ReportRelation from './reportRelation';
-import { getRequest, getCurrentProject } from 'src/util';
+import _ from 'lodash';
+import { Dialog, Icon, LoadDiv, SortableList } from 'ming-ui';
+import account from 'src/api/account';
+import accountSettingApi from 'src/api/accountSetting';
 import registerAjax from 'src/api/register';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import _ from 'lodash';
+import { getRequest } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
 import common from '../common';
-import accountSettingApi from 'src/api/accountSetting';
+import EnterpriseCard from './modules/EnterpriseCard';
+import InvitationList from './modules/InvitationList';
+import ReportRelation from './reportRelation';
+import './index.less';
 
 export default class AccountChart extends React.Component {
   constructor(props) {
@@ -30,6 +31,7 @@ export default class AccountChart extends React.Component {
         visible: false,
         data: null,
       },
+      expandCloseProject: false,
     };
   }
 
@@ -40,35 +42,40 @@ export default class AccountChart extends React.Component {
   getData() {
     if (getRequest().type === 'enterprise') {
       this.setState({ loading: true });
-      Promise.all([this.getList(common.USER_STATUS.UNAUDITED), this.getList(), this.getUntreatAuthList()]).then(
-        ([unAuthProject, project, auth]) => {
-          this.setState({
-            unAuthList: (unAuthProject.list || []).map(v => ({
-              ...v,
-              companyName: getCurrentProject(v.projectId).companyName || v.companyName,
-            })),
-            list: (project.list || []).map(v => ({
-              ...v,
-              companyName: getCurrentProject(v.projectId).companyName || v.companyName,
-            })),
-            count: project.allCount,
-            isEnterprise: project.allCount > 0,
-            authCount: auth.count,
-            loading: false,
-          });
-        },
-      );
+      Promise.all([
+        this.getList({ userStatus: common.USER_STATUS.UNAUDITED }),
+        this.getList(),
+        this.getUntreatAuthList(),
+        this.getList({ projectStatus: 2 }),
+      ]).then(([unAuthProject, project, auth, closeProject]) => {
+        console.log(closeProject);
+        this.setState({
+          unAuthList: (unAuthProject.list || []).map(v => ({
+            ...v,
+            companyName: getCurrentProject(v.projectId).companyName || v.companyName,
+          })),
+          list: (project.list || []).map(v => ({
+            ...v,
+            companyName: getCurrentProject(v.projectId).companyName || v.companyName,
+          })),
+          count: project.allCount,
+          isEnterprise: project.allCount > 0,
+          authCount: auth.count,
+          loading: false,
+          closeProject,
+        });
+      });
     } else {
       this.setState({ isEnterprise: getRequest().type });
     }
   }
 
   //列表
-  getList(userStatus = 1) {
+  getList(param = { userStatus: 1 }) {
     return account.getProjectList({
       pageIndex: this.state.pageIndex,
       pageSize: this.state.pageSize,
-      userStatus,
+      ...param,
     });
   }
 
@@ -149,7 +156,7 @@ export default class AccountChart extends React.Component {
   }
 
   renderContent() {
-    const { authCount, unAuthList } = this.state;
+    const { authCount, unAuthList, closeProject, expandCloseProject } = this.state;
     if (getRequest().type === 'enterprise') {
       return (
         <div className="enterpriceContainer">
@@ -190,6 +197,26 @@ export default class AccountChart extends React.Component {
               </React.Fragment>
             )}
             {this.renderSortableList()}
+            {!_.isEmpty(closeProject) && (
+              <Fragment>
+                <div
+                  className="Gray_75 Font14 Hand mBottom13 Hover_21"
+                  onClick={() => this.setState({ expandCloseProject: !expandCloseProject })}
+                >
+                  {_l('已关闭 %0', closeProject.allCount)}
+                  <Icon icon={expandCloseProject ? 'arrow-up-border' : 'arrow-up-border1'} className="mLeft10" />
+                </div>
+                {expandCloseProject &&
+                  closeProject.list.map((item, index) => (
+                    <EnterpriseCard
+                      key={`close-project-${item.projectId}`}
+                      card={item}
+                      isClose={true}
+                      getData={() => this.getData()}
+                    />
+                  ))}
+              </Fragment>
+            )}
           </div>
         </div>
       );

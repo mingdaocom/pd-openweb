@@ -45,6 +45,7 @@ const exceptions = [
   '#quickSelectDept',
   '.selectRoleDialog',
   '.fullScreenMarkdown',
+  '.attachmentsPreview',
 ];
 
 const renderSortableItem = ({ item, DragHandle, otherProps }) => {

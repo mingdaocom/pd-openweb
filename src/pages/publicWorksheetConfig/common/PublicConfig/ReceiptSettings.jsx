@@ -1,13 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import _ from 'lodash';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import copy from 'copy-to-clipboard';
-import { RichText, Radio, Icon, Input } from 'ming-ui';
-import SectionTitle from './SectionTitle';
-import { SUBMIT_AFTER_OPTIONS } from '../../enum';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Input, Radio, RichText } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getVisibleControls } from 'src/pages/Print/util';
+import { SUBMIT_AFTER_OPTIONS } from '../../enum';
+import SectionTitle from './SectionTitle';
 
 const SelectControlWrap = styled.div`
   width: 36px;
@@ -99,7 +98,6 @@ function ReceiptSettings(props) {
   const afterSubmit = safeParse(data);
   const [search, setSearch] = useState(undefined);
   const [visible, setVisible] = useState(false);
-  const visibleControls = getVisibleControls(controls);
 
   const handleClick = (control, type = 1) => {
     setVisible(false);
@@ -168,9 +166,7 @@ function ReceiptSettings(props) {
           overflow: { adjustX: true, adjustY: true },
         }}
         popup={renderPopup(
-          type
-            ? visibleControls.filter(l => !ReceiptFilterType.includes(l.type))
-            : visibleControls.filter(l => l.type === 2),
+          type ? controls.filter(l => !ReceiptFilterType.includes(l.type)) : controls.filter(l => l.type === 2),
           type,
         )}
       >

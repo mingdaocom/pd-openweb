@@ -1,9 +1,9 @@
 import React from 'react';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 
 const Wrap = styled.li`
   .svgIconForBtn {
@@ -30,7 +30,7 @@ class CustomBtnList extends React.Component {
           {data.length > 0 ? (
             <React.Fragment>
               <ul className="btnListUl">
-                <li className="Gray_9e">{_l('选择已有按钮')}</li>
+                <li className="Gray_9e">{_l('选择已有动作')}</li>
                 {_.map(data, (item, i) => {
                   const { color, icon, name, iconUrl } = item;
                   return (
@@ -44,7 +44,7 @@ class CustomBtnList extends React.Component {
                       {!!iconUrl && !!icon && icon.endsWith('_svg') ? (
                         <SvgIcon
                           className="mRight12 svgIconForBtn"
-                          addClassName='TxtMiddle'
+                          addClassName="TxtMiddle"
                           url={iconUrl}
                           fill={!color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
                           size={18}
@@ -71,7 +71,7 @@ class CustomBtnList extends React.Component {
                 }}
               >
                 <i className="icon icon-add Font16 mRight5"></i>
-                {_l('创建新按钮')}
+                {_l('创建新动作')}
               </div>
             </React.Fragment>
           ) : (

@@ -1,14 +1,15 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { FROM } from '../../tools/config';
-import { UserHead, SortableList } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
-import SelectUser from 'mobile/components/SelectUser';
-import { browserIsMobile, compatibleMDJS } from 'src/util';
-import { dealUserRange } from '../../tools/utils';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { SortableList, UserHead } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
+import SelectUser from 'mobile/components/SelectUser';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { browserIsMobile } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
+import { FROM } from '../../tools/config';
+import { dealUserRange } from '../../tools/utils';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -253,6 +254,7 @@ export default class Widgets extends Component {
             appId={appId || ''}
             selectRangeOptions={dealUserRange(this.props, formData, masterData)}
             onlyOne={enumDefault === 0}
+            hideClearBtn={enumDefault !== 0}
             filterAccountIds={filterAccountIds}
             onClose={() => this.setState({ showSelectUser: false })}
             onSave={this.onSave}

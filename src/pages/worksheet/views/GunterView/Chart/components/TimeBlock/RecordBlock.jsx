@@ -1,16 +1,22 @@
-import React, { Fragment, Component, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
+import { Popover } from 'antd';
 import cx from 'classnames';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { PERIOD_TYPE, viewConfig } from 'worksheet/views/GunterView/config';
-import { timeToPercentage, percentageToTime } from 'worksheet/views/GunterView/util';
-import { Tooltip } from 'antd';
-import { Icon } from 'ming-ui';
 import _ from 'lodash';
 import moment from 'moment';
+import { Icon } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
+import { percentageToTime, timeToPercentage } from 'worksheet/views/GunterView/util';
+import EditableCard from 'src/pages/worksheet/views/components/EditableCard';
 import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
+import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
+import { sortControlByIds } from 'src/utils/control';
+import { getRecordColorConfig } from 'src/utils/record';
+
+const isMobile = browserIsMobile();
 
 const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
@@ -49,8 +55,8 @@ const getLastWorkEndTime = (time, dayOff) => {
 
 @connect(
   state => ({
-    ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll']),
-    ..._.pick(state.sheet, ['controls', 'base']),
+    ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll', 'grouping']),
+    ..._.pick(state.sheet, ['controls', 'base', 'isCharge', 'worksheetInfo', 'views']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -463,22 +469,75 @@ export default class RowBlock extends Component {
       tooltipLeft: event.clientX - left - style.width / 2,
     });
   };
-  getTooltipText(isMilepost) {
-    const { row } = this.props;
-    const { currentChangeStartTime, currentChangeEndTime } = this.state;
-    const startTime = currentChangeStartTime || row.startTime;
-    const endTime = currentChangeEndTime || row.endTime;
-    const diff = moment(endTime).diff(moment(startTime), 'd') + 1;
-    const day = isMilepost ? '' : _l('%0天', diff);
+  renderPopoverContent() {
+    const { row, base, isCharge, groupKey, controls, worksheetInfo, views, removeRecord = () => {} } = this.props;
+    const { appId, projectId } = worksheetInfo;
+    const view = _.find(views, { viewId: base.viewId }) || {};
+    const { advancedSetting = {} } = view;
+    const titleId = view.viewtitle ? view.viewtitle : _.get(_.find(controls, { attribute: 1 }), 'controlId');
+    const coverControl = view.coverCid
+      ? _.find(controls, { controlId: view.coverCid }) || {}
+      : _.find(controls, { type: 14 }) || {};
+    const abstractField = _.find(controls, { controlId: advancedSetting.abstract }) || {};
+    const cover = row[coverControl.controlId];
+    const formData = sortControlByIds(
+      controls.map(c => {
+        return {
+          ...c,
+          value: row[c.controlId] || undefined,
+        };
+      }),
+      view.controlsSorts || [],
+    );
+    let coverUrl;
+    try {
+      coverUrl = safeParse(cover, 'array')[0] ? safeParse(cover, 'array')[0].previewUrl : '';
+    } catch (err) {}
 
-    if (moment(startTime).format('YYYY/MM') === moment(endTime).format('YYYY/MM')) {
-      return `${moment(startTime).format('MM/DD')}-${moment(endTime).format('DD')} ${day}`;
-    }
-    if (moment(startTime).year() === moment(endTime).year()) {
-      return `${moment(startTime).format('MM/DD')}-${moment(endTime).format('MM/DD')} ${day}`;
-    }
-
-    return `${moment(startTime).format('YYYY/MM/DD')}-${moment(endTime).format('YYYY/MM/DD')} ${day}`;
+    return (
+      <EditableCard
+        type="board"
+        showNull={true}
+        hoverShowAll={true}
+        canDrag={false}
+        data={{
+          abstractValue: renderCellText({ ...abstractField, value: row[advancedSetting.abstract] }),
+          allAttachments: safeParse(cover, 'array'),
+          allowDelete: row.allowdelete,
+          allowEdit: false,
+          coverData: coverControl,
+          coverImage: coverUrl
+            ? coverUrl.indexOf('imageView2') > -1
+              ? coverUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
+              : `${coverUrl}&imageView2/0/h/200`
+            : '',
+          fields: view.showControls.concat([titleId]).map(id => _.find(formData, { controlId: id })).filter(_ => _),
+          rawRow: row,
+          rowId: row.rowid,
+          formData,
+          recordColorConfig: {
+            ...getRecordColorConfig(view),
+            showLine: false,
+            showBg: false,
+          },
+        }}
+        isCharge={isCharge}
+        currentView={{ ...view, appId, projectId }}
+        allowCopy={worksheetInfo.allowAdd}
+        allowRecreate={worksheetInfo.allowAdd}
+        sheetSwitchPermit={[]}
+        onUpdate={(updated, item) => {}}
+        updateTitleData={() => {}}
+        onDelete={({ recordId }) => {
+          removeRecord(recordId);
+        }}
+        onCopySuccess={data => {
+          const { rows } = _.find(this.props.grouping, { key: groupKey });
+          const index = _.findIndex(rows, { rowid: row.rowid });
+          this.props.addNewRecord(data, index + 1);
+        }}
+      />
+    );
   }
   renderMilepost(color) {
     return (
@@ -510,13 +569,15 @@ export default class RowBlock extends Component {
     const isMilepost = row[milepost] === '1';
     const dragDisable = disable || startDisable || endDisable;
     return (
-      <Tooltip
-        arrowPointAtCenter={true}
-        title={this.getTooltipText(isMilepost)}
+      <Popover
+        zIndex={1000}
+        title={undefined}
+        content={this.renderPopoverContent()}
+        overlayClassName="gunterPopoverWrap"
         align={{
           offset: [isMilepost ? 15 : tooltipLeft, 0],
         }}
-        visible={tooltipVisible}
+        visible={isMobile ? false : tooltipVisible}
         onVisibleChange={tooltipVisible => {
           this.setState({ tooltipVisible });
         }}
@@ -552,7 +613,7 @@ export default class RowBlock extends Component {
           )}
           {this.renderTitle()}
         </div>
-      </Tooltip>
+      </Popover>
     );
   }
 }

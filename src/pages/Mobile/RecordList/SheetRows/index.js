@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import { Icon, PullToRefreshWrapper } from 'ming-ui';
 import { ScrollView } from 'ming-ui';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { RecordInfoModal } from 'mobile/Record';
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
-import { addBehaviorLog, browserIsMobile, handlePushState, handleReplaceState } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { browserIsMobile } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import * as actions from '../redux/actions';
 import withoutRows from './assets/withoutRows.png';
 import './index.less';
@@ -24,6 +25,7 @@ class SheetRows extends Component {
   }
 
   componentWillUnmount() {
+    this.props.updatePreviewRecordId('');
     window.removeEventListener('popstate', this.onQueryChange);
   }
   onQueryChange = () => {
@@ -85,6 +87,11 @@ class SheetRows extends Component {
       />
     );
   };
+
+  updateRow = (rowId, value, isviewdata) => {
+    this.props.updateRow(rowId, value, isviewdata);
+  };
+
   render() {
     const {
       currentSheetRows,
@@ -126,6 +133,7 @@ class SheetRows extends Component {
           loadedRecordsOver={!(!sheetRowLoading && sheetView.isMore)}
           changeMobileSheetRows={this.props.changeMobileSheetRows}
           onClose={() => this.props.updatePreviewRecordId('')}
+          updateRow={this.updateRow}
         />
       </Fragment>
     );
@@ -173,6 +181,7 @@ export default connect(
         'changeMobileSheetRows',
         'updateIsPullRefreshing',
         'updatePreviewRecordId',
+        'updateRow',
       ]),
       dispatch,
     ),

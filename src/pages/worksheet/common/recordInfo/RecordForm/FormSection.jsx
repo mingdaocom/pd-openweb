@@ -1,11 +1,11 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import styled from 'styled-components';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Tooltip } from 'antd';
-import { Icon, ScrollView } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
 import { renderTabs } from 'src/components/newCustomFields/components/SectionTableNav.jsx';
-import { browserIsMobile } from '../../../../../util';
 import { FROM } from 'src/components/newCustomFields/tools/config.js';
+import { browserIsMobile } from 'src/utils/common';
 
 const FormSectionWrap = styled.div`
   width: ${props => (props.isUnfold ? '220px' : '55px')};

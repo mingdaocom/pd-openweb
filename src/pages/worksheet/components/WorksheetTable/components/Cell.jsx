@@ -1,21 +1,32 @@
 import React, { Fragment, memo, useRef } from 'react';
 import cx from 'classnames';
-import { every, find, findIndex, get, includes, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
+import { every, find, findIndex, get, includes, isEmpty, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import {
-  checkCellIsEmpty,
-  controlIsNumber,
-  getRecordColor,
-  getRelateRecordCountOfControlFromRow,
-} from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { controlIsNumber } from 'src/utils/control';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { getRecordColor } from 'src/utils/record';
 import CollapseExpandButton from './CollapseExpandButton';
 import DataCell from './DataCell';
 
+export function getRelateRecordCountOfControlFromRow(control, row = {}) {
+  try {
+    const isTable = isRelateRecordTableControl(control);
+    if (isTable) {
+      return row['rq' + control.controlId] || row[control.controlId];
+    } else {
+      const records = safeParse(row[control.controlId], 'array');
+      return records.length || 0;
+    }
+  } catch (err) {
+    console.error(err);
+    return 0;
+  }
+}
 const CellCon = styled.div`
   .hoverShow {
     visibility: hidden;
@@ -106,7 +117,7 @@ const AddChildBtn = styled.div`
 export function getIndex({
   columnIndex,
   rowIndex,
-  columnCount,
+  tableColumnCount,
   leftFixed,
   rightFixed,
   topFixed,
@@ -122,7 +133,7 @@ export function getIndex({
   if (leftFixed) {
     result.columnIndex = columnIndex;
   } else if (rightFixed) {
-    result.columnIndex = columnCount - rightFixedCount + columnIndex;
+    result.columnIndex = tableColumnCount - rightFixedCount + columnIndex;
   } else {
     result.columnIndex = leftFixedCount + columnIndex;
   }
@@ -186,6 +197,7 @@ function Cell(props) {
     viewId,
     view,
     tableType,
+    triggerClickImmediate,
     cache,
     rows = [],
     controls = [],
@@ -208,6 +220,7 @@ function Cell(props) {
     registerRef,
     expandCellAppendWidth,
     treeLayerControlId,
+    headTitleCenter,
     // functions
     updateSheetColumnWidths,
     renderFunctions,
@@ -317,6 +330,9 @@ function Cell(props) {
   if (grid.id.startsWith('top') && columnHeadHeight > 34) {
     cellStyle.height = columnHeadHeight;
     className += ' wrapControlName';
+    if (headTitleCenter) {
+      className += ' headAlignCenter';
+    }
   }
   const recordColor =
     recordColorConfig &&
@@ -379,6 +395,18 @@ function Cell(props) {
       columnIndex,
     });
   }
+  if (!isEmpty(row) && isFunction(renderFunctions.operates) && control.type === 'operates') {
+    return renderFunctions.operates({
+      className,
+      key,
+      style: cellStyle,
+      rowIndex: cellType === 'head' ? -1 : rowIndex,
+      control,
+      row,
+      data: rows,
+      onCellClick,
+    });
+  }
   const error = cellErrors[`${row.rowid}-${control.controlId}`];
   const cellEditable =
     !readonly && row && row.allowedit && controlState(control).editable && lineEditable && !disableQuickEdit;
@@ -409,6 +437,7 @@ function Cell(props) {
       viewId={viewId}
       tableId={tableId}
       tableType={tableType}
+      triggerClickImmediate={triggerClickImmediate}
       fixedColumnCount={fixedColumnCount}
       lineEditable={lineEditable && !disableQuickEdit}
       className={className}

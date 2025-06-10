@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import '@mdfe/nanoscroller';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import ScrollView from 'ming-ui/components/ScrollView';
 import homeAppAjax from 'src/api/homeApp';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
-import _ from 'lodash';
-import '@mdfe/nanoscroller';
-import cx from 'classnames';
 
 const discussTypes = [
   { id: 1, name: 'discuss', text: _l('内部') },
@@ -149,6 +149,8 @@ export default class WorkSheetComment extends React.Component {
   };
   render() {
     const {
+      instanceId,
+      workId,
       disableScroll,
       addCallback,
       projectId,
@@ -174,6 +176,8 @@ export default class WorkSheetComment extends React.Component {
       projectId,
       forReacordDiscussion,
       entityType,
+      instanceId,
+      workId,
     };
     const commentListProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
@@ -187,6 +191,8 @@ export default class WorkSheetComment extends React.Component {
       forReacordDiscussion,
       status,
       entityType,
+      instanceId,
+      workId,
     };
 
     const renderWorkSheetCommentList = () => {

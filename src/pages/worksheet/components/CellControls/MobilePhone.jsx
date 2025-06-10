@@ -1,17 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { emitter, isKeyBoardInputChar } from 'worksheet/util';
-import { formatNumberFromInput } from 'src/util';
-import CellErrorTips from './comps/CellErrorTip';
-const ClickAwayable = createDecoratedComponent(withClickAway);
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
+import { emitter } from 'src/utils/common';
+import { isKeyBoardInputChar } from 'src/utils/common';
+import { formatNumberFromInput } from 'src/utils/control';
+import { renderText } from 'src/utils/control';
 import EditableCellCon from '../EditableCellCon';
-import renderText from './renderText';
+import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class MobilePhone extends React.Component {
   static propTypes = {
@@ -225,7 +227,11 @@ export default class MobilePhone extends React.Component {
       <ClickAwayable
         {...editProps}
         onClickAwayExceptions={[this.editIcon && this.editIcon.current]}
-        onClickAway={this.handleBlur}
+        onClickAway={() => {
+          setTimeout(() => {
+            this.handleBlur();
+          }, 320);
+        }}
       >
         <MobilePhoneEdit
           inputClassName="cellMobileInput stopPropagation"

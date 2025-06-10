@@ -50,14 +50,10 @@ export const formListTop = [
 
 export const formListBottom = [
   {
-    label: _l('用户账号'),
-    key: 'searchFilter',
-    errorMsg: _l('请输入LDAP Server账户字段名称'),
-  },
-  {
-    label: _l('Email'),
+    label: _l('邮箱'),
     key: 'emailAttr',
     errorMsg: _l('请输入LDAP Server邮箱字段名称'),
+    desc: _l('LDAP服务器中对应本系统用户邮箱的字段'),
   },
   {
     label: _l('用户姓名'),
@@ -87,4 +83,26 @@ export const formListBottom = [
     checkedField: 'mustWorkphone',
     placeholder: 'telephoneNumber',
   },
+];
+
+export const loginSetting = [
+  {
+    label: _l('登录账号'),
+    key: 'searchFilter',
+    desc: _l('LDAP服务器中作为登录账号的字段'),
+    errorMsg: _l('请输入LDAP Server账户字段名称'),
+  },
+  {
+    label: _l('显示名称'),
+    key: 'accountTxtType',
+    compType: 'dropDown',
+    desc: _l('在登录界面中显示给用户的名称。根据实际使用的登录账号字段进行设置'),
+  },
+];
+
+export const accountTxtInfo = [
+  { value: 10, text: _l('用户名') },
+  { value: 12, text: _l('手机号') },
+  { value: 13, text: _l('邮箱') },
+  { value: 100, text: _l('自定义') },
 ];

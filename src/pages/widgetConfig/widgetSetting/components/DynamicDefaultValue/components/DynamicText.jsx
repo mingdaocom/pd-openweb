@@ -1,13 +1,13 @@
 import React from 'react';
-import OtherField from './OtherField';
-import { DynamicTextWrap, FieldInfo, RelateControl, OptionControl } from '../styled';
-import { getDateType, getControlType, getTypeList } from '../util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import cx from 'classnames';
-import { getDatePickerConfigs } from '../../../../util/setting';
 import filterXSS from 'xss';
+import { renderText as renderCellText } from 'src/utils/control';
+import { getDatePickerConfigs } from '../../../../util/setting';
+import { DynamicTextWrap, FieldInfo, OptionControl, RelateControl } from '../styled';
+import { getControlType, getDateType, getTypeList } from '../util';
+import OtherField from './OtherField';
 
 const getValue = (item, type) => {
   if (_.includes(['user', 'role', 'department', 'area', 'cascader', 'relateSheet'], type)) {

@@ -1,15 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { object, number, string, bool, array, func } from 'prop-types';
-import cx from 'classnames';
-import { Tooltip, Icon, Linkify, UserHead } from 'ming-ui';
-import moment from 'moment';
 import { renderToString } from 'react-dom/server';
+import cx from 'classnames';
 import _ from 'lodash';
-import './index.less';
-import { browserIsMobile, getIconNameByExt, dateConvertToUserZone } from 'src/util';
-import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
+import moment from 'moment';
+import { array, bool, func, number, object, string } from 'prop-types';
+import { Icon, Linkify, Tooltip, UserHead } from 'ming-ui';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import RegExpValidator from 'src/util/expression';
+import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
+import { browserIsMobile, getIconNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { dateConvertToUserZone } from 'src/utils/project';
+import './index.less';
+
 const UNNECESSARY_OPERATION_CODE = 22;
 const OVERRULE = 5;
 
@@ -35,8 +37,8 @@ const OPERATION_LOG_ACTION = {
   1: _l('填写'),
   2: _l('转交'),
   3: _l('查看'),
-  4: _l('通过'),
-  5: _l('否决'),
+  4: _l('同意'),
+  5: _l('拒绝'),
   8: _l('转审'),
   9: _l('添加审批人'),
   10: _l('被移除'),
@@ -205,8 +207,8 @@ export default class StepItem extends Component {
                 {action === UNNECESSARY_OPERATION_CODE
                   ? UNNECESSARY_OPERATION[type]
                   : !operationTime && !!logIds
-                  ? _l('暂存')
-                  : OPERATION_LOG_ACTION[action] + (_.includes([2], action) ? actionTargetName : '')}
+                    ? _l('暂存')
+                    : OPERATION_LOG_ACTION[action] + (_.includes([2], action) ? actionTargetName : '')}
               </div>
               {this.renderLogsContent(item)}
               <div className="flex" />
@@ -302,12 +304,17 @@ export default class StepItem extends Component {
    * 渲染审批、填写的附加信息
    */
   renderAdditionalContent(item) {
-    const { operationTime, opinion, workItemLog, signature, logIds, updateTime, files } = item;
+    const { operationTime, opinion, opinionType, workItemLog, signature, logIds, updateTime, files } = item;
     const { action, fields } = workItemLog || {};
+    const SYSTEM_TEXT = {
+      1: _l('自动通过'),
+      2: _l('限时自动通过'),
+      3: _l('批量处理'),
+    };
 
     return (
       <Fragment>
-        {fields && fields.length ? (
+        {fields && !!fields.length && (
           <div className="mTop4">
             <span className="Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
             {!!fields.length && !browserIsMobile() && (
@@ -329,10 +336,12 @@ export default class StepItem extends Component {
               </Tooltip>
             )}
           </div>
-        ) : (
-          ''
         )}
-        {opinion && <div className="info Gray_75">{opinion}</div>}
+        {_.includes([1, 2, 3], opinionType) ? (
+          <div className="info Gray_75">{SYSTEM_TEXT[opinionType]}</div>
+        ) : opinion ? (
+          <div className="info Gray_75">{opinion}</div>
+        ) : null}
         {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
         {files && this.renderFiles(files)}
         {action !== UNNECESSARY_OPERATION_CODE && (
@@ -445,11 +454,7 @@ export default class StepItem extends Component {
     let maxEndTimeConsuming = _.max(endTimeConsuming) || 0;
     let autoPass = false;
 
-    // 特殊文案处理自动逻辑
-    if (
-      (workItems[0].opinion || '').indexOf('限时自动通过') > -1 ||
-      (workItems[0].opinion || '').indexOf('限时自动填写') > -1
-    ) {
+    if (workItems[0].opinionType === 2) {
       maxEndTimeConsuming = 1;
       autoPass = true;
     }
@@ -466,8 +471,8 @@ export default class StepItem extends Component {
           autoPass
             ? ''
             : maxEndTimeConsuming > 0
-            ? _l('超时 %0 完成', this.covertTime(maxEndTimeConsuming))
-            : _l('提前 %0 完成', this.covertTime(maxEndTimeConsuming))
+              ? _l('超时 %0 完成', this.covertTime(maxEndTimeConsuming))
+              : _l('提前 %0 完成', this.covertTime(maxEndTimeConsuming))
         }
       >
         <span
@@ -607,7 +612,7 @@ export default class StepItem extends Component {
               }
             }}
           >
-            <div className={'stepName bold Font15 flex ellipsis'}>
+            <div className="stepName bold Font15 flex ellipsis" title={flowNode.name}>
               {flowNode.name}
               {!!signType && `-${SIGN_COUNTERSIGN_TYPE[signType]}`}
               {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}

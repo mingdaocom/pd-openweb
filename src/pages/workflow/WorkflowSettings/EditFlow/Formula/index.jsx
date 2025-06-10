@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import { SUMMARY_LIST } from 'src/utils/record';
 import { ACTION_ID } from '../../enum';
-import { SUMMARY_LIST } from 'src/pages/worksheet/util';
 import { getIcons } from '../../utils';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Formula extends Component {
   constructor(props) {

@@ -1,23 +1,24 @@
 import React, { Component, Fragment } from 'react';
-import { Row, Col } from 'antd';
-import { formatrChartValue, getChartColors, getStyleColor } from './common';
+import { Col, Row } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { formatrChartValue, getChartColors, getStyleColor } from './common';
+
 const isMobile = browserIsMobile();
 
-const getControlMinAndMax = (map) => {
+const getControlMinAndMax = map => {
   const data = {};
-  for(const item in map) {
+  for (const item in map) {
     const targetValue = map[item].targetValue;
     data[item] = {
       min: 0,
       max: targetValue,
-      center: targetValue / 2
-    }
+      center: targetValue / 2,
+    };
   }
   return data;
-}
+};
 
 class ProgressChart extends Component {
   constructor(props) {
@@ -28,6 +29,7 @@ class ProgressChart extends Component {
       match: null,
     };
     this.ProgressChart = null;
+    this.g2plotComponent = {};
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {
@@ -63,9 +65,11 @@ class ProgressChart extends Component {
     }
   }
   renderProgressChart(props) {
-    const { ProgressChartComponent, ProgressChartConfig } = this.getComponentConfig(props);
-    this.ProgressChart = new ProgressChartComponent(this.chartEl, ProgressChartConfig);
-    this.ProgressChart.render();
+    if (this.chartEl) {
+      const { ProgressChartComponent, ProgressChartConfig } = this.getComponentConfig(props);
+      this.ProgressChart = new ProgressChartComponent(this.chartEl, ProgressChartConfig);
+      this.ProgressChart.render();
+    }
   }
   getComponentConfig(props) {
     const { data, yAxis, controlMinAndMax, isThumbnail, reportData, isDark } = props;
@@ -73,7 +77,9 @@ class ProgressChart extends Component {
     const { showChartType, showNumber, colorRules } = displaySetup;
     const { showValueType = 1 } = style;
     const { clientWidth } = this.chartEl;
-    const { clientHeight } = document.querySelector(isThumbnail ? `.statisticsCard-${reportData.reportId} .chartWrapper` : '.ChartDialog .chart .flex');
+    const { clientHeight } = document.querySelector(
+      isThumbnail ? `.statisticsCard-${reportData.reportId} .chartWrapper` : '.ChartDialog .chart .flex',
+    );
     const size = Math.min(clientWidth, clientHeight);
     const percentValue = data.value / (data.targetValue || 1);
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
@@ -86,7 +92,7 @@ class ProgressChart extends Component {
         return `${(percentValue * 100).toFixed(ydot ? Number(ydot) : 2)} %`;
       }
       return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue || 0, false, yaxisList)}`;
-    }
+    };
     const getColor = () => {
       if (_.isEmpty(rule)) {
         return props.color;
@@ -96,11 +102,11 @@ class ProgressChart extends Component {
           value: data.value,
           controlMinAndMax,
           rule,
-          controlId
+          controlId,
         });
         return color || props.color;
       }
-    }
+    };
     const color = getColor();
     const { Progress, RingProgress, Liquid } = this.g2plotComponent;
 
@@ -115,22 +121,29 @@ class ProgressChart extends Component {
         innerRadius: 0.9,
         radius: 1,
         statistic: {
-          title: showNumber ? {
-            offsetY: 10,
-            style: { color: isDark ? '#ffffffcc' : '#333', fontWeight: 'bold', fontSize: '20px', textAlign: 'center' },
-            formatter: titleFormatter
-          } : null,
+          title: showNumber
+            ? {
+                offsetY: 10,
+                style: {
+                  color: isDark ? '#ffffffcc' : '#333',
+                  fontWeight: 'bold',
+                  fontSize: '20px',
+                  textAlign: 'center',
+                },
+                formatter: titleFormatter,
+              }
+            : null,
           content: {
             offsetY: 5,
             style: { color: isDark ? '#ffffffcc' : '#333', fontSize: '13px', fontWeight: 400, opacity: 0.65 },
             formatter: () => yAxis.rename || yAxis.controlName,
-          }
+          },
         },
       };
       return {
         ProgressChartComponent: RingProgress,
-        ProgressChartConfig: baseConfig
-      }
+        ProgressChartConfig: baseConfig,
+      };
     }
 
     if (showChartType === 3) {
@@ -143,8 +156,8 @@ class ProgressChart extends Component {
           border: 4,
           distance: 4,
           style: {
-            stroke: '#ddd'
-          }
+            stroke: '#ddd',
+          },
         },
         theme: {
           styleSheet: {
@@ -155,21 +168,34 @@ class ProgressChart extends Component {
           length: 128,
         },
         statistic: {
-          title: showNumber ? {
-            offsetY: 10,
-            style: { color: isDark ? '#ffffffcc' : '#151515', fontWeight: 'bold', fontSize: '20px', textAlign: 'center', textShadow: '#fff 1px 0 10px' },
-            formatter: titleFormatter
-          } : null,
+          title: showNumber
+            ? {
+                offsetY: 10,
+                style: {
+                  color: isDark ? '#ffffffcc' : '#151515',
+                  fontWeight: 'bold',
+                  fontSize: '20px',
+                  textAlign: 'center',
+                  textShadow: '#fff 1px 0 10px',
+                },
+                formatter: titleFormatter,
+              }
+            : null,
           content: {
-            style: { color: isDark ? '#ffffffcc' : '#151515', fontSize: '13px', fontWeight: 400, textShadow: '#fff 1px 0 10px' },
+            style: {
+              color: isDark ? '#ffffffcc' : '#151515',
+              fontSize: '13px',
+              fontWeight: 400,
+              textShadow: '#fff 1px 0 10px',
+            },
             formatter: () => yAxis.rename || yAxis.controlName,
-          }
+          },
         },
       };
       return {
         ProgressChartComponent: Liquid,
-        ProgressChartConfig: baseConfig
-      }
+        ProgressChartConfig: baseConfig,
+      };
     }
 
     const baseConfig = {
@@ -184,31 +210,31 @@ class ProgressChart extends Component {
 
     return {
       ProgressChartComponent: Progress,
-      ProgressChartConfig: baseConfig
-    }
+      ProgressChartConfig: baseConfig,
+    };
   }
   renderProgress() {
     const { data, yAxis, reportData, isDark } = this.props;
     const { yaxisList, displaySetup, style } = reportData;
     const { currentValueName = _l('实际'), targetValueName = _l('目标') } = style;
+    const { ydot } = yaxisList[0];
 
     return (
       <Fragment>
         <div className={cx('Font13', isDark ? 'White' : 'Gray_75')}>{yAxis.rename || yAxis.controlName}</div>
         <div className="flexRow alignItemsCenter mTop7 mBottom7 printStatisticSign">
-          <div className="flex overflowHidden" style={{ borderRadius: 2 }}  ref={el => this.chartEl = el} />
-          <div className={cx('Font20 ellipsis mLeft12 bold', isDark ? 'White' : 'Gray')} style={{ lineHeight: '18px' }}>{`${(data.value / (data.targetValue || 1) * 100).toFixed(2)}%`}</div>
+          <div className="flex overflowHidden" style={{ borderRadius: 2 }} ref={el => (this.chartEl = el)} />
+          <div
+            className={cx('Font20 ellipsis mLeft12 bold', isDark ? 'White' : 'Gray')}
+            style={{ lineHeight: '18px' }}
+          >{`${((data.value / (data.targetValue || 1)) * 100).toFixed(ydot ? Number(ydot) : 2)}%`}</div>
         </div>
         <div className={cx('Font13', isDark ? 'White' : 'Gray')}>
-          {displaySetup.showNumber && (
-            `${currentValueName}: ${formatrChartValue(data.value || 0, false, yaxisList, '', false)}`
-          )}
-          {displaySetup.showNumber && displaySetup.showDimension && (
-            ' | '
-          )}
-          {displaySetup.showDimension && (
-            `${targetValueName}: ${formatrChartValue(data.targetValue || 0, false, yaxisList, '', false)}`
-          )}
+          {displaySetup.showNumber &&
+            `${currentValueName}: ${formatrChartValue(data.value || 0, false, yaxisList, '', false)}`}
+          {displaySetup.showNumber && displaySetup.showDimension && ' | '}
+          {displaySetup.showDimension &&
+            `${targetValueName}: ${formatrChartValue(data.targetValue || 0, false, yaxisList, '', false)}`}
         </div>
       </Fragment>
     );
@@ -216,7 +242,7 @@ class ProgressChart extends Component {
   renderRingProgress() {
     return (
       <Fragment>
-        <div className="alignItemsCenter justifyContentCenter flexRow" ref={el => this.chartEl = el} />
+        <div className="alignItemsCenter justifyContentCenter flexRow" ref={el => (this.chartEl = el)} />
       </Fragment>
     );
   }
@@ -225,7 +251,7 @@ class ProgressChart extends Component {
     const { displaySetup, style } = reportData;
     const { showChartType } = displaySetup;
     const { columnCount = 1 } = style;
-    const count = (isMobile || layoutType === 'mobile') ? mobileCount : columnCount;
+    const count = isMobile || layoutType === 'mobile' ? mobileCount : columnCount;
     const span = Math.ceil(24 / count);
     const isRingChart = [2, 3].includes(showChartType);
     return (
@@ -236,15 +262,17 @@ class ProgressChart extends Component {
   }
 }
 
-
-export default (props) => {
+export default props => {
   const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
   const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
   const isDark = pageStyleType === 'dark' && isThumbnail;
   const { map, yaxisList, config } = reportData;
   const { targetList } = config;
   const styleConfig = reportData.style || {};
-  const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+  const style =
+    chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+      ? { ...styleConfig, ...chartColor }
+      : styleConfig;
   const color = getChartColors(style, themeColor, projectId);
   const controlMinAndMax = getControlMinAndMax(map);
   return (
@@ -267,4 +295,4 @@ export default (props) => {
       </Row>
     </div>
   );
-}
+};

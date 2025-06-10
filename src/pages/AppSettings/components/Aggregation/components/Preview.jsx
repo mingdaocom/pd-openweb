@@ -1,19 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Button, Icon, Tooltip, LoadDiv } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
-import Pagination from 'worksheet/components/Pagination';
-import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
-import emptyImg from './img/empty.png';
-import { getNodeInfo, isHasChange, getAllSourceList, getSourceIndex } from '../util';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { DEFAULT_COLORS } from '../config';
-import _ from 'lodash';
-import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
+import { Button, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import AggTableAjax from 'src/pages/integration/api/aggTable.js';
+import Pagination from 'worksheet/components/Pagination';
+import { TextAbsoluteCenter, WrapPreview } from 'src/pages/AppSettings/components/Aggregation/components/style.jsx';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
+import { DEFAULT_COLORS } from '../config';
+import { getAllSourceList, getNodeInfo, getSourceIndex, isHasChange } from '../util';
+import emptyImg from './img/empty.png';
 import Table from './Table';
-import { WrapPreview, TextAbsoluteCenter } from 'src/pages/AppSettings/components/Aggregation/components/style.jsx';
 
 let ajaxPromise = null;
 let ajaxPromisePublish = null;
@@ -175,7 +175,7 @@ function Preview(props) {
               ? _.get(o, 'controlSetting.advancedSetting') || {}
               : { ...(_.get(o, 'controlSetting.advancedSetting') || {}), showtype: '0' },
             controlName: o.alias,
-            type: o.isCalculateField ? 31 : 6,
+            type: o.isCalculateField ? o.mdType : 6,
             controlId: flowData.fieldIdAndAssignCidMap ? flowData.fieldIdAndAssignCidMap[o.id] : o.id,
             isRelative: o.isCalculateField ? false : _.get(o, 'parentFieldInfo.controlSetting.controlId'),
           };
@@ -188,7 +188,7 @@ function Preview(props) {
       return {
         ...o,
         //聚合的字段只有计算和数值两种icon
-        icon: getIconByType(o.isCalculateField ? 31 : !o.isGroupFields ? 6 : o.mdType),
+        icon: getIconByType(o.isCalculateField ? o.mdType : !o.isGroupFields ? 6 : o.mdType),
         color:
           (o.isGroupFields && (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 1) ||
           o.isCalculateField ||
@@ -555,6 +555,7 @@ function Preview(props) {
             errBtn: ['ERROR', 'UN_PUBLIC'].includes(syncTaskStatus),
           })}
           onClick={() => {
+            if (props.updateLoading) return;
             !['PREPARE', 'RUNNING'].includes(syncTaskStatus) && onPreview(flowData);
             onChangeStatus(['PREPARE', 'RUNNING'].includes(syncTaskStatus) ? 'STOP' : 'PREPARE');
           }}
@@ -655,7 +656,7 @@ function Preview(props) {
                                 disable,
                               })}
                               onClick={e => {
-                                if (disable) return;
+                                if (disable || props.updateLoading) return;
                                 onPreview(flowData);
                               }}
                             >

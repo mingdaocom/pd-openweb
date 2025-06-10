@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import cx from 'classnames';
-import { Icon, Support, LoadDiv } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { CardTopWrap, WrapBtn } from '../apiIntegration/style';
+import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import { Icon, LoadDiv, Support } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
-import { Wrap } from './style';
+import { renderValue } from 'src/pages/integration/apiIntegration/util';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import { CustomTextarea } from 'src/pages/workflow/WorkflowSettings/Detail/components';
-import copy from 'copy-to-clipboard';
 import 'src/pages/workflow/WorkflowSettings/Detail/components/Tag/index.less';
+import { CardTopWrap, WrapBtn } from '../apiIntegration/style';
+import { Wrap } from './style';
 
 const info = {
   authorization_back: {
@@ -136,13 +137,17 @@ function AuthParam(props) {
     if ((node.webHookNodes || []).length <= 0) {
       return '';
     }
-    return <div className="flexRow mBottom20 pLeft20 pRight20 breakAll">{_.get(node, 'webHookNodes[0].url')}</div>;
+    return (
+      <div className="flexRow mBottom20 pLeft20 pRight20 breakAll">
+        {renderValue(_.get(node, 'webHookNodes[0].url'), node)}
+      </div>
+    );
   };
 
   const renderUrl = withTime => {
     return (
       <div className=" pLeft20 pRight20">
-        <div className="flexRow mBottom20 breakAll">{_.get(node, 'webHookNodes[0].url')}</div>
+        <div className="flexRow mBottom20 breakAll">{renderValue(_.get(node, 'webHookNodes[0].url'), node)}</div>
         {withTime && node.expireAfterSeconds !== undefined && (
           <div className="flexRow mBottom20">
             {node.expireAfterSeconds <= 0 ? (

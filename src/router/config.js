@@ -6,7 +6,7 @@ export const ROUTE_CONFIG = {
 
   groupValidate: {
     path: '/group/groupValidate',
-    component: () => import('src/components/group/groupValidate/GroupValidateComponent'),
+    component: () => import('src/pages/Group/index'),
     title: _l('群组资料'),
   },
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getThemeColors } from 'src/util';
+import { getThemeColors } from 'src/utils/project';
 
 const projectId = localStorage.getItem('currentProjectId') || _.get(md, 'global.Account.projects[0].projectId');
 const COLORS = getThemeColors(projectId);

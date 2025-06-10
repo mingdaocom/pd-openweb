@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Dropdown, Dialog, Input, Icon, Checkbox } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { WIDGETS_TO_API_TYPE_ENUM, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { getShowViews } from 'src/pages/worksheet/views/util';
-import _ from 'lodash';
 
 const Item = styled.div`
   margin-bottom: 20px;
@@ -94,7 +94,7 @@ export default function QueryConfigDialog(props) {
           ...{ ..._.pick(queryInfo, ['viewId', 'queryControlIds', 'title', 'exported']), ...tempQueryInfo },
         };
         if (!params.title) {
-          params.title = _l('查询%0', queryInfo.worksheetName);
+          params.title = _l('查询%0', queryInfo.worksheetName || _.get(queryInfo, 'worksheet.name'));
         }
         publicWorksheetAjax.editPublicQuery(params).then(() => {
           alert(_l('设置成功'));

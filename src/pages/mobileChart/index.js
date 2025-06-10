@@ -1,13 +1,14 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import styled from 'styled-components';
-import { getRequest, mdAppResponse } from 'src/util';
-import preall from 'src/common/preall';
-import ChartContent from 'mobile/CustomPage/ChartContent';
-import { SpinLoading } from 'antd-mobile';
 import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
+import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
+import styled from 'styled-components';
+import ChartContent from 'mobile/CustomPage/ChartContent';
+import preall from 'src/common/preall';
+import { configureStore } from 'src/redux/configureStore';
+import { getRequest } from 'src/utils/common';
+import { mdAppResponse } from 'src/utils/project';
 
 const store = configureStore();
 

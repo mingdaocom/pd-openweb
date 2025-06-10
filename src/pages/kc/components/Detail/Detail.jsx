@@ -1,14 +1,14 @@
-﻿import { getClassNameByExt } from 'src/util';
-import PropTypes from 'prop-types';
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Switch, Checkbox, UserHead, UserName } from 'ming-ui';
-import AttachmentsPreview from '../../common/AttachmentsPreview';
+import PropTypes from 'prop-types';
+import { Checkbox, Switch, UserHead, UserName } from 'ming-ui';
 import service from '../../api/service';
-import { NODE_TYPE, NODE_VISIBLE_TYPE, LOG_TYPE } from '../../constant/enum';
-import { shallowEqual, humanDateTime, humanFileSize } from '../../utils';
+import { getClassNameByExt } from 'src/utils/common';
+import AttachmentsPreview from '../../common/AttachmentsPreview';
+import { LOG_TYPE, NODE_TYPE, NODE_VISIBLE_TYPE } from '../../constant/enum';
+import { humanDateTime, humanFileSize, shallowEqual } from '../../utils';
 import './Detail.css';
 
 class Detail extends React.Component {
@@ -261,11 +261,11 @@ class Detail extends React.Component {
                     log.type === LOG_TYPE.CREATE || log.type === LOG_TYPE.CHILDADD
                       ? 'icon-plus'
                       : log.type === LOG_TYPE.RECYCLED ||
-                        log.type === LOG_TYPE.DELETED ||
-                        log.type === LOG_TYPE.CHILDRECYCLED ||
-                        log.type === LOG_TYPE.CHILDDELETED
-                      ? 'icon-task-new-delete'
-                      : 'icon-edit',
+                          log.type === LOG_TYPE.DELETED ||
+                          log.type === LOG_TYPE.CHILDRECYCLED ||
+                          log.type === LOG_TYPE.CHILDDELETED
+                        ? 'icon-task-new-delete'
+                        : 'icon-edit',
                   )}
                 />
                 <div className="detailLogTitle">
@@ -319,8 +319,8 @@ class Detail extends React.Component {
     const targetName = log.content.targetName
       ? ' ' + log.content.targetName + ' '
       : !log.content.targetRootId && !log.content.targetId
-      ? ' ' + _l('我的文件根目录') + ' '
-      : '';
+        ? ' ' + _l('我的文件根目录') + ' '
+        : '';
 
     /**
      * 链接浏览限制title

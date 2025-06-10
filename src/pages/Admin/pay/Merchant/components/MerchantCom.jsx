@@ -8,7 +8,7 @@ import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
 import { PAY_CHANNEL_TXT, STATUS } from '../../config';
 import merchantEmpty from '../../images/merchantEmpty.png';
 import CreateMerchant from './CreateMerchant';

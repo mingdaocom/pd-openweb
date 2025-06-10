@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import DefaultValue from '../DefaultValue';
 import moment from 'moment';
-import { DATE_TYPE_M, DATE_TYPE_Y, DATE_SHOW_TYPE } from '../config';
-import { DATE_RANGE_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
+import { DATE_RANGE_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
+import { DATE_SHOW_TYPE, DATE_TYPE_M, DATE_TYPE_Y } from '../config';
+import DefaultValue from '../DefaultValue';
 
 export default function DefCom(props) {
   const { dataType, control, dataControls, worksheetControls, advancedSetting, view, currentSheetInfo, updateViewSet } =
@@ -23,7 +23,7 @@ export default function DefCom(props) {
       return [{ cid: '', rcid: '', staticValue: `${minValue}${keyStr}${maxValue}` }];
     }
     if (dynamicSource.length > 0) return dynamicSource;
-    if ([15, 16, 17, 18].includes(dataType) && dateRange !== 18 && !!dateRange && control.filterType !== 31) {
+    if ([15, 16, 17, 18].includes(dataType) && dateRange !== 18 && !!dateRange) {
       return [{ cid: dateRange, rcid: 'dateRange', staticValue: '' }];
     }
     if ([15, 16, 17, 18].includes(dataType) && control.filterType === 31 && !maxValue && !minValue) {
@@ -230,11 +230,7 @@ export default function DefCom(props) {
           ([15, 16, 17, 18].includes(dataType) && control.filterType === 31)
         }
         withLinkParams={[1, 2, 32, 3, 4, 5, 6, 7, 8, 15, 16, 17, 18, 46, 9, 10, 11, 36].includes(dataType)}
-        withDY={
-          [15, 16, 17, 18].includes(dataType) &&
-          getDaterange(_.get(control, 'advancedSetting') || {}).length > 0 &&
-          control.filterType !== 31
-        }
+        withDY={[15, 16, 17, 18].includes(dataType) && getDaterange(_.get(control, 'advancedSetting') || {}).length > 0}
         hideDynamic={[27, 48, 29, 35].includes(dataType)}
         linkParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
         titleControl={(_.get(dataControls, 'relationControls') || []).find(o => o.attribute === 1)} //关联表的标题字段

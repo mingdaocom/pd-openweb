@@ -368,7 +368,10 @@ export const getShowFormat = data => {
     if (showformat === '1') return _l('YYYY年M月');
     if (_.includes(['2', '3'], showformat)) return 'M/YYYY';
     if (showformat === '4') return 'YYYY/M';
-    const yearMonthShowType = _.get(showType.match(/((\y|Y|M)+(\-|年|月|年\-|月\-){0,1}(M|\y|Y)+(年|月){0,1})/), '0');
+    const yearMonthShowType = _.get(
+      showType.match(/((\y|Y|M)+(\-|\.|年|月|年\-|月\-){0,1}(M|\y|Y)+(年|月){0,1})/),
+      '0',
+    );
     return yearMonthShowType || formatMode;
   }
   const hasTime = /[H|h|m|s|S|Z]/.test(showType);

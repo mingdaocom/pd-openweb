@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
+import _, { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, Modal } from 'ming-ui';
-import { emitter } from 'worksheet/util';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import worksheetAjax from 'src/api/worksheet';
+import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
+import { emitter } from 'src/utils/common';
 import { RECORD_INFO_FROM } from '../../constants/enum';
 import RecordInfo from './RecordInfo';
-import _, { isFunction } from 'lodash';
 
 const AutoSizeRecordInfo = autoSize(RecordInfo);
 

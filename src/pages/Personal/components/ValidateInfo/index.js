@@ -1,11 +1,11 @@
-import React, { Fragment, Component } from 'react';
-import { Dialog, VerifyPasswordInput, intlTelInput } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import accountController from 'src/api/account';
-import { captcha } from 'ming-ui/functions';
-import RegExpValidator from 'src/util/expression';
-import verifyPassword from 'src/components/verifyPassword';
+import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
+import { Dialog, intlTelInput, VerifyPasswordInput } from 'ming-ui';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { captcha } from 'ming-ui/functions';
+import accountController from 'src/api/account';
+import verifyPassword from 'src/components/verifyPassword';
+import RegExpValidator from 'src/utils/expression';
 
 const InputCom = styled.input`
   width: 100%;
@@ -80,7 +80,7 @@ export default class ValidateInfoCon extends Component {
     };
     this.iti = null;
   }
-  componentDidMount() { }
+  componentDidMount() {}
 
   changeValue = (e, filed) => {
     let val = e.target.value;
@@ -90,7 +90,7 @@ export default class ValidateInfoCon extends Component {
   clickNext = () => {
     this.setState({ nextBtnDisabled: true });
 
-    const { showStep, callback = () => { }, onCancel = () => { } } = this.props;
+    const { showStep, callback = () => {}, onCancel = () => {} } = this.props;
     const { password } = this.state;
 
     verifyPassword({
@@ -216,7 +216,7 @@ export default class ValidateInfoCon extends Component {
   updateAccount = () => {
     if (!this.validate()) return;
 
-    const { type, callback = () => { } } = this.props;
+    const { type, callback = () => {} } = this.props;
     const { verifyCode, email } = this.state;
 
     if (!md.global.SysSettings.allowBindAccountNoVerify && !verifyCode) {
@@ -261,7 +261,7 @@ export default class ValidateInfoCon extends Component {
   };
 
   render() {
-    const { title, des, showStep, type, onCancel = () => { } } = this.props;
+    const { title, des, showStep, type, onCancel = () => {} } = this.props;
     const { nextBtnDisabled, sendCodeLoading, step, sendCodeTxt } = this.state;
 
     return (

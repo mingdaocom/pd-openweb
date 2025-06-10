@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, UpgradeIcon } from 'ming-ui';
-import CustomIcon from './components/CustomIcon';
-import Config from '../config';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import styled from 'styled-components';
-import CustomColor from './components/CustomColor/index';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import Config from '../config';
+import CustomColor from './components/CustomColor/index';
+import CustomIcon from './components/CustomIcon';
 
 const ConfigItemWrap = styled.div`
   padding: 0 32px;

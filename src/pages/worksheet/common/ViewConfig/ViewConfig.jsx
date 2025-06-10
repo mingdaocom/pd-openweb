@@ -10,7 +10,7 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { filterHidedControls } from 'src/pages/worksheet/util';
+import { filterHidedControls } from 'src/utils/control';
 import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import CardAppearance from './CardAppearance';
 import {
@@ -251,6 +251,8 @@ export default class ViewConfigCon extends Component {
           return (
             <TitleControl
               {...this.props}
+              title={viewTypeText === 'gunter' ? _l('标签名称') : null}
+              isCard={false}
               className="mTop32"
               advancedSetting={_.get(view, 'advancedSetting')}
               handleChange={value => {

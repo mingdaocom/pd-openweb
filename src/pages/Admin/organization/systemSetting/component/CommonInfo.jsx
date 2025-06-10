@@ -1,13 +1,14 @@
 import React, { Component, createRef } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import _ from 'lodash';
-import { LoadDiv, QiniuUpload, UpgradeIcon } from 'ming-ui';
+import { Button, Dialog, LoadDiv, QiniuUpload, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
+import fixedDataAjax from 'src/api/fixedData';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
 import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules/index.jsx';
 import CertificationButton from 'src/pages/certification/CertificationButton';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 import SetInfoDialog from '../modules/SetInfoDialog';
 import './index.less';
@@ -36,13 +37,11 @@ export default class CommonInfo extends Component {
 
   componentDidMount() {
     this.getAllData();
-    this.getPrivacy();
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.level !== this.props.level) {
       this.getAllData();
-      this.getPrivacy();
     }
   }
 
@@ -52,8 +51,20 @@ export default class CommonInfo extends Component {
       ([
         { homeImage, logo, isDefaultLogo },
         res,
-        { companyDisplayName, companyName, geographyId, industryId, authType },
+        {
+          companyDisplayName,
+          companyName,
+          geographyId,
+          industryId,
+          authType,
+          geoCountryRegionCode,
+          timeZone,
+          timeZoneName,
+          privacyModel = {},
+          geoCountryRegionName,
+        },
       ]) => {
+        const { allowProjectCodeJoin, regCode } = privacyModel;
         this.setState(
           {
             homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
@@ -66,6 +77,12 @@ export default class CommonInfo extends Component {
             isLoading: false,
             isDefaultLogo,
             authType,
+            timeZone,
+            timeZoneName,
+            geoCountryRegionCode,
+            geoCountryRegionName,
+            allowProjectCodeJoin,
+            code: regCode,
           },
           () => {
             if (Config.project.licenseType === 0) {
@@ -103,17 +120,6 @@ export default class CommonInfo extends Component {
     return projectController.getProjectInfo({
       projectId: Config.projectId,
     });
-  }
-
-  // 获取加入人员规则
-  getPrivacy() {
-    projectSettingController
-      .getPrivacy({
-        projectId: Config.projectId,
-      })
-      .then(({ allowProjectCodeJoin, regCode }) => {
-        this.setState({ allowProjectCodeJoin, code: regCode });
-      });
   }
 
   //切换二级组件
@@ -163,9 +169,6 @@ export default class CommonInfo extends Component {
   // 打开人员加入规则设置modal设置，修改是否允许搜索组织门牌号
   openAllowProjectCodeJoin = ({ showDialogSettingInviteRules }) => {
     this.setState({ showDialogSettingInviteRules });
-    if (!showDialogSettingInviteRules) {
-      this.getPrivacy();
-    }
   };
 
   clearLogo = async () => {
@@ -185,8 +188,43 @@ export default class CommonInfo extends Component {
     this.setLogo(file.url, file.fileName);
   };
 
+  onCloseProject = () => {
+    const currentProject = getCurrentProject(Config.projectId);
+    const isFree = currentProject.licenseType === 0 || currentProject.licenseType === 2;
+
+    if (isFree) {
+      VerifyPasswordConfirm.confirm({
+        isRequired: true,
+        onOk: () => this.toggleComp(4),
+      });
+    } else {
+      Dialog.confirm({
+        title: _l('当前已付费组织还未到期，使用到期后才能关闭'),
+        removeCancelBtn: true,
+        okText: _l('我知道了'),
+      });
+    }
+  };
+
   renderUploadBtn = () => {
     const { logo } = this.state;
+
+    if (Config.project.licenseType === 0) {
+      return (
+        <div className="logoBoxBorder">
+          <img src={logo} alt="avatar" />
+          <div
+            className="logoIconBox"
+            id="upload_image"
+            onClick={() => {
+              AdminCommon.freeUpdateDialog();
+            }}
+          >
+            <span className="Font15 icon-upload_pictures"></span>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <QiniuUpload
@@ -210,16 +248,7 @@ export default class CommonInfo extends Component {
       >
         <div className="logoBoxBorder">
           <img src={logo} alt="avatar" />
-          <div
-            className="logoIconBox"
-            id="upload_image"
-            onClick={() => {
-              if (Config.project.licenseType === 0) {
-                AdminCommon.freeUpdateDialog();
-                return;
-              }
-            }}
-          >
+          <div className="logoIconBox" id="upload_image">
             <span className="Font15 icon-upload_pictures"></span>
           </div>
         </div>
@@ -239,10 +268,14 @@ export default class CommonInfo extends Component {
       subDomain,
       homeImage,
       code,
+      timeZone,
+      timeZoneName,
+      authType,
       isLoading,
       allowProjectCodeJoin,
       showDialogSettingInviteRules,
-      authType,
+      geoCountryRegionCode,
+      geoCountryRegionName,
     } = this.state;
     const showInfo = [1, 2, 3].indexOf(visibleType) > -1;
     const { isSuperAdmin } = getCurrentProject(Config.projectId);
@@ -250,7 +283,7 @@ export default class CommonInfo extends Component {
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
-          <span className="Font17">{_l('基础信息')}</span>
+          <span className="Font17">{_l('组织信息')}</span>
         </div>
         <div className="orgManagementContent">
           {isLoading ? (
@@ -259,12 +292,14 @@ export default class CommonInfo extends Component {
             <div className="common-info mBottom80">
               {showInfo && (
                 <SetInfoDialog
-                  projectId={Config.projectId}
+                  timeZone={timeZone}
+                  industryId={industryId}
                   visibleType={visibleType}
-                  companyDisplayName={companyDisplayName}
                   companyName={companyName}
                   geographyId={geographyId}
-                  industryId={industryId}
+                  projectId={Config.projectId}
+                  companyDisplayName={companyDisplayName}
+                  geoCountryRegionCode={geoCountryRegionCode}
                   updateValue={this.updateValue.bind(this)}
                 />
               )}
@@ -291,14 +326,31 @@ export default class CommonInfo extends Component {
               </div>
               <div className="common-info-row mTop24">
                 <div className="common-info-row-label">{_l('组织名称')}</div>
+                {companyName && <span className="mRight16">{companyName}</span>}
+              </div>
+              <div className="common-info-row mTop24">
+                <div className="common-info-row-label">{_l('简称')}</div>
                 {companyDisplayName && <span className="mRight16">{companyDisplayName}</span>}
-                <button
-                  type="button"
-                  className="ming Button Button--link ThemeColor3 adminHoverColor"
-                  onClick={this.updateVisible.bind(this, 1)}
+              </div>
+              <div className="common-info-row mTop24">
+                <div className="common-info-row-label">{_l('国家和地区')}</div>
+                <span className="mRight16">{geoCountryRegionName || _l('未设置')}</span>
+              </div>
+              <div className="common-info-row mTop24">
+                <div className="common-info-row-label">{_l('时区')}</div>
+                <span className="mRight16">
+                  {((timeZoneName || '').match(/.*? /) || [''])[0].trim() || _l('未设置')}
+                </span>
+              </div>
+              <div className="common-info-row mTop24">
+                <div className="common-info-row-label"></div>
+                <Button
+                  type="link"
+                  className="ThemeColor3 adminHoverColor editBtn"
+                  onClick={() => this.updateVisible(1)}
                 >
-                  {_l('修改')}
-                </button>
+                  {_l('修改组织信息')}
+                </Button>
               </div>
               <div className="common-info-row mTop24">
                 <div className="common-info-row-label">{_l('组织门牌号')}</div>
@@ -353,7 +405,7 @@ export default class CommonInfo extends Component {
                     />
                     <div className="set-describe mTop4">
                       {_l(
-                        '试用、免费版需组织完成身份认证后可充值余额；自定义短信签名需组织完成企业身份认证（注意：非个人身份）',
+                        '试用、免费版需组织完成身份认证后可充值余额；自定义短信签名等功能需完成组织身份认证（注意：非个人身份）',
                       )}
                     </div>
                   </div>
@@ -386,7 +438,7 @@ export default class CommonInfo extends Component {
                     </button>
                   </div>
                   {homeImage && <img src={homeImage} className="domain-review" />}
-                  <div className='mTop4 Gray_75'>
+                  <div className="mTop4 Gray_75">
                     {_l(
                       '通过二级域名可建立组织专属的登录页，会展示组织LOGO与配置的背景图，若配置了LDAP、企业微信、钉钉或飞书集成，也会展示在登录页可快捷登录',
                     )}
@@ -418,10 +470,17 @@ export default class CommonInfo extends Component {
 
               {isSuperAdmin && (
                 <div className="common-info-row">
-                  <div className="common-info-row-label">{_l('注销组织')}</div>
-                  <span className="Hand adminHoverDeleteColor" onClick={() => this.props.setLevel(4)}>
-                    {_l('注销')}
-                  </span>
+                  <div className="common-info-row-label">{_l('关闭组织')}</div>
+                  <div>
+                    <div className="Hand adminHoverDeleteColor Bold mBottom8" onClick={this.onCloseProject}>
+                      {_l('关闭')}
+                    </div>
+                    <div className="Font13 Gray_9e">
+                      {_l(
+                        '组织关闭后，所有人将无法访问组织和应用。90天后组织内所有应用将自动进入回收站，进入回收站60天后将被彻底物理删除，请谨慎操作！',
+                      )}
+                    </div>
+                  </div>
                 </div>
               )} */}
             </div>
@@ -432,6 +491,7 @@ export default class CommonInfo extends Component {
             showDialogSettingInviteRules={showDialogSettingInviteRules}
             setValue={this.openAllowProjectCodeJoin}
             projectId={Config.projectId}
+            updateAllowProjectCodeJoin={value => this.setState({ allowProjectCodeJoin: value })}
           />
         )}
       </div>

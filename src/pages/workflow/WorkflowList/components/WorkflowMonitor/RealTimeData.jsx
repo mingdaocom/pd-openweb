@@ -41,11 +41,12 @@ export default class RealTimeData extends PureComponent {
       this.setState({
         warningValue: res.value,
         notifiers: (res.accountIds || []).map(it => ({ ...it, fullname: it.fullName })),
+        noticeTypes: _.concat(['1'], res.enableSms ? ['2'] : [], res.enableEmail ? ['3'] : []),
       });
     });
   };
 
-  setWarningValue = (value, notifiers, closeDialog = () => {}) => {
+  setWarningValue = (value, notifiers, noticeTypes = [], closeDialog = () => {}) => {
     const { projectId } = this.props;
 
     flowMonitor
@@ -53,12 +54,14 @@ export default class RealTimeData extends PureComponent {
         accountIds: notifiers.map(it => it.accountId),
         companyId: projectId,
         value,
+        enableSms: _.includes(noticeTypes, '2'),
+        enableEmail: _.includes(noticeTypes, '3'),
       })
       .then(res => {
         if (res) {
           alert(_l('操作成功'));
           closeDialog();
-          this.setState({ warningValue: value, notifiers });
+          this.setState({ warningValue: value, notifiers, noticeTypes });
         } else {
           alert(_l('操作失败'), 2);
         }
@@ -67,7 +70,7 @@ export default class RealTimeData extends PureComponent {
 
   renderJustifyInfo = ({ type, name }) => {
     const { projectId } = this.props;
-    let { realTimeData = {}, warningValue, notifiers = [] } = this.state;
+    let { realTimeData = {}, warningValue, notifiers = [], noticeTypes } = this.state;
     let isWarning = notifiers.length;
     return (
       <div className="infoBox flex" key={type}>
@@ -85,6 +88,7 @@ export default class RealTimeData extends PureComponent {
                   warningValue,
                   isWarning,
                   notifiers,
+                  noticeTypes,
                   onOk: this.setWarningValue,
                   closeWarning: this.setWarningValue,
                 });

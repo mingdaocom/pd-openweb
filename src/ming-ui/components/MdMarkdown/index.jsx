@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
+import Vditor from '@mdfe/vditor';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Vditor from '@mdfe/vditor';
-import { getToken } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { getToken } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import '/staticfiles/vditordist/index.css';
 
 const TOOLBAR = [

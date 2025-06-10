@@ -1,8 +1,8 @@
 import React from 'react';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import MDMap from 'ming-ui/components/amap/MDMap';
-import { browserIsMobile } from 'src/util';
 import { bool, func, number, shape } from 'prop-types';
+import MDMap from 'ming-ui/components/amap/MDMap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { browserIsMobile } from 'src/utils/common';
 
 function ShowMap(props) {
   const { distance, defaultPosition, closeAfterSelect, onSelect = () => {}, onClose = () => {} } = props;

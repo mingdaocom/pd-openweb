@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
-import { arrayOf, func, shape, string, number } from 'prop-types';
 import { Tooltip } from 'antd';
-import { Input } from 'ming-ui';
+import cx from 'classnames';
+import _, { isUndefined } from 'lodash';
+import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { Input } from 'ming-ui';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import PasteDialog from '../PasteDialog';
-import _ from 'lodash';
 
 const Out = styled.div`
   display: flex;
@@ -52,8 +53,6 @@ const MultipleValue = styled.div`
 
 const ClearIcon = styled.i`
   display: none;
-  position: absolute;
-  right: 0;
   font-size: 16px;
   color: #9e9e9e;
   margin-right: 8px;
@@ -77,8 +76,29 @@ const AdvancePasteIcon = styled.span`
   }
 `;
 
+const IconBtn = styled.span`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 3px;
+  color: #9e9e9e;
+  font-size: 18px;
+  font-weight: bold;
+  &.active {
+    color: #2196f3;
+  }
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
 function getPlaceHolder(filterType, limit) {
-  if (filterType === FILTER_CONDITION_TYPE.START) {
+  if (filterType === FILTER_CONDITION_TYPE.EQ) {
+    return '=';
+  } else if (filterType === FILTER_CONDITION_TYPE.START) {
     return limit ? _l('输入开头%0位后搜索', limit) : _l('搜索开头');
   } else if (filterType === FILTER_CONDITION_TYPE.END) {
     return limit ? _l('输入结尾%0位后搜索', limit) : _l('搜索结尾');
@@ -88,17 +108,41 @@ function getPlaceHolder(filterType, limit) {
 }
 
 export default function Text(props) {
-  const { control = {}, values = [], filterType, advancedSetting, onChange = () => {}, onEnterDown = () => {} } = props;
+  const {
+    showTextAdvanced,
+    viewId,
+    control = {},
+    values = [],
+    filterType,
+    advancedSetting,
+    onChange = () => {},
+    onEnterDown = () => {},
+  } = props;
   const [tempValue, setTempValue] = useState();
   const [isFocusing, setIsFocusing] = useState(false);
   const [isMultiple, setIsMultiple] = useState(false);
   const [valueForMultiple, setValueForMultiple] = useState();
   const [pasteDialogVisible, setPasteDialogVisible] = useState();
+  const [isExact, setIsExact] = useState(false);
+  const [isCaseSensitive, setIsCaseSensitive] = useState(false);
   const limit = advancedSetting.limit && Number(advancedSetting.limit);
   const needCheckLength =
     _.includes([FILTER_CONDITION_TYPE.START, FILTER_CONDITION_TYPE.END], filterType) &&
     _.isNumber(limit) &&
     !_.isNaN(limit);
+  const handleChange = ({ values, newIsExact, newIsCaseSensitive }, options = {}) => {
+    onChange(
+      {
+        values,
+        advancedSetting: {
+          ...advancedSetting,
+          completematch: (isUndefined(newIsExact) ? isExact : newIsExact) ? '1' : '0',
+          ignorecase: (isUndefined(newIsCaseSensitive) ? isCaseSensitive : newIsCaseSensitive) ? '0' : '1',
+        },
+      },
+      options,
+    );
+  };
   useUpdateEffect(() => {
     if (!values.length) {
       setIsMultiple(false);
@@ -106,6 +150,10 @@ export default function Text(props) {
       setTempValue('');
     }
   }, [values]);
+  useEffect(() => {
+    setIsExact(false);
+    setIsCaseSensitive(false);
+  }, [viewId]);
   return (
     <Out>
       <Con className="outlineCon" active={isFocusing}>
@@ -138,11 +186,13 @@ export default function Text(props) {
                     control.type,
                   )
                 ) {
-                  onChange({ values: [newValue.replace(/ /g, '')] });
+                  handleChange({ values: [newValue.replace(/ /g, '')] });
                 } else if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
-                  onChange({ values: newValue.split(' ') });
+                  handleChange({ values: newValue.split(' ') });
                 } else {
-                  onChange({ values: [newValue] });
+                  handleChange({
+                    values: [newValue],
+                  });
                 }
               }}
               onPaste={e => {
@@ -160,6 +210,32 @@ export default function Text(props) {
             </MultipleValue>
           )}
         </InputCon>
+        {showTextAdvanced && (isFocusing || isExact || isCaseSensitive || isMultiple) && (
+          <Fragment>
+            <Tooltip title={_l('精确匹配')}>
+              <IconBtn
+                className={cx({ active: isExact })}
+                onMouseDown={() => {
+                  setIsExact(!isExact);
+                  handleChange({ values, newIsExact: !isExact });
+                }}
+              >
+                <i className="icon icon-quote-left"></i>
+              </IconBtn>
+            </Tooltip>
+            <Tooltip title={_l('区分大小写')}>
+              <IconBtn
+                className={cx('mRight2', { active: isCaseSensitive })}
+                onMouseDown={() => {
+                  setIsCaseSensitive(!isCaseSensitive);
+                  handleChange({ values, newIsCaseSensitive: !isCaseSensitive });
+                }}
+              >
+                <i className="icon icon-case"></i>
+              </IconBtn>
+            </Tooltip>
+          </Fragment>
+        )}
         {values && !!values.length && (
           <ClearIcon
             className="icon-cancel"
@@ -173,7 +249,10 @@ export default function Text(props) {
       </Con>
       <AdvancePasteIcon onClick={() => setPasteDialogVisible(true)}>
         <Tooltip title={_l('添加多个搜索关键词')}>
-          <i className="icon icon-lookup ThemeHoverColor3" onClick={() => setPasteDialogVisible(true)} />
+          <i
+            className={cx('icon icon-lookup ThemeHoverColor3', { ThemeColor3: isMultiple })}
+            onClick={() => setPasteDialogVisible(true)}
+          />
         </Tooltip>
       </AdvancePasteIcon>
       {pasteDialogVisible && (
@@ -187,7 +266,7 @@ export default function Text(props) {
               .filter(_.identity);
             setValueForMultiple(v);
             setIsMultiple(!!newValues.length);
-            onChange({ values: newValues }, { forceUpdate: true });
+            handleChange({ values: newValues }, { forceUpdate: true });
           }}
         />
       )}

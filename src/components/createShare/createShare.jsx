@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import moment from 'moment';
 import { Dialog, FunctionWrap } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
-import { htmlEncodeReg } from 'src/util';
-import moment from 'moment';
-import copy from 'copy-to-clipboard';
+import { htmlEncodeReg } from 'src/utils/common';
 import './css/createShare.css';
 
 function createShare(props) {

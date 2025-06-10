@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import organizeAjax from 'src/api/organize.js';
@@ -63,6 +63,7 @@ function EditRoleFolderDialog(props) {
           type="text"
           value={name}
           maxlength="64"
+          autoFocus
           className="roleFolderName TxtBottom w100"
           onChange={e => setName(e.target.value || '')}
         />

@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import { Icon, Tooltip, Button } from 'ming-ui';
+import cx from 'classnames';
+import moment from 'moment';
+import { Button, Icon, Tooltip } from 'ming-ui';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import Overview from './components/Overview';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import ByApp from './components/ByApp';
 import ByUser from './components/ByUser';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import cx from 'classnames';
+import Overview from './components/Overview';
 import './index.less';
-import moment from 'moment';
 
 const TABS = [
   { key: 'overview', label: _l('总览') },

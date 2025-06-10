@@ -21,7 +21,11 @@ export const widgets = {
   },
   richText: {
     icon: 'richtext',
-    name: _l('富文本'),
+    name: _l('文本'),
+  },
+  image: {
+    icon: 'insert_photo_21',
+    name: _l('图片'),
   },
   embedUrl: {
     icon: 'url',

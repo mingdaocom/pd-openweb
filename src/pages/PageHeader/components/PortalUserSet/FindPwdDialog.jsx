@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { captcha } from 'ming-ui/functions';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, Dialog } from 'ming-ui';
-import { browserIsMobile, encrypt } from 'src/util';
-import cx from 'classnames';
-import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
+import { captcha } from 'ming-ui/functions';
 import externalPortalAjax from 'src/api/externalPortal';
+import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
 import { setAutoLoginKey } from 'src/pages/AuthService/portalAccount/util';
-import RegExpValidator from 'src/util/expression';
+import { browserIsMobile } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 
 const AccountWrap = styled.div`
   margin-top: 20px;

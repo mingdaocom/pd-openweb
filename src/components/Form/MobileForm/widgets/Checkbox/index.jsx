@@ -1,11 +1,10 @@
 import React, { Fragment, memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Checkbox, Icon, MobileCheckbox } from 'ming-ui';
-import { isLightColor } from 'src/util';
 import { getCheckAndOther } from '../../../core/utils';
+import { CustomOptionCapsule } from '../../style';
 import OtherInput from './OtherInput';
 
 // 下拉样式
@@ -36,21 +35,21 @@ const CheckboxWidget = props => {
   const { checkIds, otherValue } = getCheckAndOther(value);
   const isDropDown = checktype === '1';
 
-  const renderListItem = (item, needConnect = false) => {
+  const renderListItem = (item, needConnect = false, inPopup = false) => {
+    const content = item.key === 'other' && otherValue && disabled ? otherValue : item.value;
+
+    if (enumDefault2 === 1) {
+      return (
+        <CustomOptionCapsule tagColor={item.color} inPopup={inPopup}>
+          {content}
+        </CustomOptionCapsule>
+      );
+    }
+
     return (
-      <span
-        className={cx({
-          customFormCapsule: enumDefault2 === 1,
-          White: enumDefault2 === 1 && !isLightColor(item.color),
-        })}
-        style={{
-          ...(enumDefault2 === 1 && {
-            background: item.color,
-          }),
-        }}
-      >
-        {item.key === 'other' && otherValue && disabled ? otherValue : item.value}
-        {enumDefault2 === 0 && needConnect ? '、' : ''}
+      <span>
+        {content}
+        {needConnect ? '、' : ''}
       </span>
     );
   };
@@ -180,7 +179,7 @@ const CheckboxWidget = props => {
             delOptions={options.filter(item => item.isDeleted || item.hide)}
             checked={checkIds}
             callback={onSave}
-            renderText={renderListItem}
+            renderText={item => renderListItem(item, false, true)}
             otherValue={otherValue}
             controlName={controlName}
             showselectall={showselectall}

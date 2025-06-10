@@ -1,11 +1,11 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import MDMap from 'ming-ui/components/amap/MDMap';
+import PropTypes from 'prop-types';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import MDMap from 'ming-ui/components/amap/MDMap';
+import { browserIsMobile } from 'src/utils/common';
+import { isKeyBoardInputChar } from 'src/utils/common';
 import EditableCellCon from '../EditableCellCon';
-import { browserIsMobile } from 'src/util';
 
 function Location(props, ref) {
   const { className, style, cell, editable, recordId, updateCell, onClick, updateEditingStatus } = props;

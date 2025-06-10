@@ -1,46 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import SelectStartOrEndGroups from '../SelectStartOrEndControl/SelectStartOrEndGroups';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { Checkbox, Icon } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
+import { useSetState } from 'react-use';
 import { Select } from 'antd';
+import { TimePicker } from 'antd';
+import localeEn from 'antd/es/date-picker/locale/en_US';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import cx from 'classnames';
+import dayjs from 'dayjs';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon } from 'ming-ui';
+import { TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { getCalendartypeData, getCalendarViewType, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
+import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import { getAdvanceSetting } from 'src/utils/control';
+import SelectStartOrEndGroups from '../SelectStartOrEndControl/SelectStartOrEndGroups';
+
 let obj = [_l('月'), _l('周'), _l('日')];
 let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周日')];
-import styled from 'styled-components';
-import cx from 'classnames';
-import { getAdvanceSetting } from 'src/util';
-import { getCalendarViewType, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
-import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
-import _ from 'lodash';
-import { TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+const locale = locales[md.global.Account.lang];
 
-const CalendarTypeChoose = styled.div`
-  ul > li {
-    margin-top: 10px;
-    display: inline-block;
-    width: 61px;
-    height: 32px;
-    text-align: center;
-    line-height: 32px;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
-    overflow: hidden;
-    vertical-align: top;
-    &:first-child {
-      border-radius: 3px 0px 0px 3px;
-      border: 1px solid #e0e0e0;
-    }
-    &:last-child {
-      border-radius: 0 3px 3px 0;
-      border: 1px solid #e0e0e0;
-    }
-    &.current {
-      background: #2196f3;
-      color: #fff;
-      border: #2196f3;
+const ShowChoose = styled.div`
+  .showtimeCon {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: #757575;
+    padding: 6px 12px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    &:hover {
+      background: #f5f5f5;
     }
   }
-`;
-const ShowChoose = styled.div`
   .hiddenDaysBox {
     margin-left: 26px;
     display: flex;
@@ -88,8 +84,30 @@ export default function CalendarSet(props) {
     calendarType = '0',
     unlunar, //默认显示农历
     unweekday = '',
+    rowHeight = '0',
   } = advancedSetting;
   let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
+  const [{ show }, setState] = useSetState({
+    show: false,
+  });
+  useEffect(() => {
+    changePickerContainerLeft();
+  }, []);
+
+  const changePickerContainerLeft = () => {
+    const changeLeft = () => {
+      $('.ant-picker-range-arrow').css({ transition: 'none' });
+      $('.ant-picker-panel-container').css({
+        marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
+      });
+    };
+    setTimeout(() => {
+      $('.ant-picker-input input').on({
+        click: () => changeLeft(),
+        focus: () => changeLeft(),
+      });
+    }, 500);
+  };
 
   useEffect(() => {
     setCheckedWorkDate(unweekday !== '');
@@ -157,27 +175,53 @@ export default function CalendarSet(props) {
         timeControls={getTimeControls(worksheetControls)}
         begindateOrFirst
       />
-      <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
-      <CalendarTypeChoose>
-        <ul className="calendarTypeChoose">
-          {obj.map((it, i) => {
-            return (
-              <li
-                className={cx('Hand', { current: String(i) === calendarType })}
-                onClick={() => {
-                  handleChange({ calendarType: String(i) });
-                  let type = getCalendarViewType(String(i), startData);
-                  let data = getCalendartypeData();
-                  data[`${worksheetId}-${viewId}`] = type;
-                  safeLocalStorageSetItem('CalendarViewType', JSON.stringify(data));
-                }}
-              >
-                {it}
-              </li>
-            );
-          })}
-        </ul>
-      </CalendarTypeChoose>
+      <div className="flexRow">
+        <div className="">
+          <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
+          <AnimationWrap className="mTop8">
+            {obj.map((it, i) => {
+              return (
+                <div
+                  className={cx('animaItem overflow_ellipsis', { active: String(i) === calendarType })}
+                  style={{ padding: '0 18px' }}
+                  onClick={() => {
+                    handleChange({ calendarType: String(i) });
+                    let type = getCalendarViewType(String(i), startData);
+                    let data = getCalendartypeData();
+                    data[`${worksheetId}-${viewId}`] = type;
+                    safeLocalStorageSetItem('CalendarViewType', JSON.stringify(data));
+                  }}
+                >
+                  {it}
+                </div>
+              );
+            })}
+          </AnimationWrap>
+        </div>
+        <div className="mLeft24">
+          <div className="title Font13 bold mTop32">{_l('月视图高度')}</div>
+          <AnimationWrap className="mTop8">
+            {[_l('紧凑'), _l('宽松')].map((it, i) => {
+              return (
+                <li
+                  className={cx('animaItem overflow_ellipsis pLeft18 pRight18', { active: String(i) === rowHeight })}
+                  style={{ padding: '0 18px' }}
+                  onClick={() => {
+                    handleChange({ rowHeight: String(i), showall: '1' });
+                    // let type = getCalendarViewType(String(i), startData);
+                    // let data = getCalendartypeData();
+                    // data[`${worksheetId}-${viewId}`] = type;
+                    // safeLocalStorageSetItem('CalendarViewType', JSON.stringify(data));
+                  }}
+                >
+                  {it}
+                </li>
+              );
+            })}
+          </AnimationWrap>
+        </div>
+      </div>
+
       <div className="title Font13 bold mTop32">{_l('每周的第一天')}</div>
       <TimeDropdownChoose>
         <Select
@@ -228,12 +272,12 @@ export default function CalendarSet(props) {
           text={_l('只显示工作日')}
         />
         {checkedWorkDate && (
-          <div className="hiddenDaysBox mTop18">
+          <AnimationWrap className="hiddenDaysBox mTop18">
             {weekObj.map((it, i) => {
               let n = i + 1;
               return (
-                <li
-                  className={cx({ checked: unweekday.indexOf(n) < 0 })}
+                <div
+                  className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
                   onClick={e => {
                     let str = unweekday;
                     if (unweekday.indexOf(n) >= 0) {
@@ -249,9 +293,73 @@ export default function CalendarSet(props) {
                   }}
                 >
                   {it}
-                </li>
+                </div>
               );
             })}
+          </AnimationWrap>
+        )}
+        <Checkbox
+          checked={!!_.get(props, 'view.advancedSetting.showtime')}
+          className="mTop16"
+          onClick={e => {
+            // if (!_.get(props, 'view.advancedSetting.showtime')) {
+            //   return setState({ show: true });
+            // }
+            updateCurrentView({
+              ...view,
+              appId,
+              advancedSetting: { showtime: !_.get(props, 'view.advancedSetting.showtime') ? '08:00-18:00' : undefined },
+              editAdKeys: ['showtime'],
+              editAttrs: ['advancedSetting'],
+            });
+            !_.get(props, 'view.advancedSetting.showtime') && changePickerContainerLeft();
+          }}
+          text={_l('只显示工作时间')}
+        />
+        {!!_.get(props, 'view.advancedSetting.showtime') && (
+          <div className="flexRow timeCon alignItemsCenter mTop8">
+            <TimePicker.RangePicker
+              className={cx('rangePicker w100 borderAll3 flex')}
+              format="HH:mm"
+              value={
+                _.get(props, 'view.advancedSetting.showtime')
+                  ? _.get(props, 'view.advancedSetting.showtime')
+                      .split('-')
+                      .map(item => dayjs(item, 'HH:mm'))
+                  : []
+              }
+              hourStep={1}
+              minuteStep={60}
+              popupClassName={`filterDateRangeInputPopup`}
+              onClick={() => {
+                const $arrow = $(`.filterDateRangeInputPopup .ant-picker-range-arrow`);
+                if ($arrow) {
+                  setTimeout(() => {
+                    const $arrows = $(`.filterDateRangeInputPopup .ant-picker-range-arrow`);
+                    const arrowLeft = $arrows.css('left');
+                    $(`.filterDateRangeInputPopup .ant-picker-panel-container`).css({
+                      marginLeft: arrowLeft,
+                    });
+                  }, 200);
+                }
+              }}
+              onChange={(data, timeString) => {
+                if (data && data[0] && data[1] && dayjs(data[1]).diff(dayjs(data[0])) <= 0) {
+                  alert(_l('结束时间不能早于或等于开始时间'), 3);
+                  return;
+                }
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  advancedSetting: { showtime: `${timeString[0]}-${timeString[1]}` },
+                  editAdKeys: ['showtime'],
+                  editAttrs: ['advancedSetting'],
+                });
+              }}
+              locale={locale}
+              showNow={true}
+              allowClear={false}
+            />
           </div>
         )}
         <Checkbox
@@ -274,7 +382,10 @@ export default function CalendarSet(props) {
           checked={showall === '1'}
           className="mTop18"
           onClick={() => {
-            handleChange({ showall: showall !== '1' ? '1' : '0' });
+            handleChange({
+              showall: showall !== '1' ? '1' : '0',
+              //  rowHeight: showall === '1' ? '0' : rowHeight
+            });
           }}
           text={_l('显示所有日程')}
         />

@@ -1,14 +1,14 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
-import CreateVerticalRecord from '../../components/CreateVerticalRecord';
-import { getRelateDefaultValue } from '../../HierarchyView/util';
-import AddRecord from '../../HierarchyView/components/AddRecord';
-import VerticalSortableRecordItem from './VerticalSortableNode';
-import TreeNode from '../../HierarchyView/components/TreeNode';
+import styled from 'styled-components';
+import { browserIsMobile } from 'src/utils/common';
 import CreateRecord from '../../components/createRecord';
-import { browserIsMobile } from 'src/util';
+import CreateVerticalRecord from '../../components/CreateVerticalRecord';
+import AddRecord from '../../HierarchyView/components/AddRecord';
+import TreeNode from '../../HierarchyView/components/TreeNode';
+import { getRelateDefaultValue } from '../../HierarchyView/util';
 import { isTextTitle } from '../../util';
+import VerticalSortableRecordItem from './VerticalSortableNode';
 
 const ParentNodeWrap = styled.div`
   width: 100%;

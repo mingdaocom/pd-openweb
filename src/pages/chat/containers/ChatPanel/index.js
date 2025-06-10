@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { connect, Provider } from 'react-redux';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import './index.less';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Inbox } from '../../components/Inbox';
 import * as actions from '../../redux/actions';
 import * as ajax from '../../utils/ajax';
 import * as socket from '../../utils/socket';
 import ChatPanelSession from '../ChatPanelSession';
-import { Inbox } from '../../components/Inbox';
+import './index.less';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class ChatPanel extends Component {
@@ -19,6 +20,7 @@ class ChatPanel extends Component {
     this.state = {
       loading: false,
       isError: false,
+      error: undefined,
     };
   }
   shouldComponentUpdate(nextProps, nextState) {
@@ -41,10 +43,17 @@ class ChatPanel extends Component {
   componentWillReceiveProps(nextProps) {
     const { currentSession: newCurrentSession } = nextProps;
     const { currentSession, currentSessionList, currentInboxList } = this.props;
-    const sessionSuperfluous = currentSessionList.filter(item => (item.groupId || item.accountId) === newCurrentSession.value);
+    const sessionSuperfluous = currentSessionList.filter(
+      item => (item.groupId || item.accountId) === newCurrentSession.value,
+    );
     const inboxSuperfluous = currentInboxList.filter(item => item.id === newCurrentSession.value);
     const isExist = sessionSuperfluous.length || inboxSuperfluous.length;
-    if (isExist && 'isContact' in newCurrentSession && !newCurrentSession.isContact && newCurrentSession.value !== currentSession.value) {
+    if (
+      isExist &&
+      'isContact' in newCurrentSession &&
+      !newCurrentSession.isContact &&
+      newCurrentSession.value !== currentSession.value
+    ) {
       this.props.dispatch(actions.removeCurrentSession(newCurrentSession.value));
       this.props.dispatch(actions.removeMessages(newCurrentSession.value));
       this.chatSessionItem(newCurrentSession);
@@ -65,44 +74,44 @@ class ChatPanel extends Component {
     if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
-    this.ajax = ajax
-      .chatSessionItem(session)
-      .then(result => {
-        this.setState({ loading: false });
-        if (result.groupId) {
-          if (result.groupId && !result.isMember) {
-            alert(_l('已不在该群组中，请联系管理员'), 2);
-            this.handleClosePanel();
-            return;
-          }
-          if (result.groupId && result.status !== 1) {
-            alert(_l('该群组已关闭或删除'), 2);
-            this.handleClosePanel();
-            return;
-          }
-          this.props.dispatch(actions.addCurrentSession(result));
-        } else if (result.accountId) {
-          if (result.accountId === 'file-transfer') {
-            result.isContact = true;
-          }
-          this.props.dispatch(actions.addCurrentSession(result));
-          if (!result.isContact) {
-            this.props.dispatch(
-              actions.updateSessionList({
-                id: session.value,
-                isContact: false,
-              }),
-            );
-          }
+    this.ajax = ajax.chatSessionItem(session);
+    this.ajax.then(result => {
+      this.setState({ loading: false });
+      if (result.groupId) {
+        if (result.groupId && !result.isMember) {
+          alert(_l('已不在该群组中，请联系管理员'), 2);
+          this.handleClosePanel();
+          return;
         }
-      })
-      .catch(error => {
-        this.setState({
-          isError: true,
-        });
+        if (result.groupId && result.status !== 1) {
+          alert(_l('该群组已关闭或删除'), 2);
+          this.handleClosePanel();
+          return;
+        }
+        this.props.dispatch(actions.addCurrentSession(result));
+      } else if (result.accountId) {
+        if (result.accountId === 'file-transfer') {
+          result.isContact = true;
+        }
+        this.props.dispatch(actions.addCurrentSession(result));
+        if (!result.isContact) {
+          this.props.dispatch(
+            actions.updateSessionList({
+              id: session.value,
+              isContact: false,
+            }),
+          );
+        }
+      }
+    }).catch(error => {
+      this.setState({
+        isError: true,
+        error: _.get(error, 'errorMessage'),
       });
+    });
   }
   inboxSessionItem(session) {
+    this.setState({ isError: false });
     this.props.dispatch(actions.addCurrentInbox(session));
   }
   handleClosePanel() {
@@ -123,7 +132,10 @@ class ChatPanel extends Component {
   renderInbox(item) {
     const { currentSession = {} } = this.props;
     return (
-      <div className={cx('ChatPanel ChatPanel-inbox', { 'ChatPanel-active': currentSession.value === item.id })} key={item.id}>
+      <div
+        className={cx('ChatPanel ChatPanel-inbox', { 'ChatPanel-active': currentSession.value === item.id })}
+        key={item.id}
+      >
         <i onClick={this.handleClosePanel.bind(this)} className="ChatPanel-inbox-close icon-close ThemeColor3" />
         <Inbox
           inboxType={item.id}
@@ -135,7 +147,7 @@ class ChatPanel extends Component {
     );
   }
   render() {
-    const { loading, isError } = this.state;
+    const { loading, isError, error } = this.state;
     const { currentSession, currentSessionList = [], currentInboxList = [], visible } = this.props;
     const exceptions = [
       '.ChatList-wrapper',
@@ -163,7 +175,7 @@ class ChatPanel extends Component {
       '.InboxFilterWrapper',
       '.ant-picker-dropdown',
       '.addMembersMoreAction',
-      '.ChatList-ContextMenu'
+      '.ChatList-ContextMenu',
     ];
     return (
       <ClickAwayable
@@ -180,14 +192,12 @@ class ChatPanel extends Component {
         {currentSessionList.map(item => (
           <ChatPanelSession session={item} key={item.id} />
         ))}
-        {currentInboxList.map(item => (
-          this.renderInbox(item)
-        ))}
+        {currentInboxList.map(item => this.renderInbox(item))}
         {loading ? (
           <div className="ChatPanel ChatPanel-loading">
-            {isError && !loading ? (
-              <div className="ChatPanel-error ThemeColor3" onClick={this.handleReset.bind(this)}>
-                {_l('加载失败，点击重新加载。')}
+            {isError ? (
+              <div className="ChatPanel-error ThemeColor3" onClick={error ? undefined : this.handleReset.bind(this)}>
+                {error ? error : _l('加载失败，点击重新加载。')}
               </div>
             ) : (
               <LoadDiv size="middle" />

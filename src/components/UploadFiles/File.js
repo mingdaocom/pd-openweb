@@ -1,19 +1,19 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import Progress from 'ming-ui/components/Progress';
-import kcService from 'src/pages/kc/api/service';
-import attachmentAjax from 'src/api/attachment';
-import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { getFileExtends, isDocument, formatTime } from './utils';
-import { formatFileSize, downloadFile, getClassNameByExt } from 'src/util';
-import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import { addLinkFile } from 'ming-ui/functions';
-import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
+import attachmentAjax from 'src/api/attachment';
+import kcService from 'src/pages/kc/api/service';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
+import { downloadFile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { formatTime, getFileExtends, isDocument } from './utils';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -897,17 +897,17 @@ export default class FileComponent extends Component {
           {twice
             ? this.renderTwiceView(data)
             : accountId || sourceID
-            ? this.renderMDView(data)
-            : data.refId
-            ? this.renderView(data, true)
-            : data.fileID && this.renderView(data)}
+              ? this.renderMDView(data)
+              : data.refId
+                ? this.renderView(data, true)
+                : data.fileID && this.renderView(data)}
           {twice
             ? this.renderTwicePenel(data, index)
             : accountId || sourceID
-            ? this.renderMDPenel(data, index)
-            : data.refId
-            ? this.renderPenel(data, index, true)
-            : data.fileID && this.renderPenel(data, index)}
+              ? this.renderMDPenel(data, index)
+              : data.refId
+                ? this.renderPenel(data, index, true)
+                : data.fileID && this.renderPenel(data, index)}
           {!!progress && (
             <div className="UploadFiles-loadfileWrapper">
               <div>

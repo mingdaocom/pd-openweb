@@ -39,8 +39,9 @@
     padding-top: 56px;
     display: flex;
     align-items: center;
-    &.payNow {
-      min-height: 476px;
+    &.notDialog {
+      height: 100%;
+      padding-top: 0 !important;
     }
   }
   .preOrderWrap {
@@ -94,7 +95,9 @@
     }
   }
   .amount {
-    font-family: DIN Alternate, DIN Alternate;
+    font-family:
+      DIN Alternate,
+      DIN Alternate;
     margin-bottom: 6px;
     font-weight: 500;
     word-break: break-all;
@@ -176,7 +179,9 @@
     border-radius: 22px;
   }
   .amount {
-    font-family: DIN Alternate, DIN Alternate;
+    font-family:
+      DIN Alternate,
+      DIN Alternate;
     margin-bottom: 6px;
     font-weight: 500;
     word-break: break-all;
@@ -220,5 +225,18 @@
   .payOrderDialog {
     box-shadow: none !important;
     vertical-align: top !important;
+    max-height: unset !important;
+    height: 100% !important;
+    .mui-dialog-body {
+      padding: 0 24px !important;
+      .orderPayWrap {
+        padding-top: 0 !important;
+      }
+    }
   }
+}
+
+.cancelPayBtn {
+  border: 1px solid #eee !important;
+  background-color: #fff !important;
 }

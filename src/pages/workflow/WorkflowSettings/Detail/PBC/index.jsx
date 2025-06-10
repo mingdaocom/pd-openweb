@@ -17,6 +17,7 @@ import {
   SelectOtherPBCDialog,
   SingleControlValue,
   SpecificFieldsValue,
+  TransferTriggerUser,
 } from '../components';
 
 const Header = styled.div`
@@ -146,7 +147,7 @@ export default class PBC extends Component {
   onSave = () => {
     const { isPlugin } = this.props;
     const { data, saveRequest } = this.state;
-    const { appId, name, fields, executeType, number, selectNodeId, nextExecute } = data;
+    const { appId, name, fields, executeType, number, selectNodeId, nextExecute, fromTrigger } = data;
     const subProcessVariables = _.cloneDeep(data.subProcessVariables);
     const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
     let hasError = 0;
@@ -212,6 +213,7 @@ export default class PBC extends Component {
         number,
         selectNodeId,
         nextExecute,
+        fromTrigger,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -695,6 +697,8 @@ export default class PBC extends Component {
                 this.updateSource(obj, callback);
               }}
             />
+
+            <TransferTriggerUser {...this.props} data={data} updateSource={this.updateSource} />
           </Fragment>
         )}
       </Fragment>

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Dialog, Input, Textarea, Switch } from 'ming-ui';
 import { Select } from 'antd';
-import projectEncryptAjax from 'src/api/projectEncrypt';
-import { getUnUniqName } from 'src/util';
 import _ from 'lodash';
 import styled from 'styled-components';
-import moment from 'moment';
+import { Dialog, Input, Switch, Textarea } from 'ming-ui';
+import projectEncryptAjax from 'src/api/projectEncrypt';
+import { getUnUniqName } from 'src/utils/common';
 
 const FormItem = styled.div`
   margin-bottom: 30px;

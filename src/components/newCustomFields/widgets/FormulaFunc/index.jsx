@@ -1,10 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import cx from 'classnames';
-import { Linkify } from 'ming-ui';
-import { formatStrZero } from 'src/util';
 import _ from 'lodash';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import PropTypes from 'prop-types';
+import { Linkify } from 'ming-ui';
+import { renderText as renderCellText } from 'src/utils/control';
 
 export default class Widgets extends Component {
   static propTypes = {

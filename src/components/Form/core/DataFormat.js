@@ -1,6 +1,5 @@
 import _, { find, get, includes } from 'lodash';
 import moment from 'moment';
-import nzh from 'nzh';
 import { v4 as uuidv4 } from 'uuid';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
@@ -8,16 +7,23 @@ import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
 import { createRequestPool } from 'worksheet/api/standard';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
-import generateSubListStore from 'worksheet/components/ChildTable/redux/store';
 import generateRelateRecordTableStore from 'worksheet/components/RelateRecordTable/redux/store.js';
 import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, isRelateRecordTableControl } from 'worksheet/util';
+import { setRowsFromStaticRows } from 'src/components/Form/MobileForm/components/ChildTable/redux/actions.js';
+import generateSubListStore from 'src/components/Form/MobileForm/components/ChildTable/redux/store';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
-import { filterEmptyChildTableRows } from 'src/pages/worksheet/util';
-import { browserIsMobile, compatibleMDJS, getCurrentProject, isEmptyValue, toFixed } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import {
+  checkCellIsEmpty,
+  formatNumberToWords,
+  isEmptyValue,
+  isRelateRecordTableControl,
+  toFixed,
+} from 'src/utils/control';
+import { compatibleMDJS, getCurrentProject } from 'src/utils/project';
+import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FROM, SYSTEM_ENUM, TIME_UNIT } from './config';
 import { checkRuleLocked } from './formUtils';
 import {
@@ -220,7 +226,7 @@ export default class DataFormat {
           if (this.isMobile && item.type === 29 && _.isString(value) && _.isEmpty(JSON.parse(value))) {
             this.updateDataSource({ controlId: item.controlId, value: null, isInit });
           } else if (value) {
-            if (item.type === 29 && isRelateRecordTableControl(item) && !forceSync) {
+            if (((item.type === 29 && isRelateRecordTableControl(item)) || item.type === 34) && !forceSync) {
               setTimeout(() => {
                 this.updateDataSource({ controlId: item.controlId, value, isInit });
               }, 0);
@@ -399,6 +405,7 @@ export default class DataFormat {
             )
             .filter(c => !!c.value),
         },
+        DataFormat,
       });
       if (loadRowsWhenChildTableStoreCreated) {
         store.initAndLoadRows({
@@ -505,13 +512,13 @@ export default class DataFormat {
                           value: controlValue,
                         });
                       },
-                    })(item.store.getState, item.store.dispatch);
+                    })(item.store.getState, item.store.dispatch, DataFormat);
                   });
                   if (!item.store.initialized) {
                     item.store.init();
                   }
                 } else {
-                  setRowsFromStaticRows(params)(item.store.getState, item.store.dispatch);
+                  setRowsFromStaticRows(params)(item.store.getState, item.store.dispatch, DataFormat);
                 }
                 this.controlIds.push(controlId);
                 return;
@@ -683,9 +690,8 @@ export default class DataFormat {
           currentIgnoreSearch = false;
           // 大写金额控件
           if (currentItem.type === 25) {
-            value = nzh.cn
-              .toMoney(_.find(this.data, item => item.controlId === currentItem.dataSource.slice(1, -1)).value || '')
-              .substring(3);
+            const relateControl = _.find(this.data, item => item.controlId === currentItem.dataSource.slice(1, -1));
+            value = formatNumberToWords(currentItem, relateControl);
           }
 
           // 他表字段
@@ -1659,8 +1665,6 @@ export default class DataFormat {
                     name: getCurrentValue(titleControl, nameValue, { type: 2 }),
                   };
                 });
-                // 关联记录空值不赋值，防止死循环
-                if (_.isEmpty(newValue) && (currentControl.value || '').startsWith('deleteRowIds')) return;
                 if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
                   updateData('');
                   return;

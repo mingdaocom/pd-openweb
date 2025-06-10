@@ -1,14 +1,14 @@
 import React from 'react';
-import { getControlType, dealIds } from './util';
-import { TYPE_TO_COMP } from './inputTypes';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Tooltip } from 'ming-ui';
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { getAdvanceSetting as getAdvanceSettingByKey } from 'src/utils/control';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { DEFAULT_TYPES } from './config';
-import { Tooltip } from 'ming-ui';
-import _ from 'lodash';
-import cx from 'classnames';
-import { getAdvanceSetting as getAdvanceSettingByKey } from 'src/util/index.js';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { TYPE_TO_COMP } from './inputTypes';
+import { dealIds, getControlType } from './util';
 
 export default function DynamicDefaultValue(props) {
   const { data, allControls, onChange, from, hideTitle } = props;

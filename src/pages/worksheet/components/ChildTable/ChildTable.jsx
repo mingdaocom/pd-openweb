@@ -1,58 +1,57 @@
 import React, { Fragment } from 'react';
 import { flushSync } from 'react-dom';
-import PropTypes from 'prop-types';
-import { v4 as uuidv4 } from 'uuid';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import styled from 'styled-components';
-import moment from 'moment';
 import cx from 'classnames';
-import { browserIsMobile, createElementFromHtml } from 'src/util';
-import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import Pagination from 'worksheet/components/Pagination';
-import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _, { filter, find, findIndex, get, includes, isArray, isEmpty, isUndefined, last, omit, pick } from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import { Menu, MenuItem, Skeleton } from 'ming-ui';
-import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/constants/enum';
-import SearchInput from 'worksheet/components/SearchInput';
 import worksheetAjax from 'src/api/worksheet';
+import { createRequestPool } from 'worksheet/api/standard';
+import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import ChildTableContext from './ChildTableContext';
-import { selectRecord } from 'src/components/recordCardListDialog';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
-import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
-import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
-import { openChildTable } from '../ChildTableDialog';
-import { WORKSHEETTABLE_FROM_MODULE, SYSTEM_CONTROLS, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import Pagination from 'worksheet/components/Pagination';
+import SearchInput from 'worksheet/components/SearchInput';
+import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
+import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/constants/enum';
+import { SHEET_VIEW_HIDDEN_TYPES, SYSTEM_CONTROLS, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
+import { selectRecords } from 'src/components/SelectRecords';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
+import { browserIsMobile } from 'src/utils/common';
+import { controlBatchCanEdit } from 'src/utils/control';
+import { isRelateRecordTableControl, parseAdvancedSetting, replaceByIndex } from 'src/utils/control';
+import { sortControlByIds, updateOptionsOfControls } from 'src/utils/control';
 import {
-  sortControlByIds,
-  replaceByIndex,
-  isRelateRecordTableControl,
   copySublistRow,
-  parseAdvancedSetting,
+  filterEmptyChildTableRows,
+  filterRowsByKeywords,
   formatRecordToRelateRecord,
   handleSortRows,
-  updateOptionsOfControls,
-  filterRowsByKeywords,
-  filterEmptyChildTableRows,
-  replaceControlsTranslateInfo,
-  controlBatchCanEdit,
-} from 'worksheet/util';
+  handleUpdateDefsourceOfControl,
+} from 'src/utils/record';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import ColumnHead from '../BaseColumnHead';
-import RowHead from './ChildTableRowHead';
-import MobileTable from './MobileTable';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { openChildTable } from '../ChildTableDialog';
+import ExportSheetButton from '../ExportSheetButton';
 import { importFileToChildTable } from '../ImportFileToChildTable';
 import WorksheetTable from '../WorksheetTable';
-import RowDetail from './RowDetailModal';
-import RowDetailMobile from './RowDetailMobileModal';
+import ChildTableContext from './ChildTableContext';
+import RowHead from './ChildTableRowHead';
+import MobileTable from './MobileTable';
 import * as actions from './redux/actions';
-import _, { filter, find, findIndex, get, includes, isEmpty, isUndefined, last, omit } from 'lodash';
-import { createRequestPool } from 'worksheet/api/standard';
-import ExportSheetButton from '../ExportSheetButton';
+import RowDetailMobile from './RowDetailMobileModal';
+import RowDetail from './RowDetailModal';
 
 const IconBtn = styled.span`
   color: #9e9e9e;
@@ -107,50 +106,40 @@ const BatchAddOfAddRowComp = styled.div`
   }
 `;
 
+const DropIcon = styled.span`
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  text-align: center;
+  cursor: pointer;
+  color: #151515;
+  height: 34px;
+  line-height: 34px;
+  border-radius: 0 4px 4px 0;
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  &:before {
+    position: absolute;
+    content: '';
+    width: 1px;
+    height: 16px;
+    top: 9px;
+    left: -0.5px;
+    background-color: #ddd;
+  }
+`;
+
 const isMobile = browserIsMobile();
 const systemControls = SYSTEM_CONTROLS.map(c => ({ ...c, fieldPermission: '111' }));
 const MAX_COUNT = 1000;
 
-export function handleUpdateDefsourceOfControl({ recordId, relateRecordControl, masterData, controls = [] } = {}) {
-  return controls.map(control => {
-    if (
-      control.type === 29 &&
-      control.sourceControlId === relateRecordControl.controlId &&
-      control.dataSource === relateRecordControl.worksheetId
-    ) {
-      try {
-        control.advancedSetting = _.assign({}, control.advancedSetting, {
-          defsource: JSON.stringify([
-            {
-              staticValue: JSON.stringify([
-                JSON.stringify({
-                  rowid: recordId,
-                  ...[{}, ...(get(masterData, 'formData') || []).filter(c => c.type !== 34)].reduce((a = {}, b = {}) =>
-                    Object.assign(a, {
-                      [b.controlId]:
-                        b.type === 29 && _.isObject(b.value) && b.value.records
-                          ? JSON.stringify(
-                              // 子表使用双向关联字段作为默认值 RELATERECORD_OBJECT
-                              b.value.records.map(r => ({ sid: r.rowid, sourcevalue: JSON.stringify(r) })),
-                            )
-                          : b.value,
-                    }),
-                  ),
-                }),
-              ]),
-            },
-          ]),
-        });
-        return control;
-      } catch (err) {
-        console.error(err);
-        return control;
-      }
-    } else {
-      return control;
-    }
-  });
-}
+// 从 html 代码创建元素
+const createElementFromHtml = html => {
+  const con = document.createElement('div');
+  con.innerHTML = html;
+  return con.firstElementChild;
+};
 
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
@@ -196,6 +185,7 @@ class ChildTable extends React.Component {
       disableMaskDataControls: {},
       rowsLoadingStatus: {},
       showLoadingMask: false,
+      menuVisible: false,
     };
     this.state.sheetColumnWidths = this.getSheetColumnWidths();
     this.controls = props.controls;
@@ -379,10 +369,10 @@ class ChildTable extends React.Component {
                 isRelateRecordTableControl(c) || c.type === 34
                   ? '000'
                   : useUserPermission
-                  ? c.controlPermissions
-                  : controlState(control, from).editable
-                  ? '111'
-                  : '101',
+                    ? c.controlPermissions
+                    : controlState(control, from).editable
+                      ? '111'
+                      : '101',
             }),
       })),
     );
@@ -494,6 +484,7 @@ class ChildTable extends React.Component {
       isCustomButtonFillRecord: control.isCustomButtonFillRecord,
       from,
       isTreeTableView,
+      setLoadingInfo: control.setLoadingInfo,
       callback: res => {
         if (res === null) {
           this.setState({
@@ -571,15 +562,21 @@ class ChildTable extends React.Component {
   getSheetColumnWidths(control) {
     control = control || this.props.control;
     const columns = this.getShowColumns();
-    const result = {};
-    let widths = [];
+    let widths = {};
     try {
       widths = JSON.parse(control.advancedSetting.widths);
     } catch (err) {}
-    columns.forEach((column, i) => {
-      result[column.controlId] = widths[i];
-    });
-    return result;
+    if (isArray(widths)) {
+      let result = {};
+      columns.forEach((column, i) => {
+        result[column.controlId] = widths[i];
+      });
+      return result;
+    }
+    return pick(
+      widths,
+      columns.map(c => c.controlId),
+    );
   }
 
   newRow = (defaultRow, { isDefaultValue, isCreate, isQueryWorksheetFill, isImportFromExcel } = {}) => {
@@ -781,7 +778,7 @@ class ChildTable extends React.Component {
     }, 100);
   };
 
-  handleImport = () => {
+  handleImport = ({ replace = false } = {}) => {
     const { control, masterData, rows, addRows } = this.props;
     const { projectId } = this.worksheetInfo;
     const controls = this.getShowColumns();
@@ -801,14 +798,19 @@ class ChildTable extends React.Component {
           return;
         }
         setTimeout(() => {
-          addRows(
-            data.slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length).map(updatedValues =>
+          const newRows = data
+            .slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length)
+            .map(updatedValues =>
               this.newRow(omit({ ...updatedValues, needShowLoading: true }, 'rowid'), {
                 isCreate: true,
                 isImportFromExcel: true,
               }),
-            ),
-          );
+            );
+          if (replace) {
+            this.handleClearAndSetRows(newRows);
+          } else {
+            addRows(newRows);
+          }
         }, 0);
       },
     });
@@ -825,7 +827,7 @@ class ChildTable extends React.Component {
     }
     this.updateDefsourceOfControl();
     const tempRow = this.newRow();
-    const relateRecord = isMobile ? mobileSelectRecord : selectRecord;
+    const relateRecord = isMobile ? mobileSelectRecord : selectRecords;
     relateRecord({
       entityName,
       canSelectAll: true,
@@ -961,13 +963,14 @@ class ChildTable extends React.Component {
   };
 
   openDetail = index => {
-    const { control, rows = [] } = this.props;
+    const { control, rows = [], updateRow } = this.props;
     const { rowid } = rows[index] || {};
     this.setState({
       previewRowIndex: index,
       recordVisible: true,
       isEditCurrentRow: true,
     });
+    isMobile && rows[index] && updateRow({ rowid: rowid, value: rows[index] || {} });
   };
 
   handleClearCellError = key => {
@@ -1156,6 +1159,7 @@ class ChildTable extends React.Component {
       blankrow,
       h5showtype,
       h5abstractids,
+      titleCenter,
     } = parseAdvancedSetting(control.advancedSetting);
     const { useUserPermission } = this;
     let allowadd = parseAdvancedSetting(control.advancedSetting).allowadd;
@@ -1186,6 +1190,7 @@ class ChildTable extends React.Component {
       isAddRowByLine,
       disableMaskDataControls,
       showLoadingMask,
+      menuVisible,
     } = this.state;
 
     const { treeMap = {} } = treeTableViewData;
@@ -1290,7 +1295,6 @@ class ChildTable extends React.Component {
         {showSearch && (
           <SearchInput
             ref={this.searchRef}
-            style={{ marginTop: -6 }}
             inputWidth={100}
             searchIcon={
               <IconBtn className="Hand ThemeHoverColor3">
@@ -1316,9 +1320,10 @@ class ChildTable extends React.Component {
           recordId &&
           from !== FROM.DRAFT &&
           !control.isCustomButtonFillRecord &&
-          !_.get(window, 'shareState.shareId') &&
+          (!_.get(window, 'shareState.shareId') || _.get(window, 'shareState.isPublicWorkflowRecord')) &&
           (!isMobile ? true : disabled) && (
             <ExportSheetButton
+              className="mLeft6"
               exportSheet={cb => {
                 if (!filterEmptyChildTableRows(tableRows).filter(r => !/^temp-/.test(r.rowid)).length) {
                   cb();
@@ -1329,6 +1334,7 @@ class ChildTable extends React.Component {
                   worksheetId: this.props.masterData.worksheetId,
                   rowId: recordId,
                   controlId: control.controlId,
+                  clientId: window.clientId || sessionStorage.getItem('clientId'),
                   fileName:
                     `${((_.last([...document.querySelectorAll('.recordTitle')]) || {}).innerText || '').slice(
                       0,
@@ -1420,13 +1426,67 @@ class ChildTable extends React.Component {
                     </span>
                   )}
                   {showImport && (
-                    <span
-                      className={cx('importFromFile tip-bottom', { disabled: isExceed })}
-                      onClick={isExceed ? () => {} : this.handleImport}
-                      data-tip={_l('导入数据')}
+                    <Trigger
+                      zIndex={1000}
+                      popupVisible={menuVisible && !isExceed}
+                      actions={['click']}
+                      getPopupContainer={() => document.body}
+                      onPopupVisibleChange={visible => {
+                        this.setState({ menuVisible: visible });
+                      }}
+                      popup={
+                        <Menu
+                          style={{ position: 'relative' }}
+                          onClickAwayExceptions={['.dropdownButtonIcon']}
+                          onClickAway={() => this.setState({ menuVisible: false })}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              if (!isExceed) {
+                                this.handleImport();
+                              }
+                            }}
+                          >
+                            {_l('增加明细')}
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              if (!isExceed) {
+                                this.handleImport({ replace: true });
+                              }
+                            }}
+                          >
+                            {_l('替换已有明细')}
+                          </MenuItem>
+                        </Menu>
+                      }
+                      popupClassName="filterTrigger"
+                      destroyPopupOnHide
+                      popupAlign={{
+                        offset: [0, 4],
+                        points: ['tl', 'bl'],
+                        overflow: { adjustY: true },
+                      }}
                     >
-                      <i className="icon icon-knowledge-upload Font16 Gray_75"></i>
-                    </span>
+                      <div className={cx('importFromFile tip-bottom', { disabled: isExceed })}>
+                        <div
+                          className="content"
+                          onClick={isExceed ? () => {} : this.handleImport}
+                          data-tip={_l('导入数据')}
+                        >
+                          <i className="icon icon-knowledge-upload Font16 Gray_75"></i>
+                        </div>
+                        <DropIcon
+                          className="dropdownButtonIcon"
+                          onClick={e => {
+                            e.stopPropagation();
+                            this.setState({ menuVisible: true });
+                          }}
+                        >
+                          <i className="icon icon-arrow-down"></i>
+                        </DropIcon>
+                      </div>
+                    </Trigger>
                   )}
                   {showBatchEdit && (allowBatchDelete || allowEdit || (allowadd && allowCopy)) && (
                     <Fragment>
@@ -1558,6 +1618,7 @@ class ChildTable extends React.Component {
                 isSubList
                 showAsZebra={false}
                 wrapControlName={titleWrap}
+                headTitleCenter={titleCenter}
                 rules={rules}
                 allowAdd={allowadd}
                 height={tableHeight}
@@ -1640,7 +1701,7 @@ class ChildTable extends React.Component {
                         this.setState({ selectedRowIds: [] });
                       }
                     }}
-                    onOpen={this.openDetail}
+                    onOpen={index => this.openDetail(index)}
                     onDelete={() => deleteRow(args.row.rowid)}
                     onCopy={() => {
                       if (isExceed) {
@@ -1653,7 +1714,10 @@ class ChildTable extends React.Component {
                       const changes = {};
                       if (!_.isEmpty(tempSheetColumnWidths)) {
                         changes.widths = JSON.stringify(
-                          columns.map(c => ({ ...sheetColumnWidths, ...tempSheetColumnWidths }[c.controlId] || 160)),
+                          pick(
+                            { ...sheetColumnWidths, ...tempSheetColumnWidths },
+                            columns.map(c => c.controlId),
+                          ),
                         );
                       }
                       if (frozenIndexChanged) {
@@ -2026,7 +2090,10 @@ class ChildTable extends React.Component {
                 (allowcancel &&
                   (useUserPermission && !!recordId ? _.get(tableData[previewRowIndex], 'allowdelete') : true))
               }
-              controls={controls}
+              controls={controls.map(c => ({
+                ...c,
+                hidden: !_.includes(control.showControls, c.controlId) ? true : c.hidden,
+              }))}
               data={previewRowIndex > -1 ? tableData[previewRowIndex] || {} : this.newRow()}
               switchDisabled={{
                 prev: previewRowIndex === 0,

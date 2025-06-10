@@ -8,12 +8,13 @@ import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { formatRecordToRelateRecord } from 'worksheet/util';
-import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { getTitleTextFromControls, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import { isKeyBoardInputChar } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
+import { formatRecordToRelateRecord } from 'src/utils/record';
 import { openChildTable } from '../ChildTableDialog';
 import EditableCellCon from '../EditableCellCon';
 import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
@@ -273,6 +274,7 @@ export default class RelateRecord extends React.Component {
       popupContainer,
       onClick,
       isDraft,
+      isMobileTable,
     } = this.props;
     const { addedIds = [], deletedIds = [] } = this.isSubList ? this : {};
     let { records } = this.state;
@@ -345,6 +347,7 @@ export default class RelateRecord extends React.Component {
                     allowEdit: editable,
                     formdata: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
                     onUpdateCount: () => {
+                      if (!editable) return;
                       emitter.emit('RELOAD_RECORD_INFO', {
                         worksheetId,
                         recordId,
@@ -402,6 +405,7 @@ export default class RelateRecord extends React.Component {
             isediting={isediting}
             popupContainer={() => document.body}
             multiple={cell.enumDefault === 2}
+            isMobileTable={isMobileTable}
             onVisibleChange={this.handleVisibleChange}
             selectedClassName={cx('sheetview', `cell-${tableId}-${recordId}-${cell.controlId}`, {
               canedit: editable,
@@ -433,6 +437,7 @@ export default class RelateRecord extends React.Component {
           >
             <RelateRecordTags
               from={from}
+              appId={appId}
               isDraft={isDraft}
               disabled
               count={count}
@@ -454,6 +459,7 @@ export default class RelateRecord extends React.Component {
             popup={
               <RelateRecordTags
                 from={from}
+                appId={appId}
                 isDraft={isDraft}
                 rowIndex={rowIndex}
                 ref={this.relateRecordTagsPopup}

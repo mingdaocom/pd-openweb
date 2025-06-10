@@ -1,13 +1,13 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Textarea, Linkify, Icon, Markdown } from 'ming-ui';
 import cx from 'classnames';
-import TextScanQRCode from '../../components/TextScanQRCode';
-import { getIsScanQR } from '../../components/ScanQRCode';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { browserIsMobile } from 'src/util';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Icon, Linkify, Textarea } from 'ming-ui';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { browserIsMobile } from 'src/utils/common';
+import { getIsScanQR } from '../../components/ScanQRCode';
+import TextScanQRCode from '../../components/TextScanQRCode';
 import TextMarkdown from './TextMarkdown';
 
 const TextareaWrap = styled.div`
@@ -21,8 +21,8 @@ const TextareaWrap = styled.div`
       props.disabled
         ? 'padding: 6px 0px !important;'
         : props.isMask || props.hint
-        ? ''
-        : 'position: absolute;top: 0;right: 0;left: 0;bottom: 0;pointer-events: none; padding: 6px 12px !important;'}
+          ? ''
+          : 'position: absolute;top: 0;right: 0;left: 0;bottom: 0;pointer-events: none; padding: 6px 12px !important;'}
     span a {
       pointer-events: all;
     }
@@ -277,11 +277,6 @@ export default class Widgets extends Component {
             placeholder={isEditing ? hint : ''}
             spellCheck={false}
             onFocus={this.onFocus}
-            onChange={value => {
-              if (!this.isOnComposition) {
-                _.debounce(() => this.onChange(value), 500);
-              }
-            }}
             onBlur={event => {
               const trimValue = event.target.value.trim();
               if (trimValue !== value) {

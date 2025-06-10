@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DatePicker } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
@@ -6,12 +6,13 @@ import zh_CN from 'antd/es/date-picker/locale/zh_CN';
 import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, Icon, Modal, Radio, ScrollView, SvgIcon, UserHead, UserName } from 'ming-ui';
-import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
 import moment from 'moment';
 import styled from 'styled-components';
+import { Dropdown, Icon, Modal, Radio, ScrollView, SvgIcon, UserHead, UserName } from 'ming-ui';
+import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import PointImg from 'src/pages/workflow/asset/point.png';
+import { getCurrentProject } from 'src/utils/project';
 
 const FormItem = styled.div`
   margin-top: 25px;
@@ -59,6 +60,7 @@ const FormItem = styled.div`
   &.selectUserWrap {
     justify-content: space-between;
     gap: 16px;
+    overflow: hidden;
     .selectUserItem {
       width: calc(50% - 8px);
     }
@@ -136,6 +138,8 @@ export default function TodoEntrustModal(props) {
   const projectOptions = md.global.Account.projects.map(item => {
     return { text: item.companyName, value: item.projectId };
   });
+  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+
   const isEdit = !_.isEmpty(editEntrustData);
   const [formData, setFormData] = useState(
     isEdit
@@ -149,7 +153,7 @@ export default function TodoEntrustModal(props) {
       appId: app.appId || app.id,
     })),
   );
-  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+
   const updateDataSource = options => {
     setFormData(Object.assign({}, formData, options));
   };
@@ -214,6 +218,18 @@ export default function TodoEntrustModal(props) {
         callback: users => updateDataSource({ [userType]: users[0] }),
       },
     });
+  };
+
+  const getProjectOptions = () => {
+    if (formData.companyId && !_.find(projectOptions, l => l.value === formData.companyId)) {
+      const currentProject = getCurrentProject(formData.companyId, true);
+
+      return currentProject.projectStatus === 2
+        ? projectOptions.concat({ text: currentProject.companyName, value: currentProject.projectId })
+        : projectOptions;
+    }
+
+    return projectOptions;
   };
 
   const onSubmit = () => {
@@ -286,7 +302,7 @@ export default function TodoEntrustModal(props) {
     const isTrustee = userType === 'trustee';
 
     return (
-      <div className={cx({ selectUserItem: type === 2 })}>
+      <div className={cx('w100', { selectUserItem: type === 2 })}>
         <div className="flexRow valignWrapper">
           <span className="bold">{isTrustee ? _l('受托人') : _l('委托人')}</span>
           <span className="Red bold mLeft4">*</span>
@@ -353,7 +369,7 @@ export default function TodoEntrustModal(props) {
               isAppendToBody
               border
               value={formData.companyId}
-              data={projectOptions}
+              data={getProjectOptions()}
               onChange={companyId => {
                 updateDataSource({ companyId, trustee: '' });
                 setAuthApps([]);

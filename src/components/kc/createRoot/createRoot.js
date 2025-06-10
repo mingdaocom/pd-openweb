@@ -1,17 +1,17 @@
-﻿import '@mdfe/nanoscroller';
-import doT from 'dot';
-import React from 'react';
+﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '../layerMain.css';
-import './createRoot.css';
-import htmlTpl from './tpl/createRoot.html';
-import addMemberTpl from './tpl/addMember.html';
-import { existAccountHint } from 'src/util';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import kcAjax from 'src/api/kc';
+import '@mdfe/nanoscroller';
+import doT from 'dot';
 import _ from 'lodash';
 import { Dialog, UserHead } from 'ming-ui';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import kcAjax from 'src/api/kc';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { existAccountHint } from 'src/utils/common';
+import addMemberTpl from './tpl/addMember.html';
+import htmlTpl from './tpl/createRoot.html';
+import '../layerMain.css';
+import './createRoot.css';
 
 var PERMISSION_TYPE = {
   NONE: -1,

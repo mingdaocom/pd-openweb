@@ -1,22 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { RadioGroup, Dropdown as MingDropdown } from 'ming-ui';
-import StructureType from './StructureType';
+import { Dropdown as MingDropdown, RadioGroup } from 'ming-ui';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
+import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/index.jsx';
+import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import {
   CONNECT_LINE_TYPE,
   HIERARCHY_MIX_LEVEL,
   TREE_LINE_TYPE,
 } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
-import _ from 'lodash';
-import { CheckBlock } from 'ming-ui';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/index.jsx';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
-import { handleAdvancedSettingChange } from 'src/util/index.js';
-import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { filterHidedControls, handleAdvancedSettingChange } from 'src/utils/control';
 import HierarchyViewSetting from './hierarchyViewSetting';
-import { filterHidedControls } from 'src/pages/worksheet/util';
+import StructureType from './StructureType';
 
 const Wrap = styled.div`
   .topShowCon {
@@ -306,38 +306,46 @@ export default function StructureSet(props) {
       )}
       <React.Fragment>
         <div className="commonConfigItem Font13 mTop24 bold mTop4">{_l('默认展开层级')}</div>
-        <div className="mTop8">
-          <CheckBlock
-            data={[
-              { text: 1, value: '1' },
-              { text: 2, value: '2' },
-              { text: 3, value: '3' },
-              { text: 4, value: '4' },
-              { text: 5, value: '5' },
-              // { text: _l('全部'), value: 'all' },
-            ]}
-            value={_.get(props, 'view.advancedSetting.defaultlayer') || '1'}
-            onChange={value => {
-              const defaultlayer = _.get(props, 'view.advancedSetting.defaultlayer') || '1';
-              if (defaultlayer !== value) {
-                const { viewId } = view;
-                const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
-                const defaultlayertime = new Date().getTime();
-                safeLocalStorageSetItem(
-                  `hierarchyConfig-${viewId}`,
-                  JSON.stringify({ ...config, level: Number(value), levelUpdateTime: defaultlayertime }),
-                );
-                updateCurrentView({
-                  ...view,
-                  appId,
-                  advancedSetting: { defaultlayer: value, defaultlayertime },
-                  editAdKeys: ['defaultlayer', 'defaultlayertime'],
-                  editAttrs: ['advancedSetting'],
-                });
-              }
-            }}
-          />
-        </div>
+        <AnimationWrap className="mTop8">
+          {[
+            { text: 1, value: '1' },
+            { text: 2, value: '2' },
+            { text: 3, value: '3' },
+            { text: 4, value: '4' },
+            { text: 5, value: '5' },
+            // { text: _l('全部'), value: 'all' },
+          ].map(item => {
+            const defaultlayer = _.get(props, 'view.advancedSetting.defaultlayer') || '1';
+            return (
+              <div
+                className={cx('animaItem overflow_ellipsis', {
+                  active: defaultlayer === item.value,
+                })}
+                onClick={() => {
+                  const { value } = item;
+                  if (defaultlayer !== value) {
+                    const { viewId } = view;
+                    const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
+                    const defaultlayertime = new Date().getTime();
+                    safeLocalStorageSetItem(
+                      `hierarchyConfig-${viewId}`,
+                      JSON.stringify({ ...config, level: Number(value), levelUpdateTime: defaultlayertime }),
+                    );
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      advancedSetting: { defaultlayer: value, defaultlayertime },
+                      editAdKeys: ['defaultlayer', 'defaultlayertime'],
+                      editAttrs: ['advancedSetting'],
+                    });
+                  }
+                }}
+              >
+                {item.text}
+              </div>
+            );
+          })}
+        </AnimationWrap>
       </React.Fragment>
     </Wrap>
   );

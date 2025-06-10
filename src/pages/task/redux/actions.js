@@ -1,15 +1,15 @@
-﻿import config from '../config/config';
-import ajaxRequest from 'src/api/taskCenter';
+﻿import _ from 'lodash';
 import tagController from 'src/api/tag';
-import { errorMessage } from '../utils/utils';
+import ajaxRequest from 'src/api/taskCenter';
+import { emitter } from 'src/utils/common';
 import {
+  updateTaskErrorDialog,
   updateTimeError,
   updateTimeErrorDialog,
-  updateTaskErrorDialog,
 } from '../components/updateTimeError/updateTimeError';
-import { emitter } from 'src/util';
+import config from '../config/config';
 import updateStageViewControlsSource from '../utils/updateStage';
-import _ from 'lodash';
+import { errorMessage } from '../utils/utils';
 
 export const addTask = data => (dispatch, getState) => {
   const { taskConfig } = getState().task;

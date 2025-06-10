@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Dropdown, Checkbox } from 'ming-ui';
 import { Input } from 'antd';
-import { SettingItem } from '../../styled';
-import { DEFAULT_TEXT, SWITCH_TYPES } from 'src/pages/widgetConfig/config/setting.js';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import _ from 'lodash';
+import { Checkbox, Dropdown } from 'ming-ui';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
+import { DEFAULT_TEXT, SWITCH_TYPES } from 'src/pages/widgetConfig/config/setting.js';
+import { getStringBytes } from 'src/utils/common';
+import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 export default function Switch({ data, onChange }) {
   const { showtype = '0' } = getAdvanceSetting(data);

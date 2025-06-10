@@ -1,10 +1,11 @@
-import React, { useState, Fragment } from 'react';
-import { LoadDiv, antNotification, Dialog } from 'ming-ui';
-import UserTable from '../userList/userTable';
-import { refuseUserJoinFunc } from '../refuseUserJoinDia';
-import userAjax from 'src/api/user';
-import styled from 'styled-components';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { antNotification, Dialog, LoadDiv } from 'ming-ui';
+import userAjax from 'src/api/user';
+import { checkCertification } from 'src/components/checkCertification';
+import { refuseUserJoinFunc } from '../refuseUserJoinDia';
+import UserTable from '../userList/userTable';
 
 const TabWrap = styled.div`
   display: flex;
@@ -111,7 +112,10 @@ export default function ApprovalContent(props) {
         ))}
       </TabWrap>
       <div className="actList flexRow pLeft0 mTop20">
-        <div className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })} onClick={approve}>
+        <div
+          className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
+          onClick={() => !_.isEmpty(selectedAccountIds) && checkCertification({ projectId, checkSuccess: approve })}
+        >
           {_l('批准加入')}
         </div>
         {userStatus === 3 && (

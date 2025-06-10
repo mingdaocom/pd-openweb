@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
-import { Tooltip, Support } from 'ming-ui';
-import { formatStrZero, formatNumberThousand } from 'src/util';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
-import moment from 'moment';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Support, Tooltip } from 'ming-ui';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import { formatNumberThousand, formatStrZero } from 'src/utils/control';
 
 const Tips = styled.div`
   max-width: 230;

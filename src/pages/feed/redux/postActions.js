@@ -1,8 +1,8 @@
 ﻿import _ from 'lodash';
 import shallowEqual from 'shallowequal';
-import postAjax from 'src/api/post';
 import groupController from 'src/api/group';
-import { emitter } from 'src/util';
+import postAjax from 'src/api/post';
+import { emitter } from 'src/utils/common';
 import postEnum from '../constants/postEnum';
 
 function handleMdAjaxFail(dispatch, actionType, payload = {}) {
@@ -115,15 +115,18 @@ export function reload(options, showLoading = false) {
       },
       options,
       post.postIds.length,
-    ).then(({ postList, more }) => {
-      window.scrollTo(0, 0);
-      dispatch({
-        type: 'POST_RELOAD_SUCCESS',
-        options,
-        postList,
-        hasMore: !!more,
-      });
-    }, handleMdAjaxFail(dispatch, 'POST_RELOAD', { options }));
+    ).then(
+      ({ postList, more }) => {
+        window.scrollTo(0, 0);
+        dispatch({
+          type: 'POST_RELOAD_SUCCESS',
+          options,
+          postList,
+          hasMore: !!more,
+        });
+      },
+      handleMdAjaxFail(dispatch, 'POST_RELOAD', { options }),
+    );
   };
 }
 

@@ -9,10 +9,11 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { func, oneOf } from 'prop-types';
+import styled from 'styled-components';
 import { Icon, Menu, MenuItem, Skeleton, SvgIcon, Tooltip, UpgradeIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import DragMask from 'worksheet/common/DragMask';
 import { refreshSheetList } from 'worksheet/redux/actions/sheetList';
-import { getSheetListFirstId } from 'worksheet/util';
 import ProductLicenseInfo from 'src/components/productLicenseInfo';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AppAnalytics from 'src/pages/Admin/app/useAnalytics/components/AppAnalytics';
@@ -26,8 +27,11 @@ import { changeAppColor, changeNavColor, setAppStatus, syncAppDetail } from 'src
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getAppFeaturesVisible, getFeatureStatus } from 'src/util';
-import { getTranslateInfo, setFavicon } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/app';
+import { setFavicon } from 'src/utils/app';
+import { getFeatureStatus } from 'src/utils/project';
+import { getSheetListFirstId } from 'src/utils/worksheet';
 import CommonUserHandle, { LeftCommonUserHandle } from '../../components/CommonUserHandle';
 import HomepageIcon from '../../components/HomepageIcon';
 import IndexSide from '../../components/IndexSide';
@@ -45,6 +49,20 @@ const APP_STATUS_TEXT = {
   11: _l('还原中'),
   12: _l('迁移中'),
 };
+
+const Drag = styled.div(
+  ({ left }) => `
+  position: absolute;
+  z-index: 2;
+  left: ${left}px;
+  width: 2px;
+  height: 100%;
+  cursor: ew-resize;
+  &:hover {
+    border-left: 1px solid #ddd;
+  }
+`,
+);
 
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -94,6 +112,8 @@ export default class AppInfo extends Component {
       modifyAppLockPasswordVisible: false,
       lockAppVisisble: false,
       roleDebugVisible: false,
+      navWidth: Number(localStorage.getItem(`appNavWidth-${appId}`)) || 240,
+      dragMaskVisible: false,
     };
   }
 
@@ -262,7 +282,7 @@ export default class AppInfo extends Component {
   };
 
   handleAppConfigClick = type => {
-    this.setState({ appConfigVisible: false, [type]: true, isEditing: true });
+    this.setState({ appConfigVisible: false, [type]: true });
   };
 
   handleAppIconAndNameChange = obj => {
@@ -535,7 +555,7 @@ export default class AppInfo extends Component {
     if ((_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).cannotCreateApp) {
       _.remove(list, o => o.type === 'copy');
     }
-    // 加锁应用不限制 修改应用名称和外观、编辑应用说明、使用说明、日志（8.2）
+    // 加锁应用不限制 修改应用名称和外观、应用说明、使用说明、日志（8.2）
     if (isLock && isPassword && canLock) {
       list = _.filter(list, it =>
         _.includes(['modify', 'editIntro', 'appAnalytics', 'appLogs', 'modifyAppLockPassword'], it.type),
@@ -594,7 +614,7 @@ export default class AppInfo extends Component {
 
     const renderAppDetailWrap = () => {
       const isMigrate = appStatus === 12;
-
+      const isLeftAppStyle = [1, 3].includes(currentPcNaviStyle);
       return (
         <Fragment>
           {tb && (
@@ -602,20 +622,28 @@ export default class AppInfo extends Component {
               className={cx('appDetailWrap pointer overflowHidden')}
               onDoubleClick={e => {
                 e.stopPropagation();
-                if (canEditApp(permissionType, isLock) && isNormalApp) {
-                  this.setState({ modifyAppIconAndNameVisible: true });
-                }
+                this.setState({ editAppIntroVisible: true, isEditing: false });
               }}
             >
-              <div className="appIconAndName pointer overflow_ellipsis" onClick={this.handleAppNameClick}>
+              <div
+                className={cx('appIconAndName pointer', {
+                  overflow_ellipsis: !isLeftAppStyle,
+                  flexStart: isLeftAppStyle,
+                })}
+                onClick={this.handleAppNameClick}
+              >
                 <div className="appIconWrap">
                   <SvgIcon
                     url={iconUrl}
                     fill={['black', 'light'].includes(themeType) ? iconColor : '#FFF'}
-                    size={[1, 3].includes(currentPcNaviStyle) ? 28 : 24}
+                    size={isLeftAppStyle ? 28 : 24}
                   />
                 </div>
-                <span className="appName overflow_ellipsis">{showName}</span>
+                <span
+                  className={cx('appName', { overflow_ellipsis: !isLeftAppStyle, leftAppStyleAppName: isLeftAppStyle })}
+                >
+                  {showName}
+                </span>
               </div>
             </div>
           )}
@@ -649,7 +677,7 @@ export default class AppInfo extends Component {
                 )}
               </div>
             )}
-          {(isHaveCharge(permissionType, isLock) ? description : true) && (isNormalApp || isMigrate) && (
+          {(!isHaveCharge(permissionType) ? description : false) && (isNormalApp || isMigrate) && (
             <div
               className="appIntroWrap pointer"
               data-tip={_l('应用说明')}
@@ -713,7 +741,7 @@ export default class AppInfo extends Component {
               <MyProcessEntry type="appPkg" renderContent={renderContent} />
             )}
           </div>
-          <div className="flexRow alignItemsCenter pTop10 Relative">{renderAppDetailWrap()}</div>
+          <div className="flexRow pTop10 Relative">{renderAppDetailWrap()}</div>
         </div>
       );
     } else {
@@ -740,9 +768,10 @@ export default class AppInfo extends Component {
       isShowAppIntroFirst,
       copyAppVisible,
       data,
-      isAutofucus,
       appAnalyticsVisible,
       roleDebugVisible,
+      navWidth,
+      dragMaskVisible,
     } = this.state;
     const {
       id: appId,
@@ -777,193 +806,219 @@ export default class AppInfo extends Component {
     }
 
     return (
-      <div
-        className={cx('appPkgHeaderWrap', themeType)}
-        style={{
-          backgroundColor: navColor,
-          width: [1, 3].includes(currentPcNaviStyle) ? 240 : undefined,
-        }}
-      >
-        <DocumentTitle title={showName} />
-        {this.renderAppInfoWrap(showName)}
-        {[1, 3].includes(currentPcNaviStyle) && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
-          <div className="LeftAppGroupWrap w100 h100">
-            <Skeleton active={false} />
-          </div>
-        )}
-        {((!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)) || canDebug) && (
-          <AppGroupComponent
-            appStatus={appStatus}
-            projectId={projectId}
-            appPkg={data}
-            roleSelectValue={(debugRole || {}).selectedRoles || []}
-            roleDebugVisible={roleDebugVisible}
-            {...props}
-            {..._.pick(data, ['permissionType', 'isLock'])}
-            showRoleDebug={() => {
-              this.setState({ roleDebugVisible: !roleDebugVisible });
-            }}
-            otherAllShow={
-              checkRecordInfo(location.pathname) ? false : !(fixed && !hasCharge) && !(pcDisplay && !hasCharge)
-            }
-          />
-        )}
+      <Fragment>
         {[1, 3].includes(currentPcNaviStyle) && (
           <Fragment>
-            <div className="topRadius" style={{ color: navColor }} />
-            <div className="bottomRadius" style={{ color: navColor }} />
-            {themeType === 'light' && (
-              <Fragment>
-                <svg className="topBorderRadius" width="14px" height="22px" viewBox="0 0 14 22" version="1.1">
-                  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <path
-                      d="M0.5,22 L0.5,13.9851088 C0.503434088,13.8199063 0.5,13.6531791 0.5,13.4856816 C0.5,6.59003004 6.32029825,1 13.5,1"
-                      stroke="#0000001a"
-                    ></path>
-                  </g>
-                </svg>
-                <div className="borderLine" />
-                <svg className="bottomBorderRadius" width="14px" height="22px" viewBox="0 0 14 22" version="1.1">
-                  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <path
-                      d="M0.5,21 L0.5,12.9851088 C0.503434088,12.8199063 0.5,12.6531791 0.5,12.4856816 C0.5,5.59003004 6.32029825,0 13.5,0"
-                      stroke="#0000001a"
-                      transform="translate(7.000000, 10.500000) scale(1, -1) translate(-7.000000, -10.500000) "
-                    ></path>
-                  </g>
-                </svg>
-              </Fragment>
+            {dragMaskVisible && (
+              <DragMask
+                value={navWidth}
+                min={240}
+                max={480}
+                onChange={value => {
+                  localStorage.setItem(`appNavWidth-${appId}`, value);
+                  this.setState({
+                    navWidth: value,
+                    dragMaskVisible: false,
+                  });
+                }}
+              />
             )}
+            <Drag
+              left={navWidth}
+              onMouseDown={() => {
+                this.setState({ dragMaskVisible: true });
+              }}
+            />
           </Fragment>
         )}
-        {/* 当应用状态正常且应用描述有值且第一次进入此应用会弹出编辑框 */}
-        <Modal
-          zIndex={1000}
-          className="appIntroDialog"
-          wrapClassName={cx('appIntroDialogWrapCenter', { preview: !isEditing })}
-          visible={editAppIntroVisible || (!window.isPublicApp && isShowAppIntroFirst && description && isNormalApp)}
-          onCancel={() => this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false })}
-          animation="zoom"
-          width={800}
-          footer={null}
-          centered={true}
-          maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-          bodyStyle={{ padding: 0 }}
-          maskAnimation="fade"
-          mousePosition={mousePosition}
-          closeIcon={<Icon icon="close" />}
+        <div
+          className={cx('appPkgHeaderWrap', themeType)}
+          style={{
+            backgroundColor: navColor,
+            width: [1, 3].includes(currentPcNaviStyle) ? navWidth : undefined,
+          }}
         >
-          <EditAppIntro
-            cacheKey="appIntroDescription"
-            data={data}
-            description={isEditing ? description : getTranslateInfo(appId, null, appId).description || description}
-            permissionType={permissionType}
-            isLock={isLock}
-            // isEditing={!description && isAuthorityApp}
-            isEditing={isEditing}
-            changeEditState={isEditing => {
-              this.setState({ isEditing });
-            }}
-            changeSetting={() => {
-              this.setState({
-                hasChange: true,
-              });
-            }}
-            onSave={value => {
-              this.handleEditApp('', { description: !value ? (this.state.hasChange ? value : description) : value });
-              this.setState({
-                hasChange: false,
-              });
-              this.switchVisible({ isShowAppIntroFirst: false, hasChange: false });
-            }}
-            onCancel={() =>
-              this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false })
-            }
-          />
-        </Modal>
-        {copyAppVisible && (
-          <CopyApp title={showName} para={{ appId }} onCancel={() => this.switchVisible({ copyAppVisible: false })} />
-        )}
-
-        <Drawer
-          bodyStyle={{ display: 'flex', flexDirection: 'column', padding: '0' }}
-          width={900}
-          title={null}
-          visible={navigationConfigVisible}
-          destroyOnClose={true}
-          closeIcon={null}
-          onClose={this.closeNavigationConfigVisible}
-          placement="right"
-        >
-          <NavigationConfig
-            app={data}
-            onChangeApp={value => {
-              const result = { ...data, ...value };
-              this.setState({
-                data: result,
-              });
-              this.updateAppDetail(value);
-              this.props.syncAppDetail(result);
-            }}
-            visible={navigationConfigVisible}
-            onClose={this.closeNavigationConfigVisible}
-          />
-        </Drawer>
-        <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>
-          {({ x }) => (
-            <IndexSide
-              posX={x}
-              visible={indexSideVisible}
-              onClose={() => this.setState({ indexSideVisible: false })}
-              onClickAway={() => indexSideVisible && this.setState({ indexSideVisible: false })}
-            />
+          <DocumentTitle title={showName} />
+          {this.renderAppInfoWrap(showName)}
+          {[1, 3].includes(currentPcNaviStyle) && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
+            <div className="LeftAppGroupWrap w100 h100">
+              <Skeleton active={false} />
+            </div>
           )}
-        </Motion>
-        <Fragment>
-          {md.global.Account.isPortal ? (
-            <PortalUserSet
-              appId={md.global.Account.appId}
+          {((!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)) || canDebug) && (
+            <AppGroupComponent
+              appStatus={appStatus}
               projectId={projectId}
-              originalLang={data.originalLang}
-              worksheetId={this.props.match.params.worksheetId}
-              name={showName}
-              iconColor={data.iconColor}
-              currentPcNaviStyle={currentPcNaviStyle}
+              appPkg={data}
+              roleSelectValue={(debugRole || {}).selectedRoles || []}
+              roleDebugVisible={roleDebugVisible}
+              {...props}
+              {..._.pick(data, ['permissionType', 'isLock'])}
+              showRoleDebug={() => {
+                this.setState({ roleDebugVisible: !roleDebugVisible });
+              }}
+              otherAllShow={
+                checkRecordInfo(location.pathname) ? false : !(fixed && !hasCharge) && !(pcDisplay && !hasCharge)
+              }
             />
-          ) : [1, 3].includes(currentPcNaviStyle) ? (
-            <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
-          ) : (
-            <CommonUserHandle type="appPkg" {...props} />
           )}
-        </Fragment>
-        {appAnalyticsVisible && (
-          <AppAnalytics
-            currentAppInfo={{ appId, name: showName, iconColor, iconUrl }}
-            projectId={projectId}
-            onCancel={() => {
-              this.setState({ appAnalyticsVisible: false });
-            }}
-          />
-        )}
-        <Motion style={{ x: spring(roleDebugVisible ? 0 : 400) }}>
-          {({ x }) => (
-            <RoleSelect
-              {..._.pick(data, ['permissionType', 'id'])}
-              visible={roleDebugVisible}
-              roleSelectValue={_.get(debugRole, 'selectedRoles') || []}
-              posX={x}
-              appId={appId}
-              handleClose={() => this.setState({ roleDebugVisible: false })}
-              onClickAway={e => {
-                if (!roleDebugVisible) return;
-                const parent = document.querySelector('.roleSelectCon');
-                if (parent && parent.contains(e)) return;
-                this.setState({ roleDebugVisible: false });
+          {[1, 3].includes(currentPcNaviStyle) && (
+            <Fragment>
+              <div className="topRadius" style={{ color: navColor }} />
+              <div className="bottomRadius" style={{ color: navColor }} />
+              {themeType === 'light' && (
+                <Fragment>
+                  <svg className="topBorderRadius" width="14px" height="22px" viewBox="0 0 14 22" version="1.1">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <path
+                        d="M0.5,22 L0.5,13.9851088 C0.503434088,13.8199063 0.5,13.6531791 0.5,13.4856816 C0.5,6.59003004 6.32029825,1 13.5,1"
+                        stroke="#0000001a"
+                      ></path>
+                    </g>
+                  </svg>
+                  <div className="borderLine" />
+                  <svg className="bottomBorderRadius" width="14px" height="22px" viewBox="0 0 14 22" version="1.1">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <path
+                        d="M0.5,21 L0.5,12.9851088 C0.503434088,12.8199063 0.5,12.6531791 0.5,12.4856816 C0.5,5.59003004 6.32029825,0 13.5,0"
+                        stroke="#0000001a"
+                        transform="translate(7.000000, 10.500000) scale(1, -1) translate(-7.000000, -10.500000) "
+                      ></path>
+                    </g>
+                  </svg>
+                </Fragment>
+              )}
+            </Fragment>
+          )}
+          {/* 当应用状态正常且应用描述有值且第一次进入此应用会弹出编辑框 */}
+          <Modal
+            zIndex={1000}
+            className="appIntroDialog"
+            wrapClassName={cx('appIntroDialogWrapCenter', { preview: !isEditing })}
+            visible={editAppIntroVisible || (!window.isPublicApp && isShowAppIntroFirst && description && isNormalApp)}
+            onCancel={() => this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false })}
+            animation="zoom"
+            width={800}
+            footer={null}
+            centered={true}
+            maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+            bodyStyle={{ padding: 0 }}
+            maskAnimation="fade"
+            mousePosition={mousePosition}
+            closeIcon={<Icon icon="close" />}
+          >
+            <EditAppIntro
+              cacheKey="appIntroDescription"
+              data={data}
+              description={isEditing ? description : getTranslateInfo(appId, null, appId).description || description}
+              permissionType={permissionType}
+              isLock={isLock}
+              // isEditing={!description && isAuthorityApp}
+              isEditing={isEditing}
+              changeEditState={isEditing => {
+                this.setState({ isEditing });
+              }}
+              changeSetting={() => {
+                this.setState({
+                  hasChange: true,
+                });
+              }}
+              onSave={value => {
+                this.handleEditApp('', { description: !value ? (this.state.hasChange ? value : description) : value });
+                this.setState({
+                  hasChange: false,
+                });
+                this.switchVisible({ isShowAppIntroFirst: false, hasChange: false });
+              }}
+              onCancel={() =>
+                this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false })
+              }
+            />
+          </Modal>
+          {copyAppVisible && (
+            <CopyApp title={showName} para={{ appId }} onCancel={() => this.switchVisible({ copyAppVisible: false })} />
+          )}
+
+          <Drawer
+            bodyStyle={{ display: 'flex', flexDirection: 'column', padding: '0' }}
+            width={900}
+            title={null}
+            visible={navigationConfigVisible}
+            destroyOnClose={true}
+            closeIcon={null}
+            onClose={this.closeNavigationConfigVisible}
+            placement="right"
+          >
+            <NavigationConfig
+              app={data}
+              onChangeApp={value => {
+                const result = { ...data, ...value };
+                this.setState({
+                  data: result,
+                });
+                this.updateAppDetail(value);
+                this.props.syncAppDetail(result);
+              }}
+              visible={navigationConfigVisible}
+              onClose={this.closeNavigationConfigVisible}
+            />
+          </Drawer>
+          <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>
+            {({ x }) => (
+              <IndexSide
+                posX={x}
+                visible={indexSideVisible}
+                onClose={() => this.setState({ indexSideVisible: false })}
+                onClickAway={() => indexSideVisible && this.setState({ indexSideVisible: false })}
+              />
+            )}
+          </Motion>
+          <Fragment>
+            {md.global.Account.isPortal ? (
+              <PortalUserSet
+                appId={md.global.Account.appId}
+                projectId={projectId}
+                originalLang={data.originalLang}
+                worksheetId={this.props.match.params.worksheetId}
+                name={showName}
+                iconColor={data.iconColor}
+                currentPcNaviStyle={currentPcNaviStyle}
+              />
+            ) : [1, 3].includes(currentPcNaviStyle) ? (
+              <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
+            ) : (
+              <CommonUserHandle type="appPkg" {...props} />
+            )}
+          </Fragment>
+          {appAnalyticsVisible && (
+            <AppAnalytics
+              currentAppInfo={{ appId, name: showName, iconColor, iconUrl }}
+              projectId={projectId}
+              onCancel={() => {
+                this.setState({ appAnalyticsVisible: false });
               }}
             />
           )}
-        </Motion>
-      </div>
+          <Motion style={{ x: spring(roleDebugVisible ? 0 : 400) }}>
+            {({ x }) => (
+              <RoleSelect
+                {..._.pick(data, ['permissionType', 'id'])}
+                visible={roleDebugVisible}
+                roleSelectValue={_.get(debugRole, 'selectedRoles') || []}
+                posX={x}
+                appId={appId}
+                handleClose={() => this.setState({ roleDebugVisible: false })}
+                onClickAway={e => {
+                  if (!roleDebugVisible) return;
+                  const parent = document.querySelector('.roleSelectCon');
+                  if (parent && parent.contains(e)) return;
+                  this.setState({ roleDebugVisible: false });
+                }}
+              />
+            )}
+          </Motion>
+        </div>
+      </Fragment>
     );
   }
 }

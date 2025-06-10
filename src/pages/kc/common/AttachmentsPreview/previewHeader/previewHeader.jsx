@@ -1,23 +1,23 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import {
-  renameFile,
-  saveToKnowlwdge,
-  replaceAttachment,
-  updateAllowDownload,
-  changePreviewService,
-} from '../actions/action';
-import { validateFileName, isWpsPreview, defaultWpsPreview } from '../../../utils';
-import * as previewUtil from '../constant/util';
-import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
-import 'rc-trigger/assets/index.css';
-import CommonHeader from './CommonHeader';
-import { getFeatureStatus } from 'src/util';
+import PropTypes from 'prop-types';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { defaultWpsPreview, isWpsPreview, validateFileName } from '../../../utils';
+import {
+  changePreviewService,
+  renameFile,
+  replaceAttachment,
+  saveToKnowlwdge,
+  updateAllowDownload,
+} from '../actions/action';
+import { LOADED_STATUS, PREVIEW_TYPE } from '../constant/enum';
+import * as previewUtil from '../constant/util';
+import CommonHeader from './CommonHeader';
+import 'rc-trigger/assets/index.css';
 
 class PreviewHeader extends React.Component {
   static propTypes = {

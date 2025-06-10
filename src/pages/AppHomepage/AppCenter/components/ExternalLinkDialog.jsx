@@ -1,13 +1,13 @@
-import React, { useRef, useState, Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import Dialog from 'ming-ui/components/Dialog';
-import { Input, Icon, Tooltip, TagTextarea, Checkbox } from 'ming-ui';
-import styled from 'styled-components';
-import { LINK_PARA_FIELDS, PUBLISH_CONFIG_OPTIONS } from '../constant';
-import { getThemeColors } from 'src/util';
 import { generate } from '@ant-design/colors';
-import { USER_LIST, SYSTEM_LIST } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Icon, Input, TagTextarea, Tooltip } from 'ming-ui';
+import Dialog from 'ming-ui/components/Dialog';
+import { SYSTEM_LIST, USER_LIST } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config';
+import { getThemeColors } from 'src/utils/project';
+import { LINK_PARA_FIELDS, PUBLISH_CONFIG_OPTIONS } from '../constant';
 
 const Wrapper = styled.div`
   margin-top: 8px;
@@ -103,7 +103,9 @@ const PopupWrapper = styled.div`
   background: #fff;
   overflow: auto;
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid #eee;
   font-size: 14px;
   div {

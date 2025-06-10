@@ -1,10 +1,11 @@
-import sheetAjax from 'src/api/worksheet';
 import update from 'immutability-helper';
-import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './util';
-import _, { get, filter, flatten, isEmpty, isFunction } from 'lodash';
+import _, { filter, flatten, get, isEmpty, isFunction } from 'lodash';
+import sheetAjax from 'src/api/worksheet';
+import { getFilledRequestParams } from 'src/utils/common';
+import { formatQuickFilter } from 'src/utils/filter';
 import { getCurrentView } from '../util';
-import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { updateNavGroup } from './navFilter.js';
+import { dealData, getHierarchyViewIds, getItemByRowId, getParaIds } from './util';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
 let hierarchyPromiseObj;
@@ -673,8 +674,8 @@ export function getDefaultHierarchyData(view, { changeFilters } = {}) {
       Number(childType) === 2
         ? 50
         : _.get(sheet, 'hierarchyView.hierarchyTopLevelDataCount')
-        ? _.get(sheet, 'hierarchyView.hierarchyDataStatus.pageSize')
-        : 1000;
+          ? _.get(sheet, 'hierarchyView.hierarchyDataStatus.pageSize')
+          : 1000;
     const { viewId, viewControl, viewControls, childType } = isEmpty(view) ? getCurrentView(sheet) : view;
     if (!viewControl && isEmpty(viewControls)) return;
     // 层级视图刷新(本表小于1000条加载全量数据)

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Provider, connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
 import _, { isFunction } from 'lodash';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import ChildTable from './ChildTable';
 import generateStore from './redux/store';
 import './style.less';
@@ -35,6 +36,7 @@ export default class extends React.Component {
         relationWorksheetId: worksheetId,
         recordId,
         masterData,
+        DataFormat,
       });
     this.store.init();
     this.bindSubscribe();
@@ -68,11 +70,15 @@ export default class extends React.Component {
     const { onChange = () => {} } = this.props;
     this.unsubscribe = this.store.subscribe(() => {
       const state = this.store.getState();
-      onChange({
-        rows: state.rows,
-        lastAction: state.lastAction,
-        originRows: state.originRows,
-      });
+      const value = _.get(this.props, 'control.value');
+      onChange(
+        {
+          rows: state.rows,
+          lastAction: state.lastAction,
+          originRows: state.originRows,
+        },
+        value,
+      );
     });
   }
 

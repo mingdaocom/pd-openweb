@@ -1,22 +1,24 @@
 import React, { Component, createRef } from 'react';
-import { Icon, Menu, MenuItem, UpgradeIcon } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { tW, tH, tLine, tBottom, NODE_TYPE_LIST, ACTION_LIST } from './config';
-import ChangeName from 'src/pages/integration/components/ChangeName';
 import _ from 'lodash';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import SVG from 'svg.js';
+import { Icon, Menu, MenuItem, UpgradeIcon } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import TaskFlow from 'src/pages/integration/api/taskFlow.js';
+import { Circle } from 'worksheet/styled';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import ChangeName from 'src/pages/integration/components/ChangeName';
 import Avator from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Avator';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
-const ClickAwayable = createDecoratedComponent(withClickAway);
-import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { ACTION_LIST, NODE_TYPE_LIST, tBottom, tH, tLine, tW } from './config';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const Wrap = styled.div`
   position: absolute;
@@ -41,7 +43,9 @@ const Wrap = styled.div`
     overflow: hidden;
     padding: 0 12px 0 0;
     &.isCurrent {
-      box-shadow: 0 1px 2px rgba(33, 150, 243, 0.16), 0 2px 6px rgba(33, 150, 243, 0.5);
+      box-shadow:
+        0 1px 2px rgba(33, 150, 243, 0.16),
+        0 2px 6px rgba(33, 150, 243, 0.5);
     }
     &.isErr {
       border: 1px solid #f44336;
@@ -62,7 +66,7 @@ const Wrap = styled.div`
     z-index: 0;
   }
 `;
-import { Circle } from 'worksheet/styled';
+
 export const AddNode = styled(Circle)`
   background-color: #fff;
   justify-content: center;

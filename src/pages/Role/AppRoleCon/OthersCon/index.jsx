@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ExplainImg from '../../img/userExtendInfo.png';
-import { Support, LoadDiv } from 'ming-ui';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import EditUserExtendInfo from './EditUserExtendInfo.jsx';
-import UserExtendInfo from './UserExtendInfo.jsx';
+import { LoadDiv, Support } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import ExplainImg from '../../img/userExtendInfo.png';
+import EditUserExtendInfo from './EditUserExtendInfo.jsx';
 import img1 from './img/img1.png';
 import img2 from './img/img2.png';
+import UserExtendInfo from './UserExtendInfo.jsx';
 
 const Con = styled.div`
   margin: 0 auto;

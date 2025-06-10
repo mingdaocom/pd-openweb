@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Tooltip from 'ming-ui/components/Tooltip';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import './SearchInput.less';
 
 export default class SearchInput extends Component {
@@ -12,6 +12,7 @@ export default class SearchInput extends Component {
     focusedClass: PropTypes.string,
     style: PropTypes.shape({}),
     placeholder: PropTypes.string,
+    showCaseSensitive: PropTypes.bool,
     onClear: PropTypes.func,
     onOk: PropTypes.func,
     onFocus: PropTypes.func,
@@ -27,6 +28,7 @@ export default class SearchInput extends Component {
     super(props);
     this.state = {
       isFocus: false,
+      isCaseSensitive: false,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -43,16 +45,17 @@ export default class SearchInput extends Component {
     this.setState({ value: '' });
   }
   render() {
-    const { inputWidth, focusedClass, style, searchIcon } = this.props;
-    const { value, isFocus } = this.state;
+    const { inputWidth, focusedClass, style, searchIcon, showCaseSensitive } = this.props;
+    const { value, isFocus, isCaseSensitive } = this.state;
     const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder, triggerWhenBlurWithEmpty } = this.props;
+    const focusMode = isFocus || isCaseSensitive;
     return (
       <div
         className={cx(
           'searchInputComp',
           className,
-          { default: !isFocus, flex: isFocus && browserIsMobile() },
-          isFocus ? focusedClass : '',
+          { default: !focusMode, flex: focusMode && browserIsMobile() },
+          focusMode ? focusedClass : '',
         )}
         style={style}
       >
@@ -89,37 +92,39 @@ export default class SearchInput extends Component {
               />
             )}
           </Tooltip>
-          <input
-            className={cx({ flex: browserIsMobile() })}
-            ref={inputEl => {
-              this.inputEl = inputEl;
-            }}
-            placeholder={placeholder || _l('搜索')}
-            type={browserIsMobile() ? 'search' : 'text'}
-            value={value}
-            style={isFocus && inputWidth ? { width: inputWidth } : {}}
-            onKeyUp={e => {
-              if (e.keyCode === 13) {
-                onOk(e.target.value);
-              }
-            }}
-            onChange={e => {
-              this.setState({ value: e.target.value });
-            }}
-            onFocus={() => {
-              this.setState({ isFocus: true });
-              onFocus();
-            }}
-            onBlur={e => {
-              if (!value && !keyWords) {
-                this.setState({ isFocus: false });
-                onBlur();
-              }
-              if (triggerWhenBlurWithEmpty && e.target.value === '' && keyWords) {
-                onOk('');
-              }
-            }}
-          />
+          {focusMode && (
+            <input
+              className={cx({ flex: browserIsMobile() })}
+              ref={inputEl => {
+                this.inputEl = inputEl;
+              }}
+              placeholder={placeholder || _l('搜索')}
+              type={browserIsMobile() ? 'search' : 'text'}
+              value={value}
+              style={isFocus && inputWidth ? { width: inputWidth } : {}}
+              onKeyUp={e => {
+                if (e.keyCode === 13) {
+                  onOk(e.target.value, { isCaseSensitive });
+                }
+              }}
+              onChange={e => {
+                this.setState({ value: e.target.value });
+              }}
+              onFocus={() => {
+                this.setState({ isFocus: true });
+                onFocus();
+              }}
+              onBlur={e => {
+                if (!value && !keyWords) {
+                  this.setState({ isFocus: false });
+                  onBlur();
+                }
+                if (triggerWhenBlurWithEmpty && e.target.value === '' && keyWords) {
+                  onOk('');
+                }
+              }}
+            />
+          )}
           <i
             className={cx('icon icon-cancel Hand Gray_9e', {
               none: !value,
@@ -130,6 +135,18 @@ export default class SearchInput extends Component {
               });
             }}
           />
+          {showCaseSensitive && (
+            <div
+              className={cx('caseSensitive', { ThemeColor3: isCaseSensitive })}
+              onMouseDown={() => {
+                this.setState({ isCaseSensitive: !isCaseSensitive });
+                onOk(value, { isCaseSensitive: !isCaseSensitive });
+              }}
+              data-tip={isCaseSensitive ? _l('取消区分大小写') : _l('区分大小写')}
+            >
+              <i className="icon icon-case"></i>
+            </div>
+          )}
         </div>
       </div>
     );

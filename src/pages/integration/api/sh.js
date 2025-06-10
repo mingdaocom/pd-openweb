@@ -8,6 +8,10 @@ var sh = {
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
    * @param {array} args.workSheetIds No comments found.
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
+   * @param {string} args.searchField No comments found.
+   * @param {string} args.searchValue No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -16,6 +20,26 @@ var sh = {
     base.ajaxOptions.url = base.server(options) + 'sh/getStorehouseInfo';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'shgetStorehouseInfo', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 删除中间库表缓存key
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId No comments found.
+   * @param {array} args.workSheetIds No comments found.
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
+   * @param {string} args.searchField No comments found.
+   * @param {string} args.searchValue No comments found.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  delTableCache: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'sh/delTableCache';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'shdelTableCache', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -38,6 +62,10 @@ var sh = {
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
    * @param {array} args.workSheetIds No comments found.
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
+   * @param {string} args.searchField No comments found.
+   * @param {string} args.searchValue No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -54,6 +82,10 @@ var sh = {
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
    * @param {array} args.workSheetIds No comments found.
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
+   * @param {string} args.searchField No comments found.
+   * @param {string} args.searchValue No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -65,11 +97,35 @@ var sh = {
   },
 
   /**
+   * 获取同步标识
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId No comments found.
+   * @param {array} args.workSheetIds No comments found.
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
+   * @param {string} args.searchField No comments found.
+   * @param {string} args.searchValue No comments found.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getSyncFlag: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'sh/getSyncFlag';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'shgetSyncFlag', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 删除mongodb中intermediate_warehouse数据库下指定worksheetId集合接口
    *
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
    * @param {array} args.workSheetIds No comments found.
+   * @param {integer} args.pageNo No comments found.
+   * @param {integer} args.pageSize No comments found.
+   * @param {string} args.searchField No comments found.
+   * @param {string} args.searchValue No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

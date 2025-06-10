@@ -1,42 +1,44 @@
-import PropTypes from 'prop-types';
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { useKey } from 'react-use';
-import { bindActionCreators } from 'redux';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
-import cx from 'classnames';
+import { bindActionCreators } from 'redux';
+import { useKey } from 'react-use';
 import { Popover } from 'antd';
-import RightInMotion from 'worksheet/components/Animations/RightInMotion';
-import { Icon, Tooltip, RichText } from 'ming-ui';
+import cx from 'classnames';
+import _, { get } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Icon, RichText, Tooltip } from 'ming-ui';
+import Statistics from 'statistics';
+import { BatchOperate } from 'worksheet/common';
+import Discussion from 'worksheet/common/Discussion';
+import SelectIcon from 'worksheet/common/SelectIcon';
 import SheetDesc from 'worksheet/common/SheetDesc';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
-import SelectIcon from 'worksheet/common/SelectIcon';
-import Statistics from 'statistics';
-import Discussion from 'worksheet/common/Discussion';
+import RightInMotion from 'worksheet/components/Animations/RightInMotion';
 import SearchInput from 'worksheet/components/SearchInput';
-import { emitter, needHideViewFilters } from 'worksheet/util';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import {
   addNewRecord,
-  updateWorksheetInfo,
-  updateFilters,
+  clearChartId,
   refreshSheet,
   refreshWorksheetControls,
-  clearChartId,
+  updateFilters,
+  updateWorksheetInfo,
 } from 'worksheet/redux/actions';
-import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
-import SheetMoreOperate from './SheetMoreOperate';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getAppFeaturesVisible, getTranslateInfo } from 'src/util';
-import { BatchOperate } from 'worksheet/common';
-import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
-import { findSheet, getHighAuthSheetSwitchPermit } from 'worksheet/util';
-import { getAppSectionData, getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { deleteSheet, updateSheetList, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
-import { navigateTo } from 'src/router/navigateTo';
-import _, { get } from 'lodash';
 import { isHaveCharge } from 'worksheet/redux/actions/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { getAppSectionData, getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
+import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/app';
+import { needHideViewFilters } from 'src/utils/filter';
+import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
+import { findSheet } from 'src/utils/worksheet';
+import SheetMoreOperate from './SheetMoreOperate';
 
 const Con = styled.div`
   display: flex;
@@ -329,10 +331,7 @@ function SheetHeader(props) {
             controls={controls}
             sheetSwitchPermit={lastSheetSwitchPermit}
             // funcs
-            setSheetDescVisible={value => {
-              setDescIsEditing(true);
-              setSheetDescVisible(value);
-            }}
+            setSheetDescVisible={setSheetDescVisible}
             setEditNameVisible={setEditNameVisible}
             updateWorksheetInfo={updateWorksheetInfo}
             reloadWorksheet={() => refreshSheet(view)}
@@ -378,12 +377,18 @@ function SheetHeader(props) {
                     triggerWhenBlurWithEmpty
                     keyWords={filters.keyWords}
                     viewId={viewId}
-                    className="queryInput worksheetQueryInput"
-                    onOk={value => {
-                      updateFiltersWithView({ keyWords: (value || '').trim() });
+                    className="queryInput worksheetQueryInput mRight8"
+                    showCaseSensitive
+                    onOk={(value, { isCaseSensitive = false } = {}) => {
+                      updateFiltersWithView({
+                        keyWords: (value || '').trim(),
+                        requestParams: {
+                          ignorecase: isCaseSensitive ? '0' : '1',
+                        },
+                      });
                     }}
                     onClear={() => {
-                      updateFiltersWithView({ keyWords: '' });
+                      updateFiltersWithView({ keyWords: '', requestParams: { ignorecase: '1' } });
                     }}
                   />
                 )}
@@ -474,7 +479,7 @@ function SheetHeader(props) {
                 onClick={openNewRecord}
               >
                 <span className="Icon icon icon-plus Font13 mRight5 White" />
-                <span className="White bold">{advancedSetting.btnname || entityName}</span>
+                <span className="White bold">{advancedSetting.btnname || entityName || _l('记录')}</span>
               </span>
             )}
           </VerticalCenter>

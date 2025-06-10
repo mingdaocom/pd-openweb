@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
+import { Dialog, UserCard } from 'ming-ui';
 import service from '../../api/service';
-import { PICK_TYPE, ROOT_LOG_TYPE, ROOT_PERMISSION_TYPE, PERMISSION_TYPE_NAME } from '../../constant/enum';
+import { htmlEncodeReg } from 'src/utils/common';
+import { PERMISSION_TYPE_NAME, PICK_TYPE, ROOT_LOG_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import { humanDateTime } from '../../utils';
 import './rootLog.less';
-import { htmlEncodeReg } from 'src/util';
-import { Dialog, UserCard } from 'ming-ui';
 
 /*
  * 获取日志中成员名称显示@

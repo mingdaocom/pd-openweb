@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import createUploader from 'src/library/plupload/createUploader';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
+
 export default class UploadFile extends Component {
   constructor(props) {
     super(props);

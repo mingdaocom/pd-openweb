@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import _ from 'lodash';
-import cx from 'classnames';
 import certificationApi from '../../api/certification';
 
 const SelectDialog = styled(Dialog)`
@@ -80,10 +80,12 @@ function SelectCertification(props) {
       {certList.map((item, index) => (
         <React.Fragment>
           <div
-            className={cx('certItem', { isActive: current.entityId === item.entityId })}
+            className={cx('certItem', {
+              isActive: current.entityId === item.entityId && current.authType === item.authType,
+            })}
             onClick={() => setCurrent(item)}
           >
-            <div className="tagText">{item.authType === 1 ? _l('个人认证') : _l('企业认证')}</div>
+            <div className="tagText">{item.authType === 1 ? _l('个人认证') : _l('组织认证')}</div>
             <div className="name">{item.name}</div>
           </div>
           {!!certList.filter(item => item.authType === 2).length &&

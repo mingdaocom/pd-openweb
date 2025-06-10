@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { number, string, arrayOf, shape } from 'prop-types';
 import cx from 'classnames';
-import { Icon, Button, Menu, MenuItem, Dialog, VerifyPasswordInput, SvgIcon } from 'ming-ui';
-import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
-import { ACTION_LIST, OPERATION_LIST, ACTION_TO_METHOD } from './config';
-import OtherAction from './components/OtherAction';
-import AddApproveWay from './components/AddApproveWay';
-import instance from '../../api/instance';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { Button, Dialog, Icon, Menu, MenuItem, SvgIcon, VerifyPasswordInput } from 'ming-ui';
+import instance from '../../api/instance';
 import verifyPassword from 'src/components/verifyPassword';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
+import AddApproveWay from './components/AddApproveWay';
+import OtherAction from './components/OtherAction';
 import PrintList from './components/PrintList';
+import { ACTION_LIST, ACTION_TO_METHOD, OPERATION_LIST } from './config';
 
 export default class Header extends Component {
   static propTypes = {
@@ -24,6 +24,8 @@ export default class Header extends Component {
     currentWorkItem: shape({ operationTime: string }),
     errorMsg: string,
     instanceId: string,
+    isLoading: bool,
+    onRefresh: func,
   };
 
   static defaultProps = {
@@ -32,6 +34,8 @@ export default class Header extends Component {
     currentWorkItem: {},
     errorMsg: '',
     instanceId: '',
+    isLoading: false,
+    onRefresh: () => {},
   };
 
   state = {
@@ -194,7 +198,7 @@ export default class Header extends Component {
    * 请求后台接口，因参数一致故统一处理
    */
   request = (action, restPara = {}, noSave = false) => {
-    const { id, workId, onSave, onClose, onSubmit } = this.props;
+    const { id, workId, onSave, onLoad, onClose, onSubmit } = this.props;
     const { isRequest } = this.state;
     const isStash = restPara.operationType === 13;
     const saveFunction = ({ error, logId }) => {
@@ -214,10 +218,13 @@ export default class Header extends Component {
             } else {
               this.setState({ isRequest: false, isUrged: true });
             }
+          } else if (onLoad) {
+            onLoad();
+            onClose();
           }
         });
 
-        if (!_.includes([13, 18], restPara.operationType)) {
+        if (!_.includes([13, 18], restPara.operationType) && !onLoad) {
           onSave();
           onClose();
         }
@@ -297,6 +304,21 @@ export default class Header extends Component {
     });
   }
 
+  renderRefreshBtn = () => {
+    const { onRefresh, isLoading } = this.props;
+
+    return (
+      <span
+        className={cx('refreshBtn Font20 Gray_9e ThemeHoverColor3 Hand mRight10', {
+          isLoading,
+        })}
+        onClick={onRefresh}
+      >
+        <i className="icon-task-later" />
+      </span>
+    );
+  };
+
   render() {
     const {
       projectId,
@@ -318,6 +340,7 @@ export default class Header extends Component {
     if (errorMsg) {
       return (
         <header className="flexRow workflowStepHeader">
+          {this.renderRefreshBtn()}
           <div className="stepTitle flexRow errorHeader Gray_75">
             <Icon icon="Import-failure" className="Font18" />
             <span className="Font14 ellipsis mLeft6">{errorMsg || 'text'}</span>
@@ -340,6 +363,7 @@ export default class Header extends Component {
       return (
         <Fragment>
           <header className="flexRow workflowStepHeader">
+            {this.renderRefreshBtn()}
             <div className="workflowStepIcon" style={{ background: app.iconColor }}>
               <SvgIcon url={app.iconUrl} fill="#fff" size={20} addClassName="mTop1" />
             </div>
@@ -387,8 +411,8 @@ export default class Header extends Component {
                             {isRequest && id === action
                               ? _l('处理中...')
                               : isUrged && id === 'urge'
-                              ? _l('已催办')
-                              : btnMap[key] || text}
+                                ? _l('已催办')
+                                : btnMap[key] || text}
                           </Button>
                         );
                       })}

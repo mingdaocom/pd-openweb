@@ -1,5 +1,5 @@
-import * as ACTIONS from './actions';
 import _ from 'lodash';
+import * as ACTIONS from './actions';
 
 const updateSingleEntity = (user, action) => {
   const { type, payload } = action;
@@ -18,6 +18,7 @@ const updateSingleEntity = (user, action) => {
         moreLoading: moreLoading || false,
         pageIndex: pageIndex ? pageIndex : user.pageIndex,
         subTotalCount: totalCount || user.subTotalCount || 0,
+        sourceData: (user.sourceData || []).concat(source),
       };
       break;
     case ACTIONS.OPEN_COLLAPSE:

@@ -50,8 +50,43 @@
 }
 
 .sectionConfirmDialog {
-  .mui-dialog-dialog.mui-dialog-confirm {
+  .mui-dialog-dialog {
     background-color: #f5f5f5;
+  }
+  .mui-dialog-footer {
+    padding-top: 0;
+    .addTabWidgetLeftWrap {
+      display: flex;
+      align-items: center;
+      .tabPositionWrap {
+        display: flex;
+        background: #f0f0f0;
+        border-radius: 3px;
+        padding: 2px;
+        .tabPositionItem {
+          height: 36px;
+          border-radius: 3px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-weight: bold;
+          color: #757575;
+          padding: 0 16px;
+          margin-left: 2px;
+          &:first-child {
+            margin-left: 0;
+          }
+          &:hover {
+            color: #2196f3;
+          }
+          &.active {
+            color: #fff;
+            background-color: #757575;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -123,4 +158,8 @@
   > .mui-dialog-close-btn {
     top: 12px !important;
   }
+}
+
+.selectDialogZIndex {
+  z-index: 1050;
 }

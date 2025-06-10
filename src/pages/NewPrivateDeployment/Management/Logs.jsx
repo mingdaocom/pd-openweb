@@ -1,21 +1,23 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { DatePicker, Input, Button, ConfigProvider } from 'antd';
-import styled from 'styled-components';
-import privateHkLog from 'src/api/privateHkLog';
-import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
-import moment from 'moment';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import { Button, ConfigProvider, DatePicker, Input } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import privateHkLog from 'src/api/privateHkLog';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
 
 const { RangePicker } = DatePicker;
 
 const Header = styled.div`
   padding-bottom: 30px;
-  .serverName, .logName, .filterTime {
+  .serverName,
+  .logName,
+  .filterTime {
     width: 15%;
     margin-right: 20px;
   }
@@ -26,10 +28,13 @@ const Header = styled.div`
     padding: 4px 25px;
   }
   .input {
-    &.ant-input-affix-wrapper:hover, &:hover {
-      border-color: #2196F3 !important;
+    &.ant-input-affix-wrapper:hover,
+    &:hover {
+      border-color: #2196f3 !important;
     }
-    &.ant-input-affix-wrapper, &.ant-input-affix-wrapper-focused, & {
+    &.ant-input-affix-wrapper,
+    &.ant-input-affix-wrapper-focused,
+    & {
       border-radius: 2px !important;
       box-shadow: none !important;
     }
@@ -52,7 +57,8 @@ const Content = styled.div`
   .serverName {
     padding-left: 10px;
   }
-  .serverName, .time {
+  .serverName,
+  .time {
     flex: 1;
   }
   .logContent {
@@ -60,10 +66,10 @@ const Content = styled.div`
     word-break: break-word;
   }
   .justifyContentCenter {
-    justify-content: center
+    justify-content: center;
   }
   .highlig {
-    background-color: #F7A943;
+    background-color: #f7a943;
   }
 `;
 
@@ -88,8 +94,8 @@ export default class Logs extends Component {
       loading: false,
       pageIndex: 1,
       isMore: true,
-      logList: []
-    }
+      logList: [],
+    };
   }
   componentDidMount() {
     this.getLogs();
@@ -104,55 +110,65 @@ export default class Logs extends Component {
     this.setState({ loading: true });
 
     const pageSize = 50;
-    const [ start, end ] = date;
+    const [start, end] = date;
     const startTime = start ? moment(start).format('YYYY-MM-DD HH:mm:ss') : undefined;
     const endTime = end ? moment(end).format('YYYY-MM-DD HH:mm:ss') : undefined;
 
-    privateHkLog.getLogs({
-      pageIndex,
-      pageSize,
-      serviceName: serverName,
-      keywords,
-      startTime,
-      endTime
-    }).then(data => {
-      const { logList } = this.state;
-      const newList = logList.concat(data.list);
-      this.setState({
-        loading: false,
-        logList: newList,
-        pageIndex: pageIndex + 1,
-        isMore: data.list.length >= pageSize
+    privateHkLog
+      .getLogs({
+        pageIndex,
+        pageSize,
+        serviceName: serverName,
+        keywords,
+        startTime,
+        endTime,
+      })
+      .then(data => {
+        const { logList } = this.state;
+        const newList = logList.concat(data.list);
+        this.setState({
+          loading: false,
+          logList: newList,
+          pageIndex: pageIndex + 1,
+          isMore: data.list.length >= pageSize,
+        });
       });
-    });
   }
   handleQuery = () => {
-    this.setState({
-      pageIndex: 1,
-      isMore: true,
-      logList: []
-    }, this.getLogs);
-  }
+    this.setState(
+      {
+        pageIndex: 1,
+        isMore: true,
+        logList: [],
+      },
+      this.getLogs,
+    );
+  };
   handleReset = () => {
-    this.setState({
-      pageIndex: 1,
-      isMore: true,
-      logList: [],
-      serverName: '',
-      keywords: '',
-      date: []
-    }, this.getLogs);
-  }
+    this.setState(
+      {
+        pageIndex: 1,
+        isMore: true,
+        logList: [],
+        serverName: '',
+        keywords: '',
+        date: [],
+      },
+      this.getLogs,
+    );
+  };
   handleDownload = () => {
     const { serverName, keywords, date } = this.state;
-    const [ start, end ] = date;
+    const [start, end] = date;
     const startTime = start ? moment(start).format('YYYY-MM-DD HH:mm:ss') : '';
     const endTime = end ? moment(end).format('YYYY-MM-DD HH:mm:ss') : '';
-    window.open(`${md.global.Config.AjaxApiUrl}PrivateHkLog/DownloadLogs?serviceName=${serverName}&keywords=${keywords}&startTime=${startTime}&endTime=${endTime}`);
-  }
+    window.open(
+      `${md.global.Config.AjaxApiUrl}PrivateHkLog/DownloadLogs?serviceName=${serverName}&keywords=${keywords}&startTime=${startTime}&endTime=${endTime}`,
+    );
+  };
   handleScrollEnd = () => {
     this.getLogs();
-  }
+  };
   renderFilter() {
     const { date, serverName, keywords } = this.state;
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
@@ -164,9 +180,9 @@ export default class Logs extends Component {
             className="input"
             placeholder={_l('输入完整的服务名')}
             value={serverName}
-            onChange={(event) => {
+            onChange={event => {
               this.setState({
-                serverName: event.target.value
+                serverName: event.target.value,
               });
             }}
             onKeyDown={event => {
@@ -180,9 +196,9 @@ export default class Logs extends Component {
             className="input"
             placeholder={_l('输入日志内容')}
             value={keywords}
-            onChange={(event) => {
+            onChange={event => {
               this.setState({
-                keywords: event.target.value
+                keywords: event.target.value,
               });
             }}
             onKeyDown={event => {
@@ -197,16 +213,18 @@ export default class Logs extends Component {
             locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
             value={date}
             showTime={{ format: 'HH:mm:ss' }}
-            onChange={(date) => {
+            onChange={date => {
               this.setState({
-                date: date || []
+                date: date || [],
               });
             }}
           />
         </div>
         <div className="valignWrapper">
           <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button className="mRight10" type="primary" onClick={this.handleQuery}>{_l('查询')}</Button>
+            <Button className="mRight10" type="primary" onClick={this.handleQuery}>
+              {_l('查询')}
+            </Button>
             <Button onClick={this.handleReset}>{_l('重置')}</Button>
           </ConfigProvider>
         </div>
@@ -222,18 +240,10 @@ export default class Logs extends Component {
           <div className="Gray_75 Bold serverName">{_l('服务名')}</div>
           <div className="Gray_75 Bold logContent">{_l('日志内容')}</div>
           <div className="valignWrapper Absolute rightWrapper">
-            <Button
-              type="link"
-              icon={<Icon className="mRight5" icon="file_download" />}
-              onClick={this.handleDownload}
-            >
+            <Button type="link" icon={<Icon className="mRight5" icon="file_download" />} onClick={this.handleDownload}>
               {_l('导出前500条日志')}
             </Button>
-            <Button
-              type="link"
-              icon={<Icon className="mRight5" icon="workflow_cycle" />}
-              onClick={this.handleQuery}
-            >
+            <Button type="link" icon={<Icon className="mRight5" icon="workflow_cycle" />} onClick={this.handleQuery}>
               {_l('刷新')}
             </Button>
           </div>

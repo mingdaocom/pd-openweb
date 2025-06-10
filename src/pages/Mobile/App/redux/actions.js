@@ -1,9 +1,9 @@
-import homeAppApi from 'src/api/homeApp';
-import appManagementApi from 'src/api/appManagement';
-import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { Dialog } from 'antd-mobile';
-import { getAppLangDetail, getTranslateInfo } from 'src/util';
 import _ from 'lodash';
+import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
 
 export const getAppDetail =
   (appId, cb, isPullRefresh = false) =>
@@ -108,7 +108,7 @@ export const addAppApply =
           Dialog.alert({
             content: _l('申请已提交'),
             confirmText: _l('确定'),
-            onAction: () => {}
+            onAction: () => {},
           });
         }
       });
@@ -151,9 +151,9 @@ export const editAppInfo = (viewHideNavi, callback) => (dispatch, getState) => {
   });
 };
 
-export const updateAppScrollY = scrollY => (dispatch) => {
+export const updateAppScrollY = scrollY => dispatch => {
   dispatch({
     type: 'APP_SCROLL_Y',
-    data: scrollY
-  })
-}
+    data: scrollY,
+  });
+};

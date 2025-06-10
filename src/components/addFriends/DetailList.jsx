@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { LoadDiv, ScrollView, Icon } from 'ming-ui';
-import _ from 'lodash';
-import ProjectController from 'src/api/project';
-import InvitationController from 'src/api/invitation';
 import ClipboardButton from 'react-clipboard.js';
-import { existAccountHint } from 'src/util';
+import _ from 'lodash';
 import moment from 'moment';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import InvitationController from 'src/api/invitation';
+import ProjectController from 'src/api/project';
+import { existAccountHint } from 'src/utils/common';
 
 const Tips = {
   1: _l('暂无使用中的邀请链接'),
@@ -176,7 +176,11 @@ export default class DetailList extends Component {
     const { detailMode } = this.props;
 
     if (!loading && _.isEmpty(list)) {
-      return <div className="addFriendsContent flexRow alignItemsCenter justifyContentCenter">{Tips[this.props.detailMode]}</div>;
+      return (
+        <div className="addFriendsContent flexRow alignItemsCenter justifyContentCenter">
+          {Tips[this.props.detailMode]}
+        </div>
+      );
     }
 
     return (

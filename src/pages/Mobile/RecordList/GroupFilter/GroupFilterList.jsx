@@ -1,23 +1,25 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Breadcrumb } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, Input, LoadDiv, ScrollView } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
+import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { getSourceControlByNav, sortDataByCustomNavs } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
-import sheetAjax from 'src/api/worksheet';
-import { Icon, Input, ScrollView, LoadDiv } from 'ming-ui';
-import { Breadcrumb } from 'antd';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { getAdvanceSetting } from 'src/util';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { sortDataByCustomNavs, getSourceControlByNav } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
 import { TYPES } from './util';
-import cx from 'classnames';
 import './index.less';
-import _ from 'lodash';
 
 let ajaxFn = null;
 let ajaxRequest = null;
@@ -33,6 +35,7 @@ const GroupFilterList = props => {
     viewFlag,
     style = {},
     showSearch = true,
+    worksheetInfo = {},
     sliderCurrentGroup = {},
     handleClickItem = () => {},
   } = props;
@@ -48,6 +51,7 @@ const GroupFilterList = props => {
   const [loading, setLoading] = useState(true);
   const [searchRecordList, setSearchRecordList] = useState([]);
   const [nextData, setNextData] = useState([]);
+  const [previewRecordId, setPreviewRecordId] = useState();
   const [currentGroup, setCurrentGroup] = useState(
     appnavtype === '3' && showallitem !== '1' ? { txt: _l('全部'), value: '', isLeaf: true } : {},
   );
@@ -57,13 +61,22 @@ const GroupFilterList = props => {
   let isOption = [9, 10, 11].includes(source.type) || [9, 10, 11].includes(source.sourceControlType); //是否选项
   const breadNavBar = useRef();
 
+  const onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => setPreviewRecordId(undefined));
+  };
+
   useEffect(() => {
     ajaxFn = null;
   }, [viewFlag]);
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
     setBreadMavHeight(height);
-  });
+    window.addEventListener('popstate', onQueryChange);
+
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, []);
   useEffect(() => {
     fetch();
   }, [keywords]);
@@ -618,6 +631,7 @@ const GroupFilterList = props => {
                 <div
                   className="recordItem"
                   onClick={() => {
+                    handlePushState('page', 'recordDetail');
                     setPreviewRecordId(item.rowid);
                   }}
                 >
@@ -681,6 +695,19 @@ const GroupFilterList = props => {
       )}
       {!keywords && navGroupData && currentNodeId && renderBreadcrumb()}
       {conRender()}
+
+      <RecordInfoModal
+        className="full"
+        visible={!!previewRecordId}
+        enablePayment={worksheetInfo.enablePayment}
+        appId={base.appId}
+        worksheetId={base.worksheetId}
+        viewId={base.viewId}
+        rowId={previewRecordId}
+        onClose={() => {
+          setPreviewRecordId(undefined);
+        }}
+      />
     </div>
   );
 };

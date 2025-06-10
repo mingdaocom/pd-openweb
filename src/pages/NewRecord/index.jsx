@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Button } from 'ming-ui';
+import { Button, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import sheetAjax from 'src/api/worksheet';
@@ -47,7 +48,9 @@ const STATUS = {
   SUCCESS: 2,
   ERROR: 3,
 };
+
 @withRouter
+@connect(({ appPkg }) => ({ appPkg }))
 export default class NewRecordLand extends Component {
   constructor(props) {
     super(props);
@@ -69,9 +72,18 @@ export default class NewRecordLand extends Component {
     });
   }
   render() {
-    const { match = {} } = this.props;
+    const { match = {}, appPkg } = this.props;
     const { appId, worksheetId, viewId } = match.params || {};
     const { isLarge, status } = this.state;
+    
+    if (!appPkg.id) {
+      return (
+        <div className="newRecordLand">
+          <LoadDiv />
+        </div>
+      );
+    }
+
     return (
       <div className={cx('newRecordLand')} style={isLarge ? { width: 'calc(100% - 64px)', maxWidth: '1200px' } : {}}>
         {status === STATUS.NORMAL && (

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import ViewErrorPage from '../components/ViewErrorPage';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { isRelateRecordTableControl } from 'worksheet/util';
-import * as actions from 'mobile/RecordList/redux/actions';
+import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
+import * as actions from 'mobile/RecordList/redux/actions';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import ViewErrorPage from '../components/ViewErrorPage';
 
 const ResourceViewWrap = styled.div`
   flex: 1;

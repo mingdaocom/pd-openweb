@@ -1,10 +1,10 @@
-import _ from 'lodash';
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import styled from 'styled-components';
-import { minHeightObj, lineBottomHeight, pageSize } from 'src/pages/worksheet/views/ResourceView/config.js';
-import RecordBlock from './RecordBlock';
-import { browserIsMobile } from 'src/util';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { lineBottomHeight, minHeightObj, pageSize } from 'src/pages/worksheet/views/ResourceView/config.js';
+import { browserIsMobile } from 'src/utils/common';
+import RecordBlock from './RecordBlock';
 
 const Wrap = styled.div`
   z-index: 1;

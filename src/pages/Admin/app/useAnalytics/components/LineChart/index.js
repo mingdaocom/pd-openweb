@@ -1,8 +1,8 @@
 import React from 'react';
-import { formatter } from '../../util';
 import _ from 'lodash';
 import moment from 'moment';
-import { formatFileSize } from 'src/util';
+import { formatFileSize } from 'src/utils/common';
+import { formatter } from '../../util';
 
 export default class LineChart extends React.Component {
   constructor(props) {
@@ -140,8 +140,8 @@ export default class LineChart extends React.Component {
               let nextDate = isWeek
                 ? moment(date).endOf('week').format('YYYY/MM/DD')
                 : isMonth
-                ? moment(date).endOf('month').format('YYYY/MM/DD')
-                : '';
+                  ? moment(date).endOf('month').format('YYYY/MM/DD')
+                  : '';
               if (nextDate && moment().isBefore(nextDate)) {
                 nextDate = moment().format('YYYY/MM/DD');
               }
@@ -157,21 +157,21 @@ export default class LineChart extends React.Component {
                   ? datum.value1 || datum.value1 === 0
                     ? _l('次数')
                     : datum.value2 || datum.value2 === 0
-                    ? _l('人数')
-                    : ''
+                      ? _l('人数')
+                      : ''
                   : datum.value1 || datum.value1 === 0
-                  ? _l('行记录数')
-                  : datum.value2 || datum.value2 === 0
-                  ? _l('人数')
-                  : '';
+                    ? _l('行记录数')
+                    : datum.value2 || datum.value2 === 0
+                      ? _l('人数')
+                      : '';
               return {
                 name,
                 value:
                   datum.value1 > 0
                     ? formatter(datum.value1) + ' ' + unit
                     : datum.value2 > 0
-                    ? formatter(datum.value2) + ' ' + unit
-                    : 0 + ' ' + unit,
+                      ? formatter(datum.value2) + ' ' + unit
+                      : 0 + ' ' + unit,
               };
             },
           },
@@ -227,8 +227,8 @@ export default class LineChart extends React.Component {
               let nextDate = isWeek
                 ? moment(date).endOf('week').format('YYYY/MM/DD')
                 : isMonth
-                ? moment(date).endOf('month').format('YYYY/MM/DD')
-                : '';
+                  ? moment(date).endOf('month').format('YYYY/MM/DD')
+                  : '';
               if (nextDate && moment().isBefore(nextDate)) {
                 nextDate = moment().format('YYYY/MM/DD');
               }
@@ -298,8 +298,8 @@ export default class LineChart extends React.Component {
               return `<div class="g2TooltipWrap">
                 <div class="g2-tooltip-title">${title}</div>
                 <div class="bold mTop12">${_l('总计：')}${
-                currentTotal > 0 ? formatter(currentTotal.toFixed(2)) + ' ' + unit : 0 + ' ' + unit
-              }</div>
+                  currentTotal > 0 ? formatter(currentTotal.toFixed(2)) + ' ' + unit : 0 + ' ' + unit
+                }</div>
                 <ul class="g2-tooltip-list">
                 ${(function () {
                   return items

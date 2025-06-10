@@ -1,15 +1,15 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Dropdown, Dialog, Icon, Radio, Checkbox } from 'ming-ui';
-import { TIME_TYPE, TIME_TYPE_NAME, EXEC_TIME_TYPE, NODE_TYPE, DATE_TYPE } from '../../../enum';
+import React, { Fragment, useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import cx from 'classnames';
-import SpecificFieldsValue from '../SpecificFieldsValue';
+import { Checkbox, Dialog, Dropdown, Icon, Radio } from 'ming-ui';
+import MembersName from '../../../EditFlow/components/MembersName';
+import { DATE_TYPE, EXEC_TIME_TYPE, NODE_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
+import Deadline from '../Deadline';
 import Member from '../Member';
 import SelectUserDropDown from '../SelectUserDropDown';
-import MembersName from '../../../EditFlow/components/MembersName';
-import _ from 'lodash';
-import Deadline from '../Deadline';
+import SpecificFieldsValue from '../SpecificFieldsValue';
 
 const Button = styled.span`
   border: 1px solid #2196f3;
@@ -179,10 +179,10 @@ export default ({
             {item.type === 3
               ? _l('自动否决')
               : item.type === 4
-              ? _l('流程中止')
-              : selectNodeType === NODE_TYPE.WRITE
-              ? _l('自动提交')
-              : _l('自动通过')}
+                ? _l('流程中止')
+                : selectNodeType === NODE_TYPE.WRITE
+                  ? _l('自动提交')
+                  : _l('自动通过')}
           </div>
         )}
       </div>
@@ -208,7 +208,7 @@ export default ({
           <Fragment>
             <span className="mLeft3 mRight2">{_l('提醒')}</span>
             <span className="Gray_75">
-              <MembersName accounts={item.accounts} />
+              <MembersName accounts={item.accounts || []} />
               {_.get(item, 'repeat.repeatType') === 6 &&
                 _l(
                   '；每%0%1重复提醒',
@@ -222,10 +222,10 @@ export default ({
             {item.type === 3
               ? _l('自动否决')
               : item.type === 4
-              ? _l('流程中止')
-              : selectNodeType === NODE_TYPE.WRITE
-              ? _l('自动提交')
-              : _l('自动通过')}
+                ? _l('流程中止')
+                : selectNodeType === NODE_TYPE.WRITE
+                  ? _l('自动提交')
+                  : _l('自动通过')}
           </span>
         )}
       </div>

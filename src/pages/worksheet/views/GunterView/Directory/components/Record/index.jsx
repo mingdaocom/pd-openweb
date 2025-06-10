@@ -2,18 +2,18 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
-import { handleRecordClick } from 'worksheet/util';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
-import { handlePushState, handleReplaceState } from 'src/util';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import { renderText as renderCellText } from 'src/utils/control';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
 
 export const RecordWrapper = styled.div`
   height: 32px;
@@ -63,7 +63,7 @@ export const RecordWrapper = styled.div`
     display: flex;
   }
   .otherField29 {
-    >div>div {
+    > div > div {
       width: max-content;
     }
   }
@@ -117,24 +117,24 @@ export default class Record extends Component {
       recordInfoVisible: false,
       RecordInfoComponent: null,
       RecordOperateComponent: null,
-      CellControlComponent: null
+      CellControlComponent: null,
     };
     this.debounceUpdateRecordTime = _.debounce(props.updateRecordTime, 500);
   }
   componentDidMount() {
     import('worksheet/views/GunterView/components/RecordInfo').then(component => {
       this.setState({
-        RecordInfoComponent: component.default
+        RecordInfoComponent: component.default,
       });
     });
     import('worksheet/components/RecordOperate').then(component => {
       this.setState({
-        RecordOperateComponent: component.default
+        RecordOperateComponent: component.default,
       });
     });
     import('worksheet/components/CellControls').then(component => {
       this.setState({
-        CellControlComponent: component.default
+        CellControlComponent: component.default,
       });
     });
     window.addEventListener('popstate', this.onQueryChange);
@@ -371,12 +371,15 @@ export default class Record extends Component {
     );
   }
   renderTitle() {
-    const { row, groupKey, controls, worksheetInfo, sheetSwitchPermit, base, gunterView, widthConfig } = this.props;
+    const { row, groupKey, controls, gunterView, widthConfig } = this.props;
     const titleControl = _.find(controls, { attribute: 1 });
     const value = row[titleControl.controlId] || row.titleValue;
     const emptyValue = _l('未命名');
     const title = titleControl ? renderCellText({ ...titleControl, value }) : emptyValue;
-    const { titleDisable } = gunterView.viewConfig;
+    const { titleDisable, hideTitle } = gunterView.viewConfig;
+    if (hideTitle) {
+      return null;
+    }
     return (
       <div
         className={cx('groupingName valignWrapper', { edit: row.isEdit })}

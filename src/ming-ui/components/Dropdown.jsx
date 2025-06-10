@@ -1,15 +1,15 @@
 ﻿/* eslint-disable */
-import PropTypes from 'prop-types';
-
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames'; // eslint-disable-line
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import Icon from './Icon';
+import LoadDiv from './LoadDiv';
+// eslint-disable-line
 import Menu from './Menu';
 import MenuItem from './MenuItem';
-import Icon from './Icon';
-import Trigger from 'rc-trigger';
 import './less/Dropdown.less';
-import _ from 'lodash';
-import LoadDiv from './LoadDiv';
 
 const builtinPlacements = {
   left: {
@@ -187,6 +187,7 @@ class Dropdown extends Component {
     renderError: PropTypes.func, // 错误结果显示
     disabledClickElement: PropTypes.string, // 禁止点击的元素（id、class）
     renderItem: PropTypes.func,
+    onSearch: PropTypes.func, // 搜索
   };
   /* eslint-enable */
   static defaultProps = {
@@ -254,6 +255,7 @@ class Dropdown extends Component {
       return;
     } else {
       const visible = !this.state.showMenu;
+      this.props.onSearch && this.props.onSearch();
       this.setState(
         {
           showMenu: visible,
@@ -415,7 +417,7 @@ class Dropdown extends Component {
         onClickAwayExceptions={[this._input]}
         fixedHeader={
           openSearch &&
-          !!data.length && (
+          (!!data.length || this.props.onSearch) && (
             <div
               className="flexRow"
               style={{
@@ -435,7 +437,11 @@ class Dropdown extends Component {
                 autoFocus
                 className="mLeft5 flex Border0 placeholderColor w100"
                 placeholder={_l('搜索')}
-                onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
+                onChange={evt =>
+                  this.props.onSearch
+                    ? this.props.onSearch(evt.target.value.trim())
+                    : this.setState({ keywords: evt.target.value.trim() })
+                }
               />
             </div>
           )

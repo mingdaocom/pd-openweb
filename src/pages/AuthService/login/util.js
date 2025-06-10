@@ -4,8 +4,9 @@ import loginController from 'src/api/login';
 import workWeiXinController from 'src/api/workWeiXin';
 import { checkReturnUrl, getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile, compatibleMDJS, getRequest } from 'src/util';
-import { setPssId } from 'src/util/pssId';
+import { browserIsMobile, getRequest } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
+import { setPssId } from 'src/utils/pssId';
 import { LoginResult } from './config.js';
 
 //登录相关的回调处理

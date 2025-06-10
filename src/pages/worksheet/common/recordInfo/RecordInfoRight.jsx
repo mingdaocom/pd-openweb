@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DiscussLogFile from '../../components/DiscussLogFile';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import DiscussLogFile from '../../components/DiscussLogFile';
 
 export default function RecordInfoRight(props) {
   const {
@@ -21,6 +21,8 @@ export default function RecordInfoRight(props) {
     formFlag,
     formdata,
     payConfig,
+    instanceId,
+    workId,
   } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
   let hiddenTabs = [];
@@ -86,6 +88,8 @@ export default function RecordInfoRight(props) {
         exAccountDiscussEnum={props.exAccountDiscussEnum}
         approved={props.approved}
         roleType={roleType}
+        instanceId={instanceId}
+        workId={workId}
       />
     </div>
   );

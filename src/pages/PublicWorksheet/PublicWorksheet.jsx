@@ -12,7 +12,7 @@ import { VerificationPass } from 'worksheet/components/ShareState';
 import BgContainer from 'src/pages/publicWorksheetConfig/components/BgContainer';
 import Qr from 'src/pages/publicWorksheetConfig/components/Qr';
 import { getPageConfig } from 'src/pages/publicWorksheetConfig/utils';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 import { themes, WX_ICON_LIST } from '../publicWorksheetConfig/enum';
 import { getFormData, getPublicWorksheet, getPublicWorksheetInfo } from './action';
@@ -137,22 +137,46 @@ export default class PublicWorksheet extends React.Component {
 
   onClosePreFillDesc = () => this.setState({ preFillDescVisible: false });
 
-  onSubmit = (isPayOrder, rowId, data) => {
+  onSubmit = (submitResutl, data, submitSuccess = () => {}) => {
+    const { isPayOrder, rowId, isAtOncePayment, isPaySuccessAddRecord } = submitResutl || {};
     const { worksheetId, extendDatas } = this.state.publicWorksheetInfo || {};
 
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
-
-    const { payNow, paySuccessReturnUrl } = getRequest() || {};
-
-    isPayOrder && rowId && handlePrePayOrder({ worksheetId, rowId, paymentModule: 1, payNow, paySuccessReturnUrl });
-
-    if (!isPayOrder && afterSubmit.action === 2) {
-      const value = safeParse(afterSubmit.content);
-      const control = value.isControl ? _.find(data, l => l.controlId === _.get(value, 'value.controlId')) || {} : {};
-      location.href = value.isControl ? control.value : value.value;
-    } else {
-      this.setState({ status: FILL_STATUS.COMPLETED, fillData: data });
+    let jumpUrl = '';
+    if (afterSubmit.action === 2) {
+      const afterSubmitContent = safeParse(afterSubmit.content);
+      const control = afterSubmitContent.isControl
+        ? _.find(data, l => l.controlId === _.get(afterSubmitContent, 'value.controlId')) || {}
+        : {};
+      jumpUrl = afterSubmitContent.isControl ? control.value : afterSubmitContent.value;
     }
+
+    const { notDialog } = getRequest() || {};
+
+    isPayOrder &&
+      rowId &&
+      handlePrePayOrder({
+        worksheetId,
+        rowId,
+        paymentModule: 1,
+        payNow: isAtOncePayment,
+        paySuccessReturnUrl: jumpUrl,
+        isPaySuccessAddRecord,
+        notDialog,
+        payFinished: ({ onCancel, isSuccess }) => {
+          if (isPaySuccessAddRecord && isSuccess) {
+            submitSuccess();
+            if (!notDialog) {
+              this.setState({ status: FILL_STATUS.COMPLETED, fillData: data });
+              onCancel();
+            }
+          }
+        },
+      });
+
+    !isPayOrder && jumpUrl && (location.href = jumpUrl);
+
+    (!isPaySuccessAddRecord || notDialog) && this.setState({ status: FILL_STATUS.COMPLETED, fillData: data });
   };
 
   getThemeBgColor = ({ themeBgColor, themeColor }) => {

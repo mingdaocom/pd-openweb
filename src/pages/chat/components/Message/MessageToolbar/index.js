@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
+import copy from 'copy-to-clipboard';
+import moment from 'moment';
+import Dialog from 'ming-ui/components/Dialog';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { downloadFile } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { getCurrentTime } from '../../../utils';
 import * as ajax from '../../../utils/ajax';
 import Constant from '../../../utils/constant';
-import copy from 'copy-to-clipboard';
-import { getCurrentTime } from '../../../utils';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import Dialog from 'ming-ui/components/Dialog';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { downloadFile } from 'src/util';
-import moment from 'moment';
-import RegExpValidator from 'src/util/expression';
+import './index.less';
+
 const confirm = Dialog.confirm;
 
 const getImageContextIndex = (id, list) => {
@@ -126,7 +126,7 @@ export default class MessageToolbar extends Component {
       toolbarConfig = {
         reference: true,
         copy: true,
-        withdraw: isWithdraw
+        withdraw: isWithdraw,
       };
     } else if (type === Constant.MSGTYPE_PIC || type === Constant.MSGTYPE_FILE || type === Constant.MSGTYPE_APP_VIDEO) {
       const { files = {} } = message.msg;
@@ -241,7 +241,7 @@ export default class MessageToolbar extends Component {
         params.node = attachment;
       }
       share.default(params, {
-        performUpdateItem: visibleType => { },
+        performUpdateItem: visibleType => {},
       });
     });
   }
@@ -286,12 +286,12 @@ export default class MessageToolbar extends Component {
       logo: fromAccount.logo,
       name: fromAccount.name,
       value: fromAccount.name,
-      chatAt: true
+      chatAt: true,
     };
     setTimeout(() => {
       textarea.wcMentionsInput('addMention', at);
     }, 0);
-  }
+  };
   handleCopyText() {
     const { message } = this.props;
     copy(message.msg.con);
@@ -301,7 +301,10 @@ export default class MessageToolbar extends Component {
   renderBtn(toolbarConfig) {
     return (
       <div className="Message-toolbarItem" onClick={toolbarConfig.fn}>
-        <span className={cx('Message-toolbarItemBtn ThemeColor3', toolbarConfig.className)} data-tip={toolbarConfig.name}>
+        <span
+          className={cx('Message-toolbarItemBtn ThemeColor3', toolbarConfig.className)}
+          data-tip={toolbarConfig.name}
+        >
           <i className={toolbarConfig.icon} />
         </span>
       </div>
@@ -312,7 +315,7 @@ export default class MessageToolbar extends Component {
     const isAdmin = session.isAdmin || false;
     const differenceTime = moment(getCurrentTime()).valueOf() - moment(message.time).valueOf() <= 300 * 1000;
     const isFileTransfer = session.id === 'file-transfer';
-    const isWithdraw = isFileTransfer ? true : (message.isMine ? differenceTime : isAdmin || differenceTime);
+    const isWithdraw = isFileTransfer ? true : message.isMine ? differenceTime : isAdmin || differenceTime;
     const toolbarConfig = this.getToolbarConfig();
     return (
       <div className="Message-toolbar-wrapper">
@@ -323,7 +326,9 @@ export default class MessageToolbar extends Component {
               icon: 'icon-quote-left',
               fn: this.handleMessageReference.bind(this),
             })}
-          {session.isGroup && !message.isMine && !isDuplicated &&
+          {session.isGroup &&
+            !message.isMine &&
+            !isDuplicated &&
             this.renderBtn({
               name: _l('@TA'),
               icon: 'icon-chat-at',
@@ -347,7 +352,8 @@ export default class MessageToolbar extends Component {
               icon: 'icon-copy',
               fn: this.handleCopyText.bind(this),
             })}
-          {toolbarConfig.withdraw && isWithdraw &&
+          {toolbarConfig.withdraw &&
+            isWithdraw &&
             this.renderBtn({
               className: isFileTransfer ? 'deleteBtn' : '',
               name: isFileTransfer ? _l('删除') : _l('撤回'),

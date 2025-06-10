@@ -1,13 +1,13 @@
 import React from 'react';
 import cx from 'classnames';
-import { dialogSelectUser } from 'ming-ui/functions';
+import _ from 'lodash';
 import Icon from 'ming-ui/components/Icon';
+import { dialogSelectUser } from 'ming-ui/functions';
+import InviteController from 'src/api/invitation';
 import addFriends from 'src/components/addFriends';
 import AddFriends from 'src/components/addFriends';
-import CreateGroup from 'src/components/group/create/creatGroup';
-import _ from 'lodash';
-import InviteController from 'src/api/invitation';
-import { existAccountHint } from 'src/util';
+import createGroup from 'src/pages/Group/createGroup';
+import { existAccountHint } from 'src/utils/common';
 
 export default class SearchBar extends React.Component {
   constructor(props) {
@@ -56,12 +56,12 @@ export default class SearchBar extends React.Component {
           SelectUserSettings: {
             filterAccountIds: [md.global.Account.accountId],
             filterProjectId: projectId,
-            callback: function(users) {
+            callback: function (users) {
               InviteController.inviteUser({
                 sourceId: projectId,
                 accountIds: users.map(o => o.accountId),
                 fromType: 4,
-              }).then(function(result) {
+              }).then(function (result) {
                 existAccountHint(result);
               });
             },
@@ -70,9 +70,7 @@ export default class SearchBar extends React.Component {
         break;
       case 'groups':
         // FIXME: 不是异步的话dom事件绑定不上 同pageHead
-        CreateGroup.createInit({
-          projectId,
-        });
+        createGroup({ projectId });
         break;
       default:
         break;

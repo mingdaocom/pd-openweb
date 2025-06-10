@@ -10,6 +10,7 @@ import privateGuideApi from 'src/api/privateGuide';
 import privateSysSettingApi from 'src/api/privateSysSetting';
 import { LicenseVersions, updateSysSettings, useClientRect } from '../common';
 import Projects from '../Management/PrivateKey/Projects';
+import { LICENSE_TYPES } from './constant';
 import PrivateKeyDialog from './PrivateKeyDialog';
 import TrialDialog from './TrialDialog';
 
@@ -112,6 +113,13 @@ const columns = [
     width: 170,
   },
   {
+    title: _l('密钥类型'),
+    dataIndex: 'licenseType',
+    key: 'licenseType',
+    width: 170,
+    render: (_, data) => LICENSE_TYPES[data.licenseType],
+  },
+  {
     title: _l('密钥生效时间'),
     dataIndex: 'startDate',
     key: 'startDate',
@@ -122,25 +130,6 @@ const columns = [
     dataIndex: 'expirationDate',
     key: 'expirationDate',
     render: (_, data) => moment(data.expirationDate).format('YYYY-MM-DD'),
-  },
-  {
-    title: _l('升级服务到期时间'),
-    dataIndex: 'upgradeExpirationDate',
-    key: 'upgradeExpirationDate',
-    render: (_, data) => (data.upgradeExpirationDate ? moment(data.upgradeExpirationDate).format('YYYY-MM-DD') : '-'),
-    width: 150,
-  },
-  {
-    title: _l('组织用户配额'),
-    dataIndex: 'internalUserNum',
-    key: 'internalUserNum',
-    render: (_, data) => data.internalUserNum.toLocaleString(),
-  },
-  {
-    title: _l('外部用户配额'),
-    dataIndex: 'externalUserNum',
-    key: 'externalUserNum',
-    render: (_, data) => data.externalUserNum.toLocaleString(),
   },
   {
     title: _l('操作人'),
@@ -457,14 +446,14 @@ const AppreciationServer = props => {
                   setServerInfo({
                     ...platformLicenseInfo.mpc,
                     title: _l('支付商户号'),
-                    icon: 'zhifubao',
+                    icon: 'merchant',
                     type: 'mpc',
                     extendFunType: 5,
                   });
               }}
             >
               <div className={cx('iconWrap valignWrapper justifyContentCenter', { active: platformLicenseInfo.mpc })}>
-                <Icon className={cx('Font40', platformLicenseInfo.mpc ? 'ThemeColor' : 'Gray_bd')} icon="zhifubao" />
+                <Icon className={cx('Font40', platformLicenseInfo.mpc ? 'ThemeColor' : 'Gray_bd')} icon="merchant" />
               </div>
               <div className="Font14 mTop2">{_l('支付商户号')}</div>
               {!platformLicenseInfo.mpc && renderState(5)}

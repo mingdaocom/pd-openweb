@@ -1,17 +1,17 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { Divider, Select } from 'antd';
 import cx from 'classnames';
-import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Icon, LoadDiv, Radio } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
 import SelectCount from 'src/pages/customPage/components/editWidget/button/SelectCount';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { Dropdown, Icon, LoadDiv, Radio } from 'ming-ui';
-import { Select, Divider } from 'antd';
-import { connect } from 'react-redux';
-import sheetApi from 'src/api/worksheet';
-import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import { getTranslateInfo } from 'src/util';
+import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
 import { getShowViews } from 'src/pages/worksheet/views/util';
-import _ from 'lodash';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
 const Wrap = styled.div`
   box-sizing: border-box;
@@ -161,10 +161,10 @@ function Setting(props) {
               views: getShowViews(views).map(data => {
                 return {
                   ...data,
-                  name: getTranslateInfo(appId, null, data.viewId).name || data.name
-                }
+                  name: getTranslateInfo(appId, null, data.viewId).name || data.name,
+                };
               }),
-              controls
+              controls,
             });
           }
           setLoading(false);

@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { func, string, object, oneOf } from 'prop-types';
-import { Dialog, Textarea, Dropdown, Signature, VerifyPasswordInput } from 'ming-ui';
-import { ACTION_TO_TEXT } from '../../config';
-import cx from 'classnames';
-import _ from 'lodash';
-import verifyPassword from 'src/components/verifyPassword';
-import { quickSelectUser } from 'ming-ui/functions';
-import styled from 'styled-components';
-import codeAuth from 'src/api/codeAuth';
 import { Tooltip } from 'antd';
-import './index.less';
+import cx from 'classnames';
+import _, { get } from 'lodash';
+import { func, object, oneOf, string } from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Signature, Textarea, VerifyPasswordInput } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
 import delegationAJAX from '../../../../api/delegation';
-import Attachment from 'src/components/newCustomFields/widgets/Attachment';
 import instanceAJAX from '../../../../api/instance';
+import codeAuth from 'src/api/codeAuth';
+import Attachment from 'src/components/newCustomFields/widgets/Attachment';
+import verifyPassword from 'src/components/verifyPassword';
+import { ACTION_TO_TEXT } from '../../config';
+import './index.less';
 
 const Member = styled.span`
   align-items: center;
@@ -203,11 +203,17 @@ export default class OtherAction extends Component {
    * 根据操作类型渲染头部
    */
   renderHeader = () => {
-    const { action } = this.props;
+    const { action, data } = this.props;
+    const btnMap = data.btnMap || {};
 
     return (
       <header className="flexRow">
-        <div className="headerText Font17">{(ACTION_TO_TEXT[action] || {}).headerText}</div>
+        <div className="headerText Font17">
+          {(ACTION_TO_TEXT[action] || {}).headerText}
+          {action === 'pass' && (btnMap[4] || _l('同意'))}
+          {action === 'overrule' && (btnMap[5] || _l('拒绝'))}
+          {action === 'return' && (btnMap[17] || _l('退回'))}
+        </div>
       </header>
     );
   };
@@ -343,8 +349,8 @@ export default class OtherAction extends Component {
             {_.includes(['after', 'before'], action)
               ? _l('加签')
               : action === 'addApprove'
-              ? _l('添加成员')
-              : _l('转交给')}
+                ? _l('添加成员')
+                : _l('转交给')}
 
             {_.includes(['after', 'before', 'addApprove'], action) &&
               !!selectedUsers.length &&
@@ -753,7 +759,7 @@ export default class OtherAction extends Component {
           <Fragment>
             <div className="relative bold">
               {(passContent || overruleContent) && <RequiredIcon>*</RequiredIcon>}
-              {action === 'return' ? _l('退回理由') : _l('审批意见')}
+              {action === 'return' ? _l('退回理由') : _l('意见')}
             </div>
             <div className="mTop10 relative">
               <div className="flexRow">
@@ -835,6 +841,7 @@ export default class OtherAction extends Component {
               {_l('签名')}
             </div>
             <Signature
+              showUploadFromMobile
               ref={signature => {
                 this.signature = signature;
               }}

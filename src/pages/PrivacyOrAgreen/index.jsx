@@ -1,12 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
-import { getRequest } from 'src/util/sso';
-import { RichText, LoadDiv, SvgIcon } from 'ming-ui';
+import styled from 'styled-components';
+import { LoadDiv, RichText, SvgIcon } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
+import preall from 'src/common/preall';
+import { browserIsMobile } from 'src/utils/common';
+import { getRequest } from 'src/utils/sso';
 
 const Wrap = styled.div`
   background: #f5f5f5;

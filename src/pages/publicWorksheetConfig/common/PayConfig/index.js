@@ -48,6 +48,14 @@ const filterDeleteFields = (fieldMaps, controls) => {
   return newFieldMaps;
 };
 
+// 金额字段币种是否为人民币
+const isCNY = (control = {}) => {
+  const { type, advancedSetting } = control;
+  const { currency } = advancedSetting || {};
+  const { currencycode } = safeParse(currency || '{}');
+  return type === 8 && (!currency || currencycode === 'CNY');
+};
+
 const getMapControls = (controls, fieldMapIds, field) => {
   return controls
     .filter(v => {
@@ -61,14 +69,26 @@ const getMapControls = (controls, fieldMapIds, field) => {
           !_.includes([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT, ...fieldMapIds], v.controlId)
         );
       }
+      if (v.type === 8) {
+        const { currency } = v.advancedSetting || {};
+        const { currencycode } = safeParse(currency || '{}');
+        return !currency || currencycode === 'CNY';
+      }
       return (
-        (_.includes([6, 8, 31, 37], v.type) ||
-          _.find(relationControls, r => r.controlId === v.sourceControlId && _.includes([6, 8, 31], r.type))) &&
+        (_.includes([6, 31, 37], v.type) ||
+          isCNY(v) ||
+          _.find(
+            relationControls,
+            r => r.controlId === v.sourceControlId && (_.includes([6, 31], r.type) || isCNY(r)),
+          )) &&
         !_.includes(fieldMapIds, v.controlId)
       );
     })
     .map(c => ({ text: c.controlName, value: c.controlId }));
 };
+
+const getControlType = (payAmountControlId, controls) =>
+  (_.find(controls, v => v.controlId === payAmountControlId) || {}).type || '';
 
 export default class PayConfig extends Component {
   constructor(props) {
@@ -81,6 +101,8 @@ export default class PayConfig extends Component {
       expireTime: 10,
       loading: true,
       isRefundAllowed: false, //是否启用退款
+      isPaySuccessAddRecord: false, // 立即支付
+      isAtOncePayment: false, // 支付成功后提交表单
       isAllowedAddOption: false, //
       scenes: {},
       enableOrderVisible: false,
@@ -146,6 +168,8 @@ export default class PayConfig extends Component {
           'enableOrderVisible',
           'orderVisibleViewId',
           'isRefundAllowed',
+          'isPaySuccessAddRecord',
+          'isAtOncePayment',
           'isAllowedAddOption',
         ]),
         mchid: settings.mchid ? settings.mchid.split(',') : [],
@@ -187,16 +211,19 @@ export default class PayConfig extends Component {
   };
 
   changeScenes = (checked, key) => {
-    const { scenes = {}, merchantList = [], mchid = [], initSettings = {} } = this.state;
+    const { scenes = {}, merchantList = [], mchid = [], initSettings = {}, isPaySuccessAddRecord } = this.state;
     const selectedMerchants = merchantList.filter(v => !v.disabled);
 
     this.setState({
       scenes: { ...scenes, [key]: !checked },
-      mchid: !_.isEmpty(mchid)
-        ? mchid
-        : !checked && !_.isEmpty(selectedMerchants)
-          ? [selectedMerchants[0].value]
-          : initSettings.mchid,
+      mchid: _.isEqual({ ...scenes, [key]: !checked }, initSettings.scenes)
+        ? initSettings.mchid
+        : !_.isEmpty(mchid)
+          ? mchid
+          : !checked && !_.isEmpty(selectedMerchants)
+            ? [selectedMerchants[0].value]
+            : initSettings.mchid,
+      isPaySuccessAddRecord: key === 'publicWorkSheet' && checked ? false : isPaySuccessAddRecord,
     });
   };
 
@@ -215,26 +242,27 @@ export default class PayConfig extends Component {
       controls,
       merchantList = [],
       isRefundAllowed,
+      isPaySuccessAddRecord,
+      isAtOncePayment,
       orderVisibleViewIds = [],
       internalUser = {},
       externalUser = {},
       isAllowedAddOption,
     } = this.state;
 
-    if (scenes.publicWorkSheet) {
-      if (_.isEmpty(mchid) || !_.find(merchantList, v => _.includes(mchid, v.value))) {
-        alert(_l('请选择商户'), 2);
-        return;
-      }
-      if (checkIsDeleted(payContentControlId, controls)) {
-        alert(_l('请选择支付内容'), 2);
-        return;
-      }
-      if (checkIsDeleted(payAmountControlId, controls)) {
-        alert(_l('请选择支付金额'), 2);
-        return;
-      }
+    if (_.isEmpty(mchid) || !_.find(merchantList, v => _.includes(mchid, v.value))) {
+      alert(_l('请选择商户'), 2);
+      return;
     }
+    if (checkIsDeleted(payContentControlId, controls)) {
+      alert(_l('请选择支付内容'), 2);
+      return;
+    }
+    if (checkIsDeleted(payAmountControlId, controls)) {
+      alert(_l('请选择支付金额'), 2);
+      return;
+    }
+
     worksheetSettingAjax
       .savPaymentSetting({
         projectId,
@@ -249,6 +277,8 @@ export default class PayConfig extends Component {
         expireTime,
         enableOrderVisible,
         isRefundAllowed,
+        isPaySuccessAddRecord,
+        isAtOncePayment,
         isAllowedAddOption,
         orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
         worksheetPaymentSetting: {
@@ -279,6 +309,8 @@ export default class PayConfig extends Component {
               expireTime,
               enableOrderVisible,
               isRefundAllowed,
+              isPaySuccessAddRecord,
+              isAtOncePayment,
               orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
               internalUser,
               externalUser,
@@ -307,13 +339,15 @@ export default class PayConfig extends Component {
       internalUser,
       externalUser,
       isRefundAllowed,
+      isPaySuccessAddRecord,
+      isAtOncePayment,
       orderVisibleViewIds = [],
       isAllowedAddOption,
     } = this.state;
     const { publicWorkSheet, workSheet } = scenes;
 
     const currentSettings =
-      !publicWorkSheet && !workSheet && !initSettings.publicWorkSheet && !initSettings.workSheet && !initSettings.mchid
+      !publicWorkSheet && !workSheet && !initSettings.publicWorkSheet && !initSettings.workSheet
         ? initSettings
         : {
             projectId,
@@ -330,6 +364,8 @@ export default class PayConfig extends Component {
             internalUser,
             externalUser,
             isRefundAllowed,
+            isPaySuccessAddRecord,
+            isAtOncePayment,
             isAllowedAddOption,
           };
 
@@ -475,6 +511,8 @@ export default class PayConfig extends Component {
       enableOrderVisible,
       initExpireTime,
       isRefundAllowed,
+      isPaySuccessAddRecord,
+      isAtOncePayment,
       controls = [],
       orderVisibleViewIds = [],
       isEnabledPublicForm,
@@ -506,6 +544,7 @@ export default class PayConfig extends Component {
         : options;
 
     const selectedMerchants = _.filter(merchantList, v => _.includes(mchid, v.value));
+    // const amountControlType =( _.find(controls,v=>v.controlId === payAmountControlId)||{}).type
 
     return (
       <div className="payConfigWrap w100 h100">
@@ -650,7 +689,7 @@ export default class PayConfig extends Component {
                 <div className="subTitle required">{_l('支付金额')}</div>
                 <div className="Gray_9e mBottom16">
                   {_l(
-                    '支持字段：金额、数值、公式、汇总；限制在2位小数（超过只取前两位数值），可支付的金额范围：0.01~10000',
+                    '支持字段：金额（仅支持人民币）、数值、公式、汇总；限制在2位小数（超过只取前两位数值），可支付的金额范围：0.01~10000',
                   )}
                 </div>
                 <Dropdown
@@ -662,14 +701,26 @@ export default class PayConfig extends Component {
                   placeholder={_l('选择金额、数值、公式、汇总字段')}
                   value={payAmountControlId}
                   data={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'amount')}
-                  onChange={value => this.setState({ payAmountControlId: value })}
+                  onChange={value =>
+                    this.setState({
+                      payAmountControlId: value,
+                      isPaySuccessAddRecord: !_.includes([6, 8], getControlType(value, controls))
+                        ? false
+                        : isPaySuccessAddRecord,
+                    })
+                  }
                 />
                 <div className="subTitle flexRow">
                   <Switch
                     className="mRight12"
                     size="small"
                     checked={expireTime}
-                    onClick={checked => this.setState({ expireTime: checked ? 0 : initExpireTime || 15 })}
+                    onClick={checked =>
+                      this.setState({
+                        expireTime: checked ? 0 : initExpireTime || 15,
+                        isPaySuccessAddRecord: checked ? false : isPaySuccessAddRecord,
+                      })
+                    }
                   />
                   {_l('设置交易有效期')}
                 </div>
@@ -700,6 +751,42 @@ export default class PayConfig extends Component {
                 )}
                 {scenes.workSheet && this.renderWorksheetSetting()}
                 <div className="title">{_l('其他')}</div>
+                <Fragment>
+                  <div className="flexRow alignItemsCenter">
+                    <Switch
+                      className="mRight8"
+                      size="small"
+                      checked={isAtOncePayment}
+                      onClick={checked => this.setState({ isAtOncePayment: !checked })}
+                    />
+                    <span className="bold Font14">{_l('立即支付')}</span>
+                  </div>
+                  <div className="Gray_9e mTop10 mBottom30">
+                    {_l('开启后表单详情页点击付款或公开表单提交后不需要二次确认直接跳转到订单详情支付')}
+                  </div>
+                </Fragment>
+                {scenes.publicWorkSheet && (
+                  <Fragment>
+                    <div className="flexRow alignItemsCenter">
+                      <Switch
+                        className="mRight8"
+                        size="small"
+                        disabled={
+                          !scenes.publicWorkSheet ||
+                          !_.includes([6, 8], getControlType(payAmountControlId, controls)) ||
+                          !expireTime
+                        }
+                        checked={isPaySuccessAddRecord}
+                        onClick={checked => this.setState({ isPaySuccessAddRecord: !checked })}
+                      />
+                      <span className="bold Font14">{_l('支付成功后提交表单')}</span>
+                    </div>
+                    <div className="Gray_9e mTop10">{_l('开启后支付成功后自动提交表单数据，否则表单数据不提交；')}</div>
+                    <div className="Gray_9e mBottom30">
+                      {_l('开启此功能需满足的条件为：支付开启公开表单、支付金额字段选择金额/数值、设置交易有效期')}
+                    </div>
+                  </Fragment>
+                )}
                 {scenes.workSheet && (
                   <Fragment>
                     <div className="flexRow alignItemsCenter">

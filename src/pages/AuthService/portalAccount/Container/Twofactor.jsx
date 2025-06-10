@@ -2,11 +2,11 @@ import React from 'react';
 import cx from 'classnames';
 import { LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import { setAutoLoginKey } from '../util';
-import Form from './Form';
-import { encrypt } from 'src/util';
 import { isTel } from 'src/pages/AuthService/util.js';
 import { validation } from 'src/pages/AuthService/util.js';
+import { encrypt } from 'src/utils/common';
+import { setAutoLoginKey } from '../util';
+import Form from './Form';
 
 export default function (props) {
   const {

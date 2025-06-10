@@ -1,14 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import cx from 'classnames';
 import { Drawer } from 'antd';
-import { Button, Icon, Input, LoadDiv, Checkbox, ScrollView, Tooltip } from 'ming-ui';
-import RoleUserList from './RoleUserList';
-import PermissionList from '../createEditRole/PermissionList';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Button, Checkbox, Icon, Input, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
 import roleApi from 'src/api/role';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
+import PermissionList from '../createEditRole/PermissionList';
 import { filterMyPermissions } from '../utils';
+import RoleUserList from './RoleUserList';
 
 const DetailDrawer = styled(Drawer)`
   .ant-drawer-mask {

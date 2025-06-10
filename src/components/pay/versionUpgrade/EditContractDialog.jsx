@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, Input } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import styled from 'styled-components';
+import { Dialog, Input } from 'ming-ui';
 import upgradeAjax from 'src/api/upgrade';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
 
 const formData = [
   { key: 'companyName', label: _l('组织全称'), type: 'input', placeholder: _l('组织名称'), isRequired: true },

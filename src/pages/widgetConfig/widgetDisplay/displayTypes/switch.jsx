@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { Checkbox, Switch as SwitchComponent, RadioGroup, Tooltip } from 'ming-ui';
-import { getAdvanceSetting, getSwitchItemNames } from '../../util';
 import { get, head } from 'lodash';
 import styled from 'styled-components';
+import { Checkbox, RadioGroup, Switch as SwitchComponent } from 'ming-ui';
+import { getSwitchItemNames } from 'src/utils/control';
+import { getAdvanceSetting } from '../../util';
 
 const Con = styled.div`
   display: flex;

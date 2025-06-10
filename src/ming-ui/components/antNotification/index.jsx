@@ -72,7 +72,7 @@ const getProps = (props, type = 'success') => {
     closeIcon: <i className="closeNotice icon-close"></i>,
     onClose: () => {
       // 多窗口关闭
-      if (props.key) {
+      if (props.key && !md.global.Config.IsLocal) {
         window.mdyAPI('', '', {
           accountId: md.global.Account.accountId,
           noticeId: props.key,

@@ -1,13 +1,12 @@
 import React from 'react';
-import { string } from 'prop-types';
-import { Button, SvgIcon } from 'ming-ui';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { computeWidth } from '../../../util';
 import { TinyColor } from '@ctrl/tinycolor';
-import { ButtonListWrap, GraphWrap } from './styled';
-import { getTranslateInfo } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, SvgIcon } from 'ming-ui';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { ButtonListWrap, GraphWrap } from './styled';
 
 const ButtonDisplayWrap = styled.div`
   display: flex;
@@ -15,6 +14,7 @@ const ButtonDisplayWrap = styled.div`
   width: 100%;
   padding: 20px 0;
   text-align: center;
+  .title,
   .explain {
     text-align: center;
     margin-bottom: 12px;
@@ -84,11 +84,13 @@ const BtnWrap = styled.div`
 `;
 
 export default function ButtonDisplay({
+  themeColor,
   widget = {},
   appId,
   buttonList = [],
   layoutType = 'web',
   displayMode = 'edit',
+  title,
   explain,
   activeIndex,
   count,
@@ -96,20 +98,32 @@ export default function ButtonDisplay({
   width,
   style,
   config,
+  customPageConfig = {},
   onClick,
 }) {
-  const { btnType, direction = 1 } = config || {};
+  const { btnType, direction = 1, titleStyles = { ...defaultTitleStyles, textAlign: 'center' } } = config || {};
+  const pageTitleStyles = customPageConfig.titleStyles || {};
+  const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   const isFullWidth = btnType === 2 ? true : width === 1;
   const isMobile = layoutType === 'mobile';
   const newList = _.chunk(buttonList, layoutType === 'web' ? count : mobileCount);
   const getWidth = () => {
-    if (isFullWidth || isMobile) return { width: `${100 / (isMobile ? mobileCount : count)}%` };
+    const newCount = isMobile ? mobileCount : count;
+    if (isFullWidth || isMobile)
+      return { width: `${100 / (buttonList.length > newCount ? newCount : buttonList.length)}%` };
     return {};
   };
   const translateInfo = getTranslateInfo(appId, null, widget.id);
   return (
     <ButtonDisplayWrap>
-      {explain && <div className="explain">{translateInfo.description || explain}</div>}
+      <div className="flexColumn" style={{ alignItems: newTitleStyles.textAlign === 'left' ? 'start' : undefined }}>
+        {title && (
+          <div className="title" style={replaceTitleStyle(newTitleStyles, themeColor)}>
+            {title}
+          </div>
+        )}
+        {explain && <div className="explain">{translateInfo.description || explain}</div>}
+      </div>
       <ButtonListWrap>
         {newList.map((list, index) => {
           return (

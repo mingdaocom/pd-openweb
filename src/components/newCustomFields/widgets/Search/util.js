@@ -3,7 +3,7 @@ import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { getAttachmentData } from 'src/components/newCustomFields/tools/formUtils.js';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { isEmptyValue } from 'src/util';
+import { isEmptyValue } from 'src/utils/control';
 import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../../../pages/widgetConfig/config/widget';
 
 const getRelateValue = control => {

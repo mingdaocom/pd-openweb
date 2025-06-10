@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSetState } from 'react-use';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import DocumentTitle from 'react-document-title';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
-import Container from './Container';
-import TPAuth from './TpAuthLogin';
-import Info from './Info';
-import { LoadDiv, Icon, SvgIcon } from 'ming-ui';
-import { getRequest } from 'src/util/sso';
-import { statusList, accountResultAction, setAutoLoginKey, getCurrentId, getCurrentExt, isErrSet } from './util';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import preall from 'src/common/preall';
-import DocumentTitle from 'react-document-title';
-import { Wrap, WrapWx } from './style';
-import { WrapCom } from 'src/pages/AuthService/style.jsx';
 import 'src/pages/AuthService/components/form.less';
+import { WrapCom } from 'src/pages/AuthService/style.jsx';
+import { browserIsMobile } from 'src/utils/common';
+import { getRequest } from 'src/utils/sso';
+import Container from './Container';
+import Info from './Info';
+import { Wrap, WrapWx } from './style';
+import TPAuth from './TpAuthLogin';
+import { accountResultAction, getCurrentExt, getCurrentId, isErrSet, setAutoLoginKey, statusList } from './util';
 
 function ContainerCon(props) {
   const [baseSetInfo, setBaseSetInfo] = useState({}); //门户配置
@@ -43,6 +43,8 @@ function ContainerCon(props) {
   });
 
   useEffect(() => {
+    window.clientId = '';
+    sessionStorage.removeItem('clientId');
     if (window.location.pathname.indexOf('wxscanauth') >= 0) {
       //手机微信扫码后=>获取跳转地址
       const request = getRequest();

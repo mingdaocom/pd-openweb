@@ -5,10 +5,10 @@ import { MdMarkdown, RichText } from 'ming-ui';
 import { getBarCodeValue, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import Embed from 'src/components/newCustomFields/widgets/Embed';
-import { getSwitchItemNames, parseDataSource } from 'src/pages/widgetConfig/util';
+import { parseDataSource } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import RegExpValidator from 'src/util/expression';
+import { getSwitchItemNames, renderText as renderCellText } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
 import STYLE_PRINT from './components/exportWordPrintTemCssString';
 import { USER_CONTROLS } from './config';
 
@@ -377,7 +377,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         try {
           records = JSON.parse(value);
         } catch (err) {}
-        let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
+        let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || {};
 
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
           dataItem = { ...dataItem, sourceControlType: list.type };
@@ -388,7 +388,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         }
 
         // 1 卡片 2 列表 3 下拉
-        if (item.advancedSetting && item.advancedSetting.showtype === '3') {
+        if (item.advancedSetting && item.advancedSetting.showtype === '3' && item.enumDefault === 2) {
           //下拉 显示关联表名称
           if (records.length <= 0) {
             return '';
@@ -405,7 +405,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
           return (
             <span className="relaList">
               {item.isRelateMultipleSheet
-                ? (records[0] || {}).name
+                ? records.length
                 : showtitleid
                   ? safeParse(dataItem.value, 'array')
                       .map(l => getTitleTextFromRelateControl(dataItem, safeParse(l.sourcevalue)))
@@ -432,7 +432,10 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
-        item.showControls.map(o => {
+        (item.advancedSetting.showtype === '3' && item.enumDefault === 1
+          ? safeParse(item.advancedSetting.chooseshowids || '[]', 'array')
+          : item.showControls
+        ).map(o => {
           let data = (item.relationControls || []).find(
             it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
           );

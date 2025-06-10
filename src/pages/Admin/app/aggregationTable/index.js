@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, LoadDiv, Switch, ScrollView, UserHead } from 'ming-ui';
 import { Select, Tooltip } from 'antd';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import TableEmpty from 'src/pages/Admin/common/TableEmpty';
-import Search from 'src/pages/workflow/components/Search';
-import PaginationWrap from '../../components/PaginationWrap';
-import PurchaseExpandPack from '../../components/PurchaseExpandPack';
-import SelectUser from '../../components/SelectUser';
+import cx from 'classnames';
+import moment from 'moment';
+import { Icon, LoadDiv, ScrollView, Switch, UserHead } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
-import { getFeatureStatus } from 'src/util';
-import { upgradeVersionDialog, buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { navigateTo } from 'src/router/navigateTo';
+import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import TableEmpty from 'src/pages/Admin/common/TableEmpty';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import cx from 'classnames';
-import moment from 'moment';
+import Search from 'src/pages/workflow/components/Search';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import PaginationWrap from '../../components/PaginationWrap';
+import PurchaseExpandPack from '../../components/PurchaseExpandPack';
+import SelectUser from '../../components/SelectUser';
 import './index.less';
 
 export default class AggregationTable extends Component {
@@ -169,8 +169,8 @@ export default class AggregationTable extends Component {
               taskStatus === 'CLOSED'
                 ? v.taskStatus !== TASK_STATUS_TYPE.RUNNING
                 : taskStatus === 'RUNNING'
-                ? v.taskStatus === taskStatus
-                : true,
+                  ? v.taskStatus === taskStatus
+                  : true,
             ),
         });
       } else {

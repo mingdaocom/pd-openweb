@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import Constant from './constant';
-import { htmlDecodeReg, dateConvertToUserZone } from 'src/util';
 import moment from 'moment';
 import Emotion from 'src/components/emotion/emotion';
+import { htmlDecodeReg } from 'src/utils/common';
+import { dateConvertToUserZone } from 'src/utils/project';
+import Constant from './constant';
 
-export const formatMsgDate = (dateStr) => {
-
+export const formatMsgDate = dateStr => {
   const dateTime = moment(dateStr);
   const now = moment();
   const diff = now.diff(dateTime);
@@ -26,13 +26,12 @@ export const formatMsgDate = (dateStr) => {
   } else if (dateTime.isSame(now, 'd')) {
     return `${_l('今天')} ${hour}:${minute}`;
   } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
-    return _l('昨天') + (` ${hour}:${minute}`);
+    return _l('昨天') + ` ${hour}:${minute}`;
   } else if (dateTime.format('YYYY') === now.format('YYYY')) {
-    return `${_l('%0月%1日', simpleMonth, simpleDay)}` + (` ${hour}:${minute}`);
+    return `${_l('%0月%1日', simpleMonth, simpleDay)}` + ` ${hour}:${minute}`;
   }
 
   return `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
-
 };
 
 /**
@@ -296,8 +295,8 @@ export const formatNewSession = message => {
     message.value = message.isGroup
       ? message.to
       : md.global.Account.accountId === message.from
-      ? message.to
-      : message.from;
+        ? message.to
+        : message.from;
     message.logo = message.isGroup ? message.avatar : message.logo;
     message.type = message.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     message.time = message.time ? message.time : getCurrentTime();
@@ -680,3 +679,7 @@ export const setVisible = () => {
     return false;
   }
 };
+
+export const convertGroupAbout = value => {
+  return value ? toLink(tagConvert(value)).replace(/\r\n|\n/gi, '<br/>') : _l('暂无群公告');
+}

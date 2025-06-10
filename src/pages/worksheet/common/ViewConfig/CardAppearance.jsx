@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Dropdown, Icon, Tooltip } from 'ming-ui';
 import { FlexCenter } from 'worksheet/styled';
-import styled from 'styled-components';
-import { getAdvanceSetting } from 'src/util';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
-import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import { ViewSettingWrap } from './style';
-import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import StructureSet from './components/StructureSet';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
+import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import { getAdvanceSetting } from 'src/utils/control';
 import { NavSet } from './components';
+import StructureSet from './components/StructureSet';
+import { ViewSettingWrap } from './style';
 
 const DisplayControlOption = styled(FlexCenter)`
   .icon {

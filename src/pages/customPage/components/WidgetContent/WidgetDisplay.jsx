@@ -1,19 +1,21 @@
-import React, { useRef, forwardRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { getEnumType } from '../../util';
-import ChartDisplay from './ChartDisplay';
-import ViewDisplay from './ViewDisplay';
-import ButtonList from './ButtonList';
-import PreviewWraper from '../previewContent';
-import { RichText } from 'ming-ui';
-import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
-import CarouselPreview from '../editWidget/carousel/Carousel';
-import Tabs from '../editWidget/tabs';
 import MobileFilter from 'mobile/CustomPage/FilterContent';
 import MobileView from 'mobile/CustomPage/ViewContent';
 import { reportTypes } from 'statistics/Charts/common';
-import { browserIsMobile, getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
+import { getEnumType } from '../../util';
+import CarouselPreview from '../editWidget/carousel/Carousel';
+import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
+import Image from '../editWidget/Image';
+import RichText from '../editWidget/richText';
+import Tabs from '../editWidget/tabs';
+import PreviewWraper from '../previewContent';
+import ButtonList from './ButtonList';
+import ChartDisplay from './ChartDisplay';
+import ViewDisplay from './ViewDisplay';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -30,7 +32,8 @@ const WidgetContent = styled.div`
     color: var(--widget-title-color);
   }
   &.embedUrl,
-  &.view {
+  &.view,
+  &.richText {
     padding: 0 !important;
   }
   &.analysis {
@@ -41,7 +44,7 @@ const WidgetContent = styled.div`
     .summaryWrap,
     .reportName,
     .oneNumber .contentWrapper .name {
-      color: var(--widget-title-color) !important;
+      color: var(--widget-title-color);
     }
     .hideNumberChartName {
       .iconItem {
@@ -98,18 +101,19 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     }
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
-      return (
-        <RichText
-          data={translateInfo.description || value || ''}
-          className={'mdEditorContent'}
-          disabled={true}
-          backGroundColor={'#fff'}
-        />
-      );
+      return <RichText editable={editable} widget={widget} value={translateInfo.description || value || ''} />;
     }
     if (componentType === 'button') {
       return (
-        <ButtonList editable={editable} button={button} ids={ids} layoutType={layoutType} widget={widget} {...rest} />
+        <ButtonList
+          editable={editable}
+          button={button}
+          ids={ids}
+          layoutType={layoutType}
+          widget={widget}
+          customPageConfig={rest.config || {}}
+          {...rest}
+        />
       );
     }
     if (componentType === 'analysis') {
@@ -181,6 +185,11 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+    if (componentType === 'image') {
+      return (
+        <Image themeColor={props.themeColor} widget={widget} editable={editable} customPageConfig={rest.config || {}} />
+      );
+    }
   };
   if (componentType === 'filter') {
     if (layoutType === 'mobile') {
@@ -207,6 +216,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
       />
     );
   }
+
   return (
     <WidgetContent
       className={cx(

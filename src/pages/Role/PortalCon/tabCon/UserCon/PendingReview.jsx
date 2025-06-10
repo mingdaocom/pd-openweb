@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../../redux/actions';
-import { Dialog } from 'ming-ui';
-import PortalBar from '../portalComponent/PortalBar';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import noVerifyAjax from 'src/api/noVerify';
 import Table from 'src/pages/Role/component/Table';
 import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
-import externalPortalAjax from 'src/api/externalPortal';
 import ReviewFree from 'src/pages/Role/PortalCon/components/ReviewFree';
-import { pageSize, renderText, formatPortalData } from '../util';
-import noVerifyAjax from 'src/api/noVerify';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { renderText as renderCellText } from 'src/utils/control';
+import * as actions from '../../redux/actions';
+import PortalBar from '../portalComponent/PortalBar';
+import { formatDataForPortalControl, formatPortalData, pageSize, renderText } from '../util';
 
 const Wrap = styled.div`
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -299,7 +298,7 @@ function PendingReview(props) {
           <PortalBar
             keys={['search', 'refresh', 'filter']}
             columns={columns}
-            onChange={data => {}}
+            onChange={data => { }}
             appId={appId}
             comp={() => {
               return (
@@ -334,8 +333,8 @@ function PendingReview(props) {
           pageIndex <= 1 && props.portal.loading
             ? []
             : props.portal.list.map(o => {
-                return { ...o, id: o.rowid };
-              })
+              return { ...o, id: o.rowid };
+            })
         }
         pageIndex={pageIndex}
         total={unApproveCount}
@@ -422,12 +421,12 @@ function PendingReview(props) {
           )}
           setShow={setShowUserInfoDialog}
           onOk={(data, ids) => {
-            let newCell = data
-              .filter(o =>
+            let newCell = formatDataForPortalControl(
+              data.filter(o =>
                 [...ids, 'portal_role', 'portal_status'] //角色和状态默认更新
                   .includes(o.controlId),
-              )
-              .map(formatControlToServer);
+              ),
+            );
             ///更新数据 /////
             externalPortalAjax
               .auditPassExAccountToNewRole({

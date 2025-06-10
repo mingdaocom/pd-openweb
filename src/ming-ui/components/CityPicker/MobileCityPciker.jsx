@@ -1,10 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { LoadDiv, Icon, Radio, PopupWrapper } from 'ming-ui';
-import '../less/MobileCityPicker.less';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, LoadDiv, PopupWrapper, Radio } from 'ming-ui';
+import '../less/MobileCityPicker.less';
 
-const LEVEL_TEXT = [_l('省份'), _l('城市'), _l('区县')];
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
 export default class MobileCityPicker extends Component {
@@ -19,7 +18,7 @@ export default class MobileCityPicker extends Component {
 
   static defaultProps = {
     disabled: false,
-    placeholder: _l('省/市/县'),
+    placeholder: _l('选择地区'),
     defaultValue: '',
     level: 3,
     data: [],
@@ -178,7 +177,7 @@ export default class MobileCityPicker extends Component {
         <PopupWrapper
           bodyClassName="heightPopupBody40"
           visible={visible}
-          title={indexLevel ? LEVEL_TEXT[indexLevel - 1] : _l('选择地区')}
+          title={_l('选择地区')}
           confirmDisable={!select.length}
           clearDisable={!defaultValue}
           onClose={this.handleClose}

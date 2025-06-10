@@ -171,7 +171,11 @@ export default function BaseSet(props) {
     setExAccountSmsNotice(noticeScope.exAccountSmsNotice || false);
     setcustomizeName(portalSetModel.customizeName);
     let _controls = (portal.controls || [])
-      .filter(l => !l.controlId.includes('_') || ['portal_mobile', 'portal_email', 'portal_role'].includes(l.controlId))
+      .filter(
+        l =>
+          (!l.controlId.includes('_') || ['portal_mobile', 'portal_email', 'portal_role'].includes(l.controlId)) &&
+          ![29].includes(l.type),
+      )
       .map(l => ({
         label: l.controlName,
         value: l.controlId,

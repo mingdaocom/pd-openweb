@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useSetState } from 'react-use';
-import Rescource from './Rescource.jsx';
-import SelectField from 'src/pages/worksheet/views/components/SelectField.jsx';
-import { RadioGroup } from 'ming-ui';
-import * as baseAction from 'src/pages/worksheet/redux/actions';
-import * as viewAction from 'src/pages/worksheet/redux/actions/resourceview.js';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import autoSize from 'ming-ui/decorators/autoSize';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { RadioGroup } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import * as baseAction from 'src/pages/worksheet/redux/actions';
+import * as viewAction from 'src/pages/worksheet/redux/actions/resourceview.js';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import SelectField from 'src/pages/worksheet/views/components/SelectField.jsx';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import Rescource from './Rescource.jsx';
 
 const Wrap = styled.div`
   width: 100%;

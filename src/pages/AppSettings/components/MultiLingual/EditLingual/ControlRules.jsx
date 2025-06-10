@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import cx from 'classnames';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import sheetApi from 'src/api/worksheet';
+import cx from 'classnames';
 import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 export default function ControlRules(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -17,13 +17,15 @@ export default function ControlRules(props) {
 
   useEffect(() => {
     setLoading(true);
-    sheetApi.getControlRules({
-      type: 1,
-      worksheetId: selectNode.workSheetId
-    }).then(rules => {
-      setLoading(false);
-      setRules(rules.filter(c => c.type === 1));
-    });
+    sheetApi
+      .getControlRules({
+        type: 1,
+        worksheetId: selectNode.workSheetId,
+      })
+      .then(rules => {
+        setLoading(false);
+        setRules(rules.filter(c => c.type === 1));
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -36,21 +38,21 @@ export default function ControlRules(props) {
 
   if (!rules.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">
-        {_l('没有验证规则')}
-      </div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有验证规则')}</div>
     );
   }
 
-  const handlePositionItem = (item) => {
+  const handlePositionItem = item => {
     const el = document.querySelector(`.navItem-${item.ruleId}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.itemName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const renderNav = item => {
     return (
@@ -77,8 +79,8 @@ export default function ControlRules(props) {
         type: LANG_DATA_TYPE.wrokSheetControlRules,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -88,17 +90,21 @@ export default function ControlRules(props) {
           <span className="flex Font14 bold ellipsis">{item.name}</span>
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
-            <div className="Font13 mRight20 label">{_l('验证规则提示内容')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.message : _.get(item.ruleItems[0], 'message')} disabled={true} />
-            <EditInput
-              className="flex"
-              value={translateInfo.message}
-              onChange={value => handleSave({ message: value })}
-            />
-          </div>
+          <div className="Font13 mRight20 label">{_l('验证规则提示内容')}</div>
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.message : _.get(item.ruleItems[0], 'message')}
+            disabled={true}
+          />
+          <EditInput
+            className="flex"
+            value={translateInfo.message}
+            onChange={value => handleSave({ message: value })}
+          />
+        </div>
       </div>
     );
-  }
+  };
 
   return (
     <div className="flexRow pAll10 h100">
@@ -109,7 +115,7 @@ export default function ControlRules(props) {
             placeholder={_l('验证规则')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
@@ -118,17 +124,11 @@ export default function ControlRules(props) {
           )}
         </div>
         <ScrollView className="flex">
-          {rules.filter(item => item.name.includes(searchValue)).map((item) => (
-            renderNav(item)
-          ))}
+          {rules.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
       <ScrollView className="flex" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {rules.map((item) => (
-            renderContent(item)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{rules.map(item => renderContent(item))}</div>
       </ScrollView>
     </div>
   );

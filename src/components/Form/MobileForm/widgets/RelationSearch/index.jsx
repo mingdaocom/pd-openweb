@@ -1,18 +1,27 @@
-import React, { useCallback, useEffect, useState, useRef, Fragment } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import { controlState } from '../../../core/formUtils';
-import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from '../../../core/enum';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import sheetAjax from 'src/api/worksheet';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
-import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { openAddRecord } from 'mobile/Record/addRecord';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from '../../../core/enum';
+import { controlState } from '../../../core/formUtils';
+import SearchInput from '../../components/ChildTable/SearchInput';
 import Cards from './Cards';
 import Texts from './Text';
-import _ from 'lodash';
 
 const PAGE_SIZE = 50;
+
+const OperateWrap = styled.div`
+  justify-content: flex-end;
+  margin-top: -6px;
+  position: absolute;
+  top: -34px;
+`;
 
 export default function RelationSearch(props) {
   const {
@@ -25,7 +34,9 @@ export default function RelationSearch(props) {
     viewId,
     isCharge,
     advancedSetting,
+    enumDefault,
     enumDefault2,
+    formDisabled,
   } = props;
 
   const control = { ...props };
@@ -37,6 +48,7 @@ export default function RelationSearch(props) {
   const [recordInfoVisible, setRecordInfoVisible] = useState(false);
   const [worksheetAllowAdd, setWorksheetAllowAdd] = useState(true);
   const [openRecordId, setOpenRecordId] = useState('');
+  const [isSearchFocus, setIsSearchFocus] = useState(false);
   const {
     loading = true,
     entityName,
@@ -56,7 +68,7 @@ export default function RelationSearch(props) {
     enumDefault2 !== 1 &&
     enumDefault2 !== 11 &&
     !window.isPublicWorksheet;
-  const loadRecords = async (pageIndex = 1) => {
+  const loadRecords = async (pageIndex = 1, keywords = '') => {
     let relationControls = [...controls];
     setState(oldState => ({ ...oldState, isLoadingMore: true, loading: pageIndex === 1 }));
     if (_.isEmpty(relationControls)) {
@@ -88,7 +100,7 @@ export default function RelationSearch(props) {
       searchType: 1,
       status: 1,
       isGetWorksheet: true,
-      getType: 7,
+      getType: control.from === RECORD_INFO_FROM.DRAFT ? 21 : 7,
       filterControls: filterControls || [],
       rowId: recordId,
       controlId: control.controlId,
@@ -96,6 +108,7 @@ export default function RelationSearch(props) {
       pageSize: control.enumDefault === 1 ? 1 : PAGE_SIZE,
       getWorksheet: pageIndex === 1,
       getRules: pageIndex === 1,
+      keywords,
     };
     sheetAjax.getRowRelationRows(args).then(res => {
       setWorksheetAllowAdd(_.get(res, 'worksheet.allowAdd'));
@@ -107,7 +120,9 @@ export default function RelationSearch(props) {
         );
       }
       setState(oldState => {
-        const newRecords = _.uniqBy([...(oldState.records || []), ...(res.data || [])], 'rowid');
+        const mergedRecords = pageIndex === 1 ? res.data : [...(oldState.records || []), ...(res.data || [])];
+        const newRecords = _.uniqBy(mergedRecords, 'rowid');
+
         return {
           ...oldState,
           loading: false,
@@ -186,7 +201,7 @@ export default function RelationSearch(props) {
     };
   }, [recordInfoVisible]);
 
-  if ((control.type === 51 && control.enumDefault === 1 && control.showControls.length === 0) || !records.length) {
+  if (!loading && control.type === 51 && control.enumDefault === 1 && control.showControls.length === 0) {
     return <div className="customFormNull" />;
   }
 
@@ -208,32 +223,50 @@ export default function RelationSearch(props) {
           <LoadDiv size={isDialog ? 'big' : 'small'} />
         </div>
       )}
+
       {_.get(advancedSetting, 'showtype') === String(RELATION_SEARCH_SHOW_TYPE.CARD) ||
       _.get(advancedSetting, 'showtype') === String(RELATION_SEARCH_SHOW_TYPE.LIST) ? (
-        <Cards
-          {...{
-            loading,
-            entityName,
-            allowOpenRecord,
-            allowNewRecord,
-            records,
-            showAll,
-            projectId,
-            viewId,
-            isCharge,
-            controls,
-            advancedSetting,
-            control,
-            showLoadMore,
-            isLoadingMore,
-            setState,
-            loadRecords,
-            pageIndex,
-            onAdd: handleAddRecord,
-            onOpen: handleOpenRecord,
-            disabled,
-          }}
-        />
+        <Fragment>
+          {disabled && formDisabled && enumDefault === 2 && (
+            <OperateWrap className="w100 flexRow">
+              <SearchInput
+                inputWidth={100}
+                searchIcon={<i className="icon icon-search" />}
+                onOk={value => loadRecords(1, value)}
+                onClear={() => {
+                  setIsSearchFocus(false);
+                  loadRecords(1, '');
+                }}
+                onFocus={() => setIsSearchFocus(true)}
+                onBlur={() => setIsSearchFocus(false)}
+              />
+            </OperateWrap>
+          )}
+          <Cards
+            {...{
+              loading,
+              entityName,
+              allowOpenRecord,
+              allowNewRecord,
+              records,
+              showAll,
+              projectId,
+              viewId,
+              isCharge,
+              controls,
+              advancedSetting,
+              control,
+              showLoadMore,
+              isLoadingMore,
+              setState,
+              loadRecords,
+              pageIndex,
+              onAdd: handleAddRecord,
+              onOpen: handleOpenRecord,
+              disabled,
+            }}
+          />
+        </Fragment>
       ) : (
         <Texts
           allowOpenRecord={allowOpenRecord}

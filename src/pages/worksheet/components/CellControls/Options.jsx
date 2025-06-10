@@ -1,21 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import PropTypes, { bool, func, shape, string } from 'prop-types';
-import cx from 'classnames';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import { useClickAway } from 'react-use';
+import cx from 'classnames';
+import _, { get, isEmpty } from 'lodash';
+import PropTypes, { bool, func, shape, string } from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Textarea } from 'ming-ui';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { isLightColor } from 'src/util';
-import { getSelectedOptions, isKeyBoardInputChar } from 'worksheet/util';
-import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
-import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
+import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
+import { isKeyBoardInputChar } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
+import { getSelectedOptions } from 'src/utils/control';
+import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
-import EditableCellCon from '../EditableCellCon';
-import _, { get, isEmpty } from 'lodash';
-import { lineHeight } from 'worksheet/views/ResourceView/config';
 
 const OtherOptionCon = styled.div`
   background: #fff;

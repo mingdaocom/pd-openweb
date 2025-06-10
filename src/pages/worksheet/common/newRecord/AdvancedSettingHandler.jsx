@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
 const ErrorWrapper = styled.div`
   display: flex;

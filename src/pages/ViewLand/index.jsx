@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import styled from 'styled-components';
-import worksheet from 'src/api/worksheet';
-import { LoadDiv } from 'ming-ui';
-import SingleView from 'worksheet/common/SingleView';
-import MobileSingleView from 'mobile/components/SingleView';
-import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import worksheet from 'src/api/worksheet';
+import MobileSingleView from 'mobile/components/SingleView';
+import SingleView from 'worksheet/common/SingleView';
+import preall from 'src/common/preall';
+import { browserIsMobile } from 'src/utils/common';
 
 const Con = styled.div`
   height: 100%;
@@ -78,7 +78,6 @@ export default function ViewLand(props) {
     </Con>
   );
 }
-
 
 const Comp = preall(ViewLand);
 const root = createRoot(document.getElementById('app'));

@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo, memo, Fragment } from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useState } from 'react';
+import cx from 'classnames';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Icon, MobileDatePicker } from 'ming-ui';
-import { getDynamicValue } from '../../../core/formUtils';
-import { dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting';
-import moment from 'moment';
-import cx from 'classnames';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
+import { getDynamicValue } from '../../../core/formUtils';
 
 const DateWidget = props => {
   const {
@@ -33,8 +33,8 @@ const DateWidget = props => {
       dateProps.formatMode === 'YYYY-MM-DD HH'
         ? 'hour'
         : dateProps.formatMode === 'YYYY-MM-DD HH:mm'
-        ? 'minite'
-        : 'second';
+          ? 'minite'
+          : 'second';
     return ['year', 'month', 'date'].includes(dateProps.mode) ? dateProps.mode : mode;
   }, [dateProps.mode, dateProps.formatMode]);
 
@@ -45,8 +45,8 @@ const DateWidget = props => {
         type === 15
           ? date.format('YYYY-MM-DD')
           : notConvertZone
-          ? date.format('YYYY-MM-DD HH:mm:ss')
-          : dateConvertToServerZone(date);
+            ? date.format('YYYY-MM-DD HH:mm:ss')
+            : dateConvertToServerZone(date);
     }
 
     props.onChange(value);

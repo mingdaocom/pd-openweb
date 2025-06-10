@@ -1,12 +1,12 @@
-import GroupController from 'src/api/group';
-import UserController from 'src/api/user';
-import ChatController from 'src/api/chat';
 import CommonAjax from 'src/api/addressBook';
-import Constant from './constant';
-import chatConfig from './config';
+import ChatController from 'src/api/chat';
+import GroupController from 'src/api/group';
 import CommonAjaxInvitation from 'src/api/invitation';
 import PostController from 'src/api/post';
-import { getPssId } from 'src/util/pssId';
+import UserController from 'src/api/user';
+import { getPssId } from 'src/utils/pssId';
+import chatConfig from './config';
+import Constant from './constant';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -14,13 +14,13 @@ const isDevelopment = process.env.NODE_ENV === 'development';
  * 获取会话列表
  * @param {*} param
  */
-export const chatSessionList = (param) => {
+export const chatSessionList = param => {
   return window.mdyAPI('', '', param, {
     customParseResponse: true,
     ajaxOptions: {
       type: 'GET',
-      url: _.get(window, 'config.HTTP_SERVER') + '/chat_list'
-    }
+      url: _.get(window, 'config.HTTP_SERVER') + '/chat_list',
+    },
   });
 };
 
@@ -28,23 +28,29 @@ export const chatSessionList = (param) => {
  * 获取当前的会话信息，包含个人和群组
  * @param {*} param
  */
-export const chatSessionItem = (param) => {
+export const chatSessionItem = param => {
   const timeout = 3000;
   const ajaxOptions = {
     timeout,
   };
   if (param.type == Constant.SESSIONTYPE_GROUP) {
-    return ChatController.getGroupInfo({
-      groupId: param.value,
-    }, {
-      ajaxOptions,
-    });
+    return ChatController.getGroupInfo(
+      {
+        groupId: param.value,
+      },
+      {
+        ajaxOptions,
+      },
+    );
   } else if (param.type == Constant.SESSIONTYPE_USER) {
-    return UserController.getAccountBaseInfo({
-      accountId: param.value,
-    }, {
-      ajaxOptions,
-    });
+    return UserController.getAccountBaseInfo(
+      {
+        accountId: param.value,
+      },
+      {
+        ajaxOptions,
+      },
+    );
   }
 };
 
@@ -52,7 +58,7 @@ export const chatSessionItem = (param) => {
  * 获取消息
  * @param {*} conf
  */
-export const getMessage = (conf) => {
+export const getMessage = conf => {
   const param = {};
   param.sincetime = conf.sincetime || '';
   param.page = conf.page || 1;
@@ -69,8 +75,8 @@ export const getMessage = (conf) => {
       customParseResponse: true,
       ajaxOptions: {
         type: 'GET',
-        url: _.get(window, 'config.HTTP_SERVER') + '/group_messages'
-      }
+        url: _.get(window, 'config.HTTP_SERVER') + '/group_messages',
+      },
     });
   } else if (conf.type === Constant.SESSIONTYPE_USER) {
     param.accountid = conf.id;
@@ -78,8 +84,8 @@ export const getMessage = (conf) => {
       customParseResponse: true,
       ajaxOptions: {
         type: 'GET',
-        url: _.get(window, 'config.HTTP_SERVER') + '/messages'
-      }
+        url: _.get(window, 'config.HTTP_SERVER') + '/messages',
+      },
     });
   }
 };
@@ -88,7 +94,7 @@ export const getMessage = (conf) => {
  * 获取某一个消息的上下文
  * @param {*} conf
  */
-export const getMessageById = (conf) => {
+export const getMessageById = conf => {
   const param = {};
   let url = '';
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
@@ -104,8 +110,8 @@ export const getMessageById = (conf) => {
     customParseResponse: true,
     ajaxOptions: {
       type: 'GET',
-      url: _.get(window, 'config.HTTP_SERVER') + url
-    }
+      url: _.get(window, 'config.HTTP_SERVER') + url,
+    },
   });
 };
 
@@ -113,7 +119,7 @@ export const getMessageById = (conf) => {
  * 获取消息流中的文件
  * @param {*} conf
  */
-export const getImageContext = (conf) => {
+export const getImageContext = conf => {
   const param = {};
   let url = '';
   if (conf.isGroup) {
@@ -126,25 +132,27 @@ export const getImageContext = (conf) => {
   param.msgid = conf.msgid || '';
   param.size = conf.size || 20;
   param.type = conf.type || 0; // 0：表示全部上下文图片消息；1：表示上文图片消息；2：表示下文图片消息
-  return window.mdyAPI('', '', param, {
-    customParseResponse: true,
-    ajaxOptions: {
-      type: 'GET',
-      url: _.get(window, 'config.HTTP_SERVER') + url
-    }
-  }).then((res) => {
-    if (!$.isArray(res)) {
-      res = [];
-    }
-    return res;
-  });
+  return window
+    .mdyAPI('', '', param, {
+      customParseResponse: true,
+      ajaxOptions: {
+        type: 'GET',
+        url: _.get(window, 'config.HTTP_SERVER') + url,
+      },
+    })
+    .then(res => {
+      if (!$.isArray(res)) {
+        res = [];
+      }
+      return res;
+    });
 };
 
 /**
  * 获取动态列表
  * @param {*} param
  */
-export const getFeed = (param) => {
+export const getFeed = param => {
   param.postType = -1;
   param.fType = param.fType ? param.fType : 'feed';
   param.lType = param.lType ? param.lType : 'group';
@@ -157,7 +165,7 @@ export const getFeed = (param) => {
  * 获取文件列表
  * @param {*} param
  */
-export const getFileList = (param) => {
+export const getFileList = param => {
   param.fileType = param.fileType || -1;
   if (param.groupId) {
     return ChatController.getGroupFileList(param);
@@ -170,7 +178,7 @@ export const getFileList = (param) => {
  * 获取搜索数
  * @param {*} param
  */
-export const getCountByTabName = (param) => {
+export const getCountByTabName = param => {
   if (param.groupId) {
     param.loadTabType = 7;
     return ChatController.getGroupCountByTabName(param);
@@ -180,7 +188,7 @@ export const getCountByTabName = (param) => {
   }
 };
 
-export const getAllAddressbookByKeywords = (keyword) => {
+export const getAllAddressbookByKeywords = keyword => {
   return CommonAjax.getAllChatAddressbookByKeywords({
     keywords: keyword,
   });
@@ -190,7 +198,7 @@ export const getAllAddressbookByKeywords = (keyword) => {
  * 添加群组成员
  * @param {*} param
  */
-export const addMembers = (param) => {
+export const addMembers = param => {
   return new Promise((resolve, reject) => {
     const obj = {
       sourceId: param.groupId,
@@ -203,10 +211,10 @@ export const addMembers = (param) => {
       obj.accounts = param.accounts;
     }
     CommonAjaxInvitation.inviteUser(obj)
-      .then((data) => {
+      .then(data => {
         resolve(data);
       })
-      .catch((xhr) => {
+      .catch(xhr => {
         reject(xhr);
       });
   });
@@ -216,20 +224,20 @@ export const addMembers = (param) => {
  * 创建群组
  * @param {*} param
  */
-export const createGroup = (param) => {
+export const createGroup = param => {
   return new Promise((resolve, reject) => {
     GroupController.addGroup({
       groupName: param.groupname,
       accountIds: JSON.stringify(param.useridlist),
     })
-      .then((res) => {
+      .then(res => {
         if (res.msg == 1) {
           resolve(res.data);
         } else {
           reject(res.msg);
         }
       })
-      .catch((xhr) => {
+      .catch(xhr => {
         reject(xhr);
       });
   });
@@ -239,15 +247,15 @@ export const createGroup = (param) => {
  * 创建讨论组
  * @param {*} param
  */
-export const createDiscussion = (param) => {
+export const createDiscussion = param => {
   return new Promise((resolve, reject) => {
     GroupController.addDiscussionGroup({
       accountIds: param.accountIds,
     })
-      .then((res) => {
+      .then(res => {
         resolve(res);
       })
-      .catch((xhr) => {
+      .catch(xhr => {
         reject(xhr);
       });
   });
@@ -257,7 +265,7 @@ export const createDiscussion = (param) => {
  * 获取视频信息
  * @param {*} url
  */
-export const getVideoInfo = (url) => {
+export const getVideoInfo = url => {
   return new Promise((resolve, reject) => {
     $.ajax({
       url,
@@ -265,4 +273,4 @@ export const getVideoInfo = (url) => {
       resolve(result);
     });
   });
-}
+};

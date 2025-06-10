@@ -79,7 +79,7 @@ function OrgRole(props) {
           {selectOrgRoles.map(item => renderItem(item))}
           {!disabled && (
             <div className="TxtCenter customFormAddBtn" onClick={pickOrgRole}>
-              <i className="icon-plus icon" />
+              <i className="icon-add icon" />
             </div>
           )}
         </Fragment>
@@ -90,6 +90,7 @@ function OrgRole(props) {
           projectId={projectId}
           visible={true}
           unique={isUnique}
+          hideClearBtn={false}
           selectOrgRoles={selectOrgRoles}
           onClose={() => setShowMobileOrgRole(false)}
           onSave={onSave}

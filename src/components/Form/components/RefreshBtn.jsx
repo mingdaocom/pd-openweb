@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import sheetAjax from 'src/api/worksheet';
-import cx from 'classnames';
-import { isPublicLink } from '../core/utils';
-import { FROM } from '../core/config';
-import _ from 'lodash';
-import { browserIsMobile } from 'src/util';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import sheetAjax from 'src/api/worksheet';
+import { browserIsMobile } from 'src/utils/common';
+import { FROM } from '../core/config';
+import { isPublicLink } from '../core/utils';
 
 export default props => {
   const { disabledFunctions = [], from, recordId, item, worksheetId, disabled, onChange } = props;
@@ -28,7 +28,8 @@ export default props => {
     <Tooltip title={isMobile ? '' : isRefresh ? _l('刷新中...') : _l('刷新')} placement="top">
       <span
         className={cx('Font14 mLeft5 Gray_9e pointer RefreshBtn', { ThemeHoverColor3: !isMobile })}
-        onClick={() => {
+        onClick={e => {
+          e.stopPropagation();
           if (isRefresh) return;
 
           setRefresh(true);

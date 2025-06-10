@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { arrayOf, bool, func, shape } from 'prop-types';
-import { getRequest } from 'src/util';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import CustomWidgetView from 'src/pages/worksheet/views/CustomWidgetView';
-import * as actions from 'src/pages/worksheet/redux/actions';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
+import { arrayOf, bool, func, shape } from 'prop-types';
+import * as actions from 'src/pages/worksheet/redux/actions';
+import CustomWidgetView from 'src/pages/worksheet/views/CustomWidgetView';
+import { getRequest } from 'src/utils/common';
 
 const data = getRequest();
 
@@ -25,7 +25,7 @@ export default class MobileContainer extends Component {
     if (loading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }

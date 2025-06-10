@@ -1,10 +1,10 @@
 import _, { assign, find, get, includes, isEmpty } from 'lodash';
-import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
-import { redefineComplexControl, getType, validate } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { DATE_RANGE_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
-import { getRequest } from 'src/util';
 import moment from 'moment';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { DATE_RANGE_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { getType, redefineComplexControl, validate } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getRequest } from 'src/utils/common';
 
 export { getType, validate };
 
@@ -136,6 +136,14 @@ function parseDynamicSource({ dynamicSource, control, filterType, dateRangeType 
 export function handleConditionsDefault(conditions, controls) {
   return conditions.map(condition => {
     condition = { ...condition };
+    if (
+      condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN &&
+      condition.dateRange !== 18 &&
+      get(condition, 'advancedSetting.daterange') !== '[]'
+    ) {
+      condition.originalFilterType = condition.filterType;
+      condition.filterType = FILTER_CONDITION_TYPE.DATEENUM;
+    }
     const control = find(controls, { controlId: condition.controlId });
     if (!control) return condition;
     if (!isEmpty(condition.dynamicSource)) {

@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import FreeFieldRunner from 'worksheet/common/FreeFieldRunner/FreeFieldRunner';
-import PropTypes from 'prop-types';
-import { browserIsMobile } from 'src/util';
-import { getEnv } from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/util';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
+import PropTypes from 'prop-types';
+import FreeFieldRunner from 'worksheet/common/FreeFieldRunner/FreeFieldRunner';
+import { getEnv } from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/util';
+import { browserIsMobile } from 'src/utils/common';
+
 export default function FreeField(props) {
   const { flag, worksheetId, controlId, recordId, disabled, value, formData, onChange, advancedSetting = {} } = props;
   const cache = useRef({});

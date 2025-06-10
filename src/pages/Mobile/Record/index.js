@@ -53,6 +53,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
     hideOtherOperate,
     allowEmptySubmit,
     updateSuccess,
+    updateRow,
   } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
@@ -78,6 +79,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
         allowEmptySubmit={allowEmptySubmit}
         updateSuccess={updateSuccess}
         updateEditStatus={isEditable => setIsEditable(isEditable)}
+        updateRow={updateRow}
       />
     </Provider>
   );

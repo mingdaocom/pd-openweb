@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { checkCertification } from 'src/components/checkCertification';
 import createUploader from 'src/library/plupload/createUploader';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
+
 export default class UploadFile extends Component {
   constructor(props) {
     super(props);
@@ -10,8 +12,10 @@ export default class UploadFile extends Component {
     this.uploadFile();
   }
   uploadFile() {
+    const { needCheckCert, projectId } = this.props;
     let isUploading = false;
     const _this = this;
+
     createUploader({
       runtimes: 'html5',
       max_file_count: 1,
@@ -26,6 +30,12 @@ export default class UploadFile extends Component {
         },
       ],
       init: {
+        Browse: function (up) {
+          if (needCheckCert) {
+            checkCertification({ projectId, checkSuccess: () => up.trigger('Browse') });
+            return false; // 阻止文件选择弹层
+          }
+        },
         BeforeUpload: function (up, file) {
           // 导入过程进行锁定，文件上传功能失效
           if (isUploading) {

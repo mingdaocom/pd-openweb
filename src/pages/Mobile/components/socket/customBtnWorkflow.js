@@ -1,6 +1,7 @@
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
+import { emitter } from 'src/utils/common';
+import { equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'src/utils/common';
 import modalMessage from './modalMessage';
-import { emitter, equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'worksheet/util';
 
 const STATUS = {
   0: { id: 'closed', text: _l('流程未启用'), action: 'error', promptType: 2 },

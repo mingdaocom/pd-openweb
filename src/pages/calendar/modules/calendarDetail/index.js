@@ -1,11 +1,12 @@
-﻿import { createRoot } from 'react-dom/client';
-import React, { Component } from 'react';
-import CalendarDetail from './root';
-import { getParamsFromUrl, getCalendarDetail, Config } from './common';
-import ErrorState from 'src/components/errorPage/errorState';
+﻿import React, { Component } from 'react';
+import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
-import { htmlDecodeReg, getAppFeaturesPath } from 'src/util';
 import { Dialog, LoadDiv } from 'ming-ui';
+import ErrorState from 'src/components/errorPage/errorState';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { htmlDecodeReg } from 'src/utils/common';
+import { Config, getCalendarDetail, getParamsFromUrl } from './common';
+import CalendarDetail from './root';
 
 class Container extends Component {
   constructor(props) {

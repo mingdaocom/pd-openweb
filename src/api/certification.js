@@ -41,17 +41,86 @@ export default {
      return mdyAPI('Certification', 'CheckIsCert', args, options);
    },
   /**
-  * 检查当前身份证号或者营业执照是否被认证过
+  * 生成临时人脸识别认证码
   * @param {Object} args 请求参数
-  * @param {string} args.idNumber 证件号码
-  * @param {string} args.creditCode 组织唯一识别码
+  * @param {string} args.state 临时状态码
+  * @param {string} args.projectId 认证实体Id  组织对应projectID
+  * @param {integer} args.certSource 认证 的 来源 0个人认证 1企业认证
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   checkIsCertByCertNo: function (args, options = {}) {
+   getFaceCertUrl: function (args, options = {}) {
      
-     return mdyAPI('Certification', 'CheckIsCertByCertNo', args, options);
+     return mdyAPI('Certification', 'GetFaceCertUrl', args, options);
+   },
+  /**
+  * 检查人脸识别认证码状态
+  * @param {Object} args 请求参数
+  * @param {string} args.state 临时状态码
+  * @param {string} args.projectId 认证实体Id  组织对应projectID
+  * @param {integer} args.certSource 认证 的 来源 0个人认证 1企业认证
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkFaceCertSSE: function (args, options = {}) {
+     
+     return mdyAPI('Certification', 'CheckFaceCertSSE', args, options);
+   },
+  /**
+  * 根据新的凭据获取是否已经认证
+  * @param {Object} args 请求参数
+  * @param {string} args.token 临时状态码
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFaceCertResult: function (args, options = {}) {
+     
+     return mdyAPI('Certification', 'GetFaceCertResult', args, options);
+   },
+  /**
+  * 根据人脸识别认证码获取新的凭据
+  * @param {Object} args 请求参数
+  * @param {string} args.state 临时状态码
+  * @param {string} args.projectId 认证实体Id  组织对应projectID
+  * @param {integer} args.certSource 认证 的 来源 0个人认证 1企业认证
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFaceCertToken: function (args, options = {}) {
+     
+     return mdyAPI('Certification', 'GetFaceCertToken', args, options);
+   },
+  /**
+  * 获取个人认证人脸识别H5URL
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.token 临时状态吗
+  * @param {} args.personalInfo
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAdvFaceCertUrl: function (args, options = {}) {
+     
+     return mdyAPI('Certification', 'GetAdvFaceCertUrl', args, options);
+   },
+  /**
+  * 个人认证人脸识别认证
+  * @param {Object} args 请求参数
+  * @param {string} args.token 临时状态吗
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   personalFaceCert: function (args, options = {}) {
+     
+     return mdyAPI('Certification', 'PersonalFaceCert', args, options);
    },
   /**
   * 个人认证

@@ -1,14 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
+import styled from 'styled-components';
+import AppPermissions from '../components/AppPermissions';
 import { Button } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import styled from 'styled-components';
-import State from 'mobile/RecordList/State/index.js';
-import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
+import State from 'mobile/RecordList/State/index.js';
+import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import successPng from 'src/pages/NewRecord/success.png';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
 const STATUS = {
   NORMAL: 1,
@@ -31,7 +33,7 @@ const Success = styled.div`
   }
 `;
 
-export default class AddRecord extends Component {
+class AddRecord extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -64,6 +66,7 @@ export default class AddRecord extends Component {
               this.setState({ loading: false, worksheetInfo: data, writeControls });
             });
         } else {
+          data.template.controls = replaceControlsTranslateInfo(params.appId || appId, params.worksheetId || worksheetId, data.template.controls);
           this.setState({ loading: false, worksheetInfo: data });
         }
       });
@@ -91,7 +94,9 @@ export default class AddRecord extends Component {
                     <img src={successPng} alt="" />
                     <span className="status">{_l('创建成功')}</span>
                     <div>
-                      <Button onClick={() => this.setState({ status: STATUS.NORMAL })}>{_l('继续创建')}</Button>
+                      {_.get(worksheetInfo, 'advancedSetting.continueBtnVisible') && (
+                        <Button onClick={() => this.setState({ status: STATUS.NORMAL })}>{_l('继续创建')}</Button>
+                      )}
                       <Button
                         type="ghost"
                         className="mLeft10"
@@ -140,5 +145,7 @@ export default class AddRecord extends Component {
     );
   }
 }
+
+export default AppPermissions(AddRecord);
 
 export const openAddRecord = props => functionWrap(MobileNewRecord, { ...props, closeFnName: 'hideNewRecord' });

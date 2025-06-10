@@ -1,17 +1,17 @@
-import React, { Fragment, useEffect, useState, useImperativeHandle, useRef, forwardRef } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget';
-import SavedFilters from './components/SavedFilters';
-import FilterDetail from './components/FilterDetail';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import Empty from './components/Empty';
-import { redefineComplexControl, getDefaultCondition } from './util';
-import { formatForSave } from './model';
+import FilterDetail from './components/FilterDetail';
+import SavedFilters from './components/SavedFilters';
 import { CONTROL_FILTER_WHITELIST } from './enum';
-import _, { get, includes } from 'lodash';
+import { formatForSave } from './model';
+import { filterUnavailableConditions, getDefaultCondition, redefineComplexControl } from './util';
 
 const Con = styled.div`
   width: 480px;
@@ -69,6 +69,7 @@ function Filters(props, ref) {
     viewId,
     worksheetId,
     isCharge,
+    popupVisible,
     columns,
     showSavedFilters = true,
     sheetSwitchPermit = {},
@@ -172,6 +173,28 @@ function Filters(props, ref) {
     }
     cache.current.editingFilter = state.editingFilter;
   }, [state.editingFilter]);
+  useEffect(() => {
+    if (popupVisible && state.editingFilter) {
+      const filteredConditions = filterUnavailableConditions(
+        get(state, 'editingFilter.conditionsGroups', []).map(c => ({
+          ...c,
+          isGroup: true,
+        })),
+        'conditions',
+      );
+      editFilter(
+        filteredConditions.length
+          ? {
+              ...state.editingFilter,
+              conditionsGroups: filteredConditions,
+            }
+          : undefined,
+      );
+    }
+    if (popupVisible && !loading && String(activeTab) === '2' && !filters.length) {
+      setActiveTab(1);
+    }
+  }, [popupVisible]);
   useImperativeHandle(ref, () => ({
     addFilterByControl: control => {
       cache.current.callFromColumn = true;
@@ -183,6 +206,11 @@ function Filters(props, ref) {
       }
     },
   }));
+  useEffect(() => {
+    if (!loading && String(activeTab) === '2' && !filters.length) {
+      setActiveTab(1);
+    }
+  }, [loading]);
   return (
     <Con ref={conRef} style={style}>
       {!isSavedEditing && showSavedFilters && (
@@ -239,7 +267,16 @@ function Filters(props, ref) {
                   maxHeight={maxHeight}
                   controls={filterAddConditionControls(controls)}
                   onAdd={selectedControl => {
-                    addFilter({ defaultCondition: getDefaultCondition(selectedControl) });
+                    const defaultCondition = getDefaultCondition(selectedControl);
+                    setTimeout(() => {
+                      const dom = document.querySelector(
+                        '.keyStr_' + defaultCondition.keyStr + ' .ant-select-selector',
+                      );
+                      if (dom) {
+                        dom.click();
+                      }
+                    }, 100);
+                    addFilter({ defaultCondition });
                   }}
                 />
               )}

@@ -1,36 +1,31 @@
 import React, { Component } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import './index.less';
-import cx from 'classnames';
-import { RENDER_RECORD_NECESSARY_ATTR, getRecordAttachments } from '../util';
-import { emitter, handleRecordClick } from 'worksheet/util';
-import worksheetAjax from 'src/api/worksheet';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { RecordInfoModal } from 'mobile/Record';
-import {
-  getAdvanceSetting,
-  browserIsMobile,
-  addBehaviorLog,
-  emitter as ViewEmitter,
-  handlePushState,
-  handleReplaceState,
-} from 'src/util';
-import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import ViewEmpty from '../components/ViewEmpty';
+import cx from 'classnames';
 import _, { isEmpty } from 'lodash';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import GalleryItem from './GalleryItem';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { getRecordColorConfig, getCardWidth } from 'worksheet/util';
-import { permitList } from 'src/pages/FormSet/config.js';
-import * as actions from 'worksheet/redux/actions/galleryview';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import worksheetAjax from 'src/api/worksheet';
+import { RecordInfoModal } from 'mobile/Record';
+import * as actions from 'worksheet/redux/actions/galleryview';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
+import { browserIsMobile, emitter } from 'src/utils/common';
+import { getAdvanceSetting, renderText as renderCellText } from 'src/utils/control';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
+import { getRecordColorConfig } from 'src/utils/record';
+import { getCardWidth } from 'src/utils/worksheet';
+import ViewEmpty from '../components/ViewEmpty';
+import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
+import GalleryItem from './GalleryItem';
+import './index.less';
 
 const isMobile = browserIsMobile();
 
@@ -379,6 +374,11 @@ export default class RecordGallery extends Component {
                 onClose={() => {
                   this.setState({ recordInfoVisible: false });
                 }}
+                updateRow={(recordId, data, isViewData) => {
+                  if (isViewData) this.props.updateRow(data);
+                  else this.props.deleteRow(recordId);
+                }}
+                deleteRow={this.props.deleteRow}
               />
             ) : (
               <RecordInfoWrapper
@@ -394,7 +394,7 @@ export default class RecordGallery extends Component {
                 from={1}
                 hideRecordInfo={() => {
                   this.setState({ recordInfoVisible: false });
-                  ViewEmitter.emit('ROWS_UPDATE');
+                  emitter.emit('ROWS_UPDATE');
                 }}
                 view={currentView}
                 recordId={recordId}

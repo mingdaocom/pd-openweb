@@ -4,7 +4,7 @@ import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { isOwner } from './crtl';
 
 export async function handleShare(
-  { isCharge, appId, worksheetId, viewId, recordId, hidePublicShare, privateShare = true },
+  { isCharge, appId, worksheetId, viewId, recordId, hidePublicShare, privateShare = true, title, ...rest },
   callback,
 ) {
   try {
@@ -13,8 +13,9 @@ export async function handleShare(
     let allowChange = isCharge || isOwner(row.ownerAccount, row.formData);
     let shareRange = row.shareRange;
     openShareDialog({
+      ...rest,
       from: 'recordInfo',
-      title: _l('分享记录'),
+      title: title || _l('分享记录'),
       isPublic: shareRange === 2,
       isCharge: allowChange,
       hidePublicShare,

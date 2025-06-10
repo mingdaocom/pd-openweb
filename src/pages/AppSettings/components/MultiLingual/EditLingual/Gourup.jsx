@@ -1,8 +1,8 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 export default function Gourup(props) {
   const { app, translateData, comparisonLangId, comparisonLangData, selectNode, onEditAppLang } = props;
@@ -17,12 +17,14 @@ export default function Gourup(props) {
       type: LANG_DATA_TYPE.section,
       data: {
         ...translateInfo,
-        ...info
-      }
+        ...info,
+      },
     });
-  }
+  };
 
-  const name = comparisonLangId ? getTranslateInfo(app.id, null, selectNode.key, comparisonLangData).name : selectNode.originalTitle;
+  const name = comparisonLangId
+    ? getTranslateInfo(app.id, null, selectNode.key, comparisonLangData).name
+    : selectNode.originalTitle;
 
   return (
     <div className="pAll20">

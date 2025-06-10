@@ -3,10 +3,11 @@ import { Dialog as MobileDialog } from 'antd-mobile';
 import _, { isEmpty } from 'lodash';
 import { Dialog } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { replaceRulesTranslateInfo } from 'worksheet/util';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
-import { browserIsMobile } from 'src/util';
+import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
+import { browserIsMobile } from 'src/utils/common';
+import { replaceRulesTranslateInfo } from 'src/utils/translate';
 import { FORM_ERROR_TYPE, FROM } from '../core/config';
 import { dealCustomEvent } from '../core/customEvent';
 import {
@@ -241,7 +242,7 @@ export const getSubmitDataAction = (
     .filter(c => c.type === 34)
     .map(c => ({
       controlId: c.controlId,
-      error: c.store && c.store.getErrors(),
+      error: c.store && getSubListErrorOfStore(c.store),
     }))
     .filter(c => !isEmpty(c.error));
   const totalErrors = errorItems
@@ -474,18 +475,29 @@ export const handleChangeAction = (
 /**
  * 自定义事件
  */
-export const triggerCustomEventAction = (dispatch, props, state, dataFormat, updateRenderData, handleChange) => {
+export const triggerCustomEventAction = (
+  dispatch,
+  params,
+  props,
+  state,
+  dataFormat,
+  updateRenderData,
+  handleChange,
+) => {
   const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = props;
-  const { searchConfig = [], renderData = [] } = state;
+  const { searchConfig = [], renderData = [], loadingItems } = state;
 
   const customProps = {
-    ...props,
+    ...params,
     ..._.pick(props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId']),
     formData: dataFormat.getDataSource().concat(systemControlData || []),
     renderData,
     searchConfig: searchConfig.filter(i => i.eventType === 1),
     checkRuleValidator: (controlId, errorType, errorMessage) => {
       dataFormat.setErrorControl(controlId, errorType, errorMessage);
+    },
+    checkEventComplete: value => {
+      updateLoadingItemsAction(dispatch, { ...loadingItems, ...value });
     },
     setErrorItems: errorInfo => {},
     setRenderData: () => {

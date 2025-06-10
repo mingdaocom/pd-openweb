@@ -1,10 +1,11 @@
-import './css/mentionsInput.css';
-import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
-import { htmlEncodeReg, getCaretPosition, setCaretPosition } from 'src/util';
 import doT from 'dot';
+import _ from 'lodash';
 import categoryAjax from 'src/api/category';
 import userAjax from 'src/api/user';
-import _ from 'lodash';
+import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
+import { getCaretPosition, setCaretPosition } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/common';
+import './css/mentionsInput.css';
 
 /*
 jQuery `input` special event v1.0

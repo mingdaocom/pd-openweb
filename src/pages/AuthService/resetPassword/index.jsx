@@ -1,14 +1,15 @@
 import React from 'react';
-import 'src/pages/AuthService/components/form.less';
-import cx from 'classnames';
-import registerAjax from 'src/api/register';
-import { encrypt, getRequest } from 'src/util';
-import RegExpValidator from 'src/util/expression';
-import { WrapCom } from '../style';
-import { navigateTo } from 'src/router/navigateTo';
 import DocumentTitle from 'react-document-title';
+import cx from 'classnames';
 import styled from 'styled-components';
+import registerAjax from 'src/api/register';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
+import 'src/pages/AuthService/components/form.less';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { WrapCom } from '../style';
 
 let request = getRequest();
 

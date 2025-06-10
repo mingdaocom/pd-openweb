@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import { Button } from 'ming-ui';
-import mdLogo from './images/mdLogo.png';
 import html2canvas from 'html2canvas';
-import upgradeController from 'src/api/upgrade';
-import { getRequest } from 'src/util';
 import moment from 'moment';
+import { Button } from 'ming-ui';
+import upgradeController from 'src/api/upgrade';
+import preall from 'src/common/preall';
+import { getRequest } from 'src/utils/common';
+import mdLogo from './images/mdLogo.png';
 import './index.less';
 
 const contactInfo = [

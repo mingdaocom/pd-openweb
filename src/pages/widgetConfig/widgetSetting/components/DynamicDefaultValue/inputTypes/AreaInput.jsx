@@ -1,20 +1,14 @@
-import React, { useState, useEffect, createRef } from 'react';
-import { DynamicValueInputWrap } from '../styled';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import CityPicker from 'ming-ui/components/CityPicker';
+import React, { createRef, useEffect, useState } from 'react';
 import _ from 'lodash';
-
-const AREA_TYPE = {
-  19: 1,
-  23: 2,
-  24: 3,
-};
+import CityPicker from 'ming-ui/components/CityPicker';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default function (props) {
-  const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
+  const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType, globalSheetInfo = {} } = props;
   const { staticValue, cid = '' } = dynamicValue[0] || {};
-  const areaLevel = AREA_TYPE[data.type];
   const name = JSON.parse(staticValue || '{}').name || '';
+  const { chooserange } = data.advancedSetting || {};
   const [value, setValue] = useState(name);
   const [isDynamic, setDynamic] = useState(!!cid);
   const [search, setSearch] = useState('');
@@ -73,7 +67,15 @@ export default function (props) {
               <span className="icon icon-closeelement-bg-circle Font15"></span>
             </div>
           )}
-          <CityPicker key={`CityPicker-${data.controlId}`} search={keywords} level={areaLevel} callback={handleChange}>
+          <CityPicker
+            key={`CityPicker-${data.controlId}-${chooserange}-${data.enumDefault2}`}
+            search={keywords}
+            defaultValue={value}
+            level={data.enumDefault2}
+            chooserange={chooserange}
+            projectId={globalSheetInfo.projectId}
+            callback={handleChange}
+          >
             <input
               className="CityPicker-input-placeholder-Gray3"
               placeholder={value}

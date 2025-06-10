@@ -1,14 +1,14 @@
 import React from 'react';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { Icon } from 'ming-ui';
+import { useEffect } from 'react';
+import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { getAdvanceSetting } from 'src/util';
+import { Icon } from 'ming-ui';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
-import NumInput from './NumInput';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { useSetState } from 'react-use';
-import { useEffect } from 'react';
+import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { getAdvanceSetting } from 'src/utils/control';
+import NumInput from './NumInput';
 
 export const SwitchStyle = styled.div`
   display: inline-block;

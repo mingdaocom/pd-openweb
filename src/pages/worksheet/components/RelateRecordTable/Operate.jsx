@@ -1,29 +1,27 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Motion, spring } from 'react-motion';
 import cx from 'classnames';
 import { find, get, isEmpty, isUndefined, last } from 'lodash';
-import { Dialog, Input } from 'ming-ui';
 import moment from 'moment';
 import { bool, func, shape, string } from 'prop-types';
 import { arrayOf } from 'prop-types';
-import { Motion, spring } from 'react-motion';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { selectRecord } from 'src/components/recordCardListDialog';
-import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
-import { getTranslateInfo } from 'src/util';
 import styled from 'styled-components';
-import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
+import { Dialog, Input } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
+import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import ExportSheetButton from 'worksheet/components/ExportSheetButton';
 import Pagination from 'worksheet/components/Pagination';
 import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { emitter } from 'worksheet/util';
-
-import RelateRecordBtn from './RelateRecordBtn';
+import { selectRecords } from 'src/components/SelectRecords';
+import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
+import { getTranslateInfo } from 'src/utils/app';
+import { emitter } from 'src/utils/common';
 import * as actions from './redux/action';
 import { initialChanges } from './redux/reducer';
+import RelateRecordBtn from './RelateRecordBtn';
 import { getVisibleControls } from './utils';
 
 const Con = styled.div`
@@ -326,7 +324,7 @@ function Operate(props) {
             });
           }}
           onSelect={() => {
-            selectRecord({
+            selectRecords({
               canSelectAll: true,
               multiple: true,
               control: { ...control, recordId: recordId },
@@ -335,7 +333,7 @@ function Operate(props) {
               parentWorksheetId: worksheetId,
               controlId: control.controlId,
               recordId,
-              relateSheetId: relateWorksheetInfo.worksheetId,
+              worksheetId: relateWorksheetInfo.worksheetId,
               isDraft: from === RECORD_INFO_FROM.DRAFT || control.from === RECORD_INFO_FROM.DRAFT,
               filterRowIds: (relateWorksheetInfo.worksheetId === worksheetId ? [recordId] : []).concat(
                 recordId && from !== 21 && base.saveSync

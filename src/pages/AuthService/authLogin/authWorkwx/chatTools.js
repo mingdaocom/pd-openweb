@@ -1,4 +1,4 @@
-import { ajax, login, getRequest, addOtherParam } from 'src/util/sso';
+import { addOtherParam, ajax, getRequest, login } from 'src/utils/sso';
 
 const { url, p } = getRequest();
 const currentUrl = location.href.split('#')[0];
@@ -7,8 +7,8 @@ const projectId = p || hosts[0];
 
 const getCurExternalContact = () => {
   return new Promise((reslove, reject) => {
-    wx.invoke('getCurExternalContact', {}, function(res){
-      if(res.err_msg == 'getCurExternalContact:ok'){
+    wx.invoke('getCurExternalContact', {}, function (res) {
+      if (res.err_msg == 'getCurExternalContact:ok') {
         reslove(res.userId);
       } else {
         reject();
@@ -20,8 +20,8 @@ const getCurExternalContact = () => {
 
 const getCurExternalChat = () => {
   return new Promise((reslove, reject) => {
-    wx.invoke('getCurExternalChat', {}, function(res){
-      if(res.err_msg == 'getCurExternalChat:ok'){
+    wx.invoke('getCurExternalChat', {}, function (res) {
+      if (res.err_msg == 'getCurExternalChat:ok') {
         reslove(res.chatId);
       } else {
         reject();
@@ -32,8 +32,8 @@ const getCurExternalChat = () => {
 };
 
 const succeed = () => {
-  wx.invoke('getContext', {}, function(res){
-    if (res.err_msg == "getContext:ok") {
+  wx.invoke('getContext', {}, function (res) {
+    if (res.err_msg == 'getContext:ok') {
       const entry = res.entry;
       if (entry === 'group_chat_tools') {
         getCurExternalChat().then(chatId => {
@@ -60,10 +60,10 @@ const agentConfigInit = () => {
       projectId,
       url: encodeURI(currentUrl),
       suiteType: 8,
-      tickettype: 2
+      tickettype: 2,
     },
     async: true,
-    succees: ({ data }) => {
+    success: ({ data }) => {
       window.wx.agentConfig({
         corpid: data.corpId,
         agentid: data.agentId,
@@ -71,10 +71,10 @@ const agentConfigInit = () => {
         nonceStr: data.nonceStr,
         signature: data.signature,
         jsApiList: ['getContext', 'getCurExternalContact', 'getCurExternalChat'],
-        success: (res) => {
+        success: res => {
           succeed();
         },
-        fail: (res) => {
+        fail: res => {
           res.errorType = 'wx.agentConfig';
           window.nativeAlert(JSON.stringify(res));
         },
@@ -82,7 +82,7 @@ const agentConfigInit = () => {
     },
     error: login,
   });
-}
+};
 
 ajax.post({
   url: __api_server__.main + 'WorkWeiXin/GetSignatureInfo',
@@ -90,10 +90,10 @@ ajax.post({
     projectId,
     url: encodeURI(currentUrl),
     suiteType: 8,
-    tickettype: 1
+    tickettype: 1,
   },
   async: true,
-  succees: ({ data }) => {
+  success: ({ data }) => {
     window.wx.config({
       beta: true,
       debug: false,
@@ -111,5 +111,3 @@ ajax.post({
   },
   error: login,
 });
-
-

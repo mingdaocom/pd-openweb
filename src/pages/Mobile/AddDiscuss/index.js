@@ -1,15 +1,15 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Icon, Textarea } from 'ming-ui';
 import { Popup } from 'antd-mobile';
-import SelectUser from 'mobile/components/SelectUser';
-import AttachmentFiles, { UploadFileWrapper } from '../components/AttachmentFiles';
-import discussionAjax from 'src/api/discussion';
 import cx from 'classnames';
-import './index.less';
-import externalPortalAjax from 'src/api/externalPortal';
-import { getCaretPosition, setCaretPosition } from 'src/util';
 import _ from 'lodash';
+import { Icon, Textarea } from 'ming-ui';
+import discussionAjax from 'src/api/discussion';
+import externalPortalAjax from 'src/api/externalPortal';
+import SelectUser from 'mobile/components/SelectUser';
+import { getCaretPosition, setCaretPosition } from 'src/utils/common';
+import AttachmentFiles, { UploadFileWrapper } from '../components/AttachmentFiles';
+import './index.less';
 
 const SHEET_AT_ALL = _l('@工作表全体成员');
 const ROW_AT_ALL = _l('@记录全体成员');

@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
+import moment from 'moment';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { dateConvertToUserZone } from 'src/utils/project';
 import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { getClassNameByExt, dateConvertToUserZone } from 'src/util';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import moment from 'moment';
-import RegExpValidator from 'src/util/expression';
+import './index.less';
 
 export const splitFiles = list => {
   const ranges = {};

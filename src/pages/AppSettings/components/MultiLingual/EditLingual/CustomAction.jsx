@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import cx from 'classnames';
-import { Icon, LoadDiv, ScrollView, Dialog } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import sheetApi from 'src/api/worksheet';
+import cx from 'classnames';
 import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 const Wrap = styled.div`
   .customActionNav {
@@ -17,7 +17,7 @@ const Wrap = styled.div`
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #F5F5F5;
+        background-color: #f5f5f5;
       }
     }
   }
@@ -44,12 +44,14 @@ export default function CustomAction(props) {
 
   useEffect(() => {
     setLoading(true);
-    sheetApi.getWorksheetBtns({
-      worksheetId: selectNode.workSheetId,
-    }).then(data => {
-      setLoading(false);
-      setSheetBtns(data);
-    });
+    sheetApi
+      .getWorksheetBtns({
+        worksheetId: selectNode.workSheetId,
+      })
+      .then(data => {
+        setLoading(false);
+        setSheetBtns(data);
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -62,9 +64,7 @@ export default function CustomAction(props) {
 
   if (!sheetBtns.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">
-        {_l('没有自定义动作')}
-      </div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有自定义动作')}</div>
     );
   }
 
@@ -72,11 +72,13 @@ export default function CustomAction(props) {
     const el = document.querySelector(`.customAction-${item.btnId}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.customActionName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const renderBtnNav = btn => {
     const data = _.find(translateData, { correlationId: btn.btnId }) || {};
@@ -100,7 +102,9 @@ export default function CustomAction(props) {
     const desc = comparisonLangId ? comparisonLangInfo.description : btn.desc;
     const completeText = comparisonLangId ? comparisonLangInfo.completeText : _.get(btn.advancedSetting, 'tiptext');
     const confirmMsg = comparisonLangId ? comparisonLangInfo.confirmMsg : _.get(btn, 'confirmMsg');
-    const confirmContent = comparisonLangId ? comparisonLangInfo.confirmContent : _.get(btn.advancedSetting, 'confirmcontent');
+    const confirmContent = comparisonLangId
+      ? comparisonLangInfo.confirmContent
+      : _.get(btn.advancedSetting, 'confirmcontent');
     const sureName = comparisonLangId ? comparisonLangInfo.sureName : _.get(btn, 'sureName');
     const cancelName = comparisonLangId ? comparisonLangInfo.cancelName : _.get(btn, 'cancelName');
     const remark = comparisonLangId ? comparisonLangInfo.remark : _.get(btn.advancedSetting, 'remarkname');
@@ -116,8 +120,8 @@ export default function CustomAction(props) {
         type: LANG_DATA_TYPE.wrokSheetCustomAction,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -240,7 +244,9 @@ export default function CustomAction(props) {
               {!!withoutRemarkoptions.length && `，${_l('%0个没有译文', withoutRemarkoptions.length)}`}
             </div>
             <div className="flex">
-              <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(btn.btnId)}>{_l('编辑译文')}</span>
+              <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(btn.btnId)}>
+                {_l('编辑译文')}
+              </span>
             </div>
           </div>
         )}
@@ -249,11 +255,11 @@ export default function CustomAction(props) {
             visible={true}
             className="editLingualDialog"
             width={860}
-            title={(
+            title={
               <div className="flexRow alignItemsCenter mBottom10">
                 <span>{_l('模版')}</span>
               </div>
-            )}
+            }
             showFooter={false}
             onCancel={() => setOptionsEditDialogVisible('')}
           >
@@ -272,7 +278,7 @@ export default function CustomAction(props) {
         )}
       </div>
     );
-  }
+  };
 
   return (
     <Wrap className="flexRow pAll10 h100">
@@ -283,7 +289,7 @@ export default function CustomAction(props) {
             placeholder={_l('自定义动作')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
@@ -292,19 +298,12 @@ export default function CustomAction(props) {
           )}
         </div>
         <ScrollView className="flex">
-          {sheetBtns.filter(btn => btn.name.includes(searchValue)).map(btn => (
-            renderBtnNav(btn)
-          ))}
+          {sheetBtns.filter(btn => btn.name.includes(searchValue)).map(btn => renderBtnNav(btn))}
         </ScrollView>
       </div>
       <ScrollView className="customActionContent" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {sheetBtns.map(btn => (
-            renderBtnContent(btn)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{sheetBtns.map(btn => renderBtnContent(btn))}</div>
       </ScrollView>
     </Wrap>
   );
 }
-

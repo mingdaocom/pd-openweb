@@ -1,9 +1,9 @@
 ﻿import React, { Component } from 'react';
-import TaskCenter from './containers/taskCenter/taskCenter';
-import { emitter } from 'src/util';
-import UniformRoute from 'src/router/withTitle';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import UniformRoute from 'src/router/withTitle';
+import { emitter } from 'src/utils/common';
+import TaskCenter from './containers/taskCenter/taskCenter';
 
 const MODULE_TO_TITLE = {
   center: _l('任务'),

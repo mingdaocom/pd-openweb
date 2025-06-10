@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { assign, cloneDeep, findIndex, get, includes, uniq, uniqBy } from 'lodash';
-import { treeTableViewData, handleTreeNodeRow } from 'worksheet/common/TreeTableHelper/index.js';
+import { handleTreeNodeRow, treeTableViewData } from 'worksheet/common/TreeTableHelper/index.js';
 
 function loading(state = true, action) {
   switch (action.type) {
@@ -95,6 +95,11 @@ function changes(state = cloneDeep(initialChanges), action) {
         ...state,
         addedRecordIds: uniq(state.addedRecordIds.concat(newRecords.map(r => r.rowid))),
         addedRecords: uniqBy(state.addedRecords.concat(newRecords), 'rowid'),
+      };
+    case 'UPDATE_RECORD':
+      return {
+        ...state,
+        addedRecords: state.addedRecords.map(r => (r.rowid === get(action, 'newRecord.rowid') ? action.newRecord : r)),
       };
     case 'DELETE_RECORDS':
       return {

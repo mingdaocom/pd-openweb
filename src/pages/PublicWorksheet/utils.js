@@ -1,6 +1,7 @@
+import moment from 'moment';
 import qs from 'query-string';
 import { FILLLIMIT_TYPE } from 'src/pages/publicWorksheetConfig/enum';
-import moment from 'moment';
+
 const userAgent = navigator.userAgent;
 
 function getBrowserInfo() {
@@ -87,8 +88,8 @@ export const getPublicSubmitStorage = shareId => {
   const publicWorksheetSubmit = !publicSubmit
     ? []
     : publicSubmit.indexOf('[') < 0
-    ? [publicSubmit]
-    : safeParse(publicSubmit);
+      ? [publicSubmit]
+      : safeParse(publicSubmit);
   return publicWorksheetSubmit;
 };
 

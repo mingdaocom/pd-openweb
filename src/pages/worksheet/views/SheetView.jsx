@@ -1,43 +1,46 @@
 import React, { useContext, useMemo } from 'react';
-import PropTypes, { bool, func, shape } from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import _, { cloneDeep, get, isFunction, pick } from 'lodash';
+import PropTypes, { bool, func, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
+import { Skeleton } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import SheetContext from '../common/Sheet/SheetContext';
-import {
-  emitter,
-  getLRUWorksheetConfig,
-  getRecordColorConfig,
-  handleRecordClick,
-  getHighAuthControls,
-} from 'worksheet/util';
-import ToolBar from './HierarchyView/ToolBar';
 import { getRowDetail } from 'worksheet/api';
 import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
-import { ROW_HEIGHT, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { Skeleton } from 'ming-ui';
-import { putControlByOrder } from 'src/pages/widgetConfig/util';
-import WorksheetTable from 'worksheet/components/WorksheetTable';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { ColumnHead, SummaryCell, RowHead } from 'worksheet/components/WorksheetTable/components/';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import OperateButtons from 'worksheet/components/OperateButtons';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { ColumnHead, RowHead, SummaryCell } from 'worksheet/components/WorksheetTable/components/';
+import { ROW_HEIGHT, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import {
-  updateWorksheetSomeControls,
   refreshWorksheetControls,
-  updateWorksheetInfo,
   saveView,
+  updateWorksheetInfo,
+  updateWorksheetSomeControls,
 } from 'worksheet/redux/actions';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
-import { getAdvanceSetting, addBehaviorLog, browserIsMobile } from 'src/util';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
-import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
-import _, { get, isFunction, pick } from 'lodash';
-import { renderBatchSetDialog } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
 import { isHaveCharge } from 'worksheet/redux/actions/util';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { putControlByOrder } from 'src/pages/widgetConfig/util';
+import { renderBatchSetDialog } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { browserIsMobile, emitter, getLRUWorksheetConfig } from 'src/utils/common';
+import { getAdvanceSetting, getHighAuthControls } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
+import { getRecordColorConfig, handleRecordClick } from 'src/utils/record';
+import {
+  filterButtonBySheetSwitchPermit,
+  getOperatesButtonsWidth,
+  getSheetOperatesButtons,
+  getSheetOperatesButtonsStyle,
+} from 'src/utils/worksheet';
+import SheetContext from '../common/Sheet/SheetContext';
+import ToolBar from './HierarchyView/ToolBar';
 
 @autoSize
 class TableView extends React.Component {
@@ -78,7 +81,7 @@ class TableView extends React.Component {
   }
 
   componentDidMount() {
-    const { view, fetchRows, setRowsEmpty, navGroupFilters, noLoadAtDidMount, setViewLayout = () => { } } = this.props;
+    const { view, fetchRows, setRowsEmpty, navGroupFilters, noLoadAtDidMount, setViewLayout = () => {} } = this.props;
     if (!!this.chartId) {
       fetchRows({ isFirst: true });
     } else if (
@@ -106,8 +109,8 @@ class TableView extends React.Component {
       quickFilter,
       setColumnStyles,
       getWorksheetSheetViewSummary,
-      abortRequest = () => { },
-      setViewLayout = () => { },
+      abortRequest = () => {},
+      setViewLayout = () => {},
     } = nextProps;
     const changeView = this.props.worksheetId === nextProps.worksheetId && this.props.viewId !== nextProps.viewId;
     if (!_.isEqual(get(nextProps, ['navGroupFilters']), get(this.props, ['navGroupFilters']))) {
@@ -203,7 +206,9 @@ class TableView extends React.Component {
           'view.moreSort',
           'view.advancedSetting',
           'buttons',
+          'printList',
           'worksheetInfo.isRequestingRelationControls',
+          'operateButtonLoading',
         ],
         key => !_.isEqual(get(nextProps, key), get(this.props, key)),
       )
@@ -211,7 +216,7 @@ class TableView extends React.Component {
   }
 
   componentWillUnmount() {
-    const { abortRequest = () => { } } = this.props;
+    const { abortRequest = () => {} } = this.props;
     document.body.removeEventListener('click', this.outerClickEvent);
     emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     this.unbindShift();
@@ -609,16 +614,16 @@ class TableView extends React.Component {
         control={
           disableMaskDataControls[control.controlId]
             ? {
-              ...control,
-              advancedSetting: Object.assign({}, control.advancedSetting, {
-                datamask: '0',
-              }),
-            }
+                ...control,
+                advancedSetting: Object.assign({}, control.advancedSetting, {
+                  datamask: '0',
+                }),
+              }
             : control
         }
         disabledFunctions={this.disabledFunctions}
         readonly={this.readonly}
-        disabled={this.needClickToSearch && _.isEmpty(quickFilter)}
+        disabled={(this.needClickToSearch && _.isEmpty(quickFilter)) || control.type === 'operates'}
         isLast={control.controlId === _.last(this.columns).controlId}
         isTreeTableView={isTreeTableView}
         columnIndex={columnIndex}
@@ -631,7 +636,7 @@ class TableView extends React.Component {
               : controls.filter(it => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, it.controlId)),
             view,
             currentSheetInfo: worksheetInfo,
-            onClose: () => { },
+            onClose: () => {},
             visible: true,
             worksheetId,
             appId,
@@ -742,7 +747,7 @@ class TableView extends React.Component {
           isCharge &&
           (!!sheetHiddenColumns.length ||
             Number(localLayoutUpdateTime) >
-            Number(view.advancedSetting.layoutupdatetime || view.advancedSetting.layoutUpdateTime || 0) ||
+              Number(view.advancedSetting.layoutupdatetime || view.advancedSetting.layoutUpdateTime || 0) ||
             !!getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', viewId))
         }
         className={className}
@@ -827,6 +832,41 @@ class TableView extends React.Component {
     );
   };
 
+  renderOperates = ({ className, style, control, row, rowIndex, onCellClick }) => {
+    const { view, addRecord, setHighLight, hideRows, controls } = this.props;
+    const recordId = row.rowid;
+    return (
+      <div
+        style={style}
+        className={className}
+        onClick={e => {
+          if (
+            (e.target.classList.contains('cell') || e.target.parentElement.classList.contains('cell')) &&
+            e.target.closest('.viewCon')
+          ) {
+            onCellClick(control, row, rowIndex);
+          } else {
+            e.stopPropagation();
+          }
+        }}
+      >
+        <OperateButtons
+          row={row}
+          rowHeight={ROW_HEIGHT[view.rowHeight] || 34}
+          recordId={recordId}
+          controls={controls}
+          onCopySuccess={(...args) => {
+            setHighLight(this.tableId, rowIndex + 1);
+            addRecord(...args);
+          }}
+          onDeleteSuccess={() => {
+            hideRows([recordId]);
+          }}
+        />
+      </div>
+    );
+  };
+
   asyncUpdate(row, cell, options) {
     const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig, sheetViewData = {} } = this.props;
     const { rows = [] } = sheetViewData;
@@ -888,6 +928,10 @@ class TableView extends React.Component {
       navGroupFilters,
       controls,
       printCharge,
+      buttons,
+      sheetButtons,
+      printList,
+      operateButtonLoading,
     } = this.props;
     // function
     const {
@@ -904,6 +948,19 @@ class TableView extends React.Component {
       changeTreeTableViewLevelCount,
       isDraft,
     } = this.props;
+    let operatesButtons = getSheetOperatesButtons(view, {
+      buttons: sheetButtons,
+      printList,
+    });
+    operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, this.sheetSwitchPermit, viewId);
+    const operatesButtonsStyle = getSheetOperatesButtonsStyle(view);
+    const showOperatesInRow = !!operatesButtons.length && !get(window, 'shareState.shareId');
+    const operatesButtonsWidth = getOperatesButtonsWidth({
+      buttons: operatesButtons,
+      style: operatesButtonsStyle.style,
+      visibleNum: operatesButtonsStyle.visibleNum,
+      showIcon: operatesButtonsStyle.showIcon,
+    });
     const { readonly } = this;
     const { loading, rows } = sheetViewData;
     const {
@@ -933,6 +990,7 @@ class TableView extends React.Component {
     const showVerticalLine = (get(view, 'advancedSetting.showvertical') || '1') === '1';
     const showAsZebra = (get(view, 'advancedSetting.alternatecolor') || '0') === '1'; // 斑马颜色
     const wrapControlName = (get(view, 'advancedSetting.titlewrap') || '0') === '1';
+    const headTitleCenter = (get(view, 'advancedSetting.rctitlestyle') || '0') === '1';
     const lineEditable = (get(view, 'advancedSetting.fastedit') || '1') === '1' && !isRequestingRelationControls;
     const enableRules = (get(view, 'advancedSetting.enablerules') || (this.isManageView ? '0' : '1')) === '1';
     const navGroupData = (get(worksheetInfo, 'template.controls') || []).find(
@@ -1010,7 +1068,7 @@ class TableView extends React.Component {
             />
           </React.Fragment>
         )}
-        {!loading && (
+        {!loading && !(showOperatesInRow && operateButtonLoading) && (
           <WorksheetTable
             isDraft={isDraft}
             showControlStyle={this.showControlStyle}
@@ -1036,6 +1094,7 @@ class TableView extends React.Component {
             lineEditable={lineEditable}
             disableQuickEdit={!isOpenPermit(permitList.quickSwitch, this.sheetSwitchPermit, viewId)}
             fixedColumnCount={isTreeTableView ? fixedColumnCount + 1 : fixedColumnCount}
+            rightFixedCount={showOperatesInRow ? 1 : 0}
             sheetColumnWidths={sheetColumnWidths}
             columnStyles={columnStyles}
             allowAdd={
@@ -1064,19 +1123,32 @@ class TableView extends React.Component {
             rowHeadWidth={rowHeadWidth}
             expandCellAppendWidth={this.expandCellAppendWidth}
             controls={this.isManageView ? getHighAuthControls(controls) : controls}
-            columns={columns.map(c =>
-              disableMaskDataControls[c.controlId]
-                ? {
-                  ...c,
-                  advancedSetting: Object.assign({}, c.advancedSetting, {
-                    datamask: '0',
-                  }),
-                }
-                : c,
-            )}
+            columns={columns
+              .map(c =>
+                disableMaskDataControls[c.controlId]
+                  ? {
+                      ...c,
+                      advancedSetting: Object.assign({}, c.advancedSetting, {
+                        datamask: '0',
+                      }),
+                    }
+                  : c,
+              )
+              .concat(
+                showOperatesInRow
+                  ? [
+                      {
+                        type: 'operates',
+                        controlName: _l('操作'),
+                        width: operatesButtonsWidth,
+                      },
+                    ]
+                  : [],
+              )}
             projectId={projectId}
             // 表格样式
             wrapControlName={wrapControlName}
+            headTitleCenter={headTitleCenter}
             showSummary={
               !this.chartId &&
               showSummary &&
@@ -1089,10 +1161,11 @@ class TableView extends React.Component {
             renderFooterCell={this.renderSummaryCell}
             renderColumnHead={this.renderColumnHead}
             renderRowHead={this.renderRowHead}
+            renderOperates={args => this.renderOperates({ ...args })}
             noRecordAllowAdd={false}
             emptyIcon={
               (this.needClickToSearch && _.isEmpty(quickFilter)) ||
-                (this.navGroupToSearch() && _.isEmpty(navGroupFilters)) ? (
+              (this.navGroupToSearch() && _.isEmpty(navGroupFilters)) ? (
                 <span />
               ) : undefined
             }
@@ -1197,6 +1270,9 @@ export default connect(
     quickFilter: state.sheet.quickFilter,
     navGroupFilters: state.sheet.navGroupFilters,
     buttons: state.sheet.buttons,
+    operateButtonLoading: state.sheet.operateButtonLoading,
+    sheetButtons: state.sheet.sheetButtons,
+    printList: state.sheet.printList,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     sheetSearchConfig: state.sheet.sheetSearchConfig || [],

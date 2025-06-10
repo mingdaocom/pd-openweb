@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Checkbox, Icon } from 'ming-ui';
 import { Select } from 'antd';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import fileAjax from 'src/api/file';
-import { formatQuickFilter } from 'worksheet/util';
-import { getPssId } from 'src/util/pssId';
-import styled from 'styled-components';
+import { formatQuickFilter } from 'src/utils/filter';
+import { getPssId } from 'src/utils/pssId';
 
 const hyphenList = [
   { value: 0, label: _l('空格') + '( )', optionLabel: ' ' },

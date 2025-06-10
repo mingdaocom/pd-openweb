@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import sheetAjax from 'src/api/worksheet';
-import cx from 'classnames';
-import { isPublicLink } from '../tools/utils';
-import { FROM } from '../tools/config';
-import _ from 'lodash';
-import { browserIsMobile } from 'src/util';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import sheetAjax from 'src/api/worksheet';
+import { browserIsMobile } from 'src/utils/common';
+import { FROM } from '../tools/config';
+import { isPublicLink } from '../tools/utils';
 
 export default props => {
   const { disabledFunctions = [], from, recordId, item, worksheetId, disabled, onChange } = props;

@@ -253,4 +253,97 @@ export default {
      
      return mdyAPI('Attachment', 'GetAttachmentTotal', args, options);
    },
+  /**
+  * 获取扫码上传附件地址
+  * @param {Object} args 请求参数
+  * @param {} args.sourceType
+  * @param {} args.fileType
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行记录Id
+  * @param {string} args.controlId 附件控件Id
+  * @param {string} args.viewId 视图Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAttachmentScanUrl: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'GetAttachmentScanUrl', args, options);
+   },
+  /**
+  * 变更链接状态
+  * @param {Object} args 请求参数
+  * @param {string} args.scanId 识别id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   stopAttachmentScanUrl: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'StopAttachmentScanUrl', args, options);
+   },
+  /**
+  * 获取扫码上传附件列表
+  * @param {Object} args 请求参数
+  * @param {string} args.scanId 识别id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getScanAttachments: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'GetScanAttachments', args, options);
+   },
+  /**
+  * 获取扫码上传详情
+  * @param {Object} args 请求参数
+  * @param {string} args.scanId 识别id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getScanAttachmentInfo: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'GetScanAttachmentInfo', args, options);
+   },
+  /**
+  * 推送扫码上传附件信息
+  * @param {Object} args 请求参数
+  * @param {string} args.scanId 识别id
+  * @param {} args.sourceType
+  * @param {} args.fileType
+  * @param {string} args.accountId 账户id
+  * @param {array} args.attachmentScanSimpleDetail 附件信息列表
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行记录Id
+  * @param {string} args.controlId 附件控件Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addScanAttachments: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'AddScanAttachments', args, options);
+   },
+  /**
+  * 获取七牛上传 token
+  * @param {Object} args 请求参数
+  * @param {array} args.files 批量上传文件token 请求对象
+  * @param {} args.type
+  * @param {string} args.scanId 识别id
+  * @param {} args.sourceType
+  * @param {} args.fileType
+  * @param {string} args.accountId 账户id
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行记录Id
+  * @param {string} args.controlId 附件控件Id
+  * @param {string} args.extend 扩展字段
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getScanUploadToken: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'GetScanUploadToken', args, options);
+   },
 };

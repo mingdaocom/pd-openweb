@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import * as ajax from '../../utils/ajax';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
-import Constant from '../../utils/constant';
+import { getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import * as utils from '../../utils/';
-import { getClassNameByExt } from 'src/util';
+import * as ajax from '../../utils/ajax';
+import Constant from '../../utils/constant';
 import { FileItem } from '../Files';
-import RegExpValidator from 'src/util/expression';
 
 const format = res => {
   return res.map(file => {

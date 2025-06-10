@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Input } from 'ming-ui';
 import _ from 'lodash';
-import { formatNumberThousand } from 'src/util';
+import { Input } from 'ming-ui';
+import { formatNumberThousand } from 'src/utils/control';
 
 export default function InputValue({ type, value, className, onChange, onBlur, placeholder }) {
   const [isEditing, setEditing] = useState(false);

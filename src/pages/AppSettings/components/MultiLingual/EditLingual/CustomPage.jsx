@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { LoadDiv } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import EditDescription from './EditDescription';
+import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
 import { filterHtmlTag } from '../util';
+import EditDescription from './EditDescription';
+import EditInput from './EditInput';
 
 export default function CustomPage(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -21,12 +21,14 @@ export default function CustomPage(props) {
       setDesc(selectNode.externalLinkInfo.desc);
     } else {
       setLoading(true);
-      customApi.getPage({
-        appId: selectNode.key,
-      }).then(data => {
-        setLoading(false);
-        setDesc(data.desc);
-      });
+      customApi
+        .getPage({
+          appId: selectNode.key,
+        })
+        .then(data => {
+          setLoading(false);
+          setDesc(data.desc);
+        });
     }
   }, [selectNode.key]);
 
@@ -38,10 +40,10 @@ export default function CustomPage(props) {
       type: LANG_DATA_TYPE.customePage,
       data: {
         ...translateInfo,
-        ...info
-      }
+        ...info,
+      },
     });
-  }
+  };
 
   if (loading) {
     return (
@@ -58,16 +60,21 @@ export default function CustomPage(props) {
       <div className="Font14 bold mBottom20">{translateInfo.name || selectNode.originalTitle}</div>
       <div className="flexRow alignItemsCenter nodeItem">
         <div className="Font13 mRight20 label">{_l('自定义页面名称')}</div>
-        <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : selectNode.originalTitle} disabled={true} />
-        <EditInput
-          className="flex"
-          value={translateInfo.name}
-          onChange={value => handleSave({ name: value })}
+        <Input
+          className="flex mRight20"
+          value={comparisonLangId ? comparisonLangInfo.name : selectNode.originalTitle}
+          disabled={true}
         />
+        <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
       </div>
       <div className="flexRow alignItemsCenter nodeItem">
         <div className="Font13 mRight20 label">{_l('自定义页面说明')}</div>
-        <Input.TextArea style={{ resize: 'none' }} className="flex mRight20" value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.description : desc)} disabled={true} />
+        <Input.TextArea
+          style={{ resize: 'none' }}
+          className="flex mRight20"
+          value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.description : desc)}
+          disabled={true}
+        />
         <EditDescription
           value={translateInfo.description}
           originalValue={desc}

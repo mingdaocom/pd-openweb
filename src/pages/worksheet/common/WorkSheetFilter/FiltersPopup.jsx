@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Trigger from 'rc-trigger';
 import { useMeasure } from 'react-use';
-import styled from 'styled-components';
-import { emitter } from 'worksheet/util';
-import { FlexCenter } from 'worksheet/components/Basics';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAway = createDecoratedComponent(withClickAway);
-import { formatForSave } from './model';
-import Filters from './Filters';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { FlexCenter } from 'worksheet/components/Basics';
+import { emitter } from 'src/utils/common';
+import Filters from './Filters';
+import { formatForSave } from './model';
+
+const ClickAway = createDecoratedComponent(withClickAway);
 
 const SelectedFilter = styled(FlexCenter)`
   display: inline-flex;
@@ -105,6 +106,7 @@ export default function FiltersPopup(props) {
                 '.rc-trigger-popup',
                 '.CityPicker',
                 '.CityPicker-wrapper',
+                '.selectRecordsDialog',
               ].join(','),
             )[0];
             return $targetTarget;
@@ -114,11 +116,12 @@ export default function FiltersPopup(props) {
             '.ant-tree-select-dropdown',
             '#quickSelectDept',
             '.selectRoleDialog',
-            '.worksheetFilterTextPopup'
+            '.worksheetFilterTextPopup',
           ]}
           onClickAway={() => setPopupVisible(false)}
         >
           <Filters
+            popupVisible={popupVisible}
             actions={actions}
             ref={filtersRef}
             state={state}

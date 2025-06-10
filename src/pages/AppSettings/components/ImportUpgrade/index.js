@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
+import appManagementAjax from 'src/api/appManagement';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { dateConvertToUserZone, getFeatureStatus } from 'src/utils/project';
+import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
 import UpgradeProcess from './components/UpgradeProcess';
-import AppSettingHeader from '../AppSettingHeader';
-import { getFeatureStatus, dateConvertToUserZone } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import appManagementAjax from 'src/api/appManagement';
-import _ from 'lodash';
 
 const LogsWrap = styled.div`
   overflow: auto;

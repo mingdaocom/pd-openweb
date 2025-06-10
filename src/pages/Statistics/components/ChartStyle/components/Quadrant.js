@@ -1,16 +1,16 @@
-import React, { useState, Component, Fragment } from 'react';
+import React, { Component, Fragment, useState } from 'react';
+import { Input, Radio, Space } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { ColorPicker } from 'ming-ui';
-import { formatNumberFromInput } from 'src/util';
-import { Input, Radio, Space } from 'antd';
+import { formatNumberFromInput } from 'src/utils/control';
 
 const ColorWrap = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 3px;
   padding: 4px;
-  border: 1px solid #DDDDDD;
+  border: 1px solid #dddddd;
   background-color: #fff;
   .colorBlock {
     width: 100%;
@@ -31,12 +31,12 @@ const QuadrantName = props => {
       }}
       onBlur={() => {
         onChangeQuadrant({
-          [data.textKey]: name
+          [data.textKey]: name,
         });
       }}
     />
   );
-}
+};
 
 const QuadrantAxisValue = props => {
   const [value, setValue] = useState(props.value);
@@ -56,7 +56,7 @@ const QuadrantAxisValue = props => {
       }}
     />
   );
-}
+};
 
 export default class Quadrant extends Component {
   constructor(props) {
@@ -74,13 +74,12 @@ export default class Quadrant extends Component {
             value={quadrant[data.bgColorKey]}
             onChange={value => {
               onChangeQuadrant({
-                [data.bgColorKey]: value
+                [data.bgColorKey]: value,
               });
             }}
           >
             <ColorWrap className="pointer">
-              <div className="colorBlock" style={{ backgroundColor: quadrant[data.bgColorKey] }}>
-              </div>
+              <div className="colorBlock" style={{ backgroundColor: quadrant[data.bgColorKey] }}></div>
             </ColorWrap>
           </ColorPicker>
         </div>
@@ -92,36 +91,38 @@ export default class Quadrant extends Component {
     return (
       <Fragment>
         <div className="flexRow valignWrapper mBottom16">
-          <div className="mRight10" style={{ width: 60 }}>{_l('象限轴')}</div>
+          <div className="mRight10" style={{ width: 60 }}>
+            {_l('象限轴')}
+          </div>
           <ColorPicker
             isPopupBody
             value={quadrant.axisColor}
             onChange={value => {
               onChangeQuadrant({
-                axisColor: value
+                axisColor: value,
               });
             }}
           >
             <ColorWrap className="pointer">
-              <div className="colorBlock" style={{ backgroundColor: quadrant.axisColor }}>
-              </div>
+              <div className="colorBlock" style={{ backgroundColor: quadrant.axisColor }}></div>
             </ColorWrap>
           </ColorPicker>
         </div>
         <div className="flexRow valignWrapper mBottom16">
-          <div className="mRight10" style={{ width: 60 }}>{_l('文本')}</div>
+          <div className="mRight10" style={{ width: 60 }}>
+            {_l('文本')}
+          </div>
           <ColorPicker
             isPopupBody
             value={quadrant.textColor}
             onChange={value => {
               onChangeQuadrant({
-                textColor: value
+                textColor: value,
               });
             }}
           >
             <ColorWrap className="pointer">
-              <div className="colorBlock" style={{ backgroundColor: quadrant.textColor }}>
-              </div>
+              <div className="colorBlock" style={{ backgroundColor: quadrant.textColor }}></div>
             </ColorWrap>
           </ColorPicker>
         </div>
@@ -132,7 +133,7 @@ export default class Quadrant extends Component {
               <div>{_l('X轴')}</div>
               <QuadrantAxisValue
                 value={quadrant.xValue}
-                onChange={(value) => {
+                onChange={value => {
                   onChangeQuadrant({ xValue: value });
                 }}
               />
@@ -141,7 +142,7 @@ export default class Quadrant extends Component {
               <div>{_l('Y轴')}</div>
               <QuadrantAxisValue
                 value={quadrant.yValue}
-                onChange={(value) => {
+                onChange={value => {
                   onChangeQuadrant({ yValue: value });
                 }}
               />

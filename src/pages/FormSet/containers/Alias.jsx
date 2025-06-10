@@ -8,13 +8,15 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
 import AliasDialog from '../components/AliasDialog';
 import './alias.less';
 
+const defaultName = _l('记录');
+
 export default function Alias(props) {
   const { match = {}, onChange } = props;
   const { worksheetId = '' } = match.params || {};
   const [state, setState] = useSetState({
     loading: true,
     worksheetInfo: props.worksheetInfo || {},
-    name: '记录',
+    name: defaultName,
     nameFocus: false,
     showAliasDialog: false,
     btnname: '',
@@ -31,7 +33,7 @@ export default function Alias(props) {
     const { worksheetInfo = {} } = nextProps;
     setState({
       worksheetInfo: nextProps.worksheetInfo || {},
-      name: worksheetInfo.entityName || _l('记录'),
+      name: worksheetInfo.entityName || defaultName,
       btnname: _.get(worksheetInfo, 'advancedSetting.btnname'),
       nameFocus: false,
     });
@@ -55,13 +57,13 @@ export default function Alias(props) {
 
   const changeEntityName = () => {
     if (!name) {
-      setState({ name: '记录' });
+      setState({ name: defaultName });
     }
     setState({ nameFocus: false });
     sheetAjax
-      .updateEntityName({ worksheetId: worksheetId, entityName: name, projectId })
+      .updateEntityName({ worksheetId: worksheetId, entityName: name || defaultName, projectId })
       .then(data => {
-        onChange({ ...worksheetInfo, entityName: name });
+        onChange({ ...worksheetInfo, entityName: name || defaultName });
       })
       .catch(err => alert(_l('修改失败'), 2));
   };

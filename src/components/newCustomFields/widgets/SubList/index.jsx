@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import ChildTable from 'worksheet/components/ChildTable';
-import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import { browserIsMobile } from 'src/util';
 import _, { find } from 'lodash';
+import PropTypes from 'prop-types';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
+import ChildTable from 'worksheet/components/ChildTable';
+import { browserIsMobile } from 'src/utils/common';
 
 export default class SubList extends React.Component {
   static contextType = RecordInfoContext;

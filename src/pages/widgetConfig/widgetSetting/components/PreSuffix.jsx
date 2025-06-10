@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import WidgetDropdown from '../../components/Dropdown';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import styled from 'styled-components';
+import WidgetDropdown from '../../components/Dropdown';
 import { UNIT_TYPE } from '../../config/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const PreSuffixWrap = styled.div`
   display: flex;
@@ -35,14 +35,18 @@ const types = ['suffix', 'prefix'];
 export default function PreSuffix({ data, value, onChange }) {
   const setting = getAdvanceSetting(data);
   const getDefaultType = () => {
-    const type = types.find(item => setting[item]);
+    const type = types.find(item => !!setting[item]);
     return type || 'suffix';
   };
   const [type, setType] = useState(getDefaultType());
 
+  useEffect(() => {}, [data.controlId]);
+
   useEffect(() => {
-    setType(getDefaultType());
-  }, [data.controlId]);
+    if (setting.suffix || setting.prefix) {
+      setType(getDefaultType());
+    }
+  }, [setting.suffix, setting.prefix]);
 
   return (
     <PreSuffixWrap>

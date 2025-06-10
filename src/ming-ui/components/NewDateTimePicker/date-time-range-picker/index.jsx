@@ -400,7 +400,6 @@ class DateTimeRangeDoublePicker extends Component {
         <div className="mui-datetimerangepicker-row partial">
           <div className="mui-datetimerangepicker-col">
             <Checkbox
-              type="checkbox"
               checked={this.state.partialStart}
               onClick={() => {
                 this.checkboxOnChange('partialStart');
@@ -411,7 +410,6 @@ class DateTimeRangeDoublePicker extends Component {
           </div>
           <div className="mui-datetimerangepicker-col">
             <Checkbox
-              type="checkbox"
               checked={this.state.partialEnd}
               onClick={() => {
                 this.checkboxOnChange('partialEnd');

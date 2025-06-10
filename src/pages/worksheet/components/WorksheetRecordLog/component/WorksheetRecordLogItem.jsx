@@ -1,20 +1,21 @@
 import React from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { browserIsMobile, getTranslateInfo } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import TriggerSelect from './TriggerSelect';
-import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
-import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
-import WorksheetRecordLogDiffText from './WorksheetRecordLogDiffText';
-import WorksheetRecordLogSubList from './WorksheetRecordLogSubList';
 import {
-  WIDGETS_TO_API_TYPE_ENUM,
   DEFAULT_CONFIG,
+  WIDGETS_TO_API_TYPE_ENUM,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
+import { getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { CIRCLE_TAGS_CONTROL_TYPE, RECT_TAGS_CONTROL_TYPE, SUBLIST_FILE_EDIT_TYPE } from '../enum.js';
-import { handleSelectTagsValue, diffSelectTagsValue, getExtendParams } from '../util';
+import { diffSelectTagsValue, getExtendParams, handleSelectTagsValue } from '../util';
+import TriggerSelect from './TriggerSelect';
+import WorksheetRecordLogDiffText from './WorksheetRecordLogDiffText';
+import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
+import WorksheetRecordLogSubList from './WorksheetRecordLogSubList';
+import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
 
 function renderContent(data, recordInfo, extendParam) {
   const { type, oldValue, newValue, id, editType } = data;
@@ -36,7 +37,7 @@ function renderContent(data, recordInfo, extendParam) {
         newValue={_newValue}
         defaultValue={_defaultValue || []}
         type={CIRCLE_TAGS_CONTROL_TYPE.includes(type) ? 'circle' : 'rect'}
-        needPreview={type === 29}
+        needPreview={type === 29 && _.get(control, 'advancedSetting.allowlink') === '1'}
         data={data}
         control={control}
         onlyNew={onlyNew}

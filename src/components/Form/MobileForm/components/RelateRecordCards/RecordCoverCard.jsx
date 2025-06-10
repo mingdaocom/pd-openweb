@@ -16,6 +16,10 @@ const Con = styled.div`
   background-color: var(--color-third);
   border: 1px solid var(--gray-e0);
 
+  & + & {
+    margin-top: ${props => (props.disabled ? 10 : 14)}px;
+  }
+
   .removeBtn {
     position: absolute;
     top: 0;
@@ -140,6 +144,7 @@ export default function RecordCoverCard(props) {
       }}
       className={cx(className, allowlink !== '0')}
       canView={allowlink !== '0'}
+      disabled={disabled}
     >
       {!disabled && !showAddAsDropdown && (
         <Fragment>

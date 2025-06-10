@@ -1,10 +1,10 @@
-import React, { useEffect, useState, createRef } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { formatNumberFromInput } from 'src/util';
-import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import _ from 'lodash';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { formatNumberFromInput } from 'src/utils/control';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 
 export default function NumberInput(props) {
   const { dynamicValue, data, clearOldDefault, onDynamicValueChange, defaultType, totalWidth, from, withMaxOrMin } =

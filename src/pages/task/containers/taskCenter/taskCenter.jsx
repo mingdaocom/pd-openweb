@@ -241,9 +241,6 @@ class TaskCenter extends Component {
 
   componentWillUnmount() {
     $('html').removeClass('AppTask');
-  }
-
-  componentWillUnmount() {
     $('#container').off('.task');
     $('body').off('.task').removeClass('taskDetailOpen');
     this.props.dispatch(clearFolderSettings());

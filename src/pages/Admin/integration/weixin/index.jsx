@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { LoadDiv, Dialog } from 'ming-ui';
 import { createRoot } from 'react-dom/client';
 import ClipboardButton from 'react-clipboard.js';
-import { Button, Input, Form, Modal } from 'antd';
-import projectAjax from 'src/api/project';
-import { getRequest } from 'src/util';
-import Config from '../../config';
+import { Button, Form, Input, Modal } from 'antd';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Dialog, LoadDiv } from 'ming-ui';
+import projectAjax from 'src/api/project';
+import { getRequest } from 'src/utils/common';
+import Config from '../../config';
+import './index.less';
 
 const CONFIG_OPTIONS = [
   { key: 'name', text: _l('服务号名称'), clickText: _l('取消绑定'), clickKey: 'unbind' },
@@ -366,8 +366,8 @@ export default class WeiXin extends Component {
             item.key !== 'appSecret'
               ? value
               : value.length < 16
-              ? '*********'
-              : value.substr(0, 6) + '*********' + value.substr(value.length - 6);
+                ? '*********'
+                : value.substr(0, 6) + '*********' + value.substr(value.length - 6);
           return (
             <div className="wechatSuccessRow" key={item.key}>
               <div className="wechatSuccessLabel">{item.text}</div>

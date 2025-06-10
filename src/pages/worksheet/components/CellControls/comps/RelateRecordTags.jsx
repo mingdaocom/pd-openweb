@@ -1,5 +1,6 @@
 import React, { forwardRef, Fragment, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
+import { useKey } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _, { pick } from 'lodash';
@@ -11,9 +12,10 @@ import {
   getTitleControlIdFromRelateControl,
   getTitleTextFromRelateControl,
 } from 'src/components/newCustomFields/tools/utils';
-import { selectRecord } from 'src/components/recordCardListDialog';
+import { selectRecords } from 'src/components/SelectRecords';
 import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
-import { addBehaviorLog } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project';
 
 function getCellHeight(texts = [], width) {
   let result;
@@ -146,6 +148,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
 export default forwardRef(function RelateRecordTags(props, ref) {
   const {
     from,
+    appId,
     isDraft,
     disabled,
     isediting,
@@ -173,6 +176,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   const allowRemove = control.advancedSetting.allowcancel !== '0' || !multiple;
   const allowSelect = control.enumDefault2 !== 10 && control.enumDefault2 !== 11;
   const canAdd = control.enumDefault === 2 ? count < 50 : records.length === 0;
+  const isMobile = browserIsMobile();
   let maxShowNum = getCellMaxShowNum(
     records.map(r => getTitleTextFromRelateControl(control, r)),
     { width: style.width, maxHeight: style.height },
@@ -251,8 +255,9 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       control.unique || control.uniqueInRecord
         ? (rows || []).map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid')).filter(_.identity)
         : [];
-    selectRecord({
+    selectRecords({
       // canSelectAll: true,
+      appId,
       multiple,
       control,
       allowNewRecord,
@@ -260,7 +265,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       parentWorksheetId: worksheetId,
       controlId: control.controlId,
       recordId,
-      relateSheetId: control.dataSource,
+      worksheetId: control.dataSource,
       filterRowIds: records
         .map(r => r.rowid)
         .concat(needIgnoreRowIds)
@@ -284,6 +289,11 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     searchRecords: handleSearchRecords,
     selectRecords: handleSelectRecords,
   }));
+  useKey('Enter', e => {
+    if (e.shiftKey && isediting) {
+      handleSearchRecords();
+    }
+  });
   return (
     <Con
       ref={conRef}
@@ -320,7 +330,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
               key={i}
               title={text}
               onClick={e => {
-                if (!record.rowid || /^temp/.test(record.rowid)) {
+                if (!record.rowid || /^temp/.test(record.rowid) || isMobile) {
                   return;
                 }
                 e.stopPropagation();
@@ -357,6 +367,9 @@ export default forwardRef(function RelateRecordTags(props, ref) {
             <Tag
               className="icon moreRecords"
               onClick={e => {
+                if (isMobile) {
+                  return;
+                }
                 e.stopPropagation();
                 handleSearchRecords();
               }}

@@ -1,10 +1,10 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import ViewErrorPage from '../components/ViewErrorPage';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { getAdvanceSetting } from 'src/util';
-import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
+import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
+import { getAdvanceSetting } from 'src/utils/control';
+import ViewErrorPage from '../components/ViewErrorPage';
 
 class MobileGunterView extends Component {
   constructor(props) {

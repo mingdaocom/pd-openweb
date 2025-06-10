@@ -1,10 +1,10 @@
-import { arrayOf, func, shape, string, bool, number } from 'prop-types';
-import React, { useEffect, forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
-import { validateFnExpression } from 'src/pages/worksheet/util';
-import FunctionEditor from './FunctionEditor';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import _ from 'lodash';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { validateFnExpression } from 'src/utils/common';
+import FunctionEditor from './FunctionEditor';
 
 const Con = styled.div`
   padding: ${({ readOnly }) => (readOnly ? '4px 6px;' : '20px 0 0;')};

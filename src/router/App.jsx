@@ -15,7 +15,7 @@ import weixinCode from 'src/pages/NewPrivateDeployment/images/weixin.png';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
 import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
-import { getAppFeaturesVisible } from 'src/util';
+import { getAppFeaturesVisible } from 'src/utils/app';
 import socketInit from '../socket';
 import { ROUTE_CONFIG, withoutChatUrl } from './config';
 import genRouteComponent from './genRouteComponent';

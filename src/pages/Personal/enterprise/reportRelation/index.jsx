@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import { Icon, LoadDiv, Dialog } from 'ming-ui';
-import structureController from 'src/api/structure';
+import cx from 'classnames';
+import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
 import projectSettingController from 'src/api/projectSetting';
 import roleController from 'src/api/role';
-import Relation from 'src/pages/Admin/user/reportRelation';
-import cx from 'classnames';
-import './index.less';
-import { navigateTo } from 'router/navigateTo';
-import { getRequest } from 'src/util';
-import { dialogSelectUser } from 'ming-ui/functions';
-import _ from 'lodash';
+import structureController from 'src/api/structure';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
+import Relation from 'src/pages/Admin/user/reportRelation';
+import { getRequest } from 'src/utils/common';
+import './index.less';
 
 const barList = [
   { label: _l('我的汇报关系'), key: 'report' },

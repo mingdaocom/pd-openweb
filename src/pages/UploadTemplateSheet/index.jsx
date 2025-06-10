@@ -682,7 +682,7 @@ export default class UploadTemplateSheet extends React.Component {
   };
 
   onEdit = type => {
-    const { popupVisible, downLoadUrl, appId } = this.state;
+    const { popupVisible, downLoadUrl, worksheetName } = this.state;
     this.setState({ popupVisible: false });
 
     if (type === 0) {
@@ -691,8 +691,9 @@ export default class UploadTemplateSheet extends React.Component {
       createEditFileLink({
         worksheetId: _.get(this.props, 'match.params.worksheetId'),
         downLoadUrl,
-        appId,
-        fileType: popupVisible,
+        type: popupVisible === 'Word' ? 2 : 5,
+        createType: 2,
+        name: worksheetName,
       });
     }
   };
@@ -817,6 +818,14 @@ export default class UploadTemplateSheet extends React.Component {
               </span>
               <Support type={3} href="https://help.mingdao.com/worksheet/batch-print" text={_l('这里')} />。
               <span>{_l('Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
+            </p>
+            <p className="Gray_75">
+              <span>
+                {_l(
+                  '9. 时间类型字段默认按照 yyyy-MM-dd HH:mm:ss（2025-01-01 12:00:00） 格式打印。可在字段代码后拼接格式代码来自定义打印时的方式。例：将#{ctime}拼接为#{ctime$[yyyy/M/d]$}，则创建时间打印为：2025/1/1。',
+                )}
+              </span>
+              <Support type={3} href="https://help.mingdao.com/worksheet/date-format/" text={_l('查看格式规则')} />。
             </p>
             <br />
             <p className="Gray_75">

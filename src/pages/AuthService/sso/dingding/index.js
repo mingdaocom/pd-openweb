@@ -1,5 +1,5 @@
-import { ajax, login, browserIsMobile, getRequest, getGlobalMeta, checkLogin, replenishRet } from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+import { setPssId } from 'src/utils/pssId';
+import { ajax, browserIsMobile, checkLogin, getGlobalMeta, getRequest, login, replenishRet } from 'src/utils/sso';
 
 const { code, state, i, ret, pc_slide = '' } = getRequest();
 const isPcSlide = pc_slide.includes('true');
@@ -24,7 +24,7 @@ if (checkLogin()) {
       apkId: i,
     },
     async: true,
-    succees: result => {
+    success: result => {
       const { accountResult, sessionId } = result.data;
       if (accountResult === 1) {
         getGlobalMeta().then(() => {

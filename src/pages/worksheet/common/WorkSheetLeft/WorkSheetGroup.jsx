@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { Icon, Tooltip, SvgIcon } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import WorkSheetItem, { convertColor } from './WorkSheetItem';
+import { Icon, SvgIcon, Tooltip } from 'ming-ui';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import MoreOperation from './MoreOperation';
+import { getTranslateInfo } from 'src/utils/app';
 import Drag from './Drag';
-import { getTranslateInfo } from 'src/util';
+import MoreOperation from './MoreOperation';
+import WorkSheetItem, { convertColor } from './WorkSheetItem';
 
 export default function WorkSheetGroup(props) {
   const { appItem, ...otherProps } = props;
@@ -28,7 +28,10 @@ export default function WorkSheetGroup(props) {
   const [popupVisible, setPopupVisible] = useState(false);
   const [isDrag, setIsDrag] = useState(false);
   const isActive = !childrenVisible && isCurrentChildren;
-  const showIcon = currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0 ? true : displayIcon.split('')[1] === '1';
+  const showIcon =
+    currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0
+      ? true
+      : displayIcon.split('')[1] === '1';
   const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
 
   useEffect(() => {
@@ -157,7 +160,11 @@ export default function WorkSheetGroup(props) {
               className={cx('name ellipsis Font14 mRight10', { bold: isActive })}
               title={workSheetName}
               style={{
-                color: darkColor ? `rgba(255, 255, 255, ${ currentPcNaviStyle === 3 ? 0.9 : 1 })` : isActive ? iconColor : undefined
+                color: darkColor
+                  ? `rgba(255, 255, 255, ${currentPcNaviStyle === 3 ? 0.9 : 1})`
+                  : isActive
+                    ? iconColor
+                    : undefined,
               }}
             >
               {workSheetName}

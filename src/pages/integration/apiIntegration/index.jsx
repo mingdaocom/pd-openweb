@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import autoSize from 'ming-ui/decorators/autoSize';
-import { Support, ScrollView } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
-import bg from 'staticfiles/images/query.png';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import _ from 'lodash';
-import CustomLibrary from './CustomLibrary';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import loadScript from 'load-script';
+import _ from 'lodash';
+import bg from 'staticfiles/images/query.png';
+import styled from 'styled-components';
+import { ScrollView, Support } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
+import { hasPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import CustomLibrary from './CustomLibrary';
 
 const Wrap = styled.div`
   background: #fff;

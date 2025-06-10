@@ -1,16 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Modal, LoadDiv } from 'ming-ui';
-import styled from 'styled-components';
 import update from 'immutability-helper';
+import _, { get } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { LoadDiv, Modal } from 'ming-ui';
+import CustomFields from 'src/components/newCustomFields';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import CustomFields from 'src/components/newCustomFields';
+import { isRelateRecordTableControl } from 'src/utils/control';
 import useWorksheetRowProvider from '../WorksheetRecordProvider';
 import './FillRecordControls.less';
-import _, { get } from 'lodash';
-import { isRelateRecordTableControl } from 'worksheet/util';
 
 const LoadMask = styled.div`
   margin: -58px -24px;

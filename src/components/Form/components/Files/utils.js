@@ -1,7 +1,8 @@
 import qs from 'query-string';
 import { getFileExtends } from 'src/components/UploadFiles/utils';
-import { downloadFile } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { downloadFile } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+
 export const handleShare = (data, isDownload) => {
   if (!md.global.Account.accountId) {
     window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
@@ -116,8 +117,8 @@ export const handleDownload = (data, isDownload, logData) => {
   const url = data.downloadUrl
     ? data.downloadUrl
     : data.attachmentType == 5
-    ? `${data.downloadUrl}&shareFolderId=${data.refId}`
-    : `${md.global.Config.AjaxApiUrl}file/downDocument?fileID=${data.fileID}`;
+      ? `${data.downloadUrl}&shareFolderId=${data.refId}`
+      : `${md.global.Config.AjaxApiUrl}file/downDocument?fileID=${data.fileID}`;
   if (isDownload) {
     window.open(downloadFile(url + logExtend));
   } else {

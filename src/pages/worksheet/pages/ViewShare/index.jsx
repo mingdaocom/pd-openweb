@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { LoadDiv, SvgIcon } from 'ming-ui';
-import preall from 'src/common/preall';
-import sheetApi from 'src/api/worksheet';
-import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
-import ViewSahre from './ViewSahre';
 import DocumentTitle from 'react-document-title';
-import styled from 'styled-components';
 import _ from 'lodash';
-import { getTranslateInfo, shareGetAppLangDetail, getRequest } from 'src/util';
+import styled from 'styled-components';
+import { LoadDiv, SvgIcon } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
+import preall from 'src/common/preall';
 import globalEvents from 'src/router/globalEvents';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
+import { getRequest } from 'src/utils/common';
+import ViewSahre from './ViewSahre';
 
 const Wrap = styled.div`
   .header {
@@ -60,7 +61,7 @@ const Entry = props => {
     const clientId = sessionStorage.getItem(shareId);
     window.clientId = clientId;
     getShareInfoByShareId({
-      clientId
+      clientId,
     }).then(async result => {
       const { data } = result;
       const { appId, projectId } = data;
@@ -141,15 +142,15 @@ const Entry = props => {
 
   const renderInfo = () => {
     const { appName, worksheetName, viewName, appIcon, appIconColor, pageTitle } = share.data || {};
-    const title = pageTitle || `${appName}-${worksheetName}-${viewName}`;
+    const title = pageTitle || `${appName}-${worksheetName || ''}${viewName ? `-${viewName}` : ''}`;
     return (
       <div className="Font16 bold flexRow flex alignItemsCenter">
         {appIcon && (
           <div
-            className="svgWrap flexRow alignItemsCenter justifyContentCenter mRight10"
+            className="svgWrap flexRow alignItemsCenter justifyContentCenter pTop3 mRight10"
             style={{ backgroundColor: appIconColor }}
           >
-            <SvgIcon url={appIcon} fill="#fff" size={22} />
+            <SvgIcon url={appIcon} fill="#fff" size={20} />
           </div>
         )}
         <div className="flex ellipsis" title={title}>

@@ -1,4 +1,4 @@
-import { isEmpty, head, pick } from 'lodash';
+import { head, isEmpty, pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { WHOLE_SIZE } from './Drag';
 import { NUM_5_SETTINGS } from './score';
@@ -65,8 +65,6 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   FORMULA_FUNC: 53,
   CUSTOM: 54,
   REMARK: 10010,
-  // 特殊异化控件：呈现type异化，实际保存type跟老控件一致
-  INTERNATIONAL_AREA: 90000,
 };
 
 export const DEFAULT_CONFIG = {
@@ -150,10 +148,6 @@ export const DEFAULT_CONFIG = {
     widgetName: _l('地区'),
     intro: _l('从预设的地址中进行选择'),
     moreIntroLink: 'https://help.mingdao.com/worksheet/control-region-city',
-  },
-  INTERNATIONAL_AREA: {
-    icon: 'map',
-    widgetName: _l('国际地区'),
   },
   RELATION: {
     icon: 'device_hub',
@@ -364,10 +358,9 @@ export const DEFAULT_DATA = {
   MOBILE_PHONE: {
     controlName: _l('手机'),
     size: 6,
-    enumDefault: 1,
+    enumDefault: 0,
     hint: _l('请填写手机号码'),
     advancedSetting: {
-      defaultarea: '{"name":"China (中国)","iso2":"cn","dialCode":"86"}',
       commcountries:
         '[{"name":"China (中国)","iso2":"cn","dialCode":"86"},{"name":"Hong Kong (香港)","iso2":"hk","dialCode":"852"},{"name":"Taiwan (台灣)","iso2":"tw","dialCode":"886"},{"name":"Macau (澳門)","iso2":"mo","dialCode":"853"},{"name":"Singapore","iso2":"sg","dialCode":"65"},{"name":"Malaysia","iso2":"my","dialCode":"60"},{"name":"Japan (日本)","iso2":"jp","dialCode":"81"},{"name":"South Korea (대한민국)","iso2":"kr","dialCode":"82"},{"name":"United States","iso2":"us","dialCode":"1"},{"name":"United Kingdom","iso2":"gb","dialCode":"44"},{"name":"France","iso2":"fr","dialCode":"33"},{"name":"Germany (Deutschland)","iso2":"de","dialCode":"49"},{"name":"Russia (Россия)","iso2":"ru","dialCode":"7"}]',
     },
@@ -403,12 +396,11 @@ export const DEFAULT_DATA = {
     size: 6,
     enumDefault: 0,
     enumDefault2: 2,
-    // unit: _l('元'),
     dot: 2,
     hint: _l('请填写金额'),
     advancedSetting: {
-      suffix: _l('元'),
       roundtype: '2',
+      showformat: '1',
     },
   },
   FLAT_MENU: {
@@ -475,14 +467,6 @@ export const DEFAULT_DATA = {
     size: 6,
     enumDefault: 0,
   },
-  INTERNATIONAL_AREA: {
-    controlName: _l('国际地区'),
-    size: 6,
-    enumDefault: 1,
-    advancedSetting: {
-      choosetype: '0',
-    },
-  },
   RELATION: {
     controlName: _l('自由连接%04008'),
     size: 12,
@@ -505,6 +489,8 @@ export const DEFAULT_DATA = {
   AREA_COUNTY: {
     controlName: _l('地区'),
     size: 6,
+    enumDefault: 0,
+    enumDefault2: 3,
   },
   MONEY_CN: {
     controlName: _l('大写金额%04009'),
@@ -870,7 +856,6 @@ export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
   'MONEY_CN',
   'EMBED',
   'CUSTOM',
-  // 'INTERNATIONAL_AREA',
 ]);
 
 export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [

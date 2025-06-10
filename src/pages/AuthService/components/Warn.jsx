@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import { SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
 import { isTel } from 'src/pages/AuthService/util.js';
-import { emitter } from 'src/util';
+import { emitter } from 'src/utils/common';
 
 // 'code',//验证码计时与报错提示
 export default function (props) {

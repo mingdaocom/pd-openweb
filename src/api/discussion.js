@@ -12,6 +12,7 @@ export default {
   * @param {} args.location
   * @param {string} args.extendsId 扩展ID(工作表:appId|viewId)
   * @param {} args.entityType
+  * @param {object} args.extends 扩展参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

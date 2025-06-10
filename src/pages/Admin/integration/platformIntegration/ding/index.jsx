@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Switch, Icon, Button, LoadDiv, Radio, MdLink, Input, Support } from 'ming-ui';
+import { Button, Icon, Input, LoadDiv, MdLink, Radio, Support, Switch } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
-import IntegrationSetPassword from '../components/IntegrationSetPassword';
-import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
 import EnableScanLogin from '../components/EnableScanLogin';
+import IntegrationSetPassword from '../components/IntegrationSetPassword';
+import IntegrationSync from '../components/IntegrationSync';
 import SettingLinkOpen from '../components/SettingLinkOpen';
-import { integrationFailed, checkClearIntergrationData } from '../utils';
+import { checkClearIntergrationData, integrationFailed } from '../utils';
 import './style.less';
 
 const optionTypes = [
@@ -196,7 +196,7 @@ export default class Ding extends React.Component {
   };
 
   stepRender = () => {
-    const { projectId } = this.props;
+    const { projectId, featureType, featureId } = this.props;
     const { canEditInfo, isHasInfo, isCloseDing } = this.state;
 
     return (
@@ -296,6 +296,8 @@ export default class Ding extends React.Component {
           step="3."
           syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
           projectId={projectId}
+          featureType={featureType}
+          featureId={featureId}
         />
       </div>
     );

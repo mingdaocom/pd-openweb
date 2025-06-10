@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Popup, Dialog as MobileDialog } from 'antd-mobile';
-import { Dialog, ScrollView, Icon, LoadDiv } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import { Dialog as MobileDialog, Popup } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import RecordDetail from './RecordDetail';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { canSubmitByLimitFrequency } from './utils';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import cx from 'classnames';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { browserIsMobile } from 'src/utils/common';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
+import RecordDetail from './RecordDetail';
+import { canSubmitByLimitFrequency } from './utils';
 
 const ModalWrapper = styled(Popup)`
   .adm-popup-body {

@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip, UserHead } from 'ming-ui';
 import { Select } from 'antd';
-import TableCom from '../TableCom';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Tooltip, UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
-import styled from 'styled-components';
-import { selectDateList, formatter } from '../../util';
-import { formatFileSize } from 'src/util';
-import cx from 'classnames';
-import _ from 'lodash';
+import { formatFileSize } from 'src/utils/common';
+import { formatter, selectDateList } from '../../util';
+import TableCom from '../TableCom';
 
 const { Option } = Select;
 

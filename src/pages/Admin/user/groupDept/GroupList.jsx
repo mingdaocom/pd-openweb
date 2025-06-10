@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Select, Table, Dropdown, Spin, ConfigProvider } from 'antd';
-import { Tooltip, LoadDiv } from 'ming-ui';
-import Config from '../../config';
-import './index.less';
+import { ConfigProvider, Dropdown, Input, Select, Spin, Table } from 'antd';
+import _ from 'lodash';
+import moment from 'moment';
+import { LoadDiv, Tooltip, VerifyPasswordConfirm } from 'ming-ui';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { dialogSelectDept } from 'ming-ui/functions';
 import groupController from 'src/api/group';
+import createGroup from 'src/pages/Group/createGroup';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
-import { dialogSelectDept } from 'ming-ui/functions';
-import CreateGroup from 'src/components/group/create/creatGroup';
-import moment from 'moment';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import Config from '../../config';
+import './index.less';
 
 const { Search } = Input;
 
@@ -121,7 +122,7 @@ export default class GroupsList extends Component {
         title: _l('创建时间'),
         dataIndex: 'createTime',
         render: text => {
-          return <span className="color_g">{moment(text).format('YYYY-MM-DD HH:mm:ss')}</span>;
+          return <span>{moment(text).format('YYYY-MM-DD HH:mm:ss')}</span>;
         },
         sorter: true,
       },
@@ -152,7 +153,7 @@ export default class GroupsList extends Component {
             </div>
           );
           return (
-            <Dropdown overlay={menu} trigger={['click']}>
+            <Dropdown overlay={menu} trigger={['click']} placement="topLeft" autoAdjustOverflow>
               <span className="icon-moreop Font18 pointer Gray_9e"></span>
             </Dropdown>
           );
@@ -219,7 +220,7 @@ export default class GroupsList extends Component {
       projectId: Config.projectId,
       unique: true,
       selectFn: data => {
-        _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
+        _this.updateDeptMappingGroup(record.groupId, true, data && !_.isEmpty(data) ? data[0].departmentId : '');
       },
     });
   }
@@ -239,8 +240,8 @@ export default class GroupsList extends Component {
 
     dialogSelectDept({
       projectId: Config.projectId,
-      callback: function (data) {
-        _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
+      selectFn: function (data) {
+        _this.updateDeptMappingGroup(record.groupId, true, data && !_.isEmpty(data) ? data[0].departmentId : '');
       },
     });
   }
@@ -301,49 +302,65 @@ export default class GroupsList extends Component {
 
   handleClose(id) {
     Confirm({
-      title: _l('关闭群组'),
-      description: _l('确认关闭所选择的群组?'),
+      title: _l('是否确认关闭群组？'),
+      description: (
+        <div>
+          {_l('关闭群组后，群组将不能被访问')}
+          <br />
+          {_l('您可以在 组织管理-群组 中找到并重新开启这个群组')}
+        </div>
+      ),
       onOk: () => {
-        groupController
-          .closeGroup({
-            groupIds: id ? [id] : this.state.selectKeys,
-          })
-          .then(data => {
-            if (data) {
-              alert(_l('关闭群组成功'));
-              this.getGroupsList();
-            } else {
-              alert(_l('关闭群组失败'), 2);
-            }
-          });
+        VerifyPasswordConfirm.confirm({
+          isRequired: true,
+          onOk: () => {
+            groupController
+              .closeGroup({
+                groupIds: id ? [id] : this.state.selectKeys,
+              })
+              .then(data => {
+                if (data) {
+                  alert(_l('关闭群组成功'));
+                  this.getGroupsList();
+                } else {
+                  alert(_l('关闭群组失败'), 2);
+                }
+              });
+          },
+        });
       },
     });
   }
 
   handleDissolve(id) {
     Confirm({
-      title: _l('解散群组'),
-      description: _l('确认解散所选择的群组？'),
+      title: _l('是否确认解散？'),
+      description: _l('群组解散后，将永久删除该群组。不可恢复'),
       onOk: () => {
-        groupController
-          .removeGroup({
-            groupIds: id ? [id] : this.state.selectKeys,
-          })
-          .then(data => {
-            if (data) {
-              alert(_l('解散群组成功'));
-              this.getGroupsList();
-            } else {
-              alert(_l('解散群组失败'), 2);
-            }
-          });
+        VerifyPasswordConfirm.confirm({
+          isRequired: true,
+          onOk: () => {
+            groupController
+              .removeGroup({
+                groupIds: id ? [id] : this.state.selectKeys,
+              })
+              .then(data => {
+                if (data) {
+                  alert(_l('解散群组成功'));
+                  this.getGroupsList();
+                } else {
+                  alert(_l('解散群组失败'), 2);
+                }
+              });
+          },
+        });
       },
     });
   }
 
   handleCreate() {
     const _this = this;
-    CreateGroup.createInit({
+    createGroup({
       projectId: Config.projectId,
       callback: function () {
         _this.getGroupsList();

@@ -1,13 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Tooltip } from 'ming-ui';
-import { emitter } from 'worksheet/util';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { fieldCanSort, checkIsTextControl } from 'worksheet/util';
+import { emitter } from 'src/utils/common';
+import { fieldCanSort } from 'src/utils/control';
+import { checkIsTextControl } from 'src/utils/control';
 import './style.less';
-import _ from 'lodash';
 
 export default class BaseColumnHead extends React.Component {
   static propTypes = {
@@ -190,14 +191,18 @@ export default class BaseColumnHead extends React.Component {
             </span>
             {canSort && typeof isAsc !== 'undefined' && <span className="sortIcon">{this.getSortIcon()}</span>}
             {control.desc && (
-              <Tooltip popupPlacement="bottom" text={<span>{control.desc}</span>}>
+              <Tooltip popupPlacement="bottom" text={<span className="preWrap">{control.desc}</span>}>
                 <i className="icon-info descIcon"></i>
               </Tooltip>
             )}
           </div>
           {maskData && <i className="icon icon-eye_off maskData Font16"></i>}
           {showDropdown && !disabled && (
-            <span className="dropIcon" onClick={() => this.setState({ listVisible: true })}>
+            <span
+              className="dropIcon"
+              onClick={() => this.setState({ listVisible: true })}
+              style={className.indexOf('headAlignCenter') > -1 ? { lineHeight: style.height - 2 + 'px' } : {}}
+            >
               <i className="icon icon-arrow-down-border ThemeHoverColor3 Hand"></i>
             </span>
           )}

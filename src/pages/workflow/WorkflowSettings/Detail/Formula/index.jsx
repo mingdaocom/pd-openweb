@@ -1,30 +1,30 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Checkbox, Radio } from 'ming-ui';
-import cx from 'classnames';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import { Tooltip } from 'antd';
-import flowNode from '../../../api/flowNode';
-import {
-  SelectOtherFields,
-  Tag,
-  FnList,
-  DetailHeader,
-  DetailFooter,
-  CustomTextarea,
-  SelectNodeObject,
-  FindMode,
-  SpecificFieldsValue,
-  TriggerCondition,
-} from '../components';
-import { ACTION_ID, DATE_SHOW_TYPES } from '../../enum';
-import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
-import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
+import cx from 'classnames';
 import _, { get } from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { handleGlobalVariableName, getControlTypeName, getIcons } from '../../utils';
+import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import flowNode from '../../../api/flowNode';
+import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
+import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { getSummaryInfo } from 'src/pages/worksheet/util';
+import { getSummaryInfo } from 'src/utils/record';
+import { ACTION_ID, DATE_SHOW_TYPES } from '../../enum';
+import { getControlTypeName, getIcons, handleGlobalVariableName } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  FindMode,
+  FnList,
+  SelectNodeObject,
+  SelectOtherFields,
+  SpecificFieldsValue,
+  Tag,
+  TriggerCondition,
+} from '../components';
 
 const DotBox = styled.div`
   input {
@@ -811,13 +811,13 @@ export default class Formula extends Component {
             !data.appId
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
-              ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
-              : () => (
-                  <Fragment>
-                    <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
-                  </Fragment>
-                )
+                ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+                : () => (
+                    <Fragment>
+                      <span>{selectAppItem.name}</span>
+                      {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
+                    </Fragment>
+                  )
           }
           border
           openSearch

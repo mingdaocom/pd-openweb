@@ -1,15 +1,15 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Icon, Dropdown, Button, Dialog } from 'ming-ui';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
-import { pluginConfigType } from '../config';
-import homeAppApi from 'src/api/homeApp';
-import _ from 'lodash';
-import { navigateToView } from 'src/pages/widgetConfig/util/data';
 import { Tooltip } from 'antd';
-import { addBehaviorLog } from 'src/util';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Dropdown, Icon } from 'ming-ui';
 import { checkIsAppAdmin } from 'ming-ui/functions';
+import homeAppApi from 'src/api/homeApp';
+import { navigateToView } from 'src/pages/widgetConfig/util/data';
+import { addBehaviorLog } from 'src/utils/project';
+import { pluginConfigType } from '../config';
 
 const Wrapper = styled.div`
   .envList {

@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import ConnectParam from 'src/pages/integration/components/ConnectParam';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
 import AuthParam from 'src/pages/integration/components/AuthParam';
 import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
 import ConnectItem from 'src/pages/integration/components/ConnectItem';
-import { LoadDiv, Icon } from 'ming-ui';
+import ConnectParam from 'src/pages/integration/components/ConnectParam';
 import EditIntro from 'src/pages/integration/components/EditDes';
 import { getNodeList } from '../util';
 
@@ -161,13 +160,13 @@ function ConnectSet(props) {
     return <LoadDiv />;
   }
   const renderFlowDts = (data, notAuthCode, index) => {
-    if (data.appType === 30 || props.connectType !== 1) {
+    if (data.appType === 30) {
       return null;
     }
     if (notAuthCode) {
       return (
         <React.Fragment>
-          {data.appType === 32 && (
+          {data.appType === 32 && props.connectType === 1 && (
             <React.Fragment>
               <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
               <ConnectItem
@@ -196,6 +195,7 @@ function ConnectSet(props) {
               props.hasChange();
             }}
             canEdit={props.isConnectOwner}
+            forIntegration
           />
         </React.Fragment>
       );

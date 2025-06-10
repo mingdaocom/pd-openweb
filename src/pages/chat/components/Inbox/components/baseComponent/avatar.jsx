@@ -1,8 +1,8 @@
 import React from 'react';
-import { MSGTYPES } from '../../constants';
 import cx from 'classnames';
 import { UserCard } from 'ming-ui';
-import { APPLICATION_ICON } from 'src/util/enum';
+import { APPLICATION_ICON } from 'src/utils/enum';
+import { MSGTYPES } from '../../constants';
 
 const formatUser = function (props) {
   const { accountId, fullname, avatar, inboxType, appId } = props;

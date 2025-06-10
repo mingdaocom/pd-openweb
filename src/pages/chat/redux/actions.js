@@ -1,9 +1,9 @@
-import * as ajax from '../utils/ajax';
-import * as utils from '../utils';
-import * as socket from '../utils/socket';
-import Constant from '../utils/constant';
-import { dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
+import { dateConvertToUserZone } from 'src/utils/project';
+import * as utils from '../utils';
+import * as ajax from '../utils/ajax';
+import Constant from '../utils/constant';
+import * as socket from '../utils/socket';
 
 /**
  * 设置会话列表
@@ -629,7 +629,7 @@ export const addCurrentSession = result => (dispatch, getState) => {
  * 添加打开过 inbox 消息
  * @param {*} result
  */
- export const addCurrentInbox = result => (dispatch, getState) => {
+export const addCurrentInbox = result => (dispatch, getState) => {
   const { currentInboxList = [], sessionList } = getState().chat;
   if (currentInboxList.length >= 3) {
     const { id } = currentInboxList[0];
@@ -651,10 +651,10 @@ export const updateInoxRequestNow = id => {
     type: 'UPDATE_INBOX_SESSION',
     id,
     data: {
-      requestNow: Date.now()
-    }
-  }
-}
+      requestNow: Date.now(),
+    },
+  };
+};
 
 /**
  * 删除聊过的会话信息
@@ -785,6 +785,25 @@ export const updateForbIdInvite = (groupId, isForbidInvite) => (dispatch, getSta
   const newCurrentSessionList = currentSessionList.map(item => {
     if (item.id === groupId) {
       item.isForbidInvite = isForbidInvite;
+    }
+    return item;
+  });
+  dispatch({
+    type: 'UPDATE_CURRENT_SESSION',
+    result: newCurrentSessionList,
+  });
+};
+
+/**
+ * 设为官方群组
+ * @param {*} groupId
+ * @param {*} isVerified
+ */
+export const updateVerify = (groupId, isVerified) => (dispatch, getState) => {
+  const { currentSessionList } = getState().chat;
+  const newCurrentSessionList = currentSessionList.map(item => {
+    if (item.id === groupId) {
+      item.isVerified = isVerified;
     }
     return item;
   });
@@ -1649,7 +1668,7 @@ export const refresh = () => (dispatch, getState) => {
           result: {},
         });
         dispatch({
-          type: 'REMOVE_ALL_INBOX_SESSION'
+          type: 'REMOVE_ALL_INBOX_SESSION',
         });
       }
     });

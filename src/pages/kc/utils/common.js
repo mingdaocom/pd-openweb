@@ -1,23 +1,24 @@
 import { debounce } from 'lodash';
-import { downloadFile } from 'src/util';
 import qs from 'query-string';
-import kcService from '../api/service';
-import {
-  NODE_TYPE,
-  NODE_VISIBLE_TYPE,
-  NODE_VIEW_TYPE,
-  NODE_OPERATOR_TYPE,
-  ROOT_PERMISSION_TYPE,
-  EXECUTE_RESULT,
-  EXECUTE_ERROR_MESSAGE,
-  NODE_STATUS,
-  PICK_TYPE,
-} from '../constant/enum';
-import { confirm, getParentId, getLocationType, getPermission, getParentName } from './index';
 import { addLinkFile } from 'ming-ui/functions';
-import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import kcService from '../api/service';
 import createShare from 'src/components/createShare/createShare';
-import RegExpValidator from 'src/util/expression';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import { downloadFile } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import {
+  EXECUTE_ERROR_MESSAGE,
+  EXECUTE_RESULT,
+  NODE_OPERATOR_TYPE,
+  NODE_STATUS,
+  NODE_TYPE,
+  NODE_VIEW_TYPE,
+  NODE_VISIBLE_TYPE,
+  PICK_TYPE,
+  ROOT_PERMISSION_TYPE,
+} from '../constant/enum';
+import { confirm, getLocationType, getParentId, getParentName, getPermission } from './index';
+
 function saveLastPos(root, folder) {
   if (typeof currentRoot !== 'object' && root !== 1) {
     return;
@@ -542,10 +543,10 @@ export function handleMoveOrCopy(options) {
             (result.type === 1
               ? 'my'
               : result.type === 2
-              ? result.node.id
-              : result.node.rootId
-              ? result.node.position.slice(1)
-              : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+                ? result.node.id
+                : result.node.rootId
+                  ? result.node.position.slice(1)
+                  : result.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
           content: operationTips.text,
         });
       } else {

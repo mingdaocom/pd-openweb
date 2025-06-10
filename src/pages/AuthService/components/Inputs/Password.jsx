@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
 import Icon from 'ming-ui/components/Icon';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
 
 // 'inputPassword',//密码
 export default function (props) {

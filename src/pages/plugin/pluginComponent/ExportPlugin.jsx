@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Dialog, Checkbox, Input, Textarea, Icon } from 'ming-ui';
-import { Tooltip, DatePicker } from 'antd';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import { generateRandomPassword } from 'src/util';
-import moment from 'moment';
 import ClipboardButton from 'react-clipboard.js';
-import { pluginApiConfig, API_EXTENDS } from '../config';
+import { useSetState } from 'react-use';
+import { DatePicker, Tooltip } from 'antd';
+import localeEn from 'antd/es/date-picker/locale/en_US';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon, Input, Textarea } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { generateRandomPassword } from 'src/utils/common';
+import { API_EXTENDS, pluginApiConfig } from '../config';
 
 const FormItem = styled.div`
   margin-bottom: 16px;

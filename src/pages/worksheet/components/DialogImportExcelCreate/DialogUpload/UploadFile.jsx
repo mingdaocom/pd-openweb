@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dialog } from 'ming-ui';
 import { Progress } from 'antd';
-import createUploader from 'src/library/plupload/createUploader';
-import { formatFileSize } from 'src/util';
 import styled from 'styled-components';
-import RegExpValidator from 'src/util/expression';
+import { Dialog, Icon } from 'ming-ui';
+import createUploader from 'src/library/plupload/createUploader';
+import { formatFileSize } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+
 const UploadWrap = styled.div`
   height: 340px;
   border: 1px dashed #e0e0e0;

@@ -49,7 +49,6 @@ const TopChartContent = styled.div`
     width: 50px;
   }
   .value {
-    width: 20%;
     margin-left: 8px;
     text-align: right;
   }
@@ -252,16 +251,20 @@ export default class extends Component {
     );
   }
   renderHeader(isDark) {
-    const { xaxes, yaxisList } = this.props.reportData;
+    const { xaxes, yaxisList, style = {} } = this.props.reportData;
+    const { valueProgressVisible } = style;
     return (
       <div className={cx('flexRow valignWrapper item', isDark ? 'White' : 'Gray_9e')}>
         <div className="index alignItemsCenter justifyContentCenter flexRow">{_l('排行')}</div>
-        <div className="name flex ellipsis">{xaxes.rename || xaxes.controlName}</div>
-        {yaxisList.map(item => (
-          <div key={item.controlId} className="value ellipsis">
-            {item.rename || item.controlName}
-          </div>
-        ))}
+        <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}>{xaxes.rename || xaxes.controlName}</div>
+        {valueProgressVisible && <div className="valueProgressWrap" />}
+        <div className="flexRow valignWrapper flex">
+          {yaxisList.map(item => (
+            <div key={item.controlId} className="value ellipsis" style={{ width: `${100 / yaxisList.length}%` }}>
+              {item.rename || item.controlName}
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -283,7 +286,7 @@ export default class extends Component {
         }}
       >
         <div className={cx('index alignItemsCenter justifyContentCenter flexRow', isDark ? 'White' : 'Gray_75')}>{this.renderIndex(index + 1)}</div>
-        <div className={cx('name ellipsis mRight8', isDark ? 'White' : 'Gray')} style={valueProgressVisible ? { width: '30%' } : { flex: 1 }} title={data.name}>{data.name}</div>
+        <div className={cx('name ellipsis mRight8', isDark ? 'White' : 'Gray')} style={valueProgressVisible ? { width: '20%' } : { flex: 1 }} title={data.name}>{data.name}</div>
         {valueProgressVisible && (
           <div className="valueProgressWrap">
             <div
@@ -295,11 +298,17 @@ export default class extends Component {
             />
           </div>
         )}
-        {yaxisList.map(item => (
-          <div key={item.controlId} className={cx('value ellipsis', isDark ? 'White' : 'Gray')}>
-            {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId, false)}
-          </div>
-        ))}
+        <div className="flexRow valignWrapper flex">
+          {yaxisList.map(item => (
+            <div
+              key={item.controlId}
+              className={cx('value ellipsis', isDark ? 'White' : 'Gray')}
+              style={{ width: `${100 / yaxisList.length}%` }}
+            >
+              {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId, false)}
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

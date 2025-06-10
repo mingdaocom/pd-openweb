@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { types, timeWidth, timeWidthHalf, weekObj, dayTimeByPart, lineBottomHeight } from '../config';
-import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
-import RecordWrap from './RecordWrap';
-import { browserIsMobile } from 'src/util';
 import { calculateTimePercentage } from 'src/pages/worksheet/views/ResourceView/util.js';
+import { browserIsMobile } from 'src/utils/common';
+import { dayTimeByPart, lineBottomHeight, timeWidth, timeWidthHalf, types, weekObj } from '../config';
+import RecordWrap from './RecordWrap';
 
 const Wrap = styled.div`
   .showGroup {
@@ -292,10 +292,10 @@ export default function Timegrid(props) {
                   {type === 'Month'
                     ? _l('上个月')
                     : type === 'Week'
-                    ? _l('上一周')
-                    : type === 'Year'
-                    ? _l('上一年')
-                    : _l('上一天')}
+                      ? _l('上一周')
+                      : type === 'Year'
+                        ? _l('上一年')
+                        : _l('上一天')}
                 </span>
               }
             >
@@ -322,10 +322,10 @@ export default function Timegrid(props) {
                   {type === 'Month'
                     ? _l('下个月')
                     : type === 'Week'
-                    ? _l('下一周')
-                    : type === 'Year'
-                    ? _l('下一年')
-                    : _l('下一天')}
+                      ? _l('下一周')
+                      : type === 'Year'
+                        ? _l('下一年')
+                        : _l('下一天')}
                 </span>
               }
             >
@@ -368,10 +368,10 @@ export default function Timegrid(props) {
               {type === 'Month'
                 ? renderMonth()
                 : type === 'Week'
-                ? renderWeek()
-                : type === 'Year'
-                ? renderYear()
-                : renderDay()}
+                  ? renderWeek()
+                  : type === 'Year'
+                    ? renderYear()
+                    : renderDay()}
             </div>
             <div className="timeCanvas flex flexRow Relative h100">
               <div className="flex h100 flexRow timeCanvasLines" style={{ width: widthCon }}>
@@ -394,8 +394,8 @@ export default function Timegrid(props) {
                         ['Week'].includes(type)
                           ? timeWidth * 2
                           : ['Month', 'Year'].includes(type)
-                          ? timeWidth
-                          : timeWidthHalf
+                            ? timeWidth
+                            : timeWidthHalf
                       }
                       isBorder2={
                         (['Week'].includes(type) && (i + 1) % (list[0].times || []).length === 0) ||
@@ -429,10 +429,10 @@ export default function Timegrid(props) {
                   ['Year'].includes(type)
                     ? timeWidth * 2
                     : ['Week'].includes(type)
-                    ? timeWidth * 4
-                    : ['Month'].includes(type)
-                    ? timeWidth
-                    : timeWidthHalf
+                      ? timeWidth * 4
+                      : ['Month'].includes(type)
+                        ? timeWidth
+                        : timeWidthHalf
                 }
                 style={{ width: allW }}
                 listHeight={_.sum(resourceDataByKey.map(o => o.height))}

@@ -1,10 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Linkify } from 'ming-ui';
-import { formatStrZero } from 'src/util';
 import _ from 'lodash';
-import { formatNumberThousand } from 'src/util';
+import PropTypes from 'prop-types';
+import { Linkify } from 'ming-ui';
+import { formatNumberThousand, formatStrZero } from 'src/utils/control';
 
 export default class Widgets extends Component {
   static propTypes = {

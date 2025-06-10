@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { Checkbox, Dialog } from 'ming-ui';
-import { EditInfo } from '../../../../styled';
 import styled from 'styled-components';
-import { getStringBytes } from 'src/util';
+import { Checkbox, Dialog } from 'ming-ui';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
+import { getStringBytes } from 'src/utils/common';
+import { EditInfo } from '../../../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 
 const ItemName = styled.div`
   display: flex;

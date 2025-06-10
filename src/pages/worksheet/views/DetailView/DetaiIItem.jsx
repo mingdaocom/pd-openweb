@@ -1,17 +1,17 @@
 import React from 'react';
-import _ from 'lodash';
-import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
-import { getRecordColorConfig, getRecordColor } from 'worksheet/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
-import EditableCard from '../components/EditableCard';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/control';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
+import EditableCard from '../components/EditableCard';
+import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
 
 export default function DetailItem(props) {
   const {

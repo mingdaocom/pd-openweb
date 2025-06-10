@@ -1,15 +1,15 @@
+import { setPssId } from 'src/utils/pssId';
 import {
-  ajax,
-  login,
-  browserIsMobile,
-  getRequest,
-  checkLogin,
-  replenishRet,
-  formatOtherParam,
   addOtherParam,
+  ajax,
+  browserIsMobile,
+  checkLogin,
   checkOriginUrl,
-} from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+  formatOtherParam,
+  getRequest,
+  login,
+  replenishRet,
+} from 'src/utils/sso';
 
 const { t, i, ret, url, code, p, pc_slide = '', ...otherParam } = getRequest();
 const isPcSlide = pc_slide.includes('true');
@@ -34,7 +34,7 @@ function start() {
         },
         async: true,
         withCredentials: false,
-        succees: result => {
+        success: result => {
           const { accountResult, sessionId } = result.data;
           if (accountResult === 1) {
             setPssId(sessionId);
@@ -66,7 +66,7 @@ function start() {
           apkId: i,
         },
         async: true,
-        succees: result => {
+        success: result => {
           const { corpId, state } = result.data;
           const redirect_uri = encodeURIComponent(`${location.origin}/sso/workweixin?ret=${newRet || ''}&i=${i || ''}`);
           location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&state=${state}&response_type=code&scope=snsapi_base#wechat_redirect`;
@@ -106,7 +106,7 @@ function start() {
           projectId,
         },
         async: true,
-        succees: result => {
+        success: result => {
           const { corpId, state, clientWorkingPattern } = result.data;
           if (corpId) {
             dd.ready(function () {

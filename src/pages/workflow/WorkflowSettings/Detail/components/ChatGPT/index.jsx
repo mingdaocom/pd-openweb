@@ -1,15 +1,16 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Dialog, ScrollView, Textarea, Checkbox } from 'ming-ui';
-import styled from 'styled-components';
-import { highlight, languages } from 'prismjs/components/prism-core';
+import React, { Fragment, useEffect, useState } from 'react';
+import cx from 'classnames';
+import { createParser } from 'eventsource-parser';
 import 'prismjs/components/prism-clike';
+import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-javascript';
 import Remarkable from 'remarkable';
-import { replaceEntities, escapeHtml } from 'remarkable/lib/common/utils';
-import { createParser } from 'eventsource-parser';
-import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
-import cx from 'classnames';
+import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
+import styled from 'styled-components';
+import filterXss from 'xss';
+import { Checkbox, Dialog, ScrollView, Textarea } from 'ming-ui';
 import codeAjax from 'src/api/code';
+import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
 
 const Null = styled.div`
   > div {
@@ -290,7 +291,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
       return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
     };
 
-    return md.render(text);
+    return filterXss(md.render(text));
   };
   const saveGenerateCodeRecord = list => {
     codeAjax.saveGenerateCodeRecord({ workflowId: processId, nodeId, messageList: list });

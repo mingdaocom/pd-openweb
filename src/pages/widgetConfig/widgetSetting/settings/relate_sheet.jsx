@@ -1,16 +1,16 @@
 import React, { Fragment, useEffect } from 'react';
+import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
-import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
 import Trigger from 'rc-trigger';
-import { useSetState } from 'react-use';
 import styled from 'styled-components';
+import { Checkbox, Dropdown, RadioGroup, Switch } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { getSortData } from 'src/pages/worksheet/util';
+import { getSortData } from 'src/utils/control';
 import { SUPPORT_RELATE_SEARCH } from '../../config';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { useSheetInfo } from '../../hooks';
@@ -23,6 +23,7 @@ import {
   handleAdvancedSettingChange,
   updateConfig,
 } from '../../util/setting';
+import { getPathById, isFullLineControl } from '../../util/widgets';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import RelateDetailInfo from '../components/RelateDetailInfo';
 import ConfigRelate from '../components/relateSheet/ConfigRelate';
@@ -43,12 +44,28 @@ const DISPLAY_CHOOSE = [
   { text: _l('弹层'), value: '1' },
 ];
 
+const SORT_DISPLAY = [
+  { text: _l('按添加时间排序'), value: '1' },
+  { text: _l('按设置的排序'), value: '2' },
+  { text: _l('按关联视图的排序'), value: '3' },
+];
+
 const RelateSheetWrap = styled.div`
   .filterBtn {
     color: #9e9e9e;
     &:hover {
       color: #2196f3;
     }
+  }
+  .emptyRelateView {
+    width: 100%;
+    height: 36px;
+    background: #f5f5f5;
+    border-radius: 3px;
+    line-height: 36px;
+    padding: 0 12px;
+    margin-top: 12px;
+    color: #9e9e9e;
   }
 `;
 
@@ -109,9 +126,28 @@ const CoverWrap = styled.div`
 `;
 
 export default function RelateSheet(props) {
-  let { from, data, deleteWidget, onChange, globalSheetInfo, saveControls, status: { saveIndex = 0 } = {} } = props;
+  let {
+    from,
+    data,
+    deleteWidget,
+    onChange,
+    globalSheetInfo,
+    saveControls,
+    status: { saveIndex = 0 } = {},
+    fromPortal,
+    widgets = [],
+  } = props;
   const { worksheetId: sourceId } = globalSheetInfo;
-  const { controlId, enumDefault = 1, showControls, relationControls = [], dataSource, viewId, coverCid } = data;
+  const {
+    controlId,
+    enumDefault = 1,
+    showControls,
+    relationControls = [],
+    dataSource,
+    viewId,
+    coverCid,
+    advancedSetting = {},
+  } = data;
   let {
     showtype = '3',
     allowlink,
@@ -122,15 +158,19 @@ export default function RelateSheet(props) {
     showtitleid,
     choosecoverid,
     choosecovertype = '0',
+    allowdrag = '0',
   } = getAdvanceSetting(data);
   const strDefault = data.strDefault || '000';
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
   const chooseshowIds = getAdvanceSetting(data, 'chooseshowids') || [];
 
-  const [{ isRelateView, sortVisible }, setState] = useSetState({
-    isRelateView: Boolean(viewId),
+  const [{ sortVisible }, setState] = useSetState({
     sortVisible: false,
   });
+
+  const isRelateView = Boolean(viewId);
+
+  const rcsorttype = advancedSetting.rcsorttype || (sorts.length > 0 ? '2' : isRelateView ? '3' : '1');
 
   const {
     loading,
@@ -165,7 +205,6 @@ export default function RelateSheet(props) {
   const showTitleDelete = showtitleid && !_.find(setTitleControls, s => s.controlId === showtitleid);
 
   useEffect(() => {
-    setState({ isRelateView: Boolean(viewId) });
     if (_.isUndefined(allowlink)) {
       onChange(handleAdvancedSettingChange(data, { allowlink: '1' }));
     }
@@ -363,6 +402,7 @@ export default function RelateSheet(props) {
           {...props}
           value={dataSource}
           onOk={({ sheetId, control, sheetName }) => {
+            const path = getPathById(widgets, controlId);
             let para = { dataSource: sheetId, size: WHOLE_SIZE };
             // 关联本表
             if (sheetId === sourceId) {
@@ -374,7 +414,12 @@ export default function RelateSheet(props) {
             }
             // 使用关联控件
             if (!_.isEmpty(control)) {
-              const nextData = update(control, { advancedSetting: { hide: { $set: '' } } });
+              const nextData = update(control, {
+                advancedSetting: { hide: { $set: '' } },
+                row: { $set: path[0] },
+                col: { $set: path[1] },
+                size: { $set: isFullLineControl(control) ? WHOLE_SIZE : data.size },
+              });
               onChange(nextData);
             }
           }}
@@ -412,7 +457,7 @@ export default function RelateSheet(props) {
           ))}
         </AnimationWrap>
       </SettingItem>
-      <SettingItem hide={isCustomWidget(data)}>
+      <SettingItem hide={isCustomWidget(data) || (fromPortal && enumDefault === 1)}>
         <div className="settingItemTitle">{enumDefault === 1 ? _l('记录选择方式') : _l('记录显示方式')}</div>
         {enumDefault === 1 ? (
           <AnimationWrap>
@@ -449,7 +494,11 @@ export default function RelateSheet(props) {
           <Dropdown
             border
             value={showtype}
-            data={RELATION_SHEET_DISPLAY.filter(i => !i.disabled)}
+            data={
+              fromPortal
+                ? RELATION_SHEET_DISPLAY.filter(i => !i.disabled && i.value === '1')
+                : RELATION_SHEET_DISPLAY.filter(i => !i.disabled)
+            }
             renderTitle={() =>
               _.get(
                 _.find(RELATION_SHEET_DISPLAY, r => r.value === showtype),
@@ -528,43 +577,86 @@ export default function RelateSheet(props) {
       {/** 附加信息+显示字段 */}
       {showtype === '3' && renderExtraInfo()}
 
-      {isSheetDisplay() && (
+      {enumDefault === 2 && (
         <SettingItem>
-          <div className="settingItemTitle">{_l('排序')}</div>
-          <EditInfo className="pointer subListSortInput" onClick={() => setState({ sortVisible: true })}>
-            <div className="overflow_ellipsis Gray">
-              {sorts.length > 0 ? (
-                sorts.reduce((p, item) => {
-                  const sortsRelationControls = relationControls
-                    .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
-                    .concat(SYSTEM_CONTROLS);
-                  const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
-                  const flag = item.isAsc === true ? 2 : 1;
-                  const { text } = getSortData(control.type, control).find(item => item.value === flag);
-                  const value = control.controlId ? `${control.controlName}：${text}` : '';
-                  return p ? `${p}；${value}` : value;
-                }, '')
-              ) : (
-                <span className="Gray_75">{isRelateView ? _l('按关联视图配置') : _l('未设置（按添加顺序）')}</span>
-              )}
-            </div>
-            {sorts.length > 0 && (
-              <div className="flexCenter">
-                <div
-                  className="clearBtn mRight10"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onChange(handleAdvancedSettingChange(data, { sorts: '' }));
-                  }}
-                >
-                  <i className="icon-closeelement-bg-circle"></i>
-                </div>
-                <div className="edit">
-                  <i className="icon-edit"></i>
-                </div>
-              </div>
+          <div className="settingItemTitle" style={{ justifyContent: 'space-between' }}>
+            <span>
+              {_l('排序')}
+              <Tooltip
+                placement="bottom"
+                title={
+                  <span>
+                    {_l('当关联记录显示方式为卡片和下拉框时：')}
+                    <br />
+                    {_l(
+                      '1、【按设置的排序】和【按关联视图的排序】两种排序方式仅限在关联数量不超过5条时生效，超出后会继续按添加时的顺序。',
+                    )}
+                    <br />
+                    {_l('2、当排序方式为【按添加时间排序】时，支持拖拽排序，且当关联记录数量小于50条时生效。')}
+                    <br />
+                    {_l('3、如果有多个关联记录字段都关联相同表时，排序方式也将同时被修改。')}
+                    <br />
+                    {_l('4、当关联记录显示方式为表格时无以上限制。')}
+                  </span>
+                }
+              >
+                <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
+              </Tooltip>
+            </span>
+            {!isSheetDisplay() && rcsorttype === '1' && (
+              <span>
+                <span className="Gray_75 mRight10">{_l('允许拖拽排序')}</span>
+                <Switch
+                  size="small"
+                  checked={allowdrag === '1'}
+                  onClick={checked => onChange(handleAdvancedSettingChange(data, { allowdrag: String(+!checked) }))}
+                />
+              </span>
             )}
-          </EditInfo>
+          </div>
+          <Dropdown
+            border
+            value={rcsorttype}
+            data={SORT_DISPLAY}
+            onChange={value => {
+              if (value === rcsorttype) return;
+              onChange(handleAdvancedSettingChange(data, { rcsorttype: value, sorts: '', allowdrag: '0' }));
+              if (value === '2') {
+                setState({ sortVisible: true });
+              }
+            }}
+          />
+          {rcsorttype === '2' && (
+            <EditInfo className="pointer subListSortInput mTop12" onClick={() => setState({ sortVisible: true })}>
+              <div className="overflow_ellipsis Gray">
+                {sorts.length > 0 ? (
+                  sorts.reduce((p, item) => {
+                    const sortsRelationControls = relationControls
+                      .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
+                      .concat(SYSTEM_CONTROLS);
+                    const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
+                    const flag = item.isAsc === true ? 2 : 1;
+                    const { text } = getSortData(control.type, control).find(item => item.value === flag);
+                    const value = control.controlId ? `${control.controlName}：${text}` : '';
+                    return p ? `${p}；${value}` : value;
+                  }, '')
+                ) : (
+                  <span className="Gray_9e">{_l('未设置排序')}</span>
+                )}
+              </div>
+              {sorts.length > 0 && (
+                <div className="flexCenter">
+                  <div className="edit">
+                    <i className="icon-edit"></i>
+                  </div>
+                </div>
+              )}
+            </EditInfo>
+          )}
+          {rcsorttype === '3' && !isRelateView && <div className="emptyRelateView">{_l('未设置关联视图')}</div>}
+          {!isSheetDisplay() && allowdrag === '1' && (
+            <div className="Gray_9e mTop8">{_l('拖拽排序仅关联记录数量在50条以内时生效')}</div>
+          )}
           {sortVisible && (
             <Sort
               {...props}
@@ -575,7 +667,7 @@ export default function RelateSheet(props) {
           )}
         </SettingItem>
       )}
-      <DynamicDefaultValue {...props} titleControl={titleControl} />
+      {!fromPortal && <DynamicDefaultValue {...props} titleControl={titleControl} />}
       {!isSheetDisplay() && <WidgetVerify {...props} />}
     </RelateSheetWrap>
   );

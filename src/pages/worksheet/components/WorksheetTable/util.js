@@ -1,6 +1,6 @@
-import { emitter } from 'worksheet/util';
 import _, { get } from 'lodash';
-import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
+import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { emitter } from 'src/utils/common';
 
 const KEY_MAP = {
   DELETE: 8,
@@ -313,13 +313,15 @@ function getTextHeight(text = '', width, style = '') {
 
 export function getTableHeadHeight(columns) {
   const textHeight = Math.max(
-    ...columns.map(c =>
-      getTextHeight(
-        c.controlName + (c.required ? '*' : ''),
-        c.width - 10,
-        'font-size: 13px;line-height: 1.3em;word-break: break-all;',
+    ...columns
+      .filter(c => c.type !== 'emptyForResize')
+      .map(c =>
+        getTextHeight(
+          c.controlName + (c.required ? '*' : ''),
+          c.width - 10,
+          'font-size: 13px;line-height: 1.3em;word-break: break-all;',
+        ),
       ),
-    ),
   );
   if (textHeight < 18) {
     return 18;

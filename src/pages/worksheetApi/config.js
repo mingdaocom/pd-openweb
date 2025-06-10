@@ -469,8 +469,8 @@ export const MENU_LIST = [
       {
         name: 'validTime',
         required: _l('否'),
-        type: 'number',
-        desc: _l('单位s,为空表示永久有效'),
+        type: 'string',
+        desc: _l('格式:YYYY-MM-DD HH:mm:ss,为空表示永久有效'),
       },
       {
         name: 'password',
@@ -482,7 +482,7 @@ export const MENU_LIST = [
     requestData: {
       rowId: _l('行记录ID'),
       visibleFields: [_l('可见字段ID')],
-      validTime: _l('有效时间'),
+      validTime: _l('YYYY-MM-DD HH:mm:ss'),
       password: _l('密码'),
     },
     successData: {
@@ -943,8 +943,7 @@ export const MENU_LIST_APPROLE = [
         name: 'sheets',
         required: _l('否'),
         type: 'array',
-        desc:
-          `[
+        desc: `[
             {
               "sheetId": "",//工作表 id
               "sheetName": "",//工作表名称
@@ -1016,82 +1015,80 @@ export const MENU_LIST_APPROLE = [
                 "enable": true//支付
               }
             }
-          ]`
-        ,
+          ]`,
         example: [
           {
-            "sheetId": "",
-            "sheetName": "",
-            "canAdd": false,
-            "readLevel": 20,
-            "editLevel": 20,
-            "removeLevel": 20,
-            "views": [
+            sheetId: '',
+            sheetName: '',
+            canAdd: false,
+            readLevel: 20,
+            editLevel: 20,
+            removeLevel: 20,
+            views: [
               {
-                "viewId": "",
-                "viewName": _l('全部'),
-                "canRead": true,
-                "canEdit": true,
-                "canRemove": false,
-                "type": 0
-              }
+                viewId: '',
+                viewName: _l('全部'),
+                canRead: true,
+                canEdit: true,
+                canRemove: false,
+                type: 0,
+              },
             ],
-            "fields": [
+            fields: [
               {
-                "fieldId": "ownerid",
-                "type": 26,
-                "fieldName": _l('拥有者'),
-                "notRead": false,
-                "notEdit": false,
-                "notAdd": false,
-                "isDecrypt": false,
-                "isReadField": false,
-                "hideWhenAdded": true,
-                "isHide": false
-              }
+                fieldId: 'ownerid',
+                type: 26,
+                fieldName: _l('拥有者'),
+                notRead: false,
+                notEdit: false,
+                notAdd: false,
+                isDecrypt: false,
+                isReadField: false,
+                hideWhenAdded: true,
+                isHide: false,
+              },
             ],
-            "worksheetAddRecord": {
-              "enable": true
+            worksheetAddRecord: {
+              enable: true,
             },
-            "worksheetShareView": {
-              "enable": true
+            worksheetShareView: {
+              enable: true,
             },
-            "worksheetImport": {
-              "enable": true
+            worksheetImport: {
+              enable: true,
             },
-            "worksheetExport": {
-              "enable": true
+            worksheetExport: {
+              enable: true,
             },
-            "worksheetDiscuss": {
-              "enable": true
+            worksheetDiscuss: {
+              enable: true,
             },
-            "worksheetLogging": {
-              "enable": true
+            worksheetLogging: {
+              enable: true,
             },
-            "worksheetBatchOperation": {
-              "enable": true
+            worksheetBatchOperation: {
+              enable: true,
             },
-            "recordShare": {
-              "enable": true
+            recordShare: {
+              enable: true,
             },
-            "recordDiscussion": {
-              "enable": true
+            recordDiscussion: {
+              enable: true,
             },
-            "recordSystemPrinting": {
-              "enable": true
+            recordSystemPrinting: {
+              enable: true,
             },
-            "recordAttachmentDownload": {
-              "enable": true
+            recordAttachmentDownload: {
+              enable: true,
             },
-            "recordLogging": {
-              "enable": true
+            recordLogging: {
+              enable: true,
             },
-            "payment": {
-              "enable": true
-            }
-          }
-        ]
-        ,
+            payment: {
+              enable: true,
+            },
+          },
+        ],
       },
       {
         name: 'pages',
@@ -1402,11 +1399,6 @@ export const MENU_LIST_APPENDIX = [
         desc: _l('日期: 年-月-日 时:分'),
       },
       {
-        name: 19,
-        type: _l('地区'),
-        desc: _l('地区: 省'),
-      },
-      {
         name: 21,
         type: _l('自由连接'),
         desc: '',
@@ -1417,14 +1409,9 @@ export const MENU_LIST_APPENDIX = [
         desc: '',
       },
       {
-        name: 23,
-        type: _l('地区'),
-        desc: _l('地区: 省/市'),
-      },
-      {
         name: 24,
         type: _l('地区'),
-        desc: _l('地区: 省/市/县'),
+        desc: '',
       },
       {
         name: 25,

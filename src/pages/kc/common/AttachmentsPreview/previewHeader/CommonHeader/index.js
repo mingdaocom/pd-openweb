@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon, Menu, MenuItem, Popup } from 'ming-ui';
 import UploadNewVersion from 'src/pages/kc/components/UploadNewVersion.jsx';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import EditableBlock from '../../editableBlock';
 import VersionList from '../../versionList';
 import './index.less';
@@ -131,7 +131,8 @@ export default function CommonHeader(props) {
       className={cx('filePreviewHeader previewHeader flexRow Relative', className, {
         isMobile,
         Relative: !showEdit && !isMobile,
-        disabledWpsPreview: isMobile && md.global.Config.IsLocal,
+        disabledWpsPreview:
+          isMobile && ((!attachmentActionInfo.cauUseWpsPreview && !showEdit) || md.global.Config.IsLocal),
       })}
     >
       <div className="flexRow">
@@ -283,7 +284,9 @@ export default function CommonHeader(props) {
           </div>
         )}
       </div>
-      {isMobile && !md.global.Config.IsLocal && cauUseWpsPreview && <AttachmentAction {...attachmentActionInfo} />}
+      {isMobile && !md.global.Config.IsLocal && (attachmentActionInfo.cauUseWpsPreview || showEdit) && (
+        <AttachmentAction {...attachmentActionInfo} />
+      )}
     </div>
   );
 }

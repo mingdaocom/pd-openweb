@@ -1,11 +1,11 @@
 /* eslint-disable no-bitwise */
-import qs from 'query-string';
-import moment from 'moment';
-import { assign, trim, isObject, isEmpty } from 'lodash';
-import { PICK_TYPE, ROOT_PERMISSION_TYPE, NODE_SORT_TYPE, NODE_SORT_BY } from '../constant/enum';
-import Dialog from 'ming-ui/components/Dialog';
 import React from 'react';
+import { assign, isEmpty, isObject, trim } from 'lodash';
 import _ from 'lodash';
+import moment from 'moment';
+import qs from 'query-string';
+import Dialog from 'ming-ui/components/Dialog';
+import { NODE_SORT_BY, NODE_SORT_TYPE, PICK_TYPE, ROOT_PERMISSION_TYPE } from '../constant/enum';
 
 function smi(i32) {
   return ((i32 >>> 1) & 0x40000000) | (i32 & 0xbfffffff);
@@ -400,3 +400,17 @@ export function defaultWpsPreview(ext) {
   const fileExts = ['wps', 'wpt', 'et', 'dpt', 'dps'];
   return ext && fileExts.indexOf(ext.toLowerCase()) !== -1;
 }
+
+/**
+ * 获取仓库对应的文件存放地址
+ * @returns {string} bucketName 仓库名
+ */
+export const getUrlByBucketName = bucketName => {
+  var config = {
+    mdoc: md.global.FileStoreConfig.documentHost,
+    mdpic: md.global.FileStoreConfig.pictureHost,
+    mdmedia: md.global.FileStoreConfig.mediaHost,
+    mdpub: md.global.FileStoreConfig.pubHost,
+  };
+  return config[bucketName] || md.global.FileStoreConfig.pictureHost;
+};

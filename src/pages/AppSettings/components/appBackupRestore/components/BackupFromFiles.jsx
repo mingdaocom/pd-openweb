@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, QiniuUpload, Button, FunctionWrap, VerifyPasswordConfirm, Support } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { RestoreContent } from './RestoreAppDialog';
+import styled from 'styled-components';
+import { Button, Dialog, FunctionWrap, QiniuUpload, Support, VerifyPasswordConfirm } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
-import { formatFileSize } from 'src/util';
-import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { navigateTo } from 'src/router/navigateTo';
+import { formatFileSize } from 'src/utils/common';
+import { RestoreContent } from './RestoreAppDialog';
 
 const Wrap = styled.div`
   height: 340px;

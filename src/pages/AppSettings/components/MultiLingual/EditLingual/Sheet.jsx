@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { LoadDiv } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import EditDescription from './EditDescription';
+import { LoadDiv } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
 import { filterHtmlTag } from '../util';
+import EditDescription from './EditDescription';
+import EditInput from './EditInput';
 
 export default function Sheet(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -17,12 +17,14 @@ export default function Sheet(props) {
 
   useEffect(() => {
     setLoading(true);
-    sheetApi.getWorksheetInfo({
-      worksheetId: selectNode.key,
-    }).then(data => {
-      setLoading(false);
-      setSheetInfo(data);
-    });
+    sheetApi
+      .getWorksheetInfo({
+        worksheetId: selectNode.key,
+      })
+      .then(data => {
+        setLoading(false);
+        setSheetInfo(data);
+      });
   }, [selectNode.key]);
 
   const handleSave = info => {
@@ -33,8 +35,8 @@ export default function Sheet(props) {
       type: LANG_DATA_TYPE.wrokSheet,
       data: {
         ...translateInfo,
-        ...info
-      }
+        ...info,
+      },
     });
   };
 
@@ -65,16 +67,21 @@ export default function Sheet(props) {
       <div className="Font14 bold mBottom20">{translateInfo.name || selectNode.originalTitle}</div>
       <div className="flexRow alignItemsCenter nodeItem">
         <div className="Font13 mRight20 label">{_l('工作表名称')}</div>
-        <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : selectNode.originalTitle} disabled={true} />
-        <EditInput
-          className="flex"
-          value={translateInfo.name}
-          onChange={value => handleSave({ name: value })}
+        <Input
+          className="flex mRight20"
+          value={comparisonLangId ? comparisonLangInfo.name : selectNode.originalTitle}
+          disabled={true}
         />
+        <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
       </div>
       <div className="flexRow nodeItem">
         <div className="Font13 mRight20 label">{_l('工作表说明')}</div>
-        <Input.TextArea style={{ resize: 'none' }} className="flex mRight20" value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.description : desc)} disabled={true} />
+        <Input.TextArea
+          style={{ resize: 'none' }}
+          className="flex mRight20"
+          value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.description : desc)}
+          disabled={true}
+        />
         <EditDescription
           value={translateInfo.description}
           originalValue={desc}
@@ -82,9 +89,7 @@ export default function Sheet(props) {
         />
       </div>
 
-      {!!(formTitle || formSub || formContinue) && (
-        <div className="Font14 bold mTop20 mBottom20">{_l('提交表单')}</div>
-      )}
+      {!!(formTitle || formSub || formContinue) && <div className="Font14 bold mTop20 mBottom20">{_l('提交表单')}</div>}
 
       {formTitle && (
         <div className="flexRow alignItemsCenter nodeItem">
@@ -210,7 +215,6 @@ export default function Sheet(props) {
           </div>
         </Fragment>
       )}
-
     </div>
   );
 }

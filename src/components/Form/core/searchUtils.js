@@ -1,20 +1,10 @@
 import _ from 'lodash';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { isEmptyValue } from 'src/util';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-
-export const getAttachmentData = (control = {}) => {
-  let fileData;
-  if (control.value && _.isArray(JSON.parse(control.value))) {
-    fileData = JSON.parse(control.value);
-  } else {
-    const data = JSON.parse(control.value || '{}');
-    const { attachments = [], attachmentData = [], knowledgeAtts = [] } = data;
-    fileData = [...attachmentData, ...attachments, ...knowledgeAtts];
-  }
-  return fileData;
-};
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { isEmptyValue } from 'src/utils/control';
+import { getAttachmentData } from './formUtils';
 
 const getRelateValue = control => {
   const value = safeParse(control.value || '[]');
@@ -157,7 +147,7 @@ const getDynamicValue = (item, formData, keywords) => {
   return _.isEmpty(dealValue) ? '' : dealValue;
 };
 
-export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '') => {
+export const getParamsByConfigs = (recordId, requestMap = [], formData = [], keywords = '') => {
   let params = {};
   requestMap.forEach(item => {
     if (item.pid) return;
@@ -170,7 +160,9 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
       const controlState = curControl.store ? curControl.store.getState() : {};
       const rows = (
         curControl.type === 29
-          ? _.get(controlState, 'records') || getRelateValue(curControl)
+          ? recordId
+            ? (controlState.records || []).concat(_.get(controlState, 'changes.addedRecords') || [])
+            : _.get(controlState, 'records') || getRelateValue(curControl)
           : _.get(controlState, 'rows') || []
       ).filter(r => !(r.rowid || '').includes('empty'));
 
@@ -184,9 +176,12 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
           let rowItem = {};
           childMap.map(c => {
             const { cid, rcid } = safeParse(c.defsource || '[]')[0] || {};
-            const childControl = _.find(rcid ? curControl.relationControls || [] : formData, r => r.controlId === cid);
+            const totalRelations = (curControl.relationControls || [])
+              .concat(WORKFLOW_SYSTEM_CONTROL)
+              .concat(SYSTEM_CONTROL);
+            const childControl = _.find(rcid ? totalRelations : formData, r => r.controlId === cid);
             const controlValues = rcid
-              ? (curControl.relationControls || []).map(i => {
+              ? totalRelations.map(i => {
                   if (i.controlId === cid) {
                     return {
                       ...i,

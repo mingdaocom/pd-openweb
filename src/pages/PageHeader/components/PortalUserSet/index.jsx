@@ -1,31 +1,30 @@
 import React, { Component } from 'react';
-import 'src/pages/PageHeader/AppNameHeader/index.less';
-import { Icon, Menu, Dialog, Tooltip } from 'ming-ui';
 import { Drawer } from 'antd';
 import cx from 'classnames';
-import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
-import './index.less';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, Menu, Tooltip } from 'ming-ui';
+import account from 'src/api/account';
+import accountSetting from 'src/api/accountSetting';
 import externalPortalAjax from 'src/api/externalPortal';
-import { browserIsMobile } from 'src/util';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import login from 'src/api/login';
-import { removePssId } from 'src/util/pssId';
-import { renderText } from 'src/pages/Role/PortalCon/tabCon/util';
+import langConfig from 'src/common/langConfig';
+import { getAppId } from 'src/pages/AuthService/portalAccount/util.js';
+import 'src/pages/PageHeader/AppNameHeader/index.less';
+import 'src/pages/PageHeader/AppPkgHeader/index.less';
+import LanguageList from 'src/pages/PageHeader/components/LanguageList';
 import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
 import 'src/pages/Personal/personalInfo/modules/index.less';
-import account from 'src/api/account';
-import 'src/pages/PageHeader/AppPkgHeader/index.less';
+import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
+import { formatDataForPortalControl, renderText } from 'src/pages/Role/PortalCon/tabCon/util';
+import { browserIsMobile } from 'src/utils/common';
+import { removePssId } from 'src/utils/pssId';
 import ChangeAccountDialog from './ChangeAccountDialog';
 import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
 import PortalMessage from './PortalMessage';
-import LanguageList from 'src/pages/PageHeader/components/LanguageList';
-import { getAppId } from 'src/pages/AuthService/portalAccount/util.js';
-import _ from 'lodash';
-import { WrapHeader, Wrap, ModalWrap, RedMenuItemWrap } from './style';
-import Trigger from 'rc-trigger';
-import langConfig from 'src/common/langConfig';
-import accountSetting from 'src/api/accountSetting';
+import { ModalWrap, RedMenuItemWrap, Wrap, WrapHeader } from './style';
+import './index.less';
 
 export default class PortalUserSet extends Component {
   constructor(props) {
@@ -109,7 +108,7 @@ export default class PortalUserSet extends Component {
       });
   };
 
-  logout = () => {
+  logout = isManualExit => {
     window.currentLeave = true;
     login.loginOut().then(data => {
       if (data) {
@@ -124,7 +123,7 @@ export default class PortalUserSet extends Component {
         const appId = this.props.appId || getAppId(this.props.match.params);
         window.localStorage.removeItem(`PortalLoginInfo-${appId}`);
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        location.href = `${window.subPath || ''}/login?ReturnUrl=${encodeURIComponent(this.state.url)}`; // 跳转到登录
+        location.href = `${window.subPath || ''}/login?ReturnUrl=${encodeURIComponent(this.state.url)}${isManualExit ? '&ref=logout' : ''}`; // 跳转到登录
       }
     });
   };
@@ -188,7 +187,16 @@ export default class PortalUserSet extends Component {
       showMenu,
       showModel,
     } = this.state;
-    const { isMobile, match = {}, appStatus, noAvatar, currentPcNaviStyle, appId, projectId, originalLang } = this.props;
+    const {
+      isMobile,
+      match = {},
+      appStatus,
+      noAvatar,
+      currentPcNaviStyle,
+      appId,
+      projectId,
+      originalLang,
+    } = this.props;
     const info = currentData.filter(
       o =>
         !['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status', 'openid', 'portal_email'].includes(
@@ -221,12 +229,17 @@ export default class PortalUserSet extends Component {
               app={{
                 id: appId,
                 projectId,
-                originalLang
+                originalLang,
               }}
               isCharge={false}
             >
               <Tooltip placement="bottom" text={_l('应用语言')}>
-                <div className={cx('h100 flexColumn justifyContentCenter', [1, 3].includes(currentPcNaviStyle) ? 'mLeft20 mRight20' : 'mRight20')}>
+                <div
+                  className={cx(
+                    'h100 flexColumn justifyContentCenter',
+                    [1, 3].includes(currentPcNaviStyle) ? 'mLeft20 mRight20' : 'mRight20',
+                  )}
+                >
                   <Icon icon="language" className="Font20 White pointer" />
                 </div>
               </Tooltip>
@@ -416,7 +429,7 @@ export default class PortalUserSet extends Component {
               <div
                 className="logout Hand Font14 Bold"
                 onClick={() => {
-                  this.logout();
+                  this.logout(true);
                 }}
               >
                 <Icon icon="exit_to_app" className="mRight5 Font18" />
@@ -544,7 +557,7 @@ export default class PortalUserSet extends Component {
                 .saveUserDetail({
                   appId: this.props.appId || getAppId(this.props.match.params),
                   exAccountId: md.global.Account.accountId,
-                  newCell: data.filter(o => ids.includes(o.controlId)).map(formatControlToServer),
+                  newCell: formatDataForPortalControl(data.filter(o => ids.includes(o.controlId))),
                 })
                 .then(res => {
                   this.setState({ showUserInfoDialog: false, currentData: data });

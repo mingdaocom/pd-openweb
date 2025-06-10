@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getFullTree, loadUsers, updateShowExport, updateImportType } from '../../actions/entities';
-import { updateCursor } from '../../actions/current';
-import EventEmitter from 'events';
-import { Icon, Tooltip } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { getCurrentProject } from 'src/util';
-import { downloadFile } from '../../../../../util';
+import _ from 'lodash';
+import moment from 'moment';
 import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import { emitter } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import { downloadFile } from '../../../../../util';
+import { updateCursor } from '../../actions/current';
+import { getFullTree, loadUsers, updateImportType, updateShowExport } from '../../actions/entities';
+import { createEditDeptDialog } from '../CreateEditDeptDialog';
 
 const Wrap = styled.div`
   padding: 12px 0;
@@ -15,12 +18,6 @@ const Wrap = styled.div`
   display: flex;
   align-items: center;
 `;
-
-export const emitter = new EventEmitter();
-
-import { createEditDeptDialog } from '../CreateEditDeptDialog';
-import _ from 'lodash';
-import moment from 'moment';
 
 class CreateBtn extends Component {
   constructor(props) {

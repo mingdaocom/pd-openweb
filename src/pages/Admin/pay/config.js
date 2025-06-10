@@ -66,6 +66,7 @@ export const ORDER_STATUS = [
   { label: _l('已退款'), value: 3 },
   { label: _l('支付超时'), value: 4 },
   { label: _l('部分退款'), value: 5 },
+  { label: _l('已取消'), value: 8 },
 ];
 
 // 支付状态
@@ -124,6 +125,7 @@ export const ORDER_SOURCE = [
   { label: _l('公开表单'), value: 1 },
   { label: _l('组织内'), value: 2 },
   { label: _l('外部门户'), value: 3 },
+  { label: _l('他人代付'), value: 6 },
 ];
 
 export const getOrderStatusInfo = (orderStatus, msg = '') => {

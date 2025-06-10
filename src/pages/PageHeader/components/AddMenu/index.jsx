@@ -1,11 +1,11 @@
 import React from 'react';
 import cx from 'classnames';
-import './index.less';
-import createFeed from 'src/pages/feed/components/createFeed';
-import createTask from 'src/components/createTask/createTask';
-import createCalendar from 'src/components/createCalendar/createCalendar';
 import addFriends from 'src/components/addFriends';
-import CreateGroup from 'src/components/group/create/creatGroup';
+import createCalendar from 'src/components/createCalendar/createCalendar';
+import createTask from 'src/components/createTask/createTask';
+import createFeed from 'src/pages/feed/components/createFeed';
+import createGroup from 'src/pages/Group/createGroup';
+import './index.less';
 
 export default function UserMenu({ onClose = () => {} }) {
   const feedVisible = !md.global.SysSettings.forbidSuites.includes('1');
@@ -50,7 +50,7 @@ export default function UserMenu({ onClose = () => {} }) {
           <i className="icon icon-invite" />
           {_l('邀请')}
         </li>
-        <li onClick={() => CreateGroup.createInit({})} className="linkCreateGroup ThemeBGColor3">
+        <li onClick={() => createGroup({})} className="linkCreateGroup ThemeBGColor3">
           <i className="icon icon-group" />
           {_l('群组')}
         </li>

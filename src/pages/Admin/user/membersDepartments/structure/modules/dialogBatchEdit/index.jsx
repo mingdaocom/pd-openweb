@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
+import { Checkbox, Select } from 'antd';
+import _ from 'lodash';
 import { Dialog, Icon, Input, RadioGroup } from 'ming-ui';
-import { Select, Checkbox } from 'antd';
-import { dialogSelectJob, dialogSelectDept } from 'ming-ui/functions';
+import { dialogSelectDept, dialogSelectJob } from 'ming-ui/functions';
 import userAjax from 'src/api/user';
 import workSiteAjax from 'src/api/workSite';
-import { encrypt } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import DepartmentAction from './DepartmentAction';
 import './index.less';
-import _ from 'lodash';
 
 const { Option } = Select;
 const options = [
@@ -151,19 +151,21 @@ export default class DialogBatchEdit extends Component {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
-    userAjax.batchResetPassword({
-      projectId,
-      accountIds: selectedAccountIds,
-      password: encrypt(password),
-    }).then(result => {
-      if (result) {
-        alert(_l('修改成功'), 1);
-        this.setState({ batchResetPasswordVisible: false, password: '' });
-      } else {
-        alert(_l('修改失败'), 2);
-      }
-      emptyUserSet();
-    });
+    userAjax
+      .batchResetPassword({
+        projectId,
+        accountIds: selectedAccountIds,
+        password: encrypt(password),
+      })
+      .then(result => {
+        if (result) {
+          alert(_l('修改成功'), 1);
+          this.setState({ batchResetPasswordVisible: false, password: '' });
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+        emptyUserSet();
+      });
   };
   render() {
     const { visible, selectedAccountIds = [] } = this.props;

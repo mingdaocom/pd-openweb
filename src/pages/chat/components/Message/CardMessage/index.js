@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import cx from 'classnames';
-import './index.less';
+import _ from 'lodash';
+import moment from 'moment';
+import filterXss from 'xss';
+import { Dialog } from 'ming-ui';
 import ChatController from 'src/api/chat';
-import * as utils from '../../../utils/';
-import { htmlDecodeReg } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
-import moment from 'moment';
-import { Dialog } from 'ming-ui';
-import filterXss from 'xss';
+import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
+import { htmlDecodeReg } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import * as utils from '../../../utils/';
+import './index.less';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -142,10 +142,8 @@ export default class CardMessage extends Component {
               dialogClasses: 'chatFeedDialog',
               title: _l('动态详情'),
               noFooter: true,
-              children: (
-                <PostDetails onRemove={removeFn} postItem={postItem} />
-              ),
-            })
+              children: <PostDetails onRemove={removeFn} postItem={postItem} />,
+            });
           });
         break;
       case 'task':
@@ -208,9 +206,7 @@ export default class CardMessage extends Component {
             className="Message-cardSummary Message-cardItem-task"
             dangerouslySetInnerHTML={{ __html: filterXss(htmlDecodeReg(cardDetails.summary)) }}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }
@@ -305,9 +301,7 @@ export default class CardMessage extends Component {
             <i className="icon-ic_textsms_black" />
             <span>{commentCount}</span>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }

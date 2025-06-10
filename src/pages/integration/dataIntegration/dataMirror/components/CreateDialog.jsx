@@ -1,17 +1,17 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Dialog, Tooltip, Icon, LoadDiv } from 'ming-ui';
-import dataSourceApi from 'src/pages/integration/api/datasource';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Select } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
+import dataSourceApi from 'src/pages/integration/api/datasource';
+import dataMirrorAjax from 'src/pages/integration/api/dw.js';
+import { emitter } from 'src/utils/common';
 import EditDest from './EditDest';
 import Tables from './Tables';
-import dataMirrorAjax from 'src/pages/integration/api/dw.js';
-import _ from 'lodash';
-import { emitter } from 'src/util';
 
 export const isValidName = name => {
   return name.indexOf('\\') < 0;
@@ -347,7 +347,7 @@ export default function CreateDialog(props) {
             onChange={(doubleWriteTables, nextCreate, isChecking) => {
               if (isChecking) {
                 setState({ isCeating: isChecking });
-                return
+                return;
               }
               setState({ doubleWriteTables, isCeating: nextCreate ? nextCreate : false });
               nextCreate && onCreate(doubleWriteTables);

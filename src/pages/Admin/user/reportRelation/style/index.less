@@ -111,6 +111,7 @@
         padding-right: 10px;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
         .name,
         .department,
         .job {
@@ -127,7 +128,18 @@
           max-width: 135px;
           margin-bottom: 4px;
           color: #151515;
+          height: 20px;
+          flex: unset;
         }
+      }
+      .resignedTag {
+        padding: 0px 8px;
+        height: 20px;
+        line-height: 20px;
+        border-radius: 12px;
+        color: #fff;
+        background-color: #bdbdbd;
+        font-size: 12px;
       }
       .subordinateCount {
         position: absolute;
@@ -155,12 +167,12 @@
   border-radius: 16px;
   padding: 0 20px;
   width: fit-content;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   display: flex;
   align-items: center;
   color: #9e9e9e;
   &:hover {
-    border: 1px solid #1994F7;
-    color: #1994F7;
+    border: 1px solid #1994f7;
+    color: #1994f7;
   }
 }

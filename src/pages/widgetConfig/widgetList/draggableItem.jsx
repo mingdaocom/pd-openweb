@@ -1,15 +1,14 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { useDrag } from 'react-dnd-latest';
+import React, { useEffect } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend-latest';
-import { v4 as uuidv4 } from 'uuid';
-import { DRAG_ITEMS } from '../config/Drag';
-import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
-import { enumWidgetType, getDefaultarea, checkWidgetMaxNumErr } from '../util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { Dialog, Checkbox, Button } from 'ming-ui';
-import imgUrl from 'staticfiles/images/tab_img.png';
+import { useDrag } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { DRAG_ITEMS } from '../config/Drag';
+import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
+import { checkWidgetMaxNumErr, enumWidgetType } from '../util';
+import addTabWidget from './addTabWidget';
 
 export default function DraggableItem(props) {
   const { item, addWidget, allControls, setStyleInfo, styleInfo: { info = {} } = {}, globalSheetInfo } = props;
@@ -26,62 +25,22 @@ export default function DraggableItem(props) {
       type: enumWidgetType[enumType],
       controlId: uuidv4(),
     };
-    if (enumType === 'MOBILE_PHONE') {
-      data = {
-        ...data,
-        advancedSetting: {
-          ...data.advancedSetting,
-          defaultarea: getDefaultarea(),
-        },
-      };
-    }
 
     const needGuide = !_.find(allControls, i => i.type === 52) && _.get(data, 'type') === 52;
 
     if (needGuide) {
-      const tabPosition = info.tabposition || '2';
-      const handleClose = () => $('.sectionConfirmDialog.mui-dialog-container').parent().remove();
-      Dialog.confirm({
-        width: 640,
-        title: _l('添加标签页'),
-        noFooter: true,
-        closable: true,
-        dialogClasses: 'sectionConfirmDialog',
-        onCancel: () => handleClose(),
-        children: (
-          <Fragment>
-            <div className="Gray_75">{_l('使用标签页归类字段，保持页面简洁')}</div>
-            <img src={imgUrl} height={305} width="100%" />
-            <div className="flexCenter mTop20" style={{ justifyContent: 'space-between' }}>
-              <Checkbox
-                size="small"
-                className="tabPositionCheck"
-                defaultChecked={tabPosition === '2'}
-                text={_l('同时把标签页显示在顶部')}
-              />
-              <div className="flexCenter">
-                <Button type="link" onClick={handleClose} className="mRight16">
-                  {_l('取消')}
-                </Button>
-                <Button
-                  onClick={() => {
-                    const callback = () => {
-                      const tempPosition = $('.tabPositionCheck').prop('checked') ? '2' : '1';
-                      setStyleInfo({
-                        activeStatus: false,
-                        info: Object.assign({}, info, { tabposition: tempPosition }),
-                      });
-                    };
-                    addWidget(data, para, callback);
-                    handleClose();
-                  }}
-                >
-                  {_l('添加')}
-                </Button>
-              </div>
-            </div>
-          </Fragment>
-        ),
+      addTabWidget({
+        tabposition: info.tabposition,
+        handleOk: (tempPosition, onClose) => {
+          const callback = () => {
+            setStyleInfo({
+              activeStatus: false,
+              info: Object.assign({}, info, { tabposition: tempPosition }),
+            });
+          };
+          addWidget(data, para, callback);
+          onClose();
+        },
       });
       return;
     }

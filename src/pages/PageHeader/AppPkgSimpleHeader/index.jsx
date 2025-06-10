@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Tooltip, SvgIcon } from 'ming-ui';
+import DocumentTitle from 'react-document-title';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
-import DocumentTitle from 'react-document-title';
+import { SvgIcon, Tooltip } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import { routerConfigs } from 'src/pages/AppSettings/routerConfig.js';
-import appManagementApi from 'src/api/appManagement';
-import { getTranslateInfo } from 'src/util';
 import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
+import { getTranslateInfo } from 'src/utils/app';
 
 const HeaderWrap = styled.div`
   height: 50px;

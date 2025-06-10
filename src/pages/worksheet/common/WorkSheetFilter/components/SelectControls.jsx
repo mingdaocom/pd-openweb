@@ -1,8 +1,8 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
-import { func, shape, string } from 'prop-types';
-import { Menu, MenuItem, Input } from 'ming-ui';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import { func, shape, string } from 'prop-types';
+import { Input, Menu, MenuItem } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import '../WorkSheetFilter.less';
@@ -58,6 +58,7 @@ export default function SelectControls(props) {
           controls.map((c, i) => (
             <MenuItem
               className={cx({ segmentationLine: 'segmentation' in c, selected: _.includes(selected, c.controlId) })}
+              title={c.controlName}
               onClick={() => {
                 onAdd(c);
                 setKeyword('');

@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Input, Checkbox, Button, LoadDiv } from 'ming-ui';
-import RegExpValidator from 'src/util/expression';
-import emailApi from 'src/api/email';
-import { encrypt } from 'src/util';
 import _ from 'lodash';
+import { Button, Checkbox, Dialog, Input, LoadDiv } from 'ming-ui';
+import emailApi from 'src/api/email';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 
 export default class EmailDialog extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ export default class EmailDialog extends Component {
       toEmail: '',
       toEmailVisible: false,
       toEmailLoading: false,
-      toEmailResult: null
+      toEmailResult: null,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -62,16 +62,16 @@ export default class EmailDialog extends Component {
       password,
       port,
       enableSsl,
-    }
+    };
     return data;
-  }
+  };
   handleSave = () => {
     const data = this.getEmailConfig();
     if (data) {
       emailApi
         .editSmtpSecret({
           ...data,
-          password: data.password ? encrypt(data.password) : ''
+          password: data.password ? encrypt(data.password) : '',
         })
         .then(result => {
           if (result) {
@@ -81,7 +81,7 @@ export default class EmailDialog extends Component {
           }
         });
     }
-  }
+  };
   handleSendTest = () => {
     const { toEmail } = this.state;
     const data = this.getEmailConfig();
@@ -91,23 +91,26 @@ export default class EmailDialog extends Component {
         return;
       }
       this.setState({ toEmailLoading: true });
-      emailApi.sendTest({
-        ...data,
-        toEmail,
-        password: data.password ? encrypt(data.password) : ''
-      }).then(data => {
-        this.setState({
-          toEmailLoading: false,
-          toEmailResult: data
+      emailApi
+        .sendTest({
+          ...data,
+          toEmail,
+          password: data.password ? encrypt(data.password) : '',
+        })
+        .then(data => {
+          this.setState({
+            toEmailLoading: false,
+            toEmailResult: data,
+          });
+        })
+        .catch(() => {
+          this.setState({
+            toEmailLoading: false,
+            toEmailResult: null,
+          });
         });
-      }).catch(() => {
-        this.setState({
-          toEmailLoading: false,
-          toEmailResult: null
-        });
-      });
     }
-  }
+  };
   render() {
     const { visible } = this.props;
     const { signature, fromAddress, server, account, password, port, enableSsl } = this.state;
@@ -119,9 +122,11 @@ export default class EmailDialog extends Component {
           anim={false}
           title={_l('邮件服务设置')}
           width={560}
-          footer={(
+          footer={
             <div className="mui-dialog-footer">
-              <Button type="link" onClick={this.props.onCancel}>{_l('取消')}</Button>
+              <Button type="link" onClick={this.props.onCancel}>
+                {_l('取消')}
+              </Button>
               <Button
                 type="ghost"
                 onClick={() => {
@@ -131,13 +136,17 @@ export default class EmailDialog extends Component {
               >
                 {_l('测试连接')}
               </Button>
-              <Button type="primary" onClick={this.handleSave}>{_l('确定')}</Button>
+              <Button type="primary" onClick={this.handleSave}>
+                {_l('确定')}
+              </Button>
             </div>
-          )}
+          }
           onCancel={this.props.onCancel}
         >
           <div className="mBottom20">
-            <div className="mBottom5 Font14">{_l('签名')} <span class="Red">*</span></div>
+            <div className="mBottom5 Font14">
+              {_l('签名')} <span class="Red">*</span>
+            </div>
             <Input
               value={signature}
               onChange={value => {
@@ -146,7 +155,9 @@ export default class EmailDialog extends Component {
             />
           </div>
           <div className="mBottom20">
-            <div className="mBottom5 Font14">{_l('发送邮箱')} <span class="Red">*</span></div>
+            <div className="mBottom5 Font14">
+              {_l('发送邮箱')} <span class="Red">*</span>
+            </div>
             <Input
               className="w100"
               value={fromAddress}
@@ -156,7 +167,9 @@ export default class EmailDialog extends Component {
             />
           </div>
           <div className="mBottom20">
-            <div className="mBottom5 Font14">{_l('服务器')} <span class="Red">*</span></div>
+            <div className="mBottom5 Font14">
+              {_l('服务器')} <span class="Red">*</span>
+            </div>
             <Input
               className="w100"
               value={server}
@@ -187,7 +200,9 @@ export default class EmailDialog extends Component {
             />
           </div>
           <div className="mBottom20">
-            <div className="mBottom5 Font14">{_l('端口')} <span class="Red">*</span></div>
+            <div className="mBottom5 Font14">
+              {_l('端口')} <span class="Red">*</span>
+            </div>
             <Input
               value={port}
               onChange={value => {
@@ -224,7 +239,9 @@ export default class EmailDialog extends Component {
             }}
           />
           {toEmailLoading ? (
-            <div style={{ width: 30 }}><LoadDiv size="small" /></div>
+            <div style={{ width: 30 }}>
+              <LoadDiv size="small" />
+            </div>
           ) : (
             toEmailResult && (
               <div className={toEmailResult.success ? 'DepGreen' : 'Red'}>

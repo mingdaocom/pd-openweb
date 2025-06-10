@@ -15,8 +15,8 @@ import { WrapCom } from 'src/pages/AuthService/style.jsx';
 import { getAccountTypes, hasCaptcha } from 'src/pages/AuthService/util.js';
 import { validation } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { encrypt } from 'src/util';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
 import From from './Form';
 
 const keys = [getAccountTypes(true), 'code', 'setPassword'];

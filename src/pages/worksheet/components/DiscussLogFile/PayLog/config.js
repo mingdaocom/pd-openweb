@@ -25,6 +25,10 @@ export const infoKeys = [
     txt: _l('支付方式'),
   },
   {
+    key: 'sourceType',
+    txt: _l('订单来源'),
+  },
+  {
     key: 'shortName',
     txt: _l('收款账户'),
   },
@@ -42,7 +46,7 @@ export const infoKeys = [
   },
   {
     key: 'payAccountInfo',
-    txt: _l('支付用户'),
+    txt: _l('下单人'),
   },
 ];
 // status 0待支付 1已支付 2 已申请退款｜退款中 3已退款 4支付超时 5部分退款
@@ -76,6 +80,11 @@ export const statusList = [
     key: 5,
     text: _l('部分退款'),
     type: 'war',
+  },
+  {
+    key: 8,
+    text: _l('已取消'),
+    type: 'err',
   },
 ];
 
@@ -141,3 +150,11 @@ export const refundStatusList = [
     text: _l('同意退款'),
   },
 ];
+
+// 订单来源
+export const sourceTypeInfo = {
+  1: _l('公开表单'),
+  2: _l('组织内'),
+  3: _l('外部门户'),
+  6: _l('他人代付'),
+};

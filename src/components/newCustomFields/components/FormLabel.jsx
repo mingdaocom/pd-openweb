@@ -1,17 +1,17 @@
 import React, { Fragment } from 'react';
-import { Tooltip, Icon } from 'ming-ui';
 import cx from 'classnames';
-import { controlState, renderCount } from '../tools/utils';
-import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../tools/config';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
-import WidgetsDesc from './WidgetsDesc';
 import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
-import { getTitleStyle, canSetWidgetStyle } from 'src/pages/widgetConfig/util/setting';
-import RelationSearchCount from './RelationSearchCount';
+import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import { browserIsMobile } from 'src/utils/common';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../tools/config';
+import { controlState, renderCount } from '../tools/utils';
+import RelationSearchCount from './RelationSearchCount';
+import WidgetsDesc from './WidgetsDesc';
 
 const ControlLabel = styled.div`
   ${({ displayRow, isMobile, titlewidth_app = '100', titlewidth_pc = '100' }) => {
@@ -113,7 +113,9 @@ export default ({
 
   const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
   const errorText = currentErrorItem.errorText || '';
-  const isEditable = (item.required && required === '1') || controlState(item, from).editable;
+  const isRuleError = currentErrorItem.errorType === FORM_ERROR_TYPE.RULE_ERROR;
+  // 强制必填、业务规则报错等只读时依然呈现错误提示
+  const isEditable = (item.required && required === '1') || isRuleError || controlState(item, from).editable;
   const isRelateRecordTable =
     item.type === 29 && _.get(item, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.TABLE);
   const isRelationSearchTable =

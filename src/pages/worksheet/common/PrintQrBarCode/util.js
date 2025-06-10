@@ -1,21 +1,21 @@
+import _ from 'lodash';
+import { renderText as renderCellText } from 'src/utils/control';
+import { BarLabel } from './bar';
 import {
-  BAR_LAYOUT,
-  BAR_POSITION,
   BAR_LABEL_SIZE,
   BAR_LABEL_SIZES,
+  BAR_LAYOUT,
+  BAR_POSITION,
+  LANDSCAPE_QR_CODE_SIZE,
+  PORTRAIT_QR_CODE_SIZE,
   PRINT_TYPE,
-  QR_LAYOUT,
-  QR_POSITION,
   QR_LABEL_SIZE,
   QR_LABEL_SIZES,
+  QR_LAYOUT,
+  QR_POSITION,
   SOURCE_TYPE,
-  PORTRAIT_QR_CODE_SIZE,
-  LANDSCAPE_QR_CODE_SIZE,
 } from './enum';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { QrLabel } from './qr';
-import { BarLabel } from './bar';
-import _ from 'lodash';
 
 export function getDefaultText({ printType, sourceType, sourceControlId, controls = [] } = {}) {
   if (sourceType === SOURCE_TYPE.URL) {

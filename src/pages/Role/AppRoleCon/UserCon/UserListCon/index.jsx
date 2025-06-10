@@ -1,18 +1,18 @@
 import React from 'react';
-import { WrapTableCon } from 'src/pages/Role/style';
+import cx from 'classnames';
 import _ from 'lodash';
-import User from './User';
+import { Dialog, Icon, LoadDiv, UserHead } from 'ming-ui';
+import { dialogSelectDept, dialogSelectJob, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
+import AppAjax from 'src/api/appManagement';
+import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
+import { getColor, getIcon, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
+import { sysRoleType } from 'src/pages/Role/config.js';
+import { WrapTableCon } from 'src/pages/Role/style';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getCurrentProject } from 'src/utils/project';
 import Apply from './Apply';
 import Outsourcing from './Outsourcing';
-import { LoadDiv, Icon, Dialog, UserHead } from 'ming-ui';
-import AppAjax from 'src/api/appManagement';
-import { dialogSelectJob, dialogSelectDept, dialogSelectUser, dialogSelectOrgRole } from 'ming-ui/functions';
-import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
-import { getCurrentProject } from 'src/util';
-import { getIcon, getColor, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
-import cx from 'classnames';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { sysRoleType } from 'src/pages/Role/config.js';
+import User from './User';
 
 export default class UserListCon extends React.Component {
   constructor(props) {
@@ -404,8 +404,8 @@ export default class UserListCon extends React.Component {
               isExternal
                 ? _l('管理用户')
                 : roleId === 'all'
-                ? _l('全部')
-                : (roleInfos.find(o => o.roleId === roleId) || {}).name
+                  ? _l('全部')
+                  : (roleInfos.find(o => o.roleId === roleId) || {}).name
             }
             // des={roleId === 'all' ? '' : (roleInfos.find(o => o.roleId === roleId) || {}).description}
             isMyRole={
@@ -527,8 +527,8 @@ export default class UserListCon extends React.Component {
               userIds.length <= 1
                 ? null
                 : roleId === 'all'
-                ? _l('将修改选中的%0个用户', userIds.length)
-                : _l('将选中的%0个用户移到其他角色', userIds.length)
+                  ? _l('将修改选中的%0个用户', userIds.length)
+                  : _l('将选中的%0个用户移到其他角色', userIds.length)
             }
             title={roleId === 'all' ? _l('修改角色') : _l('移到其他角色')}
             roleInfos={roleInfos

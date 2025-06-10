@@ -1,35 +1,36 @@
-import React, { Component, Fragment, createRef } from 'react';
-import { func } from 'prop-types';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import SelectFields from './SelectFields';
-import FunctionEditorDialog from '../../FunctionEditorDialog';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import SearchWorksheetDialog from '../../SearchWorksheet/SearchWorksheetDialog';
-import { SelectOtherFieldWrap } from '../styled';
-import { Menu, MenuItem } from 'ming-ui';
+import React, { Component, createRef, Fragment } from 'react';
 import { Tooltip } from 'antd';
-import {
-  OTHER_FIELD_LIST,
-  OTHER_FIELD_TYPE,
-  CAN_AS_OTHER_DYNAMIC_FIELD,
-  CURRENT_TYPES,
-  CUSTOM_PHP_TYPES,
-  CAN_AS_FX_DYNAMIC_FIELD,
-  CAN_NOT_AS_FIELD_DYNAMIC_FIELD,
-  DYNAMIC_FROM_MODE,
-  CUR_OCR_TYPES,
-  CUR_OCR_URL_TYPES,
-  WATER_MASK_TYPES,
-  CUR_EMPTY_TYPES,
-  H5_WATER_MASK_TYPES,
-} from '../config';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _, { get } from 'lodash';
+import { func } from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Menu, MenuItem } from 'ming-ui';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
+import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import FunctionEditorDialog from '../../FunctionEditorDialog';
+import SearchWorksheetDialog from '../../SearchWorksheet/SearchWorksheetDialog';
+import {
+  CAN_AS_FX_DYNAMIC_FIELD,
+  CAN_AS_OTHER_DYNAMIC_FIELD,
+  CAN_NOT_AS_FIELD_DYNAMIC_FIELD,
+  CUR_EMPTY_TYPES,
+  CUR_OCR_TYPES,
+  CUR_OCR_URL_TYPES,
+  CURRENT_TYPES,
+  CUSTOM_PHP_TYPES,
+  DYNAMIC_FROM_MODE,
+  H5_WATER_MASK_TYPES,
+  OTHER_FIELD_LIST,
+  OTHER_FIELD_TYPE,
+  PRINT_TEMP_TYPES,
+  WATER_MASK_TYPES,
+} from '../config';
+import { SelectOtherFieldWrap } from '../styled';
+import SelectFields from './SelectFields';
+import 'rc-trigger/assets/index.css';
 
 const MenuStyle = styled.div`
   display: flex;
@@ -158,6 +159,7 @@ export default class SelectOtherField extends Component {
       case OTHER_FIELD_TYPE.TRIGGER_DEPARTMENT:
       case OTHER_FIELD_TYPE.TRIGGER_ORG:
       case OTHER_FIELD_TYPE.TRIGGER_USER:
+      case OTHER_FIELD_TYPE.PRINT_TEMP:
         onDynamicValueChange([{ rcid: '', cid: `${data.id}`, staticValue: '' }]);
         this.setState({ isDynamic: false });
         break;
@@ -223,6 +225,10 @@ export default class SelectOtherField extends Component {
     }
     if (this.props.from === DYNAMIC_FROM_MODE.H5_WATER_MASK) {
       types = types.concat(H5_WATER_MASK_TYPES);
+    }
+    // 打印模板导出文件名
+    if (this.props.from === DYNAMIC_FROM_MODE.PRINT_TEMP) {
+      types = types.concat(PRINT_TEMP_TYPES);
     }
     if (this.props.hideSearchAndFun) {
       //子表里的字段默认值没有查询和函数配置
@@ -413,8 +419,8 @@ export default class SelectOtherField extends Component {
                     withLinkParams && !withDY
                       ? 'icon-global_variable'
                       : isSubList
-                      ? 'icon-lookup'
-                      : 'icon-workflow_other',
+                        ? 'icon-lookup'
+                        : 'icon-workflow_other',
                   )}
                 ></i>
               </SelectOtherFieldWrap>

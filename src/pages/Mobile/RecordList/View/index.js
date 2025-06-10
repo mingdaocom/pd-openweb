@@ -1,30 +1,30 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'mobile/RecordList/redux/actions';
-import * as worksheetActions from 'src/pages/worksheet/redux/actions';
-import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { bindActionCreators } from 'redux';
-import SheetView from './SheetView';
-import HierarchyView from './HierarchyView';
-import BoardView from './BoardView';
-import GalleryView from './GalleryView';
-import CalendarView from './CalendarView';
-import GunterView from './GunterView';
-import DetailView from './DetailView';
-import GroupFilter from '../GroupFilter';
-import GroupFilterList from '../GroupFilter/GroupFilterList';
-import CustomWidgetView from './CustomWidgetView';
-import ResourceView from './ResourceView';
-import MobileMapView from './MapView';
-import State from '../State';
-import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
-import { WithoutRows } from '../SheetRows';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { emitter } from 'worksheet/util';
-import { mdAppResponse, getRequest } from 'src/util';
-import _ from 'lodash';
+import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
+import * as actions from 'mobile/RecordList/redux/actions';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import * as worksheetActions from 'src/pages/worksheet/redux/actions';
+import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
+import { getRequest } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import { mdAppResponse } from 'src/utils/project';
+import GroupFilter from '../GroupFilter';
+import GroupFilterList from '../GroupFilter/GroupFilterList';
+import { WithoutRows } from '../SheetRows';
+import BoardView from './BoardView';
+import CalendarView from './CalendarView';
+import CustomWidgetView from './CustomWidgetView';
+import DetailView from './DetailView';
+import GalleryView from './GalleryView';
+import GunterView from './GunterView';
+import HierarchyView from './HierarchyView';
+import MobileMapView from './MapView';
+import ResourceView from './ResourceView';
+import SheetView from './SheetView';
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
 
@@ -81,11 +81,12 @@ class View extends Component {
   }
   componentWillUnmount() {
     window.APP_OPEN_NEW_PAGE = undefined;
+    emitter.removeListener('MOBILE_RELOAD_RECORD_INFO', this.refreshList);
     if (!window.IM) return;
     IM.socket.off('workflow_push');
   }
   refreshList = ({ worksheetId, recordId }) => {
-    const { view, base = {}, currentSheetRows = [] } = this.props;
+    const { view, base = {}, currentSheetRows = [], updateRow } = this.props;
 
     if (worksheetId === base.worksheetId && _.find(currentSheetRows, r => r.rowid === recordId)) {
       worksheetAjax
@@ -97,10 +98,7 @@ class View extends Component {
           worksheetId: base.worksheetId,
         })
         .then(row => {
-          if (!row.isViewData) {
-            const temp = _.filter(currentSheetRows, v => v.rowid !== recordId);
-            this.props.changeMobileSheetRows(temp);
-          }
+          updateRow(recordId, row, row.isViewData);
         });
     }
   };
@@ -134,8 +132,8 @@ class View extends Component {
       batchOptVisible,
       batchOptCheckedData,
       batchCheckAll,
-      updateFilters = () => { },
-      updateActiveSavedFilter = () => { },
+      updateFilters = () => {},
+      updateActiveSavedFilter = () => {},
     } = this.props;
 
     const { viewType, advancedSetting = {} } = view;
@@ -227,29 +225,29 @@ class View extends Component {
         {(_.includes([gallery, resource, board, sheet], String(viewType)) ||
           (String(viewType) === detail && view.childType !== 1) ||
           (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
-            <QuickFilterSearch
-              className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
-              showSearch={String(viewType) === customize ? false : true}
-              isFilter={isFilter}
-              filters={filters}
-              detail={detail}
-              view={view}
-              worksheetInfo={worksheetInfo}
-              sheetControls={sheetControls}
-              updateFilters={updateFilters}
-              quickFilterWithDefault={quickFilterWithDefault}
-              savedFilters={savedFilters}
-              activeSavedFilter={activeSavedFilter}
-              updateActiveSavedFilter={updateActiveSavedFilter}
-              base={base}
-            />
-          )}
+          <QuickFilterSearch
+            className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
+            showSearch={String(viewType) === customize ? false : true}
+            isFilter={isFilter}
+            filters={filters}
+            detail={detail}
+            view={view}
+            worksheetInfo={worksheetInfo}
+            sheetControls={sheetControls}
+            updateFilters={updateFilters}
+            quickFilterWithDefault={quickFilterWithDefault}
+            savedFilters={savedFilters}
+            activeSavedFilter={activeSavedFilter}
+            updateActiveSavedFilter={updateActiveSavedFilter}
+            base={base}
+          />
+        )}
         {_.includes(
           [gallery, resource, customize, board],
           String(viewType) || (String(viewType) === detail && view.childType !== 1),
         ) &&
-          needClickToSearch &&
-          _.isEmpty(quickFilter) ? (
+        needClickToSearch &&
+        _.isEmpty(quickFilter) ? (
           <WithoutRows text={_l('执行查询后显示结果')} />
         ) : hasGroupFilter &&
           String(view.viewType) === sheet &&
@@ -311,7 +309,7 @@ export default connect(
           'changeBatchOptVisible',
           'changeMobileGroupFilters',
           'unshiftSheetRow',
-          'changeMobileSheetRows',
+          'updateRow',
           'updateGroupFilter',
           'updateFilters',
           'updateActiveSavedFilter',

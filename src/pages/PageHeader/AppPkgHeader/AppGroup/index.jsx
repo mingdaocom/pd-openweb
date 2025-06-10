@@ -1,24 +1,24 @@
 import React, { Component, Fragment } from 'react';
-import { oneOf, func } from 'prop-types';
 import { connect } from 'react-redux';
-import cx from 'classnames';
-import { Icon, VCenterIconText } from 'ming-ui';
 import api from 'api/homeApp';
+import cx from 'classnames';
+import _ from 'lodash';
+import { func, oneOf } from 'prop-types';
+import { Icon, VCenterIconText } from 'ming-ui';
+import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
+import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
+import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { getAppFeaturesVisible } from 'src/utils/app';
+import { navigateTo } from '../../../../router/navigateTo';
+import { updateAppGroup } from '../../redux/action';
+import { compareProps, getIds } from '../../util';
 import AppExtension from '../AppExtension';
-import SortableAppList from './SortableAppList';
+import { DEFAULT_CREATE } from '../config';
 import AppGroupIntro from './AppGroupIntro';
 import DelAppGroup from './DelAppGroup';
-import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
-import { navigateTo } from '../../../../router/navigateTo';
-import { getIds, compareProps } from '../../util';
-import { DEFAULT_CREATE } from '../config';
-import { updateAppGroup } from '../../redux/action';
-import { updateIsCharge, updateAppPkgData } from 'worksheet/redux/actions';
+import SortableAppList from './SortableAppList';
 import './index.less';
-import { getAppFeaturesVisible } from 'src/util';
-import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
-import _ from 'lodash';
 
 const mapStateToProps = () => ({});
 const mapDispatchToProps = dispatch => ({

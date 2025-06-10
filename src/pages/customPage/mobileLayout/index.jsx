@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { WidgetContent } from '../components';
-import { replaceColor, getIconByType, getComponentTitleText } from '../util';
+import { replaceColor, isLightColor, getIconByType, getComponentTitleText } from '../util';
 
 const MobileList = styled.div`
   box-sizing: border-box;
@@ -75,8 +75,7 @@ const MobileConfig = styled.div`
     width: 100%;
     height: 100%;
     border-radius: 20px;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
+    // border: 1px solid #ddd;
   }
   .mobileContent {
     height: calc(100% - 10px);
@@ -99,6 +98,10 @@ export default function MobileLayout(props) {
   const { components, updateWidgetVisible, config, appPkg, apk } = props;
   const { hidedComponents, visibleComponents } = dealComponents(components);
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || apk.iconColor);
+  const bgIsDark = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
+  const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
+  const backgroundColor = appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
+
   return (
     <Fragment>
       <MobileList className="flexColumn">
@@ -124,17 +127,26 @@ export default function MobileLayout(props) {
         )}
       </MobileList>
       <MobileConfig>
-        <div className="mobileWrap">
+        <div
+          className="mobileWrap"
+          style={{
+            backgroundColor,
+            '--title-color': bgIsDark ? '#ffffffcc' : '#333',
+            '--icon-color': bgIsDark ? '#ffffffcc' : '#9e9e9e',
+            '--bg-color': bgIsDark ? '#e6e6e633' : '#e6e6e6',
+            '--widget-color': pageConfig.widgetBgColor,
+            '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
+            '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
+            '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#2196f3',
+          }}
+        >
           <div className="mobileBox Relative">
             <div className="mobileContent">
               <WidgetContent
                 {...props}
                 layoutType="mobile"
                 components={visibleComponents}
-                config={{
-                  ...pageConfig,
-                  pageStyleType: 'light'
-                }}
+                config={pageConfig}
               />
             </div>
           </div>

@@ -1,32 +1,33 @@
-﻿import './style.less';
-import { formatFileSize } from 'src/util';
+﻿import React from 'react';
+import { createRoot } from 'react-dom/client';
 import copy from 'copy-to-clipboard';
 import doT from 'dot';
+import _ from 'lodash';
+import { Dialog, Dropdown } from 'ming-ui';
+import AttachmentController from 'src/api/attachment';
+import ChatController from 'src/api/chat';
+import DiscussionController from 'src/api/discussion';
+import KcController from 'src/api/kc';
+import WorksheetController from 'src/api/worksheet';
+import createCalendar from 'src/components/createCalendar/createCalendar';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
+import createFeed from 'src/pages/feed/components/createFeed';
+import { getClassNameByExt } from 'src/utils/common';
+import { formatFileSize } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { _convertToOtherAttachment, _getChatList, _getMyTaskList, createNewChat, createNewTask } from './ajax';
+import { ATTACHMENT_TYPE, CHAT_CARD_TYPE, NODE_VISIBLE_TYPE, SEND_TO_TYPE, WORKSHEET_VISIBLE_TYPE } from './enum';
+import toMobileDailog from './toMobile';
 import mainHtml from './tpl/main.htm';
 import searchListHtml from './tpl/searchList.htm';
 import searchListItemHtml from './tpl/searchListItem.htm';
-import createFeed from 'src/pages/feed/components/createFeed';
-import createCalendar from 'src/components/createCalendar/createCalendar';
-import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import KcController from 'src/api/kc';
-import WorksheetController from 'src/api/worksheet';
-import ChatController from 'src/api/chat';
-import DiscussionController from 'src/api/discussion';
-import AttachmentController from 'src/api/attachment';
+import './style.less';
 
 var mainTpl = doT.template(mainHtml);
 var listTpl = doT.template(searchListHtml);
 var listItemTpl = doT.template(searchListItemHtml);
-import { _getMyTaskList, _getChatList, _convertToOtherAttachment, createNewTask, createNewChat } from './ajax';
-import { ATTACHMENT_TYPE, NODE_VISIBLE_TYPE, WORKSHEET_VISIBLE_TYPE, SEND_TO_TYPE, CHAT_CARD_TYPE } from './enum';
-import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { getClassNameByExt } from 'src/util';
-import toMobileDailog from './toMobile';
-import _ from 'lodash';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { Dropdown, Dialog } from 'ming-ui';
-import RegExpValidator from 'src/util/expression';
+
 // 目的地选择列表组件
 var SelectSendTo = function (options, callback) {
   this.options = options;

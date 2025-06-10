@@ -1,10 +1,10 @@
 import React from 'react';
-import { string } from 'prop-types';
 import { Button, Icon, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { TinyColor } from '@ctrl/tinycolor';
 import { ButtonListWrap, GraphWrap } from './styled';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import _ from 'lodash';
 
 const ButtonDisplayWrap = styled.div`
@@ -17,7 +17,7 @@ const ButtonDisplayWrap = styled.div`
   background-color: #fff;
   overflow: auto;
   border-radius: 3px;
-  .explain {
+  .title, .explain {
     text-align: center;
     margin-bottom: 12px;
     color: var(--title-color);
@@ -28,6 +28,7 @@ const BtnWrap = styled.div`
   padding: 0 10px;
   cursor: pointer;
   box-sizing: border-box;
+  min-width: 124px;
   &.noMargin {
     margin: 0;
   }
@@ -109,21 +110,25 @@ const SortableButtonListWrap = styled.div`
 `;
 
 export default function BtnList({
+  themeColor,
   buttonList,
   errorBtns,
   count,
   style,
   config,
+  customPageConfig,
   width,
+  title,
   explain,
   activeIndex,
-  onClick,
-  ...rest
+  onClick
 }) {
-  const { btnType, direction = 1 } = config || {};
+  const { btnType, direction = 1, titleStyles = { ...defaultTitleStyles, textAlign: 'center' } } = config || {};
+  const pageTitleStyles = customPageConfig.titleStyles || {};
+  const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   const isFullWidth = btnType === 2 ? true : width === 1;
   const getWidth = () => {
-    if (isFullWidth) return { width: `${100 / count}%` };
+    if (isFullWidth) return { width: `${100 / (buttonList.length > count ? count : buttonList.length)}%` };
     return {};
   };
   const newList = _.chunk(buttonList, count);
@@ -131,7 +136,10 @@ export default function BtnList({
     <SortableButtonListWrap>
       <div className="hint">{_l('选择下方预览卡片中的按钮进行设置')}</div>
       <ButtonDisplayWrap>
-        {explain && <div className="explain">{explain}</div>}
+        <div className="flexColumn" style={{ alignItems: newTitleStyles.textAlign === 'left' ? 'start' : undefined }}>
+          {title && <div className="title" style={replaceTitleStyle(newTitleStyles, themeColor)}>{title}</div>}
+          {explain && <div className="explain">{explain}</div>}
+        </div>
         <ButtonListWrap>
           {newList.map((list, i) => {
             return (

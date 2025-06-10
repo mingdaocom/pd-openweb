@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { mdNotification } from 'ming-ui/functions';
 import userAJAX from 'src/api/user';
-import { setCaretPosition } from 'src/util';
+import { setCaretPosition } from 'src/utils/common';
 import CardToolbar from '../../components/CardToolbar';
 import MessageSendText from '../../components/MessageSendText';
 import SendToolbar from '../../components/SendToolbar';

@@ -1,13 +1,13 @@
-import React, { Fragment, Component } from 'react';
-import { Icon, UserHead, SvgIcon } from 'ming-ui';
-import cx from 'classnames';
+import React, { Component, Fragment } from 'react';
 import { Checkbox, Tooltip } from 'antd';
-import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import { TABS, covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
-import './index.less';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { dateConvertToUserZone } from 'src/util';
+import { Icon, SvgIcon, UserHead } from 'ming-ui';
+import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
+import { dateConvertToUserZone } from 'src/utils/project';
+import { ACTION_TYPES, covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS, TABS, TYPE_TO_STYLE } from '../config';
+import './index.less';
 
 export default class Card extends Component {
   constructor(props) {
@@ -74,8 +74,8 @@ export default class Card extends Component {
             {currentWorkFlowNodes.length > 1
               ? _l('%0个节点', currentWorkFlowNodes.length)
               : currentWorkFlowNode
-              ? currentWorkFlowNode.name
-              : flowNode.name}
+                ? currentWorkFlowNode.name
+                : flowNode.name}
           </div>
           <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
         </div>
@@ -154,8 +154,8 @@ export default class Card extends Component {
               {currentWorkFlowNodes && currentWorkFlowNodes.length > 1
                 ? _l('%0个节点', currentWorkFlowNodes.length)
                 : currentWorkFlowNode
-                ? currentWorkFlowNode.name
-                : flowNode.name}
+                  ? currentWorkFlowNode.name
+                  : flowNode.name}
             </div>
             <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
           </div>
@@ -257,8 +257,8 @@ export default class Card extends Component {
           autoPass
             ? ''
             : maxEndTimeConsuming > 0
-            ? _l('超时 %0 完成', covertTime(maxEndTimeConsuming))
-            : _l('提前 %0 完成', covertTime(maxEndTimeConsuming))
+              ? _l('超时 %0 完成', covertTime(maxEndTimeConsuming))
+              : _l('提前 %0 完成', covertTime(maxEndTimeConsuming))
         }
       >
         <span
@@ -361,7 +361,7 @@ export default class Card extends Component {
     const { controls } = this.props.item;
     return (
       <div key={item.controlId} className={cx('controlWrapper flexColumn mTop10', { flex: controls.length <= 1 })}>
-        <div className="Gray_75">{item.controlName}</div>
+        <div className="Gray_75 ellipsis">{item.controlName}</div>
         <div className="controlValue">{item.value || '--'}</div>
       </div>
     );

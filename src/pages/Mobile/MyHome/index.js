@@ -6,8 +6,8 @@ import accountSetting from 'src/api/accountSetting';
 import login from 'src/api/login';
 import langConfig from 'src/common/langConfig';
 import { navigateToLogin } from 'src/router/navigateTo';
-import { getCurrentProject } from 'src/util';
-import { removePssId } from 'src/util/pssId';
+import { getCurrentProject } from 'src/utils/project';
+import { removePssId } from 'src/utils/pssId';
 import TabBar from '../components/TabBar';
 
 class MyHome extends Component {

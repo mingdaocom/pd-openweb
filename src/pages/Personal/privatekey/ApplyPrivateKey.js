@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Input, Button, Dropdown, RadioGroup } from 'ming-ui';
-import privateGuide from 'src/api/privateGuide';
-import { getRequest } from 'src/util';
 import _ from 'lodash';
+import { Button, Dropdown, Icon, Input, RadioGroup } from 'ming-ui';
+import privateGuide from 'src/api/privateGuide';
+import { getRequest } from 'src/utils/common';
 
 export default class ApplyPrivateKey extends Component {
   constructor(props) {

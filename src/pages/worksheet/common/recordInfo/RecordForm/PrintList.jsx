@@ -15,8 +15,8 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
 import { getDownLoadUrl } from 'src/pages/Print/util';
-import { addBehaviorLog, getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import IconBtn from './IconBtn';
 
 const MenuItemWrap = styled(MenuItem)`
@@ -65,6 +65,89 @@ const SecTitle = styled.div`
   font-size: 12px;
   margin: 12px 16px 4px;
 `;
+
+export function handleSystemPrintRecord({ worksheetId, viewId, recordId, appId, projectId, workId, instanceId }) {
+  let printData = {
+    printId: '',
+    isDefault: true, // 系统打印模板
+    worksheetId,
+    projectId: projectId,
+    rowId: recordId,
+    getType: 1,
+    viewId,
+    appId,
+    workId,
+    id: instanceId,
+  };
+  let printKey = Math.random().toString(36).substring(2);
+  webCacheAjax.add({
+    key: `${printKey}`,
+    value: JSON.stringify(printData),
+  });
+  window.open(`${window.subPath || ''}/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
+}
+
+export async function handleTemplateRecordPrint({
+  worksheetId,
+  viewId,
+  recordId,
+  appId,
+  projectId,
+  template,
+  attriData,
+}) {
+  const it = template;
+
+  const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
+  if (_.includes([3, 4], it.type)) {
+    const data = await worksheetAjax.getRowDetail({
+      appId,
+      viewId,
+      worksheetId,
+      rowId: recordId,
+      getTemplate: true,
+    });
+    generatePdf({
+      templateId: it.id,
+      appId,
+      worksheetId,
+      viewId,
+      projectId,
+      selectedRows: [safeParse(data.rowData)],
+      controls: data.templateControls,
+      zIndex: 9999,
+    });
+  } else {
+    if (it.type !== 0 && featureType === '2') {
+      buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
+      return;
+    }
+    let printId = it.id;
+    let isDefault = it.type === 0;
+    let printData = {
+      printId,
+      isDefault, // 系统打印模板
+      worksheetId,
+      projectId: projectId,
+      rowId: recordId,
+      getType: 1,
+      viewId,
+      appId,
+      name: it.name,
+      attriData: attriData[0],
+      fileTypeNum: it.type,
+      allowDownloadPermission: it.allowDownloadPermission,
+      allowEditAfterPrint: it.allowEditAfterPrint,
+    };
+    let printKey = Math.random().toString(36).substring(2);
+    webCacheAjax.add({
+      key: `${printKey}`,
+      value: JSON.stringify(printData),
+    });
+    window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
+  }
+}
+
 export default class PrintList extends Component {
   static propTypes = {
     isCharge: PropTypes.bool,
@@ -158,24 +241,15 @@ export default class PrintList extends Component {
     }
     const { viewId, recordId, appId, worksheetId, projectId, workId, instanceId } = this.props;
     this.setState({ showPrintGroup: false }, () => {
-      let printData = {
-        printId: '',
-        isDefault: true, // 系统打印模板
+      handleSystemPrintRecord({
         worksheetId,
-        projectId: projectId,
-        rowId: recordId,
-        getType: 1,
         viewId,
+        recordId,
         appId,
+        projectId,
         workId,
-        id: instanceId,
-      };
-      let printKey = Math.random().toString(36).substring(2);
-      webCacheAjax.add({
-        key: `${printKey}`,
-        value: JSON.stringify(printData),
+        instanceId,
       });
-      window.open(`${window.subPath || ''}/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
     });
   }
 
@@ -195,7 +269,6 @@ export default class PrintList extends Component {
     } = this.props;
     const { tempList, showPrintGroup } = this.state;
     let attriData = controls.filter(it => it.attribute === 1);
-    const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
 
     if (tempList.length <= 0 || type === 2) {
       return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && type !== 1 ? (
@@ -261,55 +334,15 @@ export default class PrintList extends Component {
                             alert(_l('预览模式下，不能操作'), 3);
                             return;
                           }
-                          if (_.includes([3, 4], it.type)) {
-                            const data = await worksheetAjax.getRowDetail({
-                              appId,
-                              viewId,
-                              worksheetId,
-                              rowId: recordId,
-                              getTemplate: true,
-                            });
-                            generatePdf({
-                              templateId: it.id,
-                              appId,
-                              worksheetId,
-                              viewId,
-                              projectId,
-                              selectedRows: [safeParse(data.rowData)],
-                              controls: data.templateControls,
-                              zIndex: 9999,
-                            });
-                          } else {
-                            if (it.type !== 0 && featureType === '2') {
-                              buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
-                              return;
-                            }
-                            let printId = it.id;
-                            let isDefault = it.type === 0;
-                            let printData = {
-                              printId,
-                              isDefault, // 系统打印模板
-                              worksheetId,
-                              projectId: projectId,
-                              rowId: recordId,
-                              getType: 1,
-                              viewId,
-                              appId,
-                              name: it.name,
-                              attriData: attriData[0],
-                              fileTypeNum: it.type,
-                              allowDownloadPermission: it.allowDownloadPermission,
-                              allowEditAfterPrint: it.allowEditAfterPrint,
-                            };
-                            let printKey = Math.random().toString(36).substring(2);
-                            webCacheAjax.add({
-                              key: `${printKey}`,
-                              value: JSON.stringify(printData),
-                            });
-                            window.open(
-                              `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`,
-                            );
-                          }
+                          handleTemplateRecordPrint({
+                            worksheetId,
+                            viewId,
+                            recordId,
+                            appId,
+                            projectId,
+                            template: it,
+                            attriData,
+                          });
                         }}
                       >
                         <div title={it.name} className="ellipsis templateName">

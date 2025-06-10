@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useMeasure } from 'react-use';
-import styled from 'styled-components';
-import { arrayOf, func, shape, string } from 'prop-types';
 import cx from 'classnames';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
-import RelateRecordOptions from './RelateRecordOptions';
 import _, { find } from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import RelateRecordOptions from './RelateRecordOptions';
 
 const Con = styled.div`
   display: flex;
@@ -57,6 +57,7 @@ const Dropdown = styled(RelateRecordDropdown)`
 `;
 
 const SelectedTags = styled.div`
+  max-width: 100%;
   .item {
     position: relative;
     display: inline-block;
@@ -92,7 +93,6 @@ export default function RelateRecord(props) {
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
-      // ...(from === 'selectRecordDialog' ? { filters: controlAdvancedSetting.filters } : {}), // 薛老板说去掉 后面加开关 https://www.mingdao.com/app/eed8e526-6c6e-4e05-9ab7-e25550aa990c/5cc4391adb8d4e0001ee6618/5cc4391adb8d4e0001ee6619/row/2d774b9c-40a1-4b3c-83ce-84cf8fa7ac42
       searchcontrol: controlAdvancedSetting.searchcontrol,
     },
   });
@@ -201,35 +201,37 @@ export default function RelateRecord(props) {
   // clicksearch 1 搜索后限制 0[default]
   return (
     <Con ref={conRef} className={cx({ isMultiple: true, active })}>
-      <Dropdown
-        isDark={isDark}
-        popupClassName={values.length < 2 ? 'small' : ''}
-        getFilterRowsGetType={32}
-        zIndex="xxx"
-        disableNewRecord
-        doNotClearKeywordsWhenChange={isMultiple}
-        parentWorksheetId={worksheetId}
-        isQuickFilter
-        control={control}
-        {...control}
-        selectedStyle={{ width }}
-        popupOffset={[0, -16]}
-        formData={filtersData}
-        advancedSetting={{}}
-        controls={relationControls}
-        selected={values}
-        showCoverAndControls={true}
-        popupContainer={() => document.body}
-        multiple={isMultiple}
-        renderSelected={active ? undefined : renderSelected}
-        prefixRecords={prefixRecords}
-        staticRecords={staticRecords}
-        fastSearchControlArgs={fastSearchControlArgs}
-        onChange={newRecords => {
-          handleChange({ values: newRecords });
-        }}
-        onVisibleChange={setActive}
-      />
+      {!!width && (
+        <Dropdown
+          isDark={isDark}
+          popupClassName={values.length < 2 ? 'small' : ''}
+          getFilterRowsGetType={32}
+          zIndex="xxx"
+          disableNewRecord
+          doNotClearKeywordsWhenChange={isMultiple}
+          parentWorksheetId={worksheetId}
+          isQuickFilter
+          control={control}
+          {...control}
+          selectedStyle={{ width }}
+          popupOffset={[0, -16]}
+          formData={filtersData}
+          advancedSetting={{}}
+          controls={relationControls}
+          selected={values}
+          showCoverAndControls={true}
+          popupContainer={() => document.body}
+          multiple={isMultiple}
+          renderSelected={active ? undefined : renderSelected}
+          prefixRecords={prefixRecords}
+          staticRecords={staticRecords}
+          fastSearchControlArgs={fastSearchControlArgs}
+          onChange={newRecords => {
+            handleChange({ values: newRecords });
+          }}
+          onVisibleChange={setActive}
+        />
+      )}
     </Con>
   );
 }

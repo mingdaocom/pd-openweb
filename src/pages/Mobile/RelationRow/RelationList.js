@@ -1,16 +1,16 @@
-import React, { Fragment, Component } from 'react';
-import { connect } from 'react-redux';
-import cx from 'classnames';
-import * as actions from './redux/actions';
-import { bindActionCreators } from 'redux';
+import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
-import RecordCard from 'src/components/recordCard';
+import cx from 'classnames';
+import _ from 'lodash';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
+import RecordCard from 'src/components/recordCard';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import * as actions from './redux/actions';
 import './index.less';
-import _ from 'lodash';
 
 class RelationList extends Component {
   constructor(props) {
@@ -28,12 +28,13 @@ class RelationList extends Component {
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.controlId !== nextProps.controlId) {
-      nextProps.reset();
+      nextProps.reset && nextProps.reset();
+      this.setState({ keywords: '' });
       this.loadData(nextProps);
     }
   }
   componentWillUnmount() {
-    this.props.reset();
+    this.props.reset && this.props.reset();
     window.removeEventListener('popstate', this.onQueryChange);
   }
 
@@ -112,54 +113,87 @@ class RelationList extends Component {
       </div>
     );
   };
+
+  onSearch = _.debounce(() => {
+    const { updatePageIndex = () => {} } = this.props;
+    const { keywords } = this.state;
+    updatePageIndex(1, { keywords });
+  }, 500);
+
   render() {
     const { rowInfo, controlId, relationRow, relationRows, loadParams, actionParams, permissionInfo } = this.props;
     const { loading, pageIndex, isMore } = loadParams;
 
-    if (loading && pageIndex === 1) {
-      return (
-        <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
-        </div>
-      );
-    }
-
-    const { previewRecordId } = this.state;
+    const { previewRecordId, keywords } = this.state;
     const { isEdit } = actionParams;
     const { worksheet } = relationRow;
     const control = _.find(rowInfo.templateControls, { controlId }) || {};
 
     return (
-      <div className={cx('sheetRelationRow flex', { editRowWrapper: isEdit })}>
-        {relationRows.length ? (
-          <Fragment>
-            <div style={{ height: 10 }} />
-            {relationRows.map(item => this.renderRow(item))}
-            {isMore && <div className="flexRow alignItemsCenter justifyContentCenter">{loading ? <SpinLoading color='primary' /> : null}</div>}
-            <div style={{ height: 10 }} />
-            <RecordInfoModal
-              className="full"
-              visible={!!previewRecordId}
-              appId={worksheet.appId}
-              worksheetId={worksheet.worksheetId}
-              enablePayment={worksheet.enablePayment}
-              viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
-              rowId={previewRecordId}
-              isSubList={_.get(permissionInfo, 'isSubList')}
-              editable={_.get(permissionInfo, 'controlPermission.editable')}
-              onClose={() => {
-                this.setState({
-                  previewRecordId: undefined,
-                });
-              }}
-            />
-          </Fragment>
-        ) : (
-          <div className="withoutRowsWrapper flexColumn valignWrapper h100">
-            <WithoutRows text={_l('暂无记录')} />
+      <Fragment>
+        {!_.isUndefined(keywords) || relationRows.length ? (
+          <div className="searchRelationWrap">
+            <div className="inputCon">
+              <i className="icon icon-search Gray_9e" />
+              <input
+                className="flex"
+                placeholder={_l('搜索')}
+                type="search"
+                value={keywords}
+                onChange={e => {
+                  this.setState({ keywords: e.target.value }, this.onSearch);
+                }}
+              />
+              <i
+                className={cx('icon icon-workflow_cancel Hand Gray_9e Font16', {
+                  none: !keywords,
+                })}
+                onClick={() => this.setState({ keywords: '' }, this.onSearch)}
+              />
+            </div>
           </div>
+        ) : (
+          ''
         )}
-      </div>
+        <div className={cx('sheetRelationRow flex', { editRowWrapper: isEdit })}>
+          {loading && pageIndex === 1 ? (
+            <div className="flexRow justifyContentCenter alignItemsCenter h100">
+              <SpinLoading color="primary" />
+            </div>
+          ) : relationRows.length ? (
+            <Fragment>
+              <div style={{ height: 10 }} />
+              {relationRows.map(item => this.renderRow(item))}
+              {isMore && (
+                <div className="flexRow alignItemsCenter justifyContentCenter">
+                  {loading ? <SpinLoading color="primary" /> : null}
+                </div>
+              )}
+              <div style={{ height: 10 }} />
+              <RecordInfoModal
+                className="full"
+                visible={!!previewRecordId}
+                appId={worksheet.appId}
+                worksheetId={worksheet.worksheetId}
+                enablePayment={worksheet.enablePayment}
+                viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
+                rowId={previewRecordId}
+                isSubList={_.get(permissionInfo, 'isSubList')}
+                editable={_.get(permissionInfo, 'controlPermission.editable')}
+                onClose={() => {
+                  this.setState({
+                    previewRecordId: undefined,
+                  });
+                }}
+              />
+            </Fragment>
+          ) : (
+            <div className="withoutRowsWrapper flexColumn valignWrapper h100">
+              <WithoutRows text={_l('暂无记录')} />
+            </div>
+          )}
+        </div>
+      </Fragment>
     );
   }
 }
@@ -168,5 +202,9 @@ export default connect(
   state => ({
     ..._.pick(state.mobile, ['rowInfo', 'relationRow', 'relationRows', 'loadParams', 'actionParams', 'permissionInfo']),
   }),
-  dispatch => bindActionCreators(_.pick(actions, ['updateBase', 'loadRow', 'updateActionParams', 'reset']), dispatch),
+  dispatch =>
+    bindActionCreators(
+      _.pick(actions, ['updateBase', 'loadRow', 'updateActionParams', 'updatePageIndex', 'reset']),
+      dispatch,
+    ),
 )(RelationList);

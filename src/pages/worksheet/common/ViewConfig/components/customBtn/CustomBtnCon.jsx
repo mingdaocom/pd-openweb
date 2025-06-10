@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import './CustomBtn.less';
-import { Icon, RadioGroup, Dialog, Tooltip, SvgIcon, SortableList } from 'ming-ui';
-import CustomBtnList from './CustomBtnList.jsx';
-import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Dialog, Icon, RadioGroup, SortableList, SvgIcon, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import CustomBtnList from './CustomBtnList.jsx';
+import './CustomBtn.less';
 
 const confirm = Dialog.confirm;
 
@@ -39,16 +39,13 @@ const Item = ({
       >
         <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
           {disable ? (
-            <Tooltip
-              placement="bottom"
-              text={<span>{_l('批量操作的按钮不支持关联形态表单填写')}</span>}
-            >
+            <Tooltip placement="bottom" text={<span>{_l('批量操作的按钮不支持关联形态表单填写')}</span>}>
               <Icon icon={'error1'} style={{ color: 'red' }} className={cx('mRight12 Font18')} />
             </Tooltip>
           ) : !!iconUrl && !!icon && icon.endsWith('_svg') ? (
             <SvgIcon
               className="mRight12"
-              addClassName='TxtMiddle'
+              addClassName="TxtMiddle"
               url={iconUrl}
               fill={!icon ? '#bdbdbd' : !color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
               size={18}
@@ -324,7 +321,7 @@ class CustomBtnCon extends Component {
             }}
           >
             <i className="icon icon-add Font18 mRight5 TxtMiddle InlineBlock"></i>
-            <span className="Bold TxtMiddle InlineBlock">{_l('自定义按钮')}</span>
+            <span className="Bold TxtMiddle InlineBlock">{_l('动作')}</span>
             {this.state.showBtn && (
               <CustomBtnList
                 btnList={btnList}

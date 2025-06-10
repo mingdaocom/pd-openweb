@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Icon, Tooltip } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { getFeatureStatus } from 'src/util';
+import { Icon, Tooltip } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { WrapBtn } from 'src/pages/integration/apiIntegration/style.js';
 import Item from 'src/pages/integration/apiIntegration/APIWrap/Item.jsx';
+import { WrapBtn } from 'src/pages/integration/apiIntegration/style.js';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { Wrap } from './style';
 
 function AddNode(props) {

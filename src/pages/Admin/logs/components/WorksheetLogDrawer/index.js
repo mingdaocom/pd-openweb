@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
-import { Input, SvgIcon, LoadDiv } from 'ming-ui';
-import homeAppAjax from 'src/api/homeApp.js';
-import WorksheetLog from './WorksheetLog';
 import cx from 'classnames';
-import { getTranslateInfo } from 'src/util';
-import './index.less';
 import _ from 'lodash';
+import { Input, LoadDiv, SvgIcon } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp.js';
+import { getTranslateInfo } from 'src/utils/app';
+import WorksheetLog from './WorksheetLog';
+import './index.less';
 
 export default function WorksheetLogDrawer(props) {
   const { visible, projectId, appId, onClose = () => {} } = props;

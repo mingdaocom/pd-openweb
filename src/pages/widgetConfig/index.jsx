@@ -1,43 +1,43 @@
-import React, { Fragment, useState, useRef, useEffect } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState, useTitle } from 'react-use';
-import worksheetAjax from 'src/api/worksheet';
+import update from 'immutability-helper';
+import { find, findIndex, flatten, get, head, isEmpty, isEqual, isFunction, pick } from 'lodash';
+import styled from 'styled-components';
+import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import projectEncryptAjax from 'src/api/projectEncrypt';
-import update from 'immutability-helper';
-import styled from 'styled-components';
-import { Dialog, FunctionWrap } from 'ming-ui';
-import { flatten, isFunction, pick, head, isEmpty, get, find, isEqual, findIndex } from 'lodash';
-import { useSheetInfo } from './hooks';
-import Header from './Header';
+import worksheetAjax from 'src/api/worksheet';
+import ErrorState from 'src/components/errorPage/errorState';
+import { navigateTo } from 'src/router/navigateTo';
+import { WHOLE_SIZE } from './config/Drag';
 import Content from './content';
-import { getPathById } from './util/widgets';
+import Header from './Header';
+import { useSheetInfo } from './hooks';
 import {
-  formatControlsData,
-  getMsgByCode,
-  scrollToVisibleRange,
-  getChildWidgetsBySection,
+  canSetAsTitle,
+  fixedBottomWidgets,
+  formatSearchConfigs,
+  genControlsByWidgets,
+  genWidgetsByControls,
+  getBoundRowByTab,
+  getCurrentRowSize,
+  getUrlPara,
+  returnMasterPage,
+} from './util';
+import {
   checkWidgetBeforeSave,
   checkWidgetErrorBeforeSave,
+  formatControlsData,
+  getChildWidgetsBySection,
+  getMsgByCode,
+  scrollToVisibleRange,
 } from './util/data';
-import {
-  getUrlPara,
-  genWidgetsByControls,
-  genControlsByWidgets,
-  returnMasterPage,
-  formatSearchConfigs,
-  getBoundRowByTab,
-  fixedBottomWidgets,
-  canSetAsTitle,
-  getCurrentRowSize,
-} from './util';
 import { resetDisplay } from './util/drag';
+import { getPathById } from './util/widgets';
 import NoTitleControlDialog from './widgetSetting/components/NoTitleControlDialog';
 import VerifyModifyDialog from './widgetSetting/components/VerifyModifyDialog';
 import { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
 import './index.less';
-import { WHOLE_SIZE } from './config/Drag';
-import ErrorState from 'src/components/errorPage/errorState';
-import { navigateTo } from 'src/router/navigateTo';
 
 const WidgetConfig = styled.div`
   height: 100%;
@@ -67,8 +67,11 @@ export default function Container(props) {
   const [queryConfigs, setQueryConfigs] = useState([]);
   // 外部门户开启状态
   const [enableState, setEnableState] = useState(false);
-  // 加密数据源
-  const [encryData, setEncryData] = useState([]);
+
+  // 缓存的各种信息
+  const [settingConfig, setConfig] = useSetState({
+    encryData: [],
+  });
   // 表单样式
   const [styleInfo, setStyle] = useState({
     activeStatus: true,
@@ -204,23 +207,9 @@ export default function Container(props) {
   };
 
   useEffect(() => {
-    setStyleInfo({ info: _.get(globalInfo, 'advancedSetting') || {} });
-    $originStyle.current = _.get(globalInfo, 'advancedSetting') || {};
-    getQueryConfigs(globalInfo && globalInfo.isWorksheetQuery);
-    if (globalInfo && globalInfo.appId) {
-      externalPortalAjax.getPortalEnableState({ appId: globalInfo.appId }).then(res => {
-        setEnableState(res.isEnable);
-      });
-    }
-    if (globalInfo && globalInfo.projectId) {
-      // 加密规则
-      projectEncryptAjax.getProjectEncryptRules({ projectId: globalInfo.projectId }).then(res => {
-        setEncryData(res.encryptRules);
-      });
-    }
-  }, [globalInfo]);
+    // 权限相关信息没返回前控制接口调用
+    if (!globalInfo || noAuth) return;
 
-  useEffect(() => {
     // 子表配置,防止激活子表掉接口冲掉临时变更
     window.subListSheetConfig = {};
     // 自定义事件集成api数据缓存
@@ -232,6 +221,7 @@ export default function Container(props) {
       .getWorksheetControls({
         worksheetId: sourceId,
         getRelationSearch: true,
+        resultType: 3,
       })
       .then(({ code, data }) => {
         if (code === 1) {
@@ -267,7 +257,22 @@ export default function Container(props) {
       .finally(() => {
         setLoading({ getLoading: false });
       });
-  }, []);
+
+    setStyleInfo({ info: _.get(globalInfo, 'advancedSetting') || {} });
+    $originStyle.current = _.get(globalInfo, 'advancedSetting') || {};
+    getQueryConfigs(globalInfo.isWorksheetQuery);
+    if (globalInfo.appId) {
+      externalPortalAjax.getPortalEnableState({ appId: globalInfo.appId }).then(res => {
+        setEnableState(res.isEnable);
+      });
+    }
+    if (globalInfo.projectId) {
+      // 加密规则
+      projectEncryptAjax.getProjectEncryptRules({ projectId: globalInfo.projectId }).then(res => {
+        setConfig({ encryData: res.encryptRules });
+      });
+    }
+  }, [globalInfo]);
 
   const saveControls = ({ actualWidgets, callback } = {}) => {
     const saveControls = genControlsByWidgets(actualWidgets || widgets);
@@ -450,7 +455,7 @@ export default function Container(props) {
     status,
     getLoading,
     queryConfigs,
-    encryData,
+    ...settingConfig,
     updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
     enableState,
@@ -503,7 +508,11 @@ export default function Container(props) {
 
   return (
     <Fragment>
-      {noAuth ? (
+      {!globalInfo ? (
+        <div className="savingMask flexCenter">
+          <LoadDiv />
+        </div>
+      ) : noAuth ? (
         <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0 }}>
           <ErrorState
             text={_l('权限不足，无法编辑')}

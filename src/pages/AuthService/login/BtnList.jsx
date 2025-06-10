@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Icon } from 'ming-ui';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
 import { getWorkWeiXinCorpInfoByApp } from './util';
 import googleIcon from './img/google.svg';
+import microsoftIcon from 'src/pages/NewPrivateDeployment/images/microsoft.png';
 
 const integrationInto = {
   1: { iconClassName: 'dingIcon', text: _l('钉钉登录') },
@@ -31,12 +32,13 @@ export default function (props) {
     ssoAppUrl,
     ssoWebUrl,
     isLark,
-    onChange = () => {},
+    onChange = () => { },
     googleSsoSet,
   } = props;
   const isCanWeixin = !isNetwork && !isMobile;
   const isCanQQ = !isNetwork;
   const canChangeSysOrLDAP = openLDAP && isOpenSystemLogin && isNetwork;
+  const isWeiXin = window.isWeiXin && !window.isWxWork && !md.global.Config.IsLocal;
   //ldap || 平台
   const renderSysOrLDAPBtn = () => {
     const hasIcon = modeType === 1 && ldapIcon;
@@ -87,12 +89,10 @@ export default function (props) {
           if (_.includes([1, 6], projectIntergrationType)) {
             location.href =
               projectIntergrationType === 1
-                ? `${
-                    md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                  }auth/dingding?p=${projectId}`
-                : `${
-                    md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                  }auth/feishu?p=${projectId}`;
+                ? `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                }auth/dingding?p=${projectId}`
+                : `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                }auth/feishu?p=${projectId}`;
           } else {
             const request = getRequest();
             getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
@@ -107,10 +107,12 @@ export default function (props) {
       </a>
     );
   };
+
   return (
     <React.Fragment>
       {/* 手机号邮箱时 可切换验证方式 */}
-      {modeType === 1 && isOpenSystemLogin &&
+      {modeType === 1 &&
+        isOpenSystemLogin &&
         (!md.global.Config.IsLocal ||
           (md.global.Config.IsLocal && md.global.SysSettings.enableVerificationCodeLogin)) && (
           <div
@@ -137,11 +139,16 @@ export default function (props) {
           {canChangeSysOrLDAP && renderSysOrLDAPBtn(modeType === 1 && ldapIcon)}
           {isOpenSso && renderSsoBtn()}
           {intergrationScanEnabled && renderIntegrationBtn()}
-          {isCanWeixin && (
-            <a href="//tp.mingdao.com/weixin/authRequest">
-              <i className="weixinIcon mRight8" /> {_l('微信登录')}
-            </a>
-          )}
+          {isCanWeixin &&
+            (isWeiXin ? (
+              <a href="weixin://dl/business/?appid=wx83ed6195301ec2d8&path=pages/login/index">
+                <i className="weixinIcon mRight8" /> {_l('小程序登录')}
+              </a>
+            ) : (
+              <a href="//tp.mingdao.com/weixin/authRequest">
+                <i className="weixinIcon mRight8" /> {_l('微信登录')}
+              </a>
+            ))}
           {isCanQQ && (
             <a href="//tp.mingdao.com/qq/authRequest">
               <i className="personalQQIcon mRight8" /> {_l('QQ登录')}
@@ -155,6 +162,11 @@ export default function (props) {
                     <React.Fragment>
                       <img src={googleIcon} width="20px" className="mRight8" />
                       {_l('Google登录')}
+                    </React.Fragment>
+                  ) : o.tpType === 14 ? (
+                    <React.Fragment>
+                      <img src={microsoftIcon} width="20px" className="mRight8" />
+                      {_l('Microsoft登录')}
                     </React.Fragment>
                   ) : o.tpType === 2 ? (
                     <React.Fragment>

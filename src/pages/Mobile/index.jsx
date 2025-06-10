@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Route, BrowserRouter as Router, Switch, withRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch, withRouter } from 'react-router-dom';
 import { Dialog, Modal } from 'antd-mobile';
-import { navigateTo } from 'src/router/navigateTo';
-import DeclareConfirm from './components/DeclareConfirm';
-import preall from 'src/common/preall';
-import genRouteComponent from 'src/router/genRouteComponent';
-import store from 'src/redux/configureStore';
-import { socketInit } from 'src/socket/mobileSocketInit';
-import { ROUTE_CONFIG, PORTAL } from './config';
-import { getRequest } from 'src/util';
-import './index.less';
 import _ from 'lodash';
+import preall from 'src/common/preall';
 import { formatPortalHref } from 'src/pages/Portal/util';
+import store from 'src/redux/configureStore';
+import genRouteComponent from 'src/router/genRouteComponent';
+import { navigateTo } from 'src/router/navigateTo';
+import { socketInit } from 'src/socket/mobileSocketInit';
+import { getRequest } from 'src/utils/common';
+import DeclareConfirm from './components/DeclareConfirm';
+import { PORTAL, ROUTE_CONFIG } from './config';
+import './index.less';
 
 @preall
 @withRouter

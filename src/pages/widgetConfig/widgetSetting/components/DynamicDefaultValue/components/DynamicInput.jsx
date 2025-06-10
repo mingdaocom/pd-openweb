@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { DynamicInputStyle } from '../styled';
 import { Tooltip } from 'ming-ui';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { getAdvanceSetting } from 'src/util/index.js';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import { DynamicInputStyle } from '../styled';
 
 const ICON_TYPES = [
   { key: 'dynamicsrc', icon: 'icon-lookup', text: _l('查询工作表') },

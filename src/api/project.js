@@ -35,6 +35,8 @@ export default {
 非必选
   * @param {integer} args.industryId 组织所属行业
 非必选
+  * @param {string} args.geoCountryRegionCode (地理位置)国家地区-编码
+  * @param {string} args.timeZone 时区
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -143,6 +145,32 @@ export default {
    getProjectLogOff: function (args, options = {}) {
      
      return mdyAPI('Project', 'GetProjectLogOff', args, options);
+   },
+  /**
+  * 关闭组织
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.reason 原因
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   closeProject: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'CloseProject', args, options);
+   },
+  /**
+  * 恢复组织
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.reason 原因
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   recoverProject: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'RecoverProject', args, options);
    },
   /**
   * 申请注销

@@ -1,10 +1,10 @@
-import React, { Fragment, Component } from 'react';
-import discussionAjax from 'src/api/discussion';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
-import DiscussInfo from 'mobile/Discuss';
-import { handlePushState, compatibleMDJS } from 'src/util';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import discussionAjax from 'src/api/discussion';
+import DiscussInfo from 'mobile/Discuss';
+import { compatibleMDJS, handlePushState } from 'src/utils/project';
 
 const ChartCountWrap = styled.div`
   padding: 0 10px;

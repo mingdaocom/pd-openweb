@@ -2,10 +2,11 @@ import React, { Component, Fragment } from 'react';
 import { Dialog, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { browserIsMobile, compatibleMDJS } from 'src/util';
+import { Icon } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
 import { bindFeishu, bindWeiXin, bindWxWork, handleTriggerEvent } from '../tools/authentication';
 
 const ErrorWrap = styled.div`
@@ -102,7 +103,7 @@ export default class Widgets extends Component {
       Html5QrcodeSupportedFormats.ITF,
       Html5QrcodeSupportedFormats.RSS_14,
       Html5QrcodeSupportedFormats.RSS_EXPANDED,
-      Html5QrcodeSupportedFormats.DATA_MATRIX
+      Html5QrcodeSupportedFormats.DATA_MATRIX,
     ];
 
     if (scantype === '0') {
@@ -154,12 +155,13 @@ export default class Widgets extends Component {
     }
   };
   handleScanCode = () => {
-    const { projectId, control } = this.props;
+    const { projectId, control = {} } = this.props;
 
     compatibleMDJS(
       'scanQRCode',
       {
         control,
+        keepScan: control.enumDefault === 2,
         success: res => {
           this.props.onScanQRCodeResult(res.resultStr);
         },

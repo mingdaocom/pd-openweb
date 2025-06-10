@@ -1,14 +1,14 @@
-import PropTypes from 'prop-types';
 import React, { cloneElement, Component } from 'react';
+import { HexAlphaColorPicker, HexColorInput, RgbaColorPicker } from 'react-colorful';
+import { generate } from '@ant-design/colors';
+import { InputNumber } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Dropdown } from 'ming-ui';
-import { InputNumber } from 'antd';
-import { generate } from '@ant-design/colors';
-import { HexAlphaColorPicker, RgbaColorPicker, HexColorInput } from 'react-colorful';
 import '../less/ColorPicker.less';
 
 const TYPES = ['HEX', 'RGB'];

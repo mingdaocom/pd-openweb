@@ -1,9 +1,9 @@
 import React from 'react';
-import user from 'src/api/user';
 import ScrollView from 'ming-ui/components/ScrollView';
-import UserProfile from './components/Profile';
 import { addFriendConfirm } from 'ming-ui/functions';
-import { getAppFeaturesVisible } from 'src/util';
+import user from 'src/api/user';
+import { getAppFeaturesVisible } from 'src/utils/app';
+import UserProfile from './components/Profile';
 
 export default class UserEntryPoint extends React.PureComponent {
   state = {
@@ -87,7 +87,7 @@ export default class UserEntryPoint extends React.PureComponent {
     return (
       <ScrollView>
         <div className="mainUserProfile relative mTop18">
-          {userInfo && <UserProfile {...this.state} getAccountId={() => this.getAccountId()}/>}
+          {userInfo && <UserProfile {...this.state} getAccountId={() => this.getAccountId()} />}
           {isFriend && (
             <div className="card noticeContainer">
               <div>

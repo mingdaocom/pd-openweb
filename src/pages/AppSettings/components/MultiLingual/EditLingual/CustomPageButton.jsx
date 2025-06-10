@@ -1,11 +1,11 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Input } from 'antd';
 import cx from 'classnames';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Input } from 'antd';
-import EditInput from './EditInput';
 import customApi from 'statistics/api/custom';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 export default function CustomPageButton(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -15,13 +15,15 @@ export default function CustomPageButton(props) {
 
   useEffect(() => {
     setLoading(true);
-    customApi.getPage({
-      appId: selectNode.workSheetId
-    }).then(data => {
-      const { components } = data;
-      setLoading(false);
-      setList(components.filter(c => c.type === 4));
-    });
+    customApi
+      .getPage({
+        appId: selectNode.workSheetId,
+      })
+      .then(data => {
+        const { components } = data;
+        setLoading(false);
+        setList(components.filter(c => c.type === 4));
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -33,22 +35,20 @@ export default function CustomPageButton(props) {
   }
 
   if (!list.length) {
-    return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">
-        {_l('没有按钮')}
-      </div>
-    );
+    return <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有按钮')}</div>;
   }
 
   const handlePositionReport = item => {
     const el = document.querySelector(`.navItem-${item.id}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.itemName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const renderNav = (item, index) => {
     return (
@@ -76,8 +76,8 @@ export default function CustomPageButton(props) {
         type: LANG_DATA_TYPE.customePageButton,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -88,7 +88,11 @@ export default function CustomPageButton(props) {
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('卡片说明')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.description : button.explain} disabled={true} />
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.description : button.explain}
+            disabled={true}
+          />
           <EditInput
             className="flex"
             value={translateInfo.description}
@@ -98,18 +102,22 @@ export default function CustomPageButton(props) {
         {item.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('标题行')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.title : item.title} disabled={true} />
-            <EditInput
-              className="flex"
-              value={translateInfo.title}
-              onChange={value => handleSave({ title: value })}
+            <Input
+              className="flex mRight20"
+              value={comparisonLangId ? comparisonLangInfo.title : item.title}
+              disabled={true}
             />
+            <EditInput className="flex" value={translateInfo.title} onChange={value => handleSave({ title: value })} />
           </div>
         )}
         {item.mobile.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('移动端标题行')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.mobileTitle : item.mobile.title} disabled={true} />
+            <Input
+              className="flex mRight20"
+              value={comparisonLangId ? comparisonLangInfo.mobileTitle : item.mobile.title}
+              disabled={true}
+            />
             <EditInput
               className="flex"
               value={translateInfo.mobileTitle}
@@ -122,7 +130,11 @@ export default function CustomPageButton(props) {
           <div className="flex">
             {button.buttonList.map(item => (
               <div className="flexRow alignItemsCenter mBottom15" key={item.id}>
-                <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo[item.id] : item.name} disabled={true} />
+                <Input
+                  className="flex mRight20"
+                  value={comparisonLangId ? comparisonLangInfo[item.id] : item.name}
+                  disabled={true}
+                />
                 <EditInput
                   className="flex"
                   value={translateInfo[item.id]}
@@ -134,23 +146,15 @@ export default function CustomPageButton(props) {
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <div className="flexRow pAll10 h100">
       <div className="nav flexColumn">
-        <ScrollView className="flex">
-          {list.map((item, index) => (
-            renderNav(item, index + 1)
-          ))}
-        </ScrollView>
+        <ScrollView className="flex">{list.map((item, index) => renderNav(item, index + 1))}</ScrollView>
       </div>
       <ScrollView className="flex" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {list.map((item, index) => (
-            renderContent(item, index + 1)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{list.map((item, index) => renderContent(item, index + 1))}</div>
       </ScrollView>
     </div>
   );

@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Select, Checkbox, Modal, ConfigProvider, Button } from 'antd';
-import { formatNumberFromInput } from 'src/util';
-import { Icon, ColorPicker } from 'ming-ui';
+import { Button, Checkbox, ConfigProvider, Input, Modal, Select } from 'antd';
 import cx from 'classnames';
+import { ColorPicker, Icon } from 'ming-ui';
+import { formatNumberFromInput } from 'src/utils/control';
 
 export default class DataBarColor extends Component {
   constructor(props) {
@@ -14,8 +14,8 @@ export default class DataBarColor extends Component {
       negativeNumberColor: '#fe423f',
       axisColor: '#151515',
       direction: 1,
-      onlyShowBar: false
-    }
+      onlyShowBar: false,
+    };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible) {
@@ -32,18 +32,15 @@ export default class DataBarColor extends Component {
       negativeNumberColor,
       axisColor,
       direction,
-      onlyShowBar
+      onlyShowBar,
     });
-  }
+  };
   renderRuleColorFooter() {
     const { onCancel } = this.props;
     return (
       <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={onCancel}
-          >
+          <Button type="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button type="primary" onClick={this.handleSave}>
@@ -54,7 +51,7 @@ export default class DataBarColor extends Component {
     );
   }
   renderContent() {
-    const { min, max, positiveNumberColor, negativeNumberColor, axisColor, direction, onlyShowBar } = this.state; 
+    const { min, max, positiveNumberColor, negativeNumberColor, axisColor, direction, onlyShowBar } = this.state;
     return (
       <Fragment>
         <div className="flexRow dataBarColorContent">
@@ -64,7 +61,7 @@ export default class DataBarColor extends Component {
               value={min}
               className="chartInput mRight10"
               placeholder={_l('最小值')}
-              onChange={(e) => {
+              onChange={e => {
                 const value = formatNumberFromInput(event.target.value);
                 this.setState({ min: value ? value : undefined });
               }}
@@ -101,7 +98,7 @@ export default class DataBarColor extends Component {
             <div className="mTop12">
               <Checkbox
                 checked={onlyShowBar}
-                onChange={(e) => {
+                onChange={e => {
                   this.setState({ onlyShowBar: e.target.checked });
                 }}
               >
@@ -115,7 +112,7 @@ export default class DataBarColor extends Component {
               value={max}
               className="chartInput mRight10"
               placeholder={_l('最大值')}
-              onChange={(e) => {
+              onChange={e => {
                 const value = formatNumberFromInput(event.target.value);
                 this.setState({ max: value ? value : undefined });
               }}
@@ -129,12 +126,16 @@ export default class DataBarColor extends Component {
               className="chartSelect mRight10"
               value={direction}
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-              onChange={(type) => {
+              onChange={type => {
                 this.setState({ direction: type });
               }}
             >
-              <Select.Option className="selectOptionWrapper" value={1}>{_l('从左到右')}</Select.Option>
-              <Select.Option className="selectOptionWrapper" value={2}>{_l('从右到左')}</Select.Option>
+              <Select.Option className="selectOptionWrapper" value={1}>
+                {_l('从左到右')}
+              </Select.Option>
+              <Select.Option className="selectOptionWrapper" value={2}>
+                {_l('从右到左')}
+              </Select.Option>
             </Select>
             <div className="mTop12 mBottom8">{_l('轴')}</div>
             <ColorPicker

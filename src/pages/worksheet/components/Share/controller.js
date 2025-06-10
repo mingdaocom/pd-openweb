@@ -1,9 +1,8 @@
-import worksheetAjax from 'src/api/worksheet';
-import { getNewRecordPageUrl } from 'worksheet/util';
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import appManagementAjax from 'src/api/appManagement';
-import { getRecordLandUrl } from 'worksheet/util';
 import _ from 'lodash';
+import appManagementAjax from 'src/api/appManagement';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import worksheetAjax from 'src/api/worksheet';
+import { getNewRecordPageUrl, getRecordLandUrl } from 'src/utils/record';
 
 /**
  * 记录详情 recordInfo [ok]

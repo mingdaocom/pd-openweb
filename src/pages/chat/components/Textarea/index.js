@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import './index.less';
 import Textarea from 'ming-ui/components/Textarea';
+import { getCaretPosition, setCaretPosition } from 'src/utils/common';
 import * as utils from '../../utils/';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
-import { getCaretPosition, setCaretPosition } from 'src/util';
+import './index.less';
 
 export default class TextareaBox extends Component {
   constructor(props) {
@@ -28,7 +28,8 @@ export default class TextareaBox extends Component {
     if (event.which === 13) {
       const { value } = this.state;
       const isSendMsg =
-        (config.inputMode === Constant.INPUT_MODE_ENTER && !event.ctrlKey) || (config.inputMode === Constant.INPUT_MODE_CTRLENTER && event.ctrlKey);
+        (config.inputMode === Constant.INPUT_MODE_ENTER && !event.ctrlKey) ||
+        (config.inputMode === Constant.INPUT_MODE_CTRLENTER && event.ctrlKey);
       const isEnter = config.inputMode === Constant.INPUT_MODE_ENTER;
 
       if (isSendMsg) {
@@ -91,7 +92,7 @@ export default class TextareaBox extends Component {
     return (
       <div
         className="ChatPanel-MessageRefer"
-        ref={(messageRefer) => {
+        ref={messageRefer => {
           this.messageRefer = messageRefer;
         }}
       >
@@ -108,7 +109,7 @@ export default class TextareaBox extends Component {
     return (
       <div
         className="ChatPanel-Textarea inputWrapper"
-        ref={(textareaWrapper) => {
+        ref={textareaWrapper => {
           this.textareaWrapper = textareaWrapper;
         }}
       >

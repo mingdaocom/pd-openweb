@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { captcha } from 'ming-ui/functions';
 import accountAjax from 'src/api/account';
-import { encrypt } from 'src/util';
+import { encrypt } from 'src/utils/common';
 
 /**
  * 验证登录密码

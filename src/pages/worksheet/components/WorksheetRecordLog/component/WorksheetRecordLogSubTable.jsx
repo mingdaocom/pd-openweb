@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Table, ConfigProvider, Empty } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { ConfigProvider, Empty, Table } from 'antd';
 import _ from 'lodash';
 import { ScrollView } from 'ming-ui';
-import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
-import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
-import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum';
 import sheetAjax from 'src/api/worksheet';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { renderText } from 'src/utils/control';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum';
 import { getDepartmentName } from '../util';
+import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
 import '../WorksheetRecordLogValue.less';
 
 function MaskCell(props) {
@@ -31,6 +31,7 @@ function MaskCell(props) {
 function WorksheetRecordLogSubTable(props) {
   const { control, prop, recordInfo, extendParam } = props;
   const { showControls } = control;
+  const cache = useRef({});
   const [loading, setLoading] = useState(false);
   const [columns, setColumns] = useState([]);
   const [data, setData] = useState([]);
@@ -73,10 +74,11 @@ function WorksheetRecordLogSubTable(props) {
         let remove = _.differenceBy(oldList, newList, 'rowid').map(l => {
           return { ...l, type: 'remove' };
         });
-        let _data = data.concat(_.sortBy(defaultList.concat(add, remove), ['ctime']));
+        let _data = (cache.current.data || []).concat(_.sortBy(defaultList.concat(add, remove), ['ctime']));
         setData(_data);
+        cache.current.data = _data;
         if (res.flag) setLoadEnd(true);
-        if (!res.flag && _data.length < 10) {
+        if (!res.flag && _data.length < 30) {
           getData({ pageIndex: _pageIndex + 1, log: param ? param.log : log });
         }
       });
@@ -225,8 +227,8 @@ function WorksheetRecordLogSubTable(props) {
                 editRowType === 'add'
                   ? 'newBackground'
                   : editRowType === 'remove'
-                  ? 'oldBackground'
-                  : 'defaultBackground'
+                    ? 'oldBackground'
+                    : 'defaultBackground'
               }`}
             >
               {cell.dataSource === info.worksheetId

@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import './portalSort.less';
-import styled from 'styled-components';
-import { Icon, Dropdown, Checkbox, SortableList } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { DEFAULT_DATA, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { v4 as uuidv4, validate as validateUUID } from 'uuid';
+import { Checkbox, Dropdown, Icon, SortableList, UpgradeIcon } from 'ming-ui';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { DEFAULT_CONFIG, DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import PortalSettingDialog from 'src/pages/widgetConfig/widgetSetting/components/PortalSettingDialog';
-import _ from 'lodash';
+import ConfigRelate from 'src/pages/widgetConfig/widgetSetting/components/relateSheet/ConfigRelate.jsx';
+import { handleAdvancedSettingChange } from 'src/utils/control';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import SelectExDrop from './SelectExDrop';
+import './portalSort.less';
 
 const filterAlias = ['mobilephone', 'avatar', 'roleid', 'status', 'firstLoginTime', 'openid', 'portal_email'];
 const Wrap = styled.div`
@@ -80,6 +87,7 @@ const WIDGETS_TO_API_TYPE = [
   // 'AREA_CITY',
   'AREA_COUNTY',
   'SWITCH',
+  'RELATE_SHEET',
 ].filter(key => !hideWorksheetControl.includes(key));
 export const WIDGETS_TO_API_TYPE_ENUM_N = {
   2: 'TEXT',
@@ -98,6 +106,7 @@ export const WIDGETS_TO_API_TYPE_ENUM_N = {
   23: 'AREA_CITY',
   24: 'AREA_COUNTY',
   36: 'SWITCH',
+  29: 'RELATE_SHEET',
 };
 const initData = (enumType, type, controlId) => {
   const tempDefault = {
@@ -114,8 +123,20 @@ const initData = (enumType, type, controlId) => {
 };
 
 const Item = props => {
-  let { type, showEditDialog, deleteBtn, onChange, required, fieldPermission = '111', controlId, DragHandle } = props;
+  let {
+    type,
+    showEditDialog,
+    deleteBtn,
+    onChange,
+    required,
+    fieldPermission = '111',
+    controlId,
+    DragHandle,
+    appId,
+    projectId,
+  } = props;
   const [controlName, setControlName] = useState(props.controlName);
+  const [{ showCreateRelateControlId }, setState] = useSetState({ showCreateRelateControlId: '' });
   useEffect(() => {
     setControlName(props.controlName);
   }, [props.controlName]);
@@ -136,6 +157,9 @@ const Item = props => {
           })}
           className="InlineBlock controlN"
           onChange={newValue => {
+            if (newValue === 'RELATE_SHEET') {
+              setState({ showCreateRelateControlId: controlId });
+            }
             onChange(initData(newValue, null, controlId));
           }}
           placeholder={_l('类型')}
@@ -191,21 +215,48 @@ const Item = props => {
           deleteBtn(controlId);
         }}
       />
+      {!!showCreateRelateControlId && (
+        <ConfigRelate
+          allControls={[]}
+          fromPortal={true}
+          globalSheetInfo={{ appId, projectId }}
+          onOk={({ sheetId, control, sheetName }) => {
+            let para = handleAdvancedSettingChange(
+              {
+                ...initData('RELATE_SHEET', null, showCreateRelateControlId),
+                dataSource: sheetId,
+              },
+              { showtype: '1' },
+            );
+            para = sheetName ? { ...para, controlName: sheetName } : para;
+            onChange(para);
+            setState({ showCreateRelateControlId: '' });
+            const relateTimer = setTimeout(() => {
+              showEditDialog(para.controlId, para.type);
+              clearTimeout(relateTimer);
+            }, 200);
+          }}
+          deleteWidget={() => {
+            deleteBtn(controlId);
+            setState({ showCreateRelateControlId: '' });
+          }}
+        />
+      )}
     </WrapSorh>
   );
 };
 
 export default function InfoSet(props) {
-  const { portal = {}, appId } = props;
+  const { portal = {}, appId, onChangePortalSetModel = () => {} } = props;
   let { portalSet = {}, onChangePortalSet } = props;
   let { controlTemplate = {} } = portalSet;
   const { groupId, name, projectId, worksheetId } = portal.baseInfo || {};
-  const [show, setShow] = useState(false);
+  const [showId, setShowId] = useState(false);
   const [controls, setControls] = useState([]);
   const [controlsFilter, setControlsFilter] = useState([]);
-  const [currentControl, setCurrenControl] = useState({});
   const [allControl, setAllControl] = useState([]);
   const [hs, setHs] = useState(false);
+
   useEffect(() => {
     let { controlTemplate = {} } = portalSet;
     let { controls = [] } = controlTemplate;
@@ -217,6 +268,7 @@ export default function InfoSet(props) {
     );
     setControlsFilter(controls.length > 0 ? controls.filter(o => filterAlias.includes(o.alias)) : []);
     setAllControl(controls || []);
+    window.subListSheetConfig = {};
   }, []);
   useEffect(() => {
     if (controls.length <= 0) {
@@ -356,6 +408,8 @@ export default function InfoSet(props) {
               <Item
                 {...options}
                 {...options.item}
+                appId={appId}
+                projectId={projectId}
                 onChange={control => {
                   setHs(true);
                   setControls(
@@ -368,8 +422,7 @@ export default function InfoSet(props) {
                   );
                 }}
                 showEditDialog={(controlId, type) => {
-                  setCurrenControl(controls.find(o => o.controlId === controlId));
-                  setShow(true);
+                  setShowId(controlId);
                 }}
                 deleteBtn={controlId => {
                   setHs(true);
@@ -382,6 +435,10 @@ export default function InfoSet(props) {
       </React.Fragment>
     );
   };
+
+  const FEATURE_STATUS = getFeatureStatus(projectId, VersionProductType.userExtensionInformation);
+  const FEATURE_STATUS_DISABLED = FEATURE_STATUS === '2';
+
   return (
     <Wrap>
       <div className="content">
@@ -409,15 +466,39 @@ export default function InfoSet(props) {
           <i className="icon icon-add Font18 mRight5 TxtMiddle InlineBlock" />
           <span className="Bold TxtMiddle InlineBlock">{_l('添加字段')}</span>
         </div>
+        {controls.length > 0 && (
+          <React.Fragment>
+            <div className="mTop30 Font16 Bold">
+              {_l('作为权限标签的扩展信息字段')} {FEATURE_STATUS_DISABLED && <UpgradeIcon />}
+            </div>
+            <div className="mTop15 Gray_9e">
+              {_l(
+                '选择用户扩展信息作为用户权限标签字段（仅支持关联记录字段），可启用的字段上限为3个，每个标签字段的有限值上限为1000个，超过时默认取前1000个，当其他工作表记录也关联了此标签字段时，可以在角色权限、或筛选器中过滤出当前用户对应的标签记录。',
+              )}
+            </div>
+            <SelectExDrop
+              disabled={FEATURE_STATUS_DISABLED}
+              key={JSON.stringify(controls)}
+              values={_.get(props, 'portalSet.portalSetModel.extendAttr')}
+              controls={controls.filter(o => o.type === 29 && !validateUUID(o.controlId))}
+              onChange={extendAttr => {
+                if (FEATURE_STATUS_DISABLED) {
+                  return buriedUpgradeVersionDialog(projectId, VersionProductType.userExtensionInformation);
+                }
+                setHs(true);
+                onChangePortalSetModel({ extendAttr });
+              }}
+            />
+          </React.Fragment>
+        )}
       </div>
-      {show && (
+      {showId && (
         <PortalSettingDialog
           onClose={() => {
-            setShow(false);
-            setCurrenControl({});
+            setShowId('');
           }}
           onOk={control => {
-            setShow(false);
+            setShowId('');
             setHs(true);
             setControls(
               controls.map(o => {
@@ -436,7 +517,8 @@ export default function InfoSet(props) {
             projectId,
             worksheetId,
           }}
-          data={currentControl}
+          data={controls.find(c => c.controlId === showId)}
+          allControls={controls}
           from="portal"
         />
       )}

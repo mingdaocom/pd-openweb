@@ -1,7 +1,7 @@
 import { get, pick } from 'lodash';
 import codeAjax from 'src/api/code';
-import { Text, Date, MultipleSelect, Number, SingleSelect, Time, RelateRecord } from './examples';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
+import { Date, MultipleSelect, Number, RelateRecord, SingleSelect, Text, Time } from './examples';
 
 export const getEnvControls = (reference, allControls) => {
   return reference
@@ -49,9 +49,10 @@ export const generateParamsForPrompt = ({ envControls, isRefValue, control } = {
   \`\`\`
   </response>
 </example>`;
-  if (!get(md, 'global.Account.lang', '').toLowerCase().startsWith('zh')) {
+  if (!get(md, 'global.Account.lang', '').toLowerCase() !== 'zh-hans') {
     defaultControlDataFormat += `
 <response_lang>
+# RULES
 please return as language ${get(md, 'global.Account.lang')}
 </response_lang>
 `;

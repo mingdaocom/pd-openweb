@@ -9,7 +9,7 @@ import { isNumberControl } from 'statistics/common';
 
 export default function pivotTableCountPanelGenerator(props) {
   const { currentReport, onChangeStyle, changeCurrentReport, themeColor, customPageConfig, ...collapseProps } = props;
-  const { style, pivotTable = {}, yaxisList = [] } = currentReport;
+  const { style, pivotTable = {}, yaxisList = [], displaySetup } = currentReport;
 
   const handleChangeLineSummary = (data, isRequest = true) => {
     changeCurrentReport(
@@ -118,7 +118,7 @@ export default function pivotTableCountPanelGenerator(props) {
     const { lines } = pivotTable;
     const switchChecked = !!lines.slice(1, lines.length).filter(n => n.subTotal).length;
 
-    if (lines.length <= 1) {
+    if (lines.length <= 1 || !displaySetup.mergeCell) {
       return null;
     }
 
@@ -142,14 +142,7 @@ export default function pivotTableCountPanelGenerator(props) {
                 }
               };
               const newLines = lines.map((n, index) => {
-                if (index) {
-                  return {
-                    ...n,
-                    subTotal: checked
-                  }
-                } else {
-                  return n;
-                }
+                return index ? { ...n, subTotal: checked } : n;
               });
               if (!newLines.filter(n => n.subTotal).length) {
                 param.yaxisList = yaxisList.map(n => {

@@ -1,14 +1,14 @@
 import React from 'react';
-import { getFormData } from '../util';
-import getPrintContent from '../getPrintContent';
-import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
-import STYLE_PRINT from './exportWordPrintTemCssString';
-import RegExpValidator from 'src/util/expression';
-import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import DragMask from 'worksheet/common/DragMask';
 import { v4 as uuidv4 } from 'uuid';
-import { emitter } from 'worksheet/util';
+import DragMask from 'worksheet/common/DragMask';
+import BaseColumnHead from 'worksheet/components/BaseColumnHead';
+import { emitter } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { DEFAULT_FONT_SIZE } from '../config';
+import getPrintContent from '../getPrintContent';
+import { getFormData } from '../util';
+import STYLE_PRINT from './exportWordPrintTemCssString';
 
 let minPictureW = 169;
 let minW = 33;
@@ -59,6 +59,7 @@ export default class TableRelation extends React.Component {
       printData,
       dataSource,
       controls,
+      allControls,
       orderNumberCheck,
       id,
       isShowFn,
@@ -107,6 +108,7 @@ export default class TableRelation extends React.Component {
               showData: showData,
               noUnit: true,
               controls: getFormData(controls, o),
+              allControls: getFormData(allControls, o),
             }),
             true,
           )
@@ -129,10 +131,10 @@ export default class TableRelation extends React.Component {
             ? Math.max(this.curStylesW(it.controlId), minPictureW)
             : this.curStylesW(it.controlId)
           : isPicture
-          ? controlsList.length === 1
-            ? 678
-            : minPictureW
-          : w;
+            ? controlsList.length === 1
+              ? 678
+              : minPictureW
+            : w;
         //不显示分割线
         sumWidth += width;
         list.push({
@@ -163,6 +165,7 @@ export default class TableRelation extends React.Component {
               user_info,
               dataSource: it.type === 47 ? it.dataSource : id,
               controls: getFormData(controls, record),
+              allControls: getFormData(allControls, record),
             });
           },
         });

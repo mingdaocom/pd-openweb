@@ -1,19 +1,20 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
-import { Icon } from 'ming-ui';
-import { validate } from './utils';
-import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/utils';
-import './index.less';
+import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/utils';
+import * as actions from 'mobile/RecordList/redux/actions';
+import { validate } from './utils';
+import './index.less';
 
 const SearchRowsWrapper = styled.div`
   background-color: #fff;
   border-radius: 24px;
-  padding: 7px 10px;
+  padding: 2px 3px 2px 10px;
   .cuttingLine {
     height: 16px;
     width: 1px;
@@ -25,6 +26,14 @@ const SearchRowsWrapper = styled.div`
   }
   form {
     padding: 0 5px;
+  }
+  .caseSensitive {
+    width: 32px;
+    height: 32px;
+    margin-left: 6px;
+    background: #f2f2f3;
+    text-align: center;
+    border-radius: 50%;
   }
 `;
 
@@ -46,7 +55,7 @@ class Search extends Component {
     };
   }
   componentWillUnmount() {
-    this.props.updateFilters({ keyWords: '', quickFilterKeyWords: '' });
+    this.props.updateFilters({ keyWords: '', quickFilterKeyWords: '', requestParams: {} });
   }
   handleVisibleChange = () => {
     const { visible } = this.state;
@@ -105,7 +114,8 @@ class Search extends Component {
   render() {
     const { filterIndex } = this.state;
     const { updateFilters, updateQuickFilter, filters, sheetView, textFilters, viewType } = this.props;
-    const searchVlaue = textFilters.length ? filters.quickFilterKeyWords : filters.keyWords;
+    const searchValue = textFilters.length ? filters.quickFilterKeyWords : filters.keyWords;
+    const { ignorecase } = filters.requestParams || {};
     return (
       <SearchRowsWrapper className="search flex flexRow valignWrapper">
         {!_.isEmpty(textFilters) && (
@@ -143,7 +153,7 @@ class Search extends Component {
               type="search"
               className="pAll0 Border0 w100"
               placeholder={_.includes([1, 7], viewType) ? _l('搜索') : _l('搜索共%0条', sheetView.count)}
-              value={searchVlaue}
+              value={searchValue}
               onChange={e => {
                 const { value } = e.target;
                 if (textFilters.length) {
@@ -162,9 +172,10 @@ class Search extends Component {
               }}
             />
           </form>
-          {searchVlaue && (
+
+          {searchValue && (
             <Icon
-              className="Gray_bd"
+              className="Gray_bd Font16"
               icon="workflow_cancel"
               onClick={() => {
                 if (textFilters.length) {
@@ -177,6 +188,25 @@ class Search extends Component {
               }}
             />
           )}
+          <div
+            className="caseSensitive"
+            onClick={() => {
+              const newIgnorecase = ignorecase === '0' ? '1' : '0';
+              updateFilters({ requestParams: { ignorecase: newIgnorecase } });
+              if (newIgnorecase === '0') {
+                alert(_l('已开启区分大小写'));
+              }
+              this.handleSearch();
+            }}
+          >
+            <Icon
+              icon="case"
+              className={cx('LineHeight32 Font24', {
+                Gray_75: !ignorecase || ignorecase === '1',
+                ThemeColor: ignorecase === '0',
+              })}
+            />
+          </div>
         </div>
       </SearchRowsWrapper>
     );

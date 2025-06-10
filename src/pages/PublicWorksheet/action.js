@@ -7,20 +7,20 @@ import globalApi from 'src/api/global';
 import loginApi from 'src/api/login';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
-import {
-  replaceAdvancedSettingTranslateInfo,
-  replaceControlsTranslateInfo,
-  replaceRulesTranslateInfo,
-} from 'worksheet/util';
 import preall from 'src/common/preall';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { themes } from 'src/pages/publicWorksheetConfig/enum';
 import { getDisabledControls, overridePos } from 'src/pages/publicWorksheetConfig/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { browserIsMobile, getRequest } from 'src/util';
-import { getTranslateInfo, shareGetAppLangDetail } from 'src/util';
-import { setPssId } from 'src/util/pssId';
-import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
+import { browserIsMobile, getRequest } from 'src/utils/common';
+import { formatAttachmentValue } from 'src/utils/control';
+import { setPssId } from 'src/utils/pssId';
+import {
+  replaceAdvancedSettingTranslateInfo,
+  replaceControlsTranslateInfo,
+  replaceRulesTranslateInfo,
+} from 'src/utils/translate';
 import { WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
 import { isSheetDisplay } from '../widgetConfig/util';
 import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';

@@ -101,7 +101,7 @@ var instanceVersion = {
    * 中止执行批量
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestStartProcess} {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*request
+   * @param {RequestStartProcess} {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),filtersGroup:自定义页面筛选组(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -194,7 +194,7 @@ var instanceVersion = {
    * 执行历史重试批量
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestStartProcess} {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*request
+   * @param {RequestStartProcess} {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),filtersGroup:自定义页面筛选组(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

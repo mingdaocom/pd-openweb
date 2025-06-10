@@ -10,11 +10,8 @@ import { getTabTypeBySelectUser, getUserValue } from '../../tools/utils';
 
 const UserItemBox = styled.div`
   position: relative;
-  display: flex !important;
-  align-items: center;
   max-width: 100%;
   padding-left: ${props => props.userHeadSize + 8}px !important;
-  ${props => props.isUnique && 'background: initial !important;'}
 
   .userHead {
     position: absolute;
@@ -51,7 +48,7 @@ function UserSelect(props) {
   const {
     state: { emSizeNum },
   } = useFormStore();
-  const userHeadSize = emSizeNum * 1.5 + 4;
+  const userHeadSize = emSizeNum * 1.5 + 6;
   const selectUsers = getUserValue(value);
   const filterAccountIds = _.map(selectUsers, 'accountId');
   const [showSelectUser, setShowSelectUser] = useState(false);
@@ -125,7 +122,7 @@ function UserSelect(props) {
 
   const renderItem = item => {
     return (
-      <UserItemBox key={item.accountId} isUnique={isUnique} userHeadSize={userHeadSize} className="customFormCapsule">
+      <UserItemBox key={item.accountId} userHeadSize={userHeadSize} className="customFormCapsule">
         <img className="userHead" src={item.avatar} />
         <div className="userName">{item.name || item.fullname || item.fullName}</div>
 
@@ -148,7 +145,7 @@ function UserSelect(props) {
       {isUnique ? (
         <div className="flexRow alignItemsCenter" style={{ width: '100%' }}>
           {!_.isEmpty(selectUsers) ? (
-            <div className="flex ellipsis">{renderItem(selectUsers[0])}</div>
+            <div className="flexRow alignItemsCenter flex ellipsis">{renderItem(selectUsers[0])}</div>
           ) : (
             <div className="flex Gray_bd">{_l('请选择')}</div>
           )}
@@ -159,7 +156,7 @@ function UserSelect(props) {
           {selectUsers.map(item => renderItem(item))}
           {!disabled && (
             <div className="TxtCenter customFormAddBtn" onClick={pickUser}>
-              <i className="icon-plus icon" />
+              <i className="icon-add icon" />
             </div>
           )}
         </Fragment>
@@ -174,6 +171,7 @@ function UserSelect(props) {
           appId={appId || ''}
           selectRangeOptions={dealUserRange(props, formData, masterData)}
           onlyOne={isUnique}
+          hideClearBtn={false}
           // filterAccountIds={filterAccountIds}
           onClose={() => setShowSelectUser(false)}
           onSave={onSave}

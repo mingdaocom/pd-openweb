@@ -1,15 +1,15 @@
 import React, { Fragment } from 'react';
-import { Tooltip, Icon } from 'ming-ui';
-import { controlState, renderCount } from '../../core/utils';
-import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
 import { HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
+import { controlState, renderCount } from '../../core/utils';
 import { TITLE_SIZE_OPTIONS } from '../tools/config';
 import { getTitleStyle, isSheetDisplay } from '../tools/utils';
-import RelationSearchCount from '../../components/RelationSearchCount';
-import _ from 'lodash';
-import cx from 'classnames';
-import styled from 'styled-components';
 
 const ControlLabel = styled.div`
   ${({ displayRow, titlewidth_app = '100' }) => {
@@ -29,6 +29,8 @@ const ControlLabel = styled.div`
   }}
   ${({ item, showTitle }) =>
     item.type === 34 && showTitle ? 'margin-bottom: 6px;margin-top:20px;' : 'min-height: 0px !important;'}
+  ${({ withSearchInput,showTitle }) =>
+    withSearchInput && showTitle ? 'margin-bottom: 6px;margin-top:10px;' : 'min-height: 0px !important;'}
   .controlLabelName {
     ${({ displayRow, align_app = '1', showTitle }) => {
       if (displayRow) {
@@ -60,6 +62,7 @@ export default ({
   loadingItems,
   widgetStyle = {},
   disabled,
+  formDisabled,
 }) => {
   const {
     hinttype = '0',
@@ -70,6 +73,7 @@ export default ({
     allowlink,
     hidetitle,
     required,
+    showtype,
   } = item.advancedSetting || {};
   const titleSize = TITLE_SIZE_OPTIONS[titlesize];
   const titleStyle = getTitleStyle(titlestyle);
@@ -85,6 +89,13 @@ export default ({
   const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
   const errorText = currentErrorItem.errorText || '';
   const isEditable = (item.required && required === '1') || controlState(item, from).editable;
+  const withSearchInput =
+    [29, 51].includes(item.type) &&
+    disabled &&
+    formDisabled &&
+    item.enumDefault === 2 &&
+    (parseInt(showtype, 10) === 1 ||
+      (_.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], from) && parseInt(showtype, 10) === 2));
 
   let showCount = _.get(item, 'advancedSetting.showcount') !== '1' && !_.get(item, 'advancedSetting.layercontrolid');
   let errorMessage = '';
@@ -99,7 +110,7 @@ export default ({
 
   if (!showTitle) {
     return (
-      <div className={cx({'customFormItemLabel mTop20': item.type === 34 })}>
+      <div className={cx({ 'customFormItemLabel mTop20': item.type === 34 })}>
         {!item.showTitle && item.required && !item.disabled && isEditable && (
           <span
             style={{
@@ -166,6 +177,7 @@ export default ({
         titleColor={titlecolor}
         valuesize={_.includes(HAVE_VALUE_STYLE_WIDGET, item.type) ? valuesize : '0'}
         hasContent={showDesc || showOtherIcon || showTitle}
+        withSearchInput={withSearchInput}
       >
         {loadingItems[item.controlId] ? (
           <div className="requiredBtnBox">

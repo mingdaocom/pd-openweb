@@ -1,8 +1,7 @@
-import _, { includes, uniq } from 'lodash';
 import { combineReducers } from 'redux';
-import { browserIsMobile } from 'src/util';
-
-import { treeTableViewData, handleTreeNodeRow } from 'worksheet/common/TreeTableHelper/index.js';
+import _, { includes, uniq } from 'lodash';
+import { handleTreeNodeRow, treeTableViewData } from 'worksheet/common/TreeTableHelper/index.js';
+import { browserIsMobile } from 'src/utils/common';
 
 function dataLoading(state = true, action) {
   switch (action.type) {

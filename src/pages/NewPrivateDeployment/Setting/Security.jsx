@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Dialog, Switch, Icon, Radio } from 'ming-ui';
-import { Button, Select, Tooltip, Input, Divider, Checkbox, InputNumber } from 'antd';
-import PasswordRuleDialog from './components/PasswordRuleDialog';
-import { formatNumberFromInput } from 'src/util';
-import { updateSysSettings } from '../common';
+import { Button, Checkbox, Divider, Input, InputNumber, Select, Tooltip } from 'antd';
 import _ from 'lodash';
+import { Dialog, Icon, Radio, Switch } from 'ming-ui';
+import { formatNumberFromInput } from 'src/utils/control';
+import { updateSysSettings } from '../common';
+import PasswordRuleDialog from './components/PasswordRuleDialog';
 
 const Register = props => {
   const { SysSettings } = md.global;

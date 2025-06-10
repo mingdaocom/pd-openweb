@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog } from 'src/utils/project';
 import { fromType, typeForCon } from '../config';
 import './header.less';
 

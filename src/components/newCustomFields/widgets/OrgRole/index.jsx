@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { SortableList } from 'ming-ui';
 import { quickSelectRole } from 'ming-ui/functions';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
-import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import { dealUserRange } from '../../tools/utils';
-import _ from 'lodash';
-import { SortableList } from 'ming-ui';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -143,6 +143,7 @@ export default class Widgets extends Component {
             projectId={projectId}
             visible={true}
             unique={enumDefault === 0}
+            hideClearBtn={enumDefault !== 0}
             onSave={this.onSave}
             appointedOrganizeIds={_.get(orgRange, 'appointedOrganizeIds')}
             onClose={() => this.setState({ showMobileOrgRole: false })}

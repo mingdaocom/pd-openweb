@@ -1,24 +1,25 @@
 import React, { useEffect, useRef } from 'react';
+import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
+import { LoadDiv } from 'ming-ui';
+import accountApi from 'src/api/account';
+import registerApi from 'src/api/register';
+import Footer from 'src/pages/AuthService/components/Footer.jsx';
+import 'src/pages/AuthService/components/form.less';
+import { AccountNextActions, ActionResult, InviteFromType } from 'src/pages/AuthService/config.js';
+import { getDes, getTitle } from 'src/pages/AuthService/register/util.js';
+import { getDialCode, isTel } from 'src/pages/AuthService/util.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { htmlEncodeReg } from 'src/utils/common';
+import { getRequest } from 'src/utils/sso';
+import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
-import { Wrap } from './style';
-import WrapBg from '../components/Bg';
-import Footer from 'src/pages/AuthService/components/Footer.jsx';
-import { Form, Name, CreateOrAdd, CreateComp, Add, EditInfo, InviteLinkExpirate } from './container';
+import { Add, CreateComp, CreateOrAdd, EditInfo, Form, InviteLinkExpirate, Name } from './container';
 import createPermissionCheckWrapper from './container/createPermissionCheckWrapper';
+import { Wrap } from './style';
+
 const Create = createPermissionCheckWrapper(CreateComp);
-import { isTel, getDialCode } from 'src/pages/AuthService/util.js';
-import { getRequest } from 'src/util/sso';
-import { AccountNextActions, ActionResult, InviteFromType } from 'src/pages/AuthService/config.js';
-import { navigateTo } from 'src/router/navigateTo';
-import registerApi from 'src/api/register';
-import accountApi from 'src/api/account';
-import { getDes, getTitle } from 'src/pages/AuthService/register/util.js';
-import 'src/pages/AuthService/components/form.less';
-import DocumentTitle from 'react-document-title';
-import { htmlEncodeReg } from 'src/util';
-import { LoadDiv } from 'ming-ui';
 
 const defaultNextAction = () => {
   const request = getRequest();

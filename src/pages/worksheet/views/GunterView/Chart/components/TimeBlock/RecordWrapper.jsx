@@ -1,11 +1,11 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import RecordBlock from './RecordBlock';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import _ from 'lodash';
-import { handleRecordClick } from 'worksheet/util';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
+import RecordBlock from './RecordBlock';
 
 @connect(
   state => ({
@@ -19,13 +19,13 @@ export default class RecordWrapper extends Component {
     super(props);
     this.state = {
       recordInfoVisible: false,
-      RecordInfoComponent: null
+      RecordInfoComponent: null,
     };
   }
   componentDidMount() {
     import('worksheet/views/GunterView/components/RecordInfo').then(component => {
       this.setState({
-        RecordInfoComponent: component.default
+        RecordInfoComponent: component.default,
       });
     });
     window.addEventListener('popstate', this.onQueryChange);
@@ -62,10 +62,10 @@ export default class RecordWrapper extends Component {
   };
   render() {
     const { recordInfoVisible, RecordInfoComponent } = this.state;
-    const { row, style } = this.props;
+    const { row, style, groupKey } = this.props;
     return (
       <Fragment>
-        <RecordBlock disable={!row.allowedit} row={row} style={style} onClick={this.handleClick} />
+        <RecordBlock disable={!row.allowedit} row={row} style={style} groupKey={groupKey} onClick={this.handleClick} />
         {recordInfoVisible && (
           <RecordInfoComponent
             row={row}

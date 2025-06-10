@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import externalPortalAjax from 'src/api/externalPortal';
-import { statusList, accountResultAction, setAutoLoginKey } from '../util';
 import { captcha } from 'ming-ui/functions';
-import { getRequest } from 'src/util/sso';
-import { encrypt } from 'src/util';
-import { browserIsMobile } from 'src/util';
-import { getEmailOrTel, getDialCode } from 'src/pages/AuthService/util.js';
+import externalPortalAjax from 'src/api/externalPortal';
+import { getDialCode, getEmailOrTel } from 'src/pages/AuthService/util.js';
+import { browserIsMobile } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
+import { getRequest } from 'src/utils/sso';
 import { WrapUl } from '../style';
+import { accountResultAction, setAutoLoginKey, statusList } from '../util';
 import Content from './Content';
 import Twofactor from './Twofactor';
 
@@ -64,7 +64,7 @@ export default function (props) {
     loginForType,
     loginForTypeBack,
     status,
-    autoLogin
+    autoLogin,
   } = props;
   let request = getRequest();
   const [
@@ -112,12 +112,12 @@ export default function (props) {
       type: !!loginForType
         ? loginForType //已指定登录方式的情况下，直接走对应登录方式
         : paramForPcWx || request.mdAppId //扫码后 需要填写手机号 //微信扫码登录流程回跳只进手机号验证码流程
-        ? 'phone'
-        : browserIsMobile() && list.includes('weChat') && list.length > 1
-        ? list[1]
-        : list.includes('weChat') && isWXOfficialExist //点击进入微信登录 手机和微信同时设置时，默认微信优先
-        ? 'weChat'
-        : list[0],
+          ? 'phone'
+          : browserIsMobile() && list.includes('weChat') && list.length > 1
+            ? list[1]
+            : list.includes('weChat') && isWXOfficialExist //点击进入微信登录 手机和微信同时设置时，默认微信优先
+              ? 'weChat'
+              : list[0],
     });
   }, [loginMode]);
 
@@ -153,8 +153,8 @@ export default function (props) {
               registerMode.email && registerMode.phone
                 ? _l('手机号/邮箱或者验证码错误!')
                 : registerMode.phone
-                ? _l('手机号或者验证码错误!')
-                : _l('邮箱或者验证码错误!'),
+                  ? _l('手机号或者验证码错误!')
+                  : _l('邮箱或者验证码错误!'),
               3,
             );
           } else {
@@ -275,15 +275,14 @@ export default function (props) {
       doCaptchaFn();
     } else {
       if (statusList.includes(accountResult)) {
-        // _l('需要收集信息');
         setStatus(accountResult);
       } else if ([20].includes(accountResult)) {
         return alert(
           registerMode.email && registerMode.phone
             ? _l('手机号/邮箱或者验证码错误！')
             : registerMode.phone
-            ? _l('手机号或者验证码错误!')
-            : _l('邮箱或者验证码错误!'),
+              ? _l('手机号或者验证码错误!')
+              : _l('邮箱或者验证码错误!'),
           3,
         );
       } else {
@@ -305,7 +304,7 @@ export default function (props) {
           password: encrypt(password),
           appId,
           verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
-          autoLogin:autoLogin && isAutoLogin,
+          autoLogin: autoLogin && isAutoLogin,
           captchaType: md.global.getCaptchaType(),
           ticket,
           randStr: randstr,
@@ -460,10 +459,10 @@ export default function (props) {
               {status === -6
                 ? _l('已开启登录保护，验证码登录')
                 : registerMode.email && registerMode.phone
-                ? _l('扫码成功，请绑定手机号/邮箱！')
-                : registerMode.phone
-                ? _l('扫码成功，请绑定手机号')
-                : _l('扫码成功，请绑定邮箱')}
+                  ? _l('扫码成功，请绑定手机号/邮箱！')
+                  : registerMode.phone
+                    ? _l('扫码成功，请绑定手机号')
+                    : _l('扫码成功，请绑定邮箱')}
             </p>
           )}
           {!(paramForPcWx || request.mdAppId || status === -6) &&

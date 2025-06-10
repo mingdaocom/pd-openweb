@@ -1,36 +1,36 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
-import worksheetAjax from 'src/api/worksheet';
+import _, { filter, find, findIndex, isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { getSortData } from 'src/pages/worksheet/util';
+import { v4 as uuidv4 } from 'uuid';
+import { LoadDiv } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { getSortData } from 'src/utils/control';
+import { ALL_SYS } from '../../config/widget';
 import { EditInfo, SettingItem } from '../../styled';
 import {
+  dealControlData,
+  formatSearchConfigs,
+  getAdvanceSetting,
+  isSheetDisplay,
+  resortControlByColRow,
+  toEditWidgetPage,
+} from '../../util';
+import {
+  canAsUniqueWidget,
   getControlsSorts,
   getDefaultShowControls,
   handleAdvancedSettingChange,
-  canAsUniqueWidget,
 } from '../../util/setting';
-import {
-  getAdvanceSetting,
-  resortControlByColRow,
-  dealControlData,
-  formatSearchConfigs,
-  toEditWidgetPage,
-  isSheetDisplay,
-} from '../../util';
+import DynamicDefaultValue from '../components/DynamicDefaultValue';
+import RelateDetailInfo from '../components/RelateDetailInfo';
 import AddSubList from '../components/sublist/AddSubList';
 import ConfigureControls from '../components/sublist/ConfigureControls';
 import Sort from '../components/sublist/Sort';
-import _, { isEmpty, find, filter, findIndex } from 'lodash';
-import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import WidgetVerify from '../components/WidgetVerify';
-import RelateDetailInfo from '../components/RelateDetailInfo';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { ALL_SYS } from '../../config/widget';
 
 const SettingModelWrap = styled.div`
   .transferToRelate {
@@ -220,8 +220,8 @@ export default function SubListSetting(props) {
         let oriShowControls = isEmpty(showControls)
           ? defaultShowControls
           : _.isEmpty(showControls.filter(s => find(controls, c => c.controlId === s)))
-          ? defaultShowControls.slice(0, (showControls || []).length)
-          : showControls;
+            ? defaultShowControls.slice(0, (showControls || []).length)
+            : showControls;
         let nextData = {
           showControls:
             res.type === 2 ? oriShowControls.filter(i => !_.includes(['caid', 'utime', 'ctime'], i)) : oriShowControls,

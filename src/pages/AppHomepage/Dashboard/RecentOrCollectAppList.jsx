@@ -1,17 +1,17 @@
-import React, { useEffect, useRef, useState, forwardRef } from 'react';
-import styled from 'styled-components';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { Icon, Tooltip, SvgIcon, SortableList } from 'ming-ui';
-import autoSize from 'ming-ui/decorators/autoSize';
-import AppStatusComp from '../AppCenter/components/AppStatus';
-import { getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
-import { addBehaviorLog } from 'src/util';
-import { getAppOrItemColor } from './utils';
+import _ from 'lodash';
 import collectAppEmptyPng from 'staticfiles/images/collect_app.png';
 import recentEmptyPng from 'staticfiles/images/time.png';
-import _ from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
+import styled from 'styled-components';
+import { Icon, SortableList, SvgIcon, Tooltip } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
 import { navigateToAppItem } from 'src/pages/widgetConfig/util/data';
+import { navigateTo } from 'src/router/navigateTo';
+import { addBehaviorLog } from 'src/utils/project';
+import AppStatusComp from '../AppCenter/components/AppStatus';
+import { getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
+import { getAppOrItemColor } from './utils';
 import './style.less';
 
 const Wrapper = styled.div`

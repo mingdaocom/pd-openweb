@@ -1,12 +1,30 @@
 import React, { useRef } from 'react';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
 
 // 'inputFullname',//账户名
 export default function (props) {
-  const { warnList = [], fullName, onChange = () => {}, focusDiv } = props;
+  const { warnList = [], fullName, onChange = () => {}, focusDiv, accountTxtType, accountTxt } = props;
   const warn = _.find(warnList, it => it.tipDom === 'inputFullname');
   const InputRef = useRef();
+  const getTxt = () => {
+    let txt = _l('用户名');
+    switch (accountTxtType) {
+      case 10:
+        txt = _l('用户名');
+        break;
+      case 12:
+        txt = _l('手机号');
+        break;
+      case 13:
+        txt = _l('邮箱');
+        break;
+      case 100:
+        txt = accountTxt;
+        break;
+    }
+    return txt;
+  };
 
   return (
     <React.Fragment>
@@ -41,7 +59,7 @@ export default function (props) {
             InputRef.current.focus();
           }}
         >
-          {_l('用户名')}
+          {getTxt()}
         </div>
         {warn && <div className={cx('warnTips')}>{warn.warnTxt}</div>}
       </div>

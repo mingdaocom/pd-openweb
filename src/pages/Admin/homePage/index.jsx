@@ -14,7 +14,8 @@ import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMe
 import SelectCertification from 'src/pages/certification/SelectCertification';
 import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
 import { navigateTo } from 'src/router/navigateTo';
-import { formatNumberThousand, getCurrentProject, getFeatureStatus } from 'src/util';
+import { formatNumberThousand } from 'src/utils/control';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import BalanceManage from '../components/BalanceManage';
 import PurchaseExpandPack from '../components/PurchaseExpandPack';
 import { PERMISSION_ENUM } from '../enum';
@@ -34,6 +35,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
   const isFree = data.licenseType === 0;
   const isEnLang = md.global.Account.lang === 'en';
   const isLocal = md.global.Config.IsLocal;
+  const isCloseProject = !_.find(md.global.Account.projects, l => l.projectId === projectId);
 
   useEffect(() => {
     document.title = _l('组织管理 - 首页 - %0', companyName);
@@ -199,6 +201,8 @@ export default function HomePage({ match, location: routerLocation, authority, .
   const getNoLimit = key => {
     const isSingleVersion = versionIdV2 === 0;
 
+    if (isCloseProject) return false;
+
     switch (key) {
       case 'limitWorksheetCount':
         return isLocal ? data[key] === 2147483647 : !isFree && !isTeam && !isSingleVersion;
@@ -219,7 +223,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
       case 'limitExternalUserCount':
         return !isFree && !isTrial;
       default:
-        return !getNoLimit(key);
+        return !getNoLimit(key) && !isCloseProject;
     }
   };
 
@@ -280,9 +284,15 @@ export default function HomePage({ match, location: routerLocation, authority, .
   const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
 
   // 设置余额警告提醒
-  const setBalanceLimitNotice = ({ noticeEnabled, balanceLimit, notifiers, closeDialog = () => {} }) => {
+  const setBalanceLimitNotice = ({ noticeEnabled, balanceLimit, notifiers, noticeTypes, closeDialog = () => {} }) => {
     projectSettingAjax
-      .setBalanceLimitNotice({ projectId, noticeEnabled, balanceLimit, accountIds: notifiers.map(v => v.accountId) })
+      .setBalanceLimitNotice({
+        projectId,
+        noticeEnabled,
+        balanceLimit,
+        accountIds: notifiers.map(v => v.accountId),
+        noticeTypes: _.uniq(noticeTypes),
+      })
       .then(res => {
         if (res) {
           alert(_l('操作成功'));
@@ -293,6 +303,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
               noticeEnabled,
               balanceLimit,
               noticeAccounts: notifiers,
+              noticeTypes,
             },
           });
         } else {
@@ -303,25 +314,29 @@ export default function HomePage({ match, location: routerLocation, authority, .
 
   const setEarlyWarning = () => {
     const { balanceInfo = {} } = data;
+
     settingEarlyWarning({
       type: 'balance',
       projectId,
       warningValue: balanceInfo.balanceLimit,
       isWarning: balanceInfo.noticeEnabled,
       notifiers: balanceInfo.noticeAccounts,
-      onOk: (warningValue, notifiers, closeDialog) => {
+      noticeTypes: balanceInfo.noticeTypes,
+      onOk: (warningValue, notifiers, noticeTypes, closeDialog) => {
         setBalanceLimitNotice({
           noticeEnabled: true,
           balanceLimit: warningValue,
           notifiers,
+          noticeTypes,
           closeDialog,
         });
       },
-      closeWarning: (warningValue, notifiers, closeDialog) => {
+      closeWarning: (warningValue, notifiers, noticeTypes, closeDialog) => {
         setBalanceLimitNotice({
           noticeEnabled: false,
           balanceLimit: 0,
           notifiers,
+          noticeTypes,
           closeDialog,
         });
       },

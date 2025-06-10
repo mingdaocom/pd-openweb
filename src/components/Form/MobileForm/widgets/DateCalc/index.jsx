@@ -4,13 +4,13 @@ import { includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
-import { formatFormulaDate } from 'src/pages/worksheet/util';
-import { dateConvertToUserZone, formatStrZero } from 'src/util';
+import { formatFormulaDate, formatStrZero } from 'src/utils/control';
+import { dateConvertToUserZone } from 'src/utils/project';
 import { UNIT_TO_TEXT } from '../../../core/enum';
 import { toFixed } from '../../tools/utils';
 
 const DateCalc = props => {
-  const { value, enumDefault, unit, advancedSetting, dot, triggerCustomEvent, formDisabled } = props;
+  const { value, enumDefault, unit, advancedSetting, dot, formDisabled } = props;
 
   const getContent = () => {
     let content;
@@ -28,7 +28,7 @@ const DateCalc = props => {
         formatValue = formatStrZero(formatValue);
       }
 
-      content = hideUnit ? prefix + formatValue + suffix : formatValue;
+      content = hideUnit ? [prefix, formatValue, suffix].filter(Boolean).join(' ') : formatValue;
     } else {
       const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
       if (includes(showFormat, ':')) {
@@ -58,7 +58,6 @@ DateCalc.propTypes = {
   unit: PropTypes.string,
   advancedSetting: PropTypes.object,
   dot: PropTypes.number,
-  triggerCustomEvent: PropTypes.func,
   formDisabled: PropTypes.bool,
 };
 

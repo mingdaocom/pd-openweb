@@ -81,7 +81,20 @@ module.exports = function (alonePath = '') {
     module: {
       rules: [
         ...rules,
-        { test: /\.jsx?$/, exclude: /(node_modules)/, use: ['thread-loader', 'cache-loader', 'babel-loader'] },
+        {
+          test: /\.jsx?$/,
+          exclude: /(node_modules)/,
+          use: [
+            'thread-loader',
+            'cache-loader',
+            {
+              loader: 'babel-loader',
+              options: {
+                compact: isProduction,
+              },
+            },
+          ],
+        },
         { test: /\.html?$/, exclude: /(node_modules)/, use: 'raw-loader' },
       ],
     },

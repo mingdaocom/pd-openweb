@@ -1,20 +1,20 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Icon, LoadDiv } from 'ming-ui';
 import { Tabs } from 'antd-mobile';
-import * as actions from './redux/actions';
-import DiscussList from './DiscussList';
-import Logs from './Logs';
-import Back from '../components/Back';
+import _ from 'lodash';
+import { Icon, LoadDiv } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import './index.less';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import externalPortalAjax from 'src/api/externalPortal';
-import { handleReplaceState } from 'src/util';
 import AddDiscuss from 'mobile/AddDiscuss';
-import _ from 'lodash';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { handleReplaceState } from 'src/utils/project';
+import Back from '../components/Back';
+import DiscussList from './DiscussList';
+import Logs from './Logs';
+import * as actions from './redux/actions';
+import './index.less';
 
 const tabs = md.global.Account.isPortal
   ? [{ title: _l('讨论'), type: 1 }]
@@ -222,8 +222,8 @@ class Discuss extends Component {
     const firstTemporaryDiscuss = _.isEmpty(keys)
       ? {}
       : replyId
-      ? temporaryDiscuss[replyId]
-      : temporaryDiscuss[keys[0]];
+        ? temporaryDiscuss[replyId]
+        : temporaryDiscuss[keys[0]];
 
     return (
       <div className="discussTabs h100 flexColumn">

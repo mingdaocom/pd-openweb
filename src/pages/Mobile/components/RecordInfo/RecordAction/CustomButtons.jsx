@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, SvgIcon } from 'ming-ui';
-import { getButtonColor } from 'src/pages/worksheet/util';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { getButtonColor } from 'src/utils/control';
 
 const BtnCon = styled.div`
   height: 36px;
@@ -56,8 +56,8 @@ export default class CustomButtons extends Component {
                   btnDisable[btn.btnId] || btn.disabled
                     ? 'rgba(117, 117, 117, 0.5)'
                     : btn.color && btn.color !== 'transparent'
-                    ? getButtonColor(btn.color).color
-                    : '#151515'
+                      ? getButtonColor(btn.color).color
+                      : '#151515'
                 }
                 size={15}
               />

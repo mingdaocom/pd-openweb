@@ -4,6 +4,7 @@ import { Tooltip, Popover } from 'antd';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import { replaceColor } from '../../util';
+import { defaultTitleStyles } from './util';
 import { ReactSVG } from 'react-svg';
 
 export const bgImages = [{
@@ -28,7 +29,7 @@ export const bgImages = [{
 
 export default props => {
   const { themeColors, appPkg, config, handleChangeConfig } = props;
-  const { chartColorIndex = 1, pivoTableColorIndex = 1, numberChartColorIndex = 1, pageStyleType = 'light', pageBgImage } = config;
+  const { chartColorIndex = 1, pivoTableColorIndex = 1, numberChartColorIndex = 1, pageStyleType = 'light', pageBgImage, titleStyles = defaultTitleStyles } = config;
   const pageConfig = replaceColor(config, appPkg.iconColor);
   const backgroundColor = appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
 
@@ -92,6 +93,11 @@ export default props => {
               pivoTableColorIndex: pivoTableColorIndex + 1,
               numberChartColor: 'iconColor',
               numberChartColorIndex: numberChartColorIndex + 1,
+              titleStyles: {
+                ...titleStyles,
+                color: '#333',
+                index: Date.now()
+              }
             });
           }}
         >
@@ -107,6 +113,11 @@ export default props => {
               pivoTableColorIndex: pivoTableColorIndex + 1,
               numberChartColor: lightColors[0].value,
               numberChartColorIndex: numberChartColorIndex + 1,
+              titleStyles: {
+                ...titleStyles,
+                color: '#fff',
+                index: Date.now()
+              }
             });
           }}
         >

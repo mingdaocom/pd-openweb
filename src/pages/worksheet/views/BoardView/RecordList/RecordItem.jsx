@@ -1,23 +1,25 @@
-import React, { Component, createRef, useRef, useEffect } from 'react';
-import { string } from 'prop-types';
-import { get, includes } from 'lodash';
+import React, { Component, createRef, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { useSetState } from 'react-use';
 import { useDrag } from 'react-dnd-latest';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
-import { connect } from 'react-redux';
-import * as boardActions from 'worksheet/redux/actions/boardView';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { RecordInfoModal } from 'mobile/Record';
+import { get, includes } from 'lodash';
+import { string } from 'prop-types';
 import worksheetAjax from 'src/api/worksheet';
-import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
-import RecordPortal from '../../components/RecordPortal';
+import { RecordInfoModal } from 'mobile/Record';
+import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import * as boardActions from 'worksheet/redux/actions/boardView';
+import { browserIsMobile } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
 import EditableCard from '../../components/EditableCard';
 import EditingRecordItem from '../../components/EditingRecordItem';
-import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
+import RecordPortal from '../../components/RecordPortal';
+import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import { getTargetName } from '../util';
-import { handleRecordClick } from 'worksheet/util';
 
 const RELATION_SHEET_TYPE = 29;
 

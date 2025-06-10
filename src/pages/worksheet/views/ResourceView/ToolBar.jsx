@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
-import { types, resourceTypes } from './config';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { resourceTypes, types } from './config';
 
 const ToolBarWrap = styled.div`
   display: flex;

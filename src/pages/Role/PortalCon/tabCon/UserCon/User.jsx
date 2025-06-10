@@ -8,7 +8,6 @@ import styled from 'styled-components';
 import { Dialog, Dropdown, Icon, MenuItem } from 'ming-ui';
 import appManagement from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import Table from 'src/pages/Role/component/Table';
 import AddUserByTelDialog from 'src/pages/Role/PortalCon/components/AddUserByTelDialog';
 import AddUserDialog from 'src/pages/Role/PortalCon/components/AddUserDialog';
@@ -17,7 +16,7 @@ import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
 import * as actions from '../../redux/actions';
 import PortalBar from '../portalComponent/PortalBar';
-import { formatPortalData, pageSize, renderText } from '../util';
+import { formatDataForPortalControl, formatPortalData, pageSize, renderText } from '../util';
 
 const Wrap = styled.div(
   ({ len }) => `
@@ -684,7 +683,7 @@ function User(props) {
           <div className="InlineFlex flex-shrink-0">
             <PortalBar
               keys={['search', 'refresh', 'columns', 'filter', 'down']}
-              onChange={data => {}}
+              onChange={data => { }}
               down={down}
               appId={appId}
               comp={() => {
@@ -839,7 +838,7 @@ function User(props) {
           currentData={formatPortalData(currentData)}
           setShow={setShowUserInfoDialog}
           onOk={(data, ids) => {
-            let newCell = data.filter(o => ids.includes(o.controlId)).map(formatControlToServer);
+            let newCell = formatDataForPortalControl(data.filter(o => ids.includes(o.controlId)));
             ///更新数据 /////
             externalPortalAjax
               .saveUserDetailForBackgroud({

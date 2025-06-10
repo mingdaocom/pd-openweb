@@ -1,10 +1,10 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { CustomScore } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 import { FROM } from './enum';
-import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
 
 function levelSafeParse(value) {
   let levelValue = parseInt(value, 10);

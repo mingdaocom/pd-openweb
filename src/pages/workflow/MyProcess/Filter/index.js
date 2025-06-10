@@ -251,6 +251,14 @@ export default class Filter extends Component {
       },
     });
   };
+  handleChangeSearchValue = event => {
+    this.setState(
+      {
+        searchValue: event.target.value,
+      },
+      this.handleChange,
+    );
+  }
   renderSearchName() {
     const { searchValue } = this.state;
     return (
@@ -260,13 +268,11 @@ export default class Filter extends Component {
             value={searchValue}
             type="text"
             placeholder={_l('搜索名称和摘要')}
-            onChange={event => {
-              this.setState(
-                {
-                  searchValue: event.target.value,
-                },
-                this.handleChange,
-              );
+            onChange={this.handleChangeSearchValue}
+            onKeyDown={event => {
+              if (event.which === 13) {
+                this.handleChangeSearchValue(event);
+              }
             }}
           />
           {/*searchValue && <Icon icon="close" className="Gray_75 Font17 pointer" onClick={() => { this.setState({ searchValue: '' }) }} />*/}

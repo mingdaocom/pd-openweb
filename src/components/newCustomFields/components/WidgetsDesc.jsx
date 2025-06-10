@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Linkify, Tooltip } from 'ming-ui';
 import _ from 'lodash';
+import { Linkify, Tooltip } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 import { FROM } from '../tools/config';
-import { browserIsMobile } from 'src/util';
 
 class WidgetsDesc extends React.Component {
   constructor(props) {

@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { LoadDiv, Icon, Dropdown } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { TableWrap } from 'src/pages/integration/apiIntegration/style';
-import { Table, ConfigProvider } from 'antd';
-import LogDialog from '../../components/LogDialog';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import { ConfigProvider, Table, Tooltip } from 'antd';
+import cx from 'classnames';
 import moment from 'moment';
-import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
-import Search from 'src/pages/workflow/components/Search/index.jsx';
+import styled from 'styled-components';
+import { Dropdown, Icon, LoadDiv } from 'ming-ui';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import { dialogSelectUser } from 'ming-ui/functions';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import { TableWrap } from 'src/pages/integration/apiIntegration/style';
+import Search from 'src/pages/workflow/components/Search/index.jsx';
+import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
+import LogDialog from '../../components/LogDialog';
 
 const Wrap = styled.div`
   background: #ffffff;
@@ -19,6 +19,9 @@ const Wrap = styled.div`
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  .optionConTb {
+    min-width: 90px;
+  }
   .moreBtn {
     height: 36px;
     line-height: 36px;
@@ -51,10 +54,11 @@ const Wrap = styled.div`
       .fromTxt a {
         color: #151515 !important;
       }
-      &:nth-child(1) {
+      &:nth-child(1),
+      &:nth-child(2) {
         flex: 3;
       }
-      &:nth-child(4) {
+      &:nth-child(5) {
         flex: 2;
       }
     }
@@ -239,6 +243,17 @@ export default function Log(props) {
       },
     },
     {
+      title: _l('触发数据'),
+      dataIndex: 'status',
+      render: (text, record) => {
+        return (
+          <Tooltip title={record.title}>
+            <div className="WordBreak fromTxt">{record.title}</div>
+          </Tooltip>
+        );
+      },
+    },
+    {
       title: _l('状态'),
       dataIndex: 'status',
       render: (text, record) => {
@@ -273,6 +288,7 @@ export default function Log(props) {
     {
       title: _l('详情'),
       dataIndex: 'option',
+      className: 'optionConTb',
       render: (text, record) => {
         // 非超级管理员和拥有者
         // 只能查看触发者是自己的日志详情
@@ -288,7 +304,7 @@ export default function Log(props) {
         return (
           <div className="optionCon">
             <span
-              className="ThemeColor3 Hand"
+              className="ThemeColor3 Hand overflow_ellipsis WordBreak"
               onClick={() => {
                 setState({
                   id: record.id,
@@ -374,7 +390,7 @@ export default function Log(props) {
             });
           }}
           className="logSearch"
-          placeholder={_l('搜索来源名称')}
+          placeholder={_l('搜索来源/数据')}
         />
         <Dropdown
           value={type}

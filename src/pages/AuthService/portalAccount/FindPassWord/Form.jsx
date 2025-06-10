@@ -8,7 +8,7 @@ import Warn from 'src/pages/AuthService/components/Warn.jsx';
 export default function (props) {
   return (
     <React.Fragment>
-      <div className="messageBox mTop24">
+      <div className="messageBox mTop36">
         <Warn {...props} />
         <Account {...props} />
         <VerifyCode {...props} />

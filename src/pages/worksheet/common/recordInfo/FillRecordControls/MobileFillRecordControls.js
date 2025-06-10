@@ -4,13 +4,12 @@ import update from 'immutability-helper';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import { filterHidedSubList } from 'worksheet/util';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import CustomFields from 'src/components/newCustomFields';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
+import { isRelateRecordTableControl } from 'src/utils/control';
 
 const Con = styled.div`
   display: flex;

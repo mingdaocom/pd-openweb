@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, UserHead, UserName, LoadDiv, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
-import SearchWrap from 'src/pages/Admin/components/SearchWrap';
-import PageTableCon from 'src/pages/Admin/components/PageTableCon';
-import Empty from '../../../common/TableEmpty';
-import WithdrawalsDialogFunc from './WithdrawReimburseDialog';
-import withdrawalsEmptyImg from '../../images/withdrawals.png';
+import { Icon, LoadDiv, Tooltip, UserHead, UserName } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import PageTableCon from 'src/pages/Admin/components/PageTableCon';
+import SearchWrap from 'src/pages/Admin/components/SearchWrap';
+import { VersionProductType } from 'src/utils/enum';
+import Empty from '../../../common/TableEmpty';
 import { BALANCE_INFO } from '../../config';
+import withdrawalsEmptyImg from '../../images/withdrawals.png';
+import WithdrawalsDialogFunc from './WithdrawReimburseDialog';
 
 const BalanceWrap = styled.div`
   padding: 36px 0 25px 32px;

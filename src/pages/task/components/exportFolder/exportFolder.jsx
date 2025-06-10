@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
-import './less/exportFolder.less';
 import cx from 'classnames';
-import { addToken } from 'src/util';
 import { Dialog } from 'ming-ui';
+import { addToken } from 'src/utils/common';
+import './less/exportFolder.less';
 
 export default class ExportFolder extends Component {
   constructor(props) {

@@ -1,11 +1,12 @@
 import React from 'react';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
-import { generateRandomPassword, addBehaviorLog } from 'src/util';
-import { getAppOrItemColor } from 'src/pages/AppHomepage/Dashboard/utils.js';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import styled from 'styled-components';
-import cx from 'classnames';
+import { getAppOrItemColor } from 'src/pages/AppHomepage/Dashboard/utils.js';
+import { generateRandomPassword } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project';
 
 const AppItemWrap = styled.div`
   display: flex;
@@ -99,7 +100,7 @@ export default function ApplicationItem(props) {
         radius={radius}
         className={cx(`appItem ${className}`, { mRight10: index % 2 === 0 })}
         key={id}
-        onClick={(e) => {
+        onClick={e => {
           if (!!type) {
             //应用项
             addBehaviorLog(type === 2 ? 'worksheet' : 'customPage', itemId); // 埋点

@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { emitter } from 'src/util';
-import { compact, map, every, flatten, isFunction } from 'lodash';
+import { compact, every, flatten, isFunction, map } from 'lodash';
+import PropTypes from 'prop-types';
 
 function withClickAway(exceptionList, Component = exceptionList) {
   class ClickAwayableComponent extends React.Component {

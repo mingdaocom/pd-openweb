@@ -1,13 +1,13 @@
 import React from 'react';
-import { Button, Icon } from 'ming-ui';
 import styled from 'styled-components';
+import { Button, Icon } from 'ming-ui';
 
 const AddRecordWrap = styled.div`
   position: fixed;
   right: 20px;
   bottom: 20px;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   line-height: 50px;
   border-radius: 50%;
   color: #fff;
@@ -41,7 +41,7 @@ export function AddRecordBtn(props) {
       style={{ ...warpStyle, backgroundColor }}
       onClick={onClick}
     >
-      <Icon icon="add" className="Font30 LineHeight50" />
+      <Icon icon="add" className="Font36 LineHeight60" />
     </AddRecordWrap>
   );
 }

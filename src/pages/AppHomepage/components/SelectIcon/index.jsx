@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import { Icon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { getThemeColors } from 'src/util';
+import { getThemeColors } from 'src/utils/project';
 import AddColorDialog from './AddColorDialog';
 import IconTabs from './IconTabs';
 import './index.less';

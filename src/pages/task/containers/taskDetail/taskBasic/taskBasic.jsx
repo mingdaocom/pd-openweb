@@ -10,7 +10,7 @@ import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { navigateTo } from 'src/router/navigateTo';
-import { htmlDecodeReg } from 'src/util';
+import { htmlDecodeReg } from 'src/utils/common';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
   addTaskAttachments,

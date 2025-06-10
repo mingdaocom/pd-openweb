@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { Dialog, Icon } from 'ming-ui';
 import { Drawer } from 'antd';
-import WorksheetRocordLog from './WorksheetRocordLog';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Dialog, Icon } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { browserIsMobile } from 'src/utils/common';
+import WorksheetRocordLog from './WorksheetRocordLog';
 import './WorksheetRecordLogDialog.less';
-import { browserIsMobile } from 'src/util';
 
 @errorBoundary
 export default class WorksheetRecordLogDialog extends Component {

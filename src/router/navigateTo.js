@@ -1,9 +1,10 @@
-import login from 'src/api/login';
-import { getAppFeaturesPath, browserIsMobile } from 'src/util';
-import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import _ from 'lodash';
-import project from 'src/api/project';
 import { Dialog } from 'ming-ui';
+import login from 'src/api/login';
+import project from 'src/api/project';
+import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
 
 export function fillUrl(url) {
   const hash = url.split('#')[1] || '';
@@ -103,8 +104,8 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
     const url = loginUrl
       ? loginUrl
       : isSubDomain
-      ? `${window.subPath || ''}/network${link}`
-      : `${window.subPath || ''}/login${link}`;
+        ? `${window.subPath || ''}/network${link}`
+        : `${window.subPath || ''}/login${link}`;
 
     if (newTab) {
       window.open(url + '#autoClose=true');
@@ -113,14 +114,29 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
       window.isWaiting = true;
     }
   };
-  const checkLogin = newTab => {
+  const checkLogin = isDialogClick => {
     login.checkLogin().then(isLogin => {
+      const isNewTab =
+        !!$('.workSheetNewRecord').length || !!$('.workSheetRecordInfo').length || !!$('.customWidgetContainer').length;
+
       if (!isLogin) {
-        browserIsMobile() || _.get(md, 'global.SysSettings.sessionExpireRedirectType') === 2
-          ? handleNavigate()
-          : newTab
-          ? handleNavigate(true)
-          : loginFailDialog();
+        const isExecute =
+          browserIsMobile() || _.get(md, 'global.SysSettings.sessionExpireRedirectType') === 2 ||
+          window.isMDClient ||
+          window.isDingTalk ||
+          window.isWxWork ||
+          window.isWeLink ||
+          window.isFeiShu ||
+          window.isWeiXin;
+
+        if (isDialogClick) {
+          handleNavigate(isNewTab);
+          return;
+        }
+
+        isExecute ? handleNavigate() : loginFailDialog();
+      } else if (!isNewTab) {
+        location.reload();
       }
 
       pendingCheckLogin = '';

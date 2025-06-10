@@ -1,13 +1,13 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import _ from 'lodash';
-import { viewTypeConfig, viewTypeGroup, viewTypeCustomList, baseSetList, manageViewFilter } from '../config';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { baseSetList, manageViewFilter, viewTypeConfig, viewTypeCustomList, viewTypeGroup } from '../config';
 
 const RecordColorSign = styled.div`
   display: inline-block;
@@ -187,17 +187,12 @@ export default function SideNav(props) {
                     <React.Fragment key={`viewBtnsLiItem_${o}_${n}`}>
                       {item.type === 'PluginSettings' && <p className="titileP"> {_l('开发')}</p>}
                       {(_.includes(['MobileSet', 'urlParams'], item.type) ||
-                        (hasFastFilter && ['FastFilter'].includes(item.type)) ||
-                        (hasNavGroup && ['NavGroup'].includes(item.type)) ||
-                        (!hasFastFilter && item.type === 'ActionSet') ||
+                        item.type === 'ActionSet' ||
                         item.type === 'Filter') && (
                         <React.Fragment>
                           {item.type === 'Filter' ? (
                             <p className="titileP"> {_l('记录设置')}</p>
-                          ) : (hasFastFilter && item.type === 'FastFilter') ||
-                            (!hasFastFilter &&
-                              ((hasNavGroup && item.type === 'NavGroup') ||
-                                (!hasNavGroup && item.type === 'ActionSet'))) ? (
+                          ) : item.type === 'ActionSet' ? (
                             <p className="titileP">{_l('用户操作')}</p>
                           ) : item.type === 'MobileSet' ||
                             (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'urlParams') ? (

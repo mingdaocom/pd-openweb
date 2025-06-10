@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Config from '../../config';
-import FeatureListWrap from '../../components/FeatureListWrap';
 import projectSettingController from 'src/api/projectSetting';
-import limitFeatureDialogFunc from './LimitFeatureDialog';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import FeatureListWrap from '../../components/FeatureListWrap';
+import Config from '../../config';
+import limitFeatureDialogFunc from './LimitFeatureDialog';
 
 export default class SecurityOthers extends Component {
   constructor(props) {
@@ -47,8 +47,15 @@ export default class SecurityOthers extends Component {
           dataPipeOnlyManager = false,
           onlyManagerCreateApp = false,
           pluginsOnlyManager = false,
+          onlyManagerDeleteApp = false,
         }) => {
-          this.setState({ apiIntgOnlyManager, dataPipeOnlyManager, onlyManagerCreateApp, pluginsOnlyManager });
+          this.setState({
+            apiIntgOnlyManager,
+            dataPipeOnlyManager,
+            onlyManagerCreateApp,
+            pluginsOnlyManager,
+            onlyManagerDeleteApp,
+          });
         },
       );
   }
@@ -61,6 +68,7 @@ export default class SecurityOthers extends Component {
       apiIntgOnlyManager,
       dataPipeOnlyManager,
       pluginsOnlyManager,
+      onlyManagerDeleteApp,
     } = this.state;
 
     const limitInfo = {
@@ -68,6 +76,7 @@ export default class SecurityOthers extends Component {
       apiIntgOnlyManager: _l('创建 API 连接'),
       // dataPipeOnlyManager: _l('数据集成'),
       pluginsOnlyManager: _l('开发插件'),
+      onlyManagerDeleteApp: _l('删除应用'),
     };
 
     const settings = Object.keys(limitInfo).filter(
@@ -88,9 +97,9 @@ export default class SecurityOthers extends Component {
             {
               key: 'limitSystemFeature',
               title: _l('功能限制'),
-              description: _l('关闭全员功能，只允许授权的管理员使用'),
+              description: _l('开启限制后，全员无法使用，只允许授权的管理员使用'),
               showSlideIcon: true,
-              customContent: !_.isEmpty(settings) ? _l(_l('已关闭:%0', settingsTxt)) : undefined,
+              customContent: !_.isEmpty(settings) ? _l(_l('已限制:%0', settingsTxt)) : undefined,
               onClick: () =>
                 limitFeatureDialogFunc({
                   projectId,
@@ -99,6 +108,7 @@ export default class SecurityOthers extends Component {
                     apiIntgOnlyManager,
                     dataPipeOnlyManager,
                     pluginsOnlyManager,
+                    onlyManagerDeleteApp,
                   },
                   updateData: data => this.setState({ ...data }),
                 }),

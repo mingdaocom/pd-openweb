@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Input, LoadDiv, intlTelInput } from 'ming-ui';
 import { Drawer } from 'antd';
-import userController from 'src/api/user';
-import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
-import DrawerFooterOption from '../DrawerFooterOption';
-import BaseFormInfo from '../BaseFormInfo';
-import TextInput from '../TextInput';
-import { checkForm } from '../../constant';
-import fixedDataAjax from 'src/api/fixedData.js';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { getCurrentProject } from 'src/util';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Icon, Input, intlTelInput, LoadDiv } from 'ming-ui';
+import fixedDataAjax from 'src/api/fixedData.js';
+import userController from 'src/api/user';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
+import { getCurrentProject } from 'src/utils/project';
+import { checkForm } from '../../constant';
+import BaseFormInfo from '../BaseFormInfo';
+import DrawerFooterOption from '../DrawerFooterOption';
+import TextInput from '../TextInput';
+import './index.less';
 
 export default class EditUser extends Component {
   constructor(props) {

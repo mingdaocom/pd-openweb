@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { getCheckAndOther } from '../../tools/utils';
-import { Textarea } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
+import { Textarea } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { getCheckAndOther } from '../../tools/utils';
 
 export default class OtherInput extends Component {
   isOnComposition = false;

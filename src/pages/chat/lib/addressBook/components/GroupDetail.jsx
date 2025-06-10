@@ -1,10 +1,11 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Icon from 'ming-ui/components/Icon';
 import ScrollView from 'ming-ui/components/ScrollView';
-import API, { openGroup, closeGroup } from '../api';
+import settingGroup from 'src/pages/Group/settingGroup';
+import API, { closeGroup, openGroup } from '../api';
 import { config } from '../config';
-import SettingGroup from 'src/components/group/settingGroup/settingGroups';
 
 export default class GroupDetail extends React.Component {
   constructor(props) {
@@ -15,10 +16,55 @@ export default class GroupDetail extends React.Component {
 
   openSettingDialog() {
     const {
-      group: { groupId },
+      group: { groupId, groupMemberCount },
+      groupStatus,
+      updateGroupModel,
     } = this.props;
-    SettingGroup({
-      groupId,
+    settingGroup({
+      groupID: groupId,
+      success: (type, groupInfo) => {
+        if (
+          ![
+            'UPDATE_AVATAR',
+            'RENAME',
+            'ADD_MEMBERS',
+            'REMOVE_USER',
+            'VERIFY',
+            'APPROVE',
+            'CLOSE_GROUP',
+            'DELETE',
+            'EXIT_GROUP',
+          ].includes(type)
+        )
+          return;
+
+        let newInfo = {};
+        switch (type) {
+          case 'UPDATE_AVATAR':
+            newInfo.avatar = groupInfo.groupAvatar;
+            break;
+          case 'RENAME':
+            newInfo.name = groupInfo.groupName;
+            break;
+          case 'ADD_MEMBERS':
+          case 'REMOVE_USER':
+            newInfo.groupMemberCount =
+              type === 'REMOVE_USER' ? Math.max(0, groupMemberCount - 1) : groupMemberCount + groupInfo.accounts.length;
+            break;
+          case 'CLOSE_GROUP':
+            newInfo.isOpen = false;
+            newInfo.isDelete = groupStatus === 1;
+            break;
+          case 'DELETE':
+          case 'EXIT_GROUP':
+            newInfo.isDelete = true;
+            break;
+          default:
+            newInfo = { ...groupInfo };
+            break;
+        }
+        updateGroupModel(groupId, newInfo);
+      },
     });
   }
 
@@ -41,7 +87,10 @@ export default class GroupDetail extends React.Component {
             <div className="detail-header-info">
               <div className="Font18 clearfix">
                 {name}
-                <i className="Font16 Gray_9e icon-settings TxtMiddle mLeft10 Hand ThemeHoverColor3" onClick={this.openSettingDialog} />
+                <i
+                  className="Font16 Gray_9e icon-settings TxtMiddle mLeft10 Hand ThemeHoverColor3"
+                  onClick={this.openSettingDialog}
+                />
               </div>
             </div>
           </div>
@@ -73,9 +122,9 @@ export default class GroupDetail extends React.Component {
       group: { groupId },
       updateGroupModel,
     } = this.props;
-    openGroup(groupId).then((result) => {
+    openGroup(groupId).then(result => {
       if (result) {
-        updateGroupModel(groupId, true);
+        updateGroupModel(groupId, { isOpen: true });
       } else {
         alert(_l('操作失败，请重新尝试'), 2);
       }
@@ -87,9 +136,9 @@ export default class GroupDetail extends React.Component {
       group: { groupId },
       updateGroupModel,
     } = this.props;
-    closeGroup(groupId).then((result) => {
+    closeGroup(groupId).then(result => {
       if (result) {
-        updateGroupModel(groupId, false);
+        updateGroupModel(groupId, { isOpen: false });
       } else {
         alert(_l('操作失败，请重新尝试'), 2);
       }

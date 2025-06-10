@@ -1,14 +1,15 @@
 import React, { Fragment } from 'react';
 import { Progress } from 'antd';
-import { Checkbox, Tooltip, Support, SvgIcon } from 'ming-ui';
+import cx from 'classnames';
+import { Checkbox, Support, SvgIcon, Tooltip } from 'ming-ui';
 import createUploader from 'src/library/plupload/createUploader';
+import { formatFileSize } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import Config from '../../../config';
 import importActivePng from '../img/import_active.png';
 import importDisabledPng from '../img/import_disabled.png';
-import cx from 'classnames';
 import './index.less';
-import { formatFileSize } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+
 const ERRORMSG = {
   3: _l('密码错误，验证失败'),
   4: _l('失败次数过多，请于15分钟后尝试'),

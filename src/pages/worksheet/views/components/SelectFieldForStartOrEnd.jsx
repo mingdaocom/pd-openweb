@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import SelectStartOrEndGroups from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEndGroups';
-import SelectStartOrEnd from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEnd';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { getAdvanceSetting } from 'src/util';
-import { getTimeControls } from '../CalendarView/util';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { isTimeStyle, isIllegalFormat, isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
+import styled from 'styled-components';
+import SelectStartOrEnd from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEnd';
+import SelectStartOrEndGroups from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEndGroups';
+import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { isIllegal, isIllegalFormat, isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import { getAdvanceSetting } from 'src/utils/control';
+import { getTimeControls } from '../CalendarView/util';
 
 const BtnForSure = styled.div`
    {
@@ -70,16 +70,16 @@ export default function SelectFieldForStartOrEnd(props) {
       start = begindate
         ? props.controls.find(it => it.controlId === begindate) || {}
         : begindateOrFirst
-        ? timeControls[0] || {}
-        : {};
+          ? timeControls[0] || {}
+          : {};
       end = enddate ? props.controls.find((it, i) => it.controlId === enddate) || {} : {};
     } else {
       start =
         ids.length > 0 && ids[0].begin
           ? props.controls.find(it => it.controlId === ids[0].begin) || {}
           : begindateOrFirst
-          ? timeControls[0] || {}
-          : {};
+            ? timeControls[0] || {}
+            : {};
       end = ids.length > 0 && ids[0].end ? props.controls.find((it, i) => it.controlId === ids[0].end) || {} : {};
     }
     let listData = ids.map(o => {

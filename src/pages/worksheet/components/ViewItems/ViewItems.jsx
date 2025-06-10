@@ -1,23 +1,23 @@
 import React, { Component, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
+import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { withRouter } from 'react-router-dom';
 import Trigger from 'rc-trigger';
-import { Drawer } from 'antd';
-import { Tooltip, Icon, Dialog, Input, SortableList } from 'ming-ui';
+import styled from 'styled-components';
+import { Dialog, Icon, Input, SortableList, Tooltip } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus } from 'src/util';
-import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
 import { getDefaultViewSet } from 'worksheet/constants/common';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
 import { getShowViews } from 'src/pages/worksheet/views/util';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import AddViewDisplayMenu from './AddViewDisplayMenu';
-import Item from './Item';
 import HideItem from './HideItem';
-import 'rc-trigger/assets/index.css';
+import Item from './Item';
 import './ViewItems.less';
+import 'rc-trigger/assets/index.css';
 
 const EmptyData = styled.div`
   font-size: 12px;
@@ -61,6 +61,9 @@ export default class ViewItems extends Component {
     if (nextProps.viewList.length !== this.props.viewList.length) {
       this.flag = null;
     }
+    if (nextProps.viewList.length > this.props.viewList.length) {
+      this.computeViewItemActiveLeft(500);
+    }
 
     if (nextProps.currentViewId !== this.props.currentViewId) {
       const elem = $(`.workSheetViewsWrapper .viewsScroll .workSheetViewItemViewId-${nextProps.currentViewId}`);
@@ -71,13 +74,16 @@ export default class ViewItems extends Component {
         }, 500);
       }
     }
+
     this.computeDirectionVisible();
   }
-
   componentDidUpdate() {
     if (!this.flag) {
       this.computeDirectionVisible();
     }
+  }
+  componentDidMount() {
+    this.computeViewItemActiveLeft();
   }
   componentWillUnmount() {
     this.containerWrapper.removeEventListener('click', this.clickDrawerArea);
@@ -149,8 +155,8 @@ export default class ViewItems extends Component {
       name: isManageView
         ? name
         : viewList.length
-        ? `${name || view.text}${viewTypeCount ? viewTypeCount : ''}`
-        : _l('视图'),
+          ? `${name || view.text}${viewTypeCount ? viewTypeCount : ''}`
+          : _l('视图'),
       sortType: 0,
       coverType: 0,
       worksheetId,
@@ -265,6 +271,20 @@ export default class ViewItems extends Component {
       this.setState({
         directionVisible: offsetWidth < scrollWidth,
       });
+    }
+  }
+  computeViewItemActiveLeft(delay = 300) {
+    if (!this.scrollWraperEl) return;
+    const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
+    if (viewsScrollEl) {
+      setTimeout(() => {
+        const activeEl = viewsScrollEl.querySelector('.workSheetViewItem.active');
+        if (activeEl) {
+          if ((activeEl.offsetLeft + activeEl.clientWidth) > viewsScrollEl.clientWidth) {
+            viewsScrollEl.scrollLeft = activeEl.offsetLeft;
+          }
+        }
+      }, delay);
     }
   }
   handleScrollPosition = (direction = 0) => {
@@ -440,6 +460,7 @@ export default class ViewItems extends Component {
           <ItemComp
             {...options}
             {...param}
+            {..._.pick(this.props, ['onShare', 'onExport', 'onCopyConfig', 'onExportAttachment'])}
             isCharge={isCharge}
             isLock={isLock}
             currentViewId={currentViewId}
@@ -453,9 +474,6 @@ export default class ViewItems extends Component {
             onRemoveView={this.handleRemoveView}
             updateViewName={this.updateViewName}
             onOpenView={this.handleOpenView}
-            onShare={this.props.onShare}
-            onExport={this.props.onExport}
-            onExportAttachment={this.props.onExportAttachment}
             toView={() => navigateTo(getNavigateUrl(options.item))}
           />
         )}
@@ -594,6 +612,7 @@ export default class ViewItems extends Component {
     return (
       !!currentView && (
         <Item
+          {..._.pick(this.props, ['onShare', 'onExport', 'onCopyConfig', 'onExportAttachment'])}
           fixed={true}
           item={currentView}
           list={viewList}
@@ -613,9 +632,6 @@ export default class ViewItems extends Component {
           onRemoveView={this.handleRemoveView}
           updateViewName={this.updateViewName}
           onOpenView={this.handleOpenView}
-          onShare={this.props.onShare}
-          onExport={this.props.onExport}
-          onExportAttachment={this.props.onExportAttachment}
           toView={() => navigateTo(getNavigateUrl(options.item))}
         />
       )

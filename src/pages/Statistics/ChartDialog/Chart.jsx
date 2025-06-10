@@ -1,18 +1,18 @@
-import React, { Component, Fragment, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { reportTypes } from '../Charts/common';
-import { WithoutData } from '../components/ChartStatus';
-import { Loading, Abnormal } from '../components/ChartStatus';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { isOptionControl } from 'statistics/common';
 import DragMask from 'worksheet/common/DragMask';
-import styled from 'styled-components';
+import { browserIsMobile } from 'src/utils/common';
 import charts from '../Charts';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { reportTypes } from '../Charts/common';
+import { WithoutData } from '../components/ChartStatus';
+import { Abnormal, Loading } from '../components/ChartStatus';
 import * as actions from '../redux/actions.js';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 
@@ -61,7 +61,7 @@ export default class Chart extends Component {
       dragValue: 0,
       sheetSize: 0,
       dragMaskVisible: false,
-      Component: null
+      Component: null,
     };
     this.$chartRef = createRef(null);
   }
@@ -69,7 +69,7 @@ export default class Chart extends Component {
     this.changeDragValue(this.props.direction);
     import('./Sheet').then(component => {
       this.setState({
-        Component: component.default
+        Component: component.default,
       });
     });
   }
@@ -92,7 +92,18 @@ export default class Chart extends Component {
     });
   }
   renderChart() {
-    const { projectId, themeColor, customPageConfig, reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
+    const {
+      projectId,
+      themeColor,
+      customPageConfig,
+      reportData,
+      currentReport,
+      base,
+      direction,
+      getReportSingleCacheId,
+      requestOriginalData,
+      changeCurrentReport,
+    } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
     const { xaxes = {}, reportType, valueMap, yvalueMap } = reportData;
@@ -107,9 +118,17 @@ export default class Chart extends Component {
       requestOriginalData,
       direction,
       themeColor,
-      customPageConfig
+      customPageConfig,
     };
-    const isDisplayEmptyData = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.PieChart, reportTypes.BidirectionalBarChart].includes(reportType) && isOptionControl(xaxes.controlType);
+    const isDisplayEmptyData =
+      [
+        reportTypes.BarChart,
+        reportTypes.LineChart,
+        reportTypes.DualAxes,
+        reportTypes.RadarChart,
+        reportTypes.PieChart,
+        reportTypes.BidirectionalBarChart,
+      ].includes(reportType) && isOptionControl(xaxes.controlType);
 
     if ([reportTypes.PivotTable].includes(reportType)) {
       const { data, columns, ylist, lines } = reportData;
@@ -128,7 +147,7 @@ export default class Chart extends Component {
             ylist,
             lines: currentReport.pivotTable ? _.merge(lines, currentReport.pivotTable.lines) : lines,
             valueMap,
-            yvalueMap
+            yvalueMap,
           }}
         />
       );
@@ -214,7 +233,7 @@ export default class Chart extends Component {
         ...currentReport,
         map,
         contrast,
-        contrastMap
+        contrastMap,
       };
       return <Chart {...props} reportData={params} />;
     }
@@ -258,9 +277,17 @@ export default class Chart extends Component {
               {this.renderChart()}
               {idVisible && !_.get(window, 'shareState.shareId') && (
                 <div className="flexRow mTop10 Gray_9e Font13 userInfo">
-                  <span className="mRight25">{_l('创建人')}: {createdBy.fullName}</span>
-                  <span className="mRight25">{_l('最后修改人')}: {lastModifiedBy.fullName}</span>
-                  {report.id && <span>{_l('图表ID')}: {report.id}</span>}
+                  <span className="mRight25 ellipsis" style={{ maxWidth: 280 }}>
+                    {_l('创建人')}: {createdBy.fullName}
+                  </span>
+                  <span className="mRight25 ellipsis" style={{ maxWidth: 280 }}>
+                    {_l('最后修改人')}: {lastModifiedBy.fullName}
+                  </span>
+                  {report.id && (
+                    <span>
+                      {_l('图表ID')}: {report.id}
+                    </span>
+                  )}
                 </div>
               )}
             </Fragment>
@@ -280,21 +307,24 @@ export default class Chart extends Component {
                   const { offsetHeight, offsetWidth } = this.$chartRef.current;
                   const sheetSize = (direction === 'vertical' ? offsetHeight : offsetWidth) - value;
                   const dragValue = value + (scopeVisible ? 320 : 0);
-                  this.setState({
-                    dragMaskVisible: false,
-                    dragValue,
-                    sheetSize,
-                  }, () => {
-                    const { style } = reportData;
-                    if (
-                      direction === 'vertical' &&
-                      reportData.reportType === reportTypes.PivotTable &&
-                      (style.pivotTableColumnFreeze || style.pivotTableLineFreeze) &&
-                      style.paginationVisible
-                    ) {
-                      this.props.getReportData();
-                    }
-                  });
+                  this.setState(
+                    {
+                      dragMaskVisible: false,
+                      dragValue,
+                      sheetSize,
+                    },
+                    () => {
+                      const { style } = reportData;
+                      if (
+                        direction === 'vertical' &&
+                        reportData.reportType === reportTypes.PivotTable &&
+                        (style.pivotTableColumnFreeze || style.pivotTableLineFreeze) &&
+                        style.paginationVisible
+                      ) {
+                        this.props.getReportData();
+                      }
+                    },
+                  );
                   safeLocalStorageSetItem(`${direction}ChartSheetSheetSize`, sheetSize);
                 }}
               />

@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SvgIcon, Tooltip } from 'ming-ui';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog } from 'src/utils/project';
 
 const RecordItem = styled.div`
   margin-top: 12px;

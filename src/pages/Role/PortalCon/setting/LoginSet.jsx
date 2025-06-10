@@ -303,7 +303,7 @@ export default function LoginSet(props) {
   }, [props.portalSet]);
 
   const updataUrl = data => {
-    props.onChangeImg(data);
+    props.onChangePortalSetModel(data);
   };
 
   const renderBgBtn = () => {

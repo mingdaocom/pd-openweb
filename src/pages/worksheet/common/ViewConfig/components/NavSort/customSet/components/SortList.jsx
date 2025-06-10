@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { SortableList } from 'ming-ui';
-import styled from 'styled-components';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import './index.less';
 import { isArray } from 'lodash';
+import styled from 'styled-components';
+import { SortableList } from 'ming-ui';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { renderText as renderCellText } from 'src/utils/control';
 import Item from './Item';
+import './index.less';
+
 const Wrap = styled.div``;
 
 export default function (props) {

@@ -1,13 +1,13 @@
 import update from 'immutability-helper';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
+import { FILTER_RELATION_TYPE, FILTER_TYPE } from './enum';
 import {
-  formatOriginFilterGroupValue,
-  getDefaultCondition,
   checkConditionAvailable,
   formatConditionForSave,
+  formatOriginFilterGroupValue,
+  getDefaultCondition,
 } from './util';
-import { FILTER_TYPE, FILTER_RELATION_TYPE } from './enum';
-import _ from 'lodash';
 
 export const initialState = {
   filters: [],
@@ -125,6 +125,12 @@ class Actions {
 
   addCondition = (control, groupIndex = 0, from) => {
     const condition = getDefaultCondition(control, from);
+    setTimeout(() => {
+      const dom = document.querySelector('.keyStr_' + condition.keyStr + ' .ant-select-selector');
+      if (dom) {
+        dom.click();
+      }
+    }, 100);
     this.dispatch({
       type: 'ADD_CONDITION',
       condition: condition,
@@ -226,6 +232,9 @@ class Actions {
             type: 'ADD_FILTER',
             filter: formatOriginFilterGroupValue(data),
           });
+          setTimeout(() => {
+            document.querySelector('.filter_' + data.filterId + ' .editIcon').click();
+          }, 100);
         } else {
           this.dispatch({
             type: 'UPDATE_FILTER',

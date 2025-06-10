@@ -1,15 +1,15 @@
-import { validate } from 'uuid';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, WIDGET_VALUE_ID } from './config';
-import { getStringBytes, browserIsMobile, isEmptyValue } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { filterEmptyChildTableRows, getRelateRecordCountFromValue, getNewRecordPageUrl } from 'worksheet/util';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
 import _, { find, get, isEmpty } from 'lodash';
+import { validate } from 'uuid';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
+import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import { browserIsMobile, getStringBytes } from 'src/utils/common';
+import { isEmptyValue, renderText as renderCellText } from 'src/utils/control';
+import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFromValue } from 'src/utils/record';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
 
 export const convertControl = type => {
   switch (type) {
@@ -663,8 +663,8 @@ export const renderCount = item => {
       state.loading && /^\d+$/.test(item.value)
         ? item.value
         : typeof state.tableState.countForShow !== 'undefined'
-        ? state.tableState.countForShow
-        : state.tableState.count;
+          ? state.tableState.countForShow
+          : state.tableState.count;
   }
 
   // 附件
@@ -742,19 +742,24 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
         const parentControl = _.find(data, i => i.controlId === item.rcid) || {};
         const control = safeParse(parentControl.value || '[]', 'array')[0];
         const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
-        const currentItem = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
+        const curItem = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
         const sourceVal = sourcevalue && safeParse(sourcevalue);
-        if (currentItem && _.isArray(sourceVal)) {
+        if (curItem && _.isArray(sourceVal)) {
+          const currentItem = {
+            ...curItem,
+            type: currentItem.type === 30 ? currentItem.sourceControlType : currentItem.type,
+          };
           const arrKey = getArrKey(currentItem);
           ranges[arrKey] = _.uniq(
             (ranges[arrKey] || []).concat(sourceVal.map(s => s[WIDGET_VALUE_ID[currentItem.type]])),
           );
         }
       } else {
-        const currentItem =
+        const cidItem =
           _.find(data || [], d => d.controlId === item.cid) ||
           _.find(masterData.formData || [], d => d.controlId === item.cid);
-        if (currentItem) {
+        if (cidItem) {
+          const currentItem = { ...cidItem, type: cidItem.type === 30 ? cidItem.sourceControlType : cidItem.type };
           const arrKey = getArrKey(currentItem);
           ranges[arrKey] = _.uniq(
             (ranges[arrKey] || []).concat(

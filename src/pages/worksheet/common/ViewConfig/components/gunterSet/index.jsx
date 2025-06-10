@@ -1,8 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import SelectStartOrEnd from '../SelectStartOrEndControl/SelectStartOrEnd';
+import React, { useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon } from 'ming-ui';
+import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet.jsx';
+import TitleControl from 'src/pages/worksheet/common/ViewConfig/components/TitleControl.jsx';
+import { ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { Checkbox } from 'ming-ui';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import DisplayControl from '../DisplayControl';
 import DropDownSet from '../DropDownSet';
+import Group from '../Group';
+import SelectStartOrEnd from '../SelectStartOrEndControl/SelectStartOrEnd';
+
 let obj = [
   { txt: _l('日'), key: '0' },
   { txt: _l('周'), key: '1' },
@@ -11,16 +25,6 @@ let obj = [
   { txt: _l('年'), key: '4' },
 ]; //calendartype：默认视图 0:月 1：周 2：日 3：季度 4：年
 let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周天')];
-import styled from 'styled-components';
-import cx from 'classnames';
-import { getAdvanceSetting } from 'src/util';
-import _ from 'lodash';
-import Group from '../Group';
-import DisplayControl from '../DisplayControl';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet.jsx';
-import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
 
 const GunterTypeChoose = styled.div`
   ul > li {
@@ -53,7 +57,7 @@ const GunterTypeChoose = styled.div`
 export default function GunterSet(props) {
   const { appId, view, updateCurrentView, worksheetControls = [] } = props;
   const { advancedSetting = {} } = view;
-  const { calendartype = '0', unweekday = '', milepost } = advancedSetting;
+  const { calendartype = '0', unweekday = '', milepost, showgroupcolor } = advancedSetting;
   let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
   let [timeControls, setTimeControls] = useState(getControlsForGunter(worksheetControls));
   const { begindate = '', enddate = '' } = getAdvanceSetting(view);
@@ -137,13 +141,27 @@ export default function GunterSet(props) {
         title={_l('里程碑')}
         txt={_l('选择一个检查项字段标记记录属性为里程碑')}
       />
+      <TitleControl
+        {...props}
+        isCard={true}
+        className="mTop32"
+        advancedSetting={{ ..._.get(view, 'advancedSetting'), viewtitle: _.get(view, 'advancedSetting.navtitle') }}
+        handleChange={value => {
+          updateCurrentView({
+            ...view,
+            advancedSetting: { navtitle: value },
+            editAttrs: ['advancedSetting'],
+            editAdKeys: ['navtitle'],
+          });
+        }}
+      />
       {/* 显示字段 */}
       <DisplayControl
         {...props}
         hideShowControlName
         worksheetControls={worksheetControls.filter(c => ![begindate, enddate].includes(c.controlId))}
         handleChangeSort={({ newControlSorts, newShowControls }) => {
-          props.updateCurrentView(
+          updateCurrentView(
             Object.assign(
               {
                 appId,
@@ -161,6 +179,27 @@ export default function GunterSet(props) {
         }}
       />
       <Group {...props} />
+      {_.get(view, 'viewControl') &&
+        [9, 10, 11].includes((worksheetControls.find(o => o.controlId === _.get(view, 'viewControl')) || {}).type) && (
+          <SwitchStyle className="flexRow alignItemsCenter mTop8">
+            <Icon
+              icon={showgroupcolor === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font28 Hand"
+              onClick={() => {
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  advancedSetting: {
+                    showgroupcolor: showgroupcolor === '1' ? '0' : '1',
+                  },
+                  editAttrs: ['advancedSetting'],
+                  editAdKeys: ['showgroupcolor'],
+                });
+              }}
+            />
+            <div className="mLeft12">{_l('显示分组颜色')}</div>
+          </SwitchStyle>
+        )}
       {view.viewControl && (
         <NavSet
           {...props}
@@ -169,22 +208,20 @@ export default function GunterSet(props) {
         />
       )}
       <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
-      <GunterTypeChoose>
-        <ul className="calendartypeChoose">
-          {obj.map(it => {
-            return (
-              <li
-                className={cx('Hand', { current: it.key === calendartype })}
-                onClick={() => {
-                  handleChange({ calendartype: it.key });
-                }}
-              >
-                {it.txt}
-              </li>
-            );
-          })}
-        </ul>
-      </GunterTypeChoose>
+      <AnimationWrap className="mTop8">
+        {obj.map(it => {
+          return (
+            <div
+              className={cx('animaItem overflow_ellipsis', { active: it.key === calendartype })}
+              onClick={() => {
+                handleChange({ calendartype: it.key });
+              }}
+            >
+              {it.txt}
+            </div>
+          );
+        })}
+      </AnimationWrap>
       <div className="title Font13 bold mTop32">{_l('设置')}</div>
       <ShowChoose>
         <Checkbox
@@ -201,12 +238,12 @@ export default function GunterSet(props) {
           text={_l('只显示工作日')}
         />
         {checkedWorkDate && (
-          <div className="hiddenDaysBox mTop18">
+          <AnimationWrap className="hiddenDaysBox mTop18">
             {weekObj.map((it, i) => {
               let n = i + 1;
               return (
-                <li
-                  className={cx({ checked: unweekday.indexOf(n) < 0 })}
+                <div
+                  className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
                   onClick={e => {
                     let str = unweekday;
                     if (unweekday.indexOf(n) >= 0) {
@@ -222,10 +259,10 @@ export default function GunterSet(props) {
                   }}
                 >
                   {it}
-                </li>
+                </div>
               );
             })}
-          </div>
+          </AnimationWrap>
         )}
       </ShowChoose>
     </React.Fragment>

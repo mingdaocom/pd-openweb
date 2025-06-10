@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
-import FlowChart, { MobileFlowChart } from '../FlowChart';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import FlowChart, { MobileFlowChart } from '../FlowChart';
 
 const Btn = styled.div`
   &:hover {

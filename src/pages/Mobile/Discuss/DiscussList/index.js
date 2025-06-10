@@ -1,15 +1,15 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { ActionSheet, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
-import { PullToRefreshWrapper } from 'ming-ui';
-import { SpinLoading, ActionSheet, List } from 'antd-mobile';
-import * as actions from '../redux/actions';
-import { Icon } from 'ming-ui';
-import Message from '../Message';
-import AttachmentFiles from 'mobile/components/AttachmentFiles';
-import withoutDisussion from './assets/withoutDisussion.svg';
-import { dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
+import { PullToRefreshWrapper } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import AttachmentFiles from 'mobile/components/AttachmentFiles';
+import { dateConvertToUserZone } from 'src/utils/project';
+import Message from '../Message';
+import * as actions from '../redux/actions';
+import withoutDisussion from './assets/withoutDisussion.svg';
 import './index.less';
 
 class DiscussList extends Component {
@@ -94,7 +94,7 @@ class DiscussList extends Component {
     const { refreshDiscussCount } = this.props;
     this.getSheetDiscussion(1, true);
     if (refreshDiscussCount) refreshDiscussCount();
-  }
+  };
   renderItem(item) {
     return (
       <List.Item key={item.discussionId} prefix={<img src={item.createAccount.avatar} />}>

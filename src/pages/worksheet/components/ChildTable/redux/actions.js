@@ -1,11 +1,11 @@
 import { saveAs } from 'file-saver';
-import _, { find, get, includes, isString, omit, pick } from 'lodash';
+import _, { find, get, includes, isFunction, isString, omit, pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
 import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
-import { filterEmptyChildTableRows, handleSortRows, postWithToken } from 'worksheet/util';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { postWithToken } from 'src/utils/common';
+import { filterEmptyChildTableRows, handleSortRows } from 'src/utils/record';
 
 const PAGE_SIZE = 200;
 
@@ -209,11 +209,14 @@ export const loadRows = ({
   getWorksheet,
   from,
   isTreeTableView,
+  setLoadingInfo,
   callback = () => {},
 }) => {
   return (dispatch, getState) => {
     const { base = {} } = getState();
-    const { control, instanceId, workId } = base;
+    const { instanceId, workId, worksheetInfo } = base;
+
+    const isWorkflow = (instanceId && workId) || get(window, 'shareState.isPublicWorkflowRecord');
     const args = {
       worksheetId,
       rowId: recordId,
@@ -242,6 +245,9 @@ export const loadRows = ({
           });
         }
         dispatch({ type: 'LOAD_ROWS_COMPLETE' });
+        if (isWorkflow && isFunction(setLoadingInfo)) {
+          setLoadingInfo('loadRows_' + controlId, false);
+        }
         callback(res);
       })
       .catch(err => {
@@ -268,6 +274,7 @@ export const exportSheet = ({
   worksheetId,
   rowId,
   controlId,
+  clientId,
   fileName,
   filterControls = [],
   onDownload = () => {},
@@ -284,6 +291,7 @@ export const exportSheet = ({
           filterControls,
           pageIndex: 1,
           pageSize: 10000,
+          clientId,
         },
         {
           responseType: 'blob',
@@ -315,6 +323,7 @@ class RowData {
       searchConfig,
       isCreate = false,
       isQueryWorksheetFill = false,
+      DataFormat,
     } = this.args;
     if (get(row, 'updatedControlIds')) {
       this.updatedControlIds = get(row, 'updatedControlIds');
@@ -385,7 +394,7 @@ export function setRowsFromStaticRows({
   isQueryWorksheetFill = true,
   triggerSubListControlValueChange = () => {},
 } = {}) {
-  return (getState, dispatch) => {
+  return (getState, dispatch, DataFormat) => {
     const { base = {} } = getState();
     const { controls, projectId, searchConfig, initRowIsCreate, max } = base;
     const requestPool = createRequestPool({
@@ -440,6 +449,7 @@ export function setRowsFromStaticRows({
           //   triggerSubListControlValueChange();
           // }, 100);
         },
+        DataFormat,
       };
       const rowData = new RowData(createRowArgs);
       return _.assign(rowData.getRow(), {

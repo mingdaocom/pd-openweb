@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { Select, InputNumber } from 'antd';
-import { LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { InputNumber, Select } from 'antd';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
-import { getTranslateInfo } from 'src/util';
+import { LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { getTranslateInfo } from 'src/utils/app';
+import './index.less';
 
 const operationTypeData = [
   { label: _l('不导出'), exampleType: 0 },
@@ -54,8 +54,8 @@ export default class AppSettings extends React.Component {
                     let active = sheet.isCustom
                       ? sheet.isCustom === entity.isCustom
                       : sheet.isAll
-                      ? sheet.isAll === entity.isAll
-                      : sheet.count === entity.count;
+                        ? sheet.isAll === entity.isAll
+                        : sheet.count === entity.count;
                     return (
                       <div
                         className={cx('sheetItemOption', { active })}
@@ -81,8 +81,8 @@ export default class AppSettings extends React.Component {
                                 current.count === -1
                                   ? 0
                                   : current.count === 'all'
-                                  ? current.totalRecordNum
-                                  : current.count;
+                                    ? current.totalRecordNum
+                                    : current.count;
                               return total + count;
                             },
                             0,
@@ -122,8 +122,8 @@ export default class AppSettings extends React.Component {
                               current.count === -1
                                 ? 0
                                 : current.count === 'all'
-                                ? current.totalRecordNum
-                                : current.count;
+                                  ? current.totalRecordNum
+                                  : current.count;
                             return total + count;
                           },
                           0,
@@ -167,7 +167,9 @@ export default class AppSettings extends React.Component {
                   <div className="mRight15 svgBox" style={{ backgroundColor: item.iconColor }}>
                     <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
                   </div>
-                  <div className="flex ellipsis pRight10">{getTranslateInfo(item.appId, null, item.appId).name || item.appName}</div>
+                  <div className="flex ellipsis pRight10">
+                    {getTranslateInfo(item.appId, null, item.appId).name || item.appName}
+                  </div>
                   <span className={cx('icon-info mLeft8', { Hidden: !item.relation })}></span>
                 </div>
                 <div className="singleItemRight">

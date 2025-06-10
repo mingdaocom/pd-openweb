@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { Select, DatePicker, Input, Button, Modal, Checkbox, Tooltip } from 'antd';
-import { Icon } from 'ming-ui';
-import {
-  dropdownScopeData,
-  pastAndFutureData,
-  fiscalYearData,
-  timeTypes,
-  unitTypes,
-  getTodayTooltip,
-} from 'statistics/common';
-import 'moment/locale/zh-cn';
+import { Button, Checkbox, DatePicker, Input, Modal, Select, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/zh_CN';
-import { formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import 'moment/locale/zh-cn';
+import { Icon } from 'ming-ui';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
+import {
+  dropdownScopeData,
+  fiscalYearData,
+  getTodayTooltip,
+  pastAndFutureData,
+  timeTypes,
+  unitTypes,
+} from 'statistics/common';
+import { formatNumberFromInput } from 'src/utils/control';
 
 const { RangePicker } = DatePicker;
 
@@ -315,7 +315,7 @@ export default class TimeModal extends Component {
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           onChange={value => {
             this.setState({
-              rangeValue: `${value}:${month}`
+              rangeValue: `${value}:${month}`,
             });
           }}
         >
@@ -333,7 +333,7 @@ export default class TimeModal extends Component {
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
               this.setState({
-                rangeValue: `${year}:${value}`
+                rangeValue: `${year}:${value}`,
               });
             }}
           >

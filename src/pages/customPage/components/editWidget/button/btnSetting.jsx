@@ -1,25 +1,26 @@
-import React, { Fragment, useState, useEffect, useCallback } from 'react';
-import { Input, Dropdown, Icon, Tooltip } from 'ming-ui';
-import { Checkbox, Input as AntdInput, Dropdown as AntdDropdown, Divider, Radio, Space, ConfigProvider } from 'antd';
-import styled from 'styled-components';
-import cx from 'classnames';
-import sheetAjax from 'src/api/worksheet';
+import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
-import appManagementAjax from 'src/api/appManagement';
 import { useSetState } from 'react-use';
-import './index.less';
-import BtnName from './BtnName';
+import { Checkbox, Divider, Radio, Space } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Input } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import sheetAjax from 'src/api/worksheet';
+import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
+import { getShowViews } from 'src/pages/worksheet/views/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import LinkPara from '../LinkPara';
-import DefaultValue from './DefaultValue';
+import BtnName from './BtnName';
+import BtnStyles from './BtnStyles';
 import CallBackRefresh from './CallBackRefresh';
+import ClickConfirm from './ClickConfirm';
+import DefaultValue from './DefaultValue';
 import FilterData from './FilterData';
 import SelectProcess from './SelectProcess';
-import ClickConfirm from './ClickConfirm';
-import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import { getTranslateInfo } from 'src/util';
-import { getShowViews } from 'src/pages/worksheet/views/util';
-import _ from 'lodash';
+import './index.less';
 
 const BtnSettingWrap = styled.div`
   display: flex;
@@ -49,7 +50,8 @@ const BtnSettingWrap = styled.div`
     padding: 5px 0;
     border: 1px solid #e5e5e5;
     background-color: #fff;
-    .ant-radio-group, .ant-space {
+    .ant-radio-group,
+    .ant-space {
       width: 100%;
     }
     .ant-space {
@@ -99,7 +101,7 @@ const BtnSettingWrap = styled.div`
       border-radius: 3px;
       padding: 3px;
       background-color: #eff0f0;
-      >div {
+      > div {
         height: 25px;
         line-height: 25px;
         display: flex;
@@ -107,7 +109,7 @@ const BtnSettingWrap = styled.div`
         justify-content: center;
       }
       .active {
-        color: #2196F3 !important;
+        color: #2196f3 !important;
         border-radius: 3px;
         padding: 3px 0;
         font-weight: bold;
@@ -164,7 +166,8 @@ const BtnSettingWrap = styled.div`
         }
       }
     }
-    .ant-checkbox-input, .ant-radio-input {
+    .ant-checkbox-input,
+    .ant-radio-input {
       position: absolute;
     }
     .ant-input {
@@ -189,33 +192,33 @@ const CLICK_ACTION = [
   {
     text: _l('创建记录'),
     value: 1,
-    svgIcon: 'plus'
+    svgIcon: 'plus',
   },
   {
     text: _l('打开视图'),
     value: 2,
-    svgIcon: '1_worksheet'
+    svgIcon: '1_worksheet',
   },
   {
     text: _l('打开自定义页面'),
     value: 3,
-    svgIcon: 'hr_workbench'
+    svgIcon: 'hr_workbench',
   },
   {
     text: _l('打开链接'),
     value: 4,
-    svgIcon: '16_5_globe_earth'
+    svgIcon: '16_5_globe_earth',
   },
   {
     text: _l('扫码'),
     value: 5,
-    svgIcon: 'qr_code_19'
+    svgIcon: 'qr_code_19',
   },
   {
     text: _l('调用封装业务流程'),
     value: 6,
-    svgIcon: 'custom_actions'
-  }
+    svgIcon: 'custom_actions',
+  },
 ];
 
 const OPEN_MODE = [
@@ -229,25 +232,24 @@ const ScanDefaultConfig = {
   recordLink: 1,
   otherLink: 0,
   text: 0,
-  isFilter: false
+  isFilter: false,
 };
 
 const ProcessDefaultConfig = {
   clickType: 1,
   confirmMsg: _l('你确认执行此操作吗？'),
   cancelName: _l('取消'),
-  sureName: _l('确认')
+  sureName: _l('确认'),
 };
 
 let sheetRequest = null;
 
 function BtnSetting(props) {
-  const { pageId, activeIndex, appPkg = {}, btnSetting, btnConfig, explain, components, setBtnSetting, setSetting, onDel, onCopy } = props;
+  const { pageId, activeIndex, appPkg = {}, btnSetting, btnConfig, components, setBtnSetting, onDel, onCopy } = props;
   const appId = appPkg.id;
   const [displayType, setDisplayType] = useState('setting');
   const [paras, setParas] = useState(btnSetting.param || []);
   const [sheetLoading, setSheetLoading] = useState(true);
-
   const projectId = appPkg.projectId || appPkg.id;
 
   const [dataSource, setDataSource] = useSetState({ worksheets: [], views: [], pages: [], controls: [], inputs: [] });
@@ -299,16 +301,20 @@ function BtnSetting(props) {
         const { views = [], template = {} } = res;
         const controls = replaceControlsTranslateInfo(appId, value, template.controls);
         setDataSource({
-          views: getShowViews(views).map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, null, viewId).name || name, value: viewId, type: viewType })),
-          controls
+          views: getShowViews(views).map(({ viewId, name, viewType }) => ({
+            text: getTranslateInfo(appId, null, viewId).name || name,
+            value: viewId,
+            type: viewType,
+          })),
+          controls,
         });
         if (action === 1) {
           setBtnSetting({
             ...btnSetting,
             config: {
               ...config,
-              controls
-            }
+              controls,
+            },
           });
         }
         setSheetLoading(false);
@@ -327,13 +333,13 @@ function BtnSetting(props) {
             ...btnSetting,
             config: {
               ...config,
-              refreshObjects: objects
-            }
+              refreshObjects: objects,
+            },
           });
         }}
       />
     );
-  }
+  };
 
   const renderConfig = () => {
     // 创建记录
@@ -355,8 +361,8 @@ function BtnSetting(props) {
                   value: itemId,
                   config: {
                     ...config,
-                    temporaryWriteControls: []
-                  }
+                    temporaryWriteControls: [],
+                  },
                 });
               }}
             />
@@ -369,8 +375,8 @@ function BtnSetting(props) {
               projectId={projectId}
               controls={controls}
               config={config}
-              onChangeConfig={(config) => {
-                setBtnSetting({ ...btnSetting, config});
+              onChangeConfig={config => {
+                setBtnSetting({ ...btnSetting, config });
               }}
             />
           )}
@@ -415,7 +421,8 @@ function BtnSetting(props) {
                 <div
                   key={value}
                   className={cx('flex centerAlign pointer Gray_75', { active: value === openMode })}
-                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}>
+                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
+                >
                   {text}
                 </div>
               ))}
@@ -448,7 +455,8 @@ function BtnSetting(props) {
                 <div
                   key={value}
                   className={cx('flex centerAlign pointer Gray_75', { active: value === openMode })}
-                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}>
+                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
+                >
                   {text}
                 </div>
               ))}
@@ -486,7 +494,8 @@ function BtnSetting(props) {
                 <div
                   key={value}
                   className={cx('flex centerAlign pointer Gray_75', { active: value === openMode })}
-                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}>
+                  onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
+                >
                   {text}
                 </div>
               ))}
@@ -497,7 +506,9 @@ function BtnSetting(props) {
     }
     // 扫码
     if (action === 5) {
-      const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, placeholder, isFilter } = _.isObject(config) ? config : {};
+      const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, placeholder, isFilter } = _.isObject(config)
+        ? config
+        : {};
       return (
         <Fragment>
           <div className="settingItem">
@@ -510,8 +521,8 @@ function BtnSetting(props) {
                   ...btnSetting,
                   config: {
                     ...config,
-                    placeholder: value
-                  }
+                    placeholder: value,
+                  },
                 });
               }}
               placeholder={_l('请输入引导文字')}
@@ -523,7 +534,7 @@ function BtnSetting(props) {
               <div className="flex">
                 <Checkbox
                   checked={qrCodeIsOpen}
-                  onChange={(e) => {
+                  onChange={e => {
                     const { checked } = e.target;
                     if (!checked && !barCodeIsOpen) {
                       return;
@@ -532,8 +543,8 @@ function BtnSetting(props) {
                       ...btnSetting,
                       config: {
                         ...config,
-                        qrCodeIsOpen: checked
-                      }
+                        qrCodeIsOpen: checked,
+                      },
                     });
                   }}
                 >
@@ -543,7 +554,7 @@ function BtnSetting(props) {
               <div className="flex">
                 <Checkbox
                   checked={barCodeIsOpen}
-                  onChange={(e) => {
+                  onChange={e => {
                     const { checked } = e.target;
                     if (!checked && !qrCodeIsOpen) {
                       return;
@@ -552,8 +563,8 @@ function BtnSetting(props) {
                       ...btnSetting,
                       config: {
                         ...config,
-                        barCodeIsOpen: checked
-                      }
+                        barCodeIsOpen: checked,
+                      },
                     });
                   }}
                 >
@@ -565,9 +576,7 @@ function BtnSetting(props) {
           <div className="settingItem">
             <Divider />
           </div>
-          <div className="settingItem">
-            {_l('获得扫码结果后执行动作')}
-          </div>
+          <div className="settingItem">{_l('获得扫码结果后执行动作')}</div>
           {qrCodeIsOpen && (
             <Fragment>
               <div className="settingItem">
@@ -582,15 +591,15 @@ function BtnSetting(props) {
                     {
                       text: _l('无'),
                       value: 0,
-                    }
+                    },
                   ]}
                   onChange={value => {
                     setBtnSetting({
                       ...btnSetting,
                       config: {
                         ...config,
-                        recordLink: value
-                      }
+                        recordLink: value,
+                      },
                     });
                   }}
                   menuStyle={{ width: '100%' }}
@@ -610,15 +619,15 @@ function BtnSetting(props) {
                     {
                       text: _l('无'),
                       value: 0,
-                    }
+                    },
                   ]}
                   onChange={value => {
                     setBtnSetting({
                       ...btnSetting,
                       config: {
                         ...config,
-                        otherLink: value
-                      }
+                        otherLink: value,
+                      },
                     });
                   }}
                   menuStyle={{ width: '100%' }}
@@ -644,7 +653,7 @@ function BtnSetting(props) {
                 {
                   text: _l('无'),
                   value: 0,
-                }
+                },
               ]}
               onChange={value => {
                 setBtnSetting({
@@ -652,8 +661,8 @@ function BtnSetting(props) {
                   config: {
                     ...config,
                     inputs: [],
-                    text: value
-                  }
+                    text: value,
+                  },
                 });
               }}
               menuStyle={{ width: '100%' }}
@@ -664,7 +673,9 @@ function BtnSetting(props) {
           {text === 1 && (
             <Fragment>
               <div className="settingItem">
-                <div className="Gray_75">{_l('根据扫码的文本结果搜索数据，搜索到一条时直接打开记录，搜索到多条后进入搜索结果列表。')}</div>
+                <div className="Gray_75">
+                  {_l('根据扫码的文本结果搜索数据，搜索到一条时直接打开记录，搜索到多条后进入搜索结果列表。')}
+                </div>
               </div>
               <div className="settingItem">
                 <div className="settingTitle Normal">{_l('搜索工作表')}</div>
@@ -682,8 +693,8 @@ function BtnSetting(props) {
                       config: {
                         ...config,
                         isFilter: false,
-                        filterConditions: []
-                      }
+                        filterConditions: [],
+                      },
                     });
                   }}
                 />
@@ -696,8 +707,8 @@ function BtnSetting(props) {
                   data={views.map(item => {
                     return {
                       ...item,
-                      disabled: item.type !== 0
-                    }
+                      disabled: item.type !== 0,
+                    };
                   })}
                   onChange={value => setBtnSetting({ ...btnSetting, viewId: value })}
                   style={{ width: '100%', background: '#fff' }}
@@ -716,8 +727,8 @@ function BtnSetting(props) {
                       filterId={filterId}
                       controls={controls}
                       config={config}
-                      onChangeConfig={(config) => {
-                        setBtnSetting({ ...btnSetting, config});
+                      onChangeConfig={config => {
+                        setBtnSetting({ ...btnSetting, config });
                       }}
                     />
                   </div>
@@ -725,14 +736,16 @@ function BtnSetting(props) {
                     <div className="settingTitle Normal">{_l('搜索字段')}</div>
                     <Dropdown
                       value={searchId || undefined}
-                      data={controls.filter(c => ![52].includes(c.type)).map(item => {
-                        return {
-                          text: item.controlName,
-                          value: item.controlId
-                        }
-                      })}
+                      data={controls
+                        .filter(c => ![52].includes(c.type))
+                        .map(item => {
+                          return {
+                            text: item.controlName,
+                            value: item.controlId,
+                          };
+                        })}
                       onChange={value => {
-                        setBtnSetting({ ...btnSetting, searchId: value })
+                        setBtnSetting({ ...btnSetting, searchId: value });
                       }}
                       style={{ width: '100%', background: '#fff' }}
                       menuStyle={{ width: '100%' }}
@@ -766,11 +779,7 @@ function BtnSetting(props) {
     if (action === 6) {
       return (
         <Fragment>
-          <ClickConfirm
-            config={config}
-            btnSetting={btnSetting}
-            setBtnSetting={setBtnSetting}
-          />
+          <ClickConfirm config={config} btnSetting={btnSetting} setBtnSetting={setBtnSetting} />
           <SelectProcess
             appId={appId}
             projectId={projectId}
@@ -785,7 +794,7 @@ function BtnSetting(props) {
     return null;
   };
 
-  const changeAction = (value) => {
+  const changeAction = value => {
     const data = { ...btnSetting, ...initConfigData, action: value };
 
     if (value === 5) {
@@ -793,18 +802,18 @@ function BtnSetting(props) {
         ...data.config,
         ...ScanDefaultConfig,
         inputs: [],
-      }
+      };
     } else if (value === 6) {
       data.config = {
         ...data.config,
         ...ProcessDefaultConfig,
         inputs: [],
-      }
+      };
     } else {
       data.config = {
         icon: _.get(btnSetting, 'config.icon'),
-        iconUrl: _.get(btnSetting, 'config.iconUrl')
-      }
+        iconUrl: _.get(btnSetting, 'config.iconUrl'),
+      };
     }
 
     if (_.get(data, ['config', 'isNewBtn'])) {
@@ -814,12 +823,12 @@ function BtnSetting(props) {
       data.config = {
         ...data.config,
         icon: svgIcon,
-        iconUrl
-      }
+        iconUrl,
+      };
     }
 
     setBtnSetting(data);
-  }
+  };
 
   return (
     <BtnSettingWrap>
@@ -867,10 +876,17 @@ function BtnSetting(props) {
                 />
               ) : (
                 <div className="selectActionBox">
-                  <Radio.Group onChange={e => { changeAction(e.target.value) }} value={action}>
+                  <Radio.Group
+                    onChange={e => {
+                      changeAction(e.target.value);
+                    }}
+                    value={action}
+                  >
                     <Space direction="vertical">
                       {CLICK_ACTION.map(item => (
-                        <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                        <Radio key={item.value} value={item.value}>
+                          {item.text}
+                        </Radio>
                       ))}
                     </Space>
                   </Radio.Group>
@@ -880,10 +896,7 @@ function BtnSetting(props) {
             {action && renderConfig()}
           </Fragment>
         ) : (
-          <div className="settingItem mTop24">
-            <div className="settingTitle">{_l('文本')}</div>
-            <Input style={{ width: '100%' }} value={explain} onChange={value => setSetting({ explain: value })} />
-          </div>
+          <BtnStyles {...props} />
         )}
       </div>
     </BtnSettingWrap>

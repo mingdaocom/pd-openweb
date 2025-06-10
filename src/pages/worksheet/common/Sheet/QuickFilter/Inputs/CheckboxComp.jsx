@@ -1,10 +1,10 @@
 import React from 'react';
-import { Checkbox, Switch as SwitchComponent, RadioGroup } from 'ming-ui';
-import styled from 'styled-components';
-import { func, string } from 'prop-types';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
+import { func, string } from 'prop-types';
+import styled from 'styled-components';
+import { Checkbox, RadioGroup, Switch as SwitchComponent } from 'ming-ui';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { getSwitchItemNames } from 'src/utils/control';
 
 const Con = styled.div`
   display: flex;

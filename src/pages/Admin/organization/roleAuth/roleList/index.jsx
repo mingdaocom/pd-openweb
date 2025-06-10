@@ -1,16 +1,16 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import projectSettingAjax from 'src/api/projectSetting';
-import PaginationWrap from '../../../components/PaginationWrap';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import RoleItem from './roleItem';
-import { getCurrentProject } from 'src/util';
-import { Icon } from 'ming-ui';
-import roleApi from 'src/api/role';
-import './style.less';
 import _ from 'lodash';
-import RoleDetail from '../roleDetail';
+import PropTypes from 'prop-types';
+import { Icon } from 'ming-ui';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import projectSettingAjax from 'src/api/projectSetting';
+import roleApi from 'src/api/role';
+import { getCurrentProject } from 'src/utils/project';
+import PaginationWrap from '../../../components/PaginationWrap';
 import CreateEditRole from '../createEditRole';
+import RoleDetail from '../roleDetail';
+import RoleItem from './roleItem';
+import './style.less';
 
 class RoleList extends React.Component {
   static propTypes = {

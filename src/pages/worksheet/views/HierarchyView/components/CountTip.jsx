@@ -1,8 +1,7 @@
 import React from 'react';
-import { string } from 'prop-types';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
-import { browserIsMobile } from 'src/util'
+import { browserIsMobile } from 'src/utils/common';
 
 const CountTip = styled(FlexCenter)`
   box-sizing: border-box;

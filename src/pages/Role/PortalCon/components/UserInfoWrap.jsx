@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import CustomFields from 'src/components/newCustomFields';
+import React, { useEffect, useRef, useState } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
+import styled from 'styled-components';
 import Icon from 'ming-ui/components/Icon';
+import CustomFields from 'src/components/newCustomFields';
 
 const Wrap = styled.div(
   ({ width }) => `
@@ -79,6 +79,11 @@ const UserInfoDialogWrap = styled.div`
     flex: 1;
     margin: 0;
   }
+  .recordsCon {
+    > div {
+      margin-bottom: 10px;
+    }
+  }
 `;
 export default function UserInfoWrap(props) {
   const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose, show } = props;
@@ -87,25 +92,14 @@ export default function UserInfoWrap(props) {
   const renderCon = () => {
     return (
       <Wrap className="flexColumn" width={width}>
-        <span
-          className="cover"
-          onClick={() => {
-            setShow(false);
-          }}
-        ></span>
+        <span className="cover" onClick={() => setShow(false)}></span>
         <div className="headerWrap flexRow">
           <span className="flex">{title || _l('修改用户信息')}</span>
           {showClose && (
-            <Icon
-              className="Gray_9e Font22 Hand ThemeHoverColor3"
-              icon="close"
-              onClick={() => {
-                setShow(false);
-              }}
-            />
+            <Icon className="Gray_9e Font22 Hand ThemeHoverColor3" icon="close" onClick={() => setShow(false)} />
           )}
         </div>
-        <UserInfoDialogWrap className="flex">
+        <UserInfoDialogWrap className="flex userInfoCon">
           <CustomFields
             disableRules
             ref={customwidget}
@@ -129,6 +123,10 @@ export default function UserInfoWrap(props) {
                 }
                 let { data, hasError } = customwidget.current.getSubmitData();
                 if (hasError) {
+                  return;
+                }
+                if (data.find(o => o.type === 29 && safeParse(o.value, 'array').length > 5)) {
+                  alert(_l('最多只能关联 5 条记录'), 3);
                   return;
                 }
                 props.onOk(data, ids);

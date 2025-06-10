@@ -5,7 +5,7 @@ import { Icon, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { formatResponseData } from 'src/components/UploadFiles/utils.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import { getParamsByConfigs, handleUpdateApi } from '../Search/util';
 
 export default class Widgets extends Component {

@@ -1,13 +1,14 @@
-import { PUSH_TYPE } from '../WorkflowSettings/enum';
-import sheetAjax from 'src/api/worksheet';
-import homeAppAjax from 'src/api/homeApp';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
+import CryptoJS from 'crypto-js';
 import _ from 'lodash';
 import { mdNotification } from 'ming-ui/functions';
-import { emitter, equalToLocalPushUniqueId } from 'worksheet/util';
-import CryptoJS from 'crypto-js';
+import homeAppAjax from 'src/api/homeApp';
+import sheetAjax from 'src/api/worksheet';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
+import { emitter } from 'src/utils/common';
+import { equalToLocalPushUniqueId } from 'src/utils/common';
+import { PUSH_TYPE } from '../WorkflowSettings/enum';
 
 const getWorksheetInfo = worksheetId => {
   return new Promise((resolve, reject) => {

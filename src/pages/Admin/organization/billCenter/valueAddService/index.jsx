@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Checkbox } from 'antd';
-import Config from '../../../config';
-import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import './style.less';
+import { Icon } from 'ming-ui';
 import orderController from 'src/api/order';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
+import Config from '../../../config';
+import './style.less';
 
 const productList = [5000, 3000, 2000, 1000];
 

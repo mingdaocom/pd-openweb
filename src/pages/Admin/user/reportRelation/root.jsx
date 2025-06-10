@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Tooltip } from 'ming-ui';
-import Config from '../../config';
-import Checkbox from 'ming-ui/components/Checkbox';
-import Node from './components/node';
-import SearchInput from './components/searchBox';
-import projectSettingController from 'src/api/projectSetting';
-import { initRoot, fetchRootSubordinates, updateCollapse } from './actions';
-import { setStructureForAll, setStructureSelfEdit } from './common';
 import cx from 'classnames';
-
+import { Tooltip } from 'ming-ui';
+import Checkbox from 'ming-ui/components/Checkbox';
+import projectSettingController from 'src/api/projectSetting';
+import Config from '../../config';
+import { fetchRootSubordinates, initRoot, updateCollapse } from './actions';
+import { setStructureForAll, setStructureSelfEdit } from './common';
+import Node from './components/node';
 import NodeDialog from './components/NodeDialog';
+import SearchInput from './components/searchBox';
+
 class Root extends Component {
   constructor(props) {
     super(props);
@@ -75,6 +75,7 @@ class Root extends Component {
                     {_l(
                       '在工作表和工作流的汇报关系检索时，若当前用户的所有下级用户总数超过2000（含），系统将默认仅获取当前用户的“直属下一级”所有用户。',
                     )}
+                    <div>{_l('注：用户离职时不会被移出汇报关系，您可以手动移除')}</div>
                   </span>
                 }
                 action={['hover']}

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 
 const AppStatus = styled.div`
   position: absolute;

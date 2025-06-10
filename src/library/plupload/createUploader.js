@@ -1,7 +1,7 @@
-import { assign, endsWith, forEach, find, trim } from 'lodash';
-import { getToken } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { assign, endsWith, find, forEach, trim } from 'lodash';
 import qiniuAjax from 'src/api/qiniu';
+import { getToken } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 
 const validateFileName = str => {
   str = trim(str);
@@ -154,17 +154,8 @@ export default option => {
           beforeUploadCheck = Promise.reject();
         }
       }
-      let fetchAjax
-      if (_.get(option, 'getTokenParam.isFavicon') && md.global.Config.IsLocal) {
-        fetchAjax = qiniuAjax.getFaviconUploadToken()
-      } else {
-        fetchAjax = getToken(tokenFiles, option.type, option.getTokenParam)
-      }
-      fetchAjax.then(data => {
-        let res = data
-        if (_.get(option, 'getTokenParam.isFavicon') && md.global.Config.IsLocal) {
-          res = [data]
-        }
+
+      (option.getToken || getToken)(tokenFiles, option.type, option.getTokenParam).then(res => {
         const exceedFiles = [];
         files.forEach((item, i) => {
           if (res[i].size && item.size > res[i].size * 1024 * 1024) {
@@ -236,7 +227,7 @@ export default option => {
       if (file.size && !native.size) {
         file.notExists = true;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
 
@@ -446,36 +437,37 @@ export default option => {
     } else {
       let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
       let isPic = RegExpValidator.fileIsPicture(fileExt);
-      getToken([{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }], option.type, option.getTokenParam).then(
-        res => {
-          $.ajax({
-            url:
-              option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(res[0].key),
-            type: 'POST',
-            beforeSend: request => {
-              request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-              request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
-            },
-            data: file.ctx,
-            processData: false,
-          }).then(response => {
-            if (typeof response === 'string') {
-              response = JSON.parse(response);
-            }
+      (option.getToken || getToken)(
+        [{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }],
+        option.type,
+        option.getTokenParam,
+      ).then(res => {
+        $.ajax({
+          url: option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(res[0].key),
+          type: 'POST',
+          beforeSend: request => {
+            request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
+            request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
+          },
+          data: file.ctx,
+          processData: false,
+        }).then(response => {
+          if (typeof response === 'string') {
+            response = JSON.parse(response);
+          }
 
-            response.fileExt = fileExt;
-            response.fileName = RegExpValidator.getNameOfFileName(res[0].fileName);
-            response.filePath = file.key.replace(new RegExp(file.fileName), '');
-            response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
-            response.serverName = file.serverName;
-            file.url = res[0].url;
+          response.fileExt = fileExt;
+          response.fileName = RegExpValidator.getNameOfFileName(res[0].fileName);
+          response.filePath = file.key.replace(new RegExp(file.fileName), '');
+          response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
+          response.serverName = file.serverName;
+          file.url = res[0].url;
 
-            if (initFunc.FileUploaded) {
-              initFunc.FileUploaded(up, file, { response });
-            }
-          });
-        },
-      );
+          if (initFunc.FileUploaded) {
+            initFunc.FileUploaded(up, file, { response });
+          }
+        });
+      });
     }
   });
 

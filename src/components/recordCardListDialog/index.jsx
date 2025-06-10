@@ -11,8 +11,10 @@ import sheetAjax from 'src/api/worksheet';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import RecordCard from 'src/components/recordCard';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { checkIsTextControl, fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { fieldCanSort } from 'src/utils/control';
+import { checkIsTextControl } from 'src/utils/control';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import Header from './Header';
 import './recordCardListDialog.less';
 

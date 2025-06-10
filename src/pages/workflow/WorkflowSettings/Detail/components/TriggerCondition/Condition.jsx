@@ -1,25 +1,25 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Dropdown, Icon, Checkbox, CityPicker, Input } from 'ming-ui';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { TimePicker, Tooltip } from 'antd';
 import cx from 'classnames';
-import TagInput from '../TagInput';
+import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import { Checkbox, CityPicker, Dropdown, Icon, Input } from 'ming-ui';
+import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
 import {
+  checkConditionAllowEmpty,
   getConditionList,
   getConditionNumber,
+  getControlTypeName,
   getFilterText,
   handleGlobalVariableName,
-  checkConditionAllowEmpty,
-  getControlTypeName,
 } from '../../../utils';
 import ActionFields from '../ActionFields';
-import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
-import { Tooltip, TimePicker } from 'antd';
-import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
-import moment from 'moment';
-import _ from 'lodash';
+import Tag from '../Tag';
+import TagInput from '../TagInput';
 
 export default class TriggerCondition extends Component {
   static propTypes = {
@@ -172,9 +172,6 @@ export default class TriggerCondition extends Component {
       single = _.find(controls, o => o.controlId === item.filedId);
     }
 
-    const showType = _.get(single || {}, 'advancedSetting.showtype');
-    const unit = _.get(single || {}, 'unit');
-
     if (item.filedId) {
       conditionData = (getConditionList(item.filedTypeId, item.enumDefault) || { ids: [] }).ids.map((id, index) => {
         if (
@@ -269,7 +266,7 @@ export default class TriggerCondition extends Component {
           )}
         </div>
         <div className="mTop10 relative flexRow">
-          {this.renderItemValue(item, controlNumber, i, j, showType, unit)}
+          {this.renderItemValue(item, controlNumber, i, j, single)}
           {(item.conditionId === '1' ||
             item.conditionId === '3' ||
             item.conditionId === '5' ||
@@ -451,7 +448,7 @@ export default class TriggerCondition extends Component {
       nodeType,
       appType,
       actionId,
-      enumDefault: single.enumDefault,
+      enumDefault: single.type === 24 ? single.enumDefault2 : single.enumDefault,
       conditionId: (getConditionList(single.type, single.enumDefault) || {}).defaultConditionId,
       conditionValues: [],
       sourceType,
@@ -483,8 +480,8 @@ export default class TriggerCondition extends Component {
   /**
    * 渲染单个条件的值
    */
-  renderItemValue(item, controlNumber = 0, i, j, showType, unit) {
-    const { isNodeHeader, projectId } = this.props;
+  renderItemValue(item, controlNumber = 0, i, j, currentControl) {
+    const { isNodeHeader } = this.props;
     const { search, keywords } = this.state;
 
     if (_.isEmpty(item)) {
@@ -643,6 +640,7 @@ export default class TriggerCondition extends Component {
 
     // 日期 || 日期时间
     if (filedTypeId === 15 || filedTypeId === 16) {
+      const showType = _.get(currentControl || {}, 'advancedSetting.showtype');
       const mode = { 3: 'date', 4: 'month', 5: 'year' };
       const dateList = [];
       const showTimePicker = filedTypeId === 16 && !_.includes(['9', '10'], item.conditionId);
@@ -699,7 +697,11 @@ export default class TriggerCondition extends Component {
                   renderTitle={
                     !conditionValues[0] || conditionValues[0].type === undefined
                       ? () => <span className="Gray_75">{_l('请选择')}</span>
-                      : () => <span>{(DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)) || {}).text}</span>
+                      : () => (
+                          <span>
+                            {(DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)) || {}).text}
+                          </span>
+                        )
                   }
                   onChange={type =>
                     this.updateConditionDateValue({
@@ -811,7 +813,9 @@ export default class TriggerCondition extends Component {
             >
               <CityPicker
                 search={keywords}
-                level={level}
+                chooserange={_.get(currentControl || {}, 'advancedSetting.chooserange')}
+                level={enumDefault}
+                projectId={this.props.projectId}
                 callback={citys => {
                   search && this.setState({ search: '', keywords: '' });
                   this.cacheCityPickerData = citys;
@@ -845,15 +849,7 @@ export default class TriggerCondition extends Component {
                   <div className="CityPicker-input-tagSearchBox">
                     <Input
                       className="CityPicker-input-textCon CityPicker-input-tagSearch"
-                      placeholder={
-                        !conditionValues.length
-                          ? item.type === 19
-                            ? _l('省')
-                            : item.type === 23
-                            ? _l('省/市')
-                            : _l('省/市/县')
-                          : ''
-                      }
+                      placeholder={!conditionValues.length ? _l('选择地区') : ''}
                       value={search}
                       manualRef={this.cityPickerSearchRef}
                       onChange={value => {
@@ -915,8 +911,8 @@ export default class TriggerCondition extends Component {
                   {_.includes([26, 10000001], filedTypeId)
                     ? _l('请选择人员')
                     : filedTypeId === 27
-                    ? _l('请选择部门')
-                    : _l('请选择组织角色')}
+                      ? _l('请选择部门')
+                      : _l('请选择组织角色')}
                 </div>
               ) : (
                 <ul className="pLeft6 tagWrap">
@@ -950,7 +946,7 @@ export default class TriggerCondition extends Component {
 
     // 时间
     if (filedTypeId === 46) {
-      const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
+      const timeFormat = _.get(currentControl || {}, 'unit') === '1' ? 'HH:mm' : 'HH:mm:ss';
 
       return (
         <div className="flex">

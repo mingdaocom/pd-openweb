@@ -1,16 +1,17 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { CKEditor } from '@mdfe/ckeditor5-react';
-import styled from 'styled-components';
-import { getToken } from 'src/util';
-import './less/RichText.less';
-import cx from 'classnames';
-import '@mdfe/ckeditor5-custom-build/build/translations/zh.js';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import '@mdfe/ckeditor5-custom-build/build/translations/en.js';
+import '@mdfe/ckeditor5-custom-build/build/translations/zh.js';
+import { CKEditor } from '@mdfe/ckeditor5-react';
+import cx from 'classnames';
+import _, { get } from 'lodash';
+import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import _, { get } from 'lodash';
 import autoSize from 'ming-ui/decorators/autoSize';
-import RegExpValidator from 'src/util/expression';
+import { getToken } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import './less/RichText.less';
+
 let whiteListClone = Object.assign({}, whiteList, {
   img: ['src'],
   div: ['lang', 'dir', 'role', 'aria-labelledby'],
@@ -303,37 +304,51 @@ class MyUploadAdapter {
   }
 }
 
-const RichText = ({
-  bucket,
-  projectId,
-  appId,
-  worksheetId,
-  data,
-  disabled,
-  onSave,
-  onActualSave,
-  className,
-  placeholder,
-  minHeight,
-  showTool,
-  onClickNull,
-  changeSetting,
-  id,
-  maxWidth,
-  maxHeight,
-  dropdownPanelPosition,
-  toolbarList,
-  isRemark,
-  clickInit = false,
-  autoFocus = false,
-  width,
-  handleFocus = () => {},
-  onBlur = () => {},
-  onFocus = () => {},
-}) => {
+const RichText = forwardRef((props, ref) => {
+  const {
+    bucket,
+    projectId,
+    appId,
+    worksheetId,
+    data,
+    disabled,
+    onSave,
+    onActualSave,
+    className,
+    placeholder,
+    minHeight,
+    showTool,
+    onClickNull,
+    changeSetting,
+    id,
+    maxWidth,
+    maxHeight,
+    dropdownPanelPosition,
+    toolbarList,
+    isRemark,
+    clickInit = false,
+    autoFocus = false,
+    width,
+    handleFocus = () => {},
+    onBlur = () => {},
+    onFocus = () => {},
+  } = props;
+
   const [MDEditor, setComponent] = useState(null);
   const editorDiv = useRef();
   let editorDom = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (editorDom.current && editorDom.current.editor) {
+        editorDom.current.editor.focus();
+        editorDom.current.editor.model.change(writer => {
+          writer.setSelection(writer.createPositionAt(editorDom.current.editor.model.document.getRoot(), 'end'));
+        });
+      }
+    },
+  }));
+
   const lang = () => {
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     if (lang === 'zh-Hant') {
@@ -636,5 +651,5 @@ const RichText = ({
       {content}
     </Wrapper>
   );
-};
+});
 export default autoSize(RichText, { onlyWidth: true });

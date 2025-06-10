@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Gunter from './index.jsx';
-import SelectField from '../components/SelectField';
-import { saveView, updateWorksheetControls } from 'worksheet/redux/actions';
-import SelectFieldForStartOrEnd from 'worksheet/views/components/SelectFieldForStartOrEnd';
-import { getAdvanceSetting } from 'src/util';
-import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { saveView, updateWorksheetControls } from 'worksheet/redux/actions';
+import SelectFieldForStartOrEnd from 'worksheet/views/components/SelectFieldForStartOrEnd';
+import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { getControlsForGunter } from 'src/pages/worksheet/views/GunterView/util.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import SelectField from '../components/SelectField';
+import Gunter from './index.jsx';
 
 const Wrap = styled.div`
   width: 100%;

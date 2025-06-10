@@ -1,4 +1,4 @@
-import { formatFileSize } from 'src/util';
+import { formatFileSize } from 'src/utils/common';
 
 const subTypeNames = {
   1: _l('成员'),

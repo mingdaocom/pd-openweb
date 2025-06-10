@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
+import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import ConnectedNode from './node';
 import StructureController from 'src/api/structure';
+import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
-import { getCurrentProject } from 'src/util';
+import ConnectedNode from './node';
 import SearchInput from './searchBox';
 import '../style/otherDialog.less';
 
@@ -29,6 +29,7 @@ const NodeWrap = styled.div`
       padding-right: 10px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
       .name,
       .department,
       .job {
@@ -45,7 +46,18 @@ const NodeWrap = styled.div`
         max-width: 135px;
         margin-bottom: 4px;
         color: #151515;
+        height: 20px;
+        flex: unset;
       }
+    }
+    .resignedTag {
+      padding: 0px 8px;
+      height: 20px;
+      line-height: 20px;
+      border-radius: 12px;
+      color: #fff;
+      background-color: #bdbdbd;
+      font-size: 12px;
     }
     .subordinateCount {
       position: absolute;
@@ -168,6 +180,8 @@ function NodeDialogWrap(props) {
         data[id].subordinates &&
         data[id].subordinates.length !== 0 &&
         data[id].subTotalCount > data[id].subordinates.length;
+      data[id].sourceData = pagedDatas;
+
       setData({
         ...data,
         ...newUsers,

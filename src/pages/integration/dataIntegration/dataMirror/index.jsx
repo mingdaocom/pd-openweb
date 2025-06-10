@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import _ from 'lodash';
-import { Support, Icon } from 'ming-ui';
-import MirrorList from './components/MirrorList.jsx';
-import CreateDialog from './components/CreateDialog.jsx';
 import { useSetState } from 'react-use';
-import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus } from 'src/util';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Support } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import CreateDialog from './components/CreateDialog.jsx';
+import MirrorList from './components/MirrorList.jsx';
 
 const Wrap = styled.div`
   background: #fff;

@@ -1,34 +1,35 @@
-import React, { useState, useRef, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
-import { Tooltip, Icon, LoadDiv, RichText, SvgIcon } from 'ming-ui';
-import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import update from 'immutability-helper';
-import customApi from 'statistics/api/custom';
-import appManagementApi from 'src/api/appManagement';
-import { Popover } from 'antd';
-import SelectIcon from 'worksheet/common/SelectIcon';
-import OperateMenu from './OperateMenu';
-import SheetDesc from 'worksheet/common/SheetDesc';
-import Share from 'src/pages/worksheet/components/Share';
-import { pick } from 'lodash';
-import { createFontLink, exportImage } from 'src/pages/customPage/util';
-import { saveAs } from 'file-saver';
-import { navigateTo } from 'src/router/navigateTo';
-import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import { deleteSheet } from 'worksheet/redux/actions/sheetList';
-import moment from 'moment';
-import { canEditData } from 'worksheet/redux/actions/util';
-import { EditExternalLink } from 'src/pages/worksheet/common/WorkSheetLeft/ExternalLink';
-import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import store from 'redux/configureStore';
-import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
-import { replaceColor, isLightColor } from 'src/pages/customPage/util';
-import { getTranslateInfo, getCurrentProject } from 'src/util';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { Popover } from 'antd';
+import cx from 'classnames';
+import { saveAs } from 'file-saver';
+import update from 'immutability-helper';
+import { pick } from 'lodash';
+import moment from 'moment';
+import { string } from 'prop-types';
+import Trigger from 'rc-trigger';
+import { Icon, LoadDiv, RichText, SvgIcon, Tooltip } from 'ming-ui';
+import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
+import appManagementApi from 'src/api/appManagement';
+import customApi from 'statistics/api/custom';
 import { chartNav } from 'statistics/common';
+import SelectIcon from 'worksheet/common/SelectIcon';
+import SheetDesc from 'worksheet/common/SheetDesc';
+import { deleteSheet } from 'worksheet/redux/actions/sheetList';
+import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
+import { canEditData } from 'worksheet/redux/actions/util';
+import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
+import { createFontLink, exportImage } from 'src/pages/customPage/util';
+import { isLightColor, replaceColor } from 'src/pages/customPage/util';
+import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { EditExternalLink } from 'src/pages/worksheet/common/WorkSheetLeft/ExternalLink';
+import Share from 'src/pages/worksheet/components/Share';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
+import { getCurrentProject } from 'src/utils/project';
+import OperateMenu from './OperateMenu';
+import 'rc-trigger/assets/index.css';
 
 export default function CustomPageHeader(props) {
   const {
@@ -89,11 +90,14 @@ export default function CustomPageHeader(props) {
     setExportLoading(true);
     window.customPageWindowResize && window.customPageWindowResize();
     createFontLink()
-      .then(exportImage.bind(this, {
-        pageBgColor: pageConfig.pageBgColor,
-        isUserWatermark,
-        currentProject: md.global.Account.accountId && projectId !== 'external' ? getCurrentProject(projectId, true) : {}
-      }))
+      .then(
+        exportImage.bind(this, {
+          pageBgColor: pageConfig.pageBgColor,
+          isUserWatermark,
+          currentProject:
+            md.global.Account.accountId && projectId !== 'external' ? getCurrentProject(projectId, true) : {},
+        }),
+      )
       .then(blob => {
         setExportLoading(false);
         saveAs(blob, imageName);
@@ -376,9 +380,7 @@ export default function CustomPageHeader(props) {
                 <SvgIcon url={apk.iconUrl} fill="#fff" size={22} />
               </div>
               {(showAppName || showName) && (
-                <span className="pageName Font17 ellipsis">
-                  {pageTitle || `${showAppName}-${showName}`}
-                </span>
+                <span className="pageName Font17 ellipsis">{pageTitle || `${showAppName}-${showName}`}</span>
               )}
             </div>
           ) : (

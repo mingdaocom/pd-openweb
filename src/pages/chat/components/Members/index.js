@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
-import GroupController from 'src/api/group';
 import { LoadDiv, UserCard } from 'ming-ui';
+import GroupController from 'src/api/group';
+import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 import InviteOrAddUsers from './InviteOrAddUsers';
+import './index.less';
 
 class Avatar extends Component {
   constructor(props) {
@@ -11,9 +12,10 @@ class Avatar extends Component {
   }
 
   render() {
-    const { id, avatar } = this.props;
+    const { id, avatar, projectId } = this.props;
+
     return (
-      <UserCard sourceId={id || ''} disabled={!id}>
+      <UserCard sourceId={id || ''} disabled={!id} projectId={projectId}>
         <img
           ref={avatar => {
             this.avatar = avatar;
@@ -69,6 +71,7 @@ export default class Members extends Component {
     const { groupMemberCount, isPost } = session;
     const { loading, members } = this.state;
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
+
     return (
       <div className="ChatPanel-Members ChatPanel-sessionInfo-item">
         <div className="ChatPanel-Members-hander ChatPanel-sessionInfo-hander">
@@ -92,7 +95,7 @@ export default class Members extends Component {
                 key={item.accountId}
                 className={cx('ChatPanel-Members-item', { 'ChatPanel-Members-creator': index === 0 })}
               >
-                <Avatar id={item.accountId} avatar={item.avatar} />
+                <Avatar id={item.accountId} avatar={item.avatar} projectId={_.get(session, 'project.projectId')} />
               </div>
             ))}
             {loading ? <LoadDiv size="small" /> : undefined}

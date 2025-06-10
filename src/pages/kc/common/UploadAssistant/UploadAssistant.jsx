@@ -1,20 +1,20 @@
 ﻿import React, { Fragment } from 'react';
 import ReactDom from 'react-dom';
+import cx from 'classnames';
+import Immutable from 'immutable';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import cx from 'classnames';
-import _ from 'lodash';
-import Immutable from 'immutable';
 import Icon from 'ming-ui/components/Icon';
-import { mdNotification } from 'ming-ui/functions';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
+import { mdNotification } from 'ming-ui/functions';
+import service from '../../api/service';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import createUploader from 'src/library/plupload/createUploader';
-import { humanFileSize } from '../../utils';
-import { UPLOAD_STATUS, UPLOAD_ERROR, PICK_TYPE, MAX_FILE_COUNT } from '../../constant/enum';
-import service from '../../api/service';
-import { getClassNameByExt, getUrlByBucketName } from 'src/util';
+import { getClassNameByExt } from 'src/utils/common';
+import { MAX_FILE_COUNT, PICK_TYPE, UPLOAD_ERROR, UPLOAD_STATUS } from '../../constant/enum';
+import { getUrlByBucketName, humanFileSize } from '../../utils';
 import './uploadAssistant.css';
 
 const HoverState = createDecoratedComponent(withHoverState);

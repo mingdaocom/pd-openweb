@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import cx from 'classnames';
 import { Provider } from 'react-redux';
-import store from 'src/redux/configureStore';
-import { SvgIcon, LoadDiv } from 'ming-ui';
-import appManagementApi from 'src/api/appManagement';
-import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import DocumentTitle from 'react-document-title';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
-import styled from 'styled-components';
-import { syncAppDetail, changeAppColor } from 'src/pages/PageHeader/redux/action';
-import { getRequest, getTranslateInfo, shareGetAppLangDetail, browserIsMobile } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { LoadDiv, SvgIcon } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
+import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
+import preall from 'src/common/preall';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import { changeAppColor, syncAppDetail } from 'src/pages/PageHeader/redux/action';
+import store from 'src/redux/configureStore';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
+import { browserIsMobile, getRequest } from 'src/utils/common';
 import './index.less';
 
 const Wrap = styled.div`
@@ -41,7 +42,7 @@ const Entry = props => {
     window.clientId = clientId;
 
     getEntityShareById({
-      clientId
+      clientId,
     }).then(async result => {
       const { data } = result;
       const { appId, projectId, langInfo } = data;
@@ -54,10 +55,12 @@ const Entry = props => {
         },
       );
 
-      store.dispatch(syncAppDetail({
-        name: data.appName,
-        projectId: data.projectId
-      }));
+      store.dispatch(
+        syncAppDetail({
+          name: data.appName,
+          projectId: data.projectId,
+        }),
+      );
       store.dispatch(changeAppColor(''));
       setShare(result);
       setLoading(false);
@@ -168,10 +171,10 @@ const Entry = props => {
         <div className="Font16 bold flexRow alignItemsCenter flex">
           {appIcon && (
             <div
-              className="svgWrap flexRow alignItemsCenter justifyContentCenter mRight10"
+              className="svgWrap flexRow alignItemsCenter justifyContentCenter pTop3 mRight10"
               style={{ backgroundColor: appIconColor }}
             >
-              <SvgIcon url={appIcon} fill="#fff" size={22} />
+              <SvgIcon url={appIcon} fill="#fff" size={20} />
             </div>
           )}
           {appName && <div className="flex ellipsis">{title}</div>}

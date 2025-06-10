@@ -1,14 +1,15 @@
-import sheetAjax from 'src/api/worksheet';
-import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
-import { getCurrentView, getBoardItemKey } from '../util';
-import { getParaIds, sortDataByCustomItems } from './util';
 import update from 'immutability-helper';
-import { includes, noop, isEmpty } from 'lodash';
+import { includes, isEmpty, noop } from 'lodash';
 import { uniqBy } from 'lodash/array';
+import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
-import { wrapAjax } from './util';
+import { getTranslateInfo } from 'src/utils/app';
+import { getFilledRequestParams } from 'src/utils/common';
+import { formatQuickFilter } from 'src/utils/filter';
+import { getBoardItemKey, getCurrentView } from '../util';
 import { updateNavGroup } from './navFilter.js';
-import { getTranslateInfo } from 'src/util';
+import { getParaIds, sortDataByCustomItems } from './util';
+import { wrapAjax } from './util';
 
 let boardPromiseObj;
 let boardPromiseViewIds = [];
@@ -151,12 +152,16 @@ function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
     }
     const translateInfo = getTranslateInfo(para.appId, para.worksheetId, view.viewControl);
     const formatData = sortDataByCustomItems(data, view, controls);
-    dispatch(changeBoardViewData(formatData.map(data => {
-      return {
-        ...data,
-        name: translateInfo[data.key] || data.name
-      }
-    })));
+    dispatch(
+      changeBoardViewData(
+        formatData.map(data => {
+          return {
+            ...data,
+            name: translateInfo[data.key] || data.name,
+          };
+        }),
+      ),
+    );
     dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
 
     dispatch({

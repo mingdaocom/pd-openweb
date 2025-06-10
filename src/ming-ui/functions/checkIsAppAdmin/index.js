@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, FunctionWrap } from 'ming-ui';
-import appManagementAjax from 'src/api/appManagement.js';
-import { addBehaviorLog } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { Dialog, FunctionWrap } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { addBehaviorLog } from 'src/utils/project';
 
 const DialogCom = styled(Dialog)`
   .checkAdminDialog {

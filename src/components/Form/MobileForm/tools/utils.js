@@ -1,7 +1,9 @@
 import _, { get, includes, isArray, isObject, isString } from 'lodash';
-import { isEmptyValue } from 'src/util';
-import { allSwitchKeys, DEFAULT_TEXT, HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
+import { isEmptyValue } from 'src/utils/control';
+import { FROM } from '../../core/config';
+import { allSwitchKeys, HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
 import { controlState } from '../../core/formUtils';
+import { isPublicLink } from '../../core/utils';
 import { FIELD_SIZE_OPTIONS, TITLE_SIZE_OPTIONS } from './config';
 
 export const getTabTypeBySelectUser = (control = {}) => {
@@ -82,41 +84,11 @@ export const getAdvanceSetting = (data, key) => {
   }
 };
 
-export const getSwitchItemNames = (data, { needDefault, isShow } = {}) => {
-  const itemnames = getAdvanceSetting(data, 'itemnames') || [];
-  const showtype = getAdvanceSetting(data, 'showtype');
-  const defaultData = DEFAULT_TEXT[showtype];
-  // 筛选按默认来
-  if (isShow) {
-    return (
-      DEFAULT_TEXT[showtype] || [
-        { key: '1', value: _l('选中') },
-        { key: '0', value: _l('未选中') },
-      ]
-    );
-  }
-
-  // 需要兜底显示
-  if (needDefault) {
-    return defaultData.map(i => {
-      const cur = _.find(itemnames, it => it.key === i.key);
-      return _.get(cur, 'value') ? cur : i;
-    });
-  }
-
-  // radio框必须要文案
-  if (showtype === 2) {
-    return itemnames.every(i => !!i.value) ? itemnames : defaultData;
-  }
-
-  return itemnames;
-};
-
 // 支持左右布局的控件
 export const supportDisplayRow = item => {
   // 附件、单条关联记录、多条关联记录（卡片）、子表、分割线、备注、分段
   return (
-    !includes([14, 29, 34, 22, 51, 52], item.type) ||
+    !includes([14, 29, 34, 22, 45, 51, 52], item.type) ||
     ((item.type === 29 || item.type === 51) && _.get(item, 'advancedSetting.showtype') === '3')
   );
 };
@@ -331,4 +303,17 @@ export const isOpenPermit = (type, list = [], viewId) => {
   }
 
   return false;
+};
+
+export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item }) => {
+  return (
+    !disabledFunctions.includes('controlRefresh') &&
+    from !== FROM.DRAFT &&
+    !isPublicLink() &&
+    recordId &&
+    !recordId.includes('default') &&
+    !recordId.includes('temp') &&
+    md.global.Account.accountId &&
+    ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38, 53], item.type))
+  );
 };

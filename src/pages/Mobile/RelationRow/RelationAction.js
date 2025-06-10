@@ -1,19 +1,19 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
-import { Icon } from 'ming-ui';
-import { Dialog, Button } from 'antd-mobile';
-import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import DocumentTitle from 'react-document-title';
-import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import * as actions from './redux/actions';
-import RegExpValidator from 'src/util/expression';
-import sheetAjax from 'src/api/worksheet';
+import { Button, Dialog } from 'antd-mobile';
 import _ from 'lodash';
+import { Icon, MobileConfirmPopup } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
+import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import RegExpValidator from 'src/utils/expression';
+import * as actions from './redux/actions';
 
 class RelationAction extends Component {
   constructor(props) {
@@ -23,6 +23,7 @@ class RelationAction extends Component {
       showCreateRecord: false,
       recordkeyWords: '',
       title: '',
+      showConfirmPopup: false,
     };
   }
   handleSetEdit = value => {
@@ -259,7 +260,7 @@ class RelationAction extends Component {
         <Button className="Font13 bold pLeft0 pRight0 TxtCenter InlineBlock w100" color="primary">
           <Fragment>
             <Icon icon="qr_code_19" className="Font18 TxtBottom" />
-            <span className='mLeft4'>{_l('扫码关联')}</span>
+            <span className="mLeft4">{_l('扫码关联')}</span>
           </Fragment>
         </Button>
       </RelateScanQRCode>
@@ -267,6 +268,7 @@ class RelationAction extends Component {
   }
   renderEdit() {
     const { actionParams, permissionInfo } = this.props;
+    const { showConfirmPopup } = this.state;
     const { isEdit, selectedRecordIds } = actionParams;
     const { isRelevance, isSubList } = permissionInfo;
     return (
@@ -285,10 +287,7 @@ class RelationAction extends Component {
             color="primary"
             disabled={!selectedRecordIds.length}
             onClick={() => {
-              Dialog.confirm({
-                content: isSubList ? _l('确认删除吗？') : _l('确认取消选中的关联关系吗？'),
-                onConfirm: this.removeRelationRows,
-              });
+              this.setState({ showConfirmPopup: true });
             }}
           >
             {selectedRecordIds.length
@@ -298,6 +297,14 @@ class RelationAction extends Component {
               : _l('取消关联')}
           </Button>
         )}
+        <MobileConfirmPopup
+          title={isSubList ? _l('确认删除吗？') : _l('确认取消选中的关联关系吗？')}
+          visible={showConfirmPopup}
+          onConfirm={this.removeRelationRows}
+          onCancel={() => {
+            this.setState({ showConfirmPopup: false });
+          }}
+        />
       </Fragment>
     );
   }

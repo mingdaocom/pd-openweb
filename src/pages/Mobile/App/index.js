@@ -14,7 +14,9 @@ import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.j
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { addBehaviorLog, getAppFeaturesVisible, getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesVisible } from 'src/utils/app';
+import { addBehaviorLog } from 'src/utils/project';
 import { AppPermissionsInfo } from '../components/AppPermissions';
 import Back from '../components/Back';
 import DebugInfo from '../components/DebugInfo';
@@ -106,10 +108,10 @@ class App extends Component {
       const expandGroupKeys = appExpandGroupInfo.expandGroupKeys
         ? appExpandGroupInfo.expandGroupKeys
         : detail.appNaviDisplayType === 1
-        ? []
-        : detail.appNaviDisplayType === 2
-        ? [appSection[0].appSectionId]
-        : appSection.map(item => item.appSectionId);
+          ? []
+          : detail.appNaviDisplayType === 2
+            ? [appSection[0].appSectionId]
+            : appSection.map(item => item.appSectionId);
 
       this.setState({
         expandGroupKeys,
@@ -210,10 +212,10 @@ class App extends Component {
       const { workSheetId } = bottomNavSheetId
         ? { workSheetId: bottomNavSheetId }
         : isCharge && workSheetInfo.length
-        ? workSheetInfo[0]
-        : workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide).length
-        ? workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide)[0]
-        : {};
+          ? workSheetInfo[0]
+          : workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide).length
+            ? workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide)[0]
+            : {};
 
       window.mobileNavigateTo(`/mobile/app/${params.appId}/${appSectionId}${workSheetId ? '/' + workSheetId : ''}`);
     }
@@ -614,8 +616,8 @@ class App extends Component {
             defaultActiveKey: appExpandGroupInfo.expandGroupKeys
               ? appExpandGroupInfo.expandGroupKeys
               : appNaviDisplayType === 1 && (appSection.length > 1 || _.get(appSection, '[0].name'))
-              ? []
-              : appSection.map(item => item.appSectionId),
+                ? []
+                : appSection.map(item => item.appSectionId),
           };
     const { childSections = [], workSheetInfo = [] } = appSection;
     const isEmptyAppSection = appSection.length === 1 && childSections.length && workSheetInfo.length;
@@ -711,8 +713,8 @@ class App extends Component {
                         appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0
                           ? 20
                           : hasDebugRoles
-                          ? 110
-                          : 70
+                            ? 110
+                            : 70
                       }px`
                     : `${hasDebugRoles ? 60 : 20}px`,
               }}

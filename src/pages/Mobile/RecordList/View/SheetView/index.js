@@ -1,20 +1,20 @@
-import React, { Fragment, Component } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Popup, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Button, Icon } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/process';
+import RecordAction from 'mobile/components/RecordInfo/RecordAction';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
-import { Icon, Button } from 'ming-ui';
-import SheetRows, { WithoutRows } from '../../SheetRows';
-import { SpinLoading, Popup } from 'antd-mobile';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import worksheetAjax from 'src/api/worksheet';
-import RecordAction from 'mobile/components/RecordInfo/RecordAction';
-import processAjax from 'src/pages/workflow/api/process';
-import { replaceBtnsTranslateInfo } from 'worksheet/util';
-import _ from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { replaceBtnsTranslateInfo } from 'src/utils/translate';
+import SheetRows, { WithoutRows } from '../../SheetRows';
 
 const BatchOptBtn = styled.div`
   display: flex;

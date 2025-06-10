@@ -4,7 +4,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 
 const PublicqueryHeader = styled.div`
   width: 100%;

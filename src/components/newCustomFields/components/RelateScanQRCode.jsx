@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import sheetAjax from 'src/api/worksheet';
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import ScanQRCode from './ScanQRCode';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import sheetAjax from 'src/api/worksheet';
+import { getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
+import { compatibleMDJS } from 'src/utils/project';
+import ScanQRCode from './ScanQRCode';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -11,8 +13,33 @@ export default class Widgets extends Component {
     onChange: PropTypes.func,
     children: PropTypes.element,
   };
+
+  // 关联记录关联成功将当前关联数据通过js sdk返回给APP
+  handleScanRelationLoaded = ({ enumDefault, controlId, controlName, title, rowId, type, msg }) => {
+    if (enumDefault !== 2) {
+      return;
+    }
+    compatibleMDJS('scanRelationLoaded', {
+      cid: controlId,
+      cname: controlName,
+      relation: _.includes(['2', '3'], type)
+        ? {}
+        : {
+            title: title, //关联记录的标题, 注意转换为纯文本提供
+            rowId: rowId, //关联记录的Id
+          },
+      error: !type
+        ? undefined
+        : {
+            type, //"1": 无数据, "2": 不在关联范围内,
+            msg, // 对应描述
+          },
+    });
+  };
+
   getRowById = ({ appId, worksheetId, viewId, rowId }) => {
-    const { filterControls = [], parentWorksheetId, control = {} } = this.props;
+    const { filterControls = [], parentWorksheetId, control = {}, relateRecordIds = [] } = this.props;
+    const { controlId, controlName, enumDefault } = control;
 
     const getFilterRowsPromise = window.isPublicWorksheet
       ? publicWorksheetAjax.getRelationRows
@@ -39,14 +66,39 @@ export default class Widgets extends Component {
     }).then(result => {
       const row = _.find(result.data, { rowid: rowId });
       if (row) {
-        this.props.onChange(row);
+        const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
+        const nameValue = titleControl ? row[titleControl.controlId] : undefined;
+        if (!_.includes(relateRecordIds, row.rowid)) {
+          this.props.onChange(row);
+        }
+        this.handleScanRelationLoaded({
+          controlId,
+          controlName,
+          enumDefault,
+          title: getCurrentValue(titleControl, nameValue, { type: 2 }),
+          rowId: row.rowid,
+          type: _.includes(relateRecordIds, row.rowid) ? '3' : undefined,
+        });
       } else {
+        if (window.isMingDaoApp) {
+          this.handleScanRelationLoaded({
+            controlId,
+            controlName,
+            enumDefault,
+            title: '',
+            rowId: '',
+            type: '2',
+            msg: _l('无法关联，此记录不在可关联的范围内'),
+          });
+          return;
+        }
         alert(_l('无法关联，此记录不在可关联的范围内'), 3);
       }
     });
   };
   handleRelateRow = content => {
     const currentWorksheetId = this.props.worksheetId;
+    const { controlId, controlName, enumDefault } = _.get(this.props, 'control') || {};
     if (content.includes('worksheetshare') || content.includes('public/record')) {
       const shareId = (content.match(/\/worksheetshare\/(.*)/) || content.match(/\/public\/record\/(.*)/))[1];
       sheetAjax
@@ -58,6 +110,18 @@ export default class Widgets extends Component {
           if (currentWorksheetId === result.worksheetId) {
             this.getRowById(result);
           } else {
+            if (window.isMingDaoApp) {
+              this.handleScanRelationLoaded({
+                controlId,
+                controlName,
+                enumDefault,
+                title: '',
+                rowId: '',
+                type: '2',
+                msg: _l('无法关联，此记录不在可关联的范围内'),
+              });
+              return;
+            }
             alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         });
@@ -79,6 +143,18 @@ export default class Widgets extends Component {
               rowId,
             });
           } else {
+            if (window.isMingDaoApp) {
+              this.handleScanRelationLoaded({
+                controlId,
+                controlName,
+                enumDefault,
+                title: '',
+                rowId: '',
+                type: '2',
+                msg: _l('无法关联，此记录不在可关联的范围内'),
+              });
+              return;
+            }
             alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         } else {
@@ -90,9 +166,14 @@ export default class Widgets extends Component {
     }
   };
   render() {
-    const { className, projectId, children } = this.props;
+    const { className, projectId, children, control } = this.props;
     return (
-      <ScanQRCode className={className} projectId={projectId} onScanQRCodeResult={this.handleRelateRow}>
+      <ScanQRCode
+        className={className}
+        projectId={projectId}
+        control={control}
+        onScanQRCodeResult={this.handleRelateRow}
+      >
         {children}
       </ScanQRCode>
     );

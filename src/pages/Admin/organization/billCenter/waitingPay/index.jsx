@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
+import { Checkbox } from 'antd';
+import cx from 'classnames';
+import { Button, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import orderController from 'src/api/order';
+import { checkPermission } from 'src/components/checkPermission';
+import { payDialogFunc } from 'src/components/pay/payDialog';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { addToken, encrypt } from 'src/utils/common';
 import Config from '../../../config';
 import billCommon from '../common';
-import { Icon, LoadDiv, VerifyPasswordConfirm, Button } from 'ming-ui';
-import { Checkbox } from 'antd';
-import orderController from 'src/api/order';
-import cx from 'classnames';
 import './style.less';
-import { payDialogFunc } from 'src/components/pay/payDialog';
-import { encrypt, addToken } from 'src/util';
-import { checkPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const params = Config.params;
 const orderId = params[3];

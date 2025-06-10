@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
+import { Button, Checkbox, ConfigProvider, Input, Modal, Radio, Select } from 'antd';
 import cx from 'classnames';
 import { SortableList } from 'ming-ui';
-import { Modal, ConfigProvider, Button, Radio, Input, Select, Checkbox } from 'antd';
-import { Icon, ColorPicker } from 'ming-ui';
+import { ColorPicker, Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
-import { formatNumberFromInput } from 'src/util';
 import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
+import { formatNumberFromInput } from 'src/utils/control';
 import './RuleColor.less';
 
 const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {

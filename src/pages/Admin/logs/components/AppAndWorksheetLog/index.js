@@ -1,33 +1,34 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Button, Tooltip, UserHead, UserName } from 'ming-ui';
+import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import filterXss from 'xss';
+import { Button, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import SearchWrap from '../../../components/SearchWrap';
-import PageTableCon from '../../../components/PageTableCon';
-import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
-import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
-import WorksheetLogDrawer from '../WorksheetLogDrawer';
-import ArchivedList from 'src/components/ArchivedList';
-import {
-  APP_WORKSHEET_LOG_COLUMNS,
-  PRIVATE_APP_WORKSHEET_LOG_COLUMNS,
-  MODULE_LIST,
-  OPERATE_LIST,
-  TAB_LIST,
-} from '../../enum';
 import appManagementAjax from 'src/api/appManagement';
-import { navigateTo } from 'src/router/navigateTo';
 import downloadAjax from 'src/api/download';
 import sheetAjax from 'src/api/worksheet';
-import { getFeatureStatus, dateConvertToUserZone, getTranslateInfo } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import { VersionProductType } from 'src/util/enum';
+import ArchivedList from 'src/components/ArchivedList';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
-import styled from 'styled-components';
-import moment from 'moment';
-import _ from 'lodash';
-import cx from 'classnames';
-import filterXss from 'xss';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
+import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
+import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { VersionProductType } from 'src/utils/enum';
+import { dateConvertToUserZone, getFeatureStatus } from 'src/utils/project';
+import PageTableCon from '../../../components/PageTableCon';
+import SearchWrap from '../../../components/SearchWrap';
+import {
+  APP_WORKSHEET_LOG_COLUMNS,
+  MODULE_LIST,
+  OPERATE_LIST,
+  PRIVATE_APP_WORKSHEET_LOG_COLUMNS,
+  TAB_LIST,
+} from '../../enum';
+import WorksheetLogDrawer from '../WorksheetLogDrawer';
 
 const FlexWrap = styled.div`
   flex: 1;
@@ -110,7 +111,7 @@ const AvatarWrap = styled.div`
   width: 24px;
   height: 24px;
   background: #f5f5f5;
-`
+`;
 const PAGE_SIZE = 50;
 export default class AppAndWorksheetLog extends Component {
   constructor(props) {
@@ -169,7 +170,7 @@ export default class AppAndWorksheetLog extends Component {
                 return (
                   <div className="flexRow">
                     {isPublicFileDownload ? (
-                      <AvatarWrap className='pointer circle mRight8 valignWrapper justifyContentCenter'>
+                      <AvatarWrap className="pointer circle mRight8 valignWrapper justifyContentCenter">
                         <Icon icon="worksheet" className="Gray_9e Font16 TxtMiddle" />
                       </AvatarWrap>
                     ) : (
@@ -313,7 +314,10 @@ export default class AppAndWorksheetLog extends Component {
       let newWorksheetList = [];
       appIds.forEach(item => {
         newWorksheetList = newWorksheetList.concat(
-          (res[item] || []).map(it => ({ label: getTranslateInfo(item, null, it.worksheetId).name || it.worksheetName, value: it.worksheetId })),
+          (res[item] || []).map(it => ({
+            label: getTranslateInfo(item, null, it.worksheetId).name || it.worksheetName,
+            value: it.worksheetId,
+          })),
         );
       });
 
@@ -338,10 +342,10 @@ export default class AppAndWorksheetLog extends Component {
       logType === 1
         ? _.includes(['all', 1, 2, 3, 6, 7, 16, 18, 19, 20], it.value)
         : logType === 2
-        ? !_.includes([4, 10, 16, 18, 19, 20], it.value)
-        : logType === 3
-        ? _.includes(['all', 4, 10], it.value)
-        : true,
+          ? !_.includes([4, 10, 16, 18, 19, 20], it.value)
+          : logType === 3
+            ? _.includes(['all', 4, 10], it.value)
+            : true,
     );
     // 非旗舰版不显示浏览、打印
     operationTypesData =
@@ -518,13 +522,13 @@ export default class AppAndWorksheetLog extends Component {
       startDateTime: startDate
         ? startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss')
         : _.isEmpty(archivedItem)
-        ? moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
-        : moment(archiveDate).startOf('month').format('YYYY-MM-DD HH:mm:ss'),
+          ? moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : moment(archiveDate).startOf('month').format('YYYY-MM-DD HH:mm:ss'),
       endDateTime: endDate
         ? endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss')
         : _.isEmpty(archivedItem)
-        ? moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
-        : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
+          ? moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
       isSingle: appId ? true : false,
       archivedId: archivedItem.id,
     })
@@ -542,9 +546,9 @@ export default class AppAndWorksheetLog extends Component {
               ...item,
               appItem: {
                 ...item.appItem,
-                name: getTranslateInfo(appId, null, _.get(item.appItem, 'id')).name || _.get(item.appItem, 'name')
-              }
-            }
+                name: getTranslateInfo(appId, null, _.get(item.appItem, 'id')).name || _.get(item.appItem, 'name'),
+              },
+            };
           }),
           count: res.allCount,
           loading: false,
@@ -586,13 +590,13 @@ export default class AppAndWorksheetLog extends Component {
       startDateTime: startDate
         ? startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss')
         : _.isEmpty(archivedItem)
-        ? moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
-        : moment(archiveDate).startOf('month').format('YYYY-MM-DD HH:mm:ss'),
+          ? moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : moment(archiveDate).startOf('month').format('YYYY-MM-DD HH:mm:ss'),
       endDateTime: endDate
         ? endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss')
         : _.isEmpty(archivedItem)
-        ? moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
-        : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
+          ? moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
       columnNames: this.columns.map(it => it.title),
       menuName: _.get(_.find(TAB_LIST, v => v.tab === logType) || {}, 'tabName'),
       isSingle: appId ? true : false,
@@ -833,10 +837,10 @@ export default class AppAndWorksheetLog extends Component {
                             worksheetIds: searchParams.worksheetIds
                               ? searchParams.worksheetIds
                               : searchParams.appIds && _.isEmpty(searchParams.appIds)
-                              ? []
-                              : !_.isEmpty(appIds) || !_.isEmpty(worksheetIds)
-                              ? worksheetIds
-                              : [],
+                                ? []
+                                : !_.isEmpty(appIds) || !_.isEmpty(worksheetIds)
+                                  ? worksheetIds
+                                  : [],
                           },
                       pageIndex: 1,
                       worksheetList:

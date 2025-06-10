@@ -1,22 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import styled from 'styled-components';
-import worksheetAjax from 'src/api/worksheet';
+import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
-import { copyRow } from 'worksheet/controllers/record';
-import copy from 'copy-to-clipboard';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { handleOpenInNew, handleCustomWidget, deleteRecord } from 'worksheet/common/recordInfo/crtl';
+import worksheetAjax from 'src/api/worksheet';
+import { deleteRecord, handleCustomWidget, handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
 import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
 import PrintList from 'worksheet/common/recordInfo/RecordForm/PrintList';
-import { replaceBtnsTranslateInfo } from 'worksheet/util';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { copyRow } from 'worksheet/controllers/record';
 import { permitList } from 'src/pages/FormSet/config.js';
-import _ from 'lodash';
-import { getCurrentProject, emitter } from 'src/util';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { emitter } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import { replaceBtnsTranslateInfo } from 'src/utils/translate';
 
 // TODO 完善菜单关闭交互
 
@@ -102,6 +103,100 @@ export const memodRecordOperate = React.memo(
     return true;
   },
 );
+
+export function handleDeleteRecord({
+  worksheetId,
+  appId,
+  viewId,
+  recordId,
+  onDelete,
+  onDeleteSuccess,
+  onRemoveRelation,
+  from,
+  isSubList,
+  showRemoveRelation,
+}) {
+  async function deleteRow() {
+    if (_.isFunction(onDelete)) {
+      onDelete();
+    } else {
+      try {
+        await deleteRecord({ worksheetId, recordId });
+        alert(_l('删除成功'));
+        if (from === RECORD_INFO_FROM.DRAFT) {
+          onRemoveRelation({ confirm: false });
+          return;
+        }
+        onDeleteSuccess({ appId, worksheetId, viewId, recordId });
+        emitter.emit('ROWS_UPDATE');
+      } catch (err) {
+        console.log(err);
+        alert(_l('删除失败'), 2);
+      }
+    }
+  }
+  if (isSubList) {
+    deleteRow();
+    return;
+  }
+  if (showRemoveRelation) {
+    Dialog.confirm({
+      onlyClose: true,
+      title: <DangerConfirmTitle>{_l('注意：此操作将删除原始记录')}</DangerConfirmTitle>,
+      description: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
+      buttonType: 'danger',
+      cancelType: 'ghostgray',
+      okText: _l('删除记录'),
+      cancelText: _l('仅取消关联关系'),
+      onOk: deleteRow,
+      onCancel: () => onRemoveRelation({ confirm: false }),
+    });
+  } else {
+    Dialog.confirm({
+      title: _l('是否删除此条记录'),
+      buttonType: 'danger',
+      onOk: deleteRow,
+    });
+  }
+}
+
+export function handleCopyRecord({ worksheetId, viewId, recordId, onCopy, relateRecordControlId, onCopySuccess }) {
+  if (_.isFunction(onCopy)) {
+    onCopy();
+  } else {
+    Dialog.confirm({
+      title: _l('您确认复制这条记录吗？'),
+      onOk: () => {
+        copyRow(
+          {
+            worksheetId,
+            viewId,
+            rowIds: [recordId],
+            relateRecordControlId,
+          },
+          newRows => {
+            onCopySuccess(newRows[0], recordId);
+          },
+        );
+      },
+    });
+  }
+}
+
+export function handleShareRecord({ isCharge, appId, worksheetId, viewId, recordId, sheetSwitchPermit }) {
+  handleShare({
+    isCharge,
+    appId,
+    worksheetId,
+    viewId,
+    recordId,
+    hidePublicShare: !(
+      isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
+    ),
+    privateShare: isOpenPermit(permitList.embeddedLink, sheetSwitchPermit, viewId),
+  });
+}
+
 export default function RecordOperate(props) {
   const {
     isSubList,
@@ -382,16 +477,13 @@ export default function RecordOperate(props) {
                   alert(_l('预览模式下，不能操作'), 3);
                   return;
                 }
-                handleShare({
+                handleShareRecord({
                   isCharge,
                   appId,
                   worksheetId,
                   viewId,
                   recordId,
-                  hidePublicShare: !(
-                    isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
-                  ),
-                  privateShare: isOpenPermit(permitList.embeddedLink, sheetSwitchPermit, viewId),
+                  sheetSwitchPermit,
                 });
                 changePopupVisible(false);
               }}
@@ -410,26 +502,14 @@ export default function RecordOperate(props) {
                   return;
                 }
                 changePopupVisible(false);
-                if (_.isFunction(onCopy)) {
-                  onCopy();
-                } else {
-                  Dialog.confirm({
-                    title: _l('您确认复制这条记录吗？'),
-                    onOk: () => {
-                      copyRow(
-                        {
-                          worksheetId,
-                          viewId,
-                          rowIds: [recordId],
-                          relateRecordControlId,
-                        },
-                        newRows => {
-                          onCopySuccess(newRows[0], recordId);
-                        },
-                      );
-                    },
-                  });
-                }
+                handleCopyRecord({
+                  worksheetId,
+                  viewId,
+                  recordId,
+                  onCopy,
+                  onCopySuccess,
+                  relateRecordControlId,
+                });
               }}
             >
               {_l('复制%02003')}
@@ -502,48 +582,19 @@ export default function RecordOperate(props) {
                   return;
                 }
                 changePopupVisible(false);
-                async function deleteRow() {
-                  if (_.isFunction(onDelete)) {
-                    onDelete();
-                  } else {
-                    try {
-                      await deleteRecord({ worksheetId, recordId });
-                      alert(_l('删除成功'));
-                      if (from === RECORD_INFO_FROM.DRAFT) {
-                        onRemoveRelation({ confirm: false });
-                        return;
-                      }
-                      onDeleteSuccess({ appId, worksheetId, viewId, recordId });
-                      emitter.emit('ROWS_UPDATE');
-                    } catch (err) {
-                      console.log(err);
-                      alert(_l('删除失败'), 2);
-                    }
-                  }
-                }
-                if (isSubList) {
-                  deleteRow();
-                  return;
-                }
-                if (showRemoveRelation) {
-                  Dialog.confirm({
-                    onlyClose: true,
-                    title: <DangerConfirmTitle>{_l('注意：此操作将删除原始记录')}</DangerConfirmTitle>,
-                    description: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
-                    buttonType: 'danger',
-                    cancelType: 'ghostgray',
-                    okText: _l('删除记录'),
-                    cancelText: _l('仅取消关联关系'),
-                    onOk: deleteRow,
-                    onCancel: () => onRemoveRelation({ confirm: false }),
-                  });
-                } else {
-                  Dialog.confirm({
-                    title: _l('是否删除此条记录'),
-                    buttonType: 'danger',
-                    onOk: deleteRow,
-                  });
-                }
+                handleDeleteRecord({
+                  worksheetId,
+                  appId,
+                  viewId,
+                  recordId,
+                  onDelete,
+                  onDeleteSuccess,
+                  onRemoveRelation,
+                  from,
+                  isSubList,
+                  showRemoveRelation,
+                  handleDeleteRecord,
+                });
               }}
             >
               {_l('删除%02000')}

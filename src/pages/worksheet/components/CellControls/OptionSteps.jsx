@@ -1,14 +1,14 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
 import { Steps } from 'ming-ui';
-import cx from 'classnames';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { isLightColor } from 'src/utils/control';
 import { FROM } from './enum';
-import { isLightColor } from 'src/util';
-import _ from 'lodash';
 
 function getOptionStyle(option, cell) {
   return cell.enumDefault2 === 1 && option.color

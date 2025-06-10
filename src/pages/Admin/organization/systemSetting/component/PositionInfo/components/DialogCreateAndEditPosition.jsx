@@ -1,10 +1,10 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
-import './dialogCreateAndEditRole.less';
-import fixedDataAjax from 'src/api/fixedData.js';
-import jobAjax from 'src/api/job';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
+import fixedDataAjax from 'src/api/fixedData.js';
+import jobAjax from 'src/api/job';
+import './dialogCreateAndEditRole.less';
 
 class DialogCreateAndEditPosition extends React.Component {
   constructor(props) {
@@ -150,6 +150,7 @@ class DialogCreateAndEditPosition extends React.Component {
             class="inputBox"
             maxLength={32}
             value={jobName}
+            autoFocus
             placeholder={_l('请填写职位名称')}
             onChange={e => {
               this.setState({

@@ -131,6 +131,11 @@ const PivotTableContent = styled.div`
       font-weight: bold;
     }
   }
+  .ant-pagination,
+  .ant-pagination-item:not(.ant-pagination-item-active) a,
+  .ant-pagination-prev button, .ant-pagination-next button {
+    color: var(--title-color);
+  }
   .ant-pagination-options {
     display: block !important;
   }

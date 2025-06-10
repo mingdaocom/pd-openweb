@@ -1,14 +1,15 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { MobileRadio, Icon } from 'ming-ui';
-import cx from 'classnames';
-import { isLightColor } from 'src/util';
 import { Select } from 'antd';
-import { browserIsMobile } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, MobileRadio } from 'ming-ui';
+import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
+import { browserIsMobile } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
+import { FROM } from '../../tools/config';
 import { getCheckAndOther } from '../../tools/utils';
 import OtherInput from '../Checkbox/OtherInput';
-import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -111,6 +112,8 @@ export default class Widgets extends Component {
       advancedSetting,
       disableCustom,
       hint,
+      from,
+      flag,
     } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
     const delOptions = options.filter(item => item.isDeleted || item.hide);
@@ -191,6 +194,9 @@ export default class Widgets extends Component {
             this.select = select;
           }}
           dropdownClassName={dropdownClassName}
+          // getPopupContainer={triggerNode =>
+          //   from === FROM.NEWRECORD || (from === FROM.RECORDINFO && flag) ? triggerNode.parentNode : document.body
+          // }
           className={cx('w100 customAntSelect', { optionDisabled: disabled })}
           disabled={disabled}
           showSearch

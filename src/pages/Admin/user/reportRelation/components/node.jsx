@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { connect } from 'react-redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import {
-  updateCollapse,
   addSubordinates,
-  replaceStructure,
-  removeStructure,
-  loadMore,
   fetchSubordinates,
+  loadMore,
+  removeStructure,
+  replaceStructure,
+  updateCollapse,
 } from '../actions';
 import { selectUser } from '../common';
-import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import Item from './item';
 import NoData from './noData';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const LoadWrap = styled.div`
   width: 100%;
@@ -52,17 +52,25 @@ class Node extends Component {
       data = {},
       onChangeData,
       disableMore = false,
+      sourceData = [],
     } = this.props;
+
     if (subordinates && !collapsed) {
+      const sortSubordinates = !_.isEmpty(sourceData)
+        ? _.orderBy(sourceData, ['status'], ['desc'])
+            .map(v => v.accountId)
+            .filter(v => _.includes(subordinates, v))
+        : subordinates;
+
       return (
         <div className="childNodeList">
-          {subordinates.map((child, index) => {
+          {sortSubordinates.map((child, index) => {
             const _props = {
               id: child,
               parentId: id,
               level: this.props.level + 1,
               isFirst: index === 0,
-              isLast: index === subordinates.length - 1,
+              isLast: index === sortSubordinates.length - 1,
               auth,
             };
 
@@ -74,7 +82,7 @@ class Node extends Component {
 
             return <ConnectedNode {..._props} key={_props.id} />;
           })}
-          {!disableMore && subTotalCount > subordinates.length && (
+          {!disableMore && subTotalCount > sortSubordinates.length && (
             <div
               className="loadMore Hand"
               onClick={() => {

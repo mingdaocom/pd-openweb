@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import _ from 'lodash';
 import { Drawer } from 'antd';
-import { Button, Icon, Input, LoadDiv, Checkbox, Tooltip } from 'ming-ui';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Checkbox, Icon, Input, LoadDiv, Tooltip } from 'ming-ui';
 import roleApi from 'src/api/role';
-import PermissionList from './PermissionList';
 import { getCheckedPermissionIds } from '../utils';
+import PermissionList from './PermissionList';
 
 const RoleDrawer = styled(Drawer)`
   .ant-drawer-header {
@@ -109,6 +109,7 @@ export default function CreateEditRole(props) {
               placeholder={_l('请输入角色名称')}
               className="w100"
               value={roleInfo.roleName}
+              autoFocus
               onChange={roleName => setRoleInfo({ roleName })}
             />
             <div className="permissionsHeader">

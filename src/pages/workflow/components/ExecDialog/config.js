@@ -24,8 +24,8 @@ export const ACTION_TYPES = {
 
 export const ACTION_LIST = {
   3: { id: 'revoke', text: _l('撤回'), icon: 'repeal-o', sort: 3 },
-  4: { id: 'pass', text: _l('通过'), icon: 'done_2', sort: 1 },
-  5: { id: 'overrule', text: _l('否决'), icon: 'clear', sort: 2 },
+  4: { id: 'pass', text: _l('同意'), icon: 'done_2', sort: 1 },
+  5: { id: 'overrule', text: _l('拒绝'), icon: 'clear', sort: 2 },
   6: { id: 'transferApprove', text: _l('转审'), icon: 'sp_post_exchange_white', sort: 5 },
   7: { id: 'sign', text: _l('加签'), icon: 'person_add', sort: 6 },
   9: { id: 'submit', text: _l('提交'), icon: 'done', sort: 7 },
@@ -72,15 +72,15 @@ export const ACTION_TO_TEXT = {
     placeholder: _l('填写加人备注'),
   },
   pass: {
-    headerText: _l('通过审批'),
+    headerText: _l('审批处理：'),
     placeholder: _l('请输入'),
   },
   overrule: {
-    headerText: _l('否决审批'),
+    headerText: _l('审批处理：'),
     placeholder: _l('请输入'),
   },
   return: {
-    headerText: _l('退回审批'),
+    headerText: _l('审批处理：'),
     placeholder: _l('请输入'),
   },
   taskRevoke: {

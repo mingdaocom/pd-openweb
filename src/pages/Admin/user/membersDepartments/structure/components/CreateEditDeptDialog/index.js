@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, FunctionWrap } from 'ming-ui';
+import { dialogSelectDept } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
 import fixedDataAjax from 'src/api/fixedData.js';
-import { dialogSelectDept } from 'ming-ui/functions';
-import { dialogSelectDeptUser } from '../DialogSelectDeptUser';
 import { updateTreeData } from 'src/pages/Admin/user/membersDepartments/structure/modules/util';
+import { dialogSelectDeptUser } from '../DialogSelectDeptUser';
 import './index.less';
 
 let RESULTS = {
@@ -195,6 +195,7 @@ export default class CreateEditDeptDialog extends Component {
                 type="text"
                 value={departmentInfo.departmentName}
                 maxlength="64"
+                autoFocus
                 className="deptName TxtBottom w100"
                 onChange={e => {
                   let val = e.target.value;

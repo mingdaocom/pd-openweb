@@ -1,17 +1,18 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import cx from 'classnames';
-import { quickSelectDept } from 'ming-ui/functions';
 import { Tooltip } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { quickSelectDept } from 'ming-ui/functions';
 import departmentAjax from 'src/api/department';
-const ClickAwayable = createDecoratedComponent(withClickAway);
-import EditableCellCon from '../EditableCellCon';
 import { dealRenderValue, dealUserRange } from 'src/components/newCustomFields/tools/utils';
-import _ from 'lodash';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
+import EditableCellCon from '../EditableCellCon';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {

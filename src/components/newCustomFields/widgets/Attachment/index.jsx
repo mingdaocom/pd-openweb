@@ -1,23 +1,24 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
-import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
-import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
-import { getRowGetType } from 'worksheet/util';
-import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils';
-import Files from './Files';
-import FileEditModal from './Files/FileEditModal';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
+import { Icon } from 'ming-ui';
 import attachmentApi from 'src/api/attachment';
 import downloadApi from 'src/api/download';
 import worksheetApi from 'src/api/worksheet';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
+import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
+import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils';
+import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { browserIsMobile, compatibleMDJS } from 'src/util';
-import RegExpValidator from 'src/util/expression';
-import _ from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { browserIsMobile, getRowGetType } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { compatibleMDJS } from 'src/utils/project';
+import Files from './Files';
+import FileEditModal from './Files/FileEditModal';
 import './index.less';
 
 const isMobile = browserIsMobile();
@@ -120,8 +121,8 @@ export default class Widgets extends Component {
       args.type = window.shareState.isPublicRecord
         ? 3
         : _.get(window, 'shareState.isPublicForm') || _.get(window, 'shareState.isPublicForm')
-        ? 11
-        : 14;
+          ? 11
+          : 14;
     }
     if (isDraft) {
       args.type = 21;
@@ -508,7 +509,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileFiles: _.uniqBy(
-                    this.state.mobileFiles.filter(n => !('progress' in n)).concat(files),
+                    [...this.state.mobileFiles, ...files].filter(n => !('progress' in n)),
                     'fileName',
                   ),
                 },
@@ -521,7 +522,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCameraFiles: _.uniqBy(
-                    this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files),
+                    [...this.state.mobileCameraFiles, ...files].filter(n => !('progress' in n)),
                     'fileName',
                   ),
                 },
@@ -534,7 +535,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCamcorderFiles: _.uniqBy(
-                    this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files),
+                    [...this.state.mobileCamcorderFiles, ...files].filter(n => !('progress' in n)),
                     'fileName',
                   ),
                 },
@@ -581,6 +582,7 @@ export default class Widgets extends Component {
       masterData,
       isDraft,
       sourceControlId,
+      fieldPermission
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
     const {
@@ -688,8 +690,8 @@ export default class Widgets extends Component {
           showCamera && showCamcorder && showFile
             ? 'calc(100% - 172px)'
             : (showCamera || showCamcorder) && showFile
-            ? 'calc(100% - 86px)'
-            : '100%',
+              ? 'calc(100% - 86px)'
+              : '100%',
       };
 
       return (
@@ -805,61 +807,93 @@ export default class Widgets extends Component {
       >
         <div className="flexRow valignWrapper spaceBetween">
           {!pcDisabled ? (
-            <UploadFilesTrigger
-              noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
-              id={this.id}
-              from={from}
-              projectId={projectId}
-              appId={appId}
-              worksheetId={worksheetId}
-              offset={[0, 2]}
-              canAddLink={false}
-              canAddKnowledge={canAddKnowledge}
-              minWidth={130}
-              showAttInfo={false}
-              advancedSetting={advancedSetting}
-              originCount={originCount}
-              attachmentData={[]}
-              onUploadComplete={isComplete => {
-                this.setState({ isComplete }, () => {
-                  if (!$dom.is(':visible') && uploadStart) {
-                    this.onSaveTemporary();
-                  }
-                });
+            <div className="flexRow valignWrapper">
+              <UploadFilesTrigger
+                allowUploadFileFromMobile
+                noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
+                id={this.id}
+                from={from}
+                projectId={projectId}
+                appId={appId}
+                controlId={controlId}
+                viewId={viewIdForPermit}
+                worksheetId={worksheetId}
+                offset={[0, 2]}
+                canAddLink={false}
+                canAddKnowledge={canAddKnowledge}
+                minWidth={130}
+                showAttInfo={false}
+                advancedSetting={advancedSetting}
+                originCount={originCount}
+                attachmentData={[]}
+                onUploadComplete={isComplete => {
+                  this.setState({ isComplete }, () => {
+                    if (!$dom.is(':visible') && uploadStart) {
+                      this.onSaveTemporary();
+                    }
+                  });
 
-                setTimeout(() => this.setState({ uploadStart: true }), 200);
-              }}
-              temporaryData={temporaryAttachments}
-              onTemporaryDataUpdate={res => this.setState({ temporaryAttachments: res })}
-              kcAttachmentData={temporaryKnowledgeAtts}
-              onKcAttachmentDataUpdate={res => this.setState({ temporaryKnowledgeAtts: res })}
-              getPopupContainer={this.getPopupContainer}
-              onCancel={this.onCancelTemporary}
-              onOk={this.onSaveTemporary}
-              checkValueByFilterRegex={this.checkValueByFilterRegex}
-            >
-              <div className="pointer flexRow Font13 Gray_9e alignItemsCenter" style={{ height: 34 }}>
-                <Icon icon="attachment" className="Font16" />
-                <span className="mLeft5 Gray addFileName overflow_ellipsis">{addFileName}</span>
-                {isComplete === false && uploadStart && (
-                  <span className="mLeft5 ThemeColor3 fileUpdateLoading">
-                    {_l(
-                      '(%0/%1个附件上传中...)',
-                      $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -
-                        $dom.find('.Progress--circle').length,
-                      $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length,
-                    )}
-                  </span>
-                )}
-              </div>
-            </UploadFilesTrigger>
+                  setTimeout(() => this.setState({ uploadStart: true }), 200);
+                }}
+                temporaryData={temporaryAttachments}
+                onTemporaryDataUpdate={res => this.setState({ temporaryAttachments: res })}
+                kcAttachmentData={temporaryKnowledgeAtts}
+                onKcAttachmentDataUpdate={res => this.setState({ temporaryKnowledgeAtts: res })}
+                getPopupContainer={this.getPopupContainer}
+                onCancel={this.onCancelTemporary}
+                onOk={this.onSaveTemporary}
+                checkValueByFilterRegex={this.checkValueByFilterRegex}
+              >
+                <div className="pointer flexRow Font13 Gray_9e alignItemsCenter" style={{ height: 34 }}>
+                  <Icon icon="attachment" className="Font16" />
+                  <span className="mLeft5 Gray addFileName overflow_ellipsis">{addFileName}</span>
+                  {isComplete === false && uploadStart && (
+                    <span className="mLeft5 ThemeColor3 fileUpdateLoading">
+                      {_l(
+                        '(%0/%1个附件上传中...)',
+                        $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -
+                          $dom.find('.Progress--circle').length,
+                        $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length,
+                      )}
+                    </span>
+                  )}
+                </div>
+              </UploadFilesTrigger>
+              <GenScanUploadQr
+                rowId={recordId}
+                worksheetId={worksheetId}
+                viewId={viewIdForPermit}
+                controlId={controlId}
+                onScanResultUpdate={files => {
+                  let currentAttachments = [];
+                  try {
+                    currentAttachments = JSON.parse(this.state.value).attachments || [];
+                  } catch (err) {}
+                  this.filesChanged(currentAttachments.concat(files), 'attachments');
+                }}
+              >
+                <div className="uploadFromMobile mLeft10" style={{ padding: 0, textAlign: 'center' }}>
+                  <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
+                    <Icon
+                      icon="mobile"
+                      className="Font20 Gray_9e"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        lineHeight: '34px',
+                      }}
+                    />
+                  </Tooltip>
+                </div>
+              </GenScanUploadQr>
+            </div>
           ) : attachmentData.length || attachments.length ? (
             <div className="flex" />
           ) : (
             <div className="customFormNull" />
           )}
           <div className="valignWrapper">
-            {showType === '4' && (
+            {showType === '4' && fieldPermission !== '101' && (
               <Fragment>
                 <Tooltip title={_l('管理附件')} placement="bottom">
                   <Icon

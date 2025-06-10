@@ -1,21 +1,22 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { types, minControlWidth, lineBottomHeight } from '../config';
-import { sortControlByIds } from 'worksheet/util';
-import CellControl from 'src/pages/worksheet/components/CellControls/index.jsx';
-import addRecord from 'worksheet/common/newRecord/addRecord';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon, UserHead } from 'ming-ui';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import sheetAjax from 'src/api/worksheet';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
-import { getIconNameByExt, getClassNameByExt, browserIsMobile, addBehaviorLog } from 'src/util';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import RegExpValidator from 'src/util/expression';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import CellControl from 'src/pages/worksheet/components/CellControls/index.jsx';
+import { browserIsMobile, getClassNameByExt, getIconNameByExt } from 'src/utils/common';
+import { sortControlByIds } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog } from 'src/utils/project';
+import { lineBottomHeight, minControlWidth, types } from '../config';
 
 const Wrap = styled.div`
   .flexShrink0 {

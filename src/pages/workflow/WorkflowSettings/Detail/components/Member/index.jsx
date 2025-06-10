@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import './index.less';
-import cx from 'classnames';
-import { Dropdown, UserHead } from 'ming-ui';
-import { USER_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
-import Tag from '../Tag';
-import _ from 'lodash';
-import { handleGlobalVariableName } from '../../../utils';
-import { dialogSelectOrgRole, dialogSelectJob } from 'ming-ui/functions';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Dropdown, UserHead } from 'ming-ui';
+import { dialogSelectJob, dialogSelectOrgRole } from 'ming-ui/functions';
+import { DEPARTMENT_ORGANIZE, USER_ORGANIZE, USER_TYPE } from '../../../enum';
+import { handleGlobalVariableName } from '../../../utils';
+import Tag from '../Tag';
+import './index.less';
 
 export default class Member extends Component {
   /**
@@ -37,7 +37,9 @@ export default class Member extends Component {
           size={26}
           chatButton={chatButton}
         />
-        <div className="mLeft6 ellipsis bold">{item.roleName}</div>
+        <div className={cx('mLeft6 ellipsis bold', { delete: !item.roleName })}>
+          {item.roleName || _l('人员已删除')}
+        </div>
       </div>
     );
   }
@@ -267,6 +269,12 @@ export default class Member extends Component {
    * 渲染标签
    */
   renderTags(item) {
+    const ERROR_TEXT = {
+      [USER_TYPE.DEPARTMENT]: _l('部门已删除'),
+      [USER_TYPE.JOB]: _l('职位已删除'),
+      [USER_TYPE.ORGANIZE_ROLE]: _l('组织角色已删除'),
+    };
+
     return (
       <div className="flexRow flowDetailMemberBox">
         <span
@@ -274,14 +282,14 @@ export default class Member extends Component {
             'flowDetailMemberIcon',
             item.type === USER_TYPE.DEPARTMENT
               ? 'icon-department blue'
-              : item.type === USER_TYPE.ROLE
-              ? 'icon-limit-principal bd'
-              : 'icon-user bd',
+              : item.type === USER_TYPE.JOB
+                ? 'icon-limit-principal bd'
+                : 'icon-user bd',
           )}
         />
 
-        <div className="mLeft6 ellipsis bold">
-          {item.entityName}
+        <div className={cx('mLeft6 ellipsis bold', { delete: !item.entityName })}>
+          {item.entityName || ERROR_TEXT[item.type]}
           {item.includeSub ? `(${_l('包含下级部门')})` : ''}
         </div>
       </div>
@@ -388,6 +396,7 @@ export default class Member extends Component {
               )}
               {!inline &&
                 _.includes([USER_TYPE.ROLE, USER_TYPE.DEPARTMENT, USER_TYPE.JOB, USER_TYPE.ORGANIZE_ROLE], item.type) &&
+                (item.roleName || item.entityName) &&
                 !item.count && (
                   <div className="flowDetailMemberError flex">
                     <i className="mRight5 Font16 icon-workflow_error" />

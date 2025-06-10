@@ -3,8 +3,9 @@ import _, { get, includes, isString, omit, pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
-import { filterEmptyChildTableRows, handleSortRows, postWithToken } from 'worksheet/util';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { postWithToken } from 'src/utils/common';
+import { handleSortRows } from 'src/utils/record';
+import { filterEmptyChildTableRows } from 'src/utils/record';
 
 const PAGE_SIZE = 200;
 
@@ -56,12 +57,15 @@ export const clearAndSetRows = rows => {
 };
 
 export const addRow = (row, insertRowId) => (dispatch, getState) => {
+  const { pagination } = getState();
+  dispatch({ type: 'UPDATE_PAGINATION', pagination: { count: pagination.count + 1 } });
   dispatch({ type: 'ADD_ROW', row: omit(row, 'needShowLoading'), rowid: row.rowid, insertRowId });
 };
 
 export const deleteRow = rowid => (dispatch, getState) => {
-  const { cellErrors = {} } = getState();
+  const { cellErrors = {}, pagination } = getState();
   dispatch({ type: 'UPDATE_CELL_ERRORS', value: _.omitBy(cellErrors, (value, key) => key.includes(rowid)) });
+  dispatch({ type: 'UPDATE_PAGINATION', pagination: { count: pagination.count - 1 } });
   dispatch({ type: 'DELETE_ROW', rowid });
 };
 
@@ -103,6 +107,7 @@ export const loadRows = ({
   pageIndex = 1,
   getWorksheet,
   from,
+  pageSize,
   callback = () => {},
 }) => {
   return (dispatch, getState) => {
@@ -115,18 +120,19 @@ export const loadRows = ({
       controlId: controlId,
       getWorksheet,
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: pageSize || PAGE_SIZE,
       getType: from === 21 ? from : undefined,
       instanceId,
       workId,
     };
+
     batchLoadRows(args)
       .then(batchRes => {
         const { res, rows } = batchRes;
+        dispatch({ type: 'UPDATE_PAGINATION', pagination: { count: res.count } });
         dispatch({ type: 'LOAD_ROWS', rows });
         dispatch({ type: 'UPDATE_DATA_LOADING', value: false });
         dispatch(initRows(rows));
-
         callback(res);
       })
       .catch(err => {
@@ -134,6 +140,35 @@ export const loadRows = ({
       });
   };
 };
+
+// 分页加载数据
+export const loadPageRows =
+  ({ worksheetId, recordId, controlId, getWorksheet, from, callback = () => {} }) =>
+  (dispatch, getState) => {
+    const { base = {}, pagination = {} } = getState();
+    const { instanceId, workId } = base;
+    const { pageIndex, pageSize } = pagination;
+
+    const args = {
+      worksheetId,
+      rowId: recordId,
+      controlId: controlId,
+      getWorksheet,
+      pageIndex,
+      pageSize: pageSize || PAGE_SIZE,
+      getType: from === 21 ? from : undefined,
+      instanceId,
+      workId,
+    };
+
+    // 表格形态手动分页加载
+    worksheetAjax.getRowRelationRows(args).then(res => {
+      dispatch({ type: 'LOAD_ROWS', rows: res.data || [] });
+      dispatch({ type: 'UPDATE_DATA_LOADING', value: false });
+      dispatch(initRows(res.data || []));
+      callback(res);
+    });
+  };
 
 export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {
@@ -144,7 +179,9 @@ export const sortRows = ({ control, isAsc }) => {
 
 export const addRows =
   (rows, options = {}) =>
-  dispatch => {
+  (dispatch, getState) => {
+    const { pagination } = getState();
+    dispatch({ type: 'UPDATE_PAGINATION', pagination: { count: pagination.count + rows.length } });
     dispatch({ type: 'ADD_ROWS', rows: rows.map(row => omit(row, 'needShowLoading')), ...options });
   };
 
@@ -182,6 +219,10 @@ export const exportSheet = ({
   };
 };
 
+export const updatePagination = pagination => (dispatch, getState) => {
+  dispatch({ type: 'UPDATE_PAGINATION', pagination });
+};
+
 class RowData {
   constructor(args = {}, options = {}) {
     this.args = args;
@@ -199,6 +240,7 @@ class RowData {
       searchConfig,
       isCreate = false,
       isQueryWorksheetFill = false,
+      DataFormat,
     } = this.args;
     if (get(row, 'updatedControlIds')) {
       this.updatedControlIds = get(row, 'updatedControlIds');
@@ -269,7 +311,7 @@ export function setRowsFromStaticRows({
   isQueryWorksheetFill = true,
   triggerSubListControlValueChange = () => {},
 } = {}) {
-  return (getState, dispatch) => {
+  return (getState, dispatch, DataFormat) => {
     const { base = {} } = getState();
     const { controls, projectId, searchConfig, initRowIsCreate, max } = base;
     const requestPool = createRequestPool({
@@ -319,6 +361,7 @@ export function setRowsFromStaticRows({
           //   triggerSubListControlValueChange();
           // }, 100);
         },
+        DataFormat,
       };
       const rowData = new RowData(createRowArgs);
       return _.assign(rowData.getRow(), {

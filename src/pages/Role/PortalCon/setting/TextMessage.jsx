@@ -8,7 +8,6 @@ import project from 'src/api/project';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
 import signDialog from 'src/pages/workflow/components/signDialog';
-import { getCurrentProject } from 'src/util';
 
 const Wrap = styled.div`
   .warnTxt {
@@ -81,7 +80,6 @@ const Wrap = styled.div`
 
 export default function TextMessage(props) {
   const { projectId, onChangePortalSet } = props;
-  const hasWarn = getCurrentProject(projectId).licenseType !== 1 && !md.global.Config.IsLocal; //非付费版需要提示
   const [sign, setSign] = useState(_.get(props, 'portalSet.portalSetModel.smsSignature')); //签名
   const [emailSignature, setEmailSignature] = useState(_.get(props, 'portalSet.portalSetModel.emailSignature'));
   const [{ showEmailDialog, showTelDialog }, setState] = useSetState({
@@ -99,13 +97,6 @@ export default function TextMessage(props) {
   return (
     <Wrap>
       <div className="content">
-        {hasWarn && (
-          <div className="warnTxt">
-            {_l(
-              '因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送',
-            )}
-          </div>
-        )}
         {md.global.SysSettings.enableSmsCustomContent && (
           <h6 className="Font16 Gray Bold mBottom0">
             {_l('短信通知')}
@@ -138,7 +129,9 @@ export default function TextMessage(props) {
           </Tooltip>
         </h6>
         <div className="mTop6 Gray_9e">
-          {_l('此签名适用的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝);')}
+          {_l(
+            '此签名适用的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝);修改签名必须线下完成实名登记，且一个营业执照只能设置一个签名。',
+          )}
           <Support type={3} href="https://help.mingdao.com/workflow/sms-failure" text={_l('收不到短信？')} />
         </div>
         <div className="mTop6 flexRow alignItemsCenter">
@@ -150,7 +143,7 @@ export default function TextMessage(props) {
             value={sign}
             disabled={!isCertified}
             onBlur={evt => {
-              const value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
+              const value = evt.currentTarget.value.trim().replace(/[^\u4e00-\u9fa5a-zA-Z ]/g, '');
 
               setSign(value);
               onChangePortalSet({

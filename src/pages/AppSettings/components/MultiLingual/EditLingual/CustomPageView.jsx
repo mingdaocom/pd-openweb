@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Input } from 'antd';
 import cx from 'classnames';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { Input } from 'antd';
-import EditInput from './EditInput';
 import customApi from 'statistics/api/custom';
 import reportApi from 'statistics/api/report';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 export default function CustomPageView(props) {
   const { app, selectNode, translateData, comparisonLangId, comparisonLangData, onEditAppLang } = props;
@@ -17,13 +17,15 @@ export default function CustomPageView(props) {
 
   useEffect(() => {
     setLoading(true);
-    customApi.getPage({
-      appId: selectNode.workSheetId
-    }).then(data => {
-      const { components } = data;
-      setLoading(false);
-      setList(components.filter(c => c.type === 5));
-    });
+    customApi
+      .getPage({
+        appId: selectNode.workSheetId,
+      })
+      .then(data => {
+        const { components } = data;
+        setLoading(false);
+        setList(components.filter(c => c.type === 5));
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -35,22 +37,20 @@ export default function CustomPageView(props) {
   }
 
   if (!list.length) {
-    return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">
-        {_l('没有视图')}
-      </div>
-    );
+    return <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有视图')}</div>;
   }
 
   const handlePositionReport = item => {
     const el = document.querySelector(`.navItem-${item.id}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.itemName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const renderNav = item => {
     const data = _.find(translateData, { correlationId: item.id }) || {};
@@ -79,8 +79,8 @@ export default function CustomPageView(props) {
         type: LANG_DATA_TYPE.customePageContent,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -91,28 +91,32 @@ export default function CustomPageView(props) {
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('组件名称')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : item.config.name} disabled={true} />
-          <EditInput
-            className="flex"
-            value={translateInfo.name}
-            onChange={value => handleSave({ name: value })}
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.name : item.config.name}
+            disabled={true}
           />
+          <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
         </div>
         {item.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('标题行')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.title : item.title} disabled={true} />
-            <EditInput
-              className="flex"
-              value={translateInfo.title}
-              onChange={value => handleSave({ title: value })}
+            <Input
+              className="flex mRight20"
+              value={comparisonLangId ? comparisonLangInfo.title : item.title}
+              disabled={true}
             />
+            <EditInput className="flex" value={translateInfo.title} onChange={value => handleSave({ title: value })} />
           </div>
         )}
         {item.mobile.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('移动端标题行')}</div>
-            <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.mobileTitle : item.mobile.title} disabled={true} />
+            <Input
+              className="flex mRight20"
+              value={comparisonLangId ? comparisonLangInfo.mobileTitle : item.mobile.title}
+              disabled={true}
+            />
             <EditInput
               className="flex"
               value={translateInfo.mobileTitle}
@@ -122,7 +126,7 @@ export default function CustomPageView(props) {
         )}
       </div>
     );
-  }
+  };
 
   return (
     <div className="flexRow pAll10 h100">
@@ -133,7 +137,7 @@ export default function CustomPageView(props) {
             placeholder={_l('视图')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
@@ -142,17 +146,11 @@ export default function CustomPageView(props) {
           )}
         </div>
         <ScrollView className="flex">
-          {list.filter(item => item.config.name.includes(searchValue)).map(item => (
-            renderNav(item)
-          ))}
+          {list.filter(item => item.config.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
       <ScrollView className="flex" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {list.map(item => (
-            renderContent(item)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{list.map(item => renderContent(item))}</div>
       </ScrollView>
     </div>
   );

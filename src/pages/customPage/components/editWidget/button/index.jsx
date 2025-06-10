@@ -1,21 +1,21 @@
 import React, { useCallback, useState } from 'react';
+import { useSetState } from 'react-use';
+import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import update from 'immutability-helper';
+import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
-import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
+import { dealUserId } from 'src/pages/widgetConfig/util/data.js';
+import { getThemeColors } from 'src/utils/project';
+import { EditWidgetContent, Header } from '../../../styled';
+import SideWrap from '../../SideWrap';
 import BtnGroupSetting from './btnGroupSetting';
 import BtnList from './btnList';
 import BtnSetting from './btnSetting';
-import { useSetState } from 'react-use';
-import SideWrap from '../../SideWrap';
-import { Header, EditWidgetContent } from '../../../styled';
-import { GET_DEFAULT_BUTTON_LIST } from './config';
-import { getThemeColors } from 'src/util';
-import { dealUserId } from 'src/pages/widgetConfig/util/data.js';
 import ButtonDisplay from './ButtonDisplay';
-import _ from 'lodash';
+import { GET_DEFAULT_BUTTON_LIST } from './config';
 
 const BtnWrap = styled.div`
   background-color: #eee;
@@ -50,12 +50,12 @@ const DefaultItem = styled.div`
 `;
 
 export default function Btn(props) {
-  const { projectId, widget, onEdit, onClose } = props;
+  const { apk, projectId, widget, onEdit, onClose } = props;
 
   const { button } = widget;
 
   const [btnSetting, setSetting] = useSetState(button);
-  const { buttonList, explain, config } = btnSetting;
+  const { buttonList, config } = btnSetting;
 
   const [activeIndex, setIndex] = useState(0);
   const [errorBtns, setErrorBtns] = useState([]);
@@ -65,7 +65,6 @@ export default function Btn(props) {
   const setBtnSetting = config => {
     setSetting(update(btnSetting, { buttonList: { [activeIndex]: { $apply: item => ({ ...item, ...config }) } } }));
   };
-
   const addBtn = () => {
     const COLORS = getThemeColors(projectId);
     const lastButton = buttonList[buttonList.length - 1] || {};
@@ -86,7 +85,6 @@ export default function Btn(props) {
     setIndex(buttonList.length);
     setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
   };
-
   const handleDel = () => {
     if (buttonList.length <= 1) {
       alert(_l('仅剩一个按钮了，无法删除'), 3);
@@ -129,9 +127,11 @@ export default function Btn(props) {
             if ([26, 27, 48].includes(input.type)) {
               const { advancedSetting } = dealUserId({
                 ...input,
-                advancedSetting: { defsource: JSON.stringify(input.value),
-                enumDefault: _.includes([26, 27, 48], input.type) ? 1 : inputData.enumDefault,
-              } });
+                advancedSetting: {
+                  defsource: JSON.stringify(input.value),
+                  enumDefault: _.includes([26, 27, 48], input.type) ? 1 : inputData.enumDefault,
+                },
+              });
               input.value = JSON.parse(advancedSetting.defsource);
             }
           });
@@ -194,6 +194,8 @@ export default function Btn(props) {
             <BtnList
               {...props}
               {...btnSetting}
+              themeColor={apk.iconColor}
+              customPageConfig={props.config}
               errorBtns={errorBtns}
               activeIndex={activeIndex}
               onClick={({ index }) => setIndex(index)}
@@ -201,9 +203,9 @@ export default function Btn(props) {
           </div>
           <BtnSetting
             {...props}
-            explain={explain}
             activeIndex={activeIndex}
             btnSetting={buttonList[activeIndex]}
+            widgetBtnSetting={btnSetting}
             btnConfig={config}
             setBtnSetting={setBtnSetting}
             setSetting={setSetting}

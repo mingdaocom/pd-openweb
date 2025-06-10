@@ -1,10 +1,17 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { DatePicker, Dropdown, Input, Menu, Select } from 'antd';
+import locale from 'antd/es/date-picker/locale/zh_CN';
 import cx from 'classnames';
-import { Select, DatePicker, Input, Dropdown, Menu } from 'antd';
-import { Icon, ScrollView, TimeZoneTag, Dialog } from 'ming-ui';
+import _ from 'lodash';
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+import { Dialog, Icon, ScrollView, TimeZoneTag } from 'ming-ui';
+import { reportTypes } from 'statistics/Charts/common';
 import {
-  dropdownScopeData,
   dropdownDayData,
+  dropdownScopeData,
   isPastAndFuture,
   isTimeControl,
   timeDataParticle,
@@ -12,23 +19,16 @@ import {
   timeTypes,
   unitTypes,
 } from 'statistics/common';
-import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { redefineComplexControl, formatValuesOfOriginConditions } from 'worksheet/common/WorkSheetFilter/util';
-import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
-import { reportTypes } from 'statistics/Charts/common';
-import 'moment/locale/zh-cn';
-import locale from 'antd/es/date-picker/locale/zh_CN';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
-import { formatNumberFromInput } from 'src/util';
-import _ from 'lodash';
-import moment from 'moment';
+import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
+import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { formatNumberFromInput } from 'src/utils/control';
 import './index.less';
 
 const { RangePicker } = DatePicker;
@@ -44,11 +44,16 @@ const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 2
 export default class extends Component {
   constructor(props) {
     super();
+    const key = `filterReportId-${props.id}`;
     const { filter = {}, xaxes = {} } = props.currentReport;
+    if (_.isUndefined(window[key])) {
+      window[key] = filter.rangeType;
+    }
+    const rangeType = _.isUndefined(window[key]) ? filter.rangeType : window[key];
     this.state = {
-      currentRangeType: filter.rangeType,
+      currentRangeType: rangeType,
       currentRangeValue: filter.rangeValue,
-      dropdownScopeValue: filter.rangeType,
+      dropdownScopeValue: rangeType,
       dropdownDayValue: filter.rangeValue || 7,
       particleSizeType: xaxes ? xaxes.particleSizeType : 0,
       dynamicFilter: { startType: 1, startCount: 1, startUnit: 1, endType: 1, endCount: 1, endUnit: 1 },
@@ -76,8 +81,8 @@ export default class extends Component {
           value === 20
             ? `${moment().add(-7, 'days').format('YYYY/MM/DD')}-${moment().format('YYYY/MM/DD')}`
             : isPastAndFuture(value)
-            ? 7
-            : null,
+              ? 7
+              : null,
       },
       () => {
         this.handleSave();
@@ -128,11 +133,13 @@ export default class extends Component {
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={this.handleUpdateScope}
             >
-              {dropdownScopeData.filter(n => n.value !== 24).map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                  {item.text}
-                </Select.Option>
-              ))}
+              {dropdownScopeData
+                .filter(n => n.value !== 24)
+                .map(item => (
+                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                    {item.text}
+                  </Select.Option>
+                ))}
             </Select>
             <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
           </div>
@@ -457,8 +464,7 @@ export default class extends Component {
     );
   }
   render() {
-    const { visible, filterConditions, showFilterConditions, dropdownScopeValue, dropdownDayValue, currentRangeType } =
-      this.state;
+    const { visible, filterConditions, showFilterConditions, currentRangeType } = this.state;
     const { projectId, worksheetInfo, currentReport } = this.props;
     const { appType = 1 } = currentReport;
     const xaxes = _.get(currentReport, 'xaxes') || {};

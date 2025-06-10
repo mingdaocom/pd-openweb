@@ -11,24 +11,21 @@
     }
   }
   .customBtnLists {
-    padding: 0 15px;
+    padding-bottom: 15px;
+    margin: 0 15px;
     flex-wrap: wrap;
     justify-content: space-between;
+    gap: 10px;
     font-weight: 500;
     max-height: 400px;
     overflow: auto;
+    border-bottom: 1px solid #eaeaea;
     .customBtnItem {
-      min-width: calc(~'100%/2 - 10px');
+      max-width: calc(~'50% - 5px');
+      min-width: calc(~'50% - 5px');
       text-align: left;
       padding: 0 14px;
-      margin: 0 5px 10px;
     }
-  }
-  .customBtnLists::after {
-    width: 50%;
-    height: 0px;
-    display: block;
-    content: '';
   }
   .extrBtnBox {
     line-height: 50px;
@@ -40,11 +37,6 @@
       .delIcon {
         margin-right: 20px;
         line-height: 50px;
-      }
-    }
-    .extraBtnItem:first-child {
-      .delTxt {
-        border-top: 1px solid #eaeaea;
       }
     }
   }

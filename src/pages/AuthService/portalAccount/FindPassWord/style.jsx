@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const Wrap = styled.div`
   display: flex;
   width: 100%;
@@ -48,7 +49,7 @@ export const WrapCon = styled.div`
     object-fit: contain;
   }
   border-radius: 4px;
-  padding: 64px;
+  padding: 48px 48px 72px 48px;
   box-sizing: border-box;
   width: 50%;
   max-width: 840px;
@@ -80,7 +81,7 @@ export const WrapCon = styled.div`
   }
   &.isCenterCon {
     border-radius: 4px;
-    width: 440px;
+    width: 480px;
     background: #ffffff;
     height: auto;
     box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);

@@ -1,5 +1,5 @@
 import { antNotification } from 'ming-ui';
-import { downloadFile } from 'src/util';
+import { downloadFile } from 'src/utils/common';
 
 export default () => {
   IM.socket.on('report_export', ({ status, reportId, reportName, downloadUrl }) => {
@@ -32,7 +32,7 @@ export default () => {
       onBtnClick: () => {
         window.open(downloadFile(`${md.global.Config.WsReportUrl}/${downloadUrl}`));
         antNotification.close(reportId);
-      }
+      },
     });
   });
-}
+};

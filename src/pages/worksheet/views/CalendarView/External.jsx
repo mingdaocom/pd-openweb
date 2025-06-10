@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import cx from 'classnames';
 import { connect } from 'react-redux';
-import moment from 'moment';
-import { Draggable } from '@fullcalendar/interaction';
-import { eventStr } from './util';
-let isChangeing = false;
 import { bindActionCreators } from 'redux';
-import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { Draggable } from '@fullcalendar/interaction';
+import cx from 'classnames';
 import _ from 'lodash';
-import { dateConvertToUserZone } from 'src/util';
+import moment from 'moment';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { dateConvertToUserZone } from 'src/utils/project';
+import { eventStr } from './util';
+
+let isChangeing = false;
+
 @connect(
   state => ({
     ...state.sheet,
@@ -142,7 +144,12 @@ class External extends Component {
         {eventData.map(it => {
           const { extendedProps = {}, timeList = [] } = it;
           const { rowid, stringColor = '', recordColor } = extendedProps;
-          let editable = timeList.length > 1 ? timeList.filter(o => o.editable).length > 0 : timeList[0].editable; //多组时间,且有可编辑的权限，拖拽后选择时间组
+          let editable =
+            timeList.length > 1
+              ? timeList.filter(o => o.editable).length > 0
+              : timeList && timeList.length
+                ? timeList[0].editable
+                : false; //多组时间,且有可编辑的权限，拖拽后选择时间组
           return (
             <div
               className={cx('clearfix fcEventCon', { fcEvent: editable })}

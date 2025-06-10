@@ -1,19 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip, RadioGroup, Input, LoadDiv, intlTelInput } from 'ming-ui';
 import { Drawer } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, Input, intlTelInput, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
-import { dialogSelectUser } from 'ming-ui/functions';
-import DrawerFooterOption from '../DrawerFooterOption';
-import { encrypt } from 'src/util';
-import BaseFormInfo from '../BaseFormInfo';
-import TextInput from '../TextInput';
+import { encrypt } from 'src/utils/common';
 import { checkForm, RESULTS } from '../../constant';
 import { addUserFeedbackFunc } from '../AddUserFeedback';
+import BaseFormInfo from '../BaseFormInfo';
+import DrawerFooterOption from '../DrawerFooterOption';
 import EditUser from '../EditUser';
-import cx from 'classnames';
+import TextInput from '../TextInput';
 import './index.less';
-import _ from 'lodash';
 
 export default class AddUser extends Component {
   constructor(props) {
@@ -220,11 +220,11 @@ export default class AddUser extends Component {
       check = _.includes(['mobile', 'email'], inviteType)
         ? check
         : inviteType === 'autonomously' &&
-        (!!checkForm['autonomously'](
-          this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
-          this.itiAutonomously,
-        ) ||
-          !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
+          (!!checkForm['autonomously'](
+            this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+            this.itiAutonomously,
+          ) ||
+            !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
     }
     if (check) {
       return false;
@@ -533,7 +533,7 @@ export default class AddUser extends Component {
       projectId,
       departmentId,
       authority = [],
-      onClose = () => { },
+      onClose = () => {},
     } = this.props;
     const {
       isUploading,

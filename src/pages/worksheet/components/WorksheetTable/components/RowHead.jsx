@@ -1,17 +1,16 @@
 import React, { Fragment, useState } from 'react';
-
 import cx from 'classnames';
 import { find, get, isEmpty } from 'lodash';
 import _ from 'lodash';
-import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
 import PropTypes, { func } from 'prop-types';
 import Trigger from 'rc-trigger';
-import { handleRowData } from 'src/util/transControlDefaultValue';
 import styled from 'styled-components';
+import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
+import { handleRowData } from 'src/utils/record';
 
 const Con = styled.div`
   user-select: none;

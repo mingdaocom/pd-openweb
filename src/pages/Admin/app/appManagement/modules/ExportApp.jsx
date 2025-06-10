@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import './index.less';
-import AppSettings from './AppSettings';
-import { Checkbox, Tooltip, Support, Dialog, Icon } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
-import ajaxRequest from 'src/api/appManagement';
-import { generateRandomPassword } from 'src/util';
-import RegExpValidator from 'src/util/expression';
 import cx from 'classnames';
+import { Checkbox, Dialog, Icon, Support, Tooltip } from 'ming-ui';
+import ajaxRequest from 'src/api/appManagement';
+import { generateRandomPassword } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import AppSettings from './AppSettings';
+import './index.less';
 
 const configs = [
   {
@@ -98,16 +98,18 @@ export default class ExportApp extends React.Component {
     } else {
       params.token = this.state.token;
       params.accountId = md.global.Account.accountId;
-      window.mdyAPI('', '', params, {
-        ajaxOptions: {
-          url: `${md.global.Config.AppFileServer}AppFile/Export`,
-        },
-        customParseResponse: true,
-      }).then(({ state, exception }) => {
-        if (state !== 1) {
-          alert(exception, 2, 3000);
-        }
-      })
+      window
+        .mdyAPI('', '', params, {
+          ajaxOptions: {
+            url: `${md.global.Config.AppFileServer}AppFile/Export`,
+          },
+          customParseResponse: true,
+        })
+        .then(({ state, exception }) => {
+          if (state !== 1) {
+            alert(exception, 2, 3000);
+          }
+        });
     }
   }
 

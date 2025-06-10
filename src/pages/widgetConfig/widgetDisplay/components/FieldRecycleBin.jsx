@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dialog, LoadDiv, Tooltip, UpgradeIcon, UserHead } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import { getWidgetInfo, checkWidgetMaxNumErr } from '../../util';
-import { isExceedMaxControlLimit } from '../../util/setting';
-import WidgetDetail from 'src/pages/widgetConfig/widgetSetting';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { handleAddWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/util/data';
-import SearchInput from 'worksheet/components/SearchInput';
-import { SearchFn, getDefaultSizeByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
-import './FieldRecycleBin.less';
 import _ from 'lodash';
+import { Dialog, Icon, LoadDiv, Tooltip, UpgradeIcon, UserHead } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import SearchInput from 'worksheet/components/SearchInput';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { getDefaultSizeByType, SearchFn } from 'src/pages/widgetConfig/util';
+import { handleAddWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/util/data';
+import WidgetDetail from 'src/pages/widgetConfig/widgetSetting';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { checkWidgetMaxNumErr, getWidgetInfo } from '../../util';
+import { isExceedMaxControlLimit } from '../../util/setting';
+import './FieldRecycleBin.less';
 
 export default class FieldRecycleBin extends Component {
   constructor(props) {
@@ -38,6 +38,7 @@ export default class FieldRecycleBin extends Component {
       .getWorksheetControls({
         worksheetId: globalSheetInfo.worksheetId,
         getControlType: 9,
+        resultType: 3,
       })
       .then(({ data = [] }) => {
         const tempList = _.get(data, 'controls') || [];

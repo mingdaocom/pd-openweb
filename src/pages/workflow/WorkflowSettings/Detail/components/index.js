@@ -41,6 +41,7 @@ export { default as Tag } from './Tag';
 export { default as TagInput } from './TagInput';
 export { default as TestParameter } from './TestParameter';
 export { default as TimeSelect } from './TimeSelect';
+export { default as TransferTriggerUser } from './TransferTriggerUser';
 export { default as TriggerCondition } from './TriggerCondition';
 export { default as UpdateFields } from './UpdateFields';
 export { default as UserRange } from './UserRange';

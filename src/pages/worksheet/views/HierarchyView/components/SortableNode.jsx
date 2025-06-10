@@ -1,14 +1,16 @@
-import React, { Fragment, Component, createRef } from 'react';
-import { string, number, func } from 'prop-types';
+import React, { Component, createRef, Fragment } from 'react';
 import cx from 'classnames';
-import { isEmpty, isEqual, pick } from 'lodash';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { RecordInfoModal } from 'mobile/Record';
-import { getPosition, getRelateSheetId } from '../util';
+import { isEmpty } from 'lodash';
+import { func, number, string } from 'prop-types';
 import SVG from 'svg.js';
+import { RecordInfoModal } from 'mobile/Record';
+import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import { browserIsMobile, emitter } from 'src/utils/common';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
+import { getCardWidth } from 'src/utils/worksheet';
+import { getPosition, getRelateSheetId } from '../util';
 import DraggableRecord from './DraggableRecord';
-import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
-import { handleRecordClick, getCardWidth } from 'worksheet/util';
 
 const isMobile = browserIsMobile();
 

@@ -8,6 +8,7 @@ import GridLayout from 'react-grid-layout';
 import { LayoutContent, LAYOUT_CONFIG } from '../../WidgetContent';
 import WidgetTools from '../../WidgetContent/WidgetTools';
 import { getEnumType, getLayout } from 'src/pages/customPage/util';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 
 const ContentWrap = styled.div`
   &.cardStyleWrap {
@@ -28,14 +29,7 @@ const ContentWrap = styled.div`
       }
     }
   }
-  &.lucencyStyleWrap {
-    .tabsHeader {
-      // padding-left: 0;
-      // padding-right: 0;
-    }
-    .tabsBody .bodyContent {
-    }
-  }
+  &.lucencyStyleWrap {}
   &.editableWrap {
     border-radius: 6px;
     border: 1px dashed var(--border-color);
@@ -54,7 +48,7 @@ const ContentWrap = styled.div`
   }
   &.activeWrap {
     border-color: #2196f3;
-    overflow: hidden;
+    // overflow: hidden;
   }
   .tabsHeader {
     padding: 0 12px 0;
@@ -92,7 +86,7 @@ const ContentWrap = styled.div`
       color: var(--widget-title-color);
     }
   }
-  .cardHeader {
+  .cardsHeader {
     margin: 0;
     padding-top: 12px;
     &::after {
@@ -114,6 +108,9 @@ const ContentWrap = styled.div`
     }
   }
   .widgetContent {
+    &.richText>.flex{
+      height: 100%;
+    }
     &.solidBorder {
       border: 1px solid var(--bg-color, #e6e6e6);
     }
@@ -131,6 +128,7 @@ export const Tabs = props => {
   const objectId = _.get(config, 'objectId');
   const [currentTab, setCurrentTab] = useState(_.get(tabs[0], 'id'));
   const isDark = customPageConfig.pageStyleType === 'dark';
+  const titleStyles = customPageConfig.titleStyles || defaultTitleStyles;
   const isTabs = type === 9 || type === 'tabs';
   const isMobileLayout = isMobile || layoutType === 'mobile';
   const tabComponents = components.filter(c => c.sectionId === objectId && (isTabs ? c.tabId === currentTab : true)).filter(c => isMobileLayout ? _.get(c, 'mobile.visible') : true);
@@ -257,7 +255,13 @@ export const Tabs = props => {
         '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5'
       }}
     >
-      <div className={cx('tabsHeader flexRow', { cardHeader: !isTabs, hide: !isTabs && !showName })}>
+      <div
+        className={cx('tabsHeader flexRow', {
+          cardsHeader: !isTabs,
+          hide: !isTabs && !showName,
+          justifyContentCenter: titleStyles.textAlign === 'center'
+        })}
+      >
         {tabs.length ? (
           tabs.map(tab => (
             <div
@@ -270,13 +274,20 @@ export const Tabs = props => {
             </div>
           ))
         ) : (
-          <div className="bold Font15 cardName">{name}</div>
+          <div
+            className="cardName"
+            style={{
+              ...replaceTitleStyle(titleStyles, themeColor)
+            }}
+          >
+            {name}
+          </div>
         )}
       </div>
       <div
         className={cx('tabsBody flex', {
           overflowYAuto: adjustScreen ? true : isMobileLayout,
-          overflowHidden: adjustScreen ? false : !isMobileLayout,
+          // overflowHidden: adjustScreen ? false : !isMobileLayout,
           disableDrag: isTabs || (!isTabs && showName)
         })}
         ref={elementRef}
@@ -290,7 +301,7 @@ export const Tabs = props => {
             layout={layout}
             isDraggable={editable}
             isResizable={editable}
-            draggableCancel=".chartWrapper .drag"
+            draggableCancel=".childrenDisableDrag,.chartWrapper .drag"
             onResizeStop={(layout, oldItem = {}) => {
               const index = _.findIndex(layout, { i: oldItem.i });
               const getData = _.get(displayRefs[index], ['getData']);
@@ -325,7 +336,7 @@ export const Tabs = props => {
                       dashedBorder: showType === 2 && !showBorder && editable,
                     })}
                     style={{
-                      backgroundColor: layoutType === 'web' ? customPageConfig.widgetBgColor : undefined
+                      backgroundColor: customPageConfig.widgetBgColor
                     }}
                   >
                     <div className="flex">

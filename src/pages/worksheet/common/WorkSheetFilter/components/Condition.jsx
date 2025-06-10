@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { Dropdown, Icon, Input } from 'ming-ui';
-import renderConditionValue from './contents';
-import { getConditionOverrideValue, getFilterTypes } from '../util';
-import { FILTER_RELATION_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, API_ENUM_TO_TYPE } from '../enum';
 import { Select, Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Dropdown, Icon, Input } from 'ming-ui';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import _ from 'lodash';
+import { API_ENUM_TO_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, FILTER_RELATION_TYPE } from '../enum';
+import { getConditionOverrideValue, getFilterTypes } from '../util';
+import renderConditionValue from './contents';
+
 // 为空 不为空  在范围内 不在范围内
 const listType = [
   FILTER_CONDITION_TYPE.ISNULL,
@@ -175,6 +176,9 @@ export default class Condition extends Component {
       conditionItemForDynamicStyle,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(control, condition.type, from);
+    // 单选下拉menu隐藏【等于】、【不等于】
+    const hiddenValue =
+      control && _.includes([9, 11], control.type) ? [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE] : [];
     if (isRules && control) {
       if (control.type === 29 && control.enumDefault === 2) {
         conditionFilterTypes = conditionFilterTypes.filter(
@@ -232,6 +236,7 @@ export default class Condition extends Component {
                     defaultValue={condition.type || conditionFilterTypes[0].value}
                     disabled={!canEdit}
                     data={conditionFilterTypes}
+                    hiddenValue={hiddenValue}
                     isAppendToBody
                     menuStyle={{ width: 'auto' }}
                     onChange={this.changeConditionType}

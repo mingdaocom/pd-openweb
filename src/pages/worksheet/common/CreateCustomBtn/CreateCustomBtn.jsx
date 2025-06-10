@@ -1,25 +1,25 @@
 import React from 'react';
-import './CreateCustomBtn.less';
 import { Drawer } from 'antd';
 import cx from 'classnames';
-import { Icon, Checkbox, Tooltip, RadioGroup, ColorPicker, SvgIcon } from 'ming-ui';
-import { getButtonColor } from 'worksheet/util';
-import AppointDialog from './components/AppointDialog';
-import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
-import sheetAjax from 'src/api/worksheet';
-import process from 'src/pages/workflow/api/process';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
-import DoubleConfirmDialog from './components/DoubleConfirmDialog';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { formatValuesOfCondition } from '../../common/WorkSheetFilter/util';
-import { COLORS, ICONS } from './config';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import { Checkbox, ColorPicker, Icon, RadioGroup, SvgIcon, Tooltip } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import sheetAjax from 'src/api/worksheet';
+import process from 'src/pages/workflow/api/process';
 import IconTabs from 'src/pages/AppHomepage/components/SelectIcon/IconTabs';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
+import { formatControlsData } from 'src/pages/widgetConfig/util/data';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
+import { getButtonColor } from 'src/utils/control';
+import { formatValuesOfCondition } from '../../common/WorkSheetFilter/util';
+import AppointDialog from './components/AppointDialog';
+import DoubleConfirmDialog from './components/DoubleConfirmDialog';
+import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
+import { COLORS, ICONS } from './config';
+import './CreateCustomBtn.less';
 
 @errorBoundary
 class CreateCustomBtnCon extends React.Component {
@@ -910,10 +910,10 @@ class CreateCustomBtnCon extends React.Component {
         >
           {this.state.saveLoading
             ? !this.state.isEdit
-              ? _l('添加按钮...')
+              ? _l('添加动作...')
               : _l('保存...')
             : !this.state.isEdit
-              ? _l('添加按钮')
+              ? _l('添加动作')
               : _l('保存')}
         </span>
         <span
@@ -1061,7 +1061,7 @@ class CreateCustomBtn extends React.Component {
   renderTitle = () => {
     return (
       <div className="title Gray">
-        <span>{!this.state.isEdit ? _l('添加按钮') : _l('编辑按钮')}</span>
+        <span>{!this.state.isEdit ? _l('添加自定义动作') : _l('编辑自定义动作')}</span>
         <Icon icon="close" className="Gray_9d Font20 pointer" onClick={this.props.onClose} />
       </div>
     );

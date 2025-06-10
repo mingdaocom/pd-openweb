@@ -1,16 +1,17 @@
 /* eslint-disable no-new */
 import React, { Fragment } from 'react';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { Dropdown } from 'ming-ui';
-import update from 'immutability-helper';
-import { dialogSelectDept } from 'ming-ui/functions';
 import { Tooltip } from 'antd';
-import { SelectOtherField, OtherField } from '../../DynamicDefaultValue/components';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import { isEqual } from 'lodash';
+import { Dropdown } from 'ming-ui';
+import { dialogSelectDept } from 'ming-ui/functions';
+import { SettingItem } from '../../../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { OtherField, SelectOtherField } from '../../DynamicDefaultValue/components';
+import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
-import { isEqual } from 'lodash';
-import cx from 'classnames';
-import { SettingItem } from '../../../../styled';
 
 const DEPARTMENT_RANGE = [
   { value: '0', text: _l('全组织') },
@@ -128,6 +129,7 @@ export default function DepartmentConfig(props) {
                     return (
                       <OtherField
                         {...props}
+                        from={DYNAMIC_FROM_MODE.DEPART_CONFIG}
                         dynamicValue={chooseRange}
                         controls={props.allControls || []}
                         item={{ cid: item.cid, rcid: item.rcid }}
@@ -149,6 +151,7 @@ export default function DepartmentConfig(props) {
           {...props}
           controls={props.allControls || []}
           dynamicMultiple={true}
+          from={DYNAMIC_FROM_MODE.DEPART_CONFIG}
           dynamicValue={chooseRange}
           onDynamicValueChange={handleFieldClick}
           hideSearchAndFun={true}

@@ -3,7 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
-import { getFeatureStatus } from 'src/util';
+import { getFeatureStatus } from 'src/utils/project';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
 import WidgetAiRecommend from '../Header/WidgetAiRecommend';
 import { notInsetSectionTab } from '../util';

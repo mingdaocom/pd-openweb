@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -85,15 +85,18 @@ class WorkflowSettings extends Component {
     // 无权限编辑
     if (noAuth) {
       return (
-        <div className="workflowSettings flexColumn h100">
-          <div className="workflowSettingsHeader flexRow">
-            <i className="icon-backspace Font20 ThemeColor3 workflowReturn" onClick={this.back} />
+        <Fragment>
+          <div className="workflowSettings flexColumn h100">
+            <div className="workflowSettingsHeader flexRow">
+              <i className="icon-backspace Font20 ThemeColor3 workflowReturn" onClick={this.back} />
+            </div>
+            <div className="flowEmptyWrap flex">
+              <div className="flowEmptyPic flowEmptyPic-lock" />
+              <div className="Gray_75 Font14 mTop20">{_l('您无权访问或已删除')}</div>
+            </div>
           </div>
-          <div className="flowEmptyWrap flex">
-            <div className="flowEmptyPic flowEmptyPic-lock" />
-            <div className="Gray_75 Font14 mTop20">{_l('您无权访问或已删除')}</div>
-          </div>
-        </div>
+          <DocumentTitle title={_l('您无权访问或已删除')} />
+        </Fragment>
       );
     }
 

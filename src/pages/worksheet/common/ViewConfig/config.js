@@ -7,7 +7,7 @@ export const viewTypeConfig = [
   { type: 'FastFilter', name: _l('快速筛选'), icon: 'smart_button_black_24dp' }, // 快速筛选
   { type: 'NavGroup', name: _l('筛选列表'), icon: 'list' }, // 快速筛选
   { type: 'RecordColor', name: _l('颜色'), icon: 'background_color' }, // 记录颜色
-  { type: 'ActionSet', name: _l('自定义动作'), icon: 'custom_actions' }, //  （自定义动作、系统操作等）
+  { type: 'ActionSet', name: _l('记录操作'), icon: 'custom_actions' }, //  （自定义动作、系统操作等）
   { type: 'MobileSet', name: _l('移动端显示'), icon: 'phone' }, // 移动端设置
   { type: 'urlParams', name: _l('链接参数'), icon: 'global_variable' }, // 链接参数
   { type: 'PluginSettings', name: _l('插件设置'), icon: 'configure' },
@@ -21,16 +21,16 @@ export const viewTypeCustomList = ['PluginSettings', 'DebugConfig', 'ParameterSe
 export const viewTypeGroup = [
   { name: 'base', list: ['Setting', 'Show'] },
   { name: 'set', list: ['Filter', 'Sort', 'RecordColor', 'Controls'] },
-  { name: 'action', list: ['FastFilter', 'NavGroup', 'ActionSet'] },
+  { name: 'action', list: ['ActionSet', 'FastFilter', 'NavGroup'] },
   { name: 'other', list: ['MobileSet', 'urlParams'] },
 ];
 export const baseSetList = {
   sheet: ['Setting', 'Show'],
   board: ['Setting', 'CardSet'],
-  calendar: ['Setting'],
+  calendar: ['Setting', 'CardSet'],
   gallery: ['Setting'],
   structure: ['Setting', 'TableSet', 'Show', 'CardSet'],
-  gunter: ['Setting'],
+  gunter: ['Setting', 'CardSet'],
   detail: ['Setting', 'CardSet'],
   resource: ['Setting'],
   customize: ['Setting'],
@@ -49,7 +49,7 @@ export const setList = [
   { key: 'titlewrap', txt: _l('标题行文字换行') },
 ];
 
-export const manageViewFilter = ['Filter', 'Controls', 'MobileSet', 'urlParams']
+export const manageViewFilter = ['Filter', 'Controls', 'MobileSet', 'urlParams'];
 
 export const MaxNavW = 500;
 export const MinNavW = 100;
@@ -97,8 +97,8 @@ export const CARD_WIDTH_OPTIONS = [
 ];
 
 export const CARD_WIDTH_SETTING = {
-  '1': 200,
-  '2': 240,
-  '3': 300,
-  '4': 400,
-}
+  1: 200,
+  2: 240,
+  3: 300,
+  4: 400,
+};

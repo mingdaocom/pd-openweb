@@ -210,7 +210,7 @@ const Textarea = props => {
             controlDisabled: formDisabled,
           })}
           style={{
-            ...(enumDefault === 1 ? { minHeight: 89, maxHeight: 400, overflowX: 'hidden' } : { minHeight: 35 }),
+            ...(enumDefault === 1 ? { minHeight: 89, maxHeight: 10000, overflowX: 'hidden' } : { minHeight: 35 }),
             zIndex: isEditing ? -1 : 1,
           }}
           onClick={joinTextareaEdit}
@@ -231,14 +231,15 @@ const Textarea = props => {
             disabled={disabled}
             ref={textareaRef}
             style={{
-              ...(enumDefault === 1 ? { minHeight: 90, maxHeight: 400 } : { minHeight: 36, maxHeight: 10000 }),
+              maxHeight: 10000,
+              minHeight: enumDefault === 1 ? 90 : 36
             }}
             onFocus={onFocus}
             onChange={event => {
               const val = event.target.value;
               setCurrentValue(val);
               if (isOnComposition.current) return;
-              debouncedOnChange(props, val);
+              // debouncedOnChange(props, val);
             }}
             onBlur={onBlur}
             onCompositionStart={() => (isOnComposition.current = true)}

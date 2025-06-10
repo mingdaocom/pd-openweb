@@ -1,26 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon, LoadDiv, Support, WaterMark, Tooltip, Dialog, Switch, SvgIcon } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
-import HomeAjax from 'src/api/homeApp';
-import { getIds } from '../PageHeader/util';
-import { navigateTo } from 'router/navigateTo';
-import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
-import { getUserRole, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
-import Portal from 'src/pages/Role/PortalCon/index';
-import openImg from './img/open.gif';
-import externalPortalAjax from 'src/api/externalPortal';
-import AppRoleCon from 'src/pages/Role/AppRoleCon';
-import { getFeatureStatus, setFavicon } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-import { sysRoleType } from './config';
+import Trigger from 'rc-trigger';
+import { navigateTo } from 'router/navigateTo';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, Support, SvgIcon, Switch, Tooltip, WaterMark } from 'ming-ui';
 import AppManagementAjax from 'src/api/appManagement';
+import externalPortalAjax from 'src/api/externalPortal';
+import HomeAjax from 'src/api/homeApp';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import AppRoleCon from 'src/pages/Role/AppRoleCon';
+import Portal from 'src/pages/Role/PortalCon/index';
+import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
+import { canEditApp, canEditData, getUserRole } from 'src/pages/worksheet/redux/actions/util';
+import { setFavicon } from 'src/utils/app';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { getIds } from '../PageHeader/util';
+import { sysRoleType } from './config';
+import openImg from './img/open.gif';
 
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const RoleWrapper = styled.div`
@@ -516,39 +517,41 @@ class AppRole extends Component {
                 </WrapOpenPortalBtn>
               </Trigger>
             )}
-            {sysRoleType.concat(200).includes(appDetail.permissionType) && editType !== 1 && (
-              <Fragment>
-                {editApp && !isOpenPortal && featureType && <DividerVertical className="mLeft24" />}
-                <Tooltip
-                  popupPlacement="bottomLeft"
-                  text={
-                    <span>
-                      {_l(
-                        '开启后，应用的管理员、运营者、开发者可以使用不同的角色身份访问应用。请注意，该操作不会改变开发者角色的数据权限，开发者始终无法看到业务数据。',
-                      )}
-                    </span>
-                  }
-                >
-                  <div
-                    className={cx('mLeft24 valignWrapper', { isAbsolute: !(editApp && !isOpenPortal && featureType) })}
+            {sysRoleType.concat(200).includes(appDetail.permissionType) &&
+              editType !== 1 &&
+              appDetail.permissionType !== 1 && (
+                <Fragment>
+                  {editApp && !isOpenPortal && featureType && <DividerVertical className="mLeft24" />}
+                  <Tooltip
+                    popupPlacement="bottomLeft"
+                    text={
+                      <span>
+                        {_l('开启后，应用管理员、运营者可以使用不同的角色身份访问应用。开发者暂不支持使用此功能。')}
+                      </span>
+                    }
                   >
-                    <RoleDebugSwitch
-                      checked={roleDebug}
-                      size="small"
-                      onClick={checked => {
-                        AppManagementAjax.updateAppDebugModel({
-                          appId,
-                          isDebug: !checked,
-                        }).then(res => {
-                          res && this.setState({ roleDebug: !checked });
-                        });
-                      }}
-                    />
-                    <span className="mLeft8">{_l('角色调试')}</span>
-                  </div>
-                </Tooltip>
-              </Fragment>
-            )}
+                    <div
+                      className={cx('mLeft24 valignWrapper', {
+                        isAbsolute: !(editApp && !isOpenPortal && featureType),
+                      })}
+                    >
+                      <RoleDebugSwitch
+                        checked={roleDebug}
+                        size="small"
+                        onClick={checked => {
+                          AppManagementAjax.updateAppDebugModel({
+                            appId,
+                            isDebug: !checked,
+                          }).then(res => {
+                            res && this.setState({ roleDebug: !checked });
+                          });
+                        }}
+                      />
+                      <span className="mLeft8">{_l('角色调试')}</span>
+                    </div>
+                  </Tooltip>
+                </Fragment>
+              )}
           </TopBar>
           {editType === 0 ? (
             <AppRoleCon

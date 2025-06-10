@@ -1,19 +1,18 @@
-import React from 'react';
-
+import React, { act } from 'react';
 import cx from 'classnames';
 import _, { find, get, uniq } from 'lodash';
-import { ClickAway } from 'ming-ui';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { ClickAway, SortableList } from 'ming-ui';
+import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { getTranslateInfo } from 'src/util';
-import styled from 'styled-components';
-import RelateRecordCards from 'worksheet/components/RelateRecordCards';
-import { checkIsTextControl } from 'worksheet/util';
-
+import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
+import { getTranslateInfo } from 'src/utils/app';
+import { checkIsTextControl } from 'src/utils/control';
 import AutoWidthInput from './AutoWidthInput';
 import RelateRecordList from './RelateRecordList';
 import './style.less';
@@ -84,6 +83,7 @@ export default class RelateRecordDropdown extends React.Component {
       listvisible: false,
       newrecordVisible: false,
       selected: props.selected || [],
+      defaultSelected: props.selected || [],
       keywords: '',
       activeIndex: undefined,
       deletedIds: [],
@@ -118,7 +118,7 @@ export default class RelateRecordDropdown extends React.Component {
       });
     }
     if (nextProps.flag !== this.props.flag) {
-      this.setState({ addedIds: [], deletedIds: [] });
+      this.setState({ addedIds: [], deletedIds: [], defaultSelected: nextProps.selected || [] });
     }
     if (
       _.get(nextProps, 'control.advancedSetting.searchcontrol') !==
@@ -280,6 +280,7 @@ export default class RelateRecordDropdown extends React.Component {
     this.setState(
       {
         selected: [],
+        deletedIds: selected.map(r => r.rowid),
         listvisible: false,
       },
       () => {
@@ -378,7 +379,8 @@ export default class RelateRecordDropdown extends React.Component {
   };
 
   renderSingle() {
-    const { appId, insheet, isediting, isQuickFilter, control, allowOpenRecord, staticRecords } = this.props;
+    const { appId, insheet, isediting, isQuickFilter, control, allowOpenRecord, staticRecords, isMobileTable } =
+      this.props;
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
     const title = getTitleTextFromRelateControl(this.control, selected[0]);
@@ -390,7 +392,7 @@ export default class RelateRecordDropdown extends React.Component {
             title={title}
             className="normalSelectedItem placeholder ellipsis"
             onClick={e => {
-              if (!allowOpenRecord) {
+              if (!allowOpenRecord || isMobileTable) {
                 return;
               }
               this.setState({ previewRecord: { recordId: selected[0].rowid } });
@@ -440,17 +442,17 @@ export default class RelateRecordDropdown extends React.Component {
   renderMultipe() {
     const {
       insheet,
+      isSubList,
       isQuickFilter,
-      selectedStyle,
+      disabled,
       isediting,
+      formIsEditing,
       control,
-      worksheetId,
+      parentWorksheetId,
       allowOpenRecord,
-      cellFrom,
       recordId,
-      viewId,
-      isCharge,
     } = this.props;
+    const canDrag = get(control, 'advancedSetting.allowdrag') === '1';
     const { selected, keywords, activeIndex } = this.state;
     const { active } = this;
     const length = selected.length;
@@ -459,51 +461,79 @@ export default class RelateRecordDropdown extends React.Component {
         {!active && _.isEmpty(selected) && !insheet && control.hint && (
           <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
         )}
-        {selected.map((record, i) => {
-          const title = getTitleTextFromRelateControl(this.control, record);
-          return active || insheet ? (
-            <div
-              key={i}
-              className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
-              style={_.assign({}, i === 0 ? (cellFrom === 4 ? { margin: 0 } : { marginTop: 6 }) : {})}
-              onClick={e => {
-                if (!allowOpenRecord || active || /^temp/.test(record.rowid)) {
-                  return;
-                }
-                this.setState({ previewRecord: { recordId: record.rowid } });
-                e.stopPropagation();
-              }}
-            >
-              <span className="name InlineBlock ellipsis">
-                {record.rowid ? title : _l('关联当前%0', this.entityName)}
-              </span>
-              {active && (this.allowRemove || record.isNewAdd) && (
-                <i
-                  className="icon icon-close"
+        {!!selected.length && (
+          <SortableList
+            dragPreviewImage
+            items={selected}
+            itemKey="rowid"
+            canDrag={canDrag && active && selected.length > 1 && selected.length <= 50 && !disabled}
+            helperClass="draggingItem"
+            itemClassName="itemContainer"
+            onSortEnd={newItems => {
+              if (formIsEditing || !recordId || isSubList) {
+                this.setState({ selected: newItems }, this.handleChange);
+              } else {
+                updateRelateRecordSorts({
+                  worksheetId: parentWorksheetId,
+                  recordId,
+                  changes: [
+                    {
+                      ...control,
+                      editType: 31,
+                      value: JSON.stringify(newItems.map(item => ({ sid: item.rowid }))),
+                    },
+                  ],
+                });
+              }
+            }}
+            renderItem={options => {
+              const { index, dragging, isLayer } = options;
+              const record = options.item;
+              const title = getTitleTextFromRelateControl(this.control, record);
+              return active || insheet ? (
+                <div
+                  key={record.rowid}
+                  className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
                   onClick={e => {
                     e.stopPropagation();
-                    this.handleDelete(record);
+                    if (!allowOpenRecord || active || /^temp/.test(record.rowid) || active) {
+                      return;
+                    }
+                    this.setState({ previewRecord: { recordId: record.rowid } });
                   }}
-                ></i>
-              )}
-            </div>
-          ) : (
-            <div
-              key={i}
-              className={cx('normalSelectedItem ellipsis multiple', { isEnd: i === length - 1 })}
-              title={title}
-              onClick={e => {
-                if (!allowOpenRecord) {
-                  return;
-                }
-                this.setState({ previewRecord: { recordId: record.rowid } });
-                e.stopPropagation();
-              }}
-            >
-              {title}
-            </div>
-          );
-        })}
+                >
+                  <span className="name InlineBlock ellipsis">
+                    {record.rowid ? title : _l('关联当前%0', this.entityName)}
+                  </span>
+                  {active && (this.allowRemove || record.isNewAdd) && (
+                    <i
+                      className="icon icon-close"
+                      onClick={e => {
+                        e.stopPropagation();
+                        this.handleDelete(record);
+                      }}
+                    ></i>
+                  )}
+                </div>
+              ) : (
+                <div
+                  key={record.rowid}
+                  className={cx('normalSelectedItem ellipsis multiple', { isEnd: index === length - 1 })}
+                  title={title}
+                  onClick={e => {
+                    if (!allowOpenRecord) {
+                      return;
+                    }
+                    this.setState({ previewRecord: { recordId: record.rowid } });
+                    e.stopPropagation();
+                  }}
+                >
+                  {title}
+                </div>
+              );
+            }}
+          />
+        )}
         {(this.canSelect || isQuickFilter) && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
@@ -533,6 +563,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderPopup({ disabledManualWrite }) {
     const {
+      appId,
       from,
       isSubList,
       isQuickFilter,
@@ -547,8 +578,17 @@ export default class RelateRecordDropdown extends React.Component {
       onVisibleChange,
     } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
-    const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop, activeIndex, deletedIds } =
-      this.state;
+    const {
+      keywords,
+      selected,
+      listvisible,
+      newrecordVisible,
+      renderToTop,
+      cellToTop,
+      activeIndex,
+      deletedIds,
+      defaultSelected,
+    } = this.state;
     const xOffset = this.isMobile ? 0 : this.getXOffset();
     return (
       <ClickAway
@@ -573,6 +613,7 @@ export default class RelateRecordDropdown extends React.Component {
         )}
         {listvisible && !disabledManualWrite && (
           <RelateRecordList
+            appId={appId}
             ref={this.list}
             isSubList={isSubList}
             getFilterRowsGetType={getFilterRowsGetType}
@@ -586,7 +627,9 @@ export default class RelateRecordDropdown extends React.Component {
             formData={formDataArray}
             prefixRecords={prefixRecords}
             staticRecords={staticRecords}
-            ignoreRowIds={uniq(deletedIds.concat(selected.map(r => r.rowid)))}
+            ignoreRowIds={
+              multiple ? uniq(deletedIds.concat(selected.map(r => r.rowid))) : (defaultSelected || []).map(r => r.rowid)
+            }
             maxHeight={renderToTop && cellToTop}
             entityName={this.entityName}
             style={{
@@ -710,6 +753,7 @@ export default class RelateRecordDropdown extends React.Component {
       disabled,
       dataSource,
       enumDefault2,
+      allowOpenRecord,
       isQuickFilter,
       popupContainer,
       onVisibleChange,
@@ -773,7 +817,7 @@ export default class RelateRecordDropdown extends React.Component {
               hideTitle={!disabled}
               appId={appId}
               recordId={this.props.recordId}
-              allowOpenRecord={disabled ? control.advancedSetting.allowlink === '1' : false}
+              allowOpenRecord={allowOpenRecord}
               cardClassName={disabled && control.advancedSetting.allowlink === '1' ? 'Hand' : undefined}
               control={{
                 ...control,

@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import { Button, Icon, Tooltip } from 'ming-ui';
 import { Slider } from 'antd';
-import PayHeader from '../payHeader';
-import EditContractDialog from './EditContractDialog';
-import { payDialogFunc } from '../payDialog';
-import upgradeController from 'src/api/upgrade';
-import orderController from 'src/api/order';
-import { versionIntroduction, featureDataList, payMethodList } from './config';
-import { getRequest, addToken } from 'src/util';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Button, Icon, Tooltip } from 'ming-ui';
+import orderController from 'src/api/order';
+import upgradeController from 'src/api/upgrade';
+import preall from 'src/common/preall';
+import { addToken, getRequest } from 'src/utils/common';
+import { payDialogFunc } from '../payDialog';
+import PayHeader from '../payHeader';
+import { featureDataList, payMethodList, versionIntroduction } from './config';
+import EditContractDialog from './EditContractDialog';
+import './index.less';
 
 export default class VersionUpgrade extends Component {
   constructor(props) {
@@ -488,7 +488,9 @@ export default class VersionUpgrade extends Component {
                       <span className="Font28 Bold">￥</span>
                       <span className="LineHeight35 Font44 bold500">{totalPrice}</span>
                     </div>
-                    <div className="TxtLeft InlineBlock Gray_9e mLeft10 mLeft3">{_l('约%0 /月', averageMonthPrice)}</div>
+                    <div className="TxtLeft InlineBlock Gray_9e mLeft10 mLeft3">
+                      {_l('约%0 /月', averageMonthPrice)}
+                    </div>
                   </div>
                 )}
               </div>

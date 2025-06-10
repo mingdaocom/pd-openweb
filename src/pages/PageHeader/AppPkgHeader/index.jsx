@@ -1,21 +1,18 @@
 import React, { Component } from 'react';
-import api from 'api/homeApp';
-import AppDetail from './AppDetail';
-import { getIds } from '../util';
-import { navigateTo } from '../../../router/navigateTo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
-import './index.less';
-import { browserIsMobile } from 'src/util';
+import api from 'api/homeApp';
 import { getAppId } from 'src/pages/AuthService/portalAccount/util';
+import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
+import { browserIsMobile } from 'src/utils/common';
+import { navigateTo } from '../../../router/navigateTo';
+import { getIds } from '../util';
+import AppDetail from './AppDetail';
+import './index.less';
 
-@connect(
-  undefined,
-  dispatch => ({
-    updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
-  }),
-)
+@connect(undefined, dispatch => ({
+  updateSheetListLoading: bindActionCreators(updateSheetListLoading, dispatch),
+}))
 export default class AppPkgHeader extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +24,7 @@ export default class AppPkgHeader extends Component {
       this.compatibleWorksheetRoute();
     }
     const { appId, groupId, worksheetId } = getIds(props);
-    if (appId && (!worksheetId && !groupId)) {
+    if (appId && !worksheetId && !groupId) {
       this.completePara({ appId, groupId });
     }
   }
@@ -40,7 +37,7 @@ export default class AppPkgHeader extends Component {
     if (appId !== getIds(this.props).appId || groupId !== getIds(this.props).groupId) {
       this.isRequest = false;
     }
-    if (appId && (!worksheetId && !groupId)) {
+    if (appId && !worksheetId && !groupId) {
       this.completePara({ appId, groupId });
     }
   }
@@ -65,20 +62,22 @@ export default class AppPkgHeader extends Component {
   /**
    * 参数补齐
    */
-  completePara = (data) => {
+  completePara = data => {
     if (this.isRequest) return;
     this.isRequest = true;
     const appId = md.global.Account.isPortal ? md.global.Account.appId : data.appId;
-    api.getAppFirstInfo({
-      appId,
-      appSectionId: data.groupId
-    }).then(({ appSectionId, workSheetId }) => {
-      if (appSectionId) {
-        navigateTo(`/app/${appId}/${appSectionId}/${workSheetId || ''}?flag=${Date.now()}`, true);
-      } else {
-        this.props.updateSheetListLoading(false);
-      }
-    });
+    api
+      .getAppFirstInfo({
+        appId,
+        appSectionId: data.groupId,
+      })
+      .then(({ appSectionId, workSheetId }) => {
+        if (appSectionId) {
+          navigateTo(`/app/${appId}/${appSectionId}/${workSheetId || ''}?flag=${Date.now()}`, true);
+        } else {
+          this.props.updateSheetListLoading(false);
+        }
+      });
   };
 
   render() {

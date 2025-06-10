@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, PopupWrapper, Radio } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { renderText as renderCellText } from 'src/utils/control';
 import { checkCellIsEmpty } from '../../tools/utils';
 
 const AdvancedContentWrap = styled.div`

@@ -1,22 +1,26 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { Fragment } from 'react';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _, { get, includes, isFunction, isUndefined } from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm, SvgIcon } from 'ming-ui';
-import { mdNotification } from 'ming-ui/functions';
-import { getTranslateInfo } from 'src/util';
-import verifyPassword from 'src/components/verifyPassword';
-import IconText from 'worksheet/components/IconText';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import FillRecordControls from '../FillRecordControls';
-import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import worksheetAjax from 'src/api/worksheet';
-import { getRowDetail } from 'worksheet/api';
-import processAjax from 'src/pages/workflow/api/process';
-import _, { get } from 'lodash';
+import { Button, Dialog, Icon, MenuItem, SvgIcon, VerifyPasswordConfirm } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { mdNotification } from 'ming-ui/functions';
+import worksheetAjax from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/process';
+import { getRowDetail } from 'worksheet/api';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import IconText from 'worksheet/components/IconText';
+import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
+import verifyPassword from 'src/components/verifyPassword';
+import { getTranslateInfo } from 'src/utils/app';
+import { emitter } from 'src/utils/common';
+import { appendDataToLocalPushUniqueId } from 'src/utils/common';
+import { getButtonColor } from 'src/utils/control';
+import { handleRecordError } from 'src/utils/record';
+import FillRecordControls from '../FillRecordControls';
 import CustomButtonConfirm from './CustomButtonConfirm';
-import { emitter, appendDataToLocalPushUniqueId, getButtonColor, handleRecordError } from 'worksheet/util';
 
 const MenuItemWrap = styled(MenuItem)`
   .btnName {
@@ -30,6 +34,94 @@ const MenuItemWrap = styled(MenuItem)`
   &:not(.disabled):hover {
     .Icon {
       color: #fff !important;
+    }
+  }
+`;
+
+const HoverButton = styled(Button)`
+  &.showAsOutline {
+    &:hover {
+      color: ${props => props.isOperates && `${props.primaryColor} !important;`};
+    }
+  }
+  ${props =>
+    props.operateHeight &&
+    `&.ming.Button.isOperates {
+    height: ${props.operateHeight}px !important;
+    line-height: ${props.operateHeight - 2}px !important;
+    min-height: ${props.operateHeight}px !important;
+    padding: 0 8px 0 8px !important;
+    font-size: 12px !important;
+    &:not(.iconShowAsSvg).icon {
+      font-size: 16px !important;
+      margin-right: 2px !important;
+      margin-left: -2px !important;
+    }
+    &.iconShowAsSvg {
+      .content {
+        align-items: center;
+      }
+      .icon {
+        line-height: 1em;
+      }
+    }
+    .content {
+      span,
+      i {
+        line-height: ${props.operateHeight - 2}px !important;
+      }
+    }
+    &.operates-showIcon-false:not(.operates-icon) {
+      .icon, .icon.InlineBlock {
+        display: none !important;
+      }
+    }
+    &.operates-icon {
+      border: none !important;
+      background: transparent !important;
+      &:hover {
+        background: rgba(0, 0, 0, 0.03) !important;
+      }
+    }
+    &.operates-text {
+      border: none !important;
+      background: transparent !important;
+      &:hover {
+        border: none !important;
+        background: rgba(0, 0, 0, 0.03) !important;
+      }
+    }
+    &.operates-icon {
+      width: 28px !important;
+      min-width: 28px !important;
+      padding: 0 !important;
+      .icon {
+        margin: 0 !important;
+        width: 28px !important;
+        color: #757575 !important;
+      }
+      .buttonText {
+        display: none !important;
+      }
+      &:hover {
+        .icon {
+          color: ${props => props.primaryColor} !important;
+        }
+      }
+    }
+    &:not(.isInCard) .buttonText {
+      max-width: 200px !important;
+    }
+  }`}
+  &.operates-icon,
+  &.operates-text {
+    &::before {
+      display: none;
+    }
+  }
+  &.operates-standard:hover {
+    &::before {
+      background-color: rgba(0, 0, 0, 0.12);
     }
   }
 `;
@@ -633,8 +725,46 @@ export default class CustomButtons extends React.Component {
     );
   }
 
+  handleButtonClick = button => {
+    const { isOperates, btnDisable = {}, onButtonClick = () => {} } = this.props;
+    if (button.disabled || btnDisable[button.btnId]) {
+      return true;
+    }
+    if (isUndefined(button.type) || button.type === 'custom_button') {
+      if (isOperates) {
+        worksheetAjax
+          .checkWorksheetRowBtn({
+            worksheetId: this.props.worksheetId,
+            rowId: this.props.recordId,
+            btnId: button.btnId,
+          })
+          .then(allowTrigger => {
+            if (allowTrigger) {
+              this.triggerCustomBtn(button);
+            } else {
+              alert(_l('不满足执行条件'), 3);
+              onButtonClick(button.btnId);
+            }
+          });
+      } else {
+        this.triggerCustomBtn(button);
+      }
+    } else if (isFunction(button.onClick)) {
+      button.onClick(button);
+    }
+  };
+
   render() {
-    const { type = 'button', btnDisable = {}, hideDisabled, onHideMoreBtn } = this.props;
+    const {
+      type = 'button',
+      showMore,
+      operateHeight,
+      btnDisable = {},
+      isOperates,
+      hideDisabled,
+      isInCard,
+      onHideMoreBtn,
+    } = this.props;
     let { buttons } = this.props;
     if (hideDisabled) {
       buttons = buttons.filter(button => !(btnDisable[button.btnId] || button.disabled));
@@ -645,13 +775,41 @@ export default class CustomButtons extends React.Component {
     let buttonComponents = [];
     if (type === 'button') {
       buttonComponents = buttons.map((button, i) => {
-        const buttonColor = getButtonColor(button.color);
+        const buttonColor = getButtonColor(button.color, button.showAsPrimary);
+        let fillColor =
+          !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
+            ? '#bdbdbd'
+            : buttonColor.color;
+        if (isOperates && !button.showAsPrimary) {
+          fillColor = button.color;
+        }
+        let mRight6 = true;
+        if (isOperates) {
+          if (button.style === 'text') {
+            mRight6 = false;
+          } else if (isInCard && includes(['text', 'icon'], button.style)) {
+            mRight6 = false;
+          } else if (buttons.length === 1 && !showMore) {
+            mRight6 = false;
+          } else if (!showMore && i === buttons.length - 1) {
+            mRight6 = false;
+          }
+        }
         const buttonComponent = (
-          <span key={i} className="InlineBlock borderBox mRight6">
-            <Button
-              className={cx('recordCustomButton overflowHidden', {
-                transparentButton: button.color === 'transparent',
-              })}
+          <span key={i} className={cx('InlineBlock borderBox', { mRight6 })}>
+            <HoverButton
+              operateHeight={isOperates && operateHeight}
+              className={cx(
+                'recordCustomButton overflowHidden',
+                {
+                  transparentButton: button.color === 'transparent',
+                  isOperates,
+                  isInCard,
+                  showAsOutline: isOperates && !button.showAsPrimary,
+                  iconShowAsSvg: !!button.iconUrl && !!button.icon && button.icon.endsWith('_svg'),
+                },
+                button.className,
+              )}
               size="small"
               type="ghost"
               disabled={btnDisable[button.btnId] || button.disabled}
@@ -659,57 +817,75 @@ export default class CustomButtons extends React.Component {
                 ...buttonColor,
                 maxWidth: '100%',
                 minWidth: 'inherit',
+                ...(isOperates &&
+                  !button.showAsPrimary &&
+                  button.style === 'text' &&
+                  !button.showIcon && {
+                    color: button.color,
+                  }),
               }}
+              isOperates={isOperates}
+              primaryColor={button.color !== 'transparent' && (button.color || '#2196f3')}
               onClick={evt => {
-                if (btnDisable[button.btnId] || button.disabled) {
+                if (this.handleButtonClick(button)) {
                   return;
                 }
                 onHideMoreBtn(evt);
-                this.triggerCustomBtn(button);
               }}
+              title={button.name}
             >
               <div className="content ellipsis">
-                {!!button.iconUrl && !!button.icon && button.icon.endsWith('_svg') ? (
-                  <SvgIcon
-                    className="InlineBlock icon LineHeight30"
-                    addClassName="TxtMiddle"
-                    url={button.iconUrl}
-                    fill={
-                      !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
-                        ? '#bdbdbd'
-                        : buttonColor.color
-                    }
-                    size={18}
-                  />
-                ) : (
-                  button.icon && (
-                    <i
-                      className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
-                        Gray_bd: !button.icon && (!button.color || button.color === 'transparent'),
+                <Fragment>
+                  {!!button.iconUrl && !!button.icon && button.icon.endsWith('_svg') ? (
+                    <SvgIcon
+                      className={cx('InlineBlock icon', {
+                        LineHeight30: !isOperates,
                       })}
+                      addClassName="TxtMiddle"
+                      url={button.iconUrl}
+                      fill={fillColor}
+                      size={18}
                     />
-                  )
-                )}
-                <span className="breakAll overflow_ellipsis">{button.name}</span>
+                  ) : (
+                    button.icon && (
+                      <i
+                        className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
+                          Gray_bd:
+                            !button.showAsPrimary && !button.icon && (!button.color || button.color === 'transparent'),
+                        })}
+                        style={
+                          isOperates && !button.showAsPrimary && !(btnDisable[button.btnId] || button.disabled)
+                            ? { color: button.color || '#2196f3' }
+                            : {}
+                        }
+                      />
+                    )
+                  )}
+                </Fragment>
+                <span className="buttonText breakAll overflow_ellipsis">{button.name}</span>
               </div>
-            </Button>
+            </HoverButton>
           </span>
         );
-        return button.desc && type === 'button' ? (
-          <Tooltip popupPlacement="bottom" tooltipStyle={{ maxWidth: 350 }} text={<span>{button.desc}</span>}>
-            {buttonComponent}
-          </Tooltip>
-        ) : (
-          buttonComponent
-        );
+        if (button.desc && type === 'button' && button.style !== 'icon') {
+          return (
+            <Tooltip mouseEnterDelay={0} placement="bottom" title={<span>{button.desc}</span>}>
+              {buttonComponent}
+            </Tooltip>
+          );
+        } else if (button.style === 'icon') {
+          return (
+            <Tooltip placement="bottom" mouseEnterDelay={0} title={<span>{button.name}</span>}>
+              {buttonComponent}
+            </Tooltip>
+          );
+        } else {
+          return buttonComponent;
+        }
       });
     } else if (type === 'iconText') {
       buttonComponents = buttons.map((button, i) => (
-        <Tooltip
-          popupPlacement="bottom"
-          tooltipStyle={{ maxWidth: 350 }}
-          text={button.desc && <span>{button.desc}</span>}
-        >
+        <Tooltip mouseEnterDelay={0} placement="bottom" title={button.desc && <span>{button.desc}</span>}>
           <span>
             <IconText
               title={button.name}
@@ -719,11 +895,10 @@ export default class CustomButtons extends React.Component {
               iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#151515' : button.color}
               text={button.name}
               onClick={evt => {
-                if (btnDisable[button.btnId] || button.disabled) {
+                if (this.handleButtonClick(button)) {
                   return;
                 }
                 onHideMoreBtn(evt);
-                this.triggerCustomBtn(button);
               }}
             />
           </span>
@@ -758,16 +933,20 @@ export default class CustomButtons extends React.Component {
           }
           className={cx({ disabled: btnDisable[button.btnId] || button.disabled })}
           onClick={evt => {
-            if (btnDisable[button.btnId] || button.disabled) {
+            if (this.handleButtonClick(button)) {
               return;
             }
             document.body.click();
-            this.triggerCustomBtn(button);
           }}
         >
           <span className="btnName mLeft15 ellipsis">{button.name}</span>
           {button.desc && (
-            <Tooltip popupPlacement="bottom" tooltipStyle={{ maxWidth: 350 }} text={<span>{button.desc}</span>}>
+            <Tooltip
+              destroyPopupOnHide
+              placement="bottom"
+              overlayStyle={{ maxWidth: 350 }}
+              title={<span>{button.desc}</span>}
+            >
               <i className="icon icon-info_outline Font17 mTop9 Right" />
             </Tooltip>
           )}

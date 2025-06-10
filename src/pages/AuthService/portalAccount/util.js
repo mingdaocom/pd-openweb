@@ -1,6 +1,6 @@
 import externalPortalAjax from 'src/api/externalPortal';
-import { browserIsMobile, getRequest } from 'src/util';
-import { setPssId } from 'src/util/pssId';
+import { browserIsMobile, getRequest } from 'src/utils/common';
+import { setPssId } from 'src/utils/pssId';
 
 export const urlList = [
   'app/',
@@ -141,6 +141,17 @@ export const goApp = (sessionId, appId, customLink) => {
   }
 };
 export const setAutoLoginKey = (res, removeLink = true) => {
+  if (res.accountResult === 9 && res.state) {
+    window.clientId = res.state;
+    sessionStorage.setItem('clientId', res.state);
+    window.shareState.isPublicFormPreview = true;
+    window.shareState.isPublicForm = true;
+  } else {
+    window.clientId = '';
+    sessionStorage.removeItem('clientId');
+    window.shareState.isPublicFormPreview = false;
+    window.shareState.isPublicForm = false;
+  }
   const { appId, autoLoginKey } = res;
   removeLink && window.localStorage.removeItem(`${appId}_portalCustomLink`);
   if (!autoLoginKey) {

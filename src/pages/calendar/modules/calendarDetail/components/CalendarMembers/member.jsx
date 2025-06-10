@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { MEMBER_STATUS } from '../../constant';
 import { UserCard } from 'ming-ui';
+import { MEMBER_STATUS } from '../../constant';
 
 export default class Member extends Component {
   render() {
@@ -38,6 +38,7 @@ export default class Member extends Component {
       <UserCard
         className="calendarBusinessCard"
         sourceId={accountID || thirdID}
+        disabled={isWxMember}
         data={{
           avatar: head || face,
           fullname: memberName || nickName,

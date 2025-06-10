@@ -1,6 +1,8 @@
-import '../css/mentionsInput.css';
-import { getRequest, htmlEncodeReg, setCaretPosition, getCaretPosition } from 'src/util';
 import _ from 'lodash';
+import { getCaretPosition, getRequest, setCaretPosition } from 'src/utils/common';
+import { htmlEncodeReg } from 'src/utils/common';
+import '../css/mentionsInput.css';
+
 const Request = getRequest();
 
 (function ($) {

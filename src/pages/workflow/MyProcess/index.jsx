@@ -1,18 +1,18 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { Checkbox, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Dialog, Icon, Button, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
-import { Tooltip, Checkbox } from 'antd';
-import Card from './Card';
-import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import ExecDialog from 'src/pages/workflow/components/ExecDialog';
-import { getTodoCount } from './Entry';
-import { TABS } from './config';
-import FilterConTent from './Filter';
-import './index.less';
 import _ from 'lodash';
-import TodoEntrust from './TodoEntrust';
-import verifyPassword from 'src/components/verifyPassword';
+import { Button, Dialog, Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ArchivedList from 'src/components/ArchivedList';
+import verifyPassword from 'src/components/verifyPassword';
+import ExecDialog from 'src/pages/workflow/components/ExecDialog';
+import Card from './Card';
+import { TABS } from './config';
+import { getTodoCount } from './Entry';
+import FilterConTent from './Filter';
+import TodoEntrust from './TodoEntrust';
+import './index.less';
 
 export const getStateParam = tab => {
   let param = {};
@@ -34,7 +34,7 @@ export const getStateParam = tab => {
   if (tab === TABS.COMPLETE) {
     param = {
       type: -1,
-      complete: true
+      complete: true,
     };
   }
   return param;
@@ -163,6 +163,17 @@ export default class MyProcess extends Component {
       }
     }
 
+    if (_.isUndefined(props.activeTab)) {
+      const { countData } = props;
+      if (countData.waitingApproval) {
+        stateTab = TABS.WAITING_APPROVE;
+      } else if (countData.waitingWrite) {
+        stateTab = TABS.WAITING_FILL;
+      } else if (countData.waitingExamine) {
+        stateTab = TABS.WAITING_EXAMINE;
+      }
+    }
+
     this.state = {
       list: [],
       loading: false,
@@ -182,7 +193,10 @@ export default class MyProcess extends Component {
       encryptType: null,
       rejectVisible: false,
       passVisible: false,
-      archivedItem: {}
+      archivedItem: {},
+      approveLoading: false,
+      rejectLoading: false,
+      allReadLoading: false
     };
   }
   componentDidMount() {
@@ -204,7 +218,6 @@ export default class MyProcess extends Component {
     if (visible && this.filterEl) {
       this.filterEl.getTodoListFilter();
     }
-
   }
   bindEscEvent = () => {
     document.body.addEventListener('keydown', this.closeGlobalSearch);
@@ -268,6 +281,7 @@ export default class MyProcess extends Component {
   };
   handleChangeTab = tab => {
     const { filter, archivedItem } = this.state;
+    const isSame = tab === this.state.stateTab;
     this.setState(
       {
         stateTab: tab,
@@ -276,12 +290,12 @@ export default class MyProcess extends Component {
         pageIndex: 1,
         isMore: true,
         list: [],
-        filter: _.isEmpty(archivedItem) ? null : { startDate: filter.startDate, endDate: filter.endDate }
+        filter: _.isEmpty(archivedItem) ? (isSame ? filter : null) : { startDate: filter.startDate, endDate: filter.endDate },
       },
       this.getTodoList,
     );
     getTodoCount({
-      archivedId: archivedItem.id
+      archivedId: archivedItem.id,
     }).then(countData => {
       this.updateCountData(countData);
     });
@@ -307,11 +321,13 @@ export default class MyProcess extends Component {
       });
   };
   handleAllRead = () => {
-    const { filter } = this.state;
+    const { filter, allReadLoading } = this.state;
     const param = { type: 5 };
     if (filter) {
       Object.assign(param, filter);
     }
+    if (allReadLoading) return;
+    this.setState({ allReadLoading: true });
     instanceVersion.batch(param).then(result => {
       if (result) {
         alert(_l('操作成功'));
@@ -320,6 +336,7 @@ export default class MyProcess extends Component {
           isMore: false,
           isResetFilter: true,
           visible: false,
+          allReadLoading: false
         });
         getTodoCount().then(countData => {
           this.updateCountData(countData);
@@ -365,7 +382,7 @@ export default class MyProcess extends Component {
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
-      const data = { id, workId, opinion: _l('批量处理') };
+      const data = { id, workId, opinion: '', opinionType: 3 };
       if ((_.get(flowNode, batchType) || []).includes(1)) {
         return {
           ...data,
@@ -375,6 +392,12 @@ export default class MyProcess extends Component {
         return data;
       }
     });
+    if (approveType === 4) {
+      this.setState({ approveLoading: true });
+    }
+    if (approveType === 5) {
+      this.setState({ rejectLoading: true });
+    }
     instanceVersion
       .batch({
         type: 4,
@@ -384,7 +407,11 @@ export default class MyProcess extends Component {
       .then(result => {
         if (result) {
           alert(_l('操作成功'));
-          this.setState({ approveCards: [] });
+          this.setState({
+            approveCards: [],
+            approveLoading: false,
+            rejectLoading: false
+          });
           this.handleChangeTab(TABS.WAITING_APPROVE);
           getTodoCount().then(countData => {
             this.updateCountData(countData);
@@ -488,28 +515,34 @@ export default class MyProcess extends Component {
             archivedItem={archivedItem}
             showSelectItem={false}
             onChange={archivedItem => {
-              this.setState({
-                archivedItem,
-                isMore: true,
-                pageIndex: 1,
-                list: [],
-                filter: {
-                  ...filter,
-                  startDate: archivedItem.start,
-                  endDate: archivedItem.end,
+              this.setState(
+                {
+                  archivedItem,
+                  isMore: true,
+                  pageIndex: 1,
+                  list: [],
+                  filter: {
+                    ...filter,
+                    startDate: archivedItem.start,
+                    endDate: archivedItem.end,
+                  },
                 },
-              }, this.getTodoList);
+                this.getTodoList,
+              );
               getTodoCount({
-                archivedId: archivedItem.id
+                archivedId: archivedItem.id,
               }).then(countData => {
                 this.updateCountData(countData);
-              });          
+              });
             }}
             customRender={() => {
               return (
                 <div data-tip={_l('查看已归档数据')} className="mRight26">
                   <div
-                    className={cx('flexRow valignWrapper mBottom3 pointer Hover_21', _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor')}
+                    className={cx(
+                      'flexRow valignWrapper mBottom3 pointer Hover_21',
+                      _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor',
+                    )}
                   >
                     <Icon icon="drafts_approval" className="Font24" />
                     <div className="Font14 mLeft5 nowrap">{_l('归档')}</div>
@@ -568,6 +601,7 @@ export default class MyProcess extends Component {
   }
   renderFilter() {
     const { stateTab, visible, filter, approveCards, list } = this.state;
+    const { approveLoading, rejectLoading } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
 
@@ -649,13 +683,14 @@ export default class MyProcess extends Component {
                           $('.passApprove').click();
                         }}
                       >
-                        {_l('通过')}
+                        {_l('同意')}
                       </Button>
                     </div>
                   </div>
                 }
                 visible={passVisible}
                 onVisibleChange={passVisible => {
+                  if (approveLoading || rejectLoading) return;
                   if (_.isEmpty(approveCards)) {
                     alert(_l('请先勾选需要处理的审批'), 2);
                   } else {
@@ -664,7 +699,7 @@ export default class MyProcess extends Component {
                 }}
               >
                 <div className={cx('passApprove bold pointer', { active: passVisible, all: approveCards.length })}>
-                  {_l('通过')}
+                  {approveLoading ? _l('处理中...') : _l('同意')}
                 </div>
               </Tooltip>
               <div
@@ -674,16 +709,17 @@ export default class MyProcess extends Component {
                   all: approveCards.length && rejectList.length === approveCards.length,
                 })}
                 onClick={() => {
+                  if (approveLoading || rejectLoading) return;
                   if (_.isEmpty(approveCards)) {
                     alert(_l('请先勾选需要处理的审批'), 2);
                   } else if (_.isEmpty(rejectList)) {
-                    alert(_l('没有可否决的审批事项'), 2);
+                    alert(_l('没有可拒绝的审批事项'), 2);
                   } else {
                     this.setState({ rejectVisible: true });
                   }
                 }}
               >
-                {_l('否决')}
+                {rejectLoading ? _l('处理中...') : _l('拒绝')}
                 {!(approveCards.length && rejectList.length === approveCards.length) &&
                   !!rejectList.length &&
                   rejectList.length}
@@ -694,6 +730,7 @@ export default class MyProcess extends Component {
       );
     }
     if (stateTab === TABS.WAITING_EXAMINE) {
+      const { allReadLoading } = this.state;
       return (
         <div className={cx('filterWrapper', { hide: waitingExamine <= 0 })}>
           <div className="valignWrapper w100">
@@ -709,7 +746,7 @@ export default class MyProcess extends Component {
             </div>
             <div className="pointer allRead" onClick={this.handleAllRead}>
               <Icon icon="done_all" />
-              <span className="Font13 mLeft5">{_l('全部已读')}</span>
+              <span className="Font13 mLeft5">{allReadLoading ? _l('处理中...') : _l('全部已读')}</span>
             </div>
           </div>
         </div>
@@ -826,6 +863,7 @@ export default class MyProcess extends Component {
           <Fragment>
             <div className="mBottom5">{_l('签名')}</div>
             <Signature
+              showUploadFromMobile
               ref={signature => {
                 this.signature = signature;
               }}
@@ -856,12 +894,12 @@ export default class MyProcess extends Component {
       <Dialog
         visible
         width={860}
-        title={_l('有%0个可否决的审批事项', rejectCards.length)}
+        title={_l('有%0个可拒绝的审批事项', rejectCards.length)}
         onOk={() => {
           this.hanndleApprove(5, 'auth.overruleTypeList');
           this.setState({ rejectVisible: false });
         }}
-        okText={_l('否决')}
+        okText={_l('拒绝')}
         buttonType="danger"
         onCancel={() => this.setState({ rejectVisible: false })}
       >
@@ -962,7 +1000,7 @@ export default class MyProcess extends Component {
       approveType,
       encryptType,
       rejectVisible,
-      archivedItem
+      archivedItem,
     } = this.state;
 
     return (
@@ -975,21 +1013,24 @@ export default class MyProcess extends Component {
             stateTab={stateTab}
             visible={visible}
             archivedItem={archivedItem}
-            onChangeArchivedItem={(data) => {
-              this.setState({
-                pageIndex: 1,
-                isMore: true,
-                list: [],
-                archivedItem: {
-                  ...archivedItem,
-                  start: data.startDate,
-                  end: data.endDate,
+            onChangeArchivedItem={data => {
+              this.setState(
+                {
+                  pageIndex: 1,
+                  isMore: true,
+                  list: [],
+                  archivedItem: {
+                    ...archivedItem,
+                    start: data.startDate,
+                    end: data.endDate,
+                  },
+                  filter: {
+                    ...filter,
+                    ...data,
+                  },
                 },
-                filter: {
-                  ...filter,
-                  ...data
-                }
-              }, this.getTodoList);
+                this.getTodoList,
+              );
             }}
             handleChangeVisible={() => this.setState({ visible: false })}
             onChange={data => {
@@ -1005,9 +1046,9 @@ export default class MyProcess extends Component {
                   filter: isSampleFilter
                     ? data
                     : {
-                      ...filter,
-                      ...data,
-                    },
+                        ...filter,
+                        ...data,
+                      },
                 },
                 this.getTodoList,
               );
@@ -1024,27 +1065,30 @@ export default class MyProcess extends Component {
             <div className="flexColumn">
               {!_.isEmpty(archivedItem) && (
                 <div className="mTop20 pLeft10 pRight10">
-                <ArchivedList
-                  type={1}
-                  archivedItem={archivedItem}
-                  onChange={archivedItem => {
-                    this.setState({
-                      archivedItem,
-                      isMore: true,
-                      pageIndex: 1,
-                      list: [],
-                      filter: {
-                        ...filter,
-                        startDate: archivedItem.start,
-                        endDate: archivedItem.end,
-                      },
-                    }, this.getTodoList);
-                    getTodoCount().then(countData => {
-                      this.updateCountData(countData);
-                    });                
-                  }}
-                  customRender={() => <Fragment />}
-                />
+                  <ArchivedList
+                    type={1}
+                    archivedItem={archivedItem}
+                    onChange={archivedItem => {
+                      this.setState(
+                        {
+                          archivedItem,
+                          isMore: true,
+                          pageIndex: 1,
+                          list: [],
+                          filter: {
+                            ...filter,
+                            startDate: archivedItem.start,
+                            endDate: archivedItem.end,
+                          },
+                        },
+                        this.getTodoList,
+                      );
+                      getTodoCount().then(countData => {
+                        this.updateCountData(countData);
+                      });
+                    }}
+                    customRender={() => <Fragment />}
+                  />
                 </div>
               )}
               {this.renderFilter()}
@@ -1066,6 +1110,7 @@ export default class MyProcess extends Component {
             }}
             onSave={() => {
               if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
+                alert(_l('操作成功'));
                 this.handleSave(this.state.selectCard);
               }
             }}

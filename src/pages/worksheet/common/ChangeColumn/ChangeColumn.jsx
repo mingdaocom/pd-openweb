@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Input } from 'ming-ui';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { getControlsSorts, sortControlByIds } from 'worksheet/util';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Input } from 'ming-ui';
+import { getControlsSorts, sortControlByIds } from 'src/utils/control';
+import ChangedIcon from './ChangeByWorksheet';
 import SortableColumn from './SortableColumn';
 import './ChangeColumn.less';
-import _ from 'lodash';
-import ChangedIcon from './ChangeByWorksheet';
 
 export default class ChangeColumn extends Component {
   static propTypes = {
@@ -195,6 +195,7 @@ export default class ChangeColumn extends Component {
       maxHeight,
       isShowColumns = false,
       sortAutoChange = false,
+      hideReset,
       showOperate,
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
@@ -228,7 +229,7 @@ export default class ChangeColumn extends Component {
         >
           {_l('全隐藏')}
         </button>
-        {isShowColumns && (
+        {isShowColumns && !hideReset && (
           <ChangedIcon
             onOk={() =>
               this.handleChange({

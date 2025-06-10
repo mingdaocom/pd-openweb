@@ -1,15 +1,15 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import PrivateLinkDialog from './components/PrivateLinkDialog';
-import privateLinkApi from 'src/api/privateLink';
-import { Switch, Checkbox, Radio, Icon, LoadDiv } from 'ming-ui';
 import { Button, Divider, Input, Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Checkbox, Icon, LoadDiv, Radio, Switch } from 'ming-ui';
+import privateLinkApi from 'src/api/privateLink';
+import SettingIconAndName from 'src/pages/Admin/components/SettingIconAndName';
 import { updateSysSettings } from '../common';
 import { BrandHomeImage } from '../Platform/Brand';
-import SettingIconAndName from 'src/pages/Admin/components/SettingIconAndName';
-import _ from 'lodash';
+import PrivateLinkDialog from './components/PrivateLinkDialog';
 import SSOSet from './SSOSet';
-import cx from 'classnames';
 
 const Login = props => {
   const { IsPlatformLocal } = md.global.Config;
@@ -331,7 +331,7 @@ const Sso = prosp => {
         />
       </div>
       <div className="mBottom15 Gray_9e">
-        {_l('当启用SSO自主集成并通过SSO完成登录后，用户在退出登录时将会被重定向回SSO登录页')}
+        {_l('开启后，Web 端可使用SSO登录。当用户通过SSO完成登录后，在退出登录时将会被重定向回SSO登录页')}
       </div>
       <SettingIconAndName
         className="mBottom10"

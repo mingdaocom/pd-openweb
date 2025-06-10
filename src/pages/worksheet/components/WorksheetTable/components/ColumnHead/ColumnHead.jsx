@@ -1,33 +1,34 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Trigger from 'rc-trigger';
-import { checkIsTextControl, controlIsNumber } from 'worksheet/util';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
+import _, { get, isUndefined } from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import {
-  hideColumn,
-  clearHiddenColumn,
-  frozenColumn,
-  sortByControl,
-  saveColumnStylesToLocal,
-  updateColumnStyles,
-} from 'worksheet/redux/actions/sheetview';
-import { Menu, MenuItem, Dialog, Icon } from 'ming-ui';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import { CONTROL_EDITABLE_WHITELIST, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import { emitter, getSortData, fieldCanSort, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'worksheet/util';
+import {
+  clearHiddenColumn,
+  frozenColumn,
+  hideColumn,
+  saveColumnStylesToLocal,
+  sortByControl,
+  updateColumnStyles,
+} from 'worksheet/redux/actions/sheetview';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import './ColumnHead.less';
-import _, { get, isUndefined } from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from '../../../../../widgetConfig/config/widget';
 import { showTypeData } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
 import { COVER_DISPLAY_FILL } from 'src/pages/worksheet/common/ViewConfig/config.js';
+import { emitter } from 'src/utils/common';
+import { getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'src/utils/common';
+import { checkIsTextControl, controlIsNumber, fieldCanSort, getSortData } from 'src/utils/control';
+import { WIDGETS_TO_API_TYPE_ENUM } from '../../../../../widgetConfig/config/widget';
+import './ColumnHead.less';
 
 class ColumnHead extends Component {
   static contextType = SheetContext;
@@ -157,10 +158,10 @@ class ColumnHead extends Component {
     const showtype = !isUndefined(columnStyle.showtype)
       ? columnStyle.showtype
       : (control.type === 30 ? control.sourceControlType : control.type) === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
-      ? 6
-      : _.get(control, 'advancedSetting.showtype') === '2'
-      ? 2
-      : 0;
+        ? 6
+        : _.get(control, 'advancedSetting.showtype') === '2'
+          ? 2
+          : 0;
     const coverFillType = !isUndefined(columnStyle.coverFillType) ? columnStyle.coverFillType : 0;
     const isShowOtherField = isOtherShowFeild(control);
     const itemType = this.getType(control);

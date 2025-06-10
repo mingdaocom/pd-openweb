@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { LoadDiv } from 'ming-ui';
-import worksheetApi from 'src/api/worksheet';
-import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action.js';
-import { validate, formatFilterValues, formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
-import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions';
-import { formatFilters } from './util';
-import { getTranslateInfo } from 'src/util';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
 import store from 'redux/configureStore';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import worksheetApi from 'src/api/worksheet';
+import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions';
+import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
+import { formatFilterValues, formatFilterValuesToServer, validate } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action.js';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { formatFilters } from './util';
 
 const Wrap = styled.div`
   &.disableFiltersGroup {
@@ -62,7 +62,7 @@ function FiltersGroupPreview(props) {
             filters: filtersGroup.filters.map(f => {
               const values = formatFilterValues(f.dataType, f.values);
               f.objectControls.forEach(item => {
-                item.control = replaceControlsTranslateInfo(appId, item.worksheetId, [item.control])[0];
+                item.control = replaceControlsTranslateInfo(appId, item.worksheetId, item.control ? [item.control] : [])[0];
               });
               return {
                 ...f,

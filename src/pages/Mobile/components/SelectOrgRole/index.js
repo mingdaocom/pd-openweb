@@ -346,7 +346,7 @@ export default class SelectOrgRole extends Component {
   };
 
   render() {
-    const { visible, onClose, unique } = this.props;
+    const { visible, onClose, unique, hideClearBtn = true } = this.props;
     const { selectedOrgRole } = this.state;
     return (
       <PopupWrapper
@@ -354,10 +354,9 @@ export default class SelectOrgRole extends Component {
         visible={visible}
         title={_l('组织角色')}
         confirmDisable={!selectedOrgRole.length}
-        clearDisable={!selectedOrgRole.length}
         onClose={onClose}
         onConfirm={unique ? null : this.handleSave}
-        onClear={!unique ? null : this.onClear}
+        onClear={hideClearBtn ? null : this.onClear}
       >
         <div className="selectOrgRoleModal flexColumn">{this.renderContent()}</div>
       </PopupWrapper>

@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import DropdownWrapper from 'worksheet/components/DropdownWrapper';
-import ChangeColumn from 'worksheet/common/ChangeColumn';
-import './index.less';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import ChangeColumn from 'worksheet/common/ChangeColumn';
+import DropdownWrapper from 'worksheet/components/DropdownWrapper';
+import './index.less';
 
 export default class SortColumns extends React.Component {
   static propTypes = {
@@ -93,6 +93,7 @@ export default class SortColumns extends React.Component {
                 sortAutoChange={sortAutoChange}
                 showTabs={showTabs}
                 showOperate={showOperate}
+                hideReset
               />
             )
           }

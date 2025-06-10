@@ -1,26 +1,37 @@
-import React, { useRef, useState, Fragment } from 'react';
-import { shape, func, arrayOf, bool, string } from 'prop-types';
-import styled from 'styled-components';
-import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
-import { VCenterIconText, Tooltip, Dialog, UpgradeIcon } from 'ming-ui';
+import React, { Fragment, useRef, useState } from 'react';
 import cx from 'classnames';
-import { getFeatureStatus } from 'src/util';
+import _ from 'lodash';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, Tooltip, UpgradeIcon, VCenterIconText } from 'ming-ui';
+import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import SaveButton from './SaveButton';
-import FilterDetailName from './FilterDetailName';
-import SplitDropdown from './SplitDropdown';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { saveWorksheetFilter } from '../../SaveWorksheetFilter';
+import { FILTER_TYPE } from '../enum';
+import { formatForSave } from '../model';
 import AddCondition from './AddCondition';
 import ConditionsGroup from './ConditionsGroup';
-import { formatForSave } from '../model';
-import { FILTER_TYPE } from '../enum';
-import { saveWorksheetFilter } from '../../SaveWorksheetFilter';
-import _ from 'lodash';
+import FilterDetailName from './FilterDetailName';
+import SaveButton from './SaveButton';
+import SplitDropdown from './SplitDropdown';
 
 const Con = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  .readOnlyFilters {
+    cursor: default;
+    border: none;
+    &:hover {
+      background: inherit;
+    }
+    .editFilter {
+      display: none;
+    }
+  }
   &.isSingleFilter {
     overflow: visible;
   }
@@ -50,6 +61,9 @@ const Content = styled.div`
     max-height: 420px;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+  &:not(.canEdit) {
+    padding: 0px 6px;
   }
 `;
 
@@ -166,7 +180,7 @@ export default function FilterDetail(props) {
     }
   }
   return (
-    <Con className={cx({ isSingleFilter })}>
+    <Con className={cx({ isSingleFilter, canEdit })}>
       {!isSingleFilter && !isNew && (
         <Header>
           <BackBtn onClick={handleBack}>
@@ -190,139 +204,145 @@ export default function FilterDetail(props) {
         </Header>
       )}
       <Content
-        className={cx({ isSingleFilter })}
+        className={cx({ isSingleFilter, canEdit })}
         ref={scrollRef}
         style={maxHeight ? { maxHeight: maxHeight - 120 } : {}}
       >
-        {conditionsGroups.map((conditionsGroup, groupIndex) => (
-          <Fragment>
-            <ConditionsGroup
-              from={from}
-              isRules={isRules}
-              isSingleFilter={isSingleFilter}
-              canEdit={isNew ? true : canEdit}
-              appId={appId}
-              worksheetId={worksheetId}
-              showCustom={showCustom}
-              projectId={projectId}
-              isGroup={filter.isGroup}
-              filterError={filterError[groupIndex] || []}
-              filterResigned={filterResigned}
-              filterAddConditionControls={filterAddConditionControls}
-              conditionSpliceType={conditionsGroup.conditionSpliceType}
-              conditions={conditionsGroup.conditions.map((c, i) => ({
-                ...c,
-                folded: foldedMap[`${c.controlId}-${groupIndex + '' + i}`],
-              }))}
-              controls={controls}
-              conditionProps={conditionProps}
-              conditionsGroupsLength={conditionsGroups.length}
-              onAdd={control => {
-                actions.addCondition(control, groupIndex, from);
-              }}
-              onChange={(value = {}, conditionIndex) => {
-                actions.updateCondition(value, groupIndex, conditionIndex);
-                const condition = conditionsGroup.conditions[conditionIndex];
-                if (condition && !_.isUndefined(value.folded)) {
-                  setFoldedMap({
-                    ...foldedMap,
-                    [`${condition.controlId}-${groupIndex + '' + conditionIndex}`]: value.folded,
-                  });
-                }
-              }}
-              onDelete={deleteIndex => {
-                if (conditionsGroup.conditions.length === 1 && conditionsGroups.length !== 1) {
-                  actions.deleteConditionsGroup(groupIndex);
-                } else {
-                  actions.deleteCondition(deleteIndex, groupIndex);
-                }
-              }}
-              onUpdateGroup={value => actions.updateConditionsGroup(value, groupIndex)}
-            />
-            {groupIndex !== conditionsGroups.length - 1 && (
-              <SplitDropdown
-                canEdit={canEdit && groupIndex === 0}
-                type={conditionsGroup.spliceType}
-                onChange={value => actions.updateConditionsGroup({ spliceType: value }, '*')}
-                onDelete={value => actions.deleteGroup(groupIndex + 1)}
-              />
-            )}
-          </Fragment>
-        ))}
-      </Content>
-      <Footer className="flexRow" isSingleFilter={isSingleFilter}>
-        {(!filter.isGroup || (filter.isGroup && conditionsGroups.length === 1)) && (
-          <AddCondition
-            columns={filterAddConditionControls(controls)}
-            from={from}
-            widgetControlData={_.get(conditionProps, 'widgetControlData')}
-            onAdd={control => {
-              if (filter.isGroup) {
-                actions.addCondition(control, undefined, from);
-              } else {
-                actions.addCondition(control, 0, from);
-              }
-              onAddCondition();
-              scrollToEnd();
-            }}
-          >
-            <AddButton
-              className="mRight30"
-              icon="add"
-              textLeft={4}
-              iconSize={18}
-              text={_l('添加筛选条件')}
-              textSize={13}
-            />
-          </AddCondition>
+        {!canEdit && (
+          <FilterItemTexts className="readOnlyFilters" filters={conditionsGroups} controls={controls} loading={false} />
         )}
-        {supportGroup && featureType && (
-          <Tooltip popupPlacement="bottom" text={featureType === '2' ? _l('条件组为专业版功能') : ''}>
-            <AddButton
-              icon="add"
-              textLeft={4}
-              iconSize={18}
-              text={_l('条件组')}
-              afterElement={featureType === '2' && <UpgradeIcon />}
-              textSize={13}
-              onClick={() => {
-                if (featureType === '2') {
-                  if (window.isPublicApp) {
-                    alert(_l('预览模式下，不能操作'), 3);
-                    return;
+        {canEdit &&
+          conditionsGroups.map((conditionsGroup, groupIndex) => (
+            <Fragment>
+              <ConditionsGroup
+                from={from}
+                isRules={isRules}
+                isSingleFilter={isSingleFilter}
+                canEdit={isNew ? true : canEdit}
+                appId={appId}
+                worksheetId={worksheetId}
+                showCustom={showCustom}
+                projectId={projectId}
+                isGroup={filter.isGroup}
+                filterError={filterError[groupIndex] || []}
+                filterResigned={filterResigned}
+                filterAddConditionControls={filterAddConditionControls}
+                conditionSpliceType={conditionsGroup.conditionSpliceType}
+                conditions={conditionsGroup.conditions.map((c, i) => ({
+                  ...c,
+                  folded: foldedMap[`${c.controlId}-${groupIndex + '' + i}`],
+                }))}
+                controls={controls}
+                conditionProps={conditionProps}
+                conditionsGroupsLength={conditionsGroups.length}
+                onAdd={control => {
+                  actions.addCondition(control, groupIndex, from);
+                }}
+                onChange={(value = {}, conditionIndex) => {
+                  actions.updateCondition(value, groupIndex, conditionIndex);
+                  const condition = conditionsGroup.conditions[conditionIndex];
+                  if (condition && !_.isUndefined(value.folded)) {
+                    setFoldedMap({
+                      ...foldedMap,
+                      [`${condition.controlId}-${groupIndex + '' + conditionIndex}`]: value.folded,
+                    });
                   }
-                  buriedUpgradeVersionDialog(projectId, VersionProductType.filterGroup);
+                }}
+                onDelete={deleteIndex => {
+                  if (conditionsGroup.conditions.length === 1 && conditionsGroups.length !== 1) {
+                    actions.deleteConditionsGroup(groupIndex);
+                  } else {
+                    actions.deleteCondition(deleteIndex, groupIndex);
+                  }
+                }}
+                onUpdateGroup={value => actions.updateConditionsGroup(value, groupIndex)}
+              />
+              {groupIndex !== conditionsGroups.length - 1 && (
+                <SplitDropdown
+                  canEdit={canEdit && groupIndex === 0}
+                  type={conditionsGroup.spliceType}
+                  onChange={value => actions.updateConditionsGroup({ spliceType: value }, '*')}
+                  onDelete={value => actions.deleteGroup(groupIndex + 1)}
+                />
+              )}
+            </Fragment>
+          ))}
+      </Content>
+      {canEdit && (
+        <Footer className="flexRow" isSingleFilter={isSingleFilter}>
+          {(!filter.isGroup || (filter.isGroup && conditionsGroups.length === 1)) && (
+            <AddCondition
+              columns={filterAddConditionControls(controls)}
+              from={from}
+              widgetControlData={_.get(conditionProps, 'widgetControlData')}
+              onAdd={control => {
+                if (filter.isGroup) {
+                  actions.addCondition(control, undefined, from);
                 } else {
-                  const spliceType = _.get(conditionsGroups, '0.spliceType');
-                  actions.addGroup(spliceType);
-                  onAddCondition();
-                  scrollToEnd();
+                  actions.addCondition(control, 0, from);
                 }
+                onAddCondition();
+                scrollToEnd();
               }}
+            >
+              <AddButton
+                className="mRight30"
+                icon="add"
+                textLeft={4}
+                iconSize={18}
+                text={_l('添加筛选条件')}
+                textSize={13}
+              />
+            </AddCondition>
+          )}
+          {supportGroup && featureType && (
+            <Tooltip popupPlacement="bottom" text={featureType === '2' ? _l('条件组为专业版功能') : ''}>
+              <AddButton
+                icon="add"
+                textLeft={4}
+                iconSize={18}
+                text={_l('条件组')}
+                afterElement={featureType === '2' && <UpgradeIcon />}
+                textSize={13}
+                onClick={() => {
+                  if (featureType === '2') {
+                    if (window.isPublicApp) {
+                      alert(_l('预览模式下，不能操作'), 3);
+                      return;
+                    }
+                    buriedUpgradeVersionDialog(projectId, VersionProductType.filterGroup);
+                  } else {
+                    const spliceType = _.get(conditionsGroups, '0.spliceType');
+                    actions.addGroup(spliceType);
+                    onAddCondition();
+                    scrollToEnd();
+                  }
+                }}
+              />
+            </Tooltip>
+          )}
+          {supportGroup && (
+            <Tooltip text={_l('添加条件组，结合 且/或 条件进行筛选')}>
+              <i className="addGroupTip icon icon-help Font16 mLeft6"></i>
+            </Tooltip>
+          )}
+          <div className="flex"></div>
+          {!isSingleFilter && !hideSave && (
+            <SaveButton
+              disabled={saveButtonDisabled}
+              onClick={handleSave}
+              downList={
+                isNew || saveButtonDisabled
+                  ? []
+                  : [
+                      { name: _l('保存'), disabled: !needSave, onClick: handleSave },
+                      { name: _l('保存为'), disabled: !needSave, onClick: () => handleSave({ saveAsNew: true }) },
+                    ]
+              }
             />
-          </Tooltip>
-        )}
-        {supportGroup && (
-          <Tooltip text={_l('添加条件组，结合 且/或 条件进行筛选')}>
-            <i className="addGroupTip icon icon-help Font16 mLeft6"></i>
-          </Tooltip>
-        )}
-        <div className="flex"></div>
-        {!isSingleFilter && !hideSave && (
-          <SaveButton
-            disabled={saveButtonDisabled}
-            onClick={handleSave}
-            downList={
-              isNew || saveButtonDisabled
-                ? []
-                : [
-                    { name: _l('保存'), disabled: !needSave, onClick: handleSave },
-                    { name: _l('保存为'), disabled: !needSave, onClick: () => handleSave({ saveAsNew: true }) },
-                  ]
-            }
-          />
-        )}
-      </Footer>
+          )}
+        </Footer>
+      )}
     </Con>
   );
 }

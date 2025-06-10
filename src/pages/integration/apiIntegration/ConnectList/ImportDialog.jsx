@@ -9,7 +9,7 @@ import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
-import { formatFileSize } from 'src/util';
+import { formatFileSize } from 'src/utils/common';
 
 const Wrap = styled.div`
   &.importAppContainer {

@@ -1,23 +1,20 @@
 ﻿import React from 'react';
-import _ from 'lodash';
+import { connect } from 'react-redux';
 import cx from 'classnames';
+import Immutable from 'immutable';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import shallowEqual from 'shallowequal';
-import Immutable from 'immutable';
+import { Icon, Item, List, ScrollView, Splitter } from 'ming-ui';
+import groupController from 'src/api/group';
+import createGroup from 'src/pages/Group/createGroup';
+import { navigateTo } from 'src/router/navigateTo';
+import postEnum from '../../constants/postEnum';
+import { searchAll } from '../../redux/postActions';
+// TODO 放入 store
 import MDLeftNav from '../common/mdLeftNav';
 import MDLeftNavSearch from '../common/mdLeftNav/mdLeftNavSearch';
-import List from 'ming-ui/components/List';
-import Item from 'ming-ui/components/Item';
-import Icon from 'ming-ui/components/Icon';
-import Splitter from 'ming-ui/components/Splitter';
-import ScrollView from 'ming-ui/components/ScrollView';
-import postEnum from '../../constants/postEnum';
-import groupController from 'src/api/group'; // TODO 放入 store
-import { connect } from 'react-redux';
-import { searchAll } from '../../redux/postActions';
-import { navigateTo } from 'src/router/navigateTo';
 import './feedLeftNav.css';
-import CreateGroup from 'src/components/group/create/creatGroup';
 
 class FeedLeftNav extends React.Component {
   static propTypes = {
@@ -156,7 +153,7 @@ class FeedLeftNav extends React.Component {
   createGroup = (e, projectId) => {
     e.preventDefault();
     e.stopPropagation();
-    CreateGroup.createInit({
+    createGroup({
       projectId,
       callback(group) {
         window.location.href = `/feed?groupId=${group.groupId}`;
@@ -251,7 +248,15 @@ class FeedLeftNav extends React.Component {
                   })}
                   onClick={() => navigateTo(`/feed?groupId=${g.groupId}&projectId=${projectId}`)}
                 >
-                  <img className="avatar" src={g.avatar.includes('?')>0 ? g.avatar.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48/q/100') : `${g.avatar}?imageView2/1/w/48/h/48/q/100`} placeholder={g.avatar}/>
+                  <img
+                    className="avatar"
+                    src={
+                      g.avatar.includes('?') > 0
+                        ? g.avatar.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48/q/100')
+                        : `${g.avatar}?imageView2/1/w/48/h/48/q/100`
+                    }
+                    placeholder={g.avatar}
+                  />
                   <span className="ThemeColor10" title={g.name}>
                     {g.name}
                   </span>

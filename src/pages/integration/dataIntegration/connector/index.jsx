@@ -1,20 +1,20 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import autoSize from 'ming-ui/decorators/autoSize';
-import bg from 'staticfiles/images/connectorBg.png';
-import { Button, Icon, Support, ScrollView } from 'ming-ui';
 import { Select } from 'antd';
 import cx from 'classnames';
-import { AddConnector } from './components';
+import _ from 'lodash';
+import bg from 'staticfiles/images/connectorBg.png';
+import styled from 'styled-components';
+import { Button, Icon, ScrollView, Support } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
 import dataConnectorApi from '../../api/dataConnector';
 import dataSourceApi from '../../api/datasource';
 import syncTaskApi from '../../api/syncTask';
-import _ from 'lodash';
-import { ROLE_TYPE } from '../constant';
-import './style.less';
-import { getCurrentProject } from 'src/util';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { getCurrentProject } from 'src/utils/project';
+import { ROLE_TYPE } from '../constant';
+import { AddConnector } from './components';
+import './style.less';
 
 const ConnectorWrapper = styled.div`
   background: #fff;
@@ -72,7 +72,9 @@ const FormCard = styled.div`
   padding: 48px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 8px 0px, rgba(0, 0, 0, 0.06) 0px 0px 2px 0px;
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 3px 8px 0px,
+    rgba(0, 0, 0, 0.06) 0px 0px 2px 0px;
 
   .lineHeight20 {
     line-height: 20px;

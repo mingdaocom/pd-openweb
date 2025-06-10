@@ -31,7 +31,7 @@ export const RELATE_RECORD_SHOW_TYPE = {
   TAB_TABLE: 6,
 };
 
-/** 关联记录显示类型 */
+/** 关联查询显示类型 */
 export const RELATION_SEARCH_SHOW_TYPE = {
   CARD: 1,
   LIST: 2,
@@ -108,8 +108,6 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   FORMULA_FUNC: 53,
   CUSTOM: 54,
   REMARK: 10010,
-  // 特殊异化控件：呈现type异化，实际保存type跟老控件一致
-  INTERNATIONAL_AREA: 90000,
 };
 
 export const permitList = {

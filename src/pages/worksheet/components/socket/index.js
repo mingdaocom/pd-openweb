@@ -1,10 +1,11 @@
-import { emitter, equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'worksheet/util';
-import { mdNotification } from 'ming-ui/functions';
-import './index.less';
-import workflowHistory from './workflowHistory';
-import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import process from 'src/pages/workflow/api/process';
 import _ from 'lodash';
+import { mdNotification } from 'ming-ui/functions';
+import process from 'src/pages/workflow/api/process';
+import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
+import { emitter } from 'src/utils/common';
+import { equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'src/utils/common';
+import workflowHistory from './workflowHistory';
+import './index.less';
 
 const STATUS = {
   0: { id: 'closed', text: _l('流程未启用'), action: 'error', promptType: 2 },

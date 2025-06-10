@@ -1,16 +1,16 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
+import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { setCaretPosition } from 'src/util';
-import { Tabs, Tab } from '../../common/tabs/tabs';
-import postEnum from '../../../constants/postEnum';
-import DateFilter from 'src/components/DateFilter';
-import { changeFontSize, changeListType, filter, changeSearchKeywords } from '../../../redux/postActions';
-import { connect } from 'react-redux';
-import './postFilter.css';
+import PropTypes from 'prop-types';
 import { Dropdown } from 'ming-ui';
+import DateFilter from 'src/components/DateFilter';
+import { setCaretPosition } from 'src/utils/common';
+import postEnum from '../../../constants/postEnum';
+import { changeFontSize, changeListType, changeSearchKeywords, filter } from '../../../redux/postActions';
+import { Tab, Tabs } from '../../common/tabs/tabs';
+import './postFilter.css';
 
 /**
  * 首页动态列表的头部筛选器

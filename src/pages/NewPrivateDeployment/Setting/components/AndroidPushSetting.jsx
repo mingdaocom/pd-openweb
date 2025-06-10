@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Dialog, Input } from 'ming-ui';
-import { encrypt } from 'src/util';
 import privatePushAjax from 'src/api/privatePush';
-import { RequestLabel, APP_PUSH_CONFIG } from '../../common';
+import { encrypt } from 'src/utils/common';
+import { APP_PUSH_CONFIG, RequestLabel } from '../../common';
 
 const Config = {
   mi: {

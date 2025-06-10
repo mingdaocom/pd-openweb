@@ -1,9 +1,9 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import DynamicDefaultValue from '../DynamicDefaultValue';
-import cx from 'classnames';
-import _ from 'lodash';
 
 const ControlWrap = styled.div`
   .childWrap {
@@ -25,11 +25,14 @@ const ControlWrap = styled.div`
       line-height: 27px;
       margin-left: 3px;
     }
+    .fieldList li {
+      ${props => (props.fromOperationFlow ? 'max-width: 100%;' : '')}
+    }
   }
 `;
 
 export default function SearchParams(props) {
-  const { requestControls = [], data = {}, allControls = [], onChange } = props;
+  const { requestControls = [], data = {}, allControls = [], onChange, fromOperationFlow } = props;
   const requestmap = getAdvanceSetting(data, 'requestmap') || [];
 
   // 获取对象数组本身选择的子表或关联记录控件
@@ -93,7 +96,7 @@ export default function SearchParams(props) {
   };
 
   return (
-    <ControlWrap>
+    <ControlWrap fromOperationFlow={fromOperationFlow}>
       {requestControls.map(item => {
         const hasValue = _.get(
           _.find(requestmap, i => i.id === item.controlId),

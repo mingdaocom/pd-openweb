@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { filterHidedControls } from 'src/pages/worksheet/util';
 import { Radio } from 'ming-ui';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
-import _ from 'lodash';
-import { getAdvanceSetting } from 'src/util';
+import SortColumns from 'src/pages/worksheet/components/SortColumns/';
+import { getAdvanceSetting } from 'src/utils/control';
+import { filterHidedControls } from 'src/utils/control';
 
 const Wrap = styled.div`
   height: 100%;

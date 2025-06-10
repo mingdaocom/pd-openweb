@@ -1,16 +1,16 @@
-import React, { Fragment, Component } from 'react';
-import { Tooltip, Dialog, Button, Switch, Icon, LoadDiv } from 'ming-ui';
-import accountController from 'src/api/account';
-import actionLogAjax from 'src/api/actionLog';
-import accountSetting from 'src/api/accountSetting';
-import wxController from 'src/api/weixin';
-import { validateFunc } from '../components/ValidateInfo';
-import StepsVerifyDialog from '../components/stepsVerifyDialog/index';
-import { formatFormulaDate } from 'src/pages/worksheet/util.js';
-import common from '../common';
-import moment from 'moment';
-import './index.less';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
+import moment from 'moment';
+import { Button, Dialog, Icon, LoadDiv, Switch, Tooltip } from 'ming-ui';
+import accountController from 'src/api/account';
+import accountSetting from 'src/api/accountSetting';
+import actionLogAjax from 'src/api/actionLog';
+import wxController from 'src/api/weixin';
+import { formatFormulaDate } from 'src/utils/control';
+import common from '../common';
+import StepsVerifyDialog from '../components/stepsVerifyDialog/index';
+import { validateFunc } from '../components/ValidateInfo';
+import './index.less';
 
 const tipsConfig = {
   mobilePhone: _l(

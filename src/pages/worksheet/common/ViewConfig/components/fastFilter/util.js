@@ -6,8 +6,8 @@ import { DATE_RANGE_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum
 
 // 文本筛选方式
 const TEXT_TYPE = [
+  { text: _l('默认'), value: FILTER_CONDITION_TYPE.LIKE },
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
-  { text: _l('包含'), value: FILTER_CONDITION_TYPE.LIKE },
   { text: _l('同时包含'), value: FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN },
   { text: _l('开头是'), value: FILTER_CONDITION_TYPE.START },
   { text: _l('结尾是'), value: FILTER_CONDITION_TYPE.END },

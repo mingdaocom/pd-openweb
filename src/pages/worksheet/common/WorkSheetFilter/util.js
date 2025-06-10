@@ -1,26 +1,21 @@
 import _, { assign, get, includes } from 'lodash';
 import moment from 'moment';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import {
-  checkIsTextControl,
-  getFormData,
-  getSelectedOptions,
-  isRelateRecordTableControl,
-  checkCellIsEmpty,
-} from 'src/pages/worksheet/util';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ROW_ID_CONTROL, SYSTEM_DATE_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import { checkCellIsEmpty, getSelectedOptions } from 'src/utils/control';
 import {
+  API_ENUM_TO_TYPE,
   CONTROL_FILTER_WHITELIST,
+  DATE_RANGE_TYPE,
   FILTER_CONDITION_TYPE,
   FILTER_RELATION_TYPE,
-  getFilterTypeLabel,
-  API_ENUM_TO_TYPE,
   getControlSelectType,
-  DATE_RANGE_TYPE,
+  getFilterTypeLabel,
 } from './enum';
-import { browserIsMobile } from 'src/util';
 
 export function getConditionType(condition) {
   return (condition.controlType === 28 || condition.dataType === 28) &&
@@ -206,6 +201,8 @@ export function formatOriginFilterGroupValue(filter) {
         spliceType: FILTER_RELATION_TYPE.AND,
         conditionSpliceType: _.get(items, '0.spliceType') || FILTER_RELATION_TYPE.AND,
         conditions: formatConditions(items),
+        isGroup: true,
+        groupFilters: items,
       },
     ];
   }
@@ -217,17 +214,17 @@ export function checkFilterConditionsAvailable(filter) {
   return conditions && conditions.length && _.every(conditions, condition => checkConditionAvailable(condition));
 }
 
-export function filterUnavailableConditions(conditions) {
+export function filterUnavailableConditions(conditions, key = 'groupFilters') {
   let newConditions = [...conditions];
   newConditions = newConditions.map(condition => {
-    if (condition.isGroup && condition.groupFilters) {
-      condition.groupFilters = condition.groupFilters.filter(checkConditionAvailable);
+    if (condition.isGroup && condition[key]) {
+      condition[key] = condition[key].filter(checkConditionAvailable);
     }
     return condition;
   });
   return newConditions.filter(condition => {
     if (condition.isGroup) {
-      return !!condition.groupFilters.length;
+      return !!condition[key].length;
     } else {
       return checkConditionAvailable(condition);
     }
@@ -556,29 +553,29 @@ export function getFilterTypes(control = {}, conditionType, from) {
         _.includes(['2', '5', '6'], advancedSetting.showtype) && from === 'rule'
           ? [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE]
           : conditionType &&
-            (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN) // 兼容老数据
-          ? [
-              FILTER_CONDITION_TYPE.ARREQ,
-              FILTER_CONDITION_TYPE.ARRNE,
-              ...(control.enumDefault === 2 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
-              FILTER_CONDITION_TYPE.LIKE,
-              FILTER_CONDITION_TYPE.NCONTAIN,
-              FILTER_CONDITION_TYPE.RCEQ,
-              FILTER_CONDITION_TYPE.RCNE,
-              ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
-              FILTER_CONDITION_TYPE.ISNULL,
-              FILTER_CONDITION_TYPE.HASVALUE,
-            ]
-          : [
-              FILTER_CONDITION_TYPE.ARREQ,
-              FILTER_CONDITION_TYPE.ARRNE,
-              ...(control.enumDefault === 2 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
-              FILTER_CONDITION_TYPE.RCEQ,
-              FILTER_CONDITION_TYPE.RCNE,
-              ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
-              FILTER_CONDITION_TYPE.ISNULL,
-              FILTER_CONDITION_TYPE.HASVALUE,
-            ];
+              (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN) // 兼容老数据
+            ? [
+                FILTER_CONDITION_TYPE.ARREQ,
+                FILTER_CONDITION_TYPE.ARRNE,
+                ...(control.enumDefault === 2 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
+                FILTER_CONDITION_TYPE.LIKE,
+                FILTER_CONDITION_TYPE.NCONTAIN,
+                FILTER_CONDITION_TYPE.RCEQ,
+                FILTER_CONDITION_TYPE.RCNE,
+                ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+                FILTER_CONDITION_TYPE.ISNULL,
+                FILTER_CONDITION_TYPE.HASVALUE,
+              ]
+            : [
+                FILTER_CONDITION_TYPE.ARREQ,
+                FILTER_CONDITION_TYPE.ARRNE,
+                ...(control.enumDefault === 2 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
+                FILTER_CONDITION_TYPE.RCEQ,
+                FILTER_CONDITION_TYPE.RCNE,
+                ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
+                FILTER_CONDITION_TYPE.ISNULL,
+                FILTER_CONDITION_TYPE.HASVALUE,
+              ];
       break;
     case 34: // 子表
       typeEnums = [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE];
@@ -1126,10 +1123,12 @@ export function fillConditionValue({
     return validate(newCondition) || newCondition.filterType === 7 ? newCondition : false;
   }
   const { type } = dynamicControl;
-  const value = getFormData({
-    cid: (_.includes(['fastFilter', 'navGroup'], rcid) ? rcid + '_' : '') + cid,
-    data: formData,
-  });
+  const value = (
+    _.find(
+      formData,
+      control => control.controlId === (_.includes(['fastFilter', 'navGroup'], rcid) ? rcid + '_' : '') + cid,
+    ) || {}
+  ).value;
   if (checkCellIsEmpty(value)) {
     return abortFilterWhenEmpty ? undefined : condition;
   }
@@ -1307,8 +1306,8 @@ export const getTabTypeBySelectUser = (control = {}) => {
   return _.includes(['caid', 'ownerid', 'daid'], controlId)
     ? 3
     : (advancedSetting.usertype || _.get(sourceControl.advancedSetting || {}, 'usertype')) === '2'
-    ? 2
-    : 1;
+      ? 2
+      : 1;
 };
 
 export function formatQuickFilterValueToControlValue(type, condition) {

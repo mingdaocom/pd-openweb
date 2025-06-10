@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
-import Container from './Container';
-import { LoadDiv, Icon, SvgIcon } from 'ming-ui';
-import { getRequest } from 'src/util/sso';
+import { navigateTo } from 'router/navigateTo';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import preall from 'src/common/preall';
-import { navigateTo } from 'router/navigateTo';
-import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
-import DocumentTitle from 'react-document-title';
-import { isErrSet } from '../util';
-import { Wrap, WrapCon } from './style';
-import { WrapCom } from 'src/pages/AuthService/style.jsx';
 import 'src/pages/AuthService/components/form.less';
+import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
+import { WrapCom } from 'src/pages/AuthService/style.jsx';
+import { browserIsMobile } from 'src/utils/common';
+import { getRequest } from 'src/utils/sso';
+import { isErrSet } from '../util';
+import Container from './Container';
+import { Wrap, WrapCon } from './style';
 
 function ContainerCon(props) {
   const [baseSetInfo, setBaseSetInfo] = useState({}); //门户配置

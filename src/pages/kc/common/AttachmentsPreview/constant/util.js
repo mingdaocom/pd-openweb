@@ -1,9 +1,10 @@
 ﻿import qs from 'query-string';
+import { downloadFile } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import { NODE_VIEW_TYPE } from '../../../constant/enum';
 import { isOffice } from '../../../utils';
 import { PREVIEW_TYPE } from './enum';
-import { downloadFile } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+
 function canEditFileName(attachment, options) {
   const { hideFunctions } = options;
   return (

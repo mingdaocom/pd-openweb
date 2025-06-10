@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dialog, Switch, Textarea, Tooltip, Icon } from 'ming-ui';
 import _ from 'lodash';
-import TextInput from './TextInput';
+import styled from 'styled-components';
+import { Dialog, Icon, Switch, Textarea, Tooltip } from 'ming-ui';
 import projectAjax from 'src/api/project';
-import { encrypt } from 'src/util';
+import { encrypt } from 'src/utils/common';
+import TextInput from './TextInput';
 
 const DialogContentWrap = styled.div`
   .rowFlex {

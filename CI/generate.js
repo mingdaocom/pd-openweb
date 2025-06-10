@@ -9,6 +9,7 @@ const { apiServer, webpackPublicPath } = require('./publishConfig');
 const isProduction = process.env.NODE_ENV === 'production';
 const buildPath = path.join(__dirname, '../build');
 const htmlDestPath = path.join(__dirname, '../build/files');
+const version = require('child_process').execSync('git log --format="%H" -n 1').toString().trim();
 
 function mkdir(dirPath) {
   dirPath = path.resolve(__dirname, dirPath);
@@ -59,7 +60,7 @@ function generate() {
       apiMap.workflowPlugin = '/workflow_plugin_api';
     }
 
-    https: $('head').prepend(`
+    $('head').prepend(`
       <link rel="icon" type="image/png" href="/file/mdpic/ProjectLogo/favicon.png" />
       <style>
         ::-webkit-scrollbar {
@@ -96,6 +97,7 @@ function generate() {
       <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
       <script src="/src/common/mdjs/freestyle.js"></script>
       <script>
+          window.MDPublishVersion = "${version}";
           window.FE_RELEASE_TIME = "${moment().format('YYYY/MM/DD HH:mm:SS')}";
           var __api_server__ = eval(${JSON.stringify(apiMap)});
           var __webpack_public_path__ = "${entry ? getPublicPath(entry.type) : ''}";

@@ -16,13 +16,13 @@ import { selectUser } from 'mobile/components/SelectUser';
 import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
-import renderText from 'worksheet/components/CellControls/renderText';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { selectRecord } from 'src/components/recordCardListDialog';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
-import { addBehaviorLog, browserIsMobile, mdAppResponse } from 'src/util';
-import { emitter, getFilledRequestParams } from '../../util';
+import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import { renderText } from 'src/utils/control';
+import { addBehaviorLog, mdAppResponse } from 'src/utils/project';
 import selectLocation from './selectLocation';
 
 export const api = {
@@ -342,7 +342,7 @@ export const utils = {
       });
     }
     return new Promise((resolve, reject) => {
-      (isMobile ? mobileSelectRecord : selectRecord)({
+      (isMobile ? mobileSelectRecord : selectRecords)({
         projectId: rest.projectId,
         canSelectAll: false,
         pageSize: rest.pageSize,

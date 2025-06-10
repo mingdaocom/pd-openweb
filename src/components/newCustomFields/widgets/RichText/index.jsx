@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { RichText } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { RichText } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { browserIsMobile } from 'src/utils/common';
 
 export default class Widgets extends Component {
   static propTypes = {

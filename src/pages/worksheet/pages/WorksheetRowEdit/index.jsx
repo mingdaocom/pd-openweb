@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
+import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import './index.less';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
-import _ from 'lodash';
-import DocumentTitle from 'react-document-title';
 import 'mobile/index.less';
-import { browserIsMobile, getTranslateInfo, shareGetAppLangDetail } from 'src/util';
+import { SHARE_STATE, VerificationPass } from 'worksheet/components/ShareState';
+import preall from 'src/common/preall';
+import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
+import './index.less';
 
 const Header = ({ data, callback, onSubmit }) => {
   return (
@@ -178,6 +179,17 @@ class WorksheetRowEdit extends Component {
                     hideOtherOperate={data.linkState === 0}
                     allowEmptySubmit
                     updateSuccess={() => this.setState({ data: { ...data, linkState: 1 } })}
+                    isEditRecord={true}
+                    renderFooter={({ onSubmit }) =>
+                      data.linkState !== 2 ? (
+                        <div
+                          className="adm-button adm-button-primary adm-button-shape-default flex mLeft6 mRight6 Font13 bold ellipsis"
+                          onClick={() => onSubmit()}
+                        >
+                          {data.submitBtnName || _l('提交')}
+                        </div>
+                      ) : null
+                    }
                   />
                 ) : (
                   <Components.default

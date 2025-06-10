@@ -1,7 +1,7 @@
-import React, { Fragment, useRef, useState, useEffect } from 'react';
-import { Popup, Dialog } from 'antd-mobile';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Dialog, Popup } from 'antd-mobile';
 import styled from 'styled-components';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 
 const ModalWrap = styled(Popup)`
   overflow: hidden;
@@ -54,6 +54,8 @@ const ModalWrap = styled(Popup)`
 `;
 
 const BatchModalWrap = styled.div`
+  padding: 0 8px;
+  box-sizing: border-box;
   .success {
     color: #4caf50;
     font-size: 20px;
@@ -66,6 +68,30 @@ const BatchModalWrap = styled.div`
   }
   .info {
     color: #1c97f3;
+  }
+  .closeWrap {
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    border-top: 1px solid #eee;
+    margin: 20px -20px -19px;
+    color: #1c97f3;
+  }
+`;
+
+const DialogWrap = styled(Dialog)`
+  .adm-dialog-body {
+    padding-top: 36px;
+  }
+  .adm-dialog-content {
+    padding: 0 20px 20px;
+  }
+  .adm-dialog-footer {
+    height: 50px;
+  }
+  .adm-button {
+    height: unset !important;
   }
 `;
 
@@ -118,7 +144,7 @@ function MessageComp(props) {
         </div>
       );
     }
-    return <i className={`Font20 ${type} icon-${getIconName(type)}`}></i>;
+    return <i className={`Font26 TxtMiddle ${type} icon-${getIconName(type)}`}></i>;
   };
 
   const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => {
@@ -134,25 +160,22 @@ function MessageComp(props) {
       modal.close();
     }
 
-    modal = Dialog.show({
+    modal = DialogWrap.show({
+      bodyStyle: { paddingTop: 36 },
       content: (
         <BatchModalWrap>
           <div className="flexRow">
             <div className="flex mBottom16 ellipsis">
               {getIcon()}
-              <span className="bold Font18 TxtBottom mLeft10">{title}</span>
+              <span className="bold Font18 TxtMiddle mLeft10">{title}</span>
             </div>
           </div>
           <div className="TxtCenter">{getBatchNoticeDescription(batchInfo)}</div>
+          <div className="closeWrap Font17 Hand" onClick={() => modal.close()}>
+            {_l('关闭')}
+          </div>
         </BatchModalWrap>
       ),
-      actions: [
-        {
-          key: 'close',
-          text: <span className="Font13">{_l('关闭')}</span>,
-          onClick: () => modal.close(),
-        },
-      ],
     });
   };
 

@@ -1,25 +1,43 @@
-import React, { Component, useEffect, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, Fragment, useEffect, useRef, useState } from 'react';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom';
 import UseKey from 'react-use/lib/component/UseKey';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import qs from 'query-string';
 import { TinyColor } from '@ctrl/tinycolor';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import qs from 'query-string';
+import styled from 'styled-components';
 import { LoadDiv, WaterMark } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import homeAppApi from 'src/api/homeApp';
+import DragMask from 'worksheet/common/DragMask';
+import UnNormal from 'worksheet/views/components/UnNormal';
+import CustomPageContent from 'src/pages/customPage/pageContent';
+import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import { navigateTo } from 'src/router/navigateTo';
-import { WorkSheetLeft, WorkSheetPortal, WorksheetEmpty } from './common';
+import { browserIsMobile } from 'src/utils/common';
+import { findSheet } from 'src/utils/worksheet';
+import { getSheetListFirstId } from 'src/utils/worksheet';
+import { moveSheetCache } from 'src/utils/worksheet';
+import { WorksheetEmpty, WorkSheetLeft, WorkSheetPortal } from './common';
 import Sheet from './common/Sheet';
 import { updateBase, updateWorksheetLoading } from './redux/actions';
-import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
-import CustomPageContent from 'src/pages/customPage/pageContent';
-import homeAppApi from 'src/api/homeApp';
-import UnNormal from 'worksheet/views/components/UnNormal';
-import { getSheetListFirstId, findSheet, moveSheetCache } from './util';
 import './worksheet.less';
-import _, { get, includes } from 'lodash';
-import { browserIsMobile } from 'src/util';
+
+const Drag = styled.div(
+  ({ left }) => `
+  position: absolute;
+  z-index: 9;
+  left: ${left}px;
+  width: 2px;
+  height: 100%;
+  cursor: ew-resize;
+  &:hover {
+    border-left: 1px solid #ddd;
+  }
+`,
+);
 
 let request = null;
 
@@ -151,6 +169,11 @@ class WorkSheet extends Component {
   };
   constructor(props) {
     super(props);
+    const { params } = props.match;
+    this.state = {
+      navWidth: Number(localStorage.getItem(`appNavWidth-${params.appId}`)) || 240,
+      dragMaskVisible: false,
+    };
   }
   componentDidMount() {
     const { appPkg, match, updateBase } = this.props;
@@ -200,7 +223,11 @@ class WorkSheet extends Component {
       }
 
       let defaultViewId = undefined;
-      if (!viewId && this.props.match.params.viewId === worksheetId && worksheetId === nextProps.match.params.worksheetId) {
+      if (
+        !viewId &&
+        this.props.match.params.viewId === worksheetId &&
+        worksheetId === nextProps.match.params.worksheetId
+      ) {
         const showViews = views.filter(view => {
           const showhide = _.get(view, 'advancedSetting.showhide') || '';
           if (browserIsMobile()) {
@@ -309,8 +336,9 @@ class WorkSheet extends Component {
     return id;
   }
   render() {
-    let { visible, sheetList = [], pageId, match, appPkg, isCharge, sheetListLoading } = this.props;
+    let { sheetList = [], match, appPkg, isCharge, sheetListLoading, sheetListIsUnfold } = this.props;
     const { projectId, currentPcNaviStyle } = appPkg;
+    const { navWidth, dragMaskVisible } = this.state;
     let { appId, groupId, worksheetId } = match.params;
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -335,14 +363,39 @@ class WorkSheet extends Component {
         />
         <div className="worksheet flexRow">
           {currentPcNaviStyle === 0 && (
-            <WorkSheetLeft
-              appId={appId}
-              projectId={projectId}
-              groupId={groupId}
-              worksheetId={worksheetId}
-              appPkg={appPkg}
-              isCharge={isCharge}
-            />
+            <Fragment>
+              {dragMaskVisible && (
+                <DragMask
+                  value={navWidth}
+                  min={240}
+                  max={480}
+                  onChange={value => {
+                    localStorage.setItem(`appNavWidth-${appId}`, value);
+                    this.setState({
+                      navWidth: value,
+                      dragMaskVisible: false,
+                    });
+                  }}
+                />
+              )}
+              {sheetListIsUnfold && (
+                <Drag
+                  left={navWidth}
+                  onMouseDown={() => {
+                    this.setState({ dragMaskVisible: true });
+                  }}
+                />
+              )}
+              <WorkSheetLeft
+                style={{ width: navWidth }}
+                appId={appId}
+                projectId={projectId}
+                groupId={groupId}
+                worksheetId={worksheetId}
+                appPkg={appPkg}
+                isCharge={isCharge}
+              />
+            </Fragment>
           )}
           {currentPcNaviStyle === 2 ? (
             worksheetId ? (
@@ -387,6 +440,7 @@ export default withRouter(
   connect(
     state => ({
       sheetListLoading: state.sheetList.loading,
+      sheetListIsUnfold: state.sheetList.isUnfold,
       sheetList: [1, 3].includes(state.appPkg.currentPcNaviStyle)
         ? state.sheetList.appSectionDetail
         : state.sheetList.data,

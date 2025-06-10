@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
-import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus } from 'src/util';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const Title = styled.span`
   display: inline-block;

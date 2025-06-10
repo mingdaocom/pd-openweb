@@ -1,31 +1,32 @@
 ﻿import React, { Component, Fragment } from 'react';
-import './taskToolbar.less';
 import { connect } from 'react-redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
-import { navigateTo } from 'src/router/navigateTo';
-import { errorMessage, setStateToStorage } from '../../utils/utils';
-import config from '../../config/config';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { htmlEncodeReg } from 'src/utils/common';
+import CopyFolder from '../../components/copyFolder/copyFolder';
+import ExportFolder from '../../components/exportFolder/exportFolder';
 import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
+import SetFolder from '../../components/setFolder/setFolder';
+import ShareFolderOrTask from '../../components/shareFolderOrTask/shareFolderOrTask';
+import config from '../../config/config';
 import {
   getFolderSettings,
-  updateFolderName,
-  updateStateConfig,
-  updateFolderTopState,
-  updateFolderNotice,
   updateFolderArchivedState,
+  updateFolderName,
+  updateFolderNotice,
+  updateFolderTopState,
+  updateStateConfig,
 } from '../../redux/actions';
-import cx from 'classnames';
-import { createFolder, updateFolderTop, deleteFolder, exitFolder, updateFolderArchived } from '../../utils/taskComm';
-import SetFolder from '../../components/setFolder/setFolder';
-import ExportFolder from '../../components/exportFolder/exportFolder';
-import CopyFolder from '../../components/copyFolder/copyFolder';
-import ShareFolderOrTask from '../../components/shareFolderOrTask/shareFolderOrTask';
+import { createFolder, deleteFolder, exitFolder, updateFolderArchived, updateFolderTop } from '../../utils/taskComm';
+import { errorMessage, setStateToStorage } from '../../utils/utils';
 import Filter from './filter';
-import { htmlEncodeReg, getAppFeaturesPath } from 'src/util';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import _ from 'lodash';
+import './taskToolbar.less';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class TaskToolbar extends Component {
@@ -56,7 +57,7 @@ class TaskToolbar extends Component {
     if (
       nextProps.taskConfig.folderId !== this.props.taskConfig.folderId ||
       (this.state.showFilter && nextProps.taskConfig.taskFilter === 8 && this.props.taskConfig.taskFilter !== 8) ||
-        (this.props.taskConfig.taskFilter === 8 && nextProps.taskConfig.taskFilter !== 8)
+      (this.props.taskConfig.taskFilter === 8 && nextProps.taskConfig.taskFilter !== 8)
     ) {
       this.taskFilterLeave();
     }
@@ -184,9 +185,7 @@ class TaskToolbar extends Component {
               )}
             </span>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {folderId && folderId !== 1 ? (
           <div className="Right mRight20" data-tip={_l('设置')}>
             <i
@@ -196,9 +195,7 @@ class TaskToolbar extends Component {
               }
             />
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
 
         {showFilter && <Filter taskFilterLeave={this.taskFilterLeave} showReset={filterCount > 0} />}
 
@@ -234,9 +231,7 @@ class TaskToolbar extends Component {
                   {_l('复制项目')}
                 </li>
               </Fragment>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             <li className="ThemeBGColor3" onClick={() => this.setState({ showShareDialog: true, showOperator: false })}>
               <i className="icon-link2" />
@@ -267,9 +262,7 @@ class TaskToolbar extends Component {
                 <i className="icon-task_custom_excel_01" />
                 {_l('导出任务列表到Excel')}
               </li>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             {isCharge || isAdmin || isMember ? <li className="dividerLine" /> : undefined}
 
@@ -290,9 +283,7 @@ class TaskToolbar extends Component {
                   {_l('删除项目')}
                 </li>
               </Fragment>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             {!isCharge && isMember ? (
               <li
@@ -305,13 +296,9 @@ class TaskToolbar extends Component {
                 <i className="icon-task-new-exit" />
                 {_l('退出项目')}
               </li>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
           </ClickAwayable>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
 
         {showSetFolder && <SetFolder folderId={folderId} onClose={() => this.setState({ showSetFolder: false })} />}
         {showCopyFolder && (
@@ -521,9 +508,7 @@ class TaskToolbar extends Component {
               >
                 <i className={folderNotice ? 'icon-chat-bell-nopush' : 'icon-inbox'} />
               </span>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
             {!this.state.showEdit && <div className="flex" />}
           </div>
         </div>

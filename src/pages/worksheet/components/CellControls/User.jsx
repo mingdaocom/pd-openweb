@@ -1,17 +1,15 @@
 import React from 'react';
-
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import { UserHead } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { quickSelectUser } from 'ming-ui/functions';
-import PropTypes from 'prop-types';
-import Trigger from 'rc-trigger';
 import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { isKeyBoardInputChar } from 'worksheet/util';
-
+import { isKeyBoardInputChar } from 'src/utils/common';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTip from './comps/CellErrorTip';

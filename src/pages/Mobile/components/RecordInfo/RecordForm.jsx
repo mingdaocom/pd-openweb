@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, PullToRefreshWrapper } from 'ming-ui';
-import DocumentTitle from 'react-document-title';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import CustomFields from 'src/components/newCustomFields';
 import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
@@ -18,7 +18,9 @@ import { selectUser } from 'src/pages/Mobile/components/SelectUser';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import { updateRecordOwner } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
-import { compatibleMDJS, formatNumberThousand } from 'src/util';
+import { getRequest } from 'src/utils/common';
+import { formatNumberThousand } from 'src/utils/control';
+import { compatibleMDJS, handleReplaceState } from 'src/utils/project';
 
 @connect(
   state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
@@ -101,7 +103,7 @@ export default class RecordForm extends Component {
       fixedTabsEl && fixedTabsEl.classList.add('hide');
     }
     if (view.viewType === 6 && view.childType === 1) {
-      fixedTabsEl && fixedTabsEl.classList.add('top43');
+      fixedTabsEl && fixedTabsEl.classList.add('top41');
     }
   };
 
@@ -141,7 +143,7 @@ export default class RecordForm extends Component {
       }
     };
     let list = getList();
-    if (payConfig.rowDetailIsShowOrder) {
+    if (payConfig.rowDetailIsShowOrder && !_.get(window, 'shareState.isPublicRecord')) {
       list = [
         ...list,
         {
@@ -220,6 +222,13 @@ export default class RecordForm extends Component {
             className="sheetName bold"
             onClick={() => {
               if (location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal) return;
+              const { page } = getRequest();
+              if (window.isMingDaoApp) {
+                handleReplaceState(
+                  'page',
+                  page === 'recordDetail' ? 'recordDetail' : _.isArray(page) ? page[page.length - 1] : '',
+                );
+              }
               window.mobileNavigateTo &&
                 window.mobileNavigateTo(
                   `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
@@ -262,6 +271,9 @@ export default class RecordForm extends Component {
                   selected: [],
                   success: function (res) {
                     // 最终选择结果, 完全替换已有数据
+                    if (_.isEmpty(res.results)) {
+                      return;
+                    }
                     handleUpdateOwner(res.results);
                   },
                   cancel: function (res) {
@@ -348,6 +360,7 @@ export default class RecordForm extends Component {
       workflow,
       currentTab,
       isDraft,
+      view,
     } = this.props;
     const { from } = recordBase;
     const approveInfo = this.renderApprove();
@@ -381,6 +394,7 @@ export default class RecordForm extends Component {
           registerCell={registerCell}
           isWorksheetQuery={recordInfo.isWorksheetQuery}
           recordCreateTime={recordInfo.createTime}
+          view={view}
           data={formData.filter(item => {
             return (
               (isEditRecord ? true : item.type !== 43) &&
@@ -420,6 +434,7 @@ export default class RecordForm extends Component {
         orderId: payConfig.orderId,
         projectId: recordInfo.projectId,
         appId: recordInfo.recordId,
+        payNow: payConfig.isAtOncePayment,
         onUpdateSuccess: updateObj => updatePayConfig(updateObj),
       });
     }
@@ -469,7 +484,7 @@ export default class RecordForm extends Component {
             {!isEditRecord && isShowPay && (
               <div className="payWrap flexRow alignItemsCenter Bold" onClick={this.handlePay}>
                 <div className="flex ellipsis mRight10 Font15">{payDescription}</div>
-                <div className="Font15 mRight10">¥ {formatNumberThousand(payAmount)}</div>
+                <div className="Font15 mRight10"> {_l('%0 元', formatNumberThousand(payAmount))}</div>
                 <div className="payBtn Font15">{_l('付款')}</div>
               </div>
             )}

@@ -1,20 +1,20 @@
 import React from 'react';
-import ChangeLang from 'src/components/ChangeLang';
-import Twofactor from './twofactorCon';
-import { getRequest } from 'src/util';
-import { LoadDiv } from 'ming-ui';
-import loginAjax from 'src/api/login';
-import { captcha } from 'ming-ui/functions';
-import _ from 'lodash';
-import { TwofactorVerifyCodeActionResult } from '../login/config';
-import { WrapCom } from 'src/pages/AuthService/style.jsx';
-import Header from 'src/pages/AuthService/components/Header.jsx';
-import WrapBg from 'src/pages/AuthService/components/Bg.jsx';
 import DocumentTitle from 'react-document-title';
-import { navigateTo } from 'src/router/navigateTo';
-import { Wrap } from 'src/pages/AuthService/login/style.jsx';
-import 'src/pages/AuthService/components/form.less';
+import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import loginAjax from 'src/api/login';
+import ChangeLang from 'src/components/ChangeLang';
+import WrapBg from 'src/pages/AuthService/components/Bg.jsx';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
+import 'src/pages/AuthService/components/form.less';
+import Header from 'src/pages/AuthService/components/Header.jsx';
+import { Wrap } from 'src/pages/AuthService/login/style.jsx';
+import { WrapCom } from 'src/pages/AuthService/style.jsx';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { TwofactorVerifyCodeActionResult } from '../login/config';
+import Twofactor from './twofactorCon';
 
 export default class TwofactorContainer extends React.Component {
   constructor(props) {

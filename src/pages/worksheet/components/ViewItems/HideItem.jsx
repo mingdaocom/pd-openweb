@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, SvgIcon, Tooltip } from 'ming-ui';
-import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { getTranslateInfo } from 'src/util';
-import _ from 'lodash';
-import cx from 'classnames';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
+import { getTranslateInfo } from 'src/utils/app';
 import SettingMenu from './SettingMenu';
 
 export default function HideItem(props) {
@@ -139,7 +139,11 @@ export default function HideItem(props) {
         <span className="recycleWrap">
           <span className="time Gray_9e Font13">{createTimeSpan(item.deleteTime)}</span>
           <Tooltip text={_l('还原')}>
-            <Icon icon="back" className="recycleIcon Font18 Gray_9d Hover_21 mTop3" onClick={() => onRecycle(item.viewId)} />
+            <Icon
+              icon="back"
+              className="recycleIcon Font18 Gray_9d Hover_21 mTop3"
+              onClick={() => onRecycle(item.viewId)}
+            />
           </Tooltip>
         </span>
       )}

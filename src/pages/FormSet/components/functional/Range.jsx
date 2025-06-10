@@ -1,8 +1,8 @@
 import React from 'react';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, Radio, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, Radio, Tooltip } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 
 const RangeBox = styled.div`
   width: 320px;
@@ -122,7 +122,7 @@ class Range extends React.Component {
           />
         </HeaderRange>
         <div className="con">
-          <h5 className="Blod">{_l('用户')}</h5>
+          <h5>{_l('用户')}</h5>
           <Radio
             text={_l('所有用户')}
             checked={this.props.roleType !== 100}
@@ -155,7 +155,7 @@ class Range extends React.Component {
           <React.Fragment>
             <div className="conLine"></div>
             <div className="con">
-              <h5 className="Blod">{_l('视图')}</h5>
+              <h5>{_l('视图')}</h5>
               <Radio
                 text={this.props.text.allview || _l('所有视图')}
                 checked={viewIds.length <= 0 && diaRang}
@@ -172,9 +172,6 @@ class Range extends React.Component {
                 checked={viewIds.length > 0 || !diaRang}
                 onClick={() => {
                   this.props.changeViewRange({
-                    // viewIds: this.props.views.map(o => {
-                    //   return o.viewId;
-                    // }),
                     viewIds: [],
                     diaRang: false,
                   });
@@ -182,33 +179,23 @@ class Range extends React.Component {
               />
               <p className="mLeft25 mTop10 mBottom16"></p>
               {!diaRang &&
-                this.props.views.filter(l => l.viewId !== l.worksheetId).map(it => {
-                  return (
-                    <div
-                      className="mTop15 mLeft25 inputTxt Hand"
-                      onClick={() => {
-                        if (viewIds.includes(it.viewId)) {
-                          // if (viewIds.length <= 1) {
-                          //   alert('至少选中一个视图！');
-                          //   return;
-                          // }
+                this.props.views
+                  .filter(l => l.viewId !== l.worksheetId)
+                  .map(it => {
+                    return (
+                      <Checkbox
+                        className="mTop15 mLeft25 Normal"
+                        text={it.name}
+                        checked={viewIds.includes(it.viewId)}
+                        onClick={checked => {
                           this.props.changeViewRange({
-                            viewIds: _.pull(viewIds, it.viewId),
+                            viewIds: checked ? _.pull(viewIds, it.viewId) : (viewIds || []).concat(it.viewId),
                             diaRang: false,
                           });
-                        } else {
-                          this.props.changeViewRange({
-                            viewIds: (viewIds || []).concat(it.viewId),
-                            diaRang: false,
-                          });
-                        }
-                      }}
-                    >
-                      <input type="checkbox" className="viewInput TxtMiddle" checked={viewIds.includes(it.viewId)} />
-                      <span className="TxtMiddle">{it.name}</span>
-                    </div>
-                  );
-                })}
+                        }}
+                      />
+                    );
+                  })}
             </div>
           </React.Fragment>
         )}

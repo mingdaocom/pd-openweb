@@ -1,21 +1,18 @@
 import React, { Component } from 'react';
-import { getRequest } from 'src/util';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/worksheet/redux/actions';
 import { SpinLoading } from 'antd-mobile';
-import ViewErrorPage from 'mobile/RecordList/View/components/ViewErrorPage';
-import Gunter from './index.jsx';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { getAdvanceSetting } from 'src/util';
 import _ from 'lodash';
+import ViewErrorPage from 'mobile/RecordList/View/components/ViewErrorPage';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
+import * as actions from 'src/pages/worksheet/redux/actions';
+import { getRequest } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import Gunter from './index.jsx';
 
 const data = getRequest();
 
-@connect(
-  state => ({ ...state.sheet }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
+@connect(state => ({ ...state.sheet }), dispatch => bindActionCreators(actions, dispatch))
 export default class MobileGunter extends Component {
   constructor(props) {
     super(props);
@@ -29,7 +26,7 @@ export default class MobileGunter extends Component {
     if (loading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }
@@ -46,17 +43,9 @@ export default class MobileGunter extends Component {
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate);
 
     if (isDelete || !begindate || !enddate || isDeleteEnd) {
-      return (
-        <ViewErrorPage
-          icon="gantt"
-          viewName={_l('甘特图')}
-          color="#01BCD5"
-        />
-      );
+      return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="#01BCD5" />;
     }
 
-    return (
-      <Gunter view={view} />
-    );
+    return <Gunter view={view} />;
   }
 }

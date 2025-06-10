@@ -1,19 +1,19 @@
-import UploadFiles from 'src/components/UploadFiles';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import './css/createCalendar.less';
+import doT from 'dot';
+import _ from 'lodash';
+import moment from 'moment';
+import { DatePicker, Dialog, Dropdown, Tooltip, UserCard } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/calendar';
-import timezone from './timezone';
-import SelectTimezone from './component/SelectTimezone';
-import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
-import doT from 'dot';
-import taskHtml from './tpl/createCalendar.html';
 import 'src/components/autoTextarea/autoTextarea';
 import createShare from 'src/components/createShare/createShare';
-import moment from 'moment';
-import _ from 'lodash';
-import { Dialog, Dropdown, Tooltip, UserCard, DatePicker } from 'ming-ui';
+import UploadFiles from 'src/components/UploadFiles';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
+import SelectTimezone from './component/SelectTimezone';
+import timezone from './timezone';
+import taskHtml from './tpl/createCalendar.html';
+import './css/createCalendar.less';
 
 const RangePicker = DatePicker.RangePicker;
 

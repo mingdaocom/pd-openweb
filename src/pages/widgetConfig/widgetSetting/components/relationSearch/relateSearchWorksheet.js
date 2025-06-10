@@ -12,7 +12,7 @@ import { enumWidgetType, filterSysControls, isSheetDisplay, toEditWidgetPage } f
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { handleAdvancedSettingChange } from 'src/util';
+import { handleAdvancedSettingChange } from 'src/utils/control';
 import EmptyRuleConfig from '../EmptyRuleConfig';
 import SelectSearchSheetFromApp from './SelectSearchSheetFromApp';
 import { AddRelate, FilterContent } from './styled';
@@ -174,6 +174,7 @@ export function RelateSearchWorksheet(props) {
         .getWorksheetControls({
           worksheetId,
           getControlType: 3,
+          resultType: 3,
         })
         .then(res => {
           const filterControls = (_.get(res, 'data.controls') || []).filter(

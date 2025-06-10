@@ -1,28 +1,29 @@
-import React, { Component, Fragment, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
+import { generate } from '@ant-design/colors';
+import { Dropdown, Menu, Table } from 'antd';
 import cx from 'classnames';
-import { formatrChartValue, getStyleColor, formatNumberValue } from '../common';
-import { isFormatNumber, relevanceImageSize } from 'statistics/common';
-import { Table, Dropdown, Menu } from 'antd';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { browserIsMobile, getClassNameByExt } from 'src/util';
+import { isFormatNumber, relevanceImageSize } from 'statistics/common';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { isLightColor } from 'src/pages/customPage/util';
+import { browserIsMobile, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { formatNumberValue, formatrChartValue, getStyleColor } from '../common';
+import PivotTableContent from './styled';
 import {
+  getBarStyleColor,
+  getColumnName,
+  getControlMinAndMax,
+  getLineSubTotal,
   mergeColumnsCell,
   mergeLinesCell,
-  getColumnName,
   renderValue,
-  getControlMinAndMax,
-  getBarStyleColor,
-  getLineSubTotal,
 } from './util';
-import PivotTableContent from './styled';
-import { isLightColor } from 'src/pages/customPage/util';
-import _ from 'lodash';
+
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
-import { generate } from '@ant-design/colors';
-import RegExpValidator from 'src/util/expression';
 
 export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch = {} }) => {
   const data = _.clone(pivotTableStyle);
@@ -133,7 +134,7 @@ export default class extends Component {
       pageSize: paginationVisible ? this.state.pageSize : 0,
       freeze,
       freezeIndex,
-      mergeCell: displaySetup.mergeCell
+      mergeCell: displaySetup.mergeCell,
     };
     return mergeLinesCell(data.x, lines, valueMap, config);
   }
@@ -414,7 +415,7 @@ export default class extends Component {
                         width:
                           item.controlType === 14
                             ? this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: item.size }).px +
-                            diffWidth / fields.length
+                              diffWidth / fields.length
                             : null,
                       }}
                     >
@@ -557,10 +558,11 @@ export default class extends Component {
           render: (value, record, recordIndex) => {
             const columnData = result[index + i] || {};
             const subTotal = !record.isSubTotal && getLineSubTotal(columnData.data, recordIndex);
-            record.showNumber = (record.key == 'sum' || record.isSubTotal) ? true : showNumber;
-            record.showPercent = (subTotal || record.key !== 'sum' && !record.isSubTotal) && percent.enable && percent.type;
+            record.showNumber = record.key == 'sum' || record.isSubTotal ? true : showNumber;
+            record.showPercent =
+              (subTotal || (record.key !== 'sum' && !record.isSubTotal)) && percent.enable && percent.type;
             if (value && subTotal) {
-              record.lineSubTotal = Number((yvalueMap[item.controlId])[subTotal]);
+              record.lineSubTotal = Number(yvalueMap[item.controlId][subTotal]);
             }
             record.sumCount = columnData.sum;
             return this.renderBodyTd(value, record, item.controlId, controlMinAndMax);
@@ -583,13 +585,13 @@ export default class extends Component {
           return {
             title: title
               ? () => {
-                return (
-                  <Fragment>
-                    {title}
-                    {this.renderDrag(startIndex + 1)}
-                  </Fragment>
-                );
-              }
+                  return (
+                    <Fragment>
+                      {title}
+                      {this.renderDrag(startIndex + 1)}
+                    </Fragment>
+                  );
+                }
               : title,
             key: id,
             colSpan,
@@ -723,7 +725,7 @@ export default class extends Component {
             if (subTotal && valueMap[item.t_id]) {
               newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
             }
-            newRecord.showNumber = (record.isSubTotal && newRecord.type === 'columns') ? true : showNumber;
+            newRecord.showNumber = record.isSubTotal && newRecord.type === 'columns' ? true : showNumber;
             // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
             newRecord.showPercent = false;
             return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
@@ -772,7 +774,7 @@ export default class extends Component {
         if (
           !('isSubTotal' in obj) &&
           subTotalIds.includes(item.key) &&
-          (_.isObject(value) ? value.value || '' : _.toString(value) || '').includes('subTotal')
+          (_.isObject(value) ? _.toString(value.value) || '' : _.toString(value) || '').includes('subTotal')
         ) {
           obj.isSubTotal = true;
         }
@@ -1162,10 +1164,11 @@ export default class extends Component {
     );
   }
   render() {
-    const { dragValue, pageSize, dropdownVisible, offset } = this.state;
+    const { dragValue, pageSize, dropdownVisible, offset, pageIndex } = this.state;
     const { themeColor, customPageConfig, reportData, linkageMatch = {}, sourceType } = this.props;
     const { reportId, data, yaxisList, columns, lines, valueMap, style, pivotTable } = reportData;
     const showLineTotal = pivotTable ? pivotTable.showLineTotal : reportData.showLineTotal;
+    const lineSummary = pivotTable ? pivotTable.lineSummary : reportData.lineSummary;
     const {
       pivotTableStyle = {},
       pivotTableColumnWidthConfig,
@@ -1185,7 +1188,7 @@ export default class extends Component {
     const columnFreeze = isMobile ? mobilePivotTableColumnFreeze : pivotTableColumnFreeze;
     const lineFreeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const widthModel = isMobile ? mobileWidthModel : pcWidthModel;
-
+    const showTopLineTotal = showLineTotal && (lineSummary.location == 1 ? pageIndex === 1 : false);
     const tableColumns = [...controlName, ...controlContent];
 
     const widthConfig =
@@ -1223,19 +1226,19 @@ export default class extends Component {
             pagination={
               paginationVisible && !isPrintPivotTable
                 ? {
-                  showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
-                  hideOnSinglePage: true,
-                  showSizeChanger: true,
-                  pageSize,
-                  pageSizeOptions: [20, 25, 30, 50, 100],
-                  onChange: (pageIndex) => {
-                    this.setState({ pageIndex });
-                  },
-                  onShowSizeChange: (current, size) => {
-                    this.setState({ pageSize: size });
-                  },
-                  locale: { items_per_page: _l('条/页') },
-                }
+                    showTotal: total => _l('共 %0 条', showTopLineTotal ? total - 1 : total),
+                    hideOnSinglePage: true,
+                    showSizeChanger: true,
+                    pageSize: showTopLineTotal ? pageSize + 1 : pageSize,
+                    pageSizeOptions: [20, 25, 30, 50, 100],
+                    onChange: pageIndex => {
+                      this.setState({ pageIndex });
+                    },
+                    onShowSizeChange: (current, size) => {
+                      this.setState({ pageSize: size });
+                    },
+                    locale: { items_per_page: _l('条/页') },
+                  }
                 : false
             }
             columns={tableColumns}

@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { Checkbox, Tooltip, Input } from 'antd';
+import { Checkbox, Input, Tooltip } from 'antd';
 import cx from 'classnames';
-import { formatNumberFromInput } from 'src/util';
+import { Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
+import { formatNumberFromInput } from 'src/utils/control';
 
 export default class XAxis extends Component {
   constructor(props) {
@@ -51,7 +51,8 @@ export default class XAxis extends Component {
             </Tooltip>
           </div>
         )}
-        {([reportTypes.LineChart].includes(reportType) || [reportTypes.BarChart].includes(reportType) && displaySetup.showChartType === 1) && (
+        {([reportTypes.LineChart].includes(reportType) ||
+          ([reportTypes.BarChart].includes(reportType) && displaySetup.showChartType === 1)) && (
           <div className="flexRow valignWrapper mLeft0 mBottom16">
             <Checkbox
               checked={style.showXAxisSlider}

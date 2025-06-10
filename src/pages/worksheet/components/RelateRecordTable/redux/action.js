@@ -18,16 +18,27 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { replaceAdvancedSettingTranslateInfo, replaceByIndex, replaceControlsTranslateInfo } from 'worksheet/util';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { deleteRecord, updateRecordControl, updateRelateRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
 import { formatValuesOfCondition, getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getTranslateInfo, parseNumber } from 'src/util';
-import { handleRowData } from 'src/util/transControlDefaultValue';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceByIndex } from 'src/utils/control';
+import { handleRowData } from 'src/utils/record';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
 import { getVisibleControls } from '../utils';
+
+/**
+ * 解析字符串为数字
+ * @param {string} numStr - 要解析的字符串
+ * @returns {number|undefined} - 解析结果，如果解析失败则返回 undefined
+ */
+const parseNumber = numStr => {
+  const result = Number(numStr);
+  return isFinite(result) ? result : undefined;
+};
 
 export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getNewRows, updateRows } = {}) {
   return (dispatch, getState) => {
@@ -203,7 +214,7 @@ function getTableConfigFromControl(control, { from, allowEdit, relateWorksheetIn
     control.type !== 51;
   const allowBatchFromSetting = get(control, 'advancedSetting.allowbatch') === '1';
   const allowDeleteFromSetting = get(control, 'advancedSetting.allowdelete') === '1';
-  const allowBatchEdit = editable && allowBatchFromSetting && from !== RECORD_INFO_FROM.DRAFT;
+  const allowBatchEdit = editable && allowBatchFromSetting;
   const allowExportFromSetting = get(control, 'advancedSetting.allowexport') === '1';
   const searchMaxCount = parseNumber((control.advancedSetting || {}).maxcount || undefined);
   return {
@@ -649,7 +660,10 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
     const newControl = omit(base.control, ['relationControls']);
     if (!isEmpty(sheetColumnWidths)) {
       const newWidths = JSON.stringify(
-        columns.map(c => ({ ...columnWidthsOfSetting, ...sheetColumnWidths })[c.controlId] || 160),
+        pick(
+          { ...columnWidthsOfSetting, ...sheetColumnWidths },
+          columns.map(c => c.controlId),
+        ),
       );
       newControl.advancedSetting.widths = newWidths;
     }

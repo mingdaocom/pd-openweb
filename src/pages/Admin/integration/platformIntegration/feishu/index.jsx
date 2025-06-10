@@ -1,15 +1,15 @@
 import React, { Fragment } from 'react';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Switch, Icon, Button, LoadDiv, MdLink } from 'ming-ui';
-import { Popover } from 'antd';
+import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
-import IntegrationSetPassword from '../components/IntegrationSetPassword';
-import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
 import EnableScanLogin from '../components/EnableScanLogin';
+import IntegrationSetPassword from '../components/IntegrationSetPassword';
+import IntegrationSync from '../components/IntegrationSync';
 import SettingLinkOpen from '../components/SettingLinkOpen';
-import { integrationFailed, checkClearIntergrationData } from '../utils';
+import { checkClearIntergrationData, integrationFailed } from '../utils';
 import fsImg from './feishuSyncCourse/img/8.png';
 import './style.less';
 
@@ -201,7 +201,7 @@ export default class FeiShu extends React.Component {
   };
 
   stepRender = () => {
-    const { projectId } = this.props;
+    const { projectId, featureType, featureId } = this.props;
     const { canEditInfo, isHasInfo, isCloseDing, isLark, AppId, AppSecret } = this.state;
 
     return (
@@ -311,6 +311,8 @@ export default class FeiShu extends React.Component {
           step="3."
           syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
           projectId={projectId}
+          featureType={featureType}
+          featureId={featureId}
         />
       </div>
     );

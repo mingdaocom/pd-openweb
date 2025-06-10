@@ -1,27 +1,31 @@
-import React, { memo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import CellControl from 'worksheet/components/CellControls';
-import renderCellText from 'worksheet/components/CellControls/renderText';
-import Switch from 'worksheet/components/CellControls/Switch';
-import RecordOperate from 'worksheet/components/RecordOperate';
-import update from 'immutability-helper';
-import cx from 'classnames';
-import _ from 'lodash';
-import { Icon } from 'ming-ui';
+import React, { memo, useContext, useRef, useState } from 'react';
 import { Checkbox } from 'antd-mobile';
-import { FlexCenter, Text } from 'worksheet/styled';
-import { checkCellIsEmpty, getRecordColor, getControlStyles } from 'src/pages/worksheet/util';
-import { get, includes, findIndex, isEmpty, noop } from 'lodash';
-import { getAdvanceSetting, browserIsMobile } from 'src/util';
-import CardCoverImage from './CardCoverImage';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getCardDisplayPara, getMultiRelateViewConfig } from '../util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import _ from 'lodash';
+import { findIndex, get, includes, isEmpty, noop } from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
-import { handleRowData } from 'src/util/transControlDefaultValue';
+import CellControl from 'worksheet/components/CellControls';
+import Switch from 'worksheet/components/CellControls/Switch';
+import OperateButtons from 'worksheet/components/OperateButtons';
+import RecordOperate from 'worksheet/components/RecordOperate';
+import { FlexCenter, Text } from 'worksheet/styled';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import {  getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { browserIsMobile } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/control';
+import { getControlStyles } from 'src/utils/control';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { handleRowData } from 'src/utils/record';
+import { getRecordColor } from 'src/utils/record';
+import { getCardDisplayPara, getMultiRelateViewConfig } from '../util';
+import CardCoverImage from './CardCoverImage';
 
 const RecordItemWrap = styled.div`
   display: flex;
@@ -72,8 +76,10 @@ const RecordItemWrap = styled.div`
     -webkit-line-clamp: 3 !important;
     -webkit-box-orient: vertical;
     /* autoprefixer: on */
+    font-size: 13px;
+    line-height: 1.5;
     &.galleryViewAbstract {
-      height: 72px;
+      height: 77px;
     }
     &.maxLine1 {
       -webkit-line-clamp: 1 !important;
@@ -115,6 +121,20 @@ const RecordItemWrap = styled.div`
     .worksheetCellPureString {
       max-width: 100%;
       padding-left: 4px;
+    }
+    &.galleryRowfieldItem {
+      .cellUsers .cellUser,
+      .cellOptions .cellOption,
+      .AttachmentCon {
+        margin-bottom: 0;
+        img {
+          max-height: 21px;
+        }
+      }
+      .fileIcon {
+        height: 21px !important;
+        width: 18px !important;
+      }
     }
   }
   .emptyHolder {
@@ -489,115 +509,134 @@ const BaseCard = props => {
         disabled={cell.type === 26 && String(viewType) === '8'}
       />
     );
+    let style = {};
+    if (item.type === 6) {
+      style.width = '100%';
+    }
+    if (isGalleryView) {
+      style.minHeight = '21px';
+    }
     // 画廊视图或有内容控件则渲染
     return (
-      <div key={item.controlId} className={cx('fieldItem')} style={item.type === 6 ? { width: '100%' } : {}}>
+      <div key={item.controlId} className={cx('fieldItem', { galleryRowfieldItem: isGalleryView })} style={style}>
         {renderContent({ content, item })}
       </div>
     );
   };
   return (
-    <RecordItemWrap
-      ref={$ref}
-      style={{
-        backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
-      }}
-      className={className}
-      coverDirection={includes(['0', '1'], coverPosition) ? 'row' : 'column'}
-      canDrag={canDrag}
-      controlStyles={showControlStyle && getControlStyles(showFields.concat(titleField))}
-    >
-      {/* // 封面图片左、上放置 */}
-      {recordColor && recordColorConfig.showLine && (
-        <ColorTag
-          style={Object.assign(
-            { backgroundColor: recordColor.color },
-            showCover && coverPosition === '1'
-              ? { left: 'auto', right: 0, borderRadius: '0 3px 3px 0' }
-              : { borderRadius: '3px 0 0 3px' },
+    <div>
+      <RecordItemWrap
+        ref={$ref}
+        style={{
+          backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
+        }}
+        className={className}
+        coverDirection={includes(['0', '1'], coverPosition) ? 'row' : 'column'}
+        canDrag={canDrag}
+        controlStyles={showControlStyle && getControlStyles(showFields.concat(titleField))}
+      >
+        {/* // 封面图片左、上放置 */}
+        {recordColor && recordColorConfig.showLine && (
+          <ColorTag
+            style={Object.assign(
+              { backgroundColor: recordColor.color },
+              showCover && coverPosition === '1'
+                ? { left: 'auto', right: 0, borderRadius: '0 3px 3px 0' }
+                : { borderRadius: '3px 0 0 3px' },
+            )}
+          />
+        )}
+        {includes(['1', '2'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
+        <div className="fieldContentWrap">
+          {renderTitleControl({ forceShowFullValue })}
+          {renderAbstract()}
+          {!_.isEmpty(showFields) && (
+            <RecordFieldsWrap hasCover={!!coverImage}>
+              {(canHoverShowAll ? showFields.slice(0, fieldShowCount) : showFields).map(item => {
+                return renderCell(item);
+              })}
+              {canHoverShowAll && showFields.length > fieldShowCount ? (
+                <div className="hoverShowAll w100">
+                  {showFields.slice(fieldShowCount, showFields.length).map(item => {
+                    return renderCell(item);
+                  })}
+                </div>
+              ) : (
+                ''
+              )}
+            </RecordFieldsWrap>
           )}
+        </div>
+        {/* // 封面图片右放置 */}
+        {includes(['0'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
+        {!hideOperate && (
+          <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
+            <RecordOperate
+              isCharge={isCharge}
+              isDevAndOps={isDevAndOps}
+              shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
+              popupAlign={getPopAlign()}
+              allowDelete={allowDelete}
+              allowCopy={allowCopy}
+              allowRecreate={allowAdd || allowRecreate}
+              projectId={projectId}
+              formdata={fields}
+              appId={worksheetId === currentView.worksheetId ? appId : undefined}
+              worksheetId={worksheetId}
+              sheetSwitchPermit={sheetSwitchPermit}
+              viewId={viewId}
+              recordId={rowId}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              onCopySuccess={onCopySuccess}
+              onRecreate={() => {
+                handleRowData({
+                  rowId: rowId,
+                  worksheetId: worksheetId,
+                  columns: data.formData,
+                }).then(res => {
+                  const { defaultData, defcontrols } = res;
+                  addRecord({
+                    worksheetId,
+                    appId,
+                    viewId,
+                    defaultFormData: defaultData,
+                    defaultFormDataEditable: true,
+                    directAdd: false,
+                    writeControls: defcontrols,
+                    onAdd: record => {
+                      onAdd({ item: record });
+                    },
+                  });
+                });
+              }}
+              {...paramForOperatePrint}
+            >
+              <div
+                className="moreOperate"
+                onClick={() => {
+                  if (isCanQuickEdit()) {
+                    editTitle();
+                  }
+                }}
+              >
+                <Icon type="link" icon="task-point-more Font18" className="Gray_9e ThemeHoverColor3" />
+              </div>
+            </RecordOperate>
+          </div>
+        )}
+      </RecordItemWrap>
+      {!isMobile && (
+        <OperateButtons
+          worksheetId={worksheetId}
+          isInCard
+          row={_.isObject(rawRow) ? rawRow : safeParse(rawRow)}
+          recordId={rowId}
+          onCopySuccess={onCopySuccess}
+          onDeleteSuccess={onDelete}
         />
       )}
-      {includes(['1', '2'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
-      <div className="fieldContentWrap">
-        {renderTitleControl({ forceShowFullValue })}
-        {renderAbstract()}
-        {!_.isEmpty(showFields) && (
-          <RecordFieldsWrap hasCover={!!coverImage}>
-            {(canHoverShowAll ? showFields.slice(0, fieldShowCount) : showFields).map(item => {
-              return renderCell(item);
-            })}
-            {canHoverShowAll && showFields.length > fieldShowCount ? (
-              <div className="hoverShowAll w100">
-                {showFields.slice(fieldShowCount, showFields.length).map(item => {
-                  return renderCell(item);
-                })}
-              </div>
-            ) : (
-              ''
-            )}
-          </RecordFieldsWrap>
-        )}
-      </div>
-      {/* // 封面图片右放置 */}
-      {includes(['0'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
-      {!hideOperate && (
-        <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
-          <RecordOperate
-            isCharge={isCharge}
-            isDevAndOps={isDevAndOps}
-            shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
-            popupAlign={getPopAlign()}
-            allowDelete={allowDelete}
-            allowCopy={allowCopy}
-            allowRecreate={allowAdd || allowRecreate}
-            projectId={projectId}
-            formdata={fields}
-            appId={worksheetId === currentView.worksheetId ? appId : undefined}
-            worksheetId={worksheetId}
-            sheetSwitchPermit={sheetSwitchPermit}
-            viewId={viewId}
-            recordId={rowId}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onCopySuccess={onCopySuccess}
-            onRecreate={() => {
-              handleRowData({
-                rowId: rowId,
-                worksheetId: worksheetId,
-                columns: data.formData,
-              }).then(res => {
-                const { defaultData, defcontrols } = res;
-                addRecord({
-                  worksheetId,
-                  appId,
-                  viewId,
-                  defaultFormData: defaultData,
-                  defaultFormDataEditable: true,
-                  directAdd: false,
-                  writeControls: defcontrols,
-                  onAdd: record => {
-                    onAdd({ item: record });
-                  },
-                });
-              });
-            }}
-            {...paramForOperatePrint}
-          >
-            <div
-              className="moreOperate"
-              onClick={() => {
-                if (isCanQuickEdit()) {
-                  editTitle();
-                }
-              }}
-            >
-              <Icon type="link" icon="task-point-more Font18" className="Gray_9e ThemeHoverColor3" />
-            </div>
-          </RecordOperate>
-        </div>
-      )}
-    </RecordItemWrap>
+    </div>
   );
 };
 

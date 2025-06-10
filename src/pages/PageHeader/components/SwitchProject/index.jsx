@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { emitter, getCurrentProject, getRequest } from 'src/util';
-import { ScrollView, Menu, MenuItem } from 'ming-ui';
-import { VerticalMiddle } from 'worksheet/components/Basics';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Menu, MenuItem, ScrollView } from 'ming-ui';
+import { VerticalMiddle } from 'worksheet/components/Basics';
+import { emitter, getRequest } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
 
 const ProjectSwitch = styled(VerticalMiddle)`
   cursor: pointer;
@@ -33,7 +34,9 @@ const ProjectsMenuCon = styled.div`
   background: #fff;
   border-radius: 3px;
   padding-bottom: 5px;
-  box-shadow: 0 4px 20px rgb(0 0 0 / 13%), 0 2px 6px rgb(0 0 0 / 10%);
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 13%),
+    0 2px 6px rgb(0 0 0 / 10%);
   .nano-pane {
     z-index: 20;
   }
@@ -85,6 +88,8 @@ function SwitchProject() {
   const projects = md.global.Account.projects;
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState({});
+  const [popupVisible, setPopupVisible] = useState();
+
   useEffect(() => {
     const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
     if (_.isEmpty(project)) {
@@ -98,7 +103,7 @@ function SwitchProject() {
       setCurrentProject(project);
     }
   }, []);
-  const [popupVisible, setPopupVisible] = useState();
+
   let menuContent = (
     <ProjectsMenu>
       {projects.map((project, i) => (

@@ -1,19 +1,19 @@
 import React, {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useMemo,
-  useImperativeHandle,
   forwardRef,
   useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
 } from 'react';
+import Hammer from 'hammerjs';
+import _, { get, includes } from 'lodash';
 import { bool, func, number } from 'prop-types';
 import styled from 'styled-components';
-import _, { get, includes } from 'lodash';
-import Hammer from 'hammerjs';
 import { useRefStore } from 'worksheet/hooks';
+import { getScrollBarWidth } from 'src/utils/common';
 import Skeleton from '../Skeleton';
-import { getScrollBarWidth } from 'worksheet/util';
 import Grid from './Grid';
 import ScrollBar from './ScrollBar';
 
@@ -256,11 +256,14 @@ function FixedTable(props, ref) {
     if (e.target.closest('.scrollInTable')) {
       return;
     }
-    const direction = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
+    let direction = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
+    if (window.isWindows && e.shiftKey) {
+      direction = 'x';
+    }
     const $scrollX = conRef.current.querySelector('.scroll-x');
     const $scrollY = conRef.current.querySelector('.scroll-y');
     if (direction === 'x') {
-      let newLeft = cache.left + e.deltaX;
+      let newLeft = cache.left + (window.isWindows && e.shiftKey ? e.deltaY : e.deltaX);
       if ($scrollX) {
         $scrollX.scrollLeft = newLeft;
       }
@@ -369,12 +372,14 @@ function FixedTable(props, ref) {
   return (
     <Con ref={conRef} className={className} style={{ width, height: hasFooter ? withFooterHeight : height }}>
       <TableBorder
+        className="tableBorder"
         style={{
           left: 0,
           bottom: XIsScroll ? barWidth : 0,
         }}
       />
       <TableBorder
+        className="tableBorder"
         style={{
           right: 0,
           bottom: XIsScroll ? barWidth : 0,

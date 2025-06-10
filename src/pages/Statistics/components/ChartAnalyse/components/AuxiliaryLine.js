@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import { Button, Checkbox, ConfigProvider, Dropdown, Form, Input, Menu, Modal, Select } from 'antd';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { Menu, Dropdown, Input, ConfigProvider, Button, Modal, Select, Checkbox, Form } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { formatNumberFromInput } from 'src/util';
+import { v4 as uuidv4 } from 'uuid';
+import { Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
 import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetColor';
-import _ from 'lodash';
+import { formatNumberFromInput } from 'src/utils/control';
 
 const AddLine = styled.div`
   color: #2196f3;

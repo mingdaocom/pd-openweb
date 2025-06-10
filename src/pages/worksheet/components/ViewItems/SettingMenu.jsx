@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
-import _ from 'lodash';
-import HiddenMenu from './HiddenMenu';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { getFeatureStatus } from 'src/util';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import ViewDisplayMenu from './viewDisplayMenu';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getDefaultViewSet } from 'src/pages/worksheet/constants/common';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import HiddenMenu from './HiddenMenu';
+import ViewDisplayMenu from './viewDisplayMenu';
 
 function SettingMenu(props) {
   const {
@@ -31,6 +31,7 @@ function SettingMenu(props) {
     onOpenView,
     onShare,
     onExport,
+    onCopyConfig,
     onExportAttachment,
     changeViewDisplayType,
   } = props;
@@ -109,7 +110,9 @@ function SettingMenu(props) {
         'customnavs',
         'viewtitle',
         'checkradioid',
+        ['detail', 'resource'].includes(viewType) ? 'actioncolumn' : undefined,
       ]);
+
       if (advancedSetting.navshow && _.get(item, 'navGroup[0].controlId')) {
         let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId')) || {};
         let type = control.type;
@@ -136,8 +139,13 @@ function SettingMenu(props) {
     handleClose();
   };
 
+  const handleCopyConfig = type => {
+    onCopyConfig(item, type);
+    handleClose();
+  };
+
   return (
-    <Menu className="viewItemMoreOperate">
+    <Menu className="viewItemMoreOperate" style={{ width: 240 }}>
       {editName && isCharge && (
         <MenuItem data-event="rename" icon={<Icon icon="workflow_write" className="Font18" />} onClick={clickEditName}>
           <span className="text">{_l('重命名%05004')}</span>
@@ -146,17 +154,26 @@ function SettingMenu(props) {
       {!isDelCustomize() && (
         <React.Fragment>
           {!isLock && isCharge && (
-            <MenuItem
-              data-event="config"
-              icon={<Icon icon="settings" className="Font18" />}
-              onClick={() => {
-                onOpenView(item);
-                handleClose();
-              }}
-            >
-              <span className="text">{_l('配置视图%05024')}</span>
-            </MenuItem>
+            <React.Fragment>
+              <MenuItem
+                data-event="config"
+                icon={<Icon icon="settings" className="Font18" />}
+                onClick={() => {
+                  onOpenView(item);
+                  handleClose();
+                }}
+              >
+                <span className="text">{_l('配置视图%05024')}</span>
+              </MenuItem>
+              <MenuItem data-event="copyConfigFrom" icon={''} onClick={() => handleCopyConfig(1)}>
+                <span className="text">{_l('从其他视图复制')}</span>
+              </MenuItem>
+              <MenuItem data-event="copyConfigTo" onClick={() => handleCopyConfig(2)}>
+                <span className="text">{_l('应用到其他视图')}</span>
+              </MenuItem>
+            </React.Fragment>
           )}
+          {isCharge && <hr className="splitLine" />}
           {changeViewType && !isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
             <Trigger
               popupVisible={changeViewDisplayTypeVisible}
@@ -198,7 +215,6 @@ function SettingMenu(props) {
               <span className="text">{_l('复制%05003')}</span>
             </MenuItem>
           )}
-          {isCharge && <hr className="splitLine" />}
           {/* 分享视图权限 目前只有表视图才能分享*/}
           {canShare() && (
             <MenuItem

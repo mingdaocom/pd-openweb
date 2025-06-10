@@ -1,9 +1,10 @@
-﻿const keyName = 'departmentId';
-const childCollectionName = 'subDepartments';
-import { htmlEncodeReg } from 'src/util';
+﻿import _ from 'lodash';
 import departmentController from 'src/api/department';
-import { getCurrentProject } from 'src/util';
-import _ from 'lodash';
+import { htmlEncodeReg } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+
+const keyName = 'departmentId';
+const childCollectionName = 'subDepartments';
 
 export const defaultMatcher = (id, node) => {
   return node[keyName] === id;

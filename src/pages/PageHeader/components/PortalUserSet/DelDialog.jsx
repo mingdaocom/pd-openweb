@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import { removePssId } from 'src/util/pssId';
-import AccountCon from './AccountCon';
-import cx from 'classnames';
 import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
+import { removePssId } from 'src/utils/pssId';
+import AccountCon from './AccountCon';
+
 const DelDialogWrap = styled.div``;
 export default function DelDialog(props) {
   const { setShow, show, appId, classNames, account, type } = props;

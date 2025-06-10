@@ -1,10 +1,10 @@
 import React from 'react';
-import * as actions from '../redux/actions';
-import { getPssId } from 'src/util/pssId';
-import { removeFlashTitle } from './index';
 import sessionNewMsgAudio from 'src/pages/chat/lib/mp3player/sessionNewMsgAudio.html';
 import systemNewMsgAudio from 'src/pages/chat/lib/mp3player/systemNewMsgAudio.html';
 import { navigateToLogin } from 'src/router/navigateTo';
+import { getPssId } from 'src/utils/pssId';
+import * as actions from '../redux/actions';
+import { removeFlashTitle } from './index';
 
 export const socketInitEvent = function () {
   $(sessionNewMsgAudio).appendTo('html > body');

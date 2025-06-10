@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Icon from './Icon';
 import './less/Checkbox.less';
 
@@ -12,6 +12,10 @@ class Checkbox extends React.Component {
      * checkbox显示的元素
      */
     text: PropTypes.any,
+    /**
+     * 是否没有margin
+     */
+    noMargin: PropTypes.bool,
     /**
      * 默认是否选中
      */
@@ -111,6 +115,7 @@ class Checkbox extends React.Component {
       clearselected,
       title,
       style,
+      noMargin,
       styleType = '',
     } = this.props;
     let icon = null;
@@ -141,7 +146,12 @@ class Checkbox extends React.Component {
         }}
         title={title}
       >
-        <span className={cx(SIZE_LIST.indexOf(size) >= 0 ? 'Checkbox-box--' + size : '', 'Checkbox-box')}>{icon}</span>
+        <span
+          className={cx(SIZE_LIST.indexOf(size) >= 0 ? 'Checkbox-box--' + size : '', 'Checkbox-box')}
+          style={noMargin ? { marginRight: 0 } : {}}
+        >
+          {icon}
+        </span>
         <span className="Font13 Checkbox-text">{text}</span>
         {children}
       </label>

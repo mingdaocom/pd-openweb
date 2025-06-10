@@ -1,14 +1,15 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { quickSelectDept } from 'ming-ui/functions';
 import cx from 'classnames';
-import { Tooltip, SortableList } from 'ming-ui';
-import SelectUser from 'mobile/components/SelectUser';
-import departmentAjax from 'src/api/department';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { browserIsMobile, getCurrentProject } from 'src/util';
-import { dealRenderValue, dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { SortableList, Tooltip } from 'ming-ui';
+import { quickSelectDept } from 'ming-ui/functions';
+import departmentAjax from 'src/api/department';
+import SelectUser from 'mobile/components/SelectUser';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { browserIsMobile } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import { dealRenderValue, dealUserRange } from '../../tools/utils';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -76,8 +77,8 @@ export default class Widgets extends Component {
       enumDefault === 0
         ? data
         : isCancel
-        ? valueArr.filter(l => l.departmentId !== data[0].departmentId)
-        : _.uniqBy(valueArr.concat(data), 'departmentId');
+          ? valueArr.filter(l => l.departmentId !== data[0].departmentId)
+          : _.uniqBy(valueArr.concat(data), 'departmentId');
 
     onChange(JSON.stringify(newData));
   };
@@ -210,6 +211,7 @@ export default class Widgets extends Component {
             visible={true}
             type="department"
             onlyOne={enumDefault === 0}
+            hideClearBtn={enumDefault !== 0}
             onClose={() => this.setState({ showSelectDepartment: false })}
             onSave={this.onSave}
             appId={appId}

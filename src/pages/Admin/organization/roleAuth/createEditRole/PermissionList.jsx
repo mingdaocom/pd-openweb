@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Checkbox, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { getFeatureStatus } from 'src/util';
+import { Checkbox, Icon } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const PermissionListWrapper = styled.div`
   .Checkbox {

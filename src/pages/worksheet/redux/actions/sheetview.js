@@ -19,23 +19,17 @@ import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper/index.js';
-import {
-  clearLRUWorksheetConfig,
-  formatQuickFilter,
-  getListStyle,
-  getLRUWorksheetConfig,
-  getSheetColumnWidthsMap,
-  getSheetColumnWidthsOfStyles,
-  handleRecordError,
-  saveLRUWorksheetConfig,
-} from 'worksheet/util';
-import { getFilledRequestParams } from 'worksheet/util';
 import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
 import {
   SYSTEM_CONTROL,
   WIDGETS_TO_API_TYPE_ENUM,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
+import { getFilledRequestParams } from 'src/utils/common';
+import { clearLRUWorksheetConfig, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'src/utils/common';
+import { formatQuickFilter } from 'src/utils/filter';
+import { handleRecordError } from 'src/utils/record';
+import { getListStyle, getSheetColumnWidthsMap } from 'src/utils/worksheet';
 import { updateNavGroup } from './navFilter.js';
 
 const DEFAULT_PAGESIZE = 50;
@@ -161,7 +155,7 @@ export const fetchRows = ({
       },
     });
     dispatch(getWorksheetSheetViewSummary());
-    const fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args), {
+    const fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args, filters.requestParams), {
       abortController,
     });
     fetchRowsAjax.then(res => {

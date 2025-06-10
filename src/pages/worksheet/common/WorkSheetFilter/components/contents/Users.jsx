@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { UserHead } from 'ming-ui';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FILTER_CONDITION_TYPE } from '../../enum';
-import _ from 'lodash';
 
 export default class Users extends Component {
   static propTypes = {
@@ -203,7 +203,10 @@ export default class Users extends Component {
               </div>
             ))
           ) : (
-            <span className="placeholder">{_l('请选择')}</span>
+            <Fragment>
+              <span className="placeholder">{_l('请选择')}</span>
+              <i className="icon icon-arrow-down-border Font15 Gray_9e Right mTop5"></i>
+            </Fragment>
           )}
         </div>
       </div>

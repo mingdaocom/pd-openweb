@@ -1,12 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Constant from './constant';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import RelationControl from 'src/components/relationControl/relationControl';
-import 'src/components/createTask/createTask';
-import createCalendar from 'src/components/createCalendar/createCalendar';
-import createFeed from 'src/pages/feed/components/createFeed';
 import moment from 'moment';
+import createCalendar from 'src/components/createCalendar/createCalendar';
+import 'src/components/createTask/createTask';
+import RelationControl from 'src/components/relationControl/relationControl';
+import createFeed from 'src/pages/feed/components/createFeed';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import Constant from './constant';
 
 const _initPost = function (acceptor, options, callback) {
   createFeed({

@@ -1,16 +1,17 @@
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styled from 'styled-components';
-import { types, lineHeight, timeWidth, timeWidthHalf } from '../config';
-import cx from 'classnames';
-import { useSetState } from 'react-use';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { Icon } from 'ming-ui';
-import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
 import { RecordInfoModal } from 'mobile/Record';
-import { handleRecordClick } from 'worksheet/util';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
+import { browserIsMobile, emitter } from 'src/utils/common';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { handleRecordClick } from 'src/utils/record';
+import { lineHeight, timeWidth, timeWidthHalf, types } from '../config';
 import { getTops } from '../util';
 
 const Wrap = styled.div`
@@ -110,9 +111,14 @@ export default function RecordBlock(props) {
   }, [props.row]);
   useEffect(() => {
     window.addEventListener('popstate', onQueryChange);
+
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
   }, []);
   const onQueryChange = () => {
     handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
+    refresh();
   };
   const handleMouseDown = event => {
     if (!window.isCanvasTime) {

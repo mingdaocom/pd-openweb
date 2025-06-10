@@ -67,7 +67,6 @@ export const ROLE_CONFIG = {
   PERMISSION: '1',
 };
 
-
 export const actionList = [
   {
     key: 'generalAdd',
@@ -75,8 +74,8 @@ export const actionList = [
   },
   {
     key: 'gneralShare',
-    txt: _l('分享'),
-    tips: _l('包含记录分享、视图分享'),
+    txt: _l('公开分享'),
+    tips: _l('包含记录公开分享、视图公开分享'),
   },
   {
     key: 'generalImport',
@@ -102,7 +101,7 @@ export const actionList = [
   {
     key: 'generalLogging',
     txt: _l('日志'),
-    tips: _l('包含工作表日志、记录日志'),
+    tips: _l('记录日志'),
   },
 ];
 
@@ -113,7 +112,7 @@ export const sheetActionList = [
   // },
   {
     key: 'worksheetShareView',
-    txt: _l('分享'),
+    txt: _l('公开分享'),
   },
   {
     key: 'worksheetImport',
@@ -127,10 +126,10 @@ export const sheetActionList = [
     key: 'worksheetDiscuss',
     txt: _l('讨论'),
   },
-  {
-    key: 'worksheetLogging',
-    txt: _l('日志'),
-  },
+  // {
+  //   key: 'worksheetLogging',
+  //   txt: _l('日志'),
+  // },
   {
     key: 'worksheetBatchOperation',
     txt: _l('批量操作'),
@@ -141,7 +140,7 @@ export const sheetActionList = [
 export const recordActionList = [
   {
     key: 'recordShare',
-    txt: _l('分享'),
+    txt: _l('公开分享'),
   },
   {
     key: 'recordDiscussion',
@@ -172,11 +171,7 @@ export const sysRoleList = [
     name: _l('管理员'),
     des: _l('管理员可以配置应用，管理应用下所有数据和人员'),
     info: () => {
-      return (
-        <div>
-          {_l('拥有所有权限')}
-        </div>
-      );
+      return <div>{_l('拥有所有权限')}</div>;
     },
   },
   {

@@ -6,7 +6,6 @@ import { getTitleTextFromRelateControl } from '../../../core/utils';
 
 const MobileTextWrap = styled.div`
   display: flex;
-  margin-bottom: 10px;
 
   .customFormControlCapsuleBox {
     background: var(--gray-f9) !important;
@@ -60,7 +59,7 @@ export default function Texts(props) {
           data-tip={entityName ? _l('新建') + entityName : undefined}
           onClick={onAdd}
         >
-          <i className="icon icon-plus"></i>
+          <i className="icon icon-add"></i>
         </div>
       )}
     </MobileTextWrap>

@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import styled from 'styled-components';
-import DragMask from 'worksheet/common/DragMask';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Skeleton } from 'ming-ui';
 import cx from 'classnames';
+import domtoimage from 'dom-to-image';
+import styled from 'styled-components';
+import { Skeleton } from 'ming-ui';
+import DragMask from 'worksheet/common/DragMask';
+import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { browserIsMobile } from 'src/utils/common';
+import { timeWidth, timeWidthHalf, types } from './config';
 import ConTimegrid from './ConTimegrid';
 import DataCon from './DataCon';
 import ToolBar from './ToolBar';
-import domtoimage from 'dom-to-image';
-import { types, timeWidth, timeWidthHalf } from './config';
-import { browserIsMobile } from 'src/util';
-import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const Wrap = styled.div`
   width: 100%;

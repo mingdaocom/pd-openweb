@@ -1,15 +1,16 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { FROM_TYPE } from '../constant/enum';
-import * as Actions from '../actions/action';
-import attachmentAjax from 'src/api/attachment';
-import filterXSS from 'xss';
-import { cutStringWithHtml, htmlEncodeReg } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import filterXSS from 'xss';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import attachmentAjax from 'src/api/attachment';
+import { htmlEncodeReg } from 'src/utils/common';
+import { cutStringWithHtml } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import * as Actions from '../actions/action';
+import { FROM_TYPE } from '../constant/enum';
 
 class attachmentInfo extends React.Component {
   static propTypes = {

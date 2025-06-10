@@ -1,11 +1,12 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Button, Skeleton } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Button, Skeleton } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import saveTemplateConfirm from 'src/pages/Print/components/saveTemplateConfirm';
 import FilterDetailName from 'worksheet/common/WorkSheetFilter/components/FilterDetailName';
-import Sider from './Sider';
-import Preview from './Preview';
+import saveTemplateConfirm from 'src/pages/Print/components/saveTemplateConfirm';
+import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { addBehaviorLog } from 'src/utils/project';
 import {
   A4_LAYOUT,
   BAR_LAYOUT,
@@ -15,17 +16,16 @@ import {
   SOURCE_TYPE,
   SOURCE_URL_TYPE,
 } from './enum';
-import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { generatePdf } from './GeneratingPdf';
+import Preview from './Preview';
+import Sider from './Sider';
 import {
-  createQrLabeObjectFromConfig,
   createBarLabeObjectFromConfig,
-  getCodeTexts,
+  createQrLabeObjectFromConfig,
   getCodeContent,
+  getCodeTexts,
   getDefaultText,
 } from './util';
-import { generatePdf } from './GeneratingPdf';
-import _ from 'lodash';
-import { addBehaviorLog } from 'src/util';
 
 const Con = styled.div`
   height: 100vh

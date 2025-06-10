@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
-import { Tooltip, Icon, SvgIcon } from 'ming-ui';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { checkIsAppAdmin } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
+import { formatFileSize } from 'src/utils/common';
+import { formatter, selectDateList } from '../../util';
 import TableCom from '../TableCom';
-import { selectDateList, formatter } from '../../util';
-import { formatFileSize } from 'src/util';
-import { checkIsAppAdmin } from 'ming-ui/functions';
-import cx from 'classnames';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const { Option } = Select;
 

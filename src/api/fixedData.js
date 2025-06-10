@@ -42,8 +42,9 @@ export default {
   * @param {integer} args.layer 层级 0：不限制
   * @param {string} args.textSplit 分割字符
   * @param {boolean} args.isLast 是否最后一级
-  * @param {boolean} args.isGlobalGeoRegion 是否国际地区
   * @param {integer} args.langType 语言类型
+  * @param {string} args.projectId 组织Id
+  * @param {boolean} args.isGetCounty 返回path是否包含国家
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -51,6 +52,17 @@ export default {
    getCitysByParentID: function (args, options = {}) {
      
      return mdyAPI('FixedData', 'GetCitysByParentID', args, options);
+   },
+  /**
+  * 获取地区默认配置信息
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRegionConfigInfos: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('FixedData', 'GetRegionConfigInfos', args, options);
    },
   /**
   * 加载行业信息

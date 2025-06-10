@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
-import { SettingItem, AnimationWrap } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/control';
+import { AnimationWrap, SettingItem } from '../../styled';
 
 const HEIGHT_SETTING_LIST = [
   {

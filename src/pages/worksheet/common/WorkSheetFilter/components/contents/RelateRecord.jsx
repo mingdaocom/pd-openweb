@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { FILTER_CONDITION_TYPE } from '../../enum';
-import _ from 'lodash';
 
 function safeParse(str) {
   try {
@@ -76,8 +76,8 @@ export default class RelateRecord extends React.Component {
         <div
           className={cx('recordsCon', { disabled })}
           onClick={() => {
-            import('src/components/recordCardListDialog').then(({ selectRecord }) => {
-              selectRecord({
+            import('src/components/SelectRecords').then(({ selectRecords }) => {
+              selectRecords({
                 allowNewRecord: false,
                 multiple: !this.selectSingle,
                 coverCid: control.coverCid,
@@ -85,7 +85,7 @@ export default class RelateRecord extends React.Component {
                 showControls: control.showControls,
                 appId: control.appId,
                 viewId: control.viewId,
-                relateSheetId: control.dataSource,
+                worksheetId: control.dataSource,
                 controlId: control.controlId,
                 parentWorksheetId: worksheetId,
                 visible: true,
@@ -113,21 +113,6 @@ export default class RelateRecord extends React.Component {
           ) : (
             <span className="placeholder">{_l('请选择')}</span>
           )}
-          {/* {selectRecordVisible && (
-            <RecordCardListDialog
-              allowNewRecord={false}
-              multiple={!this.selectSingle}
-              coverCid={control.coverCid}
-              filterRowIds={records.map(r => r.id)}
-              showControls={control.showControls}
-              appId={control.appId}
-              viewId={control.viewId}
-              relateSheetId={control.dataSource}
-              visible={true}
-              onClose={() => this.setState({ selectRecordVisible: false })}
-              onOk={this.addRecord}
-            />
-          )} */}
         </div>
       </div>
     );

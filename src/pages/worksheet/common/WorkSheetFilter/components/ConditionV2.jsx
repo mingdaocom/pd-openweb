@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Select, Tooltip } from 'antd';
 import cx from 'classnames';
+import _, { includes } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Dropdown, Icon, Input } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { VerticalMiddle } from 'worksheet/components/Basics';
-import renderConditionValue from './contents';
-import { getConditionOverrideValue, getFilterTypes } from '../util';
+import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import {
+  API_ENUM_TO_TYPE,
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
-  API_ENUM_TO_TYPE,
-  valueTypeOptions,
   getControlSelectType,
+  valueTypeOptions,
 } from '../enum';
-import { Select, Tooltip } from 'antd';
-import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
-import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import _, { includes } from 'lodash';
-import styled from 'styled-components';
+import { getConditionOverrideValue, getFilterTypes } from '../util';
+import renderConditionValue from './contents';
+
 // 为空 不为空  在范围内 不在范围内
 const listType = [
   FILTER_CONDITION_TYPE.ISNULL,
@@ -309,6 +310,9 @@ export default class Condition extends Component {
       isSheetFieldError,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(control, condition.type, from);
+    // 单选下拉menu隐藏【等于】、【不等于】
+    const hiddenValue =
+      control && _.includes([9, 11], control.type) ? [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE] : [];
     if (isRules && control) {
       if (control.type === 29 && control.enumDefault === 2) {
         conditionFilterTypes = conditionFilterTypes.filter(
@@ -347,10 +351,14 @@ export default class Condition extends Component {
     const isDynamicValue = this.isCanDynamicsource();
     return (
       <div
-        className={cx('conditionItem', {
-          readonly: !canEdit,
-          conditionItemForDynamicStyle: isDynamicStyle,
-        })}
+        className={cx(
+          'conditionItem',
+          {
+            readonly: !canEdit,
+            conditionItemForDynamicStyle: isDynamicStyle,
+          },
+          'keyStr_' + condition.keyStr,
+        )}
       >
         <VerticalMiddle
           className={cx('conditionItemHeader', { isbool: conditionGroupType === CONTROL_FILTER_WHITELIST.BOOL.value })}
@@ -378,6 +386,7 @@ export default class Condition extends Component {
                     disabled={!canEdit}
                     data={conditionFilterTypes}
                     isAppendToBody
+                    hiddenValue={hiddenValue}
                     menuStyle={{ width: 'auto', minWidth: '100px' }}
                     onChange={this.changeConditionType}
                   />

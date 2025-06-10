@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { toFixed, formatStrZero } from 'src/util';
-import { formatFormulaDate } from 'src/pages/worksheet/util';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
-import { dateConvertToUserZone } from 'src/util';
 import _, { includes } from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { formatFormulaDate, formatStrZero, toFixed } from 'src/utils/control';
+import { dateConvertToUserZone } from 'src/utils/project';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -35,7 +34,7 @@ export default class Widgets extends Component {
         formatValue = formatStrZero(formatValue);
       }
 
-      content = hideUnit ? prefix + formatValue + suffix : formatValue;
+      content = hideUnit ? (prefix ? `${prefix} ` : '') + formatValue + (suffix ? ` ${suffix}` : '') : formatValue;
     } else {
       const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
       if (includes(showFormat, ':')) {

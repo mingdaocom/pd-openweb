@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAwayable = createDecoratedComponent(withClickAway); //
+import withClickAway from 'ming-ui/decorators/withClickAway';
+//
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
+
+const ClickAwayable = createDecoratedComponent(withClickAway); //
 
 const Popup = styled.div`
   background: #fff;
@@ -42,6 +44,7 @@ export default function FilterDrop(props) {
         '.ant-picker-dropdown',
         '.CityPicker',
         '.CityPicker-wrapper',
+        '.ant-modal-wrap',
       ]}
       onClick={() => setShow(true)}
       onClickAway={() => setShow(false)}
@@ -58,6 +61,7 @@ export default function FilterDrop(props) {
               filters={filters}
               onConditionsChange={conditions => {
                 setFilter(conditions);
+                setShow(true);
               }}
               appId={appId}
             />
@@ -72,6 +76,7 @@ export default function FilterDrop(props) {
             adjustY: true,
           },
         }}
+        zIndex={100}
       >
         <Tooltip popupPlacement="bottom" text={<span>{_l('筛选')}</span>}>
           <Icon className="mRight12 Font16 Hand actIcon InlineBlock TxtMiddle" icon="worksheet_filter" />

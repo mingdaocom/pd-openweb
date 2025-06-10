@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import * as ajax from '../../utils/ajax';
+import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
+import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
-import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
-import _ from 'lodash';
 
 const format = (keyword, messages) => {
-  return messages.map((item) => {
+  return messages.map(item => {
     item.time = item.time.replace(/(^.*)(:\d\d\..*$)/, '$1');
     item.content = highlightMessageText(keyword, item.msg.con);
     return item;
@@ -51,7 +51,7 @@ export default class Messages extends Component {
         },
         () => {
           this.updateMessages(nextProps.searchText);
-        }
+        },
       );
     }
   }
@@ -72,7 +72,7 @@ export default class Messages extends Component {
         page: pageIndex,
         keyword: searchText,
       })
-      .then((res) => {
+      .then(res => {
         // res = res.reverse();
         this.setState({
           pageIndex: res && res.length >= 10 ? pageIndex + 1 : 0,
@@ -103,7 +103,10 @@ export default class Messages extends Component {
   render() {
     const { messages, loading } = this.state;
     return (
-      <ScrollView className="ChatPanel-SearchPanelContent ChatPanel-SearchPanel-Message" onScrollEnd={this.handleScrollEnd.bind(this)}>
+      <ScrollView
+        className="ChatPanel-SearchPanelContent ChatPanel-SearchPanel-Message"
+        onScrollEnd={this.handleScrollEnd.bind(this)}
+      >
         {messages.map(item => this.renderMessage(item))}
         <LoadDiv className={cx('loading', { Hidden: !loading })} size="small" />
         {!loading && !messages.length ? (
@@ -111,9 +114,7 @@ export default class Messages extends Component {
             <div className="nodata-img" />
             <p>{_l('无匹配结果')}</p>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </ScrollView>
     );
   }

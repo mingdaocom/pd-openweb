@@ -1,19 +1,19 @@
 import React from 'react';
-import { Icon, LoadDiv, Support, UpgradeIcon, SortableList } from 'ming-ui';
 import { Drawer } from 'antd';
-import './print.less';
-import EditPrint from '../components/EditPrint';
-import PrintTemDialog from '../components/PrintTemDialog';
-import { PRINT_TYPE } from 'src/pages/Print/config';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import _ from 'lodash';
+import { Icon, LoadDiv, SortableList, Support, UpgradeIcon } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PRINT_TYPE } from 'src/pages/Print/config';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import EditPrint from '../components/EditPrint';
 import PrintSortableItem from '../components/PrintSortableItem';
+import PrintTemDialog from '../components/PrintTemDialog';
+import './print.less';
 
-const MAX_PRINT_COUNT = 50;
+const MAX_PRINT_COUNT = 100;
 
 const PRINT_TYPE_CLASSIFY = {
   0: [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT],
@@ -120,6 +120,7 @@ class Print extends React.Component {
       printData: [],
       loading: false,
       sortIds: [],
+      exampleData: {},
     };
   }
   componentDidMount() {
@@ -272,37 +273,40 @@ class Print extends React.Component {
 
   renderEditPrint = () => {
     const { worksheetId, worksheetInfo = {} } = this.props;
-    const { showEditPrint, templateId, showCreatePrintTemp, fileType, printData = [] } = this.state;
+    const { showEditPrint, templateId, showCreatePrintTemp, fileType, printData = [], exampleData, type } = this.state;
 
     return (
       <Drawer
         width={480}
         placement="right"
         className="Absolute"
-        zIndex={9}
+        zIndex={10}
         onClose={() => this.setState({ showEditPrint: false, type: '' })}
         visible={showEditPrint}
-        maskClosable={true}
+        maskClosable={false}
         closable={false}
         getContainer={false}
         mask={false}
         bodyStyle={{ padding: 0 }}
       >
         <EditPrint
-          onClickAwayExceptions={['.mui-dialog-dialog', '.ant-picker-dropdown']}
+          type={type}
           downLoadUrl={worksheetInfo.downLoadUrl}
-          onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
           onClose={() => this.setState({ showEditPrint: false, type: '' })}
           templateId={templateId}
           worksheetId={worksheetId}
+          worksheetName={worksheetInfo.name}
           templateData={printData.find(it => it.id === templateId)}
           fileType={fileType}
           appId={_.get(worksheetInfo, 'appId')}
           roleType={_.get(worksheetInfo, 'roleType')}
           projectId={_.get(worksheetInfo, 'projectId')}
+          controls={_.get(worksheetInfo, 'template.controls')}
           updatePrint={this.updatePrint}
+          exampleData={exampleData}
+          updateExampleData={value => this.setState({ exampleData: value })}
           refreshFn={(showEditPrint = false, id) => {
-            this.setState({ showEditPrint, type: '', templateId: id || templateId });
+            this.setState({ showEditPrint, type: '', templateId: showEditPrint ? id || templateId : '' });
             this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
           }}
         />

@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import homeAppApi from 'api/homeApp';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Info from 'src/pages/AppSettings/components/Aggregation/components/Info';
 import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
-import { getFeatureStatus, setFavicon } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
-import homeAppApi from 'api/homeApp';
-import { VersionProductType } from 'src/util/enum';
+import { setFavicon } from 'src/utils/app';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 export default function AggregationEdit(props) {
   const { appId, aggTableId } = _.get(props, 'match.params');

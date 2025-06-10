@@ -1,19 +1,32 @@
-import React, { useEffect, useState, useRef } from 'react';
-import FreeFieldRunner from 'worksheet/common/FreeFieldRunner/FreeFieldRunner';
-import PropTypes from 'prop-types';
-import { browserIsMobile } from 'src/util';
-import { getEnv } from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/util';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
+import PropTypes from 'prop-types';
+import FreeFieldRunner from 'worksheet/common/FreeFieldRunner/FreeFieldRunner';
+import { getEnv } from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/util';
+import { browserIsMobile } from 'src/utils/common';
+
 export default function FreeField(props) {
-  const { flag, worksheetId, controlId, recordId, disabled, value, formData, onChange, advancedSetting = {} } = props;
+  const {
+    flag,
+    worksheetId,
+    controlId,
+    recordId,
+    disabled,
+    value,
+    formData,
+    onChange,
+    advancedSetting = {},
+    refreshRecord = () => {},
+  } = props;
   const cache = useRef({});
   const { custom_js: code, height } = advancedSetting;
   const reference = safeParse(advancedSetting.reference, 'array');
+  const [controlHeight, setControlHeight] = useState(height);
   useEffect(() => {
     cache.current.disabled = disabled;
   }, [disabled]);
   return (
-    <div style={{ height: height ? `${height}px` : '200px' }}>
+    <div style={{ height: controlHeight ? `${controlHeight}px` : '200px' }}>
       <FreeFieldRunner
         type="production"
         code={code}
@@ -32,6 +45,8 @@ export default function FreeField(props) {
             if (cache.current.disabled) return;
             onChange(...args);
           },
+          refreshRecord,
+          setControlHeight,
         }}
       />
     </div>

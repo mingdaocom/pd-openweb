@@ -1,7 +1,7 @@
 import React from 'react';
-import BaseMessageComponent from '../baseComponent/messageContent';
-import createLinksForMessage from 'src/util/createLinksForMessage';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { formatInboxItem } from '../../util';
+import BaseMessageComponent from '../baseComponent/messageContent';
 
 /**
  * 动态回复我的
@@ -18,26 +18,20 @@ export default class PostReply extends React.Component {
       ...this.mergeFromSourceState(),
       // 获取createUser信息和typeName
       ...formatInboxItem(props),
-    }
+    };
   }
 
   mergeTopicState() {
     const inboxItem = this.props;
-    const { Post: {
-      comments: [comment], // inbox显示的这一条
-    }, createTime } = inboxItem;
-    // 消息 @的人和群组 #话题
     const {
-      message,
-      rUserList,
-      rGroupList,
-      categories,
-      attachments,
-      postID,
-      commentID,
-      replyID,
-      replyAccountId,
-    } = comment;
+      Post: {
+        comments: [comment], // inbox显示的这一条
+      },
+      createTime,
+    } = inboxItem;
+    // 消息 @的人和群组 #话题
+    const { message, rUserList, rGroupList, categories, attachments, postID, commentID, replyID, replyAccountId } =
+      comment;
     // 转成html
     return {
       message: createLinksForMessage({
@@ -57,13 +51,9 @@ export default class PostReply extends React.Component {
 
   mergeFromSourceState() {
     const inboxItem = this.props;
-    const { Post: {
-      postID,
-      message,
-      rUserList,
-      rGroupList,
-      categories,
-    } } = inboxItem;
+    const {
+      Post: { postID, message, rUserList, rGroupList, categories },
+    } = inboxItem;
     // source
     const fromMessage = createLinksForMessage({
       message: message || '',
@@ -76,14 +66,10 @@ export default class PostReply extends React.Component {
       fromMessage,
       fromTitle: _l('来自动态'),
       fromLink: '/feeddetail?itemID=' + postID,
-    }
+    };
   }
 
   render() {
-    return (
-      <BaseMessageComponent
-        {...this.state}
-      />
-    )
+    return <BaseMessageComponent {...this.state} />;
   }
 }

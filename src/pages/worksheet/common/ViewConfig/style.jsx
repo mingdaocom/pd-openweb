@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const SwitchStyle = styled.div`
   .switchText {
     margin-right: 6px;
@@ -125,6 +126,48 @@ export const ViewSettingWrap = styled.div`
     background-color: #fff;
     &.disabled {
       background-color: #f5f5f5;
+    }
+  }
+`;
+
+export const AnimationWrap = styled.div`
+  display: flex;
+  padding: 2px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  .animaItem {
+    height: 32px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: #757575;
+    flex: 1;
+    margin-left: 2px;
+    &:first-child {
+      margin-left: 0;
+    }
+    &:hover {
+      color: #2196f3;
+      i {
+        color: #2196f3;
+      }
+    }
+    i {
+      color: #757575;
+    }
+    &.active {
+      background: #ffffff;
+      color: #2196f3;
+      i {
+        color: #2196f3;
+      }
+    }
+    &.disabled {
+      color: #bdbdbd !important;
+      cursor: not-allowed;
     }
   }
 `;

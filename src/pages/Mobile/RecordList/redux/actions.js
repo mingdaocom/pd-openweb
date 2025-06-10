@@ -1,12 +1,4 @@
 import _, { get, some } from 'lodash';
-import {
-  formatQuickFilter,
-  getFilledRequestParams,
-  needHideViewFilters,
-  replaceAdvancedSettingTranslateInfo,
-  replaceControlsTranslateInfo,
-  replaceRulesTranslateInfo,
-} from 'worksheet/util';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
@@ -15,7 +7,17 @@ import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model'
 import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { addBehaviorLog, getRequest, getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { getRequest } from 'src/utils/common';
+import { getFilledRequestParams } from 'src/utils/common';
+import { needHideViewFilters } from 'src/utils/filter';
+import { formatQuickFilter } from 'src/utils/filter';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
+import {
+  replaceAdvancedSettingTranslateInfo,
+  replaceControlsTranslateInfo,
+  replaceRulesTranslateInfo,
+} from 'src/utils/translate';
 
 function fireWhenViewLoaded(view, { controls = [] } = {}) {
   return (dispatch, getState) => {
@@ -111,6 +113,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       getSwitchPermit: true,
     })
     .then(workSheetInfo => {
+      compatibleMDJS('workItemInfo', { item: workSheetInfo });
       const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
         ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
         : {};
@@ -161,7 +164,12 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         };
       });
       let view =
-        base.viewId && base.viewId !== 'undefined'
+        base.viewId &&
+        base.viewId !== 'undefined' &&
+        _.findIndex(
+          workSheetInfo.views.map(v => v.viewId),
+          v => v === base.viewId,
+        ) > -1
           ? _.find(workSheetInfo.views, v => v.viewId === base.viewId)
           : workSheetInfo.views[0];
       if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide')) && base.type !== 'single') {
@@ -280,7 +288,7 @@ export const fetchSheetRows =
       updateBase({ viewId: defaultViewId });
       safeLocalStorageSetItem(`mobileViewSheet-${worksheetId}`, defaultViewId);
     }
-    const { keyWords } = filters;
+    const { keyWords, requestParams } = filters;
     const { chartId } = getRequest();
     let pageIndex = param.pageIndex || sheetView.pageIndex;
     let extraParams = param;
@@ -329,6 +337,7 @@ export const fetchSheetRows =
       filtersGroup: sheetFiltersGroup,
       fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters: mobileNavGroupFilters,
+      requestParams,
       ...extraParams,
     });
     promiseRequests[requestId] = sheetAjax.getFilterRows(params);
@@ -585,4 +594,13 @@ export const updateIsPullRefreshing = flag => dispatch => {
 export const updatePreviewRecordId = data => dispatch => {
   safeLocalStorageSetItem('mobilePreviewRecordId', data);
   dispatch({ type: 'UPDATE_PREVIEW_RECORD', data });
+};
+
+export const updateRow = (rowId, value, isViewData) => dispatch => {
+  dispatch({
+    type: 'MOBILE_UPDATE_SHEET_ROW_BY_ROWID',
+    rowId,
+    rowUpdatedValue: value,
+    isViewData,
+  });
 };

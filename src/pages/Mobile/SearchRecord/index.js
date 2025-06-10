@@ -1,12 +1,12 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
-import CustomRecordCard from 'mobile/RecordList/RecordCard';
-import sheetApi from 'src/api/worksheet';
-import { WithoutSearchRows } from '../RecordList/SheetRows';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getRequest } from 'src/util';
-import './index.less';
 import _ from 'lodash';
+import sheetApi from 'src/api/worksheet';
+import CustomRecordCard from 'mobile/RecordList/RecordCard';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getRequest } from 'src/utils/common';
+import { WithoutSearchRows } from '../RecordList/SheetRows';
+import './index.less';
 
 const pageSize = 20;
 
@@ -47,13 +47,12 @@ class Search extends Component {
     const { params } = this.props.match;
     const { filterId } = getRequest();
 
-    const requestSheet = sheetApi
-      .getWorksheetInfo({
-        appId: params.appId,
-        worksheetId: params.worksheetId,
-        getTemplate: true,
-        getViews: true,
-      });
+    const requestSheet = sheetApi.getWorksheetInfo({
+      appId: params.appId,
+      worksheetId: params.worksheetId,
+      getTemplate: true,
+      getViews: true,
+    });
 
     const requestFilters = filterId
       ? sheetApi.getWorksheetFilterById({
@@ -63,12 +62,15 @@ class Search extends Component {
 
     Promise.all([requestSheet, requestFilters]).then(result => {
       const [sheet, filterData = {}] = result;
-      this.setState({
-        sheetInfo: sheet,
-        filterControls: formatValuesOfOriginConditions(filterData.items || []),
-      }, () => {
-        this.requestFilterRows();
-      });
+      this.setState(
+        {
+          sheetInfo: sheet,
+          filterControls: formatValuesOfOriginConditions(filterData.items || []),
+        },
+        () => {
+          this.requestFilterRows();
+        },
+      );
     });
   }
   requestFilterRows = () => {
@@ -85,7 +87,7 @@ class Search extends Component {
     let searchFilter = null;
 
     if (searchControl) {
-      searchFilter = getFilterControls(searchId, keyWords)
+      searchFilter = getFilterControls(searchId, keyWords);
     }
 
     sheetApi
@@ -119,7 +121,7 @@ class Search extends Component {
         });
       });
   };
-  handleEndReached = (event) => {
+  handleEndReached = event => {
     const { target } = event;
     const { loading, isMore } = this.state;
     const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
@@ -167,19 +169,19 @@ class Search extends Component {
       <div className="searchRecordWrapper flexColumn h100">
         {loading && _.isEmpty(rows) ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
-            <SpinLoading color='primary' />
+            <SpinLoading color="primary" />
           </div>
         ) : (
           <Fragment>
             {rows.length ? (
               <Fragment>
                 <div className="searchSheetRowsWrapper h100 pTop10" onScroll={this.handleEndReached}>
-                  {rows.map(row => (
-                    this.renderRow(row)
-                  ))}
+                  {rows.map(row => this.renderRow(row))}
                 </div>
                 {isMore && (
-                  <div className="flexRow alignItemsCenter justifyContentCenter">{loading ? <SpinLoading color='primary' /> : null}</div>
+                  <div className="flexRow alignItemsCenter justifyContentCenter">
+                    {loading ? <SpinLoading color="primary" /> : null}
+                  </div>
                 )}
               </Fragment>
             ) : (

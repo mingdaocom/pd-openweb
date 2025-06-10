@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Popup, List } from 'antd-mobile';
-import { Icon, Radio } from 'ming-ui';
+import { List } from 'antd-mobile';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, PopupWrapper, Radio } from 'ming-ui';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
-import _ from 'lodash';
 
 export default class MobileRadio extends Component {
   static propTypes = {
@@ -35,6 +35,10 @@ export default class MobileRadio extends Component {
     callback(key);
   }
 
+  onClose = () => {
+    this.setState({ visible: false });
+  };
+
   render() {
     const { disabled, allowAdd, children, value, renderText, controlName, delOptions = [] } = this.props;
     let { data } = this.props;
@@ -53,15 +57,15 @@ export default class MobileRadio extends Component {
               })}
         </span>
 
-        <Popup visible={visible} className="mobileCheckboxDialog mobileModal minFull topRadius">
+        <PopupWrapper
+          className="mobileCheckboxDialog"
+          bodyClassName="heightPopupBody40"
+          visible={visible}
+          title={controlName}
+          onClose={this.onClose}
+          onClear={() => this.onChange('')}
+        >
           <div className="flexColumn h100">
-            <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper">
-              <div className="Hand ThemeColor bold Font15 mRight10" onClick={() => this.setState({ visible: false })}>
-                {_l('关闭')}
-              </div>
-              <div className="Font15 Gray bold flex ellipsis TxtCenter">{controlName}</div>
-              <div className="Font15 Visibility">{_l('确定')}</div>
-            </div>
             <div className="mobileCheckboxSearchWrapper">
               <Icon icon="h5_search" className="Gray_75 Font14" />
               <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
@@ -73,15 +77,9 @@ export default class MobileRadio extends Component {
                   onChange={evt => this.setState({ keywords: evt.target.value })}
                 />
               </form>
-              {keywords && <Icon icon="workflow_cancel" onClick={() => this.setState({ keywords: '' })} />}
+              {keywords && <Icon icon="workflow_cancel Gray_bd" onClick={() => this.setState({ keywords: '' })} />}
             </div>
             <List className="flex" style={{ overflow: 'auto' }}>
-              {!keywords.length && !!value.length && (
-                <List.Item className="mLeft31" arrowIcon={false} onClick={() => this.onChange('')}>
-                  <span className="Font15 ThemeColor3">{_l('清除选择')}</span>
-                </List.Item>
-              )}
-
               {data
                 .filter(
                   item =>
@@ -121,7 +119,7 @@ export default class MobileRadio extends Component {
               )}
             </List>
           </div>
-        </Popup>
+        </PopupWrapper>
       </Fragment>
     );
   }

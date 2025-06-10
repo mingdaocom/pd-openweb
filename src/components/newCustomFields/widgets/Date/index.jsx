@@ -1,13 +1,14 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Icon, MobileDatePicker, MdAntDatePicker } from 'ming-ui';
 import cx from 'classnames';
-import { FROM } from '../../tools/config';
-import { getDynamicValue, compareWithTime } from '../../tools/formUtils';
-import { browserIsMobile, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
-import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import { Icon, MdAntDatePicker, MobileDatePicker } from 'ming-ui';
+import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { browserIsMobile } from 'src/utils/common';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
+import { FROM } from '../../tools/config';
+import { compareWithTime, getDynamicValue } from '../../tools/formUtils';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -51,9 +52,11 @@ export default class Widgets extends Component {
         type === 15
           ? date.format('YYYY-MM-DD')
           : notConvertZone
-          ? date.format('YYYY-MM-DD HH:mm:ss')
-          : dateConvertToServerZone(date);
+            ? date.format('YYYY-MM-DD HH:mm:ss')
+            : dateConvertToServerZone(date);
     }
+
+    this.tempDateValue = '';
 
     this.props.onChange(value);
   };
@@ -158,8 +161,8 @@ export default class Widgets extends Component {
         dateProps.formatMode === 'YYYY-MM-DD HH'
           ? 'hour'
           : dateProps.formatMode === 'YYYY-MM-DD HH:mm'
-          ? 'minite'
-          : 'second';
+            ? 'minite'
+            : 'second';
       let precision =
         dateProps.mode === 'year' || dateProps.mode === 'month' || dateProps.mode === 'date'
           ? dateProps.mode
@@ -323,12 +326,16 @@ export default class Widgets extends Component {
                   $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
                 }, 200);
               }
+              if (!open && this.tempDateValue) {
+                this.onChange(this.tempDateValue);
+              }
               this.setState({ showDatePicker: open });
             }}
             onFocus={e => this.setState({ originValue: e.target.value.trim() })}
             onBlur={() => {
               onBlur(originValue);
             }}
+            onSelect={value => (this.tempDateValue = value)}
             onChange={this.onChange}
             {...compProps}
           />

@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import APICard from 'src/pages/integration/components/APICard';
-import APISetting from 'src/pages/integration/apiIntegration/APIWrap';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { LoadDiv, Dialog, Icon, SortableList } from 'ming-ui';
-import processAjax from 'src/pages/workflow/api/process.js';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import loadScript from 'load-script';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, SortableList } from 'ming-ui';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import processAjax from 'src/pages/workflow/api/process.js';
 import { checkPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import APISetting from 'src/pages/integration/apiIntegration/APIWrap';
+import APICard from 'src/pages/integration/components/APICard';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const Wrap = styled.div`
   .noData {

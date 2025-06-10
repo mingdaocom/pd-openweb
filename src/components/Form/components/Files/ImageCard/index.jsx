@@ -146,7 +146,8 @@ const ImageCard = props => {
   return (
     <div
       className={cx('attachmentFile', { hover: dropdownVisible || isEdit })}
-      onClick={() => {
+      onClick={e => {
+        e.stopPropagation();
         browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
       }}
     >
@@ -361,7 +362,8 @@ const NotSaveImageCard = props => {
   return (
     <div
       className={cx('attachmentFile', { hover: isEdit })}
-      onClick={() => {
+      onClick={e => {
+        e.stopPropagation();
         if (isEdit) return;
         isKc ? onKCPreview(data) : onPreview(data);
       }}

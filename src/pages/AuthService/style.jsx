@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 
 export const WrapCom = styled.div`
   flex-direction: column;

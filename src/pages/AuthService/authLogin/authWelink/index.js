@@ -1,5 +1,14 @@
-import { ajax, login, browserIsMobile, getScript, getRequest, checkLogin, checkOriginUrl, getGlobalMeta } from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+import { setPssId } from 'src/utils/pssId';
+import {
+  ajax,
+  browserIsMobile,
+  checkLogin,
+  checkOriginUrl,
+  getGlobalMeta,
+  getRequest,
+  getScript,
+  login,
+} from 'src/utils/sso';
 
 const { url, p } = getRequest();
 const isMobile = browserIsMobile();
@@ -23,7 +32,7 @@ if (checkLogin()) {
             code: data.code,
           },
           async: true,
-          succees: result => {
+          success: result => {
             const { accountResult, sessionId } = result.data;
             if (accountResult === 1) {
               getGlobalMeta().then(() => {

@@ -1,9 +1,10 @@
 import React, { useState, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { Tooltip, Select } from 'antd';
+import { Icon, ColorPicker } from 'ming-ui';
+import { Tooltip, Select, Input } from 'antd';
 import cx from 'classnames';
 import { getPorjectChartColors } from 'statistics/Charts/common';
 import { replaceColor } from 'src/pages/customPage/util';
+import { defaultTitleStyles, replaceTitleColor } from './util';
 import BaseColor from 'statistics/components/ChartStyle/components/Color/BaseColor';
 import styled from 'styled-components';
 
@@ -223,6 +224,117 @@ export default props => {
         </div>
       </div>
     );
+  };
+
+  const renderTitleStylesConfig = () => {
+    const { titleStyles = defaultTitleStyles } = config;
+    const { color } = replaceTitleColor(titleStyles, iconColor);
+    const handleChange = data => {
+      handleChangeConfig({
+        titleStyles: {
+          ...titleStyles,
+          ...data,
+          index: Date.now()
+        }
+      });
+    }
+    return (
+      <div className="flexRow alignItemsCenter mBottom15">
+        <div className="Gray_75 Font13 bold mRight10 label">{_l('标题样式')}</div>
+        <div className="flexRow alignItemsCenter flex">
+          <ColorPicker
+            isPopupBody={true}
+            sysColor={true}
+            themeColor={iconColor}
+            value={color}
+            onChange={value => {
+              const data = { color: value };
+              handleChange(data);
+            }}
+          >
+            <div
+              className="colorWrap"
+              style={{ backgroundColor: color }}
+            >
+            </div>
+          </ColorPicker>
+          <Input
+            className="pageInput countInput mRight10"
+            style={{ width: 100 }}
+            value={`${titleStyles.fontSize || 15} px`}
+            readOnly={true}
+            suffix={
+              <div className="flexColumn">
+                <Icon
+                  icon="expand_less"
+                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 32 ? 'disabled' : 'Gray_9e')}
+                  onClick={() => {
+                    let value = Number(titleStyles.fontSize) + 1;
+                    handleChange({
+                      fontSize: titleStyles.fontSize === 32 ? 32 : value
+                    });
+                  }}
+                />
+                <Icon
+                  icon="expand_more"
+                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 13 ? 'disabled' : 'Gray_9e')}
+                  onClick={() => {
+                    let value = Number(titleStyles.fontSize) - 1;
+                    handleChange({
+                      fontSize: titleStyles.fontSize === 13 ? 13 : value
+                    });
+                  }}
+                />
+              </div>
+            }
+          />
+          <div
+            className="colorWrap"
+            style={{ backgroundColor: '#fff' }}
+            onClick={() => {
+              handleChange({
+                fontBold: !titleStyles.fontBold
+              });
+            }}
+          >
+            <Icon icon="format_bold" className={cx('Font20 mTop2', { ThemeColor: titleStyles.fontBold })} />
+          </div>
+          <div
+            className="colorWrap"
+            style={{ backgroundColor: '#fff' }}
+            onClick={() => {
+              handleChange({
+                fontItalic: !titleStyles.fontItalic
+              });
+            }}
+          >
+            <Icon icon="format_italic" className={cx('Font20 mTop2', { ThemeColor: titleStyles.fontItalic })} />
+          </div>
+          <div className="typeSelect flexRow valignWrapper">
+            <div
+              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', { active: titleStyles.textAlign === 'left' })}
+              onClick={() => {
+                handleChange({
+                  textAlign: 'left'
+                });
+              }}
+            >
+              <Icon icon="format_align_left" className="Font18" />
+            </div>
+            <div
+              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', { active: titleStyles.textAlign === 'center' })}
+              onClick={() => {
+                handleChange({
+                  textAlign: 'center'
+                });
+              }}
+            >
+              <Icon icon="format_align_center" className="Font18" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const { name, showColors } = getColorConfig();
@@ -305,7 +417,7 @@ export default props => {
                         bottom: 0,
                         borderBottom: `2px solid transparent`,
                         borderImage: `linear-gradient(to right, ${iconColor}, ${pageBgColor}) 1`
-                      }}/>
+                      }} />
                     )}
                   </TemplateTitleWrap>
                   <div className="flex TxtRight pRight5">{data.name}</div>
@@ -315,6 +427,7 @@ export default props => {
           </Select>
         </div>
       </div>
+      {renderTitleStylesConfig()}
       {renderNumberColorConfig()}
       {renderPivoTableColorConfig()}
       <BaseColor

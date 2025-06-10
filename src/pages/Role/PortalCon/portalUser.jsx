@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
-import { formatPortalData } from 'src/pages/Role/PortalCon/tabCon/util.js';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import externalPortalAjax from 'src/api/externalPortal';
 import Api from 'api/homeApp';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { canEditData } from 'src/pages/worksheet/redux/actions/util';
 import cx from 'classnames';
+import styled from 'styled-components';
 import Dialog from 'ming-ui/components/Dialog';
 import Icon from 'ming-ui/components/Icon';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import externalPortalAjax from 'src/api/externalPortal';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
+import { formatDataForPortalControl, formatPortalData } from 'src/pages/Role/PortalCon/tabCon/util.js';
+import { canEditData } from 'src/pages/worksheet/redux/actions/util';
 
 const WrapHasPend = styled.div`
   width: 100%;
@@ -157,14 +157,14 @@ export default function User(props) {
             }
           }),
         )}
-        setShow={() => {}}
+        setShow={() => { }}
         onOk={(data, ids) => {
-          let newCell = data
-            .filter(o =>
+          let newCell = formatDataForPortalControl(
+            data.filter(o =>
               [...ids, 'portal_role', 'portal_status'] //角色和状态默认更新
                 .includes(o.controlId),
-            )
-            .map(formatControlToServer);
+            ),
+          );
           ///更新数据 /////
           externalPortalAjax
             .auditPassExAccountToNewRole({

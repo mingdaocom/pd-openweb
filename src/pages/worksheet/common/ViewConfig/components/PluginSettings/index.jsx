@@ -1,19 +1,19 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Input, Tooltip, SvgIcon } from 'ming-ui';
-import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { PARAM_TYPES, controlTypeList, defaultData } from './config';
-import Trigger from 'rc-trigger';
-import './index.less';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { Drawer } from 'antd';
-import Edit from './Edit';
-import AddDialog from './AddDialog';
-import SettingList from './SettingList';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import moment from 'moment';
 import { saveAs } from 'file-saver';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Input, SvgIcon, Tooltip } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import AddDialog from './AddDialog';
+import { controlTypeList, defaultData, PARAM_TYPES } from './config';
+import Edit from './Edit';
+import SettingList from './SettingList';
+import './index.less';
 
 const Wrap = styled.div`
   .tit {
@@ -431,6 +431,7 @@ function PluginSettings(params) {
               '.ant-picker-dropdown',
               '#quickSelectDept',
               '.selectRoleDialog',
+              '.ant-modal',
             ]}
             onClickAway={() => setState({ editInfo: null, showEdit: false })}
             onClose={() => setState({ editInfo: null, showEdit: false })}

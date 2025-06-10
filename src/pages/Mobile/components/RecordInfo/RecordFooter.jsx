@@ -1,17 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
+import { ActionSheet, Button, Toast } from 'antd-mobile';
 import cx from 'classnames';
-import { Button, Toast, ActionSheet } from 'antd-mobile';
-import RecordAction from './RecordAction';
-import CustomButtons from './RecordAction/CustomButtons';
 import copy from 'copy-to-clipboard';
-import worksheetApi from 'src/api/worksheet';
-import favoriteApi from 'src/api/favorite';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { replaceBtnsTranslateInfo } from 'worksheet/util';
-import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import favoriteApi from 'src/api/favorite';
+import worksheetApi from 'src/api/worksheet';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { compatibleMDJS, getCurrentProject } from 'src/utils/project';
+import { replaceBtnsTranslateInfo } from 'src/utils/translate';
+import CustomButtons from './RecordAction/CustomButtons';
 
 const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
   const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
@@ -118,6 +117,7 @@ export default class RecordFooter extends Component {
       customBtns: [],
       btnDisable: {},
       isFavorite: false,
+      RecordAction: null
     };
   }
   recordRef = React.createRef();
@@ -137,6 +137,9 @@ export default class RecordFooter extends Component {
       this.loadCustomBtns();
     });
     this.setState({ isFavorite: this.props.recordInfo.isFavorite });
+    import('mobile/components/RecordInfo/RecordAction').then(component => {
+      this.setState({ RecordAction: component.default });
+    });
   }
   componentWillUnmount() {
     this.actionSheetHandler && this.actionSheetHandler.close();
@@ -169,6 +172,9 @@ export default class RecordFooter extends Component {
 
     const BUTTONS = [
       allowShare ? { name: _l('分享'), icon: 'share', iconClass: 'Font20 Gray_9e', fn: this.handleShare } : null,
+      window.isMingDaoApp
+        ? { name: _l('打印'), icon: 'install', iconClass: 'Font24 Gray_9e', fn: this.handlePrint }
+        : null,
       !window.shareState.shareId && !md.global.Account.isPortal && !isExternal
         ? {
             name: isFavorite ? _l('取消收藏') : _l('收藏记录'),
@@ -192,12 +198,16 @@ export default class RecordFooter extends Component {
         return {
           key: item.icon,
           text: (
-            <div className={cx('flexRow valignWrapper w100', item.class)} onClick={item.fn}>
+            <div
+              className={cx('flexRow valignWrapper w100', item.class)}
+              onClick={item.fn}
+              style={{ marginLeft: item.icon === 'install' ? -2 : 0 }}
+            >
               <Icon className={cx('mRight20', item.iconClass)} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </div>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -209,9 +219,9 @@ export default class RecordFooter extends Component {
       ),
       onAction: (action, index) => {
         this.actionSheetHandler.close();
-      }
+      },
     });
-  }
+  };
   handleShare = () => {
     const { recordInfo, recordBase } = this.props;
     const publicShare = isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId);
@@ -239,10 +249,10 @@ export default class RecordFooter extends Component {
       publicShare && innerShare
         ? true
         : publicShare
-        ? v.key === 'publicShare'
-        : innerShare
-        ? v.key === 'innerShare'
-        : false,
+          ? v.key === 'publicShare'
+          : innerShare
+            ? v.key === 'innerShare'
+            : false,
     );
 
     this.shareSheetHandler = ActionSheet.show({
@@ -257,8 +267,8 @@ export default class RecordFooter extends Component {
               </div>
               <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
             </div>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -270,9 +280,41 @@ export default class RecordFooter extends Component {
       ),
       onAction: (action, index) => {
         this.shareSheetHandler.close();
-      }
+      },
     });
-  }
+  };
+
+  // js sdk 对接原生打印
+  handlePrint = () => {
+    const { instanceId, workId, recordBase, recordInfo } = this.props;
+    const { projectId } = recordInfo;
+    const { worksheetId, recordId, viewId, appId } = recordBase;
+    compatibleMDJS(
+      'showPrintList',
+      {
+        type: instanceId || workId ? 'workflow' : 'row', // row/workflow
+        projectId, // 网络ID
+        appId, // 应用ID
+        // row
+        sheetId: worksheetId, // 工作表ID
+        viewId: viewId, // 视图ID
+        rowId: recordId, // 记录ID
+        // workflow
+        workId,
+        instanceId,
+        success: function (res) {
+          // 当前版本H5无需处理! App会处理日志
+          // 返回成功打印的模板信息, 备用, 可能需要上传日志
+          let templatedId = res.templateId;
+          let templateName = res.templateName;
+        },
+        cancel: function (res) {
+          // 用户取消
+        },
+      },
+      () => {},
+    );
+  };
 
   handleCollectRecord = () => {
     const { recordBase, recordInfo, refreshCollectRecordList = () => {} } = this.props;
@@ -401,7 +443,10 @@ export default class RecordFooter extends Component {
   }
   renderRecordAction() {
     const { recordInfo, recordBase, loadRecord, handleDeleteSuccess = () => {} } = this.props;
-    const { recordActionVisible, customBtns, isFavorite } = this.state;
+    const { recordActionVisible, customBtns, isFavorite, RecordAction } = this.state;
+
+    if (!RecordAction) return null;
+
     return (
       <RecordAction
         appId={recordBase.appId}
@@ -417,11 +462,12 @@ export default class RecordFooter extends Component {
         handleDeleteSuccess={handleDeleteSuccess}
         recordActionVisible={recordActionVisible}
         onShare={this.handleShare}
+        handlePrint={this.handlePrint}
         hideRecordActionVisible={() => {
           this.setState({ recordActionVisible: false });
         }}
         ref={this.recordRef}
-        updateBtnDisabled={(val) => {
+        updateBtnDisabled={val => {
           this.setState({ btnDisable: val });
         }}
         handleCollectRecord={this.handleCollectRecord}

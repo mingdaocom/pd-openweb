@@ -9,9 +9,9 @@ import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
 import { loginCallback } from 'src/pages/AuthService/login/util.js';
 import { getAccountTypes, getDataByFilterXSS, hasCaptcha, validation } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/util';
-import { encrypt } from 'src/util';
-import { removePssId } from 'src/util/pssId';
+import { getRequest } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
+import { removePssId } from 'src/utils/pssId';
 import BtnList from './BtnList.jsx';
 import FormContainer from './Form.jsx';
 import { Wrap } from './style.jsx';
@@ -178,7 +178,7 @@ export default function (props) {
       case 'verifyCode':
         return <VerifyCode {...props} />;
       default:
-        const { unionId, state, tpType } = getRequest();
+        const { unionId, state, tpType, loginMode } = getRequest();
         return (
           <React.Fragment>
             {loginDisabled && <div className="loadingLine"></div>}
@@ -226,7 +226,7 @@ export default function (props) {
                 </span>
               </React.Fragment>
             )}
-            <BtnList {...props} />
+            {loginMode !== 'systemLogin' && <BtnList {...props} />}
             {window.isMiniProgram && (
               <div className="flexRow alignItemsCenter justifyContentCenter mTop25 Gray_75">
                 {_l('此小程序仅支持组织内部员工登录使用')}

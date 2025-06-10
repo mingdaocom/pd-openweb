@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Checkbox, Switch, RadioGroup } from 'ming-ui';
 import cx from 'classnames';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Checkbox, RadioGroup, Switch } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { getSwitchItemNames } from 'src/utils/control';
 
 export default class Widgets extends Component {
   static propTypes = {

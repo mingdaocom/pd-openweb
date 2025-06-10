@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { Icon, VerifyPasswordConfirm } from 'ming-ui';
 import { captcha, dialogSelectDept } from 'ming-ui/functions';
 import importUser from 'src/api/importUser';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../../../config';
 import { downloadFile } from '../../../../../util';
 import * as actions from '../../actions/entities';
@@ -28,10 +28,18 @@ const ImportBtn = styled.div`
 `;
 
 const userTemplatePaths = {
-  0: md.global.Config.IsPlatformLocal ? '/staticfiles/template/成员导入模板.xlsx' : '/staticfiles/template/成员导入模板_v2.xlsx',
-  1: md.global.Config.IsPlatformLocal ? '/staticfiles/template/User Import Template.xlsx' : '/staticfiles/template/User Import Template_v2.xlsx',
-  2: md.global.Config.IsPlatformLocal ? '/staticfiles/template/メンバーインポートテンプレート.xlsx' : '/staticfiles/template/メンバーインポートテンプレート_v2.xlsx',
-  3: md.global.Config.IsPlatformLocal ? '/staticfiles/template/成員導入模板.xlsx' : '/staticfiles/template/成員導入模板_v2.xlsx',
+  0: md.global.Config.IsPlatformLocal
+    ? '/staticfiles/template/成员导入模板.xlsx'
+    : '/staticfiles/template/成员导入模板_v2.xlsx',
+  1: md.global.Config.IsPlatformLocal
+    ? '/staticfiles/template/User Import Template.xlsx'
+    : '/staticfiles/template/User Import Template_v2.xlsx',
+  2: md.global.Config.IsPlatformLocal
+    ? '/staticfiles/template/メンバーインポートテンプレート.xlsx'
+    : '/staticfiles/template/メンバーインポートテンプレート_v2.xlsx',
+  3: md.global.Config.IsPlatformLocal
+    ? '/staticfiles/template/成員導入模板.xlsx'
+    : '/staticfiles/template/成員導入模板_v2.xlsx',
 };
 class ImportAndExport extends Component {
   constructor(props) {
@@ -194,7 +202,8 @@ class ImportAndExport extends Component {
           </a>
         </div>
         <div className="serialTitle mTop30">{_l('2.上传完善后的表格')}</div>
-        {this.renderUpload()}
+        {this.renderUpload('import')}
+        {!fileName && <div className="Gray_75 mTop24">{_l('·导入成功后，成员会收到邀请链接，验证后可加入组织')}</div>}
         {!fileName && <div className="Gray_75">{_l('·最多一次可以导入 500 个用户，否则可能导致失效')}</div>}
       </div>
     );
@@ -212,17 +221,24 @@ class ImportAndExport extends Component {
           </div>
         </div>
         <div className="Gray_75 mBottom16">{_l('如果需要修改成员信息，可在本地编辑后，上传表格完成修改')}</div>
-        {this.renderUpload()}
+        {this.renderUpload('export')}
       </div>
     );
   };
-  renderUpload = () => {
+  renderUpload = type => {
     let { fileName } = this.state;
+    const { projectId } = this.props;
+
     return (
       <div className="importExcelBox">
         <span className={cx('icon-task_custom_excel_01', fileName ? 'color_gr' : 'color_d')} />
         <span className="Font13 mTop10 color_dd">{fileName ? fileName : _l('支持 excel')}</span>
-        <UploadFile fileName={fileName} updateUploadInfo={this.updateUploadInfo} />
+        <UploadFile
+          fileName={fileName}
+          updateUploadInfo={this.updateUploadInfo}
+          needCheckCert={type === 'import'}
+          projectId={projectId}
+        />
       </div>
     );
   };

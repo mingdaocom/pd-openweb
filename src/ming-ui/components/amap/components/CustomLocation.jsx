@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Input } from 'antd';
 import { Button } from 'ming-ui';
-import { browserIsMobile, toFixed } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { toFixed } from 'src/utils/control';
 
 const DISPLAY_OPTIONS = [
   { title: _l('纬度'), key: 'lat' },

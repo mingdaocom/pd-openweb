@@ -1,29 +1,30 @@
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useMeasure, useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Modal, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import functionWrap from 'ming-ui/components/FunctionWrap';
 import _, { get, identity } from 'lodash';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import addRecord from 'worksheet/common/newRecord/addRecord';
-import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE, controlName } from 'worksheet/constants/enum';
-import { FlexCenter } from 'worksheet/components/Basics';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import styled from 'styled-components';
+import { LoadDiv, Modal } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import sheetAjax from 'src/api/worksheet';
+import { RecordInfoModal } from 'mobile/Record';
+import { openAddRecord } from 'mobile/Record/addRecord';
+import { WithoutRows } from 'mobile/RecordList/SheetRows';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { FlexCenter } from 'worksheet/components/Basics';
 import RecordCoverCard from 'worksheet/components/RelateRecordCards/RecordCoverCard';
-import { LoadingButton, getCardColNum } from 'worksheet/components/RelateRecordCards/RelateRecordCards';
+import { getCardColNum, LoadingButton } from 'worksheet/components/RelateRecordCards/RelateRecordCards';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
+import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import { openAddRecord } from 'mobile/Record/addRecord';
-import { RecordInfoModal } from 'mobile/Record';
-import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import RegExpValidator from 'src/util/expression';
 import { getValueStyle } from 'src/components/newCustomFields/tools/utils';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { browserIsMobile } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
 const PAGE_SIZE = 50;
 
@@ -417,7 +418,7 @@ function RelationSearch(props) {
       searchType: 1,
       status: 1,
       isGetWorksheet: true,
-      getType: 7,
+      getType: control.from === RECORD_INFO_FROM.DRAFT ? 21 : 7,
       filterControls: filterControls || [],
       rowId: recordId,
       controlId: control.controlId,

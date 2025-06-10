@@ -1,25 +1,29 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
-import PreviewContent from './PreviewContent';
 import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel/Carousel';
+import Image from 'src/pages/customPage/components/editWidget/Image';
+import { EditRichText as RichText } from 'src/pages/customPage/components/editWidget/richText';
+import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
+import { getTranslateInfo } from 'src/utils/app';
 import { StateChartContent } from './ChartContent';
-import ViewContent from './ViewContent';
-import TabsContent from './TabsContent';
 import Filter from './FilterContent';
-import { RichText } from 'ming-ui';
-import { getTranslateInfo } from 'src/util';
+import PreviewContent from './PreviewContent';
+import TabsContent from './TabsContent';
+import ViewContent from './ViewContent';
 
 const WidgetContent = styled.div`
   flex: 1;
   box-sizing: border-box;
   padding: 8px 15px;
-  background-color: #fff;
   height: 100%;
   &.button {
     display: flex;
   }
-  &.mobileEmbedUrl, &.mobileView, &.mobileFilter, &.mobileCarousel {
+  &.mobileEmbedUrl,
+  &.mobileView,
+  &.mobileFilter,
+  &.mobileCarousel,
+  &.mobileRichText {
     padding: 0 !important;
   }
   &.mobileFilter {
@@ -30,10 +34,16 @@ const WidgetContent = styled.div`
   &.mobileButton {
     padding: 8px 6px !important;
   }
-  &.mobileTabs, &.mobileCard {
+  &.mobileTabs,
+  &.mobileCard,
+  &.mobileImage {
     padding: 0;
     box-shadow: none;
     background-color: transparent !important;
+  }
+  &.mobileAnalysis .name,
+  &.mobileFilter .name {
+    color: var(--widget-title-color);
   }
   img {
     max-width: 100%;
@@ -59,25 +69,20 @@ function WidgetDisplay(props) {
           info={{
             ...ids,
             projectId: apk.projectId,
-            itemId: ids.worksheetId
+            itemId: ids.worksheetId,
           }}
         />
-      )
-    };
+      );
+    }
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
-      return (
-        <RichText
-          data={translateInfo.description || value || ''}
-          className={'mdEditorContent'}
-          disabled={true}
-          backGroundColor={'#fff'}
-        />
-      );
+      return <RichText editable={false} widget={widget} value={translateInfo.description || value || ''} />;
     }
     if (componentType === 'button')
       return (
         <ButtonList
+          themeColor={apk.iconColor}
+          customPageConfig={pageConfig}
           editable={false}
           widget={widget}
           button={button}
@@ -85,7 +90,7 @@ function WidgetDisplay(props) {
           info={{
             ...ids,
             projectId: apk.projectId,
-            itemId: ids.worksheetId
+            itemId: ids.worksheetId,
           }}
           layoutType="mobile"
           addRecord={data => {}}
@@ -104,23 +109,17 @@ function WidgetDisplay(props) {
           themeColor={apk.iconColor}
           projectId={apk.projectId}
         />
-      )
-    };
-    if (componentType === 'view') {
-      return (
-        <ViewContent appId={ids.appId} setting={widget} />
       );
     }
+    if (componentType === 'view') {
+      return <ViewContent appId={ids.appId} setting={widget} />;
+    }
     if (componentType === 'filter') {
-      return (
-        <Filter ids={ids} apk={apk} widget={widget} />
-      );
+      return <Filter ids={ids} apk={apk} widget={widget} />;
     }
     if (componentType === 'carousel') {
       const { config, componentConfig } = widget;
-      return (
-        <CarouselPreview config={config} componentConfig={componentConfig} />
-      );
+      return <CarouselPreview config={config} componentConfig={componentConfig} />;
     }
     if (['tabs', 'card'].includes(componentType)) {
       return (
@@ -138,9 +137,14 @@ function WidgetDisplay(props) {
         />
       );
     }
+    if (componentType === 'image') {
+      return <Image themeColor={apk.iconColor} widget={widget} editable={false} customPageConfig={pageConfig} />;
+    }
   };
   return (
-    <WidgetContent className={`mobile${fistLetterUpper(componentType)} ${componentType}-${['tabs', 'card'].includes(componentType) ? _.get(widget, 'config.objectId') : widget.id} flexColumn`}>
+    <WidgetContent
+      className={`mobile${fistLetterUpper(componentType)} ${componentType}-${['tabs', 'card'].includes(componentType) ? _.get(widget, 'config.objectId') : widget.id} flexColumn`}
+    >
       {renderContent()}
     </WidgetContent>
   );

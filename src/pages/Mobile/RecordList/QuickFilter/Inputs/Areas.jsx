@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { Icon, CityPicker } from 'ming-ui';
-import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { CityPicker, Icon } from 'ming-ui';
 
 const AreaCon = styled.div`
   position: relative;
@@ -53,7 +53,8 @@ const AreaItem = styled.span`
 `;
 
 export default function Areas(props) {
-  const { values = [], control, isMultiple, onChange = () => {} } = props;
+  const { values = [], control, isMultiple, onChange = () => {}, projectId } = props;
+  const { chooserange = 'CN' } = control.advancedSetting;
   const tempArea = useRef();
 
   const deleteCurrentArea = item => {
@@ -72,8 +73,10 @@ export default function Areas(props) {
         ))}
         {((!isMultiple && _.isEmpty(values)) || isMultiple) && (
           <CityPicker
-            level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
+            level={control.enumDefault2}
+            chooserange={chooserange}
             showConfirmBtn={true}
+            projectId={projectId}
             callback={area => {
               if (_.last(area)) {
                 tempArea.current = {
@@ -99,8 +102,10 @@ export default function Areas(props) {
         )}
         {!isMultiple && !_.isEmpty(values) && (
           <CityPicker
-            level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
+            level={control.enumDefault2}
+            chooserange={chooserange}
             showConfirmBtn={true}
+            projectId={projectId}
             callback={area => {
               if (_.last(area)) {
                 tempArea.current = {

@@ -1,19 +1,19 @@
 import React from 'react';
-import { func, shape, element, bool } from 'prop-types';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { Icon, Tooltip } from 'ming-ui';
-import cx from 'classnames';
 import { Button } from 'antd';
+import cx from 'classnames';
+import _, { get } from 'lodash';
+import { bool, element, func, shape } from 'prop-types';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
 import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import SearchRecord from 'worksheet/views/components/SearchRecord';
-import styled from 'styled-components';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { browserIsMobile } from 'src/util';
-import _, { get } from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
 import { isPublicLink } from '../../../../components/newCustomFields/tools/utils';
-import renderCellText from 'worksheet/components/CellControls/renderText';
 
 const Con = styled.div`
   display: flex;

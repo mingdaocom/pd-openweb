@@ -11,7 +11,7 @@ import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { emitter } from 'src/util';
+import { emitter } from 'src/utils/common';
 import { updateDraftTotalInfo } from './utils';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
 

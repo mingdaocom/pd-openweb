@@ -18,7 +18,6 @@
 
   // 字段容器
   .customFormItem {
-    float: left;
     width: 100%;
     position: relative;
     flex-direction: column;
@@ -215,10 +214,10 @@
 
   // 只读通用样式
   .customFormReadonly {
-    padding-right: 30px !important;
     height: auto !important;
     min-height: 37px;
-    word-break: break-all;
+    word-break: break-word;
+    overflow-wrap: break-word;
 
     &.spacing {
       letter-spacing: 2px;
@@ -248,7 +247,7 @@
     justify-content: center;
 
     .icon {
-      font-size: 20px;
+      font-size: 24px;
       color: var(--gray-9e);
     }
   }
@@ -364,6 +363,13 @@
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
   }
+
+  .customFormItemSplitLine {
+    margin: 0 -12px;
+    width: calc(100% + 24px);
+    height: 10px;
+    background-color: var(--gray-f5);
+  }
 }
 
 // 通用胶囊样式
@@ -373,8 +379,21 @@
   padding: 2px 12px;
   border-radius: 16px;
   background: var(--gray-f3);
+  border: 1px solid var(--gray-f3);
   word-break: break-all;
   white-space: pre-wrap;
+
+  .capsuleTag {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--gray-f3);
+  }
 
   &.capsuleLink {
     color: var(--color-primary);
@@ -387,6 +406,11 @@
     right: -10px;
     font-size: 22px;
   }
+}
+
+.breakAllWrap {
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 // 错误信息
@@ -430,5 +454,8 @@
 .mobileCheckboxDialog {
   .Checkbox-text {
     font-size: 15px !important;
+  }
+  .adm-list-item {
+    padding-left: 12px !important;
   }
 }

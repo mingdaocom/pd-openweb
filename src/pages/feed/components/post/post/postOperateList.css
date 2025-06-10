@@ -5,13 +5,18 @@
   padding: 7px;
   margin-top: 5px;
 }
+
 .editUpdaterDialog .SelectAllGroup {
   display: inline-block;
   text-align: left;
 }
+
 .postOperatorListContainer .Menu {
   z-index: 2;
+  left: auto !important;
+  right: 0;
 }
+
 .fastCreateTaskSchedule {
   z-index: 2;
   padding: 5px 0;

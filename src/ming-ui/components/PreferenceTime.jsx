@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
-import { dateConvertToUserZone, emitter } from 'src/util';
+import { emitter } from 'src/utils/common';
+import { dateConvertToUserZone } from 'src/utils/project';
 
 function PreferenceTime(props) {
   const { value, type = 1, className = '' } = props;
@@ -26,9 +27,9 @@ function PreferenceTime(props) {
   };
 
   return (
-      <span className={cx(className, 'Hand Hover_9e')} title={isSimplify ? wholeTime : ''} onClick={handleClick}>
-        {isSimplify ? createTimeSpan(time, type) : wholeTime}
-      </span>
+    <span className={cx(className, 'Hand Hover_9e')} title={isSimplify ? wholeTime : ''} onClick={handleClick}>
+      {isSimplify ? createTimeSpan(time, type) : wholeTime}
+    </span>
   );
 }
 

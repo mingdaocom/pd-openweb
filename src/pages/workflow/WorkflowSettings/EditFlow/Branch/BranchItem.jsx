@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
-import { CreateNode, NodeOperate } from '../components';
-import { addFlowNode } from '../../../redux/actions';
-import { getFilterText } from '../../utils';
 import _ from 'lodash';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
+import { addFlowNode } from '../../../redux/actions';
 import { NODE_TYPE } from '../../enum';
+import { getFilterText } from '../../utils';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class BranchItem extends Component {
   constructor(props) {
@@ -144,7 +144,10 @@ export default class BranchItem extends Component {
             <Fragment key={i}>
               {obj.controlId ? (
                 <Fragment>
-                  <span style={{ color: obj.nodeName ? '#151515' : '#f44336' }}>{obj.nodeName || _l('节点已删除')}</span>-
+                  <span style={{ color: obj.nodeName ? '#151515' : '#f44336' }}>
+                    {obj.nodeName || _l('节点已删除')}
+                  </span>
+                  -
                   <span style={{ color: obj.controlName ? '#151515' : '#f44336' }}>
                     {obj.controlName || _l('字段已删除')}
                   </span>
@@ -210,8 +213,8 @@ export default class BranchItem extends Component {
       this.props;
     const { isMove } = this.state;
     const resultTypeText = {
-      1: _l('通过'),
-      2: _l('否决'),
+      1: _l('同意'),
+      2: _l('拒绝'),
       3: _l('有数据'),
       4: _l('无数据'),
     };

@@ -1,13 +1,17 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './less/RadioGroup.less';
 import { includes, isFunction } from 'lodash';
+import PropTypes from 'prop-types';
+import './less/RadioGroup.less';
 
 export const SIZE_LIST = ['small', 'default', 'middle'];
 
 class Radio extends Component {
   static propTypes = {
+    /**
+     * 是否没有margin
+     */
+    noMargin: PropTypes.bool,
     /**
      * Raio显示的名称
      */
@@ -70,15 +74,20 @@ class Radio extends Component {
 
   render() {
     const { checked } = this.state;
-    const { disabled, className, size, icon, text, children, title, disableTitle } = this.props;
+    const { disabled, className, size, icon, text, children, title, disableTitle, noMargin } = this.props;
 
     return (
       <label
         checked={checked}
         className={cx('ming Radio', { 'Radio--disabled': disabled, checked }, className)}
         onClick={this.handleClick}
-        title={!disableTitle && (title || text)}>
-        <span className={cx(SIZE_LIST.includes(size) ? 'Radio-box--' + size : '', 'Radio-box')}>
+        title={!disableTitle && (title || text)}
+        style={noMargin ? { marginRight: 0 } : {}}
+      >
+        <span
+          className={cx(SIZE_LIST.includes(size) ? 'Radio-box--' + size : '', 'Radio-box')}
+          style={noMargin ? { marginRight: 0 } : {}}
+        >
           <span className="Radio-box-round" />
         </span>
         <span className="Radio-text">

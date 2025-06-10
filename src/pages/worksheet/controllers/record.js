@@ -4,10 +4,12 @@ import attachmentAjax from 'src/api/attachment';
 import kcAjax from 'src/api/kc';
 import worksheetAjax from 'src/api/worksheet';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, handleRecordError, updateOptionsOfControls } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { emitter } from 'src/util';
+import { emitter } from 'src/utils/common';
+import { checkCellIsEmpty, updateOptionsOfControls } from 'src/utils/control';
+import { handleRecordError } from 'src/utils/record';
+import { updateRecord } from '../common/recordInfo/crtl';
 
 export async function downloadAttachmentById({
   fileId,
@@ -352,4 +354,20 @@ export async function openControlAttachmentInNewTab({
       window.open(url, '', windowFeatures);
     }
   }
+}
+
+export function updateRelateRecordSorts({ appId, viewId, worksheetId, recordId, changes = [] }) {
+  updateRecord(
+    {
+      appId,
+      viewId,
+      worksheetId,
+      recordId,
+      updateControlIds: changes.map(c => c.controlId),
+      data: changes,
+    },
+    (err, data) => {
+      console.log(err, data);
+    },
+  );
 }

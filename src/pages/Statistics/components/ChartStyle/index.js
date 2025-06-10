@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Collapse, Checkbox, Switch, Input, Tooltip, Select } from 'antd';
-import { Count, Location } from './components/Count';
+import { Collapse, Checkbox, Switch, Input, Tooltip } from 'antd';
+import { Count } from './components/Count';
 import DataFilter from './components/DataFilter';
 import Label from './components/Label';
 import XAxis from './components/XAxis';
@@ -15,6 +15,7 @@ import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './compon
 import pivotTableCountPanelGenerator from './components/PivotTableCount';
 import allCountPanelGenerator from './components/AllCount';
 import Color from './components/Color/index';
+import TitleStyles from './components/TitleStyles';
 import PivotTableFieldColor from './components/PivotTableFieldColor/index';
 import topChartPanelGenerator from './components/TopChartPanel';
 import { reportTypes, LegendTypeData } from 'statistics/Charts/common';
@@ -572,8 +573,7 @@ export default class ChartStyle extends Component {
   }
   renderTitle() {
     const { currentReport, changeCurrentReport } = this.props;
-    const { name, desc, displaySetup } = currentReport;
-    const { showTitle = true } = displaySetup;
+    const { showTitle = true } = currentReport.displaySetup;
     return (
       <Collapse.Panel
         key="title"
@@ -592,32 +592,11 @@ export default class ChartStyle extends Component {
           />
         }
       >
-        <div className="mBottom12">
-          <div className="mBottom8">{_l('显示标题')}</div>
-          <Input
-            value={name}
-            className="chartInput w100 mBottom12"
-            placeholder={_l('添加图表标题')}
-            onChange={event => {
-              changeCurrentReport({
-                name: event.target.value
-              }, false);
-            }}
-          />
-          <div className="mBottom8">{_l('显示说明')}</div>
-          <Input.TextArea
-            rows={4}
-            className="chartInput w100"
-            autoSize={{ minRows: 4, maxRows: 6 }}
-            placeholder={_l('添加图表描述')}
-            value={desc}
-            onChange={event => {
-              changeCurrentReport({
-                desc: event.target.value
-              }, false);
-            }}
-          />
-        </div>
+        <TitleStyles
+          {...this.props}
+          onChangeCurrentReport={changeCurrentReport}
+          onChangeStyle={this.handleChangeStyle}
+        />
       </Collapse.Panel>
     );
   }

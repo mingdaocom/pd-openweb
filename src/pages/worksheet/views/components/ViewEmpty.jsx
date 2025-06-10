@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
-import { browserIsMobile } from 'src/util';
+import styled from 'styled-components';
+import { browserIsMobile } from 'src/utils/common';
 import withoutRows from './assets/withoutRows.png';
 
 const ViewEmptyWrap = styled.div`

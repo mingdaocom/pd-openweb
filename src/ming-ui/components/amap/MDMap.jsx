@@ -1,19 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, ScrollView, Icon } from 'ming-ui';
-import { Popup } from 'antd-mobile';
-import MapLoader from './MapLoader';
-import MapHandler from './MapHandler';
-import '../less/MDMap.less';
 import { Tooltip } from 'antd';
-import _ from 'lodash';
-import markImg from './img/mark_r.png';
+import { Popup } from 'antd-mobile';
 import cx from 'classnames';
-import CustomLocation from './components/CustomLocation';
-import OperatorIcon from './components/OperatorIcon';
-import GoogleMap from './components/GoogleMap';
-import { AnimationWrap } from 'src/pages/widgetConfig/styled/index.js';
+import _ from 'lodash';
+import { Dialog, Icon, ScrollView } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { getMapConfig } from 'src/util';
+import { AnimationWrap } from 'src/pages/widgetConfig/styled/index.js';
+import { getMapConfig } from 'src/utils/control';
+import CustomLocation from './components/CustomLocation';
+import GoogleMap from './components/GoogleMap';
+import OperatorIcon from './components/OperatorIcon';
+import markImg from './img/mark_r.png';
+import MapHandler from './MapHandler';
+import MapLoader from './MapLoader';
+import '../less/MDMap.less';
 
 const MAP_TYPE = [
   { text: _l('地图位置'), value: 0 },

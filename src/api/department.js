@@ -237,6 +237,19 @@ export default {
      return mdyAPI('Department', 'GetProjectDepartmentUsers', args, options);
    },
   /**
+  * 获取 置顶的前 50 名成员（n名）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.departmentId 部门id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTopDisplayMembers: function (args, options = {}) {
+     
+     return mdyAPI('Department', 'GetTopDisplayMembers', args, options);
+   },
+  /**
   * 网络管理 - 获取网络的总人数以及未加入任何部门成员详情
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -265,6 +278,48 @@ export default {
    moveDepartment: function (args, options = {}) {
      
      return mdyAPI('Department', 'MoveDepartment', args, options);
+   },
+  /**
+  * 设置 部门成员 置顶（显示顺序）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.departmentId 部门Id
+  * @param {string} args.memberId 置顶 成员Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setTopDisplayOrder: function (args, options = {}) {
+     
+     return mdyAPI('Department', 'SetTopDisplayOrder', args, options);
+   },
+  /**
+  * 取消 部门成员 置顶（显示顺序）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.departmentId 部门Id
+  * @param {string} args.memberId 置顶 成员Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   cancelTopDisplayOrder: function (args, options = {}) {
+     
+     return mdyAPI('Department', 'CancelTopDisplayOrder', args, options);
+   },
+  /**
+  * 设置 部门成员 置顶（显示顺序）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.departmentId 部门Id
+  * @param {array} args.orderedMemberIds 排好序的 置顶 成员Ids
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   resetTopDisplayOrders: function (args, options = {}) {
+     
+     return mdyAPI('Department', 'ResetTopDisplayOrders', args, options);
    },
   /**
   * 根据部门Id 获取完整的部门路径

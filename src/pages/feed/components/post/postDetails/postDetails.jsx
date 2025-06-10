@@ -1,12 +1,12 @@
 ﻿import React from 'react';
+import { Provider } from 'react-redux';
 import store from 'redux/configureStore';
 import PropTypes from 'prop-types';
-import { Provider } from 'react-redux';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { emitter } from 'src/utils/common';
 import { addSuccess } from '../../../redux/postActions';
-import PostCard from '../post/postCard';
 import PostBody from '../post/postBody';
-import { emitter, getAppFeaturesPath } from 'src/util';
-
+import PostCard from '../post/postCard';
 import '../../app/feed.css';
 import '../../app/style.css';
 import './detailStyle.css';

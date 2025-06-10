@@ -1,11 +1,12 @@
 import React, { createRef } from 'react';
+import cx from 'classnames';
+import styled from 'styled-components';
 import intlTelInput from 'ming-ui/components/intlTelInput';
 import { captcha } from 'ming-ui/functions';
-import cx from 'classnames';
-import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
-import styled from 'styled-components';
-import { browserIsMobile, encrypt } from 'src/util';
 import externalPortalAjax from 'src/api/externalPortal';
+import { ActionResult, CodeTypeEnum } from 'src/pages/AuthService/config';
+import { browserIsMobile } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
 
 const AccountWrap = styled.div`
   .iti {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Carousel } from 'antd';
-import styled from 'styled-components';
-import _ from 'lodash';
-import { coverUrls } from './utils';
-import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { browserIsMobile } from 'src/utils/common';
+import { coverUrls } from './utils';
 
 const CarouselWrapper = styled(Carousel)`
   &.slick-slider .slick-dots {

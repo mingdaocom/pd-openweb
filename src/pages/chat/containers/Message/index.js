@@ -1,25 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import './index.less';
-import * as utils from '../../utils';
-import MessageToolbar from '../../components/Message/MessageToolbar';
-import MessageRefer from '../../components/Message/MessageRefer';
-import MessageRetry from '../../components/Message/MessageRetry';
-import SystemMessage from '../../components/Message/SystemMessage';
-import TextMessage from '../../components/Message/TextMessage';
-import ImageMessage from '../../components/Message/ImageMessage';
-import FileMessage from '../../components/Message/FileMessage';
-import WorksheetFileMessage from '../../components/Message/WorksheetFileMessage';
-import KcFileMessage from '../../components/Message/KcFileMessage';
+import { UserCard } from 'ming-ui';
+import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 import AudioMessage from '../../components/Message/AudioMessage';
 import CardMessage from '../../components/Message/CardMessage';
+import FileMessage from '../../components/Message/FileMessage';
+import ImageMessage from '../../components/Message/ImageMessage';
+import KcFileMessage from '../../components/Message/KcFileMessage';
 import MapMessage from '../../components/Message/MapMessage';
-
-import Constant from '../../utils/constant';
+import MessageRefer from '../../components/Message/MessageRefer';
+import MessageRetry from '../../components/Message/MessageRetry';
+import MessageToolbar from '../../components/Message/MessageToolbar';
+import SystemMessage from '../../components/Message/SystemMessage';
+import TextMessage from '../../components/Message/TextMessage';
+import WorksheetFileMessage from '../../components/Message/WorksheetFileMessage';
 import * as actions from '../../redux/actions';
+import * as utils from '../../utils';
+import Constant from '../../utils/constant';
 import * as socket from '../../utils/socket';
-import { UserCard } from 'ming-ui';
+import './index.less';
 
 class Message extends Component {
   constructor(props) {
@@ -138,6 +138,7 @@ class Message extends Component {
     const { message, nextMessage, session } = this.props;
     const { fromAccount = {}, timestamp, isMine, unreadLine, isMineMessage } = message;
     const isDuplicated = message.isDuplicated && message.from === nextMessage.from;
+
     return (
       <div data-isminemessage={isMineMessage || false}>
         {unreadLine ? (
@@ -168,7 +169,7 @@ class Message extends Component {
           />
           {!isDuplicated ? (
             <div className="Message-from">
-              <UserCard sourceId={fromAccount.id} disabled={!fromAccount}>
+              <UserCard sourceId={fromAccount.id} disabled={!fromAccount} projectId={_.get(session, 'project.projectId')}>
                 <img
                   ref={avatar => {
                     this.avatar = avatar;

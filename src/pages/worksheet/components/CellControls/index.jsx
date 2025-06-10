@@ -1,45 +1,90 @@
 import React from 'react';
+import _, { get, includes, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
-import { controlState, onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import {
-  checkIsTextControl,
-  handleCopyControlText,
-  isSameTypeForPaste,
-  handlePasteUpdateCell,
-  getCopyControlText,
-} from '../../util';
-import { accDiv } from 'src/util';
+import { controlState, onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { accDiv } from 'src/utils/common';
+import { checkIsTextControl, getCopyControlText, handleCopyControlText } from 'src/utils/control';
 import SheetContext from '../../common/Sheet/SheetContext';
-import Text from './Text';
 import Area from './Area';
-import Location from './Location';
-import RichText from './RichText';
+import Attachments from './Attachments';
+import BarCode from './BarCode';
+import Cascader from './Cascader';
 import Date from './Date';
-import User from './User';
-import Options from './Options';
-import OptionSteps from './OptionSteps';
 import Department from './Department';
 import Level from './Level';
-import Relation from './Relation';
-import Attachments from './Attachments';
+import Location from './Location';
+import MobilePhone from './MobilePhone';
+import NumberSlider from './NumberSlider';
+import Options from './Options';
+import OptionSteps from './OptionSteps';
+import OrgRole from './OrgRole';
 import RelateRecord from './RelateRecord';
+import Relation from './Relation';
+import RelationSearch from './RelationSearch';
+import RichText from './RichText';
+import Search from './Search';
 import Signature from './Signature';
 import Switch from './Switch';
-import MobilePhone from './MobilePhone';
-import Cascader from './Cascader';
-import NumberSlider from './NumberSlider';
-import BarCode from './BarCode';
+import Text from './Text';
 import Time from './Time';
-import OrgRole from './OrgRole';
-import Search from './Search';
-import RelationSearch from './RelationSearch';
-
+import User from './User';
 import './CellControls.less';
-import _, { get, includes, isUndefined } from 'lodash';
+
+export function isSameTypeForPaste(type1, type2) {
+  if (_.includes([15, 16], type1) && _.includes([15, 16], type2)) {
+    return true;
+  } else {
+    return type1 === type2;
+  }
+}
+
+export function handlePasteUpdateCell(cell, pasteData, update = () => {}) {
+  // WIDGETS_TO_API_TYPE_ENUM
+  if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE,
+        WIDGETS_TO_API_TYPE_ENUM.NUMBER,
+        WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
+        WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
+        WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
+        WIDGETS_TO_API_TYPE_ENUM.DATE,
+        WIDGETS_TO_API_TYPE_ENUM.DATE_TIME,
+        WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
+        WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
+        WIDGETS_TO_API_TYPE_ENUM.SCORE,
+        WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET,
+        WIDGETS_TO_API_TYPE_ENUM.CASCADER,
+        WIDGETS_TO_API_TYPE_ENUM.SWITCH,
+        WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT,
+        WIDGETS_TO_API_TYPE_ENUM.TIME,
+        WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
+        WIDGETS_TO_API_TYPE_ENUM.LOCATION,
+      ],
+      cell.type,
+    )
+  ) {
+    update(pasteData.value);
+  } else if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE,
+        WIDGETS_TO_API_TYPE_ENUM.AREA_CITY,
+        WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY,
+      ],
+      cell.type,
+    )
+  ) {
+    update(safeParse(pasteData.value).code);
+  }
+  // ATTACHMENT: 14,
+  // SIGNATURE
+}
 
 function mergeControlAdvancedSetting(control = {}, advancedSetting = {}) {
   return {
@@ -306,12 +351,12 @@ export default class CellControl extends React.Component {
     const { tableType, cell, onClick } = this.props;
     const { isediting } = this.state;
     const haveEditingStatus = this.haveEditingStatus(cell);
-    if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
+    if (e.key.toLowerCase() === 'c' && (e.metaKey || e.ctrlKey)) {
       this.handleCopy(cell);
       return;
     }
     if (
-      e.key === 'v' &&
+      e.key.toLowerCase() === 'v' &&
       (e.metaKey || e.ctrlKey) &&
       (!_.includes([2, 4, 7, 5, 6, 8], cell.type) ||
         (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2'))
@@ -319,7 +364,7 @@ export default class CellControl extends React.Component {
       this.handlePaste(cell);
       return;
     }
-    if ((e.metaKey || e.ctrlKey) && !(e.key === 'v' && checkIsTextControl(cell.type))) {
+    if ((e.metaKey || e.ctrlKey) && !(e.key.toLowerCase() === 'v' && checkIsTextControl(cell.type))) {
       return;
     }
     window.cellLastKey = e.key;
@@ -462,7 +507,17 @@ export default class CellControl extends React.Component {
     } catch (err) {
       console.error(err);
     }
-    const { tableType, clickEnterEditing, cell, cellIndex, cache, onClick, onFocusCell, onMouseDown } = this.props;
+    const {
+      tableType,
+      clickEnterEditing,
+      cell,
+      cellIndex,
+      cache,
+      onClick,
+      triggerClickImmediate,
+      onFocusCell,
+      onMouseDown,
+    } = this.props;
     onMouseDown();
     const haveEditingStatus = this.haveEditingStatus(cell);
     if (tableType === 'classic') {
@@ -475,7 +530,7 @@ export default class CellControl extends React.Component {
         return;
       }
     }
-    if (!haveEditingStatus || tableType === 'simple') {
+    if (!haveEditingStatus || tableType === 'simple' || triggerClickImmediate) {
       if (!window.getSelection().toString()) {
         onClick(...args);
       }
@@ -675,7 +730,7 @@ export default class CellControl extends React.Component {
       return <Text {...props} needLineLimit={needLineLimit} />;
     }
     if (
-      cell.type === 11 &&
+      _.includes([9, 11], cell.type) &&
       (columnStyle.showtype === 2 ||
         (cell.advancedSetting.showtype === '2' && (isUndefined(columnStyle.showtype) || isediting)))
     ) {

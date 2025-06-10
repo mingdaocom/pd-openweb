@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import Icon from 'ming-ui/components/Icon';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import EditGroupMenuItem from './EditGroupMenuItem';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
+import Icon from 'ming-ui/components/Icon';
+import Menu from 'ming-ui/components/Menu';
+import MenuItem from 'ming-ui/components/MenuItem';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getCurrentProject } from 'src/utils/project';
+import EditGroupMenuItem from './EditGroupMenuItem';
 
 const ROLE_OPERATION = {
   // 无权限
@@ -64,7 +67,10 @@ export default ({
   isGoodsStatus,
   ...propsRest
 }) => {
-  let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)];
+  const allowDelete =
+    !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
+    hasPermission(propsRest.myPermissions, PERMISSION_ENUM.CREATE_APP);
+  let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)].filter(v => (allowDelete ? true : v.type !== 'del'));
   if (!list.length) return null;
   if (disabledCopy) {
     list = update(list, { $splice: [[1, 1]] });

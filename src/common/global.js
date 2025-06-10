@@ -7,8 +7,8 @@ import qs from 'query-string';
 import { v4 as uuidv4 } from 'uuid';
 import { antAlert, destroyAlert } from 'ming-ui/functions/alert';
 import versionApi from 'src/api/version';
-import { PUBLIC_KEY } from 'src/util/enum';
-import { getPssId } from 'src/util/pssId';
+import { PUBLIC_KEY } from 'src/utils/enum';
+import { getPssId } from 'src/utils/pssId';
 import langConfig from './langConfig';
 
 const axios = baseAxios.create();
@@ -68,6 +68,10 @@ axios.interceptors.request.use(
  * 获取当前语言
  */
 window.getCurrentLang = (hasDefault = true) => {
+  if (window.defaultLang) {
+    return window.defaultLang;
+  }
+
   const currentLang = getCookie('i18n_langtag');
 
   if (currentLang) {
@@ -459,7 +463,14 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'Integration',
   ];
 
-  if (location.href.indexOf('/public/') > -1 && clientId && _.includes(needClientIdControllerNames, controllerName)) {
+  if (
+    (location.href.indexOf('/public/') > -1 && clientId && _.includes(needClientIdControllerNames, controllerName)) ||
+    ((location.href.indexOf('/portal/network') > -1 ||
+      location.href.indexOf('/portal/login') > -1 ||
+      location.href.indexOf('theportal.cn/network') > -1 ||
+      location.href.indexOf('theportal.cn/login') > -1) &&
+      clientId)
+  ) {
     headers.clientId = clientId;
   }
 
@@ -772,6 +783,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
           import('src/router/navigateTo').then(({ navigateToLogin }) => {
             navigateToLogin({ needSecondCheck: true });
           });
+          reject(error.response);
           return;
         }
 

@@ -84,7 +84,7 @@ const SmallCard = props => {
           {_l('在线编辑')}
         </MenuItem>
       )}
-      {allowDownload && (
+      {allowDownload && !showDownloadOfDeleteBtn && (
         <MenuItem
           key="download"
           icon={<Icon icon="download" className="Font17 pRight5" />}
@@ -101,7 +101,7 @@ const SmallCard = props => {
           {_l('下载')}
         </MenuItem>
       )}
-      {isDeleteFile && (
+      {isDeleteFile && !showDownloadOfDeleteBtn && (
         <MenuItem
           key="delete"
           icon={<Icon icon="task-new-delete" className="Font17 pRight5" />}

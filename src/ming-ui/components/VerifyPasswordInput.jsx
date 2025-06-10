@@ -1,8 +1,8 @@
-import React, { Fragment, useState, useRef } from 'react';
-import { Checkbox, Tooltip } from 'ming-ui';
+import React, { Fragment, useRef, useState } from 'react';
 import { Input } from 'antd';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
+import { Checkbox, Tooltip } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
 
 const Password = styled(Input.Password)`
   box-shadow: none !important;
@@ -125,7 +125,7 @@ export default function VerifyPasswordInput(props) {
       </div>
 
       <div style={{ height: 0, overflow: 'hidden' }}>
-        // 用来避免浏览器将用户名塞到其它input里
+        {/* 用来避免浏览器将用户名塞到其它input里 */}
         <input type="text" />
       </div>
       <Password
@@ -133,6 +133,8 @@ export default function VerifyPasswordInput(props) {
         autoFocus={autoFocus}
         autoComplete="new-password"
         placeholder={_l('请输入当前用户的密码')}
+        readOnly
+        onFocus={e => e.target.removeAttribute('readOnly')}
         onChange={e => onChange({ password: e.target.value, isNoneVerification })}
       />
 

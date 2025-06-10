@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
-import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
-import ajaxRequest from 'src/api/appManagement';
-import Config from '../../../config';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import './index.less';
+import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import ajaxRequest from 'src/api/appManagement';
+import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import Config from '../../../config';
+import './index.less';
 
 const optionTypeData = [
   { label: _l('所有类型'), type: 0 },

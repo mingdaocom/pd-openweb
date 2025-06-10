@@ -9,15 +9,18 @@ import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
-import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { addBehaviorLog, getTranslateInfo, handlePushState, handleReplaceState } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { getTranslateInfo } from 'src/utils/app';
+import { completeControls } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import SearchInput from '../ChildTable/SearchInput';
 import RelateScanQRCode from '../RelateScanQRCode';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
@@ -76,6 +79,13 @@ const RecordTagsWrap = styled.div`
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+`;
+
+const OperateWrap = styled.div`
+  justify-content: flex-end;
+  margin-top: -6px;
+  position: absolute;
+  top: -34px;
 `;
 
 class RelateRecordCards extends Component {
@@ -245,6 +255,12 @@ class RelateRecordCards extends Component {
     );
   }
 
+  get isRealCard() {
+    const { control = {} } = this.props;
+    const advancedSetting = control.advancedSetting || {};
+    return advancedSetting.showtype === '1';
+  }
+
   get showAddAsDropdown() {
     const { control = {} } = this.props;
     const { choosetype = '2' } = control.advancedSetting || {};
@@ -359,6 +375,7 @@ class RelateRecordCards extends Component {
   loadMoreRecords = (pageIndex = 2, nextProps) => {
     const { from, controlId, recordId, worksheetId, advancedSetting, instanceId, workId } = (nextProps || this.props)
       .control;
+    const { keywords } = this.state;
     this.setState({
       isLoadingMore: true,
     });
@@ -372,15 +389,17 @@ class RelateRecordCards extends Component {
         getType: from === FROM.DRAFT ? from : undefined,
         instanceId,
         workId,
+        keywords,
       })
       .then(res => {
         this.setState(state => {
-          const newRecords = _.uniqBy([...state.records, ...res.data], 'rowid');
+          const data = _.get(res, 'data') || [];
+          const newRecords = pageIndex === 1 ? data : _.uniqBy([...state.records, ...data], 'rowid');
           const newState = {
             records: newRecords,
             pageIndex,
             isLoadingMore: false,
-            showLoadMore: newRecords.length < res.count && res.data.length > 0,
+            showLoadMore: newRecords.length < res.count && data.length > 0,
           };
           if (
             _.includes(['2', '5'], _.get(advancedSetting, 'showtype')) &&
@@ -468,13 +487,51 @@ class RelateRecordCards extends Component {
   handleAdd = newAdded => {
     const { multiple } = this.props;
     const { count, records, addedIds = [] } = this.state;
-    newAdded = newAdded.map(r => ({ ...r, isNewAdd: true })).slice(0, MAX_COUNT - count);
+    const { isRealCard } = this;
+    newAdded = newAdded.map(r => ({ ...r, isNewAdd: true }));
+    if (isRealCard) {
+      newAdded = newAdded.slice(0, MAX_COUNT - count);
+    }
     const newRecords = multiple ? _.uniqBy(newAdded.concat(records), r => r.rowid) : newAdded;
     this.setState(
       {
         records: newRecords,
         count: count + newAdded.length,
         addedIds: addedIds.concat(newAdded.map(r => r.rowid)),
+      },
+      this.handleChange,
+    );
+  };
+
+  updateRelateRecord = cells => {
+    const { records } = this.state;
+    const targetRow = cells.find(item => item.controlId === 'rowid') || {};
+    const targetRowId = targetRow.value;
+
+    if (!targetRowId) return;
+
+    const valueObj = {};
+    cells.forEach(({ controlId, value }) => {
+      if (controlId !== 'rowid') {
+        valueObj[controlId] = value;
+      }
+    });
+
+    const updatedRecords = records.map(item => {
+      if (item.rowid === targetRowId) {
+        const newItem = { ...item };
+        Object.keys(newItem).forEach(key => {
+          if (key !== 'rowid' && valueObj.hasOwnProperty(key)) {
+            newItem[key] = valueObj[key];
+          }
+        });
+        return newItem;
+      }
+      return item;
+    });
+    this.setState(
+      {
+        records: updatedRecords,
       },
       this.handleChange,
     );
@@ -530,10 +587,10 @@ class RelateRecordCards extends Component {
     const { control } = this.props;
     const { records } = this.state;
     const { enumDefault2, controlId } = control;
-
+    const { isRealCard } = this;
     // if (!$(evt.target).closest('.relateRecordBtn').length) return;
     let count = _.isUndefined(this.state.count) ? records.length : this.state.count;
-    if (count >= MAX_COUNT) {
+    if (isRealCard && count >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
     }
@@ -624,7 +681,7 @@ class RelateRecordCards extends Component {
       sheetSwitchPermit,
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
-    const { allowReplaceRecord, isCard } = this;
+    const { allowReplaceRecord, isCard, addRelationButtonVisible } = this;
     const { records, showAll, showLoadMore, isLoadingMore, pageIndex } = this.state;
     const allowlink = (advancedSetting || {}).allowlink;
     const controlPermission = controlState(control, from);
@@ -632,45 +689,46 @@ class RelateRecordCards extends Component {
       (control.advancedSetting.allowcancel !== '0' || enumDefault === 1) && controlPermission.editable;
     if (isCard || this.mobileShowAddAsDropdown) {
       return (
-        <div className="flexColumn" style={{ gap: disabled ? 10 : 14, marginBottom: disabled ? 6 : 0 }}>
-          {!!records.length &&
-            (showAll || records.length <= 3 ? records : records.slice(0, 3)).map((record, i) => (
-              <RecordCoverCard
-                className={cardClassName}
-                hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
-                showAddAsDropdown={this.showAddAsDropdown}
-                from={from}
-                projectId={projectId}
-                viewId={viewId}
-                allowReplaceRecord={allowReplaceRecord}
-                disabled={disabled || (!allowRemove && !record.isNewAdd)}
-                isCharge={isCharge}
-                key={i}
-                controls={this.controls}
-                sheetSwitchPermit={sheetSwitchPermit}
-                data={record}
-                cover={this.getCoverUrl(coverCid, record)}
-                allowlink={allowlink}
-                parentControl={control}
-                sourceEntityName={sourceEntityName}
-                onClick={
-                  !allowOpenRecord ||
-                  (this.mobileShowAddAsDropdown && !disabled && advancedSetting.allowlink === '1') ||
-                  (control.isSubList && _.get(window, 'shareState.shareId')) ||
-                  allowlink === '0' ||
-                  !record.rowid ||
-                  /^temp/.test(record.rowid)
-                    ? () => {}
-                    : () => {
-                        handlePushState('page', `relateRecord-${recordId}`);
-                        addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
-                        this.setState({ previewRecord: { recordId: record.rowid } });
-                      }
-                }
-                onDelete={() => this.handleDelete(record)}
-                onReplaceRecord={() => this.handleReplaceRecord(record)}
-              />
-            ))}
+        <div style={{ marginBottom: disabled ? 6 : 0 }}>
+          {records.length
+            ? (showAll || records.length <= 3 ? records : records.slice(0, 3)).map((record, i) => (
+                <RecordCoverCard
+                  className={cardClassName}
+                  hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
+                  showAddAsDropdown={this.showAddAsDropdown}
+                  from={from}
+                  projectId={projectId}
+                  viewId={viewId}
+                  allowReplaceRecord={allowReplaceRecord}
+                  disabled={disabled || (!allowRemove && !record.isNewAdd)}
+                  isCharge={isCharge}
+                  key={i}
+                  controls={this.controls}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  data={record}
+                  cover={this.getCoverUrl(coverCid, record)}
+                  allowlink={allowlink}
+                  parentControl={control}
+                  sourceEntityName={sourceEntityName}
+                  onClick={
+                    !allowOpenRecord ||
+                    (this.mobileShowAddAsDropdown && !disabled && advancedSetting.allowlink === '1') ||
+                    (control.isSubList && _.get(window, 'shareState.shareId')) ||
+                    allowlink === '0' ||
+                    !record.rowid ||
+                    /^temp/.test(record.rowid)
+                      ? () => {}
+                      : () => {
+                          handlePushState('page', `relateRecord-${recordId}`);
+                          addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
+                          this.setState({ previewRecord: { recordId: record.rowid } });
+                        }
+                  }
+                  onDelete={() => this.handleDelete(record)}
+                  onReplaceRecord={() => this.handleReplaceRecord(record)}
+                />
+              ))
+            : isCard && !addRelationButtonVisible && <div className="customFormNull"></div>}
           {records.length > 3 && (
             <div>
               {recordId && showLoadMore && showAll && (
@@ -722,14 +780,14 @@ class RelateRecordCards extends Component {
             title={record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)}
             enumDefault={enumDefault}
             onClick={
-              !allowOpenRecord || (disabled && !recordId)
-                ? () => {}
+              !allowOpenRecord
+                ? null
                 : () => {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {
                       openRelateSheet('', record.wsid, record.rowid, viewId);
                     } else {
                       handlePushState('page', `relateRecord-${recordId}`);
-                      disabled && this.setState({ previewRecord: { recordId: record.rowid } });
+                      this.setState({ previewRecord: { recordId: record.rowid } });
                     }
                   }
             }
@@ -760,7 +818,7 @@ class RelateRecordCards extends Component {
       sourceBtnName,
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
-    const { records, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
+    const { records, previewRecord, showNewRecord, sheetTemplateLoading, keywords, isMobileSearchFocus } = this.state;
     const {
       onlyRelateByScanCode,
       disabledManualWrite,
@@ -800,14 +858,34 @@ class RelateRecordCards extends Component {
       );
     }
 
-    const shouldShowMargin = (isCard && addRelationButtonVisible) || mobileShowAddAsDropdown;
+    const shouldShowMargin = (isCard && addRelationButtonVisible) || (mobileShowAddAsDropdown && !disabled);
     let marginClass = disabled ? 'mBottom10' : 'mBottom14';
 
     return (
       <Fragment>
+        {disabled && formDisabled && enumDefault === 2 && isCard && (
+          <OperateWrap className="w100 flexRow">
+            <SearchInput
+              inputWidth={100}
+              searchIcon={<i className="icon icon-search" />}
+              keywords={keywords}
+              focusedClass={cx({ mRight10: !isMobileSearchFocus })}
+              onOk={value => {
+                this.setState({ keywords: value, pageIndex: 1 }, () => this.loadMoreRecords(1));
+              }}
+              onClear={() => {
+                this.setState({ keywords: '', pageIndex: 1, isMobileSearchFocus: false }, () =>
+                  this.loadMoreRecords(1),
+                );
+              }}
+              onFocus={() => this.setState({ isMobileSearchFocus: true })}
+              onBlur={() => this.setState({ isMobileSearchFocus: false })}
+            />
+          </OperateWrap>
+        )}
         <div
           className={cx('flexRow valignWrapper', {
-            [marginClass]: shouldShowMargin,
+            [marginClass]: shouldShowMargin && records.length,
           })}
         >
           {isCard && addRelationButtonVisible && (
@@ -816,7 +894,7 @@ class RelateRecordCards extends Component {
               <span>{sourceBtnName || sourceEntityName || ''}</span>
             </div>
           )}
-          {!isCard && (
+          {!isCard && (!disabled || !mobileShowAddAsDropdown) && (
             <div
               className={cx('customFormControlBox controlMinHeight customFormControlCapsuleBox', {
                 controlEditReadonly: !formDisabled && records.length && disabled,
@@ -849,6 +927,7 @@ class RelateRecordCards extends Component {
                 filterControls={filterControls}
                 parentWorksheetId={worksheetId}
                 control={control}
+                relateRecordIds={records.map(r => r.rowid)}
                 onChange={data => {
                   this.handleAdd([data]);
                 }}
@@ -870,12 +949,14 @@ class RelateRecordCards extends Component {
             visible
             appId={appId}
             worksheetId={dataSource}
+            relationWorksheetId={worksheetId}
             viewId={advancedSetting.openview || control.viewId}
             rowId={previewRecord && previewRecord.recordId}
             from={from === FROM.DRAFT ? 3 : 1}
             disableOpenRecordFromRelateRecord={
               _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView')
             }
+            updateRelateRecord={this.updateRelateRecord}
             onClose={() => {
               this.setState({ previewRecord: undefined });
               if (_.isFunction(control.refreshRecord)) {

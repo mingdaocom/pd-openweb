@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Linkify } from 'ming-ui';
-import { formatNumberThousand, formatStrZero } from 'src/util';
+import { formatNumberThousand, formatStrZero } from 'src/utils/control';
 
 const Readonly = props => {
   const { value, type, dot, unit, advancedSetting, formDisabled } = props;

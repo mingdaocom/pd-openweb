@@ -1,42 +1,14 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon, Tooltip } from 'ming-ui';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { FlexCenter } from 'worksheet/styled';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
-import cx from 'classnames';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { SwitchStyle } from '../style';
 
-const Wrap = styled.div`
-  border-radius: 3px;
-  width: fit-content;
-  span {
-    display: inline-block;
-    padding: 0 24px;
-    height: 36px;
-    line-height: 36px;
-    border: 1px solid #e0e0e0;
-    &:nth-child(1),
-    &:nth-child(2) {
-      border-right: none;
-    }
-    &:nth-child(1) {
-      border-radius: 3px 0 0 3px;
-    }
-    &:last-child {
-      border-radius: 0 3px 3px 0;
-    }
-    &.current {
-      background: #2196f3;
-      color: #fff !important;
-      border-color: #2196f3;
-    }
-    &:hover {
-      color: #2196f3;
-    }
-  }
-`;
 const MapSettingWrap = styled.div`
   .splitLine {
     border-bottom: 1px solid #eaeaea;
@@ -160,26 +132,18 @@ export default function MapSetting(props) {
           </SwitchStyle>
         </div>
         <div className="title bold mBottom8 mTop24">{_l('标签颜色')}</div>
-        <Wrap className="tagColorWrap">
-          <span
-            className={cx('Hand', { current: Number(advancedSetting.tagType || 0) === 0 })}
-            onClick={() => updateViewTagType(0)}
-          >
-            {_l('浅色')}
-          </span>
-          <span
-            className={cx('Hand', { current: Number(advancedSetting.tagType || 0) === 1 })}
-            onClick={() => updateViewTagType(1)}
-          >
-            {_l('深色')}
-          </span>
-          <span
-            className={cx('Hand', { current: Number(advancedSetting.tagType || 0) === 2 })}
-            onClick={() => updateViewTagType(2)}
-          >
-            {_l('动态颜色')}
-          </span>
-        </Wrap>
+        <AnimationWrap className="tagColorWrap">
+          {[_l('浅色'), _l('深色'), _l('动态颜色')].map((item, i) => {
+            return (
+              <div
+                className={cx('animaItem overflow_ellipsis', { active: Number(advancedSetting.tagType || 0) === i })}
+                onClick={() => updateViewTagType(i)}
+              >
+                {item}
+              </div>
+            );
+          })}
+        </AnimationWrap>
         {Number(advancedSetting.tagType || 0) === 2 && (
           <React.Fragment>
             <div className="title Bold mTop24">

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 export function loading(state = true, action) {
   switch (action.type) {
     case 'WORKSHEET_UPDATE_LOADING':
@@ -6,6 +7,17 @@ export function loading(state = true, action) {
     case 'WORKSHEET_INIT':
     case 'WORKSHEET_INIT_FAIL':
       return false;
+    case 'WORKSHEET_FETCH_START':
+      return true;
+    default:
+      return state;
+  }
+}
+
+export function operateButtonLoading(state = true, action) {
+  switch (action.type) {
+    case 'WORKSHEET_UPDATE_OPERATE_BUTTON_LOADING':
+      return action.loading;
     case 'WORKSHEET_FETCH_START':
       return true;
     default:
@@ -100,6 +112,17 @@ export function buttons(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_UPDATE_BUTTONS':
       return action.buttons;
+    case 'WORKSHEET_FETCH_START':
+      return [];
+    default:
+      return state;
+  }
+}
+
+export function printList(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_UPDATE_PRINT_LIST':
+      return action.printList;
     case 'WORKSHEET_FETCH_START':
       return [];
     default:

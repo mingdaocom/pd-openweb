@@ -1,7 +1,7 @@
-﻿import * as ENTITIES_ACTIONS from '../actions/entities';
+﻿import _, { merge } from 'lodash';
+import * as ENTITIES_ACTIONS from '../actions/entities';
 import { SEARCH_SUCCESS } from '../actions/search';
-import _, { merge } from 'lodash';
-import { getParentsId, filterDeleteTreeData, updateTreeData } from '../modules/util';
+import { filterDeleteTreeData, getParentsId, updateTreeData } from '../modules/util';
 
 const ACTIONS = {
   ...ENTITIES_ACTIONS,

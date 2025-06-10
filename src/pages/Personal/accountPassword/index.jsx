@@ -1,20 +1,21 @@
 import React, { Fragment } from 'react';
-import './index.less';
-import account from 'src/api/account';
-import accountSetting from 'src/api/accountSetting';
-import accountGuideController from 'src/api/accountGuide';
 import { Checkbox, Select } from 'antd';
-import { LoadDiv, Tooltip, Dialog, Icon } from 'ming-ui';
-import EditPassword from './EditPassword';
+import cx from 'classnames';
+import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import account from 'src/api/account';
+import accountController from 'src/api/account';
+import accountGuideController from 'src/api/accountGuide';
+import accountSetting from 'src/api/accountSetting';
+import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
+import microsoftImg from 'src/pages/NewPrivateDeployment/images/microsoft.png';
+import { encrypt } from 'src/utils/common';
+import common from '../common';
 import { initBindAcoount } from '../components/InitBindAccountDialog';
 import { validateFunc } from '../components/ValidateInfo';
-import accountController from 'src/api/account';
-import cx from 'classnames';
-import { captcha } from 'ming-ui/functions';
-import common from '../common';
-import { encrypt } from 'src/util';
-import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
 import googleImg from '../images/google.png';
+import EditPassword from './EditPassword';
+import './index.less';
 
 let accountList = [
   { key: 'weiXinBind', icon: 'wechat', color: 'weiBindColor', label: _l('微信') },
@@ -31,6 +32,12 @@ let accountList = [
     iconIsImage: true,
     color: 'googleBindColor',
     label: _l('谷歌'),
+  },
+  {
+    key: 'microsoftBind',
+    iconIsImage: true,
+    color: 'microsoftBindColor',
+    label: _l('微软'),
   },
 ];
 
@@ -52,6 +59,7 @@ const TPType = {
   weiXinBind: 1,
   qqBind: 2,
   googleBind: 13,
+  microsoftBind: 14,
 };
 
 const WORKBINDOPTION = state => {
@@ -107,6 +115,7 @@ export default class AccountChart extends React.Component {
         weiXinBind: account.weiXinBind,
         workBind: account.workBind,
         googleBind: account.googleBind,
+        microsoftBind: account.microsoftBind,
         needInit: account.isIntergration && !account.mobilePhone,
         joinFriendMode: info.joinFriendMode,
         isPrivateMobile: info.isPrivateMobile,
@@ -141,6 +150,12 @@ export default class AccountChart extends React.Component {
         var wHeight = 500;
         var positionObj = this.getWindowPosition(wWidth, wHeight);
         this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
+      } else if (type === 'microsoftBind') {
+        var url = md.global.Config.WebUrl + 'orgsso/microsoft/auth';
+        var wWidth = 750;
+        var wHeight = 500;
+        var positionObj = this.getWindowPosition(wWidth, wHeight);
+        this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
       } else {
         var url = md.global.Config.WebUrl + 'orgsso/qq/auth';
         var wWidth = 750;
@@ -149,7 +164,14 @@ export default class AccountChart extends React.Component {
         this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
       }
     } else {
-      const text = type === 'googleBind' ? _l('谷歌') : type === 'weiXinBind' ? _l('微信') : 'QQ';
+      const text =
+        type === 'googleBind'
+          ? _l('谷歌')
+          : type === 'weiXinBind'
+            ? _l('微信')
+            : type === 'microsoftBind'
+              ? _l('微软')
+              : 'QQ';
       Dialog.confirm({
         title: _l('解绑%0', text),
         description: _l('确认解绑%0，解绑之后不能通过%1登录？', text, text),
@@ -547,7 +569,7 @@ export default class AccountChart extends React.Component {
           </div>
         )}
 
-        {(
+        {
           <Fragment>
             <div className="Font17 Bold Gray mBottom4 mTop20">{_l('第三方账户')}</div>
             <div className="Gray_75 mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
@@ -561,8 +583,8 @@ export default class AccountChart extends React.Component {
                   <span className="bingingItem" key={`bingingItem-${key}`}>
                     {iconIsImage ? (
                       <img
-                        src={key === 'googleBind' ? googleImg : workwxImg}
-                        className={cx('mRight8 iconImg', { googleImg: key === 'googleBind' })}
+                        src={key === 'googleBind' ? googleImg : key === 'microsoftBind' ? microsoftImg : workwxImg}
+                        className={cx('mRight8 iconImg', { googleImg: ['microsoftBind', 'googleBind'].includes(key) })}
                       />
                     ) : (
                       <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
@@ -587,7 +609,7 @@ export default class AccountChart extends React.Component {
             </div>
             <div className="splitLine"></div>
           </Fragment>
-        )}
+        }
         <div className="Font17 Bold Gray mBottom16 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}
         <Dialog

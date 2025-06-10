@@ -1,17 +1,18 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import DragMask from 'worksheet/common/DragMask';
-import GunterDirectory from './Directory';
-import GunterChart from './Chart';
-import { browserIsMobile } from 'src/util';
-import SelectionIndicator from './components/SelectionIndicator';
+import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
+import { browserIsMobile } from 'src/utils/common';
+import GunterChart from './Chart';
+import SelectionIndicator from './components/SelectionIndicator';
+import GunterDirectory from './Directory';
+import { getMaxTime } from './util';
 import './index.less';
-import _ from 'lodash';
 
 const Drag = styled.div(
   ({ left }) => `
@@ -53,11 +54,17 @@ export default class Gunter extends Component {
       this.props.fetchRows();
     } else {
       const gunterViewType = localStorage.getItem('gunterViewType');
-      this.props.updataPeriodType(
-        gunterViewType ? Number(gunterViewType) : calendartype ? Number(calendartype) : PERIOD_TYPE.day,
-      );
+      const periodType = gunterViewType
+        ? Number(gunterViewType)
+        : calendartype
+          ? Number(calendartype)
+          : PERIOD_TYPE.day;
       if (!noLoadAtDidMount) {
-        this.props.fetchRows();
+        this.props.fetchRows(grouping => {
+          this.props.updataPeriodType(periodType, getMaxTime(grouping));
+        });
+      } else {
+        this.props.updataPeriodType(periodType);
       }
     }
 
@@ -72,9 +79,9 @@ export default class Gunter extends Component {
   componentWillReceiveProps({ view }) {
     if (
       view.viewId !== this.props.view.viewId ||
-      view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow || //显示项设置 更新数据
+      view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow ||
       view.advancedSetting.navfilters !== this.props.view.advancedSetting.navfilters ||
-      view.moreSort !== this.props.view.moreSort // 排序
+      !_.isEqual(view.moreSort, this.props.view.moreSort)
     ) {
       this.props.resetLoadGunterView();
       this.setState({
@@ -101,12 +108,20 @@ export default class Gunter extends Component {
       view.advancedSetting.viewtitle !== this.props.view.advancedSetting.viewtitle ||
       view.advancedSetting.milepost !== this.props.view.advancedSetting.milepost ||
       view.advancedSetting.begindate !== this.props.view.advancedSetting.begindate ||
-      view.advancedSetting.enddate !== this.props.view.advancedSetting.enddate
+      view.advancedSetting.enddate !== this.props.view.advancedSetting.enddate ||
+      view.advancedSetting.showgroupcolor !== this.props.view.advancedSetting.showgroupcolor ||
+      view.advancedSetting.navtitle !== this.props.view.advancedSetting.navtitle ||
+      view.advancedSetting.customitems !== this.props.view.advancedSetting.customitems
     ) {
       this.props.updateViewConfig();
       this.props.fetchRows();
     }
-    if (!_.isEqual(view.displayControls, this.props.view.displayControls)) {
+    if (
+      !_.isEqual(view.displayControls, this.props.view.displayControls) ||
+      !_.isEqual(view.showControls, this.props.view.showControls) ||
+      view.advancedSetting.abstract !== this.props.view.advancedSetting.abstract ||
+      view.coverCid !== this.props.view.coverCid
+    ) {
       // 等待 Worksheet/SaveWorksheetView 接口更新 displayControls 后再重新请求
       setTimeout(() => {
         this.props.updateViewConfig();

@@ -331,6 +331,17 @@
         color: rgba(255, 255, 255, 0.9);
       }
     }
+    .flexStart {
+      align-items: flex-start;
+    }
+    .leftAppStyleAppName {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      overflow: hidden;
+    }
   }
 
   .appFixed {
@@ -361,7 +372,7 @@
   .appInfoWrap {
     box-sizing: border-box;
     min-width: 240px;
-    max-width: 420px;
+    max-width: 520px;
     flex-shrink: 0;
 
     .Item-content {
@@ -441,6 +452,7 @@
       padding-left: 3px;
       color: rgba(255, 255, 255, 0.6);
       margin: 0 8px 0 0;
+      height: max-content;
 
       &:hover {
         color: #fff;
@@ -455,6 +467,7 @@
 
     .appIntroWrap {
       margin: 2px 10px 0 0;
+      height: max-content;
     }
 
     .appIntroIcon {
@@ -477,7 +490,7 @@
     margin: 0 2px;
     font-size: 15px;
     font-weight: bold;
-    max-width: 200px;
+    max-width: 300px;
   }
 
   .appIconWrap {

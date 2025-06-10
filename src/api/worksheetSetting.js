@@ -17,6 +17,8 @@ export default {
   * @param {} args.worksheetPaymentSetting
   * @param {boolean} args.isRefundAllowed 是否启用退款
   * @param {boolean} args.isAllowedAddOption 允许新增选项
+  * @param {boolean} args.isAtOncePayment 是否立刻支付
+  * @param {boolean} args.isPaySuccessAddRecord 是否支付成功后才新增记录
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

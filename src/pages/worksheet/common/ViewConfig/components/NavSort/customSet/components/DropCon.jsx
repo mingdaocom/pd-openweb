@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { ScrollView, LoadDiv, Icon } from 'ming-ui';
-import styled from 'styled-components';
-import sheetAjax from 'src/api/worksheet';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import Option from './Options';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { renderText as renderCellText } from 'src/utils/control';
+import Option from './Options';
 
 const Wrap = styled.div`
   .customInput {
@@ -38,7 +38,9 @@ const WrapS = styled.div`
     border-radius: 3px;
     background: white;
     z-index: 11;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.13),
+      0 2px 6px rgba(0, 0, 0, 0.1);
     .recordItem {
       cursor: pointer;
       height: 36px;
@@ -179,8 +181,8 @@ export default function (props) {
                       isSameType([9, 10, 11], controlInfo)
                         ? record.key
                         : isSameType([28], controlInfo)
-                        ? record
-                        : record.rowid,
+                          ? record
+                          : record.rowid,
                     );
                     return (
                       <div

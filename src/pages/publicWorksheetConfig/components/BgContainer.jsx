@@ -1,8 +1,8 @@
 import React from 'react';
+import { Tooltip } from 'antd';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'antd';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 
 const Bg = styled.div`
   overflow: hidden;

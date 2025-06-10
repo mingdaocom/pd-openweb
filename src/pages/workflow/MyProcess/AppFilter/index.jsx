@@ -42,9 +42,15 @@ export default class AppFilter extends Component {
   }
   getWorkFlowList() {
     const { app, processType } = this.state;
-    processVersionApi.list({
+    let request = null;
+    if (processType) {
+      request = processVersionApi.list;
+    } else {
+      request = processVersionApi.listAll;
+    }
+    request({
       relationId: app.id,
-      processListType: processType
+      processListType: processType || undefined
     }).then(data => {
       this.setState({
         processList: _.flatten(data.map(n => n.processList))

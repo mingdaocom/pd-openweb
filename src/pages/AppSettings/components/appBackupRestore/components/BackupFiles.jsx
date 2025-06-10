@@ -1,22 +1,23 @@
 import React, { Fragment, useEffect } from 'react';
-import { ScrollView, Icon, Dialog, Tooltip, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
-import { Dropdown } from 'antd';
 import { useSetState } from 'react-use';
-import RestoreAppDialog from './RestoreAppDialog';
-import EmptyStatus from '../../EmptyStatus';
-import EditInput from './EditInput.jsx';
+import { Dropdown } from 'antd';
 import HomeApiController from 'api/homeApp';
-import appManagementAjax from 'src/api/appManagement';
-import styled from 'styled-components';
-import { downloadFile, getCurrentProject, getFeatureStatus, dateConvertToUserZone } from 'src/util';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { VersionProductType } from 'src/util/enum';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView, Support, Tooltip } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { downloadFile } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { dateConvertToUserZone, getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import EmptyStatus from '../../EmptyStatus';
+import EditInput from './EditInput.jsx';
+import RestoreAppDialog from './RestoreAppDialog';
 
 const ListWrap = styled.div`
   flex: 1;
@@ -47,9 +48,6 @@ const ListWrap = styled.div`
   .header,
   .row {
     border-bottom: 1px solid #dddddd;
-    .actionContent {
-      display: none;
-    }
     .icon-edit {
       display: none !important;
     }
@@ -65,9 +63,6 @@ const ListWrap = styled.div`
     height: 60px;
     &:hover {
       background: #f5f5f5;
-      .actionContent {
-        display: block;
-      }
       .icon-edit {
         display: inline-block !important;
       }
@@ -81,7 +76,16 @@ const ListWrap = styled.div`
 const DataDBInstances = [{ label: _l('系统默认数据库'), value: '' }];
 
 export default function BackupFiles(props) {
-  const { appId, projectId, currentValid, validLimit, permissionType, backupInfo = {}, getList = () => {}, data } = props;
+  const {
+    appId,
+    projectId,
+    currentValid,
+    validLimit,
+    permissionType,
+    backupInfo = {},
+    getList = () => {},
+    data,
+  } = props;
   const { sourceType } = data;
   const [
     {
@@ -363,7 +367,9 @@ export default function BackupFiles(props) {
                     <div className="backupType">{containData ? _l('应用、数据') : _l('应用')}</div>
                     <div className="backupTime">{createTimeSpan(dateConvertToUserZone(operationDateTime))}</div>
                     <div className="size">{containData ? size : '-'}</div>
-                    <div className="operator ellipsis">{operator.fullname}</div>
+                    <div className="operator ellipsis">
+                      {operator.accountId === 'user-system' ? _l('系统定期') : operator.fullname}
+                    </div>
                     <div
                       className={cx('status', {
                         ThemeColor: _.includes([1, 2], status),
@@ -374,14 +380,14 @@ export default function BackupFiles(props) {
                       {status === 1
                         ? _l('排队中...')
                         : status === 2
-                        ? _l('备份中...')
-                        : status === 10
-                        ? _l('失败')
-                        : expired
-                        ? _l('已过期')
-                        : expiredSoon
-                        ? _l('即将过期')
-                        : _l('完成')}
+                          ? _l('备份中...')
+                          : status === 10
+                            ? _l('失败')
+                            : expired
+                              ? _l('已过期')
+                              : expiredSoon
+                                ? _l('即将过期')
+                                : _l('完成')}
 
                       {validLimit !== -1 && (expired || expiredSoon) ? (
                         <Tooltip
@@ -415,49 +421,52 @@ export default function BackupFiles(props) {
                     </div>
                     {_.includes([0, 10], status) ? (
                       <div className="action">
-                        <div className="actionContent pRight10 TxtRight">
+                        <div className="pRight10 TxtRight">
                           {!expired && status === 0 && (
-                            <span className="ThemeColor Hand mRight20" onClick={() => restoreApp(item)}>
+                            <span className="Hand mRight20" onClick={() => restoreApp(item)}>
                               {_l('还原')}
                             </span>
                           )}
-                          {!expired && permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE && status === 0 && sourceType !== 60 && (
-                            <Dropdown
-                              trigger={['click']}
-                              placement={['bottomRight']}
-                              overlayClassName="moreActionDropdown"
-                              overlay={
-                                <Menu>
-                                  <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
-                                  {containData && dataStatus === 1 ? (
-                                    <MenuItem onClick={() => downloadData(item)}>
-                                      <span> {_l('下载数据')}</span>
-                                    </MenuItem>
-                                  ) : (
-                                    <Tooltip
-                                      text={
-                                        !containData ? (
-                                          ''
-                                        ) : dataStatus === 0 ? (
-                                          <span>{_l('不支持下载老数据')}</span>
-                                        ) : dataStatus === 2 ? (
-                                          <span>{_l('数据大于1GB，无法下载')}</span>
-                                        ) : (
-                                          ''
-                                        )
-                                      }
-                                    >
-                                      <MenuItem disabled={true}>
+                          {!expired &&
+                            permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
+                            status === 0 &&
+                            sourceType !== 60 && (
+                              <Dropdown
+                                trigger={['click']}
+                                placement={['bottomRight']}
+                                overlayClassName="moreActionDropdown"
+                                overlay={
+                                  <Menu>
+                                    <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
+                                    {containData && dataStatus === 1 ? (
+                                      <MenuItem onClick={() => downloadData(item)}>
                                         <span> {_l('下载数据')}</span>
                                       </MenuItem>
-                                    </Tooltip>
-                                  )}
-                                </Menu>
-                              }
-                            >
-                              <span className="ThemeColor Hand mRight20">{_l('下载')}</span>
-                            </Dropdown>
-                          )}
+                                    ) : (
+                                      <Tooltip
+                                        text={
+                                          !containData ? (
+                                            ''
+                                          ) : dataStatus === 0 ? (
+                                            <span>{_l('不支持下载老数据')}</span>
+                                          ) : dataStatus === 2 ? (
+                                            <span>{_l('数据大于1GB，无法下载')}</span>
+                                          ) : (
+                                            ''
+                                          )
+                                        }
+                                      >
+                                        <MenuItem disabled={true}>
+                                          <span> {_l('下载数据')}</span>
+                                        </MenuItem>
+                                      </Tooltip>
+                                    )}
+                                  </Menu>
+                                }
+                              >
+                                <span className="Hand mRight20">{_l('下载')}</span>
+                              </Dropdown>
+                            )}
                           <Dropdown
                             trigger={['click']}
                             placement={['bottomRight']}

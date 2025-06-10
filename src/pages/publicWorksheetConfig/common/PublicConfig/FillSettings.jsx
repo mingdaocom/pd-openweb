@@ -1,11 +1,11 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { Dialog, Dropdown, Input, RichText, Icon } from 'ming-ui';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Icon, Input, RichText } from 'ming-ui';
+import CommonFieldDropdown from './CommonFieldDropdown';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
-import CommonFieldDropdown from './CommonFieldDropdown';
 
 const PreFillWrap = styled.div`
   justify-content: space-between;
@@ -111,16 +111,16 @@ export default function FillSettings(props) {
           <div className="Gray_9e Font12 mBottom20">
             <div>{_l('自定义签名仅支持国内号码')}</div>
             <div className="mTop8 ">
-              {_l('请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截')}
+              {_l('请谨慎填写您的组织简称、网站名、品牌名，2-20个汉字。如签名不符合规范，将会被运营商拦截')}
             </div>
           </div>
-          <input maxLength={12} className="ming Input w100" defaultValue={smsSignature} ref={inputRef} />
+          <input maxLength={20} className="ming Input w100" defaultValue={smsSignature} ref={inputRef} />
         </Fragment>
       ),
       onOk: () => {
         return new Promise((resolve, reject) => {
-          if (!/^[a-zA-z\u4e00-\u9fa5]{2,12}$/.test(inputRef.current.value)) {
-            alert(_l('签名需要控制在2-12个中英文字符'), 2);
+          if (!/^[a-zA-z\u4e00-\u9fa5]{2,20}$/.test(inputRef.current.value)) {
+            alert(_l('签名需要控制在2-20个中英文字符'), 2);
             reject(false);
           } else {
             setState({ smsSignature: inputRef.current.value || smsSignature });

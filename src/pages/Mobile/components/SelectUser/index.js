@@ -939,17 +939,16 @@ export default class SelectUser extends Component {
   }
   render() {
     const { selectedUsers } = this.state;
-    const { type, visible, onClose, onlyOne, hideClearBtn = false } = this.props;
+    const { type, visible, onClose, onlyOne, hideClearBtn = true } = this.props;
     return (
       <PopupWrapper
         bodyClassName="heightPopupBody40"
         visible={visible}
         title={type === 'user' ? _l('人员选择') : _l('部门选择')}
         confirmDisable={!selectedUsers.length}
-        clearDisable={!selectedUsers.length}
         onClose={onClose}
         onConfirm={onlyOne ? null : this.handleSave}
-        onClear={onlyOne && !hideClearBtn ? this.onClear : null}
+        onClear={hideClearBtn ? null : this.onClear}
       >
         <div className="selectUserContentBox flexColumn">{this.renderContent()}</div>
       </PopupWrapper>

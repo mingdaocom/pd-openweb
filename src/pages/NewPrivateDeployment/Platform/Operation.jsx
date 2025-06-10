@@ -1,8 +1,8 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { ConfigProvider, Input, Button } from 'antd';
-import { updateSysSettings } from '../common';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Button, ConfigProvider, Input } from 'antd';
 import privateSysSettingApi from 'src/api/privateSysSetting';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
+import { updateSysSettings } from '../common';
 
 const EventSubscription = props => {
   const { SysSettings } = md.global;
@@ -11,30 +11,31 @@ const EventSubscription = props => {
     const { value } = event.target;
     if (value !== md.global.SysSettings.csmWebhookUrl) {
       setCsmWebhookUrl(value);
-      updateSysSettings({
-        csmWebhookUrl: value
-      }, () => {
-        md.global.SysSettings.csmWebhookUrl = value;
-      });
+      updateSysSettings(
+        {
+          csmWebhookUrl: value,
+        },
+        () => {
+          md.global.SysSettings.csmWebhookUrl = value;
+        },
+      );
     }
-  }
+  };
   const handleSendCsmWebhookTest = () => {
     privateSysSettingApi.sendCsmWebhookTest().then(data => {
       if (data) {
         alert(_l('发送成功'));
       }
     });
-  }
+  };
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('事件订阅')}</div>
       <div className="Gray_9e mBottom25">
-        {_l('当组织、用户信息变更时，以标准的 HTTP 协议把事件内容推送到指定的地址。请求时间超过10秒则超时，超时后不再重试。')}
-        <a
-          className="pointer"
-          target="_blank"
-          href=""
-        >
+        {_l(
+          '当组织、用户信息变更时，以标准的 HTTP 协议把事件内容推送到指定的地址。请求时间超过10秒则超时，超时后不再重试。',
+        )}
+        <a className="pointer" target="_blank" href="">
           {_l('文档链接')}
         </a>
       </div>
@@ -55,44 +56,47 @@ const EventSubscription = props => {
         />
       </div>
       <ConfigProvider autoInsertSpaceInButton={false}>
-        <Button
-          style={{ width: 'max-content' }}
-          type="primary"
-          onClick={handleSendCsmWebhookTest}
-        >
+        <Button style={{ width: 'max-content' }} type="primary" onClick={handleSendCsmWebhookTest}>
           {_l('发送测试示例')}
         </Button>
       </ConfigProvider>
     </div>
   );
-}
+};
 
 const InfoGather = props => {
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('组织信息收集')}</div>
-      <div className="Gray_9e">{_l('用户创建组织时填写的行业、人数等字段可以通过webhook推送获取。填写字段也可以通过配置文件自定义，如需自定义请与对接人联系解决。')}</div>
+      <div className="Gray_9e">
+        {_l(
+          '用户创建组织时填写的行业、人数等字段可以通过webhook推送获取。填写字段也可以通过配置文件自定义，如需自定义请与对接人联系解决。',
+        )}
+      </div>
     </div>
   );
-}
+};
 
 const WorkWXIntegrationUrl = props => {
   const { SysSettings } = md.global;
   const [workWxSelfBuildNoticUrl, setWorkWxSelfBuildNoticUrl] = useState(SysSettings.workWxSelfBuildNoticUrl);
-  const handleSave = (event) => {
+  const handleSave = event => {
     const { value } = event.target;
     if (value && !RegExpValidator.isUrlRequest(value)) {
       alert(_l('请输入正确的地址'), 2);
       return;
     }
     if (value !== md.global.SysSettings.workWxSelfBuildNoticUrl) {
-      updateSysSettings({
-        WorkWxSelfBuildNoticUrl: value
-      }, () => {
-        md.global.SysSettings.workWxSelfBuildNoticUrl = value;
-      });
+      updateSysSettings(
+        {
+          WorkWxSelfBuildNoticUrl: value,
+        },
+        () => {
+          md.global.SysSettings.workWxSelfBuildNoticUrl = value;
+        },
+      );
     }
-  }
+  };
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('申请上架企业微信通知')}</div>
@@ -117,7 +121,7 @@ const WorkWXIntegrationUrl = props => {
       </div>
     </div>
   );
-}
+};
 
 export default props => {
   return (
@@ -129,4 +133,4 @@ export default props => {
       {/*<InfoGather {...props} />*/}
     </Fragment>
   );
-}
+};

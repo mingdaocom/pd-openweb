@@ -1,10 +1,10 @@
 import React from 'react';
+import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
-import DocumentTitle from 'react-document-title';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
-import _ from 'lodash';
 
 const Con = styled.div`
   background: #f5f5f9;
@@ -124,28 +124,21 @@ class Publicquery extends React.Component {
   render() {
     const { publicqueryRes = {}, querydata = {} } = this.props;
     const { Components } = this.state;
-    const {
-      queryControlIds = [],
-      viewId,
-      worksheet = {},
-      worksheetId = '',
-      visibleType,
-      title,
-    } = publicqueryRes;
+    const { queryControlIds = [], viewId, worksheet = {}, worksheetId = '', visibleType, title } = publicqueryRes;
     const { projectId = '', template = {}, viewIds } = worksheet;
     const controls = (template.controls || []).filter(o => queryControlIds.includes(o.controlId));
     const errCode =
       visibleType === 1
         ? 1
         : queryControlIds.length <= 0 || !viewId || controls.length <= 0
-        ? 2
-        : !_.includes(viewIds, viewId)
-        ? 3
-        : 0;
+          ? 2
+          : !_.includes(viewIds, viewId)
+            ? 3
+            : 0;
 
     return (
       <Con style={{ minHeight: document.documentElement.clientHeight }}>
-        <DocumentTitle title={['公开查询', publicqueryRes.worksheetName].filter(o => !!o).join('-')} />
+        <DocumentTitle title={title || _l('公开查询')} />
         <div className="queryBox">
           <h3>{title || _l('公开查询')}</h3>
           {!!errCode ? (

@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Radio, Icon } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SpecificFieldsValue, CustomTextarea } from '../components';
-import _ from 'lodash';
 import cx from 'classnames';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import _ from 'lodash';
+import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import SelectStaticChartFromSheet from 'src/pages/widgetConfig/widgetSetting/components/embed/SelectStaticChartFromSheet';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { CustomTextarea, DetailFooter, DetailHeader, SpecificFieldsValue } from '../components';
 
 export default class Snapshot extends Component {
   constructor(props) {
@@ -68,15 +68,15 @@ export default class Snapshot extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, actionId, appId, width, height, timeout } = data;
+    const { name, actionId, appId, width, height, timeout, openSSL } = data;
 
     if (!appId) {
       alert(
         data.actionId === '1'
           ? _l('必须选择一个自定义页面')
           : data.actionId === '2'
-          ? _l('必须选择一个统计图表')
-          : _l('必须输入页面地址'),
+            ? _l('必须选择一个统计图表')
+            : _l('必须输入页面地址'),
         2,
       );
       return;
@@ -97,6 +97,7 @@ export default class Snapshot extends Component {
         width: width || 1200,
         height: height || 900,
         timeout: timeout || 60,
+        openSSL,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -200,8 +201,8 @@ export default class Snapshot extends Component {
                   (data.actionId === '2' && !data.appDetails.reportName)
                     ? _l('已删除')
                     : data.actionId === '1'
-                    ? `${data.appDetails.appName}-${data.appDetails.apkName}`
-                    : `${data.appDetails.appName}-${data.appDetails.reportName}(${data.appDetails.apkName})`}
+                      ? `${data.appDetails.appName}-${data.appDetails.apkName}`
+                      : `${data.appDetails.appName}-${data.appDetails.reportName}(${data.appDetails.apkName})`}
                 </span>
               ) : (
                 <span className="Gray_75">{_l('请选择')}</span>
@@ -218,7 +219,7 @@ export default class Snapshot extends Component {
             </div>
             <div className="mTop5 Gray_75">
               {_l(
-                '输入外部公开页面完整地址，需要账号登录的页面无法获取。外部页面可能捕捉不完整或出错，请测试是否可以正常使用。',
+                '请输入外部公开页面的完整URL地址。注意：无法获取需要登录的页面，且外部页面可能无法完整捕捉或可能出错，建议使用前进行简单的测试。',
               )}
             </div>
             <div className="mTop10">
@@ -287,6 +288,15 @@ export default class Snapshot extends Component {
             allowedEmpty
             data={{ fieldValue: data.timeout }}
             updateSource={({ fieldValue }) => this.updateSource({ timeout: fieldValue })}
+          />
+        </div>
+
+        <div className="mTop20 bold">{_l('验证')}</div>
+        <div className="mTop5">
+          <Checkbox
+            checked={data.openSSL}
+            text={_l('开启SSL证书验证')}
+            onClick={checked => this.updateSource({ openSSL: !checked })}
           />
         </div>
       </Fragment>

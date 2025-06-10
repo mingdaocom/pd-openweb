@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import DocumentTitle from 'react-document-title';
+import cx from 'classnames';
+import _, { isEqual } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import DocumentTitle from 'react-document-title';
+import { Skeleton } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import DragMask from 'worksheet/common/DragMask';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import * as actions from 'worksheet/redux/actions';
+import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
 import View from 'worksheet/views';
+import { defaultNavCloseW, defaultNavOpenW, MaxNavW, MinNavW } from 'src/pages/worksheet/common/ViewConfig/config.js';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { getTranslateInfo } from 'src/utils/app';
+import GroupFilter from './GroupFilter';
+import QuickFilter from './QuickFilter';
 import SheetContext from './SheetContext';
 import SheetHeader from './SheetHeader';
 import ViewControl from './ViewControl';
-import QuickFilter from './QuickFilter';
-import GroupFilter from './GroupFilter';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import DragMask from 'worksheet/common/DragMask';
-import { Skeleton } from 'ming-ui';
-const { sheet, gallery, board, calendar, gunter, detail, customize, map, resource, structure } = VIEW_DISPLAY_TYPE;
 import './style.less';
-import _, { isEqual } from 'lodash';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { MaxNavW, MinNavW, defaultNavOpenW, defaultNavCloseW } from 'src/pages/worksheet/common/ViewConfig/config.js';
-import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
-import { getTranslateInfo } from 'src/util';
+
+const { sheet, gallery, board, calendar, gunter, detail, customize, map, resource, structure } = VIEW_DISPLAY_TYPE;
 
 const Con = styled.div`
   flex: 1;
@@ -30,6 +32,14 @@ const Con = styled.div`
   height: 100%;
   flex-direction: column;
   background: #fff;
+  &.viewConfigVisible {
+    .viewCon.viewType-0 {
+      padding-right: 720px;
+    }
+    iframe.customWidgetIframe {
+      pointer-events: none;
+    }
+  }
 `;
 
 const Loading = styled.div`
@@ -122,6 +132,9 @@ function Sheet(props) {
     setLoadRequest = () => {},
     abortPrevWorksheetInfoRequest = () => {},
     controls = [],
+    sheetButtons,
+    printList,
+    sheetSwitchPermit,
   } = props;
   const isDevAndOps = canEditApp(appPkg.permissionType) || canEditData(appPkg.permissionType);
   const cache = useRef({});
@@ -207,7 +220,11 @@ function Sheet(props) {
   ) : navGroupToSearch && _.isEmpty(navGroupFilters) ? (
     <EmptyStatus>{_l('请从左侧选择一个%0查看', navGroupData.controlName)}</EmptyStatus>
   ) : (
-    <View {...basePara} noLoadAtDidMount={_.isArray(filtersGroup) && !_.isEmpty(filtersGroup)} />
+    <View
+      {...basePara}
+      viewConfigVisible={viewConfigVisible}
+      noLoadAtDidMount={_.isArray(filtersGroup) && !_.isEmpty(filtersGroup)}
+    />
   );
   useEffect(() => {
     if (worksheetId) {
@@ -217,10 +234,17 @@ function Sheet(props) {
   }, [type === 'single' ? worksheetId : undefined, flag]);
 
   useEffect(() => {
-    if (_.isArray(filtersGroup) && !loading) {
+    if (
+      _.isArray(filtersGroup) &&
+      (!_.isEmpty(filtersGroup) || !_.isEmpty(cache.current.prevFiltersGroup)) &&
+      !loading
+    ) {
       updateFilters({ filtersGroup }, view);
     }
   }, [getKeyOfFiltersGroup(filtersGroup), loading]);
+  useEffect(() => {
+    cache.current.prevFiltersGroup = filtersGroup;
+  }, [getKeyOfFiltersGroup(filtersGroup)]);
   useEffect(() => {
     fireWhenViewLoaded(view, controls);
   }, [view.fastFilters]);
@@ -256,7 +280,22 @@ function Sheet(props) {
     };
   }, []);
   return (
-    <SheetContext.Provider value={{ config, isRequestingRelationControls: worksheetInfo.isRequestingRelationControls }}>
+    <SheetContext.Provider
+      value={{
+        isCharge,
+        projectId: worksheetInfo.projectId,
+        appId,
+        groupId,
+        worksheetId,
+        config,
+        isRequestingRelationControls: worksheetInfo.isRequestingRelationControls,
+        view,
+        controls,
+        sheetButtons,
+        printList,
+        sheetSwitchPermit,
+      }}
+    >
       <Con className="worksheetSheet">
         {type === 'common' && worksheetName && (
           <DocumentTitle
@@ -282,7 +321,7 @@ function Sheet(props) {
               </React.Fragment>
             )}
             {type === 'single' && <SheetHeader {...basePara} onlyBatchOperate />}
-            <Con id="worksheetRightContentBox">
+            <Con id="worksheetRightContentBox" className={cx({ viewConfigVisible })}>
               {showQuickFilter && (
                 <QuickFilterCon>
                   {worksheetInfo.isRequestingRelationControls ? (
@@ -292,6 +331,7 @@ function Sheet(props) {
                   ) : (
                     <QuickFilter
                       {...basePara}
+                      showTextAdvanced
                       filters={setSysWorkflowTimeControlFormat(quickFilterWithDefault, worksheetInfo.switches)}
                     />
                   )}
@@ -372,9 +412,13 @@ export default connect(
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
     quickFilter: state.sheet.quickFilter,
+    filtersGroupOfState: state.sheet.filtersGroup,
     quickFilterWithDefault: state.sheet.quickFilterWithDefault,
     navGroupFilters: state.sheet.navGroupFilters,
     controls: state.sheet.controls,
+    sheetSwitchPermit: state.sheet.sheetSwitchPermit,
+    sheetButtons: state.sheet.sheetButtons,
+    printList: state.sheet.printList,
   }),
   dispatch =>
     bindActionCreators(

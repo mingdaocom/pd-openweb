@@ -1,25 +1,26 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import UserItem from './userItem';
-import { LoadDiv, Icon, Checkbox, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
-import EditUser from '../EditUser';
 import classNames from 'classnames';
-import {
-  updateUserOpList,
-  removeUserFromSet,
-  addUserToSet,
-  updateSelectAll,
-  fetchInActive,
-  fetchApproval,
-  fetchReInvite,
-  fetchCancelImportUser,
-} from '../../actions/current';
-import { loadUsers, loadInactiveUsers, loadApprovalUsers, loadAllUsers } from '../../actions/entities';
 import cx from 'classnames';
-import './userItem.less';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import {
+  addUserToSet,
+  fetchApproval,
+  fetchCancelImportUser,
+  fetchInActive,
+  fetchReInvite,
+  removeUserFromSet,
+  updateSelectAll,
+  updateUserOpList,
+} from '../../actions/current';
+import { loadAllUsers, loadApprovalUsers, loadInactiveUsers, loadUsers } from '../../actions/entities';
+import EditUser from '../EditUser';
+import SortTopUp from '../SortTopUp';
+import UserItem from './userItem';
+import './userItem.less';
 
 const clearActiveDialog = props => {
   const { dispatch } = props;
@@ -90,8 +91,8 @@ class UserTable extends React.Component {
             {typeCursor === 2
               ? _l(`管理员通过手机和邮箱添加的成员未激活时会显示在这里`)
               : typeCursor === 3
-              ? _l(`通过链接、搜索企业账号、非管理员通过邮箱或手机号邀请的成员会显示在这里`)
-              : _l('暂无成员，您可以点击顶部操作添加成员')}
+                ? _l(`通过链接、搜索企业账号、非管理员通过邮箱或手机号邀请的成员会显示在这里`)
+                : _l('暂无成员，您可以点击顶部操作添加成员')}
           </p>
         </div>
       </div>
@@ -294,6 +295,7 @@ class UserTable extends React.Component {
       return this.renderNullState();
     }
   };
+
   renderUsers = props => {
     let { columnsInfo } = this.state;
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
@@ -303,9 +305,9 @@ class UserTable extends React.Component {
       usersCurrentPage = searchAccountIds.filter(user => user.accountId === searchId[0]);
     }
 
-    if (usersCurrentPage.length <= 0) return '';
+    if (_.isEmpty(usersCurrentPage)) return '';
 
-    return _.sortBy(usersCurrentPage, user => !user.isDepartmentChargeUser).map((user, index) => {
+    return usersCurrentPage.map((user, index) => {
       return (
         <UserItem
           authority={authority}
@@ -330,6 +332,7 @@ class UserTable extends React.Component {
               },
             });
           }}
+          handleSortTopUp={() => this.setState({ openSortTopUpDialog: true })}
         />
       );
     });
@@ -370,8 +373,18 @@ class UserTable extends React.Component {
     }
   };
   render() {
-    const { isLoading, projectId, dispatch, typeCursor, pageIndex, departmentId, authority = [] } = this.props;
-    const { openChangeUserInfoDrawer, editCurrentUser = {} } = this.state;
+    const {
+      isLoading,
+      projectId,
+      dispatch,
+      typeCursor,
+      pageIndex,
+      departmentId,
+      authority = [],
+      departmentName,
+      usersCurrentPage = [],
+    } = this.props;
+    const { openChangeUserInfoDrawer, editCurrentUser = {}, openSortTopUpDialog } = this.state;
     if (isLoading) return <LoadDiv />;
 
     return (
@@ -413,6 +426,16 @@ class UserTable extends React.Component {
             authority={authority}
           />
         )}
+        {openSortTopUpDialog && (
+          <SortTopUp
+            visible={openSortTopUpDialog}
+            projectId={projectId}
+            departmentId={departmentId}
+            departmentName={departmentName}
+            onOk={() => refreshData(departmentId, typeCursor, projectId, 1, dispatch)}
+            onCancel={() => this.setState({ openSortTopUpDialog: false })}
+          />
+        )}
       </div>
     );
   }
@@ -436,6 +459,7 @@ const mapStateToProp = (state, ownProps) => {
       isThisPageCheck = false;
     }
   });
+  let departmentInfos = departments[departmentId];
 
   return {
     ...usersPagination,
@@ -452,6 +476,7 @@ const mapStateToProp = (state, ownProps) => {
     showSeachResult,
     departmentId,
     pageIndex,
+    departmentName: departmentInfos ? departmentInfos.departmentName : '',
   };
 };
 

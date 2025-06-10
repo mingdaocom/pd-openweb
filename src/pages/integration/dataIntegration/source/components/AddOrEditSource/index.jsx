@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Button, Dialog } from 'ming-ui';
-import { DATABASE_TYPE, DETAIL_TYPE, ROLE_TYPE, SOURCE_DETAIL_TAB_LIST } from '../../../constant';
+import styled from 'styled-components';
+import { Button, Dialog, Icon } from 'ming-ui';
+import dataSourceApi from '../../../../api/datasource';
+import 'src/pages/integration/svgIcon';
+import { navigateTo } from 'src/router/navigateTo';
+import { getCurrentProject } from 'src/utils/project';
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
-import UsageDetail from '../UsageDetail';
-import TimingSettingList from '../TimingSettingList';
-import dataSourceApi from '../../../../api/datasource';
-import { getCurrentProject } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
+import { DATABASE_TYPE, DETAIL_TYPE, ROLE_TYPE, SOURCE_DETAIL_TAB_LIST } from '../../../constant';
 import { getExtraParams } from '../../../utils';
-import 'src/pages/integration/svgIcon';
+import TimingSettingList from '../TimingSettingList';
+import UsageDetail from '../UsageDetail';
 
 const AddOrEditSourceWrapper = styled.div`
   position: fixed;

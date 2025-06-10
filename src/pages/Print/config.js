@@ -224,3 +224,8 @@ export const USER_CONTROLS = [
     controlName: _l('手机号'),
   },
 ];
+
+export const TIME_FORMAT = {
+  utime: 'updateTime',
+  ctime: 'createTime',
+};

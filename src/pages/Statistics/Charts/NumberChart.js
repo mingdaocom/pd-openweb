@@ -1,14 +1,15 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { generate } from '@ant-design/colors';
+import { Col, Dropdown, Menu, Row, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Tooltip, Row, Col, Dropdown, Menu } from 'antd';
+import { Icon, SvgIcon } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { toFixed } from 'src/utils/control';
 import { formatContrastTypes, isFormatNumber, isTimeControl } from '../common';
 import { defaultNumberChartStyle, sizeTypes } from '../enum';
 import { formatrChartValue, getStyleColor } from './common';
-import { SvgIcon, Icon } from 'ming-ui';
-import { toFixed, browserIsMobile } from 'src/util';
-import { generate } from '@ant-design/colors';
-import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 
@@ -405,7 +406,7 @@ export default class extends Component {
       isLinkageMatch: true,
     });
   };
-  renderContrast(value, contrastValue, name, isContrastValue) {
+  renderContrast({ value, contrastValue, name, controlId, isContrastValue }) {
     const { filter, displaySetup = {}, style, yaxisList } = this.props.reportData;
     const { ignoreToday } = filter;
     const percentage = ((value - contrastValue) / contrastValue) * 100;
@@ -451,8 +452,8 @@ export default class extends Component {
                 {contrastValueShowNumber && (
                   <span className={cx('bold', { Gray_75: isEquality })}>
                     {contrastValueShowPercent
-                      ? `(${formatrChartValue(value - contrastValue, false, yaxisList)})`
-                      : formatrChartValue(value - contrastValue, false, yaxisList)}
+                      ? `(${formatrChartValue(value - contrastValue, false, yaxisList, controlId)})`
+                      : formatrChartValue(value - contrastValue, false, yaxisList, controlId)}
                   </span>
                 )}
               </div>
@@ -542,7 +543,7 @@ export default class extends Component {
                     </div>
                     {descVisible && desc && (
                       <Tooltip title={desc} placement="bottom">
-                        <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 mRight7 InlineBlock mTop2" /> 
+                        <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 mRight7 InlineBlock mTop2" />
                       </Tooltip>
                     )}
                   </div>
@@ -555,8 +556,19 @@ export default class extends Component {
               </div>
             </Tooltip>
             <div className="w100 subTextWrap">
-              {this.renderContrast(value, lastContrastValue, lastContrastText || _l('环比'))}
-              {!!contrastTypes.length && this.renderContrast(value, contrastValue, contrastText || _l('同比'), true)}
+              {this.renderContrast({
+                value,
+                contrastValue: lastContrastValue,
+                name: lastContrastText || _l('环比'),
+                controlId: data.controlId
+              })}
+              {!!contrastTypes.length && this.renderContrast({
+                value,
+                contrastValue,
+                name: contrastText || _l('同比'),
+                controlId: data.controlId,
+                isContrastValue: true
+              })}
               {minorList.map(data => (
                 <div className="w100 flexRow textWrap minorWrap Font14">
                   <div className="mRight5 Gray_75 name">{data.name}</div>
@@ -614,12 +626,13 @@ export default class extends Component {
     const columnCount = isMobile || layoutType === 'mobile' ? mobileCount : defaultColumnCount;
     const showTotal = displaySetup.showTotal && xaxes.controlId;
     const count = list.length + (showTotal ? 1 : 0);
-    const span = Math.ceil(24 / columnCount);
+    const newColumnCount = columnCount > count ? count : columnCount;
+    const span = Math.ceil(24 / newColumnCount);
     const controlMinAndMax = getControlMinAndMax(map);
     return (
       <Wrap
         className={cx('numberChart flexRow h100', `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`)}
-        columnCount={columnCount}
+        columnCount={newColumnCount}
         isDark={isDark}
         onClick={event => (oneNumber ? this.handleClick(event, list[0]) : _.noop())}
       >
@@ -650,8 +663,8 @@ export default class extends Component {
                         ? null
                         : this.getControlName(data.c_id)
                       : sourceType && list.length === 1
-                      ? name
-                      : this.getControlName(data.c_id),
+                        ? name
+                        : this.getControlName(data.c_id),
                     descVisible: !isMobile && sourceType && list.length === 1,
                     lastContrastValue: _.get(contrast[index], 'value[0].v') || (displaySetup.contrast ? 0 : null),
                     contrastValue: _.get(contrastMap[index], 'value[0].v') || (displaySetup.contrastType ? 0 : null),

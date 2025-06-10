@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Icon, ScrollView } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { Carousel } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { FILL_COLOR } from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStyle';
-import _ from 'lodash';
-import { browserIsMobile } from 'src/util/sso';
-import { addBehaviorLog } from 'src/util';
-import cx from 'classnames';
+import { addBehaviorLog } from 'src/utils/project';
+import { browserIsMobile } from 'src/utils/sso';
 
 const videoReg = (data = {}) => {
   return /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)/i.test(data.ext || '');

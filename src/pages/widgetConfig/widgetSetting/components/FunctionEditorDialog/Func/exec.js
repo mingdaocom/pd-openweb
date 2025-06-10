@@ -2,8 +2,8 @@ import dayjs from 'dayjs';
 import _, { get, isNumber } from 'lodash';
 import qs from 'query-string';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { formatControlValue } from 'src/pages/worksheet/util-purejs';
-import { toFixed } from 'src/util';
+import { toFixed } from 'src/utils/control';
+import { formatControlValue } from 'src/utils/control';
 import { functions } from './enum';
 
 const execWorkerCode = `onmessage = function (e) {

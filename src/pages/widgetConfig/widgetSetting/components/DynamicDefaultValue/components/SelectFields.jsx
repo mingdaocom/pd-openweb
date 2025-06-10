@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import update from 'immutability-helper';
-import { Checkbox } from 'ming-ui';
-import { getControls, filterControls, getOtherSelectField } from '../util';
-import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
-import { getIconByType } from '../../../../util';
-import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL, SYSTEM_PERSON_CONTROL } from '../../../../config/widget';
-import { DYNAMIC_FROM_MODE } from '../config';
-import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
+import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
+import { SYSTEM_CONTROL, SYSTEM_PERSON_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../../../config/widget';
+import { getIconByType } from '../../../../util';
+import { DYNAMIC_FROM_MODE } from '../config';
+import { filterControls, getControls, getOtherSelectField } from '../util';
 
 const Empty = styled.div`
   color: #9e9e9e;
@@ -55,7 +55,7 @@ export default class SelectFields extends Component {
   getSheetList = (subListControls, initSheetList) => {
     const { data = {}, from, parentControl } = this.props;
     // 自定义默认值
-    if (_.includes([DYNAMIC_FROM_MODE.CREATE_CUSTOM], from)) return initSheetList;
+    if (_.includes([DYNAMIC_FROM_MODE.CREATE_CUSTOM, DYNAMIC_FROM_MODE.PRINT_TEMP], from)) return initSheetList;
     if (_.includes([DYNAMIC_FROM_MODE.SEARCH_PARAMS], from)) {
       // (查询参数 && 非对象数组内字段)不支持关联记录
       if (!data.dataSource) {

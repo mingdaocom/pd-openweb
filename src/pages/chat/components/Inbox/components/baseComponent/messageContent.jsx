@@ -1,22 +1,23 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import 'src/components/emotion/emotion';
 import PropTypes from 'prop-types';
-import UploadFile from 'src/components/UploadFiles';
-import Avatar from './avatar';
-import UserLink from './userLink';
-import Star from './star';
-import ReplyTo from './replyTo';
-import CommentArea from './commentArea';
-import { SOURCE_TYPE } from '../../constants';
-import { formatMsgDate } from 'src/pages/chat/utils';
-import { addBehaviorLog, cutStringWithHtml, dateConvertToUserZone } from 'src/util';
 import xss from 'xss';
 import { whiteList } from 'xss/lib/default';
 import { UserCard } from 'ming-ui';
+import 'src/components/emotion/emotion';
+import UploadFile from 'src/components/UploadFiles';
+import { formatMsgDate } from 'src/pages/chat/utils';
+import { cutStringWithHtml } from 'src/utils/common';
+import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
+import { SOURCE_TYPE } from '../../constants';
+import Avatar from './avatar';
+import CommentArea from './commentArea';
+import ReplyTo from './replyTo';
+import Star from './star';
+import UserLink from './userLink';
 
 const xssOptions = {
-  whiteList: Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] })
+  whiteList: Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] }),
 };
 
 export default class BaseMessageComponent extends React.Component {
@@ -141,7 +142,9 @@ export default class BaseMessageComponent extends React.Component {
       );
     } else {
       if (message) {
-        return <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: xss(message, xssOptions) }} />;
+        return (
+          <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: xss(message, xssOptions) }} />
+        );
       } else {
         return <span className="LineHeight25 Gray_c">{_l('该评论已被删除')}</span>;
       }

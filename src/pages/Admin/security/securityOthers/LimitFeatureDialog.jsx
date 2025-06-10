@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, Switch, FunctionWrap } from 'ming-ui';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
+import styled from 'styled-components';
+import { Dialog, FunctionWrap, Switch } from 'ming-ui';
 import projectSettingController from 'src/api/projectSetting';
 
 const DialogWrap = styled(Dialog)`
@@ -13,6 +13,7 @@ const DialogWrap = styled(Dialog)`
 
 const limitData = [
   { text: _l('创建应用'), value: 'onlyManagerCreateApp' },
+  { text: _l('删除应用'), value: 'onlyManagerDeleteApp' },
   { text: _l('创建 API 连接'), value: 'apiIntgOnlyManager' },
   // { text: _l('数据集成'), value: 'dataPipeOnlyManager' },
   { text: _l('开发插件'), value: 'pluginsOnlyManager' },
@@ -42,7 +43,7 @@ function LimitFeatureDialog(props) {
 
   return (
     <DialogWrap visible title={_l('功能限制')} okDisabled={loading} onCancel={onCancel} onOk={onOk}>
-      <div className="des">{_l('关闭全员功能，只允许授权的管理员使用')}</div>
+      <div className="des">{_l('开启限制后，全员无法使用，只允许授权的管理员使用')}</div>
       {limitData
         .filter(
           item =>
@@ -55,9 +56,9 @@ function LimitFeatureDialog(props) {
             <div key={index} className="mBottom30 flexRow alignItemsCenter">
               <Switch
                 size="small"
-                checked={!data[item.value]}
+                checked={data[item.value]}
                 onClick={checked => {
-                  setData({ [item.value]: checked });
+                  setData({ [item.value]: !checked });
                 }}
               />
               <span className="TxtMiddle mLeft12">{item.text}</span>

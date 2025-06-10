@@ -1,17 +1,18 @@
 import React from 'react';
-import DocumentTitle from 'react-document-title';
-import SideNav from './SideNav';
 import { Route, Switch } from 'react-router-dom';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
-import { emitter, getCurrentProject } from 'src/util';
-import PluginComponent from './pluginComponent';
+import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
-import { getRequest } from 'src/util';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { getRequest } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
 import { PLUGIN_TYPE } from './config';
+import PluginComponent from './pluginComponent';
+import SideNav from './SideNav';
 
 export default class PluginContainer extends React.Component {
   constructor(props) {

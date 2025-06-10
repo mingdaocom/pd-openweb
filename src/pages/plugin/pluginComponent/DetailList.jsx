@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
-import { Tooltip } from 'antd';
-import { pluginConfigType, pluginApiConfig, API_EXTENDS, PLUGIN_TYPE, pluginConstants } from '../config';
-import PublishVersion from './PublishVersion';
-import moment from 'moment';
-import { navigateToView } from 'src/pages/widgetConfig/util/data';
-import _ from 'lodash';
-import ExportPlugin from './ExportPlugin';
 import ClipboardButton from 'react-clipboard.js';
-import { downloadFile } from 'src/util';
+import { Tooltip } from 'antd';
+import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
+import { navigateToView } from 'src/pages/widgetConfig/util/data';
+import { downloadFile } from 'src/utils/common';
+import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, pluginConstants } from '../config';
+import ExportPlugin from './ExportPlugin';
+import PublishVersion from './PublishVersion';
 
 const ListWrapper = styled.div`
   .headTr,

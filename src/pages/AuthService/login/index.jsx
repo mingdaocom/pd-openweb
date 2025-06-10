@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
-import { useSetState } from 'react-use';
-import Header from '../components/Header';
-import { WrapCom } from '../style';
-import WrapBg from '../components/Bg';
-import Container from './Container';
-import { loginCallback, ssoLogin } from './util';
-import { checkReturnUrl, getDataByFilterXSS, isTel } from '../util';
-import { initIntlTelInput } from 'ming-ui/components/intlTelInput';
-import { browserIsMobile, getRequest, checkLogin } from 'src/util/sso';
-import projectApi from 'src/api/project';
-import appManagementController from 'src/api/appManagement';
-import 'src/pages/AuthService/components/form.less';
-import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import DocumentTitle from 'react-document-title';
+import { useSetState } from 'react-use';
+import { initIntlTelInput } from 'ming-ui/components/intlTelInput';
+import appManagementController from 'src/api/appManagement';
 import loginController from 'src/api/login';
 import privateSysSetting from 'src/api/privateSysSetting';
+import projectApi from 'src/api/project';
+import Footer from 'src/pages/AuthService/components/Footer.jsx';
+import 'src/pages/AuthService/components/form.less';
+import { browserIsMobile, checkLogin, getRequest } from 'src/utils/sso';
+import WrapBg from '../components/Bg';
+import Header from '../components/Header';
+import { WrapCom } from '../style';
+import { checkReturnUrl, getDataByFilterXSS, isTel } from '../util';
+import Container from './Container';
+import { loginCallback, ssoLogin } from './util';
 
 export default function Login(props) {
   const request = getRequest();
@@ -26,7 +26,7 @@ export default function Login(props) {
     hideOther:
       isMiniProgram || // 小程序隐藏第三方登录入口
       !!request.unionId || //第三方
-      request.loginMode == 1 || //  直接进到平台登陆,隐藏其他登陆方式
+      request.loginMode === 'systemLogin' || //  指定进到平台登陆,隐藏其他登陆方式
       window.isMingDaoApp, //  移动端app登录,隐藏其他登陆方式
     loading: true,
     warnList: [], //报错信息
@@ -130,10 +130,15 @@ export default function Login(props) {
       if (md.global.Config.IsLocal) {
         googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
       }
+      //request.loginMode === 'systemLogin' 指定平台账号登录方式
+      if (request.loginMode === 'systemLogin') {
+        res.openLDAP = false;
+        res.isOpenSystemLogin = true;
+      }
       setState({
         ...res,
         googleSsoSet,
-        modeType: res.openLDAP ? 2 : 1, //开启了LDAP 2
+        modeType: res.openLDAP ? 2 : 1, // 1:手机号邮箱 2:用户名登录
         linkInvite: res.projectId ? `/linkInvite?projectId=${res.projectId}` : '',
         title: res.companyName,
         homeImage: res.homeImage,

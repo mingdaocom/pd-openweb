@@ -1,24 +1,24 @@
 import React from 'react';
-import Header from 'src/components/worksheetConfigHeader';
 import DocumentTitle from 'react-document-title';
-import Sidenav from './containers/Sidenav';
-import ValidationRules from './containers/ValidationRules';
-import ColumnRules from './containers/ColumnRules';
-import Print from './containers/Print';
-import Alias from './containers/Alias';
-import FunctionalSwitch from './containers/FunctionalSwitch';
-import CustomBtnFormSet from './containers/CustomBtnFormSet';
-import FormIndexSetting from './containers/FormIndexSetting';
-import SubmitFormSetting from './containers/SubmitFormSetting/index';
-import './index.less';
-import ErrorState from 'src/components/errorPage/errorState';
-import { MODULE_TYPE_TO_NAME } from './config';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper.jsx';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import sheetAjax from 'src/api/worksheet';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
-import { getTranslateInfo } from 'src/util';
+import ErrorState from 'src/components/errorPage/errorState';
+import Header from 'src/components/worksheetConfigHeader';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper.jsx';
 import { navigateToApp } from 'src/pages/widgetConfig/util/data';
+import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { MODULE_TYPE_TO_NAME } from './config';
+import Alias from './containers/Alias';
+import ColumnRules from './containers/ColumnRules';
+import CustomBtnFormSet from './containers/CustomBtnFormSet';
+import FormIndexSetting from './containers/FormIndexSetting';
+import FunctionalSwitch from './containers/FunctionalSwitch';
+import Print from './containers/Print';
+import Sidenav from './containers/Sidenav';
+import SubmitFormSetting from './containers/SubmitFormSetting/index';
+import ValidationRules from './containers/ValidationRules';
+import './index.less';
 
 class FormSet extends React.Component {
   constructor(props) {

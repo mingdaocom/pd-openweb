@@ -5,9 +5,9 @@ import _, { isArray } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
-import { removeTempRecordValueFromLocal } from 'worksheet/util';
 import MobileDraft from 'src/pages/Mobile/MobileDraft';
-import { compatibleMDJS, getRequest, handleReplaceState } from 'src/util';
+import { getRequest, removeTempRecordValueFromLocal } from 'src/utils/common';
+import { compatibleMDJS, handleReplaceState } from 'src/utils/project';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import NewRecordContent from './NewRecordContent';
 
@@ -93,6 +93,7 @@ function NewRecord(props) {
     if (!window.isMingDaoApp) {
       return;
     }
+
     compatibleMDJS('handOverNavigation', { sessionId });
     setSessionId('');
     (page === 'newRecord' || (isArray(page) && page[page.length - 1] === 'newRecord')) && isBack && history.back();
@@ -224,11 +225,16 @@ function NewRecord(props) {
     });
   };
 
-  const handleAdd = async isContinue => {
+  const handleAdd = async (isContinue, appScanAutoFill) => {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
+    if (_.isUndefined(appScanAutoFill)) {
+      setAutoFill(appScanAutoFill);
+    }
+
     if (!isContinue && customButtonConfirm) {
       try {
         await customButtonConfirm();
@@ -253,7 +259,13 @@ function NewRecord(props) {
       });
     };
 
-    if (advancedSetting.autoFillVisible && endAction === 2 && _.isNull(autoFill) && offlineUpload !== '1') {
+    if (
+      advancedSetting.autoFillVisible &&
+      endAction === 2 &&
+      _.isNull(autoFill) &&
+      _.isUndefined(appScanAutoFill) &&
+      offlineUpload !== '1'
+    ) {
       if (isContinue && advancedSetting.autoreserve === '1') {
         setAutoFill(true);
         isRetainFunc(true);

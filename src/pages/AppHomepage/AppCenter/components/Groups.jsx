@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { string, bool, arrayOf, shape } from 'prop-types';
-import styled from 'styled-components';
-import { Dialog, ScrollView, UpgradeIcon, SortableList } from 'ming-ui';
 import cx from 'classnames';
-import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
+import _ from 'lodash';
+import { arrayOf, bool, shape, string } from 'prop-types';
 import { navigateTo } from 'router/navigateTo';
+import styled from 'styled-components';
+import { Dialog, ScrollView, SortableList, UpgradeIcon } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
-import { getFeatureStatus } from 'src/util';
+import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
+import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
-import GroupsSkeleton from './GroupsSkeleton';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import EditGroup from './EditGroup';
 import GroupItem from './GroupItem';
-import _ from 'lodash';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import GroupsSkeleton from './GroupsSkeleton';
 
 const Con = styled.div`
   width: 238px;

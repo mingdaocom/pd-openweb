@@ -1,29 +1,33 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import _, { identity, isEmpty } from 'lodash';
+import _, { find, get, identity, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
-import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { selectRecord } from 'src/components/recordCardListDialog';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
+import { selectRecords } from 'src/components/SelectRecords';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
-import { addBehaviorLog, browserIsMobile, getTranslateInfo, handlePushState, handleReplaceState } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
+import { getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
+import { completeControls } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
 
@@ -48,6 +52,7 @@ export const Button = styled.div`
   color: #151515;
   border: 1px solid #dddddd;
   border-radius: 4px;
+  max-width: 150px;
   > .icon {
     color: #9e9e9e;
     font-weight: normal;
@@ -216,6 +221,7 @@ class RelateRecordCards extends Component {
       showLoadMore,
       isLoadingMore: false,
       pageIndex: 1,
+      defaultCount: props.count,
     };
   }
 
@@ -280,6 +286,7 @@ class RelateRecordCards extends Component {
           }
         }
       }
+      this.setState({ defaultCount: nextProps.count });
     }
     if (!_.isEqual(nextProps.records, this.props.records)) {
       this.setState({ records: nextProps.records, count: nextProps.count });
@@ -464,13 +471,14 @@ class RelateRecordCards extends Component {
       });
   };
 
-  handleChange(searchByChange) {
+  handleChange(searchByChange, { needFullUpdate } = {}) {
     const { recordId, onChange } = this.props;
     const { count, records, isLoadingMore, showLoadMore, pageIndex, deletedIds = [], addedIds = [] } = this.state;
     onChange({
       deletedIds,
       addedIds,
       records,
+      needFullUpdate,
       count: count,
       searchByChange,
     });
@@ -666,19 +674,21 @@ class RelateRecordCards extends Component {
         ? { showControls: [], control: { ...control, showControls: [] } }
         : {}),
     };
+
     if (browserIsMobile()) {
       this.setState({ showMobileSelectRecord: true });
       window.isMingDaoApp && handlePushState('page', `mobileSelectRecord-${controlId}`);
       mobileSelectRecord(Object.assign(selectOptions, options));
       return;
     }
-    selectRecord(Object.assign(selectOptions, options));
+    selectRecords(Object.assign(selectOptions, options));
   }
 
   renderRecordsCon() {
-    const { width, control, allowOpenRecord, hideTitle, cardClassName } = this.props;
+    const { width, formIsEditing, control, allowOpenRecord, hideTitle, cardClassName } = this.props;
     const {
       appId,
+      worksheetId,
       viewId,
       from,
       recordId,
@@ -694,7 +704,9 @@ class RelateRecordCards extends Component {
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { allowReplaceRecord, isCard } = this;
-    const { records, showAll, showLoadMore, isLoadingMore, pageIndex } = this.state;
+    const { records, showAll, showLoadMore, isLoadingMore, pageIndex, defaultCount } = this.state;
+    const canDrag =
+      get(control, 'advancedSetting.allowdrag') === '1' && defaultCount > 1 && defaultCount <= 50 && !disabled;
     const allowlink = (advancedSetting || {}).allowlink;
     const controlPermission = controlState(control, from);
     const allowRemove =
@@ -713,45 +725,81 @@ class RelateRecordCards extends Component {
             Block: isMobile,
           })}
         >
-          {!!records.length &&
-            (showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)).map((record, i) => (
-              <RecordCoverCard
-                className={cardClassName + (width > 700 ? '' : ' mBottom10')}
-                hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
-                showAddAsDropdown={this.showAddAsDropdown}
-                containerWidth={width}
-                from={from}
-                projectId={projectId}
-                viewId={viewId}
-                allowReplaceRecord={allowReplaceRecord}
-                disabled={disabled || (!allowRemove && !record.isNewAdd)}
-                isCharge={isCharge}
-                key={i}
-                controls={this.controls}
-                sheetSwitchPermit={sheetSwitchPermit}
-                data={record}
-                cover={this.getCoverUrl(coverCid, record)}
-                allowlink={allowlink}
-                parentControl={control}
-                sourceEntityName={sourceEntityName}
-                onClick={
-                  !allowOpenRecord ||
-                  (this.mobileShowAddAsDropdown && !disabled && advancedSetting.allowlink === '1') ||
-                  (control.isSubList && _.get(window, 'shareState.shareId')) ||
-                  allowlink === '0' ||
-                  !record.rowid ||
-                  /^temp/.test(record.rowid)
-                    ? () => {}
-                    : () => {
-                        handlePushState('page', `relateRecord-${recordId}`);
-                        addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
-                        this.setState({ previewRecord: { recordId: record.rowid } });
-                      }
+          {!!records.length && (
+            <SortableList
+              useDragHandle={canDrag}
+              dragPreviewImage
+              canDrag={canDrag}
+              items={showAll || records.length <= colNum * 3 ? records : records.slice(0, colNum * 3)}
+              itemKey="rowid"
+              helperClass="draggingItem"
+              direction="vertical"
+              onSortEnd={newItems => {
+                const newRecords = newItems.concat(records.filter(r => !find(newItems, n => n.rowid === r.rowid)));
+                if (formIsEditing || !recordId || control.isSubList) {
+                  this.setState({ records: newRecords }, () => {
+                    this.handleChange(undefined, { needFullUpdate: true });
+                  });
+                } else {
+                  updateRelateRecordSorts({
+                    worksheetId,
+                    recordId,
+                    changes: [
+                      {
+                        ...control,
+                        editType: 31,
+                        value: JSON.stringify(newRecords.map(item => ({ sid: item.rowid }))),
+                      },
+                    ],
+                  });
                 }
-                onDelete={() => this.handleDelete(record)}
-                onReplaceRecord={() => this.handleReplaceRecord(record)}
-              />
-            ))}
+              }}
+              renderItem={options => {
+                const { item, index, dragging, isLayer } = options;
+                const record = item;
+                return (
+                  <RecordCoverCard
+                    {...options}
+                    className={cardClassName}
+                    hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
+                    showAddAsDropdown={this.showAddAsDropdown}
+                    containerWidth={width}
+                    from={from}
+                    appId={appId}
+                    projectId={projectId}
+                    viewId={viewId}
+                    allowReplaceRecord={allowReplaceRecord}
+                    disabled={disabled || (!allowRemove && !record.isNewAdd)}
+                    isCharge={isCharge}
+                    key={record.rowid}
+                    controls={this.controls}
+                    sheetSwitchPermit={sheetSwitchPermit}
+                    data={record}
+                    cover={this.getCoverUrl(coverCid, record)}
+                    allowlink={allowlink}
+                    parentControl={control}
+                    sourceEntityName={sourceEntityName}
+                    onClick={
+                      !allowOpenRecord ||
+                      (this.mobileShowAddAsDropdown && !disabled && advancedSetting.allowlink === '1') ||
+                      (control.isSubList && _.get(window, 'shareState.shareId')) ||
+                      allowlink === '0' ||
+                      !record.rowid ||
+                      /^temp/.test(record.rowid)
+                        ? () => {}
+                        : () => {
+                            handlePushState('page', `relateRecord-${recordId}`);
+                            addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
+                            this.setState({ previewRecord: { recordId: record.rowid } });
+                          }
+                    }
+                    onDelete={() => this.handleDelete(record)}
+                    onReplaceRecord={() => this.handleReplaceRecord(record)}
+                  />
+                );
+              }}
+            />
+          )}
           {records.length > colNum * 3 && (
             <div>
               {recordId && showLoadMore && showAll && (
@@ -966,7 +1014,9 @@ class RelateRecordCards extends Component {
                     ) : (
                       <Button className="relateRecordBtn" onClick={this.handleClick}>
                         <i className="icon icon-plus mRight5 Font16"></i>
-                        {sourceBtnName || sourceEntityName || ''}
+                        <span className="overflow_ellipsis WordBreak" title={sourceBtnName || sourceEntityName || ''}>
+                          {sourceBtnName || sourceEntityName || ''}
+                        </span>
                       </Button>
                     ))
                   ) : !records.length ? (
@@ -1067,6 +1117,7 @@ class RelateRecordCards extends Component {
                 filterControls={filterControls}
                 parentWorksheetId={worksheetId}
                 control={control}
+                relateRecordIds={records.map(r => r.rowid)}
                 onChange={data => {
                   this.handleAdd([data]);
                 }}

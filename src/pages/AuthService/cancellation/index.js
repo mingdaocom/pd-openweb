@@ -7,7 +7,8 @@ import { Button, Checkbox, LoadDiv, RichText, VerifyPasswordInput } from 'ming-u
 import accountAjax from 'src/api/account';
 import preall from 'src/common/preall';
 import verifyPassword from 'src/components/verifyPassword';
-import { browserIsMobile, mdAppResponse } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { mdAppResponse } from 'src/utils/project';
 import { Wrap } from './style.jsx';
 
 const actionMsg = {

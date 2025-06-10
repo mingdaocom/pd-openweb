@@ -1,7 +1,12 @@
-import { sum } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
+import { sum } from 'lodash';
 
-const defaultWidth = 200;
+function getDefaultWidth(control) {
+  if ((control.type === 2 || control.type === 1) && control.attribute === 1) {
+    return 350;
+  }
+  return 150;
+}
 
 export default function useTableWidth(props) {
   const { width, xIsScroll, visibleControls = [], sheetColumnWidths = {} } = props;
@@ -9,13 +14,17 @@ export default function useTableWidth(props) {
     controls =>
       sum(
         controls.map(
-          control => (sheetColumnWidths[control.controlId] || control.width || 0) + (control.appendWidth || 0),
+          control =>
+            (sheetColumnWidths[control.controlId] ||
+              control.width ||
+              ((control.type === 2 || control.type === 1) && control.attribute === 1 && 350) ||
+              0) + (control.appendWidth || 0),
         ),
       ),
     [sheetColumnWidths],
   );
   const summedWidth = useMemo(
-    () => sumControlWidth(visibleControls.map(c => ({ ...c, width: c.width || defaultWidth }))),
+    () => sumControlWidth(visibleControls.map(c => ({ ...c, width: c.width || getDefaultWidth(c) }))),
     [visibleControls],
   );
   const averageWidth = useMemo(
@@ -23,7 +32,9 @@ export default function useTableWidth(props) {
       summedWidth < width &&
       Math.floor(
         (width - sumControlWidth(visibleControls)) /
-          visibleControls.filter(c => !(sheetColumnWidths[c.controlId] || c.width)).length,
+          visibleControls.filter(
+            c => !(sheetColumnWidths[c.controlId] || c.width || ((c.type === 2 || c.type === 1) && c.attribute === 1)),
+          ).length,
       ),
     [width, summedWidth],
   );
@@ -31,8 +42,11 @@ export default function useTableWidth(props) {
     index => {
       const control = visibleControls[index] || {};
       return (
-        (control.width || sheetColumnWidths[control.controlId] || (!xIsScroll && averageWidth) || 200) +
-        (control.appendWidth || 0)
+        (control.width ||
+          sheetColumnWidths[control.controlId] ||
+          ((control.type === 2 || control.type === 1) && control.attribute === 1 && 350) ||
+          (!xIsScroll && averageWidth) ||
+          getDefaultWidth(control)) + (control.appendWidth || 0)
       );
     },
     [visibleControls, sheetColumnWidths, averageWidth],

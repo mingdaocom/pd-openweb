@@ -1,15 +1,15 @@
-import React, { useState, Fragment, useRef, useCallback, useEffect } from 'react';
-import _ from 'lodash';
-import { getWithToken } from 'worksheet/util';
-import { usePasteText } from 'worksheet/hooks';
-import { Dropdown, Button, Tooltip } from 'ming-ui';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useKey } from 'react-use';
 import cx from 'classnames';
-import PreviewTable from './PreviewTable';
-import styled from 'styled-components';
-import UploadFile from 'worksheet/components/DialogImportExcelCreate/DialogUpload/UploadFile';
+import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import styled from 'styled-components';
+import { Button, Dropdown, Tooltip } from 'ming-ui';
+import UploadFile from 'worksheet/components/DialogImportExcelCreate/DialogUpload/UploadFile';
+import { usePasteText } from 'worksheet/hooks';
+import { getWithToken } from 'src/utils/common';
+import { isKeyBoardInputChar } from 'src/utils/common';
+import PreviewTable from './PreviewTable';
 
 // ctrl Z 撤销最多支持次数
 const CACHE_STACK_LENGTH = 20;

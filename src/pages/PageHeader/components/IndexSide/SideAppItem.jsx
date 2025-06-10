@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
-import { Icon, MdLink, Tooltip, SvgIcon } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { getAppStatusText } from 'src/pages/PageHeader/util';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
 import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { addBehaviorLog } from 'src/util';
+import { getAppStatusText } from 'src/pages/PageHeader/util';
+import { addBehaviorLog } from 'src/utils/project';
 
 const AppStatus = styled.div`
   border-radius: 10px;

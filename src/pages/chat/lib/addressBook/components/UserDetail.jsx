@@ -1,17 +1,18 @@
 ﻿import React from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import Dropdown from 'ming-ui/components/Dropdown';
-import { Tooltip, Icon, LoadDiv, ScrollView, Dialog } from 'ming-ui';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import AddFriend from './AddFriend';
-import API, { removeFriend } from '../api';
-import { config } from '../config';
-import departmentController from 'src/api/department';
-import { addFriendConfirm } from 'ming-ui/functions';
 import _ from 'lodash';
 import moment from 'moment';
+import { Dialog, Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import Dropdown from 'ming-ui/components/Dropdown';
+import Menu from 'ming-ui/components/Menu';
+import MenuItem from 'ming-ui/components/MenuItem';
+import { addFriendConfirm } from 'ming-ui/functions';
+import departmentController from 'src/api/department';
+import { checkCertification } from 'src/components/checkCertification';
+import API, { removeFriend } from '../api';
+import { config } from '../config';
+import AddFriend from './AddFriend';
 
 const defaultState = {
   data: null,
@@ -114,7 +115,10 @@ export default class UserDetail extends React.Component {
     if (accountId === md.global.Account.accountId) return null;
     if (!isFriend) {
       return (
-        <span className="Right Gray_75 Hand ThemeHoverColor3" onClick={this.addFriendConfirm}>
+        <span
+          className="Right Gray_75 Hand ThemeHoverColor3"
+          onClick={() => checkCertification({ isPersonal: true, checkSuccess: this.addFriendConfirm })}
+        >
           <i className="Font14 icon-custom_add_circle TxtMiddle" />
           <span className="mLeft5 TxtMiddle Font12">{_l('添加好友')}</span>
         </span>

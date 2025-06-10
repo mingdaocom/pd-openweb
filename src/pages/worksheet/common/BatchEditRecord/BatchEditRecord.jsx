@@ -6,8 +6,10 @@ import { Modal } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import useApi from 'worksheet/hooks/useApi';
-import { checkCellIsEmpty, controlBatchCanEdit, replaceControlsTranslateInfo } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { controlBatchCanEdit } from 'src/utils/control';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { getEditType, handleBatchUpdateRecords } from './controller';
 import EditControlItem from './EditControlItem';
 

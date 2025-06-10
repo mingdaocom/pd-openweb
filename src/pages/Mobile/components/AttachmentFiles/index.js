@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { QiniuUpload, Icon, Progress } from 'ming-ui';
-import './index.less';
-import { generateRandomPassword, getClassNameByExt, getToken, formatFileSize } from 'src/util';
-import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import moment from 'moment';
-import MapLoader from 'src/ming-ui/components/amap/MapLoader';
-import MapHandler from 'src/ming-ui/components/amap/MapHandler';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
-import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
+import moment from 'moment';
+import { Icon, Progress, QiniuUpload } from 'ming-ui';
+import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
+import MapHandler from 'src/ming-ui/components/amap/MapHandler';
+import MapLoader from 'src/ming-ui/components/amap/MapLoader';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { generateRandomPassword } from 'src/utils/common';
+import { getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import './index.less';
 
 function getDynamicWrapTxt(dynamicTxt, canvasWidth, ctx, fontSize) {
   if (!dynamicTxt) return [];
@@ -507,8 +508,8 @@ export default class AttachmentList extends Component {
     const url = isKc
       ? `${item.middlePath + item.middleName}`
       : path.indexOf('imageView2') > -1
-      ? path.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-      : `${path}&imageView2/1/w/200/h/140`;
+        ? path.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+        : `${path}&imageView2/1/w/200/h/140`;
     return (
       <div
         key={item.fileID}
@@ -583,8 +584,8 @@ export default class AttachmentList extends Component {
           'progress' in item
             ? this.renderProgress(item)
             : RegExpValidator.fileIsPicture(item.fileExt || item.ext)
-            ? this.renderImage(item, index)
-            : this.renderFile(item, index),
+              ? this.renderImage(item, index)
+              : this.renderFile(item, index),
         )}
         {emptys.map((item, index) => (
           <div key={index} className="fileWrapper fileEmpty"></div>

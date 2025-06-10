@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { ScrollView, Button, Modal } from 'ming-ui';
+import PropTypes from 'prop-types';
+import { Button, Modal, ScrollView } from 'ming-ui';
 import IconBtn from 'worksheet/common/recordInfo/RecordForm/IconBtn.jsx';
+import { browserIsMobile } from 'src/utils/common';
 import RowDetail from './RowDetail';
-import { browserIsMobile } from 'src/util';
 
 export default function RowDetailModal(props) {
   const {

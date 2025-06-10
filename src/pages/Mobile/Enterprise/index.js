@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
 import { SpinLoading } from 'antd-mobile';
-import { Icon, Radio } from 'ming-ui';
-import Back from '../components/Back';
-import account from 'src/api/account';
-import common from 'src/pages/Personal/common';
-import { getCurrentProject } from 'src/util';
-import styled from 'styled-components';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Icon, Radio } from 'ming-ui';
+import account from 'src/api/account';
+import common from 'src/pages/Personal/common';
+import { getCurrentProject } from 'src/utils/project';
+import Back from '../components/Back';
 
 const EmptyProject = styled.div`
   display: flex;
@@ -167,7 +167,7 @@ class ProjectCard extends Component {
         {visible &&
           (loading ? (
             <div className="flexRow justifyContentCenter alignItemsCenter mTop10">
-              <SpinLoading color='primary' />
+              <SpinLoading color="primary" />
             </div>
           ) : (
             this.renderUserCard()
@@ -261,7 +261,7 @@ class Enterprise extends Component {
       <div className="h100" style={{ background: '#f5f5f5', paddingTop: 10, overflowY: 'auto' }}>
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
-            <SpinLoading color='primary' />
+            <SpinLoading color="primary" />
           </div>
         ) : currentProject && !_.isEmpty(projectList) ? (
           <Fragment>

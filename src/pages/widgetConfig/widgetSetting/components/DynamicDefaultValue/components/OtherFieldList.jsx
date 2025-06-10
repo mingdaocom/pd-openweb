@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
-import { string } from 'prop-types';
-import OtherField from './OtherField';
-import { OtherFieldList, FieldInfo, RelateControl } from '../styled';
-import { getDateType, getControlType, showClear, getTypeList } from '../util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import _ from 'lodash';
 import moment from 'moment';
+import { string } from 'prop-types';
+import { renderText as renderCellText } from 'src/utils/control';
+import { FieldInfo, OtherFieldList, RelateControl } from '../styled';
+import { getControlType, getDateType, getTypeList, showClear } from '../util';
+import OtherField from './OtherField';
 
 const isOnlySelect = (dynamicValue, data) => {
   const type = getControlType(data);

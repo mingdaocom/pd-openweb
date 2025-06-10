@@ -1,13 +1,13 @@
 import React, { PureComponent } from 'react';
-import cx from 'classnames';
-import { Icon, SvgIcon } from 'ming-ui';
 import { Drawer } from 'antd';
+import cx from 'classnames';
 import styled from 'styled-components';
-import SheetSet from './sheetSet';
-import OptionSet from './optionSet';
-import ControlSet from './controlSet';
-import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import { Icon, SvgIcon } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
+import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import ControlSet from './controlSet';
+import OptionSet from './optionSet';
+import SheetSet from './sheetSet';
 
 const Wrap = styled.div`
   padding: 24px 40px;
@@ -61,8 +61,8 @@ export default class Con extends PureComponent {
   }
 
   componentDidMount() {
-    const { sheet } = this.props;
-    worksheetApi.getExtendAttrOptionalControl({ worksheetId: sheet.sheetId }).then(res => {
+    const { sheet, isForPortal } = this.props;
+    worksheetApi.getExtendAttrOptionalControl({ worksheetId: sheet.sheetId, isPortal: isForPortal }).then(res => {
       this.setState({
         extendAttrList: res,
       });

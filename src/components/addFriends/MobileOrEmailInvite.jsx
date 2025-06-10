@@ -8,8 +8,7 @@ import InviteController from 'src/api/invitation';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import Tel from 'src/pages/Role/PortalCon/components/Tel';
-import { existAccountHint } from 'src/util';
-import { encrypt } from 'src/util';
+import { encrypt, existAccountHint } from 'src/utils/common';
 import { DETAIL_MODE, FROM_TYPE } from './enum';
 
 const DISPLAY_OPTIONS = [

@@ -394,6 +394,19 @@ export default {
      return mdyAPI('MarketplacePayment', 'IDCardOCR', args, options);
    },
   /**
+  * 智能结构化识别
+  * @param {Object} args 请求参数
+  * @param {string} args.url 图片的 Url 地址。要求图片经Base64编码后不超过 7M，分辨率建议500*800以上，支持PNG、JPG、JPEG、BMP格式。建议卡片部分占据图片2/3以上。 建议图片存储于腾讯云，可保障更高的下载速度和稳定性。
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   smartStructuralOCR: function (args, options = {}) {
+     
+     return mdyAPI('MarketplacePayment', 'SmartStructuralOCR', args, options);
+   },
+  /**
   * 授权应用退款
   * @param {Object} args 请求参数
   * @param {string} args.id 主键

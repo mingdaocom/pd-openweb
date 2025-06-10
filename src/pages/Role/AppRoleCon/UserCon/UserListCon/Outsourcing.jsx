@@ -1,18 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSetState } from 'react-use';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
-import { Icon, UserHead } from 'ming-ui';
-import Table from 'src/pages/Role/component/Table';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import { getCurrentProject } from 'src/util';
-import { getIcon, getColor, getTxtColor } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Icon, UserHead } from 'ming-ui';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
+import { getColor, getIcon, getTxtColor } from 'src/pages/Role/AppRoleCon/UserCon/config';
+import Table from 'src/pages/Role/component/Table';
+import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
+import { getCurrentProject } from 'src/utils/project';
+
 const pageSize = 1000;
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
@@ -153,6 +154,9 @@ function Others(props) {
     {
       id: 'operater',
       name: _l('操作人'),
+      render: (text, data, index) => {
+        return <div className="WordBreak ellipsis">{data.operater}</div>;
+      },
     },
     {
       id: 'operateTime',
@@ -266,8 +270,8 @@ function Others(props) {
           pageIndex <= 1 && loading
             ? []
             : !keyWords
-            ? userList
-            : userList.filter(o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0)
+              ? userList
+              : userList.filter(o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0)
         }
         pageIndex={pageIndex}
         total={total}

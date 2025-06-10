@@ -24,6 +24,9 @@ export const LayoutContent = styled.div`
       visibility: visible;
     }
   }
+  &[richText-offset-top] {
+    top: 25px;
+  }
   .widgetContentTools, &.resizing .widgetContentTools {
     visibility: hidden;
   }
@@ -39,6 +42,8 @@ export const LayoutContent = styled.div`
     transition: box-shadow 0.2s;
     // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     &.richText {
+      overflow: inherit;
+      background: transparent !important;
       .editorNull {
         border: none;
       }
@@ -50,6 +55,14 @@ export const LayoutContent = styled.div`
       justify-content: center;
       padding: 0 10px;
     }
+    &.view.widgetIsDark {
+      .SingleViewHeader {
+        border-color: transparent;
+      }
+      .customWidgetIframe {
+        border: none;
+      }
+    }
     &.filter.mobile {
       background-color: transparent;
       box-shadow: none;
@@ -58,7 +71,7 @@ export const LayoutContent = styled.div`
         display: none;
       }
     }
-    &.tabs {
+    &.tabs, &.image {
       background: transparent !important;
       >div {
         padding: 0;
@@ -157,6 +170,7 @@ function WidgetContent(props) {
     setWidget = _.noop,
     isFullscreen = false,
     adjustScreen,
+    widgetIsDark,
     apk,
     isCharge,
     appPkg
@@ -230,9 +244,10 @@ function WidgetContent(props) {
                 className={cx('widgetContent', enumType, layoutType, {
                   haveTitle: titleVisible,
                   iframeNoneEvent: enumType === 'embedUrl' && editable,
+                  widgetIsDark
                 })}
                 style={{
-                  backgroundColor: layoutType === 'web' ? config.widgetBgColor : undefined
+                  backgroundColor: config.widgetBgColor
                 }}
               >
                 <WidgetDisplay

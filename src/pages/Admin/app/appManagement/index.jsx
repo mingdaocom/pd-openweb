@@ -1,49 +1,50 @@
 import React, { Component, Fragment } from 'react';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import './index.less';
-import {
-  LoadDiv,
-  Dropdown,
-  Switch,
-  Icon,
-  ScrollView,
-  DeleteReconfirm,
-  Dialog,
-  SvgIcon,
-  Tooltip,
-  UserHead,
-  UpgradeIcon,
-  MdLink,
-} from 'ming-ui';
-import cx from 'classnames';
-import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
-import Search from 'src/pages/workflow/components/Search';
-import ajaxRequest from 'src/api/appManagement';
-import homeAppAjax from 'src/api/homeApp';
-import { dialogSelectUser, checkIsAppAdmin } from 'ming-ui/functions';
-import Trigger from 'rc-trigger';
 import { createRoot } from 'react-dom/client';
-import ExportApp from './modules/ExportApp';
-import SelectApp from './modules/SelectApp';
-import AppLog from './modules/AppLog';
 import { Drawer, Select } from 'antd';
-import EventEmitter from 'events';
-import { getFeatureStatus, addBehaviorLog, getCurrentProject } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import SelectUser from '../../components/SelectUser';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { decryptFunc } from './modules/Dectypt';
-import projectAjax from 'src/api/project';
 import qs from 'query-string';
+import Trigger from 'rc-trigger';
+import {
+  DeleteReconfirm,
+  Dialog,
+  Dropdown,
+  Icon,
+  LoadDiv,
+  MdLink,
+  ScrollView,
+  SvgIcon,
+  Switch,
+  Tooltip,
+  UpgradeIcon,
+  UserHead,
+} from 'ming-ui';
+import { checkIsAppAdmin, dialogSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
+import projectAjax from 'src/api/project';
+import { hasPermission } from 'src/components/checkPermission';
+import { getMyPermissions } from 'src/components/checkPermission';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import UpgradeProcess from 'src/pages/AppSettings/components/ImportUpgrade/components/UpgradeProcess';
-
-export const emitter = new EventEmitter();
+import Search from 'src/pages/workflow/components/Search';
+import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
+import { emitter } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
+import SelectUser from '../../components/SelectUser';
+import AppLog from './modules/AppLog';
+import { decryptFunc } from './modules/Dectypt';
+import ExportApp from './modules/ExportApp';
+import SelectApp from './modules/SelectApp';
+import './index.less';
 
 const optionData = [
   {
@@ -138,6 +139,7 @@ export default class AppManagement extends Component {
       },
       () => {
         this.getAppList();
+        this.getMyPermissions();
       },
     );
 
@@ -164,6 +166,19 @@ export default class AppManagement extends Component {
       this.checkExportOrImportAuth(projectId);
     }
   }
+
+  getMyPermissions = () => {
+    const { projectId } = this.props.match.params;
+
+    getMyPermissions(projectId, false).then(permissionIds =>
+      this.setState({
+        myPermissions: permissionIds,
+        allowDelete:
+          !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
+          hasPermission(permissionIds, PERMISSION_ENUM.CREATE_APP),
+      }),
+    );
+  };
 
   async getDBInstances(importApp) {
     const { requested, dataDBInstances } = this.state;
@@ -277,7 +292,7 @@ export default class AppManagement extends Component {
    */
   renderListItem(item) {
     const { projectId } = this.props.match.params;
-    const { list, hiddenIds, hasDataBase } = this.state;
+    const { list, hiddenIds, hasDataBase, allowDelete } = this.state;
     const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
     return (
       <div className="flexRow manageList overflowHidden" key={item.appId}>
@@ -394,50 +409,52 @@ export default class AppManagement extends Component {
                       {_l('导出')}
                     </li>
                   )}
-                  <li
-                    className="deleteIcon"
-                    onClick={() => {
-                      DeleteReconfirm({
-                        title: _l('你确定删除此应用吗？'),
-                        description: _l('应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作'),
-                        data: [{ text: _l('我确认执行此操作'), value: true }],
-                        onOk: () => {
-                          const oldTotal = this.state.total;
-                          this.setState({
-                            total: oldTotal - 1,
-                            hiddenIds: _.uniq([...hiddenIds, item.appId]),
-                          });
-                          homeAppAjax
-                            .deleteApp({
-                              appId: item.appId,
-                              projectId,
-                              isHomePage: false,
-                            })
-                            .then(res => {
-                              if (res.data) {
+                  {(_.isUndefined(allowDelete) || allowDelete) && (
+                    <li
+                      className="deleteIcon"
+                      onClick={() => {
+                        DeleteReconfirm({
+                          title: _l('你确定删除此应用吗？'),
+                          description: _l('应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作'),
+                          data: [{ text: _l('我确认执行此操作'), value: true }],
+                          onOk: () => {
+                            const oldTotal = this.state.total;
+                            this.setState({
+                              total: oldTotal - 1,
+                              hiddenIds: _.uniq([...hiddenIds, item.appId]),
+                            });
+                            homeAppAjax
+                              .deleteApp({
+                                appId: item.appId,
+                                projectId,
+                                isHomePage: false,
+                              })
+                              .then(res => {
+                                if (res.data) {
+                                  this.setState({
+                                    hiddenIds: hiddenIds.filter(id => id !== item.appId),
+                                  });
+                                  this.updateState({});
+                                } else {
+                                  return Promise.reject();
+                                }
+                              })
+                              .catch(() => {
                                 this.setState({
                                   hiddenIds: hiddenIds.filter(id => id !== item.appId),
+                                  total: oldTotal,
                                 });
-                                this.updateState({});
-                              } else {
-                                return Promise.reject();
-                              }
-                            })
-                            .catch(() => {
-                              this.setState({
-                                hiddenIds: hiddenIds.filter(id => id !== item.appId),
-                                total: oldTotal,
+                                alert(_l('操作失败，请稍候重试！'), 2);
                               });
-                              alert(_l('操作失败，请稍候重试！'), 2);
-                            });
-                        },
-                      });
-                      this.handleChangeVisible('rowVisible', item.appId);
-                    }}
-                  >
-                    <Icon icon={'hr_delete'} className="mRight12 Gray_9e" />
-                    {_l('删除')}
-                  </li>
+                          },
+                        });
+                        this.handleChangeVisible('rowVisible', item.appId);
+                      }}
+                    >
+                      <Icon icon={'hr_delete'} className="mRight12 Gray_9e" />
+                      {_l('删除')}
+                    </li>
+                  )}
                 </ul>
               );
             }}

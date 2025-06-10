@@ -1,10 +1,11 @@
 import React from 'react';
-import { Dialog, Switch, Tooltip, Icon } from 'ming-ui';
 import copy from 'copy-to-clipboard';
-import './index.less';
-import projectSettingController from 'src/api/projectSetting';
-import { emitter } from '../departmentView/createBtn';
 import { navigateTo } from 'router/navigateTo';
+import { Dialog, Icon, Switch, Tooltip } from 'ming-ui';
+import projectSettingController from 'src/api/projectSetting';
+import { emitter } from 'src/utils/common';
+import './index.less';
+
 // 新用户加入企业必填字段
 
 class DialogSettingInviteRules extends React.Component {
@@ -52,7 +53,14 @@ class DialogSettingInviteRules extends React.Component {
   };
 
   render() {
-    const { showDialogSettingInviteRules, setValue, updateType, dispatch, projectId } = this.props;
+    const {
+      showDialogSettingInviteRules,
+      setValue,
+      updateType,
+      dispatch,
+      projectId,
+      updateAllowProjectCodeJoin = () => {},
+    } = this.props;
     return (
       <Dialog
         width={640}
@@ -110,6 +118,7 @@ class DialogSettingInviteRules extends React.Component {
                       showDialogSettingInviteRules: false,
                     });
                     alert(_l('保存成功'));
+                    updateAllowProjectCodeJoin(this.state.allowProjectCodeJoin);
                     break;
                   case 2:
                     setValue({

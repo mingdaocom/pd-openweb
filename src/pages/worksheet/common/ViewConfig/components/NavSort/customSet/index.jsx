@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, LoadDiv } from 'ming-ui';
-import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
-import styled from 'styled-components';
-import sheetAjax from 'src/api/worksheet';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import SortList from './components/SortList';
-import { quickSelectUser, quickSelectDept, quickSelectRole } from 'ming-ui/functions';
 import cx from 'classnames';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
+import { quickSelectDept, quickSelectRole, quickSelectUser } from 'ming-ui/functions';
+import sheetAjax from 'src/api/worksheet';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { renderText as renderCellText } from 'src/utils/control';
+import SortList from './components/SortList';
 
 const Wrap = styled.div`
   .recordItem {

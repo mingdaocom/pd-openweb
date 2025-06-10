@@ -1,20 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Icon, MenuItem } from 'ming-ui';
-import webCacheAjax from 'src/api/webCache';
 import _ from 'lodash';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Icon, MenuItem } from 'ming-ui';
+import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const MenuBox = styled.div`
   max-width: 280px;
   padding: 5px 0;
   border-radius: 3px;
   background: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   max-height: 500px;
   overflow-y: scroll;
   .icon-new_word {

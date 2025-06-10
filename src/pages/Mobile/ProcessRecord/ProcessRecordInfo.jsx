@@ -1,16 +1,16 @@
-import React, { Fragment, Component } from 'react';
-import { Icon } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
-import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import instanceApi from 'src/pages/workflow/api/instance';
-import { Loading, Abnormal } from 'mobile/components/RecordInfo/RecordState';
+import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
+import { Abnormal, Loading } from 'mobile/components/RecordInfo/RecordState';
 import WorkflowStepItem from 'mobile/ProcessRecord/WorkflowStepItem';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
-import Footer from './Footer';
 import { ACTION_TYPES } from 'src/pages/workflow/components/ExecDialog/config';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog } from 'src/utils/project';
+import Footer from './Footer';
 
 export default class ProcessRecordInfo extends Component {
   constructor(props) {
@@ -37,45 +37,49 @@ export default class ProcessRecordInfo extends Component {
     Promise.all([
       worksheetApi.getWorkItem({
         instanceId,
-        workId
+        workId,
       }),
       instanceVersionApi.get({
         id: instanceId,
-        workId
-      })
-    ]).then(data => {
-      const [workItem, instance] = data;
-      // 落地页，调用 app 接口获取状态
-      if (!isModal && _.get(instance, 'app.id')) {
-        homeAppApi.getApp({
-          appId: _.get(instance, 'app.id')
-        }).then(data => {
-          addBehaviorLog('worksheetRecord', workItem.worksheetId, { rowId: workItem.rowId });
+        workId,
+      }),
+    ])
+      .then(data => {
+        const [workItem, instance] = data;
+        // 落地页，调用 app 接口获取状态
+        if (!isModal && _.get(instance, 'app.id')) {
+          homeAppApi
+            .getApp({
+              appId: _.get(instance, 'app.id'),
+            })
+            .then(data => {
+              addBehaviorLog('worksheetRecord', workItem.worksheetId, { rowId: workItem.rowId });
+              this.setState({
+                loading: false,
+                appInfo: data,
+                workItem,
+                instance,
+              });
+            });
+        } else {
           this.setState({
             loading: false,
-            appInfo: data,
             workItem,
             instance,
           });
-        });
-      } else {
+        }
+      })
+      .catch(err => {
         this.setState({
           loading: false,
-          workItem,
-          instance,
+          error: true,
+          errorMsg: _.get(err, 'errorMessage') || _l('流程已关闭或删除'),
         });
-      }
-    }).catch(err => {
-      this.setState({
-        loading: false,
-        error: true,
-        errorMsg: _.get(err, 'errorMessage') || _l('流程已关闭或删除')
       });
-    });
   }
   handleStash = () => {
     this.processFooter.current.handleClick('stash');
-  }
+  };
   ownerHandle = () => {
     const { instanceId, workId, onClose } = this.props;
     const { currentWorkItem } = this.state.instance;
@@ -106,9 +110,7 @@ export default class ProcessRecordInfo extends Component {
           <Icon icon={typeof action.icon === 'string' ? action.icon : action.icon[appType]} className="Font18" />
           <span>{name}</span>
         </div>
-        {isStash && (
-          <Icon className="Font22 mRight10 Gray_9e" icon="save1" onClick={this.handleStash} />
-        )}
+        {isStash && <Icon className="Font22 mRight10 Gray_9e" icon="save1" onClick={this.handleStash} />}
       </div>
     );
   }
@@ -133,15 +135,11 @@ export default class ProcessRecordInfo extends Component {
     }
 
     if (appInfo.webMobileDisplay) {
-      return (
-        <FixedPage isNoPublish={true} backVisible={false} />
-      );
+      return <FixedPage isNoPublish={true} backVisible={false} />;
     }
 
     if (error) {
-      return (
-        <Abnormal errorMsg={errorMsg} onClose={onClose} />
-      );
+      return <Abnormal errorMsg={errorMsg} onClose={onClose} />;
     }
 
     return (
@@ -159,7 +157,7 @@ export default class ProcessRecordInfo extends Component {
         renderAbnormal={() => {
           return (
             <Abnormal
-              errorMsg={(
+              errorMsg={
                 <div className="flexColumn alignItemsCenter">
                   <div className="Font17 Bold Gray">{_l('当前记录无权限，无法查看')}</div>
                   {!!instance.operationTypeList[0].length && (
@@ -168,12 +166,12 @@ export default class ProcessRecordInfo extends Component {
                     </div>
                   )}
                 </div>
-              )}
+              }
               onClose={onClose}
             />
           );
         }}
-        footer={(
+        footer={
           <Footer
             ref={this.processFooter}
             workId={workId}
@@ -182,7 +180,7 @@ export default class ProcessRecordInfo extends Component {
             instance={instance}
             onClose={onClose}
           />
-        )}
+        }
         workflow={this.renderWorkflow}
       />
     );

@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import ChartDialog from '../ChartDialog';
 import { Provider } from 'react-redux';
-import { LoadDiv } from 'ming-ui';
-import store from 'src/redux/configureStore';
-import appManagementApi from 'src/api/appManagement';
-import abnormal from 'src/pages/worksheet/assets/abnormal.png';
-import './index.less';
-import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
-import _ from 'lodash';
 import cx from 'classnames';
-import { getRequest, shareGetAppLangDetail } from 'src/util';
+import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
+import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
+import preall from 'src/common/preall';
+import abnormal from 'src/pages/worksheet/assets/abnormal.png';
+import store from 'src/redux/configureStore';
+import { shareGetAppLangDetail } from 'src/utils/app';
+import { getRequest } from 'src/utils/common';
+import ChartDialog from '../ChartDialog';
+import './index.less';
 
 const { hideHeader } = getRequest();
 
@@ -33,7 +34,7 @@ export default class PublicShareChart extends Component {
     appManagementApi
       .getEntityShareById({
         id,
-        sourceType: 31
+        sourceType: 31,
       })
       .then(async data => {
         localStorage.setItem('currentProjectId', _.get(data, 'data.projectId'));

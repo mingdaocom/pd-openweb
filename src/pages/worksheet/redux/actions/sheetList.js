@@ -1,20 +1,21 @@
 import store from 'redux/configureStore';
-import sheetApi from 'src/api/worksheet';
-import homeAppApi from 'src/api/homeApp';
-import appManagementApi from 'src/api/appManagement';
-import webCache from 'src/api/webCache';
 import update from 'immutability-helper';
 import { pick } from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { updateIsCharge, updateAppPkgData } from 'worksheet/redux/actions';
-import { updateAppGroup } from 'src/pages/PageHeader/redux/action';
-import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
-import { updatePageInfo, updateEditPageVisible } from 'src/pages/customPage/redux/action';
-import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
-import { getSheetListFirstId, moveSheetCache } from 'worksheet/util';
-import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import moment from 'moment';
+import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import webCache from 'src/api/webCache';
+import sheetApi from 'src/api/worksheet';
+import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
+import { updateEditPageVisible, updatePageInfo } from 'src/pages/customPage/redux/action';
+import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { updateAppGroup } from 'src/pages/PageHeader/redux/action';
+import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { navigateTo } from 'src/router/navigateTo';
+import { moveSheetCache } from 'src/utils/worksheet';
+import { getSheetListFirstId } from 'src/utils/worksheet';
 
 export const formatLeftSectionDetail = data => {
   return data.workSheetInfo.map(s => {

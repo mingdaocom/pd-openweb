@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { MessageHandler } from 'src/util/iframeCommunicate';
+import { MessageHandler } from 'src/utils/iframeCommunicate';
 import { getRowsRelation } from './functions';
 
 const Con = styled.div`
@@ -47,7 +47,8 @@ export default function FreeFieldRunner({
   onError = () => {},
 }) {
   const [iframeId] = useState(v4());
-  const { currentControlId, value, env, recordId, worksheetId, onChange } = widgetParams;
+  const { currentControlId, value, env, recordId, worksheetId, onChange, refreshRecord, setControlHeight } =
+    widgetParams;
   const iframeRef = useRef();
   const cache = useRef({});
   cache.current.formData = widgetParams.formData;
@@ -134,6 +135,8 @@ export default function FreeFieldRunner({
     messageHandler.register('getTitleOfRecord', record =>
       getTitleTextFromControls(currentControl.relationControls, record),
     );
+    messageHandler.register('refreshRecord', refreshRecord);
+    messageHandler.register('setControlHeight', setControlHeight);
   }, []);
   return (
     <Con className={className}>

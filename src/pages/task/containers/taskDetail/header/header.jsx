@@ -1,37 +1,37 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import cx from 'classnames';
-import './header.less';
 import { connect } from 'react-redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Checkbox, Dialog, Menu, MenuItem } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import ajaxRequest from 'src/api/taskCenter';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { navigateTo } from 'src/router/navigateTo';
+import { getAppFeaturesPath } from 'src/utils/app';
+import ShareFolderOrTask from '../../../components/shareFolderOrTask/shareFolderOrTask';
+import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
 import {
+  addCheckList,
+  destroyTask,
   editTaskStatus,
   taskFoldStatus,
-  updateTaskNotice,
   updateTaskLocked,
-  destroyTask,
-  addCheckList,
+  updateTaskNotice,
 } from '../../../redux/actions';
-import { checkIsProject, taskStatusDialog } from '../../../utils/utils';
-import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { Menu, MenuItem, Dialog, Checkbox } from 'ming-ui';
-import ShareFolderOrTask from '../../../components/shareFolderOrTask/shareFolderOrTask';
-import CopyTask from '../copyTask/copyTask';
 import {
-  taskTreeAfterDeleteTask,
   afterDeleteTask,
-  afterUpdateTaskStatus,
   afterUpdateLock,
-  getLeftMenuCount,
   afterUpdateTaskDate,
   afterUpdateTaskDateInfo,
+  afterUpdateTaskStatus,
+  getLeftMenuCount,
+  taskTreeAfterDeleteTask,
 } from '../../../utils/taskComm';
-import ajaxRequest from 'src/api/taskCenter';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { navigateTo } from 'src/router/navigateTo';
-import _ from 'lodash';
-import { getAppFeaturesPath } from 'src/util';
+import { checkIsProject, taskStatusDialog } from '../../../utils/utils';
+import CopyTask from '../copyTask/copyTask';
+import './header.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 

@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Menu, MenuItem, Icon, Tooltip, SortableList } from 'ming-ui';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Menu, MenuItem, SortableList, Tooltip } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { FILTER_TYPE } from '../enum';
-import _ from 'lodash';
 
 const Con = styled.div`
   .title {
@@ -132,6 +132,21 @@ function FilterTitleItem(props) {
         )}
       </VerticalMiddle>
       <div onClick={e => e.stopPropagation()}>
+        {canEdit ? (
+          <Tooltip popupPlacement="bottom" text={_l('编辑')}>
+            <i
+              className="icon icon-edit Hand editIcon hoverShow ThemeHoverColor3 Font16 mRight12"
+              onClick={() => onEditFilter(filter)}
+            ></i>
+          </Tooltip>
+        ) : (
+          <Tooltip popupPlacement="bottom" text={_l('查看')}>
+            <i
+              className="icon icon-visibility Hand moreMenu hoverShow ThemeHoverColor3 Font16 mRight12"
+              onClick={() => onEditFilter(filter)}
+            ></i>
+          </Tooltip>
+        )}
         <Trigger
           popupVisible={moreMenuActive}
           action={['click']}
@@ -146,8 +161,16 @@ function FilterTitleItem(props) {
           popup={
             <MenuCon>
               {canEdit && (
-                <MenuItem icon={<Icon icon="settings" className="Font18" />} onClick={() => onEditFilter(filter)}>
-                  {_l('编辑')}
+                <MenuItem
+                  icon={<Icon icon="rename_input" className="Font18" />}
+                  onClick={() => {
+                    onEditFilter(filter);
+                    setTimeout(() => {
+                      document.querySelector('.filterDetailName .name').click();
+                    }, 40);
+                  }}
+                >
+                  {_l('重命名')}
                 </MenuItem>
               )}
               <MenuItem
@@ -159,19 +182,6 @@ function FilterTitleItem(props) {
               >
                 {_l('复制')}
               </MenuItem>
-              {canEdit && (
-                <MenuItem
-                  icon={<Icon icon="edit" className="Font18" />}
-                  onClick={() => {
-                    onEditFilter(filter);
-                    setTimeout(() => {
-                      document.querySelector('.filterDetailName .name').click();
-                    }, 40);
-                  }}
-                >
-                  {_l('重命名')}
-                </MenuItem>
-              )}
               {isCharge && (
                 <MenuItem
                   icon={<Icon icon="group-members" className="Font18" />}
@@ -251,7 +261,7 @@ export default function FilterTitleList(props) {
               error={filterHasError(filter, controls)}
               active={activeFilter.id === filter.id}
               isCharge={isCharge}
-              className={cx({ isDragging: dragging, draggingItem: isLayer })}
+              className={cx({ isDragging: dragging, draggingItem: isLayer }, 'filter_' + filter.id)}
               key={filter.id}
               index={index}
               filter={filter}

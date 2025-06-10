@@ -1,28 +1,29 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
+import { Skeleton } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
-import { ScrollView, LoadDiv, Checkbox, WaterMark, Icon, Tooltip } from 'ming-ui';
-import { Skeleton } from 'antd';
+import { Checkbox, LoadDiv, ScrollView, WaterMark } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import GlobalSearchSide from './containers/GlobalSearchSide';
-import GlobalSearchEmpty from './components/GlobalSearchEmpty';
-import UserList from './components/UserList';
-import OrgSelect from './components/OrgSelect';
-import List from './components/List';
-import AppList from './components/AppList';
-import { navigateTo } from 'src/router/navigateTo';
 import smartSearchAjax from 'src/api/smartSearch';
-import { getRequest, getFeatureStatus } from 'src/util';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { NEED_ALL_ORG_TAB, SEARCH_APP_SEARCH_TYPE } from './enum';
-import './index.less';
-import SelectApp from './components/selectApp';
-import SelectSort from './components/SelectSort';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import AppList from './components/AppList';
 import DateFilter from './components/DateFilter';
 import FilterPosition from './components/FilterPosition';
+import GlobalSearchEmpty from './components/GlobalSearchEmpty';
+import List from './components/List';
+import OrgSelect from './components/OrgSelect';
+import SelectApp from './components/selectApp';
+import SelectSort from './components/SelectSort';
+import UserList from './components/UserList';
+import GlobalSearchSide from './containers/GlobalSearchSide';
+import { NEED_ALL_ORG_TAB, SEARCH_APP_SEARCH_TYPE } from './enum';
 import { getCurrentProjectId } from './utils';
+import './index.less';
 
 @withRouter
 @errorBoundary
@@ -79,8 +80,8 @@ export default class GlobalSearch extends Component {
     const _projectId = NEED_ALL_ORG_TAB.includes(urlParam.search_type)
       ? 'all'
       : urlParam.search_type !== searchType
-      ? getCurrentProjectId()
-      : projectId;
+        ? getCurrentProjectId()
+        : projectId;
 
     this.updateSearchParam({
       searchKey: urlParam.search_key,
@@ -88,8 +89,8 @@ export default class GlobalSearch extends Component {
       projectId: NEED_ALL_ORG_TAB.includes(urlParam.search_type)
         ? 'all'
         : urlParam.search_type !== searchType
-        ? getCurrentProjectId()
-        : projectId,
+          ? getCurrentProjectId()
+          : projectId,
       appProjectId: urlParam.search_type !== searchType ? getCurrentProjectId() : appProjectId,
       pageIndex: 1,
       dateRange: undefined,
@@ -232,8 +233,8 @@ export default class GlobalSearch extends Component {
           total: SEARCH_APP_SEARCH_TYPE.hasOwnProperty(searchType)
             ? _data.total || 0
             : _data[0]
-            ? _data[0].count || 0
-            : 0,
+              ? _data[0].count || 0
+              : 0,
           searchAppResCode: res.resultCode,
         };
         if (['app', 'record'].indexOf(searchType) > -1) {
@@ -692,8 +693,8 @@ export default class GlobalSearch extends Component {
                           {searchAppResCode === 2 && searchType === 'record'
                             ? _l('数据正在初始化，请耐心等待')
                             : ['app', 'record'].indexOf(searchType) < 0
-                            ? _l('搜索到 %0 个结果', total)
-                            : null}
+                              ? _l('搜索到 %0 个结果', total)
+                              : null}
                         </p>
                       </Skeleton>
                     )}

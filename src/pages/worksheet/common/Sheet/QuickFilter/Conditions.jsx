@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
-import cx from 'classnames';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Motion, spring } from 'react-motion';
-import { Button } from 'ming-ui';
+import cx from 'classnames';
+import _, { get } from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { Button } from 'ming-ui';
+import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import FilterInput, { TextTypes, NumberTypes } from './Inputs';
+import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import FilterInput, { NumberTypes, TextTypes } from './Inputs';
 import { validate } from './utils';
 import { formatFilterValuesToServer } from './utils';
-import _, { get } from 'lodash';
-import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
 
 const Con = styled.div`
   display: flex;
@@ -163,7 +163,7 @@ function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
 
-function turnControl(control) {
+export function turnControl(control) {
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
     control.type = control.sourceControlType;
   }
@@ -204,6 +204,7 @@ function getDefaultValues(items) {
 export default function Conditions(props) {
   const {
     from,
+    showTextAdvanced,
     isDark,
     worksheetId,
     isConfigMode,
@@ -356,7 +357,7 @@ export default function Conditions(props) {
           ],
           _.get(items[keyIndex], 'control.type'),
         ) && {
-          ..._.pick(values[key], ['value', 'values', 'dateRange']),
+          ..._.pick(values[key], ['value', 'values', 'dateRange', 'advancedSetting']),
           values: formatFilterValuesToServer(_.get(items[keyIndex], 'control.type'), _.get(values[key], 'values')),
         },
       };
@@ -405,12 +406,14 @@ export default function Conditions(props) {
           </Label>
           <Content className="content">
             <FilterInput
+              showTextAdvanced={showTextAdvanced}
               from={from}
               appendToBody={isFilterComp}
               projectId={projectId}
               worksheetId={worksheetId}
               appId={appId}
               isDark={isDark}
+              viewId={view.viewId}
               {...item}
               {...values[`${item.control.controlId}-${i}`]}
               filtersData={filtersData}

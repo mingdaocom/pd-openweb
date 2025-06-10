@@ -22,6 +22,7 @@ export default function MDCell(props) {
   } = props;
   const {
     tableType,
+    triggerClickImmediate,
     tableId,
     cache,
     worksheetId,
@@ -68,6 +69,7 @@ export default function MDCell(props) {
       isTrash={isTrash}
       tableId={tableId}
       tableType={tableType}
+      triggerClickImmediate={triggerClickImmediate}
       cache={cache}
       viewId={viewId}
       appId={appId}

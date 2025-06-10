@@ -6,8 +6,7 @@ import { captcha } from 'ming-ui/functions';
 import RegisterController from 'src/api/register';
 import { ActionResult, CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
 import { isTel, validation } from 'src/pages/AuthService/util.js';
-import { encrypt } from 'src/util';
-import { emitter } from 'src/util';
+import { emitter, encrypt } from 'src/utils/common';
 
 // 'inputCode',//验证码
 let sendVerifyCodeTimer = null;

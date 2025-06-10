@@ -40,14 +40,16 @@ export default function Grid(props) {
     leftFixedCount = 1;
     leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   }
-  const rightFixedWidth = rightFixedCount ? sum([...new Array(rightFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
+  const rightFixedWidth = rightFixedCount
+    ? sum([...new Array(rightFixedCount)].map((n, i) => getColumnWidth(columnCount - rightFixedCount + i)))
+    : 0;
   let topFixedHeight = topFixedCount ? topFixedCount * columnHeadHeight : 0;
   let bottomFixedHeight = bottomFixedCount ? bottomFixedCount * 28 : 0;
   let gridHeight = topFixed
     ? topFixedHeight
     : bottomFixed
-    ? bottomFixedHeight
-    : height - topFixedHeight - bottomFixedHeight;
+      ? bottomFixedHeight
+      : height - topFixedHeight - bottomFixedHeight;
   if (includes(id, 'main') && gridHeight < 60) {
     gridHeight = 60;
   }
@@ -59,8 +61,8 @@ export default function Grid(props) {
     columnCount: leftFixed
       ? leftFixedCount
       : rightFixed
-      ? rightFixedCount
-      : columnCount - leftFixedCount - rightFixedCount,
+        ? rightFixedCount
+        : columnCount - leftFixedCount - rightFixedCount,
     rowCount: topFixed || bottomFixed ? 1 : rowCount,
   };
   if (!config.width || !config.height) {
@@ -81,7 +83,13 @@ export default function Grid(props) {
       height={config.height}
       columnCount={config.columnCount}
       columnWidth={i => {
-        return getColumnWidth(id.endsWith('center') ? i + leftFixedCount : i);
+        let index = i;
+        if (id.endsWith('center')) {
+          index = i + leftFixedCount;
+        } else if (id.endsWith('right')) {
+          index = i + columnCount - rightFixedCount;
+        }
+        return getColumnWidth(index);
       }}
       rowHeight={() => rowHeight}
       rowCount={config.rowCount}
@@ -89,7 +97,7 @@ export default function Grid(props) {
         ...tableData,
         grid: {
           id,
-          columnCount,
+          tableColumnCount: columnCount,
           leftFixed,
           rightFixed,
           topFixed,

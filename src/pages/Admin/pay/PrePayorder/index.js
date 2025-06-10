@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, FunctionWrap, Button, Qr, LoadDiv, Icon, Radio } from 'ming-ui';
-import paymentAjax from 'src/api/payment';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
+import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
-import { getOrderStatusInfo } from '../config';
-import { formatDate } from '../util';
-import PayErrorIcon from '../components/PayErrorIcon';
-import { formatNumberThousand } from 'src/util';
+import _ from 'lodash';
+import { Button, Dialog, FunctionWrap, Icon, LoadDiv, Qr, Radio } from 'ming-ui';
+import paymentAjax from 'src/api/payment';
 import webCacheAjax from 'src/api/webCache';
+import { browserIsMobile } from 'src/utils/common';
+import { formatNumberThousand } from 'src/utils/control';
+import PayErrorIcon from '../components/PayErrorIcon';
+import { getOrderStatusInfo } from '../config';
 import jxqfImg from '../images/jxqf.png';
+import { formatDate } from '../util';
 import './index.less';
 
 const PAY_CHANNEL = [
@@ -29,6 +30,7 @@ export default class PrePayOrder extends Component {
       activePayChannel: undefined,
       selectedMerchants: [], // 工作表支付配置中选中的商户列表
     };
+    this.conformAction = null;
   }
 
   componentDidMount() {
@@ -49,31 +51,35 @@ export default class PrePayOrder extends Component {
   };
 
   // 生成预检订单
-  handlePrePayOrder = () => {
+  handlePrePayOrder = async () => {
     const { worksheetId, rowId, paymentModule, projectId, appId, payNow } = this.props;
     const isMobile = browserIsMobile();
 
     this.setState({ loading: true });
 
-    const promises = payNow
-      ? [paymentAjax.getPaymentSettingSelectedMerchants({ worksheetId, projectId, appId }, { silent: true })]
-      : [
-          paymentAjax.getPaymentSettingSelectedMerchants({ worksheetId, projectId, appId }, { silent: true }),
-          paymentAjax.getPrePayOrder({ worksheetId, rowId, paymentModule }, { silent: true }),
-        ];
+    let selectedMerchants = [];
+    try {
+      selectedMerchants = await paymentAjax.getPaymentSettingSelectedMerchants(
+        { worksheetId, projectId, appId },
+        { silent: true },
+      );
+    } catch ({ errorCode, errorMessage }) {
+      this.setState({ orderStatus: errorCode ? errorCode : -1, errorMessage, loading: false });
+      return;
+    }
 
-    Promise.all(promises)
-      .then(([selectedMerchants = [], res]) => {
-        const activePayChannel =
-          isMobile && selectedMerchants.length
-            ? selectedMerchants[0].merchantPaymentChannel
-            : selectedMerchants.length === 1
-            ? selectedMerchants[0].merchantPaymentChannel
-            : undefined;
-        if (payNow) {
-          this.setState({ selectedMerchants });
-          this.handlePay(selectedMerchants);
-        } else {
+    if (selectedMerchants.length > 1 || !payNow) {
+      // 多商户 || 未开启立即支付
+      const promise = paymentAjax.getPrePayOrder({ worksheetId, rowId, paymentModule }, { silent: true });
+      promise
+        .then(res => {
+          const activePayChannel =
+            isMobile && selectedMerchants.length
+              ? selectedMerchants[0].merchantPaymentChannel
+              : selectedMerchants.length === 1
+                ? selectedMerchants[0].merchantPaymentChannel
+                : undefined;
+
           if (res.status !== 0) {
             this.setState({
               orderInfo: res,
@@ -91,16 +97,20 @@ export default class PrePayOrder extends Component {
               activePayChannel,
             });
           }
-        }
-      })
-      .catch(({ errorCode, errorMessage }) => {
-        this.setState({ loading: false, orderStatus: errorCode, errorMessage: errorMessage });
-      });
+        })
+        .catch(({ errorCode, errorMessage }) => {
+          this.setState({ orderStatus: errorCode ? errorCode : -1, errorMessage, loading: false });
+        });
+    } else {
+      // 仅一个商户&开启立即支付
+      this.setState({ selectedMerchants });
+      this.handlePay(selectedMerchants);
+    }
   };
 
   // 创建订单
   handlePay = merchants => {
-    const { worksheetId, rowId, paymentModule, onUpdateSuccess = () => {} } = this.props;
+    const { worksheetId, rowId, paymentModule, onUpdateSuccess = () => {}, onCancel = () => {} } = this.props;
     const { orderInfo = {}, preOrderInfo = {}, selectedMerchants = [], activePayChannel } = this.state;
     const selectedMerchantNo = (
       _.find(merchants || selectedMerchants, v => v.merchantPaymentChannel === activePayChannel) || {}
@@ -129,6 +139,7 @@ export default class PrePayOrder extends Component {
                     : `${location.origin}/portal`,
               });
             }
+            onCancel();
             location.href = `${md.global.Config.WebUrl}orderpay/${res.orderId}`;
           } else {
             this.setState({ orderId: res.orderId, payLoading: false }, () => this.getData());
@@ -139,7 +150,7 @@ export default class PrePayOrder extends Component {
         }
       })
       .catch(({ errorCode, errorMessage }) => {
-        this.setState({ orderStatus: errorCode ? errorCode : -1, errorMessage });
+        this.setState({ orderStatus: errorCode ? errorCode : -1, errorMessage, loading: false });
       });
   };
 
@@ -151,6 +162,7 @@ export default class PrePayOrder extends Component {
     this.setState({ loading: orderStatus === 4 ? false : true });
 
     const orderInfo = await paymentAjax.getPayOrder({ orderId: orderId });
+    orderInfo.msg = orderInfo.status === 8 ? _l('订单已取消') : orderInfo.msg;
     const { status, msg, expireCountdown, amount, expireTime } = orderInfo || {};
 
     if (status !== 0) {
@@ -175,22 +187,23 @@ export default class PrePayOrder extends Component {
 
   // 轮询订单状态
   pollOrderStatus = (orderInfo = {}) => {
-    const { onUpdateSuccess = () => {}, payFinished = () => {}, paySuccessReturnUrl, onCancel } = this.props;
+    const { onUpdateSuccess = () => {}, payFinished = () => {}, paySuccessReturnUrl, onCancel, notDialog } = this.props;
     const { orderId } = orderInfo;
 
     paymentAjax.getPayOrderStatus({ orderId }).then(({ status, expireCountdown, msg, amount, description }) => {
+      msg = status === 8 ? _l('订单已取消') : msg;
+
       if (status === 1 && paySuccessReturnUrl) {
-        window.parent.postMessage(
-          { type: 'navigate', returnUrl: decodeURIComponent(paySuccessReturnUrl) },
-          md.global.Config.MarketUrl,
-        );
+        notDialog
+          ? window.parent.postMessage({ type: 'navigate', returnUrl: decodeURIComponent(paySuccessReturnUrl) })
+          : (location.href = paySuccessReturnUrl);
         return;
       }
 
       if (_.includes([1, 4], status)) {
         this.getData();
         onUpdateSuccess({ orderStatus: status, onCancel });
-        payFinished({ onCancel });
+        payFinished({ onCancel, isSuccess: status === 1 });
       } else {
         this.setState(
           {
@@ -216,11 +229,15 @@ export default class PrePayOrder extends Component {
   // 检查订单<=0的订单
   checkPayOrder = () => {
     const { orderInfo = {} } = this.state;
+    const { paySuccessReturnUrl, payFinished = () => {}, onCancel } = this.props;
     const { orderId } = orderInfo;
 
     paymentAjax.checkPayOrder({ orderId }).then(({ payedResult, orderId }) => {
       if (payedResult) {
-        if (browserIsMobile()) {
+        payFinished({ onCancel, isSuccess: true });
+        if (paySuccessReturnUrl) {
+          location.href = paySuccessReturnUrl;
+        } else if (browserIsMobile()) {
           location.href = `${md.global.Config.WebUrl}orderpay/${orderId}`;
         } else {
           this.setState({ orderInfo: { ...orderInfo, status: 1 }, orderStatus: 1, loading: false });
@@ -356,8 +373,62 @@ export default class PrePayOrder extends Component {
     );
   };
 
+  // 放弃支付
+  handleConfirmCancelPay = () => {
+    const { isPaySuccessAddRecord, cancelPayCallback = () => {}, onCancel = () => {} } = this.props;
+    const { orderInfo = {}, orderStatus } = this.state;
+    const { status } = orderInfo;
+    const isMobile = browserIsMobile();
+
+    if (isPaySuccessAddRecord && (status === 0 || orderStatus == 0)) {
+      if (isMobile) {
+        this.conformAction = ActionSheet.show({
+          popupClassName: 'md-adm-actionSheet',
+          actions: [],
+          extra: (
+            <div className="flexColumn w100">
+              <div className="bold Gray Font17 pTop10">{_l('您确定放弃支付？')}</div>
+              <div className="Font13 Gray_9e mBottom10">{_l('放弃支付后，当前填写的表单数据不会提交')}</div>
+              <div className="valignWrapper flexRow confirm mTop24">
+                <Button
+                  radius
+                  className="flex mRight6 bold Gray_75 flex ellipsis Font13 cancelPayBtn"
+                  onClick={() => this.conformAction.close()}
+                >
+                  {_l('取消')}
+                </Button>
+                <Button
+                  radius
+                  className="flex mLeft6 bold flex ellipsis Font13"
+                  onClick={() => {
+                    this.conformAction.close();
+                    cancelPayCallback();
+                    onCancel();
+                  }}
+                >
+                  {_l('确定')}
+                </Button>
+              </div>
+            </div>
+          ),
+        });
+      } else {
+        Dialog.confirm({
+          title: _l('您确定放弃支付？'),
+          description: _l('放弃支付后，当前填写的表单数据不会提交'),
+          onOk: () => {
+            cancelPayCallback();
+            onCancel();
+          },
+        });
+      }
+    } else {
+      onCancel();
+    }
+  };
+
   render() {
-    const { onCancel = () => {}, payNow } = this.props;
+    const { onCancel = () => {}, notDialog, isPaySuccessAddRecord } = this.props;
     const {
       loading,
       preOrderInfo = {},
@@ -379,17 +450,17 @@ export default class PrePayOrder extends Component {
 
     return (
       <Dialog
-        dialogClasses={cx({ payNowContainer: payNow })}
+        dialogClasses={cx({ payNowContainer: notDialog })}
         overlayClosable={false}
         className={isMobile ? 'mobilePayOrderDialog' : 'payOrderDialog'}
         visible
-        closable={!isMobile && !payNow}
+        closable={!isMobile && !notDialog}
         footer={null}
         width={800}
-        onCancel={onCancel}
+        onCancel={this.handleConfirmCancelPay}
       >
         {loading ? (
-          <div className={cx('loadingWrap', { payNow })}>
+          <div className={cx('loadingWrap', { notDialog })}>
             <LoadDiv />
           </div>
         ) : _.includes([1, 2, 3, 4, 5], orderStatus) ? (
@@ -398,7 +469,7 @@ export default class PrePayOrder extends Component {
           this.renderOrderInfo()
         ) : orderStatus || errorMessage ? (
           <div className="preOrderWrap flexColumn alignItemsCenter justifyContentCenter">
-            <div className="Font24 bold mBottom30">{_l('表单已提交')}</div>
+            {!isPaySuccessAddRecord && <div className="Font24 bold mBottom30">{_l('表单已提交')}</div>}
             <PayErrorIcon />
             <div className="Red mTop20 Font17">
               {_.includes([50, 70, 73, 74], orderStatus)
@@ -487,7 +558,10 @@ export default class PrePayOrder extends Component {
             {(isMobile || payChannels.length) && (
               <div className="flexRow justifyContentCenter">
                 {isMobile && (
-                  <div className={cx('cancelPay Font14 Hand', { 'flex mRight6': isMobile })} onClick={onCancel}>
+                  <div
+                    className={cx('cancelPay Font14 Hand', { 'flex mRight6': isMobile })}
+                    onClick={this.handleConfirmCancelPay}
+                  >
                     {_l('放弃支付')}
                   </div>
                 )}

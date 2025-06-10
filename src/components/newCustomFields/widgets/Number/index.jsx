@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import Number from './number';
 import { Slider } from 'ming-ui';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import Number from './number';
 
 const isMobile = browserIsMobile();
 

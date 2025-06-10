@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import CommonUserHandle from '../components/CommonUserHandle';
+import _ from 'lodash';
+import { match } from 'path-to-regexp';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
-import { match } from 'path-to-regexp';
+import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
-import _ from 'lodash';
 
 const HomeEntry = styled.div`
   display: inline-block;
@@ -68,7 +68,7 @@ export default class NetManageHeader extends Component {
       <div className="netManageHeaderWrap">
         <div className="netManageLogo">
           <HomeEntry
-            data-tip={_l('首页')}
+            data-tip={_l('工作台')}
             onClick={() => {
               const { params } = fn(location.pathname) || {};
               if (!_.isEmpty(params)) {

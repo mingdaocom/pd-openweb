@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
 import Loadable from 'react-loadable';
+import cx from 'classnames';
+import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
 import common from './common.js';
 import { routerConfigs } from './routerConfig.js';
 import './index.less';
-import { getRequest } from 'src/util';
-import _ from 'lodash';
 
 const guideSettings = md.global.Account.guideSettings;
 const showWarn = guideSettings.accountEmail || guideSettings.accountMobilePhone;
@@ -49,16 +49,16 @@ export default class PersonalEntrypoint extends Component {
         <div className="h100 ThemeBGColor9 accountTabWrap">
           <ul className="accountTab">
             {menus &&
-              menus.map(item => {
+              menus.map((item, index) => {
                 return (
                   <li
                     className={cx('ThemeHoverBGColor7 Hand Relative', { active: item.typetag.includes(type) })}
-                    key={item.typetag}
+                    key={index}
                     onClick={() => this.handleClick(item.typetag)}
                   >
                     <span className={cx('Font20 pRight15 Gray_9e', item.icon)} />
                     {item.title}
-                    {item.typetag === 'account' && showWarn && type !== 'account' && (
+                    {item.typetag.includes('account') && showWarn && type !== 'account' && (
                       <span className="warnLight warnLightMyaccount" />
                     )}
                   </li>

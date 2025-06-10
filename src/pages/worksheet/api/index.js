@@ -1,11 +1,11 @@
-import worksheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
 import publicWorksheetApi from 'src/api/publicWorksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { replaceControlsTranslateInfo, replaceAdvancedSettingTranslateInfo } from 'worksheet/util';
-import _ from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
 
 function getTableAdvancedSettingOfControl(control) {
   let { advancedSetting = {} } = control;
@@ -49,10 +49,16 @@ export function getRowDetail(params, controls, options = {}) {
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
-        data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, params.worksheetId, data.advancedSetting || {});
+        data.advancedSetting = replaceAdvancedSettingTranslateInfo(
+          data.appId,
+          params.worksheetId,
+          data.advancedSetting || {},
+        );
         data.formData = (
           controls ||
-          replaceControlsTranslateInfo(data.appId, params.worksheetId, data.templateControls || []).concat(SYSTEM_CONTROL) ||
+          replaceControlsTranslateInfo(data.appId, params.worksheetId, data.templateControls || []).concat(
+            SYSTEM_CONTROL,
+          ) ||
           []
         ).map(c => ({
           ...c,

@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Menu, MenuItem, Input } from 'ming-ui';
+import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, Input, Menu, MenuItem } from 'ming-ui';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import { emitter } from 'worksheet/util';
-import _ from 'lodash';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
+import { emitter } from 'src/utils/common';
 
 const FILTER_OPTIONS = [
   {
@@ -178,6 +178,8 @@ export default class WorkSheetCommentList extends Component {
       atData,
       status,
       entityType,
+      instanceId,
+      workId,
     } = this.props;
     const { isFocus, containAttachment, focusType, keywords } = this.state;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
@@ -203,6 +205,8 @@ export default class WorkSheetCommentList extends Component {
         title: typeof title === 'string' ? title : '',
       }),
       offset: 45,
+      instanceId,
+      workId,
       popupContainer: document.body,
       extendsId: `${appId || ''}|${viewId || ''}`,
       mentionsOptions: { isAtAll: !!rowId },

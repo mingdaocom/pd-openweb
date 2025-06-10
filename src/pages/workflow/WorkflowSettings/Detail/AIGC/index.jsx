@@ -1,18 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog, Dropdown, Switch, Support } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, CustomTextarea, TestParameter, JSONAnalysis, OutputList } from '../components';
-import { ACTION_ID } from '../../enum';
-import _ from 'lodash';
 import cx from 'classnames';
-import { formatTestParameters, getIcons } from '../../utils';
-import { highlight, languages } from 'prismjs/components/prism-core';
+import _ from 'lodash';
 import 'prismjs/components/prism-clike';
+import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-javascript';
 import Remarkable from 'remarkable';
-import { replaceEntities, escapeHtml } from 'remarkable/lib/common/utils';
+import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import filterXss from 'xss';
+import { Dialog, Dropdown, LoadDiv, ScrollView, Support, Switch } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { ACTION_ID } from '../../enum';
+import { formatTestParameters, getIcons } from '../../utils';
+import { CustomTextarea, DetailFooter, DetailHeader, JSONAnalysis, OutputList, TestParameter } from '../components';
 
 const MarkdownContent = styled.div`
   p {
@@ -458,7 +459,7 @@ export default class AIGC extends Component {
       return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
     };
 
-    return md.render(text);
+    return filterXss(md.render(text));
   };
 
   render() {

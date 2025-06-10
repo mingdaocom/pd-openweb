@@ -9,7 +9,7 @@ import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
 import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
-import { formatFileSize } from 'src/util';
+import { formatFileSize } from 'src/utils/common';
 import UpgradeItemWrap from './UpgradeItemWrap';
 
 const { Step } = Steps;

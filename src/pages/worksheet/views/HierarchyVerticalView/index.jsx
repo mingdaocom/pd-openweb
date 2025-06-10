@@ -1,33 +1,32 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { HTML5Backend } from 'react-dnd-html5-backend-latest';
+import { DndProvider, useDrop } from 'react-dnd-latest';
+import { useSetState } from 'react-use';
 import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
-import { LoadDiv } from 'ming-ui';
-import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { DndProvider, useDrop } from 'react-dnd-latest';
-import { connect } from 'react-redux';
-import { useSetState } from 'react-use';
-import { bindActionCreators } from 'redux';
-import worksheetAjax from 'src/api/worksheet';
-import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
-import { browserIsMobile } from 'src/util';
-import { emitter } from 'src/util';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import { LoadDiv } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
-
+import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils.js';
+import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { browserIsMobile } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
-import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
-import ToolBar from '../HierarchyView/ToolBar';
+import SelectField from '../components/SelectField';
+import ViewEmpty from '../components/ViewEmpty';
 import DragLayer from '../HierarchyView/components/DragLayer';
 import LeftBoundary from '../HierarchyView/components/LeftBoundary';
 import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
+import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
+import ToolBar from '../HierarchyView/ToolBar';
 import { hierarchyViewCanSelectFields } from '../HierarchyView/util';
-import SelectField from '../components/SelectField';
-import ViewEmpty from '../components/ViewEmpty';
 import { getSearchData, isAllowQuickSwitch, isDisabledCreate, isTextTitle } from '../util';
 import VertricalTreeNode from './components/VertricalTreeNode';
 
@@ -362,10 +361,16 @@ function HierarchyVertical(props) {
         if (isTextTitle(item)) return { ..._.pick(item, ['controlId', 'type']), value: val };
 
         const defsource = safeParse(_.get(item, 'advancedSetting.defsource'));
+        const staticValue = _.get(defsource, '[0].staticValue');
 
         return {
           ..._.pick(item, ['controlId', 'type']),
-          value: item.controlId === viewControl ? addRecordDefaultValue : _.get(defsource, '[0].staticValue'),
+          value:
+            item.controlId === viewControl
+              ? addRecordDefaultValue
+              : staticValue
+                ? getDynamicValue(filteredControls, item)
+                : '',
         };
       });
 

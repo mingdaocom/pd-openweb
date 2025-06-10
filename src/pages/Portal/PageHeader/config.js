@@ -1,4 +1,4 @@
-import { addSubPathOfRoutes } from 'src/util';
+import { addSubPathOfRoutes } from 'src/utils/common';
 
 export const PAGE_HEADER_ROUTE_CONFIG = addSubPathOfRoutes(
   {

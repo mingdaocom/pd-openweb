@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { Icon, Radio } from 'ming-ui';
+import React, { useRef, useState } from 'react';
+import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import cx from 'classnames';
+import { Checkbox, Icon, Radio } from 'ming-ui';
 
 const Wrap = styled.div`
   height: 36px;
@@ -62,23 +62,23 @@ export default function FilterViewRange(props) {
             />
           ))}
           {!isAllView &&
-            views.filter(l => l.worksheetId !== l.viewId).map(it => {
-              return (
-                <div
-                  className="mTop15 mLeft25 inputTxt Hand"
-                  onClick={() => {
-                    if (viewIds.includes(it.viewId)) {
-                      changeViewRange({ type, viewIds: _.pull(viewIds, it.viewId) });
-                    } else {
-                      changeViewRange({ type, viewIds: (viewIds || []).concat(it.viewId) });
-                    }
-                  }}
-                >
-                  <input type="checkbox" className="viewInput TxtMiddle" checked={viewIds.includes(it.viewId)} />
-                  <span className="TxtMiddle">{it.name}</span>
-                </div>
-              );
-            })}
+            views
+              .filter(l => l.worksheetId !== l.viewId)
+              .map(it => {
+                return (
+                  <Checkbox
+                    className="mTop15 mLeft25 Normal"
+                    text={it.name}
+                    checked={viewIds.includes(it.viewId)}
+                    onClick={checked => {
+                      changeViewRange({
+                        type,
+                        viewIds: checked ? _.pull(viewIds, it.viewId) : (viewIds || []).concat(it.viewId),
+                      });
+                    }}
+                  />
+                );
+              })}
         </div>
       </RangeBox>
     );

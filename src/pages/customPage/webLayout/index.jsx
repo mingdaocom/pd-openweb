@@ -167,6 +167,7 @@ function webLayout(props) {
               editingWidget={editingWidget}
               setWidget={setWidget}
               config={pageConfig}
+              widgetIsDark={widgetIsDark}
             />
           </div>
         ) : (

@@ -1,20 +1,19 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import { Icon } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Popup } from 'antd-mobile';
-import { RecordInfoModal } from 'mobile/Record';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { openAddRecord } from 'mobile/Record/addRecord';
-import SheetView from '../View/SheetView';
+import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
+import { getViewActionInfo } from 'src/pages/Mobile/RecordList/util';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
 import GalleryView from '../View/GalleryView';
 import MobileMapView from '../View/MapView';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
-import { getViewActionInfo } from 'src/pages/Mobile/RecordList/util';
+import SheetView from '../View/SheetView';
 import GroupFilterList from './GroupFilterList';
-import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
-import { handlePushState, handleReplaceState } from 'src/util';
-import cx from 'classnames';
 import './index.less';
-import _ from 'lodash';
 
 const { sheet, gallery, map } = VIEW_DISPLAY_TYPE;
 const TYPE_TO_COMP = {
@@ -49,7 +48,7 @@ const GroupFilter = props => {
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   const { advancedSetting = {} } = view;
   const { appnavtype, usenav } = advancedSetting;
-  const [previewRecordId, setPreviewRecordId] = useState();
+
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentGroup, setCurrentGroup] = useState({});
   const Component = TYPE_TO_COMP[String(view.viewType)];
@@ -123,18 +122,7 @@ const GroupFilter = props => {
           setCurrentGroup(item);
         }}
       />
-      <RecordInfoModal
-        className="full"
-        visible={!!previewRecordId}
-        enablePayment={worksheetInfo.enablePayment}
-        appId={base.appId}
-        worksheetId={base.worksheetId}
-        viewId={base.viewId}
-        rowId={previewRecordId}
-        onClose={() => {
-          setPreviewRecordId(undefined);
-        }}
-      />
+
       {drawerVisible && (
         <Popup className={cx('groupFilterDrawer')} position="right" visible={drawerVisible} onClose={handleOpenDrawer}>
           <div className="groupDetailBox">

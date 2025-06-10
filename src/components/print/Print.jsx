@@ -1,24 +1,25 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Icon from 'ming-ui/components/Icon';
-import RadioGroup from 'ming-ui/components/RadioGroup';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Dropdown from 'ming-ui/components/Dropdown';
 import cx from 'classnames';
-import moment from 'moment';
-import projectAjax from 'src/api/projectSetting';
-import sheetAjax from 'src/api/worksheet';
-import postAjax from 'src/api/taskCenter';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import PrintOptDialog from './PrintOptDialog';
-import { formatFormulaDate } from 'src/pages/worksheet/util';
-import model from './model';
-import nzh from 'nzh';
-import filterXss from 'xss';
-import './index.less';
-import { htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
 import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
+import moment from 'moment';
+import nzh from 'nzh';
+import PropTypes from 'prop-types';
+import filterXss from 'xss';
+import Dropdown from 'ming-ui/components/Dropdown';
+import Icon from 'ming-ui/components/Icon';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import RadioGroup from 'ming-ui/components/RadioGroup';
+import projectAjax from 'src/api/projectSetting';
+import postAjax from 'src/api/taskCenter';
+import sheetAjax from 'src/api/worksheet';
+import instance from 'src/pages/workflow/api/instanceVersion';
+import { accAdd, accDiv, accMul, htmlDecodeReg } from 'src/utils/common';
+import { formatFormulaDate, renderText as renderCellText } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+import model from './model';
+import PrintOptDialog from './PrintOptDialog';
+import './index.less';
+
 const nzhCn = nzh.cn;
 const { task } = model;
 
@@ -1212,8 +1213,8 @@ export default class Print extends Component {
                                                 newControlRow.length === 1
                                                   ? '97.5%'
                                                   : newControlRow.length === 2
-                                                  ? '48.75%'
-                                                  : '24.375%',
+                                                    ? '48.75%'
+                                                    : '24.375%',
                                             }}
                                             className="clearfix detailRowItem"
                                             colSpan={
@@ -1288,16 +1289,16 @@ export default class Print extends Component {
                                                 newTempControlRow.length === 1
                                                   ? '97.5%'
                                                   : newTempControlRow.length === 2
-                                                  ? '48.75%'
-                                                  : '24.375%',
+                                                    ? '48.75%'
+                                                    : '24.375%',
                                             }}
                                             className="clearfix detailEvaluateRowItem"
                                             colSpan={
                                               newTempControlRow.length === 2
                                                 ? '2'
                                                 : newTempControlRow.length === 1
-                                                ? '4'
-                                                : '1'
+                                                  ? '4'
+                                                  : '1'
                                             }
                                             key={'newTempControlRowItem' + index}
                                           >
@@ -1449,8 +1450,8 @@ export default class Print extends Component {
                           key !== '0' && this.beforeControlIsDetail(key)
                             ? '#555'
                             : this.state.type !== 'hr' && key === '0'
-                            ? '#555'
-                            : '#bbb',
+                              ? '#555'
+                              : '#bbb',
                       }}
                       className="noHalf rowItem BorderRight0"
                       colSpan={colSpan}

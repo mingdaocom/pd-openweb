@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, Fragment, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { Checkbox, Modal, LoadDiv, ScrollView, Dialog, Button } from 'ming-ui';
-import { removeTempRecordValueFromLocal } from 'worksheet/util';
-import NewRecordContent from './NewRecordContent';
-import AdvancedSettingHandler from './AdvancedSettingHandler';
-import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
-import { browserIsMobile } from 'src/util';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Checkbox, Dialog, LoadDiv, Modal, ScrollView } from 'ming-ui';
+import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
+import { browserIsMobile } from 'src/utils/common';
+import { removeTempRecordValueFromLocal } from 'src/utils/common';
+import AdvancedSettingHandler from './AdvancedSettingHandler';
+import NewRecordContent from './NewRecordContent';
 
 function NewRecord(props) {
   const {
@@ -280,10 +280,10 @@ function NewRecord(props) {
       showDraftList && showShare && !isEmbed && !md.global.Account.isPortal
         ? iconButtons
         : showDraftList
-        ? iconButtons.slice(0, 1)
-        : showShare && !isEmbed && !md.global.Account.isPortal
-        ? iconButtons.slice(1)
-        : [],
+          ? iconButtons.slice(0, 1)
+          : showShare && !isEmbed && !md.global.Account.isPortal
+            ? iconButtons.slice(1)
+            : [],
   };
   useEffect(() => {
     setAutoFill(advancedSetting.autoreserve === '1');

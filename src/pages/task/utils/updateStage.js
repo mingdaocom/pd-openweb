@@ -1,9 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { returnCustonValue } from './utils';
 import Store from 'redux/configureStore';
-import { htmlEncodeReg } from 'src/util';
 import { Score } from 'ming-ui';
+import { htmlEncodeReg } from 'src/utils/common';
+import { returnCustonValue } from './utils';
 
 // 更新阶段视图下的任务列表自定义数据自动更新
 export default (taskId, controls) => {
@@ -40,8 +40,8 @@ export default (taskId, controls) => {
               ${item.enumDefault !== 1 ? item.value + '/10' : ''}
             </span>
             <span class="listStageCustomItemStar flex" data-type="score" data-enum="${item.enumDefault}" data-score="${
-            item.value
-          }"></span>
+              item.value
+            }"></span>
           </div>
         `;
         }

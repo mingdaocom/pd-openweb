@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { browserIsMobile } from 'src/util';
 import { LoadDiv } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+
 const isMobile = browserIsMobile();
 
 const ViewSahre = props => {
@@ -31,6 +32,6 @@ const ViewSahre = props => {
       viewId={data.viewId}
     />
   );
-}
+};
 
 export default ViewSahre;

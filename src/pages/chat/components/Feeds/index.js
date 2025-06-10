@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import './index.less';
-import * as ajax from '../../utils/ajax';
-import { getClassNameByExt, dateConvertToUserZone } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import postAjax from 'src/api/post';
-import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 import { Dialog, LoadDiv } from 'ming-ui';
+import postAjax from 'src/api/post';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
+import { getClassNameByExt } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { dateConvertToUserZone } from 'src/utils/project';
 import { formatMsgDate } from '../../utils';
+import * as ajax from '../../utils/ajax';
+import './index.less';
 
 const classify = files => {
   const imagelist = [];
@@ -72,7 +73,7 @@ export class FeesItem extends Component {
   handlePreviewFeed(item) {
     const { postID } = item;
 
-    const removeFn = function() {
+    const removeFn = function () {
       $('.chatFeedDialog').parent().remove();
     };
 
@@ -87,11 +88,8 @@ export class FeesItem extends Component {
             dialogClasses: 'chatFeedDialog',
             title: _l('动态详情'),
             noFooter: true,
-            children: (
-              <PostDetails onRemove={removeFn} postItem={postItem} />
-            ),
-
-          })
+            children: <PostDetails onRemove={removeFn} postItem={postItem} />,
+          });
         } else {
           return alert(_l('您的权限不足或此动态已被删除，无法查看'), 2);
         }
@@ -207,9 +205,7 @@ export default class Feeds extends Component {
               {_l('所有动态')}
               <i className="icon-sidebar-more" />
             </span>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
         <div className="ChatPanel-Feeds-body">
           {postList.map(item => (

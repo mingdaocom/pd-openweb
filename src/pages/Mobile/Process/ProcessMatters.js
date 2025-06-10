@@ -1,23 +1,23 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { Checkbox, Popup, Tabs } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import qs from 'query-string';
-import { Popup, Tabs, Checkbox } from 'antd-mobile';
-import { Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
-import Back from '../components/Back';
 import styled from 'styled-components';
-import ProcessRecordInfo from 'mobile/ProcessRecord';
+import { Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import ProcessRecordInfo from 'mobile/ProcessRecord';
+import 'mobile/ProcessRecord/OtherAction/index.less';
+import verifyPassword from 'src/components/verifyPassword';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
+import 'src/pages/worksheet/common/newRecord/NewRecord.less';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
+import Back from '../components/Back';
 import Card from './Card';
 import ProcessDelegation from './ProcessDelegation';
-import { getRequest } from 'src/util';
-import { handlePushState, handleReplaceState } from 'src/util';
-import verifyPassword from 'src/components/verifyPassword';
-import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
-import 'src/pages/worksheet/common/newRecord/NewRecord.less';
-import 'mobile/ProcessRecord/OtherAction/index.less';
-import _ from 'lodash';
 
 const ModalWrap = styled(Popup)`
   .content {
@@ -125,8 +125,8 @@ export default class ProcessMatters extends Component {
       topTab: savedTabs.topTab
         ? savedTabs.topTab
         : data.tab
-        ? _.find(bottomTab.tabs, { id: data.tab }) || bottomTab.tabs[0]
-        : bottomTab.tabs[0],
+          ? _.find(bottomTab.tabs, { id: data.tab }) || bottomTab.tabs[0]
+          : bottomTab.tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},
@@ -318,7 +318,7 @@ export default class ProcessMatters extends Component {
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
-      const data = { id, workId, opinion: _l('批量处理') };
+      const data = { id, workId, opinion: '', opinionType: 3 };
       if ((_.get(flowNode, batchType) || []).includes(1)) {
         return {
           ...data,
@@ -526,7 +526,7 @@ export default class ProcessMatters extends Component {
                 this.setState({ rejectVisible: false });
               }}
             >
-              <span className="mRight5">{_l('否决')}</span>
+              <span className="mRight5">{_l('拒绝')}</span>
             </div>
           </div>
         </div>
@@ -745,7 +745,7 @@ export default class ProcessMatters extends Component {
                     this.hanndleApprove(4, 'auth.passTypeList');
                   }}
                 >
-                  {_l('通过')}
+                  {_l('同意')}
                 </div>
                 <div
                   className={cx('rejectApprove flex', {
@@ -756,13 +756,13 @@ export default class ProcessMatters extends Component {
                     if (_.isEmpty(approveCards)) {
                       alert(_l('请先勾选需要处理的审批'), 2);
                     } else if (_.isEmpty(rejectList)) {
-                      alert(_l('没有可否决的审批事项'), 2);
+                      alert(_l('没有可拒绝的审批事项'), 2);
                     } else {
                       this.setState({ rejectVisible: true });
                     }
                   }}
                 >
-                  <span className="mRight5">{_l('否决')}</span>
+                  <span className="mRight5">{_l('拒绝')}</span>
                   {!(approveCards.length && rejectList.length === approveCards.length) &&
                     !!rejectList.length &&
                     rejectList.length}

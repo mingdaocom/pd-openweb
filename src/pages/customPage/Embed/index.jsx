@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
 import { Provider } from 'react-redux';
-import store from 'src/redux/configureStore';
-import CustomPageContent from 'src/pages/customPage/pageContent';
-import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { LoadDiv } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
+import preall from 'src/common/preall';
 import UnusualContent from 'src/components/UnusualContent';
+import CustomPageContent from 'src/pages/customPage/pageContent';
+import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { changeAppColor } from 'src/pages/PageHeader/redux/action';
+import store from 'src/redux/configureStore';
 import socketInit from 'src/socket';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import './index.less';
 
 const isMobile = browserIsMobile();

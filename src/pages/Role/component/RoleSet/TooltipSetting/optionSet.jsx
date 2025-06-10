@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Checkbox, Tooltip, LoadDiv } from 'ming-ui';
-import lookPng from './img/e.png';
-import { sheetActionList, recordActionList } from 'src/pages/Role/config.js';
-import worksheetAjax from 'src/api/worksheet';
+import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum.js';
+import styled from 'styled-components';
+import { Checkbox, LoadDiv, Tooltip } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import lookPng from './img/e.png';
 
 const Wrap = styled.div`
   text-align: left;

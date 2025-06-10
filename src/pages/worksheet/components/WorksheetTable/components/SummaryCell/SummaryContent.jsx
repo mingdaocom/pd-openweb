@@ -1,42 +1,10 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { toFixed, formatNumberThousand } from 'src/util';
-import { SUMMARY_TYPE, checkCellIsEmpty, controlIsNumber, getSummaryNameByType } from 'worksheet/util';
 import { arrayOf, bool, number, shape, string } from 'prop-types';
-
-const getSummaryResult = (rows, control, summaryType) => {
-  let result;
-  switch (summaryType) {
-    case SUMMARY_TYPE.COMPLETED:
-      result = rows.filter(row => !checkCellIsEmpty(row[control.controlId])).length;
-      break;
-    case SUMMARY_TYPE.INCOMPLETE:
-      result = rows.filter(row => checkCellIsEmpty(row[control.controlId])).length;
-      break;
-    case SUMMARY_TYPE.SUM:
-      result = _.sum(
-        rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value)),
-      );
-      break;
-    case SUMMARY_TYPE.AVERAGE:
-      result =
-        _.sum(rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value))) /
-        rows.length;
-      break;
-    case SUMMARY_TYPE.MAXIMUM:
-      result = _.max(
-        rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value)),
-      );
-      break;
-    case SUMMARY_TYPE.MINIMUM:
-      result = _.min(
-        rows.map(row => Number(row[control.controlId])).filter(value => _.isNumber(value) && !_.isNaN(value)),
-      );
-      break;
-  }
-  return result;
-};
+import { toFixed } from 'src/utils/control';
+import { controlIsNumber, formatNumberThousand } from 'src/utils/control';
+import { getSummaryNameByType, getSummaryResult } from 'src/utils/record';
 
 export default function SummaryContent({
   control,
@@ -62,10 +30,10 @@ export default function SummaryContent({
     if (!_.isUndefined(summaryDataValue)) {
       if (_.includes([3, 4, 5, 6], summaryType)) {
         summaryDataValue = toFixed(summaryDataValue * (isPercent ? 100 : 1), control.dot);
-        summaryDataValue =formatNumberThousand(summaryDataValue);
-      }
-      if (isPercent) {
-        summaryDataValue = summaryDataValue + '%';
+        summaryDataValue = formatNumberThousand(summaryDataValue);
+        if (isPercent) {
+          summaryDataValue = summaryDataValue + '%';
+        }
       }
     }
   }

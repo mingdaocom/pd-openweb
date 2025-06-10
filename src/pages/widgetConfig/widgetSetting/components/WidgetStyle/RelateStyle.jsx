@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
-import { Checkbox, RadioGroup, Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import WidgetRowHeight from '../WidgetRowHeight';
-import { SettingItem } from 'src/pages/widgetConfig/styled';
+import { Checkbox, Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
+import { DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import WidgetRowHeight from '../WidgetRowHeight';
 
 const DISPLAY_LIST = [
   {
@@ -26,6 +27,7 @@ export default function RelateStyle(props) {
     layercontrolid,
     showtype,
     titlewrap,
+    rctitlestyle = '0',
   } = getAdvanceSetting(data);
   const tableControls = _.get(data, 'relationControls') || [];
   const tableData = tableControls
@@ -126,13 +128,36 @@ export default function RelateStyle(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { alternatecolor: String(+!checked) }))}
           />
         </div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={titlewrap === '1'}
-            text={_l('标题行文字换行')}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
-          />
+        <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
+          <div className="labelWrap LineHeight36 mTop0">
+            <Checkbox
+              size="small"
+              checked={titlewrap === '1'}
+              text={_l('标题行文字换行')}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
+            />
+          </div>
+          {titlewrap === '1' && (
+            <AnimationWrap style={{ width: '112px' }}>
+              {DISPLAY_RC_TITLE_STYLE.map(({ icon, value, text }) => {
+                return (
+                  <div
+                    className={cx('animaItem', { active: rctitlestyle === value })}
+                    data-tip={text}
+                    onClick={() => {
+                      onChange(
+                        handleAdvancedSettingChange(data, {
+                          rctitlestyle: value,
+                        }),
+                      );
+                    }}
+                  >
+                    <Icon icon={icon} className="Font18" />
+                  </div>
+                );
+              })}
+            </AnimationWrap>
+          )}
         </div>
       </SettingItem>
     </Fragment>

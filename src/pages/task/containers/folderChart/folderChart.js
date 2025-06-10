@@ -58,6 +58,8 @@ class FolderChart extends Component {
   }
 
   componentWillUnmount() {
+    $('body').off('.folderChart');
+
     delete window.feedSelectDate;
     delete window.feedCustomDate;
     rootFolderChartTime && rootFolderChartTime.unmount();
@@ -309,10 +311,6 @@ class FolderChart extends Component {
         $('.folderChartChargeList').addClass('Hidden');
       }
     });
-  }
-
-  componentWillUnmount() {
-    $('body').off('.folderChart');
   }
 
   /**

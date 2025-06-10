@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import { Dropdown, Checkbox, Textarea, Dialog, Radio } from 'ming-ui';
-import homeAppAjax from 'src/api/homeApp';
-import { FIELD_TYPE_LIST } from '../../enum';
-import { v4 as uuidv4, validate } from 'uuid';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { v4 as uuidv4, validate } from 'uuid';
+import { Checkbox, Dialog, Dropdown, Radio, Textarea } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
+import homeAppAjax from 'src/api/homeApp';
+import { FIELD_TYPE_LIST } from '../../enum';
 import { checkJSON } from '../../utils';
 
 const GenerateJSONBox = styled.textarea`
@@ -260,7 +260,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             !(isPlugin && _.includes([26, 27, 48], o.value)),
         )}
         value={item.type}
-        renderTitle={() => <span>{FIELD_TYPE_LIST.find(o => o.value === item.type).text}</span>}
+        renderTitle={() => <span>{(FIELD_TYPE_LIST.find(o => o.value === item.type) || {}).text || _l('文本')}</span>}
         border
         disabled={!validate(item.controlId)}
         onChange={type => updateControls('type', type, item)}

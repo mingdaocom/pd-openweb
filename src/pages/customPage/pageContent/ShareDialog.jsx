@@ -1,33 +1,35 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon, Switch, LoadDiv } from 'ming-ui';
-import { Modal, Input, Divider, Tooltip, Popover } from 'antd';
-import styled from 'styled-components';
 import ClipboardButton from 'react-clipboard.js';
-import appManagement from 'src/api/appManagement';
+import { Divider, Input, Modal, Popover, Tooltip } from 'antd';
+import cx from 'classnames';
 import { saveAs } from 'file-saver';
-import { getAppFeaturesPath } from 'src/util';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Switch } from 'ming-ui';
+import appManagement from 'src/api/appManagement';
+import { getAppFeaturesPath } from 'src/utils/app';
 
 export const BtnWrap = styled.div`
   border-radius: 3px;
   height: 36px;
   line-height: 36px;
   padding: 0 10px;
-  border: 1px solid #DDDDDD;
+  border: 1px solid #dddddd;
   &.active {
-    color: #2196F3;
-    border-color: #2196F3;
+    color: #2196f3;
+    border-color: #2196f3;
   }
   &.copy {
     padding: 0 20px;
     font-weight: 500;
   }
-  &.copy, &.qrCode, &.code {
+  &.copy,
+  &.qrCode,
+  &.code {
     &:hover {
-      color: #2196F3;
-      border-color: #2196F3;
+      color: #2196f3;
+      border-color: #2196f3;
       .icon {
-        color: #2196F3 !important;
+        color: #2196f3 !important;
       }
     }
   }
@@ -57,17 +59,19 @@ export default class ShareDialog extends Component {
     this.state = {
       loading: true,
       data: null,
-      embedVisible: false
-    }
+      embedVisible: false,
+    };
   }
   initConfig(props) {
     const { sourceId } = props;
-    appManagement.getEntityShare({
-      sourceId,
-      sourceType: 21
-    }).then(data => {
-      this.setState({ data, loading: false });
-    });
+    appManagement
+      .getEntityShare({
+        sourceId,
+        sourceType: 21,
+      })
+      .then(data => {
+        this.setState({ data, loading: false });
+      });
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible && !this.props.visible) {
@@ -77,15 +81,17 @@ export default class ShareDialog extends Component {
   handleStatus = () => {
     const { sourceId } = this.props;
     const { status } = this.state.data;
-    appManagement.editEntityShareStatus({
-      sourceId,
-      sourceType: 21,
-      status: status ? 0 : 1
-    }).then(result => {
-      const { flag, appEntityShare } = result;
-      this.setState({ data: appEntityShare });
-    });
-  }
+    appManagement
+      .editEntityShareStatus({
+        sourceId,
+        sourceType: 21,
+        status: status ? 0 : 1,
+      })
+      .then(result => {
+        const { flag, appEntityShare } = result;
+        this.setState({ data: appEntityShare });
+      });
+  };
   renderPopover(qrurl) {
     return (
       <Fragment>
@@ -93,7 +99,12 @@ export default class ShareDialog extends Component {
         <div className="Font13 TxtCenter mTop5">{_l('扫描二维码')}</div>
         <div className="Font13 TxtCenter">{_l('发送分享链接')}</div>
         <div className="TxtCenter">
-          <a className="Font13" onClick={() => { saveAs(qrurl, 'qrcode.jpg') }}>
+          <a
+            className="Font13"
+            onClick={() => {
+              saveAs(qrurl, 'qrcode.jpg');
+            }}
+          >
             {_l('下载')}
           </a>
         </div>
@@ -110,11 +121,7 @@ export default class ShareDialog extends Component {
         <div className="Font13 Gray_9e mBottom15">{_l('仅限应用成员登录系统后根据权限访问')}</div>
         <div className="flexRow mBottom20 valignWrapper">
           <UrlWrap className="flex valignWrapper mRight10">
-            <input
-              type="text"
-              value={url}
-              readOnly="readonly"
-            />
+            <input type="text" value={url} readOnly="readonly" />
             <Tooltip title={_l('新窗口打开')}>
               <Icon
                 icon="launch"
@@ -143,7 +150,7 @@ export default class ShareDialog extends Component {
           */}
         </div>
       </Fragment>
-    )
+    );
   }
   renderEmbedPublicLink() {
     const { data = {} } = this.state;
@@ -156,11 +163,7 @@ export default class ShareDialog extends Component {
         </div>
         <div className="flexRow mTop16 valignWrapper">
           <UrlWrap className="flex valignWrapper mRight10">
-            <input
-              type="text"
-              value={url}
-              readOnly="readonly"
-            />
+            <input type="text" value={url} readOnly="readonly" />
             <Tooltip title={_l('新窗口打开')}>
               <Icon
                 icon="launch"
@@ -194,22 +197,14 @@ export default class ShareDialog extends Component {
         <div className="Font15 bold mBottom15">{_l('公开分享')}</div>
         <div className="Font13 Gray_9e mBottom15">{_l('获得链接的所有人都可以查看')}</div>
         <div className="flexRow mBottom15">
-          <Switch
-            checked={!!status}
-            disabled={!isCharge}
-            onClick={this.handleStatus}
-          />
+          <Switch checked={!!status} disabled={!isCharge} onClick={this.handleStatus} />
           <div className="mLeft8">{status ? _l('开启') : _l('关闭')}</div>
         </div>
         {!!status && (
           <Fragment>
             <div className="flexRow mTop16 valignWrapper">
               <UrlWrap className="flex valignWrapper mRight10">
-                <input
-                  type="text"
-                  value={url}
-                  readOnly="readonly"
-                />
+                <input type="text" value={url} readOnly="readonly" />
                 <Tooltip title={_l('新窗口打开')}>
                   <Icon
                     icon="launch"
@@ -247,7 +242,7 @@ export default class ShareDialog extends Component {
           </Fragment>
         )}
       </Fragment>
-    )
+    );
   }
   render() {
     const { visible, onCancel, title } = this.props;
@@ -265,7 +260,7 @@ export default class ShareDialog extends Component {
         onCancel={onCancel}
       >
         {loading ? (
-          <LoadDiv className="mBottom30"/>
+          <LoadDiv className="mBottom30" />
         ) : (
           <div className="mBottom20">
             {this.renderEmbeddedLink()}
@@ -274,6 +269,6 @@ export default class ShareDialog extends Component {
           </div>
         )}
       </Modal>
-    )
+    );
   }
 }

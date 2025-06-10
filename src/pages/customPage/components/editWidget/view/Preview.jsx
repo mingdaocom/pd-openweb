@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { LoadDiv } from 'ming-ui';
-import { browserIsMobile, getTranslateInfo } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
-import homeAppApi from 'src/api/homeApp';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import homeAppApi from 'src/api/homeApp';
+import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
 
 const Wrap = styled.div`
   display: flex;
@@ -45,7 +46,7 @@ const ViewWrap = styled.div`
     &.mobile {
       font-size: 14px;
       height: 44px;
-      background-color: #f8f8f8;
+      background-color: var(--widget-color);
     }
   }
   .SingleViewName {
@@ -60,7 +61,9 @@ const ViewWrap = styled.div`
   &.web .addRecord {
     border-color: var(--app-primary-color);
     background: var(--app-primary-color);
-    &:hover, &:active, &:focus {
+    &:hover,
+    &:active,
+    &:focus {
       border-color: var(--app-primary-hover-color);
       background: var(--app-primary-hover-color);
     }
@@ -70,7 +73,7 @@ const ViewWrap = styled.div`
   &.hideAddRecord .addRecordItemWrapper,
   &.hideAddRecord .gunterDirectory .addCoin,
   &.hideSearchRecord .icon-search,
-  &.hideSearchRecord .searchWrapper, 
+  &.hideSearchRecord .searchWrapper,
   &.hideSearchRecord .mapSearchRecordAutoComplete {
     display: none !important;
   }
@@ -157,7 +160,7 @@ export function View(props) {
     <ViewWrap
       style={{
         '--app-primary-color': themeColor,
-        '--app-primary-hover-color': themeColor
+        '--app-primary-hover-color': themeColor,
       }}
       className={cx(className, [layoutType], {
         hideAddRecord: window.shareState.shareId ? true : !config.isAddRecord,

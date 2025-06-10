@@ -1,26 +1,23 @@
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { reportTypes } from './Charts/common';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { isLightColor } from 'src/pages/customPage/util';
-import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
-
-import standard from './assets/gaugeChart/standard.png';
-import standardColor from './assets/gaugeChart/standard_color.png';
+import { isLightColor } from 'src/pages/customPage/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { getTranslateInfo } from 'src/utils/app';
 import fanShaped from './assets/gaugeChart/fan_shaped.png';
 import fanShapedColor from './assets/gaugeChart/fan_shaped_color.png';
 import scale from './assets/gaugeChart/scale.png';
 import scaleColor from './assets/gaugeChart/scale_color.png';
-
-import progressBar from './assets/progressChart/progress_bar.png';
-import progressBarColor from './assets/progressChart/progress_bar_color.png';
+import standard from './assets/gaugeChart/standard.png';
+import standardColor from './assets/gaugeChart/standard_color.png';
 import annular from './assets/progressChart/annular.png';
 import annularColor from './assets/progressChart/annular_color.png';
+import progressBar from './assets/progressChart/progress_bar.png';
+import progressBarColor from './assets/progressChart/progress_bar_color.png';
 import rippleChart from './assets/progressChart/ripple_chart.png';
 import rippleChartColor from './assets/progressChart/ripple_chart_color.png';
-
-import { normTypes, defaultNumberChartStyle, defaultPivotTableStyle } from './enum';
+import { reportTypes } from './Charts/common';
+import { defaultNumberChartStyle, defaultPivotTableStyle, normTypes } from './enum';
 
 /**
  * 图表类型数据
@@ -1408,7 +1405,7 @@ export const fillMapKey = result => {
  * 把 valueMap 的 key 填充到 map 和 contrastMap
  */
 export const fillValueMap = (result, pageId) => {
-  const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = fillTranslate(result, pageId);
+  const { valueMap = {}, reportType, xaxes, split, rightY, status } = fillTranslate(result, pageId);
   const splitId = split ? split.controlId : '';
 
   if (status <= 0) {
@@ -1441,6 +1438,7 @@ export const fillValueMap = (result, pageId) => {
         value,
       };
     });
+
     return fillDealMaskValueMap(result);
   }
 
@@ -1516,6 +1514,13 @@ const fillTranslate = (result, pageId) => {
     return result;
   }
   const parentId = pageId ? pageId : result.appId;
+  const getParentId = control => {
+    if (control.dataSource && control.dataSource.length === 24) {
+      return control.dataSource;
+    } else {
+      return result.appId;
+    }
+  }
   const translateValueMap = (dataSource, controlId) => {
     const valueMapTranslateInfo = getTranslateInfo(appId, null, dataSource);
     if (!_.isEmpty(valueMapTranslateInfo)) {
@@ -1526,7 +1531,7 @@ const fillTranslate = (result, pageId) => {
         }
       }
     }
-  }
+  };
   if (result.xaxes && result.xaxes.controlId) {
     result.xaxes.controlName =
       getTranslateInfo(appId, parentId, result.xaxes.controlId).name || result.xaxes.controlName;
@@ -1543,12 +1548,12 @@ const fillTranslate = (result, pageId) => {
   }
   if (result.yaxisList && result.yaxisList.length) {
     result.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.dataSource || parentId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, getParentId(item), item.controlId).name || item.controlName;
     });
   }
   if (result.rightY && _.get(result.rightY, 'yaxisList.length')) {
     result.rightY.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.dataSource || parentId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, getParentId(item), item.controlId).name || item.controlName;
     });
   }
   if (result.lines && result.lines.length) {
@@ -1557,7 +1562,7 @@ const fillTranslate = (result, pageId) => {
         item.fields = item.fields.map(f => {
           return {
             ...f,
-            controlName: getTranslateInfo(appId, item.dataSource || parentId, f.controlId).name || f.controlName,
+            controlName: getTranslateInfo(appId, getParentId(item), f.controlId).name || f.controlName,
           };
         });
       }

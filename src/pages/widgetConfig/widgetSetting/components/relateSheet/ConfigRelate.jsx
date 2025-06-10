@@ -1,14 +1,14 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import SelectSheetFromApp from '../SelectSheetFromApp';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { AddRelate } from '../relationSearch/styled';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Dropdown, LoadDiv, Support, SvgIcon, Switch } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
+import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { AddRelate } from '../relationSearch/styled';
+import SelectSheetFromApp from '../SelectSheetFromApp';
 
 const InputWrap = styled.div`
   display: flex;
@@ -32,7 +32,7 @@ const RELATE_TYPE = [
 ];
 
 export default function ConfigRelate(props) {
-  const { globalSheetInfo, value = '', allControls = [], deleteWidget, onOk } = props;
+  const { globalSheetInfo, value = '', allControls = [], deleteWidget, onOk, fromPortal } = props;
   const { appId: defaultAppId, worksheetId: sourceId, name: sourceName } = globalSheetInfo;
   const [{ appId, sheetId, sheetName }, setSelectedId] = useSetState({
     appId: defaultAppId,
@@ -71,6 +71,7 @@ export default function ConfigRelate(props) {
       .getWorksheetControls({
         worksheetId: sourceId,
         getControlType: 1,
+        resultType: fromPortal ? undefined : 3,
       })
       .then(({ data }) => {
         const filterControls = (data.controls || []).filter(
@@ -226,23 +227,25 @@ export default function ConfigRelate(props) {
           <Support type={3} href="https://help.mingdao.com/worksheet/controls" text={_l('帮助')} />
         </div>
         <div className="relateWrap">
-          <ul className="relateTypeTab">
-            {RELATE_TYPE.map(({ key, text }) => (
-              <li
-                key={key}
-                className={cx({ active: relateType === key })}
-                onClick={() => {
-                  setType(key);
-                  setSelectedId({});
-                  setControls({ selectedControl: {} });
-                  setFields({ relateFields: [], open: false });
-                  setSearchValue('');
-                }}
-              >
-                {text}
-              </li>
-            ))}
-          </ul>
+          {!fromPortal && (
+            <ul className="relateTypeTab">
+              {RELATE_TYPE.map(({ key, text }) => (
+                <li
+                  key={key}
+                  className={cx({ active: relateType === key })}
+                  onClick={() => {
+                    setType(key);
+                    setSelectedId({});
+                    setControls({ selectedControl: {} });
+                    setFields({ relateFields: [], open: false });
+                    setSearchValue('');
+                  }}
+                >
+                  {text}
+                </li>
+              ))}
+            </ul>
+          )}
           {renderContent()}
         </div>
         <div className="footerBtn">

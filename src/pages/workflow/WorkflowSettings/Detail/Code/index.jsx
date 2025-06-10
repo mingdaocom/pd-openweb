@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon, Dialog, Dropdown, Checkbox, TagTextarea } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter, ChatGPT } from '../components';
-import { ACTION_ID } from '../../enum';
-import _ from 'lodash';
 import cx from 'classnames';
-import CodeSnippet, { CodeSnippetEdit } from '../../../components/CodeSnippet';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, ScrollView, TagTextarea } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import CodeSnippet, { CodeSnippetEdit } from '../../../components/CodeSnippet';
+import { ACTION_ID } from '../../enum';
+import { ChatGPT, DetailFooter, DetailHeader, KeyPairs, ParameterList, TestParameter } from '../components';
 
 const CodeSnippetButton = styled.div`
   padding: 0 8px;
@@ -164,12 +164,8 @@ export default class Code extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('Output对象参数列表')}</div>
-
-        <ParameterList controls={data.controls} />
-
         <div className="mTop20 Gray_75">{_l('请运行代码块以获得output对象; input对象将采用测试数据')}</div>
-        <div className="flexRow mTop15">
+        <div className="flexRow pTop15 pBottom15 WhiteBG" style={{ position: 'sticky', bottom: 0 }}>
           <div
             className={cx('webhookBtn InlineBlock', { disabled: sendRequest })}
             onClick={() => {
@@ -201,6 +197,18 @@ export default class Code extends Component {
             {_l('保存到代码片段库')}
           </div>
         </div>
+
+        <div className="Font13 bold mTop5">{_l('自动重试')}</div>
+        <div className="mTop5">
+          <Checkbox
+            text={_l('代码块整体运行失败时自动重试')}
+            checked={data.maxRetries > 0}
+            onClick={checked => this.updateSource({ maxRetries: !checked ? 1 : 0 })}
+          />
+        </div>
+
+        <div className="Font13 bold mTop20">{_l('Output对象参数列表')}</div>
+        <ParameterList controls={data.controls} />
 
         {showSaveCodeDialog && (
           <CodeSnippetEdit
@@ -431,14 +439,6 @@ export default class Code extends Component {
               )}
 
               {this.renderParameterList()}
-
-              <div className="Font13 bold mTop20">{_l('自动重试')}</div>
-              <Checkbox
-                className="mTop10 flexRow"
-                text={_l('代码块整体运行失败时自动重试')}
-                checked={data.maxRetries > 0}
-                onClick={checked => this.updateSource({ maxRetries: !checked ? 1 : 0 })}
-              />
             </div>
           </ScrollView>
         </div>

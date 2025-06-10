@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import Chart from 'statistics/Card';
+import homeAppApi from 'api/homeApp';
 import { LoadDiv } from 'ming-ui';
 import MobileChart from 'mobile/CustomPage/ChartContent';
-import { socketInit } from 'src/socket';
+import Chart from 'statistics/Card';
 import exportPivotTableSocket from 'statistics/components/socket';
-import { getRequest, browserIsMobile } from 'src/util';
-import homeAppApi from 'api/homeApp';
+import preall from 'src/common/preall';
+import { socketInit } from 'src/socket';
+import { browserIsMobile, getRequest } from 'src/utils/common';
 import './index.less';
 
 const isMobile = browserIsMobile();

@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Dropdown, Icon } from 'ming-ui';
+
 const WrapCon = styled.div`
   .controlDropdown {
     height: auto;
@@ -58,13 +59,7 @@ const WrapCon = styled.div`
   }
 `;
 function Drop(props) {
-  const {
-    inputOnFocus = () => {},
-    inputOnBlur = () => {},
-    updateCompany = () => {},
-    updateState = () => {},
-    info = {},
-  } = props;
+  const { updateCompany = () => { }, updateState = () => { }, info = {} } = props;
   const [{ dropDownVisible, extraDatas, warnningData }, setState] = useSetState({
     dropDownVisible: false,
     extraDatas: {},
@@ -91,13 +86,9 @@ function Drop(props) {
             ? undefined
             : _.get(extraDatas, `${info.id}`)
         }
-        className={cx('w100 controlDropdown flexRow alignItemsCenter', {
-          // hs: values.length > 0,
-        })}
+        className={'w100 controlDropdown flexRow alignItemsCenter'}
         onChange={value => {
-          if (info.multiple === 1 && (_.get(extraDatas, `${info.id}`) || []).includes(value)) {
-            return;
-          }
+          if (info.multiple === 1 && (_.get(extraDatas, `${info.id}`) || []).includes(value)) return;
           updateState({
             warnningData: _.filter(warnningData, it => it.tipDom !== `.${info.id}`),
           });
@@ -108,8 +99,6 @@ function Drop(props) {
             },
           });
         }}
-        onBlur={inputOnBlur}
-        onFocus={() => inputOnFocus(`.${info.id}`)}
         data={(info.options || []).map((o, i) => {
           return { value: o.id, text: o.name };
         })}
@@ -174,11 +163,11 @@ function Drop(props) {
         }}
         {...(info.multiple === 1
           ? {
-              placeholder: _l('请选择'),
-              popupVisible: dropDownVisible,
-              onVisibleChange: visible => setState({ dropDownVisible: visible }),
-              openSearch: true,
-            }
+            placeholder: _l('请选择'),
+            popupVisible: dropDownVisible,
+            onVisibleChange: visible => setState({ dropDownVisible: visible }),
+            openSearch: true,
+          }
           : {})}
       />
     </WrapCon>

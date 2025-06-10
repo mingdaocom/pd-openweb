@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import { htmlDecodeReg } from 'src/util';
-import Commenter from 'src/components/comment/commenter';
 import Icon from 'ming-ui/components/Icon';
-import './taskComment.less';
+import Commenter from 'src/components/comment/commenter';
+import { htmlDecodeReg } from 'src/utils/common';
 import { addTaskDiscussions, discussionsAddMembers } from '../../../redux/actions';
+import './taskComment.less';
 
 class TaskComment extends Component {
   constructor(props) {

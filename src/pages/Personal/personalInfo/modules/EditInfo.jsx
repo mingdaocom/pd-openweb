@@ -1,9 +1,9 @@
 import React from 'react';
 import account from 'src/api/account';
-import common from '../../common';
 import { navigateTo } from 'src/router/navigateTo';
+import RegExpValidator from 'src/utils/expression';
+import common from '../../common';
 import './index.less';
-import RegExpValidator from 'src/util/expression';
 
 export default class EditInfo extends React.Component {
   constructor(props) {

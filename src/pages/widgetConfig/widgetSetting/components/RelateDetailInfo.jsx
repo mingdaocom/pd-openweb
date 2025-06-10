@@ -1,10 +1,10 @@
 import React from 'react';
-import { toEditWidgetPage } from '../../util';
-import { RelateDetail } from '../../styled';
 import cx from 'classnames';
+import { RelateDetail } from '../../styled';
+import { toEditWidgetPage } from '../../util';
 
 export default function RelateDetailInfo(props) {
-  const { data, globalSheetInfo = {}, sheetInfo = {} } = props;
+  const { data, globalSheetInfo = {}, sheetInfo = {}, fromPortal } = props;
   const { sourceControl = {}, dataSource } = data;
   const { controlId: sourceControlId } = sourceControl;
   const { name, appId } = globalSheetInfo;
@@ -16,9 +16,10 @@ export default function RelateDetailInfo(props) {
       </div>
       <i className={cx('Font16 Gray_9e mRight6', !sourceControlId ? 'icon-trending' : 'icon-sync1')} />
       <span
-        className="pointer ThemeColor3 Bold flexWidth"
+        className={cx('ThemeColor3 Bold flexWidth', { pointer: !fromPortal })}
         title={sheetInfo.name}
         onClick={() => {
+          if (fromPortal) return;
           const toPage = () =>
             toEditWidgetPage({
               sourceId: dataSource,

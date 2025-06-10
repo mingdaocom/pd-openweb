@@ -10,14 +10,11 @@ import DragMask from 'worksheet/common/DragMask';
 import { SHEET_VIEW_HIDDEN_TYPES, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { useRefStore } from 'worksheet/hooks';
 import useTableWidth from 'worksheet/hooks/useTableWidth';
-import {
-  checkRulesErrorOfRowControl,
-  clearSelection,
-  emitter,
-  filterEmptyChildTableRows,
-  getControlStyles,
-  getScrollBarWidth,
-} from 'worksheet/util';
+import { emitter } from 'src/utils/common';
+import { getScrollBarWidth } from 'src/utils/common';
+import { getControlStyles } from 'src/utils/control';
+import { filterEmptyChildTableRows } from 'src/utils/record';
+import { checkRulesErrorOfRowControl } from 'src/utils/rule';
 import { Cell, NoRecords, NoSearch } from './components';
 import {
   checkCellFullVisible,
@@ -37,6 +34,13 @@ const StyledFixedTable = styled(FixedTable)`
     width: 4px;
     border-radius: 3px;
     display: inline-block;
+  }
+  .top-right,
+  .main-right,
+  .bottom-right {
+    .cell {
+      border-left: 1px solid rgba(0, 0, 0, 0.09) !important;
+    }
   }
   .cell {
     background-color: #fff;
@@ -58,7 +62,7 @@ const StyledFixedTable = styled(FixedTable)`
         background-color: #f5fbff !important;
       }
     }
-    &.grayHover:not(.cellControlErrorStatus):not(.placeholder):not(.treeNode) {
+    &.grayHover:not(.cellControlErrorStatus):not(.control-operates):not(.placeholder):not(.treeNode) {
       box-shadow: inset 0 0 0 1px #e0e0e0 !important;
     }
     &.focus:not(.control-10.isediting):not(.control-11.isediting) {
@@ -135,6 +139,24 @@ const StyledFixedTable = styled(FixedTable)`
   }
 `;
 
+/**
+ * 取消选择页面中选中的文字
+ */
+export function clearSelection() {
+  if (window.getSelection) {
+    if (window.getSelection().empty) {
+      // Chrome
+      window.getSelection().empty();
+    } else if (window.getSelection().removeAllRanges) {
+      // Firefox
+      window.getSelection().removeAllRanges();
+    }
+  } else if (document.selection) {
+    // IE
+    document.selection.empty();
+  }
+}
+
 function WorksheetTable(props, ref) {
   const {
     isTreeTableView,
@@ -150,6 +172,7 @@ function WorksheetTable(props, ref) {
     worksheetId,
     viewId,
     tableType,
+    triggerClickImmediate,
     className,
     noRenderEmpty,
     masterRecord,
@@ -182,6 +205,7 @@ function WorksheetTable(props, ref) {
     expandCellAppendWidth,
     treeLayerControlId,
     fixedColumnCount = 0,
+    rightFixedCount = 0,
     renderColumnHead,
     renderFooterCell,
     cellPopupContainer,
@@ -207,8 +231,9 @@ function WorksheetTable(props, ref) {
     showVerticalLine = true,
     showAsZebra = true,
     wrapControlName = false,
+    headTitleCenter = false,
   } = props; // 显示
-  const { rowHeadWidth = 70, renderRowHead } = props;
+  const { rowHeadWidth = 70, renderRowHead, renderOperates } = props;
   const { onColumnWidthChange = () => {}, onCellClick, onFocusCell = () => {} } = props;
   const { masterFormData = () => [], masterData = () => {} } = props; // 获取子表所在记录表单数据
   const { updateCell } = props;
@@ -260,7 +285,7 @@ function WorksheetTable(props, ref) {
     () =>
       [{ type: 'rowHead', width: showRowHead ? rowHeadWidth : 10, empty: !showRowHead }]
         .concat(columns)
-        .concat(showEmptyForResize ? { type: 'emptyForResize', width: 60 } : [])
+        .concat(showEmptyForResize && !rightFixedCount ? { type: 'emptyForResize', width: 60 } : [])
         .filter(c => !_.includes(SHEET_VIEW_HIDDEN_TYPES, c.type)),
     [columns, rowHeadWidth],
   );
@@ -395,8 +420,19 @@ function WorksheetTable(props, ref) {
       cell.handleTableKeyDown(e, cache);
     }
   }
+  function focusRow(rowIndex) {
+    const contentHeight = document.querySelector(`.sheetViewTable.id-${tableId}-id .main-center`).clientHeight;
+    const contentScrollTop = document.querySelector(`.sheetViewTable.id-${tableId}-id .scroll-y`).scrollTop;
+    const targetRowFullVisible =
+      rowIndex * rowHeight >= contentScrollTop && (rowIndex + 1) * rowHeight < contentScrollTop + contentHeight;
+    const closeToBottom = rowIndex * rowHeight - contentScrollTop > contentHeight / 2;
+    if (!targetRowFullVisible) {
+      tableRef.current.setScroll(0, closeToBottom ? (rowIndex + 1) * rowHeight - contentHeight : rowIndex * rowHeight);
+    }
+  }
   useImperativeHandle(ref, () => ({
     refs: tableRef.current,
+    focusRow,
     rules,
   }));
   function loadRules() {
@@ -552,11 +588,13 @@ function WorksheetTable(props, ref) {
         rowCount={(rowCount || data.length) > 0 ? tableRowCount : rowCount || data.length}
         columnCount={visibleColumns.length}
         leftFixedCount={fixedColumnCount + 1}
+        rightFixedCount={rightFixedCount}
         Cell={Cell}
         showHead={showHead}
         showFoot={showSummary}
         tableData={{
           columnStyles,
+          triggerClickImmediate,
           chatButton,
           masterRecord,
           isTreeTableView,
@@ -598,6 +636,7 @@ function WorksheetTable(props, ref) {
           sheetSwitchPermit,
           cache,
           rows: data,
+          headTitleCenter, // 列头垂直居中
           // functions
           clearCellError,
           updateSheetColumnWidths: ({ controlId, value }) => {
@@ -671,6 +710,7 @@ function WorksheetTable(props, ref) {
             head: renderColumnHead,
             foot: renderFooterCell,
             rowHead: renderRowHead,
+            operates: renderOperates,
           },
           actions,
         }}

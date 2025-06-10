@@ -1,22 +1,25 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'antd';
+import RegExpValidator from 'src/utils/expression';
 import { loadImage } from '../utils';
 import './index.less';
-import RegExpValidator from 'src/util/expression';
+
 const LargeImageCard = props => {
   const { isMobile, previewUrl, onPreview } = props;
   const [loading, setLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    loadImage(previewUrl).then(img => {
-      setLoading(false);
-    }).catch(() => {
-      setIsError(true);
-      setLoading(false);
-    });
+    loadImage(previewUrl)
+      .then(img => {
+        setLoading(false);
+      })
+      .catch(() => {
+        setIsError(true);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -74,7 +77,8 @@ export default props => {
       <LargeImageCard
         {...otherProps}
         previewUrl={previewUrl}
-        onPreview={() => {
+        onPreview={e => {
+          e.stopPropagation();
           browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
         }}
       />
@@ -84,8 +88,8 @@ export default props => {
     const previewImageUrl = isKc
       ? data.viewUrl
       : url.indexOf('imageView2') > -1
-      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
-      : url + `${url.includes('?') ? '&' : '?'}imageView2/0`;
+        ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
+        : url + `${url.includes('?') ? '&' : '?'}imageView2/0`;
     return (
       <LargeImageCard
         {...otherProps}

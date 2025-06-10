@@ -1,4 +1,4 @@
-import { VersionProductType } from 'src/util/enum.js';
+import { VersionProductType } from 'src/utils/enum';
 
 export const menuList = [
   {
@@ -117,7 +117,7 @@ export const menuList = [
     icon: 'icon-business',
     subMenuList: [
       {
-        name: _l('基础信息'),
+        name: _l('组织信息'),
         key: 'sysinfo',
         routes: [
           {

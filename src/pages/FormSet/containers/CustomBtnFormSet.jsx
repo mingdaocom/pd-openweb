@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
-import cx from 'classnames';
-import { Icon, UpgradeIcon } from 'ming-ui';
-import { Drawer } from 'antd';
-import { CreateCustomBtn } from 'worksheet/common';
-import styled from 'styled-components';
-import './print.less';
-import sheetAjax from 'src/api/worksheet';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { refreshBtnData } from 'src/pages/FormSet/util';
-import _ from 'lodash';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import TrashDialog from '../components/Trash';
 import { useSetState } from 'react-use';
+import { Drawer } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { CreateCustomBtn } from 'worksheet/common';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { refreshBtnData } from 'src/pages/FormSet/util';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import BtnTd from '../components/BtnTd';
+import TrashDialog from '../components/Trash';
+import './print.less';
 
 const Con = styled.div`
   width: 100%;

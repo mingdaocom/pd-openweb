@@ -1,5 +1,5 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, checkOriginUrl, getGlobalMeta } from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+import { setPssId } from 'src/utils/pssId';
+import { ajax, browserIsMobile, checkLogin, checkOriginUrl, getGlobalMeta, getRequest, login } from 'src/utils/sso';
 
 const { code, p, i, s, ret, source, url, state } = getRequest();
 const isMobile = browserIsMobile();
@@ -18,7 +18,7 @@ if (source === 'wxwork') {
         code,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           getGlobalMeta().then(() => {
@@ -51,7 +51,7 @@ if (source === 'wxwork') {
         secretId: s,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           setPssId(sessionId);

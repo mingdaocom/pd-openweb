@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import cx from 'classnames';
-import AddFields from '../CustomEvent/CustomAction/AddFields';
-import { WORKFLOW_SYSTEM_CONTROL, SYSTEM_CONTROL, ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { ALL_SYS, SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { getUnUniqName } from 'src/util';
+import { getUnUniqName } from 'src/utils/common';
+import AddFields from '../CustomEvent/CustomAction/AddFields';
 
 const CustomReferenceWrap = styled.div`
   display: flex;

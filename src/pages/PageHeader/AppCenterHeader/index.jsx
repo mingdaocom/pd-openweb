@@ -1,15 +1,16 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { emitter, getCurrentProject } from 'src/util';
-import { ScrollView, Menu, MenuItem, Icon } from 'ming-ui';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Menu, MenuItem, ScrollView } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { emitter } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
 import CommonUserHandle from '../components/CommonUserHandle';
 import GlobalSearch from '../components/GlobalSearch';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -50,7 +51,9 @@ const ProjectsMenuCon = styled.div`
   background: #fff;
   border-radius: 3px;
   padding-bottom: 5px;
-  box-shadow: 0 4px 20px rgb(0 0 0 / 13%), 0 2px 6px rgb(0 0 0 / 10%);
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 13%),
+    0 2px 6px rgb(0 0 0 / 10%);
   .nano-pane {
     z-index: 20;
   }
@@ -249,7 +252,7 @@ function AppCenterHeader(props) {
             }
             onPopupVisibleChange={setPopupVisible}
           >
-            <ProjectSwitch className="Font17 bold Hand">
+            <ProjectSwitch className="Font17 bold Hand" title={window.isMDClient ? location.origin : ''}>
               <div className="companyName ellipsis">
                 {(_.find(projects, v => v.projectId === currentProject.projectId) || {}).companyName ||
                   currentProject.companyName}
@@ -264,8 +267,8 @@ function AppCenterHeader(props) {
               {currentProject.licenseType == 0
                 ? _l('免费版')
                 : _.get(currentProject, 'currentLicense.expireDays')
-                ? _l('试用期剩余%0天', _.get(currentProject, 'currentLicense.expireDays'))
-                : ''}
+                  ? _l('试用期剩余%0天', _.get(currentProject, 'currentLicense.expireDays'))
+                  : ''}
             </div>
           </UpgradeWrap>
         )}

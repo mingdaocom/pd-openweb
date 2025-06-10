@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Checkbox, Icon, RadioGroup, Switch, Tooltip } from 'ming-ui';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
 import delPng from './img/del.png';
 import editPng from './img/edit.png';
 import lookPng from './img/look.png';
@@ -121,51 +121,53 @@ function TipsRender(props) {
               </Tooltip>
             )}
           </div>
-          {extendAttrList.length !== 0 && (
-            <div className="tipExtendAttr flexRow mTop18">
-              <div className="left">
-                <span className="flexRow alignItemsCenter">
-                  <Switch
-                    size="small"
-                    className="InlineBlock"
-                    checked={extendAttrList.filter(l => extendAttrValue.includes(l.id)).length > 0}
-                    onClick={value => {
-                      if (value) {
-                        onChangeExtendAttr([]);
-                      } else {
-                        onChangeExtendAttr(extendAttrList.map(l => l.id));
-                      }
-                    }}
-                  />
-                  <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
-                  <Tooltip text={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
-                    <Icon icon="info_outline" className="Gray_bd Font16 mLeft6" />
-                  </Tooltip>
-                </span>
-              </div>
-              <div className="flex mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>
-                {extendAttrList.map(item => {
-                  const isChecked = extendAttrValue.indexOf(item.id) > -1;
-                  return (
-                    <span
-                      className="flexRow alignItemsCenter Hand"
-                      onClick={() => {
-                        if (isChecked) {
-                          onChangeExtendAttr(extendAttrValue.filter(l => l !== item.id));
-                        } else {
-                          onChangeExtendAttr(extendAttrValue.concat(item.id));
-                        }
-                      }}
-                    >
-                      <Checkbox className="InlineBlock" checked={isChecked} />
-                      <span className={cx('Font13', isChecked ? 'Gray' : 'Gray_9e')}>{item.name}</span>
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </React.Fragment>
+      )}
+      {extendAttrList.length !== 0 && (
+        <div className="tipExtendAttr flexRow mTop18">
+          <div className="left">
+            <span className="flexRow alignItemsCenter">
+              <Switch
+                size="small"
+                className="InlineBlock"
+                checked={extendAttrList.filter(l => extendAttrValue.includes(l.id)).length > 0}
+                onClick={value => {
+                  if (value) {
+                    onChangeExtendAttr([]);
+                  } else {
+                    onChangeExtendAttr(extendAttrList.map(l => l.id));
+                  }
+                }}
+              />
+              <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
+              {!isForPortal && (
+                <Tooltip text={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
+                  <Icon icon="info_outline" className="Gray_bd Font16 mLeft6" />
+                </Tooltip>
+              )}
+            </span>
+          </div>
+          <div className="flex mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>
+            {extendAttrList.map(item => {
+              const isChecked = extendAttrValue.indexOf(item.id) > -1;
+              return (
+                <span
+                  className="flexRow alignItemsCenter Hand"
+                  onClick={() => {
+                    if (isChecked) {
+                      onChangeExtendAttr(extendAttrValue.filter(l => l !== item.id));
+                    } else {
+                      onChangeExtendAttr(extendAttrValue.concat(item.id));
+                    }
+                  }}
+                >
+                  <Checkbox className="InlineBlock" checked={isChecked} />
+                  <span className={cx('Font13', isChecked ? 'Gray' : 'Gray_9e')}>{item.name}</span>
+                </span>
+              );
+            })}
+          </div>
+        </div>
       )}
     </React.Fragment>
   );

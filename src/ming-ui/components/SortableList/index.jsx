@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getEmptyImage, HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
-import { HTML5Backend, getEmptyImage } from 'react-dnd-html5-backend-latest';
 import _ from 'lodash';
+import { array, bool, func, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { array, func, string, bool } from 'prop-types';
 import ListItemLayer from './ItemLayer';
 
 let dragging = false;
@@ -97,7 +97,7 @@ const DragItem = props => {
 
   // 使用拖拽手柄
   const DragHandle = useDragHandle
-    ? ({ children, className='' }) => (
+    ? ({ children, className = '' }) => (
         <span className={className} ref={drag} style={{ cursor: 'move' }}>
           {children}
         </span>

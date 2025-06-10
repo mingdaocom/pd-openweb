@@ -1,9 +1,9 @@
 import _, { trim } from 'lodash';
-import { postWithToken } from 'worksheet/util';
 import moment from 'moment';
+import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
-import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { postWithToken } from 'src/utils/common';
 
 function getSelectedOptionKeys(text = '', options, isMultiple) {
   if (!text.trim()) {

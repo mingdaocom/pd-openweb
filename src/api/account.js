@@ -296,6 +296,7 @@ export default {
   * 根据类型获取我相关的组织，包括我正常加入的；等待审核加入的
   * @param {Object} args 请求参数
   * @param {} args.userStatus
+  * @param {} args.projectStatus
   * @param {string} args.pageIndex 页码
   * @param {string} args.pageSize 页大小
   * @param {Object} options 配置参数

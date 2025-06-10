@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
+import cx from 'classnames';
 import { Icon, UserHead } from 'ming-ui';
+import { quickSelectDept, quickSelectRole, quickSelectUser } from 'ming-ui/functions';
+import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import DropCon from './DropCon';
 import Option from './Options';
-import cx from 'classnames';
 import './index.less';
-import { quickSelectUser, quickSelectDept, quickSelectRole } from 'ming-ui/functions';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 export default function (props) {
   const { setting } = props;
@@ -119,6 +119,7 @@ export default function (props) {
                 userHead: info.avatar,
                 accountId: info.accountId,
               }}
+              appId={appId}
               projectId={projectId}
               size={28}
             />

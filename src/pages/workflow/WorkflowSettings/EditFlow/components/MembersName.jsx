@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { USER_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../enum';
 import _ from 'lodash';
 import nzh from 'nzh';
+import { DEPARTMENT_ORGANIZE, USER_ORGANIZE, USER_TYPE } from '../../enum';
 
 export default ({ accounts, multipleLevelAccounts, relationType, relationId }) => {
   const appId = relationType === 2 ? relationId : '';
@@ -18,8 +18,21 @@ export default ({ accounts, multipleLevelAccounts, relationType, relationId }) =
       }
 
       if (obj.type === USER_TYPE.ORGANIZE_ROLE) {
+        if (!obj.entityName) {
+          return (
+            <Fragment key={i}>
+              <span className="red">{_l('已删除')}</span>
+              {split}
+            </Fragment>
+          );
+        }
+
         if (obj.count === 0) {
-          return <span className="yellow">{obj.entityName + split}</span>;
+          return (
+            <span className="yellow" key={i}>
+              {obj.entityName + split}
+            </span>
+          );
         }
 
         return obj.entityName + split;
@@ -40,6 +53,15 @@ export default ({ accounts, multipleLevelAccounts, relationType, relationId }) =
         const text =
           (obj.roleName ? obj.roleName + (appId !== obj.entityId ? `（${obj.entityName}）` : '') : obj.entityName) +
           (obj.includeSub ? `(${_l('包含下级部门')})` : '');
+
+        if (!obj.entityName) {
+          return (
+            <Fragment key={i}>
+              <span className="red">{_l('已删除')}</span>
+              {split}
+            </Fragment>
+          );
+        }
 
         if (obj.count === 0) {
           return (

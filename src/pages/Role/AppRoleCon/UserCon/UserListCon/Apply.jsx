@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
-import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
-import { Textarea, Dialog, UserHead } from 'ming-ui';
-import Table from 'src/pages/Role/component/Table';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import ApplyAction from 'src/pages/Role/AppRoleCon/component/ApplyAction';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import appManagementAjax from 'src/api/appManagement.js';
-import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import moment from 'moment';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import styled from 'styled-components';
+import { Dialog, Textarea, UserHead } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement.js';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import ApplyAction from 'src/pages/Role/AppRoleCon/component/ApplyAction';
+import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
+import Table from 'src/pages/Role/component/Table';
 import { sysRoleType } from 'src/pages/Role/config.js';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;

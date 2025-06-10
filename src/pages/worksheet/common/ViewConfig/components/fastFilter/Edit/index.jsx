@@ -1,44 +1,44 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, Checkbox, Input } from 'ming-ui';
-import { getIconByType, filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import {
-  MULTI_SELECT_FILTER_TYPE,
-  TEXT_FILTER_TYPE,
-  LIMIT,
-  NUMBER_FILTER_TYPE,
-  DATE_FILTER_TYPE,
-  RELA_FILTER_TYPE,
-  GROUP_FILTER_TYPE,
-  DIRECTION_TYPE,
-  DATE_RANGE,
-  OPTIONS_ALLOWITEM,
-  SHOW_RELATE_TYPE,
-  APP_ALLOWSCAN,
-  ADVANCEDSETTING_KEYS,
-  Filter_KEYS,
-  FASTFILTER_CONDITION_TYPE,
-  NAV_SHOW_TYPE,
-  getSetDefault,
-  getControlFormatType,
-  DATE_GRANULARITY_TYPE,
-  formatFastFilterData,
-} from '../util';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
-import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import { Checkbox, Icon, Input } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import { formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
-import SearchConfig from '../SearchConfig';
+import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import DateTimeDataRange from '../DateTimeDataRange';
-import { Wrap } from './style';
+import SearchConfig from '../SearchConfig';
+import {
+  ADVANCEDSETTING_KEYS,
+  APP_ALLOWSCAN,
+  DATE_FILTER_TYPE,
+  DATE_GRANULARITY_TYPE,
+  DATE_RANGE,
+  DIRECTION_TYPE,
+  FASTFILTER_CONDITION_TYPE,
+  Filter_KEYS,
+  formatFastFilterData,
+  getControlFormatType,
+  getSetDefault,
+  GROUP_FILTER_TYPE,
+  LIMIT,
+  MULTI_SELECT_FILTER_TYPE,
+  NAV_SHOW_TYPE,
+  NUMBER_FILTER_TYPE,
+  OPTIONS_ALLOWITEM,
+  RELA_FILTER_TYPE,
+  SHOW_RELATE_TYPE,
+  TEXT_FILTER_TYPE,
+} from '../util';
 import DefCom from './DefCom';
 import DropCom from './DropCom';
 import ShowTypeCom from './ShowTypeCom';
+import { Wrap } from './style';
 
 function Edit(params) {
   const {
@@ -274,13 +274,19 @@ function Edit(params) {
             />
           )}
         {TEXT_FILTER_TYPE.keys.includes(dataType) &&
-          FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN === control[TEXT_FILTER_TYPE.key] && (
-            <div className="mTop10 Gray_75">
-              {_l('- 使用同时包含时，搜索内容中的空格将用于分词')}
-              <br />
-              {_l('- 在大数据量时使用包含、同时包含条件可能非常缓慢，建议使用等于，并创建索引来优化性能。')}
-            </div>
-          )}
+        FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN === control[TEXT_FILTER_TYPE.key] ? (
+          <div className="mTop10 Gray_75">
+            {_l('- 使用同时包含时，搜索内容中的空格将用于分词')}
+            <br />
+            {_l('- 在大数据量时使用包含、同时包含条件可能非常缓慢，建议使用等于，并创建索引来优化性能。')}
+          </div>
+        ) : FILTER_CONDITION_TYPE.LIKE === control[TEXT_FILTER_TYPE.key] ? (
+          <div className="mTop10 Gray_75">
+            {_l('默认方式下，用户可自行切换使用模糊匹配或精确匹配搜索，适合大多数筛选场景')}
+          </div>
+        ) : (
+          ''
+        )}
         {[NAV_SHOW_TYPE].map(o => {
           if (o.keys.includes(dataType)) {
             const { advancedSetting = {}, controlId } = control; //快速筛选

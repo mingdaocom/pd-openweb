@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Support, Button, Dropdown, LoadDiv, Checkbox } from 'ming-ui';
 import _ from 'lodash';
-import { getWithToken, postWithToken } from 'worksheet/util';
+import { arrayOf, func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Button, Checkbox, Dropdown, LoadDiv, Support } from 'ming-ui';
+import { getWithToken } from 'src/utils/common';
 import convert from './convertData';
 import PreviewTable from './PreviewTable';
-import { arrayOf, func, number, shape, string } from 'prop-types';
 
 const Header = styled.div`
   height: 52px;

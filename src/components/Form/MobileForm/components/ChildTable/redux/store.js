@@ -1,17 +1,18 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import { isNumber, isNaN, isFunction, includes, find } from 'lodash';
-import sheetAjax from 'src/api/worksheet';
-import reducer from './reducer';
+import { find, includes, isFunction, isNaN, isNumber } from 'lodash';
 import { get } from 'lodash';
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { isEmpty } from 'lodash';
-import { handleUpdateDefsourceOfControl } from '../ChildTable';
-import { resetRows, clearRows, loadRows, setRowsFromStaticRows } from './actions';
-import { getSubListUniqueError, parseAdvancedSetting, isRelateRecordTableControl } from 'worksheet/util';
-import { getSubListError } from '../utils';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import sheetAjax from 'src/api/worksheet';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
+import { parseAdvancedSetting } from 'src/utils/control';
+import { getSubListUniqueError } from 'src/utils/record';
+import { handleUpdateDefsourceOfControl } from 'src/utils/record';
+import { getSubListError } from '../utils';
+import { clearRows, loadRows, resetRows, setRowsFromStaticRows } from './actions';
+import reducer from './reducer';
 
 function loadWorksheetInfo(worksheetId, { controlId, relationWorksheetId, recordId, instanceId, workId } = {}) {
   const args = { worksheetId, getTemplate: true, getRules: true, relationWorksheetId };
@@ -46,6 +47,7 @@ export default function generateStore(
     instanceId,
     workId,
     initRowIsCreate,
+    DataFormat,
   } = {},
 ) {
   let worksheetInfo;
@@ -86,7 +88,7 @@ export default function generateStore(
     }
     if (!searchConfig) {
       const queryRes = await sheetAjax.getQueryBySheetId({ worksheetId });
-      searchConfig = formatSearchConfigs(queryRes);
+      searchConfig = formatSearchConfigs(queryRes).filter(i => i.eventType !== 1);
     }
     const { uniqueControlIds } = parseAdvancedSetting(control.advancedSetting);
     controls = controls.map(c => ({
@@ -123,7 +125,7 @@ export default function generateStore(
         masterData,
         staticRows: safeParse(control.value),
       };
-      setRowsFromStaticRows(params)(store.getState, store.dispatch);
+      setRowsFromStaticRows(params)(store.getState, store.dispatch, DataFormat);
     }
     if (!isEmpty(store.waitList)) {
       store.waitList.forEach(fn => fn());
@@ -177,28 +179,6 @@ export default function generateStore(
         from: get(base, 'from'),
       }),
     );
-  };
-  store.getErrors = () => {
-    const state = store.getState();
-    const { rows, base = {} } = state;
-    const error = getSubListError(
-      {
-        rows,
-        rules: get(base, 'worksheetInfo.rules'),
-      },
-      base.controls,
-      control.showControls,
-      recordId ? 3 : 2,
-    );
-    if (!isEmpty(error)) {
-      store.dispatch({
-        type: 'UPDATE_CELL_ERRORS',
-        value: error,
-      });
-    } else {
-      store.clearSubListErrors();
-    }
-    return error;
   };
   store.setUniqueError = ({ badData = [] } = {}) => {
     const { controlId, error } = getSubListUniqueError({ store, badData, control });

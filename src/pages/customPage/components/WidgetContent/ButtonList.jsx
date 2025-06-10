@@ -1,31 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
-import ButtonDisplay from '../editWidget/button/ButtonDisplay';
-import { Dialog, Input } from 'ming-ui';
-import { Toast, Dialog as MobileDialog } from 'antd-mobile';
-import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+import { Dialog as MobileDialog, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
-import ScanQRCode from 'src/components/newCustomFields/components/ScanQRCode';
-import homeAppApi from 'src/api/homeApp';
+import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Input } from 'ming-ui';
+import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
 import departmentApi from 'src/api/department';
+import homeAppApi from 'src/api/homeApp';
 import organizeApi from 'src/api/organize';
 import worksheetApi from 'src/api/worksheet';
 import processApi from 'src/pages/workflow/api/process';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { hrefReg } from 'src/pages/customPage/components/previewContent';
-import { RecordInfoModal } from 'mobile/Record';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { genUrl } from '../../util';
-import { connect } from 'react-redux';
-import { browserIsMobile, mdAppResponse, addBehaviorLog } from 'src/util';
-import { getRequest } from 'src/util';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
+import { RecordInfoModal } from 'mobile/Record';
+import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
+import NewRecord from 'worksheet/common/newRecord/NewRecord';
+import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { showFilteredRecords } from 'worksheet/components/SearchRecordResult';
+import ScanQRCode from 'src/components/newCustomFields/components/ScanQRCode';
+import { hrefReg } from 'src/pages/customPage/components/previewContent';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { navigateTo } from 'src/router/navigateTo';
-import _ from 'lodash';
-import moment from 'moment';
+import { getRequest } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/common';
+import { addBehaviorLog, mdAppResponse } from 'src/utils/project';
+import { genUrl } from '../../util';
+import ButtonDisplay from '../editWidget/button/ButtonDisplay';
 
 const ButtonListWrap = styled.div`
   width: 100%;
@@ -64,11 +65,21 @@ const getOrganize = (projectId, accountId) => {
         resolve(organizes || []);
       });
   });
-}
+};
 
 let currentBtn = {};
 
-export function ButtonList({ ids, widget, button = {}, editable, layoutType, addRecord, info }) {
+export function ButtonList({
+  ids,
+  widget,
+  button = {},
+  editable,
+  layoutType,
+  addRecord,
+  info,
+  themeColor,
+  customPageConfig,
+}) {
   const [createRecordInfo, setInfo] = useState({
     visible: false,
     value: '',
@@ -76,9 +87,17 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
     appId: '',
     name: '',
     writeControls: [],
-    sheetSwitchPermit: []
+    sheetSwitchPermit: [],
   });
-  const { visible, value: worksheetId, viewId, appId, name, writeControls = [], sheetSwitchPermit = [] } = createRecordInfo;
+  const {
+    visible,
+    value: worksheetId,
+    viewId,
+    appId,
+    name,
+    writeControls = [],
+    sheetSwitchPermit = [],
+  } = createRecordInfo;
   const isMobile = browserIsMobile();
   const isIPad = navigator.userAgent.toLowerCase().includes('ipad');
   const scanQRCodeRef = useRef();
@@ -112,7 +131,9 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
     }
     processApi
       .startProcessByPBC({
-        pushUniqueId: window.isMingDaoApp ? pushUniqueId || md.global.Config.pushUniqueId : md.global.Config.pushUniqueId,
+        pushUniqueId: window.isMingDaoApp
+          ? pushUniqueId || md.global.Config.pushUniqueId
+          : md.global.Config.pushUniqueId,
         appId,
         triggerId: id,
         title: name,
@@ -276,7 +297,9 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
                   }
                 }}
               />
-              <div className="mTop10 confirmSubmitHint hide" style={{ color: '#4caf50' }}>{_l('已提交，请输入下一条')}</div>
+              <div className="mTop10 confirmSubmitHint hide" style={{ color: '#4caf50' }}>
+                {_l('已提交，请输入下一条')}
+              </div>
             </div>
           ),
           footer: (
@@ -291,7 +314,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
                 {_l('确定')}
               </ConfirmButton>
             </div>
-          )
+          ),
         });
       }
     }
@@ -309,7 +332,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
             content: confirmMsg,
             cancelText: cancelName,
             confirmText: sureName,
-            onConfirm: () => runStartProcessByPBC(item)
+            onConfirm: () => runStartProcessByPBC(item),
           });
         } else {
           Dialog.confirm({
@@ -386,7 +409,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
           onConfirm: () => {
             copy(result);
             alert(_l('复制成功'), 1);
-          }
+          },
         });
       } else {
         Dialog.confirm({
@@ -395,14 +418,14 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
             copy(result);
             alert(_l('复制成功'), 1);
           },
-          okText: _l('复制')
+          okText: _l('复制'),
         });
       }
     }
     // 文本，搜索打开记录
     if (config.text === 1 && value && viewId) {
       const { isFilter } = config;
-      isMobile && Toast.show({ icon: 'loading', content: _l('加载中，请稍后') })
+      isMobile && Toast.show({ icon: 'loading', content: _l('加载中，请稍后') });
       const { appId } = await homeAppApi.getAppSimpleInfo({ workSheetId: value });
       isMobile && Toast.clear();
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
@@ -424,7 +447,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
           viewId,
           filterId,
           searchId,
-          keyWords: result
+          keyWords: result,
         });
       }
     }
@@ -439,13 +462,15 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
     refreshObjects.forEach(item => {
       window[`refresh-${item.objectId}`] && window[`refresh-${item.objectId}`]();
     });
-  }
+  };
 
   const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
 
   return (
     <ButtonListWrap>
       <ButtonDisplay
+        themeColor={themeColor}
+        customPageConfig={customPageConfig}
         widget={widget}
         appId={ids.appId}
         displayMode="display"

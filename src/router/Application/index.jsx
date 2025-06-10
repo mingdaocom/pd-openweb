@@ -4,6 +4,7 @@ import genRouteComponent from '../genRouteComponent';
 import { ROUTE_CONFIG, PORTAL_ROUTE_CONFIG } from './config';
 import ajaxRequest from 'src/api/homeApp';
 import { LoadDiv } from 'ming-ui';
+import { navigateTo } from 'router/navigateTo';
 import UnusualContent from 'src/components/UnusualContent';
 import FixedContent from 'src/components/FixedContent';
 import UpgradeContent from 'src/components/UpgradeContent';
@@ -57,6 +58,9 @@ export default class Application extends Component {
     ajaxRequest
       .checkApp({ appId }, { silent: true })
       .then(status => {
+        if ([4].includes(status) && ['/role', '/workflow'].some(path => this.props.location.pathname.includes(path))) {
+          navigateTo(`/app/${appId}`);
+        }
         this.setState({ status });
         this.props.setAppStatus(status);
       })

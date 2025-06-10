@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem } from 'ming-ui';
-import IconText from 'worksheet/components/IconText';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { exportSheet } from 'worksheet/common/ExportSheet';
 import { exportAttachment } from 'worksheet/common/ExportAttachment';
+import { exportSheet } from 'worksheet/common/ExportSheet';
+import IconText from 'worksheet/components/IconText';
 import { canEditData } from 'worksheet/redux/actions/util';
-import { filterHidedControls } from 'worksheet/util';
-import { isOpenPermit } from 'src/pages/FormSet/util';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { permitList } from 'src/pages/FormSet/config';
-import _ from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util';
+import { filterHidedControls } from 'src/utils/control';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const Con = styled.div`
   position: relative;

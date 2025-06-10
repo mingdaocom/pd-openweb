@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { browserIsMobile } from 'src/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { browserIsMobile } from 'src/utils/common';
 
 const IDWrap = styled.div`
   position: absolute;

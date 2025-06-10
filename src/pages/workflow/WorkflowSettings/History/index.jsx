@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { ScrollView, MdLink } from 'ming-ui';
-import HistoryHeader from './HistoryHeader';
-import HistoryList from './HistoryList';
-import HistoryDetail from './HistoryDetail';
-import './index.less';
+import { connect } from 'react-redux';
+import _ from 'lodash';
+import { MdLink, ScrollView } from 'ming-ui';
 import api from '../../api/instance';
 import processVersion from '../../api/processVersion';
-import _ from 'lodash';
-import Detail from '../Detail';
 import ArchivedList from 'src/components/ArchivedList';
+import Detail from '../Detail';
+import HistoryDetail from './HistoryDetail';
+import HistoryHeader from './HistoryHeader';
+import HistoryList from './HistoryList';
+import './index.less';
 
 @withRouter
 class History extends Component {
@@ -40,6 +40,7 @@ class History extends Component {
       selectNodeObj: {},
       archivedItem: {},
       cacheKey: +new Date(),
+      scrollTop: 0,
     };
   }
 
@@ -173,6 +174,7 @@ class History extends Component {
       selectNodeObj,
       archivedItem,
       cacheKey,
+      scrollTop,
     } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const detailProps = {
@@ -199,7 +201,9 @@ class History extends Component {
                       `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/${match.params.type}`,
                     );
                   } else {
-                    this.setState({ selectActionId: '' });
+                    this.setState({ selectActionId: '' }, () => {
+                      this.contentScroll.content.scrollTop = scrollTop;
+                    });
                   }
                 }}
                 openNodeDetail={selectNodeObj => this.setState({ selectNodeObj })}
@@ -213,7 +217,11 @@ class History extends Component {
     }
 
     return (
-      <ScrollView className="workflowHistoryWrap flex" style={{ marginTop: _.isEmpty(archivedItem) ? 20 : 13 }}>
+      <ScrollView
+        className="workflowHistoryWrap flex"
+        ref={contentScroll => (this.contentScroll = contentScroll)}
+        style={{ marginTop: _.isEmpty(archivedItem) ? 20 : 13 }}
+      >
         <div
           className="lastPublishInfo"
           style={{
@@ -294,7 +302,9 @@ class History extends Component {
             hasMoreData={hasMoreData}
             requestPending={requestPending}
             batchIds={batchIds}
-            onClick={selectActionId => this.setState({ selectActionId })}
+            onClick={selectActionId =>
+              this.setState({ selectActionId, scrollTop: this.contentScroll.content.scrollTop })
+            }
             onRecovery={this.onRecovery}
             onRefreshAccumulation={() => this.getProcessAccumulation()}
             onUpdateBatchIds={batchIds => this.setState({ batchIds })}

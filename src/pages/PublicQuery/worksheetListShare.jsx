@@ -1,19 +1,19 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
-import './worksheetListShare.less';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
-import { Tooltip } from 'ming-ui';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import _ from 'lodash';
-import { browserIsMobile } from 'src/util';
 import DocumentTitle from 'react-document-title';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Tooltip } from 'ming-ui';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { browserIsMobile } from 'src/utils/common';
+import './worksheetListShare.less';
 
 const hiddenIds = WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId);
-const FILTER_CONTROLS_TYPE = [14, 43, 51, 52, 49, 22, 47];
+const FILTER_CONTROLS_TYPE = [43, 51, 52, 49, 22, 47];
 
 class WorksheetListShare extends React.Component {
   constructor(props) {
@@ -122,7 +122,7 @@ class WorksheetListShare extends React.Component {
             {rowsList.length > 0 && (
               <div className={cx('flexRow', { minW: coverCidData.length })}>
                 {this.getCardControlsForTitle(Controls)
-                  .filter(item => ![14, 43, 51, 52].includes(item.type) && controlState(item).visible)
+                  .filter(item => ![43, 51, 52].includes(item.type) && controlState(item).visible)
                   .slice(0, 7)
                   .map((control, i) => {
                     return (

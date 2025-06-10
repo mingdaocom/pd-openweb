@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon, MdLink, Tooltip, SvgIcon } from 'ming-ui';
 import { TinyColor } from '@ctrl/tinycolor';
-import MoreOperation from './MoreOperation';
-import Drag from './Drag';
-import styled from 'styled-components';
+import cx from 'classnames';
 import _ from 'lodash';
-import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import styled from 'styled-components';
+import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
-import { addBehaviorLog, getTranslateInfo } from 'src/util';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { addBehaviorLog } from 'src/utils/project';
+import Drag from './Drag';
+import MoreOperation from './MoreOperation';
 
 const Wrap = styled.div`
   &.active .name::before {
@@ -90,7 +91,10 @@ export default class WorkSheetItem extends Component {
     const workSheetName = getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName;
     const isActive = activeSheetId === workSheetId;
     const { iconColor, currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
-    const showIcon = currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0 ? true : displayIcon.split('')[layerIndex] === '1';
+    const showIcon =
+      currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0
+        ? true
+        : displayIcon.split('')[layerIndex] === '1';
     const isNewOpen = configuration.openType == '2';
     const url = this.getNavigateUrl(isActive);
     const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));

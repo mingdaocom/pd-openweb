@@ -2,12 +2,12 @@
  * 工作表控件-关联他表
  */
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { browserIsMobile } from 'src/utils/common';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
 import { renderCellText } from '../../components/CellControls';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
 
 class RelateWorksheet extends Component {
   static propTypes = {
@@ -54,7 +54,12 @@ class RelateWorksheet extends Component {
           }}
         >
           <i className="icon icon-link-worksheet"></i>
-          {renderCellText(Object.assign({}, cell, { type: cell.sourceControlType, value: record.name === '未命名' ? '' : record.name })) || _l('未命名')}
+          {renderCellText(
+            Object.assign({}, cell, {
+              type: cell.sourceControlType,
+              value: record.name === '未命名' ? '' : record.name,
+            }),
+          ) || _l('未命名')}
         </span>
       ));
     } else {
@@ -70,7 +75,11 @@ class RelateWorksheet extends Component {
     }
 
     return (
-      <div className={cx('cellRelateWorksheets cellOptions cellControl', className)} style={style} onClick={this.props.onClick}>
+      <div
+        className={cx('cellRelateWorksheets cellOptions cellControl', className)}
+        style={style}
+        onClick={this.props.onClick}
+      >
         {activeRecordId && (
           <RecordInfoWrapper
             appId={appId}

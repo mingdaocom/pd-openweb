@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors, getStyleColor } from './common';
-import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
-import { Icon } from 'ming-ui';
-import { formatNumberFromInput } from 'src/util';
 import { TinyColor } from '@ctrl/tinycolor';
+import { Icon } from 'ming-ui';
+import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { formatNumberFromInput } from 'src/utils/control';
+import {
+  formatControlInfo,
+  formatrChartAxisValue,
+  formatrChartValue,
+  formatYaxisList,
+  getChartColors,
+  getLegendType,
+  getStyleColor,
+} from './common';
 
 const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
@@ -21,7 +29,7 @@ const formatChartData = (data, splitId) => {
           name,
           originalId: item.originalX,
           [splitId]: element.originalKey,
-          ...target.m
+          ...target.m,
         });
       });
     });
@@ -43,12 +51,12 @@ const formatChartData = (data, splitId) => {
     });
   }
   return result;
-}
+};
 
 const getControlMinAndMax = (yaxisList, data) => {
   const result = {};
 
-  const get = (id) => {
+  const get = id => {
     let values = [];
     for (let i = 0; i < data.length; i++) {
       if (id in data[i]) {
@@ -60,23 +68,23 @@ const getControlMinAndMax = (yaxisList, data) => {
     return {
       min,
       max,
-      center: (max + min) / 2
-    }
-  }
+      center: (max + min) / 2,
+    };
+  };
 
   yaxisList.forEach(item => {
     result[item.controlId] = get(item.controlId);
   });
 
   return result;
-}
+};
 
 const getControlMedianValue = data => {
   const min = _.min(data);
   const max = _.max(data);
   const middle = (min + max) / 2;
   return middle;
-}
+};
 
 export default class extends Component {
   constructor(props) {
@@ -88,8 +96,9 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-    }
+    };
     this.ScatterChart = null;
+    this.g2plotComponent = {};
   }
   componentDidMount() {
     Promise.all([import('@antv/g2plot'), import('@antv/util')]).then(data => {
@@ -115,7 +124,10 @@ export default class extends Component {
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       !_.isEqual(style.quadrant, oldStyle.quadrant) ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -135,14 +147,17 @@ export default class extends Component {
     if (this.chartEl) {
       this.ScatterChart = new Scatter(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+        (xaxes.controlId || split.controlId);
       if (this.isViewOriginalData || this.isLinkageData) {
         this.ScatterChart.on('element:click', this.handleClick);
       }
       this.ScatterChart.render();
     }
   }
-  handleClick = (event) => {
+  handleClick = event => {
     const { xaxes, split, appId, reportId, name, reportType, style, map } = this.props.reportData;
     const currentData = event.data.data;
     const gEvent = event.gEvent;
@@ -152,7 +167,7 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -165,7 +180,7 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (split.controlId) {
@@ -178,54 +193,60 @@ export default class extends Component {
         controlName: split.controlName,
         controlValue: _.get(_.find(map, { originalKey: value }), 'key'),
         type: split.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: gEvent.x,
-        y: gEvent.y + 20
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: gEvent.x,
+          y: gEvent.y + 20,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     this.setState({ dropdownVisible: false });
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const config = this.getComponentConfig(this.props);
-      this.ScatterChart.update(config);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const config = this.getComponentConfig(this.props);
+        this.ScatterChart.update(config);
+      },
+    );
+  };
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
@@ -233,7 +254,10 @@ export default class extends Component {
     const { map, displaySetup, xaxes, yaxisList, split, valueMap = {} } = reportData;
     const { xdisplay, ydisplay, colorRules, showChartType } = displaySetup;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const { quadrant = {} } = style;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
@@ -246,10 +270,10 @@ export default class extends Component {
         value,
         controlMinAndMax,
         rule,
-        controlId: rule.controlId || yaxisList[0].controlId
+        controlId: rule.controlId || yaxisList[0].controlId,
       });
       return color || colors[0];
-    }
+    };
     const xField = _.get(yaxisList[0], 'controlId');
     const yField = _.get(yaxisList[1], 'controlId');
     const sizeField = _.get(yaxisList[2], 'controlId');
@@ -266,7 +290,7 @@ export default class extends Component {
       theme: {
         background: isDark ? widgetBgColor : '#ffffffcc',
       },
-      color: (data) => {
+      color: data => {
         const controlId = data[split.controlId];
         let color = colors[0];
         if (isRuleColor) {
@@ -286,21 +310,24 @@ export default class extends Component {
         }
         return color;
       },
-      legend: displaySetup.showLegend && split.controlId ? {
-        position,
-        itemName: {
-          style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
-        }
-      } : false,
+      legend:
+        displaySetup.showLegend && split.controlId
+          ? {
+              position,
+              itemName: {
+                style: {
+                  fill: isDark ? '#ffffffcc' : undefined,
+                },
+              },
+            }
+          : false,
       shapeLegend: false,
       shape: ({ originalId }) => {
         if (showChartType === 1) {
           return 'circle';
         } else {
           const shapes = ['circle', 'square', 'triangle', 'hexagon', 'diamond', 'bowtie'];
-          const idx = this.uniq(data.map((d) => d.originalId)).indexOf(originalId);
+          const idx = this.uniq(data.map(d => d.originalId)).indexOf(originalId);
           return shapes[idx] || 'circle';
         }
       },
@@ -310,48 +337,50 @@ export default class extends Component {
           formatter: value => {
             const item = _.find(data, { originalId: value });
             return item ? item.name || _l('空') : value;
-          }
+          },
         },
         [xField]: {
           alias: _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName'),
           formatter: value => {
             return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
-          }
+          },
         },
         [yField]: {
           alias: _.get(yaxisList[1], 'rename') || _.get(yaxisList[1], 'controlName'),
           formatter: value => {
             return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
-          }
+          },
         },
         [sizeField]: {
           alias: _.get(yaxisList[2], 'rename') || _.get(yaxisList[2], 'controlName'),
           formatter: value => {
             return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
-          }
+          },
         },
         [split.controlId]: {
           alias: split.controlName,
           formatter: value => {
             const map = valueMap[split.controlId];
             return map ? map[value] || value : value;
-          }
-        }
-      },
-      label: displaySetup.showNumber ? {
-        layout: [
-          { type: 'interval-hide-overlap' },
-          // { type: 'adjust-color' },
-          { type: 'limit-in-plot' }
-        ],
-        content: ({ originalId }) => {
-          const item = _.find(data, { originalId });
-          return item ? item.name || _l('空') : originalId;
+          },
         },
-        style: {
-          fill: isDark ? '#ffffffcc' : undefined
-        }
-      } : null,
+      },
+      label: displaySetup.showNumber
+        ? {
+            layout: [
+              { type: 'interval-hide-overlap' },
+              // { type: 'adjust-color' },
+              { type: 'limit-in-plot' },
+            ],
+            content: ({ originalId }) => {
+              const item = _.find(data, { originalId });
+              return item ? item.name || _l('空') : originalId;
+            },
+            style: {
+              fill: isDark ? '#ffffffcc' : undefined,
+            },
+          }
+        : null,
       tooltip: {
         shared: true,
         showMarkers: false,
@@ -361,32 +390,36 @@ export default class extends Component {
           _.get(yaxisList[0], 'controlId'),
           _.get(yaxisList[1], 'controlId'),
           _.get(yaxisList[2], 'controlId'),
-          split.controlId
+          split.controlId,
         ],
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
+            }
+          : undefined,
       },
       yAxis: {
         nice: true,
         min: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
         max: _.isNumber(ydisplay.maxValue) ? ydisplay.maxValue : null,
         title: ydisplay.showTitle && ydisplay.title ? { text: ydisplay.title } : null,
-        label: ydisplay.showDial ? {
-          formatter: (value) => {
-            return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
-          },
-          style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
-        } : null,
+        label: ydisplay.showDial
+          ? {
+              formatter: value => {
+                return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
+              },
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
+            }
+          : null,
         line: {
           style: {
             stroke: '#aaa',
@@ -397,16 +430,18 @@ export default class extends Component {
         min: _.isNumber(xdisplay.minValue) ? xdisplay.minValue : null,
         max: _.isNumber(xdisplay.maxValue) ? xdisplay.maxValue : null,
         title: xdisplay.showTitle && xdisplay.title ? { text: xdisplay.title } : null,
-        label: xdisplay.showDial ? {
-          autoHide: true,
-          autoEllipsis: true,
-          formatter: (value) => {
-            return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
-          },
-          style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
-        } : null,
+        label: xdisplay.showDial
+          ? {
+              autoHide: true,
+              autoEllipsis: true,
+              formatter: value => {
+                return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
+              },
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
+            }
+          : null,
         grid: {
           line: {
             style: {
@@ -420,58 +455,64 @@ export default class extends Component {
           },
         },
       },
-      quadrant: quadrant.visible ? {
-        xBaseline: _.isNumber(quadrant.xValue) ? quadrant.xValue : getControlMedianValue(data.map(data => data[xField])),
-        yBaseline: _.isNumber(quadrant.yValue) ? quadrant.yValue : getControlMedianValue(data.map(data => data[yField])),
-        lineStyle: {
-          stroke: quadrant.axisColor
-        },
-        regionStyle: [
-          {
-            fill: quadrant.topRightBgColor,
-            fillOpacity: 0.1
-          },
-          {
-            fill: quadrant.topLeftBgColor,
-            fillOpacity: 0.1
-          },
-          {
-            fill: quadrant.bottomLeftBgColor,
-            fillOpacity: 0.1
-          },
-          {
-            fill: quadrant.bottomRightBgColor,
-            fillOpacity: 0.1
+      quadrant: quadrant.visible
+        ? {
+            xBaseline: _.isNumber(quadrant.xValue)
+              ? quadrant.xValue
+              : getControlMedianValue(data.map(data => data[xField])),
+            yBaseline: _.isNumber(quadrant.yValue)
+              ? quadrant.yValue
+              : getControlMedianValue(data.map(data => data[yField])),
+            lineStyle: {
+              stroke: quadrant.axisColor,
+            },
+            regionStyle: [
+              {
+                fill: quadrant.topRightBgColor,
+                fillOpacity: 0.1,
+              },
+              {
+                fill: quadrant.topLeftBgColor,
+                fillOpacity: 0.1,
+              },
+              {
+                fill: quadrant.bottomLeftBgColor,
+                fillOpacity: 0.1,
+              },
+              {
+                fill: quadrant.bottomRightBgColor,
+                fillOpacity: 0.1,
+              },
+            ],
+            labels: [
+              {
+                content: quadrant.topRightText,
+                style: {
+                  fill: quadrant.textColor,
+                },
+              },
+              {
+                content: quadrant.topLeftText,
+                style: {
+                  fill: quadrant.textColor,
+                },
+              },
+              {
+                content: quadrant.bottomLeftText,
+                style: {
+                  fill: quadrant.textColor,
+                },
+              },
+              {
+                content: quadrant.bottomRightText,
+                style: {
+                  fill: quadrant.textColor,
+                },
+              },
+            ],
           }
-        ],
-        labels: [
-          {
-            content: quadrant.topRightText,
-            style: {
-              fill: quadrant.textColor
-            }
-          },
-          {
-            content: quadrant.topLeftText,
-            style: {
-              fill: quadrant.textColor
-            }
-          },
-          {
-            content: quadrant.bottomLeftText,
-            style: {
-              fill: quadrant.textColor
-            }
-          },
-          {
-            content: quadrant.bottomRightText,
-            style: {
-              fill: quadrant.textColor
-            }
-          },
-        ],
-      } : null
-    }
+        : null,
+    };
     this.setCount(props);
     return base;
   }
@@ -481,7 +522,7 @@ export default class extends Component {
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
   renderOverlay() {
@@ -509,7 +550,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
@@ -521,7 +562,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
+            <span data-tip={originalCount ? originalCount : null} className="count">
+              {count}
+            </span>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

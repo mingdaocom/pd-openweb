@@ -1,9 +1,9 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Tree } from 'antd';
-import { Icon, ScrollView, SvgIcon } from 'ming-ui';
+import cx from 'classnames';
 import styled from 'styled-components';
-import { getTranslateInfo } from 'src/util';
+import { Icon, ScrollView, SvgIcon } from 'ming-ui';
+import { getTranslateInfo } from 'src/utils/app';
 
 const Wrap = styled.div`
   width: 260px;
@@ -217,20 +217,22 @@ const getTreeData = (appId, { sections, collections, searchValue }) => {
       key: 'appItemEntrance',
       title: _l('应用项'),
       selectable: false,
-      children: result.length === 1 && !result[0].title ? result[0].children : result
+      children: result.length === 1 && !result[0].title ? result[0].children : result,
     },
     {
       key: 'optionsEntrance',
       title: _l('选项集'),
       selectable: false,
-      children: collections.map(c => {
-        return {
-          key: c.collectionId,
-          title: getTranslateInfo(appId, null, c.collectionId).name || c.name,
-          type: 'collections'
-        }
-      }).filter(n => (searchValue ? n.title.toLocaleLowerCase().includes(searchValue) : true))
-    }
+      children: collections
+        .map(c => {
+          return {
+            key: c.collectionId,
+            title: getTranslateInfo(appId, null, c.collectionId).name || c.name,
+            type: 'collections',
+          };
+        })
+        .filter(n => (searchValue ? n.title.toLocaleLowerCase().includes(searchValue) : true)),
+    },
   ];
   return appEntrance;
 };
@@ -253,7 +255,7 @@ export default function Nav(props) {
   const treeData = getTreeData(app.id, {
     sections,
     collections,
-    searchValue: searchValue.toLocaleLowerCase()
+    searchValue: searchValue.toLocaleLowerCase(),
   });
 
   useEffect(() => {

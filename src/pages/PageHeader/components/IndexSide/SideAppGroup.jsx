@@ -1,7 +1,7 @@
 import React, { Component, createRef } from 'react';
-import SideAppItem from './SideAppItem';
 import cx from 'classnames';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import SideAppItem from './SideAppItem';
 
 const TYPE_TO_TITLE = {
   markedApps: _l('应用收藏'),
@@ -15,21 +15,16 @@ export default class SideAppGroup extends Component {
   static defaultProps = {};
   constructor(props) {
     super(props);
-    const { type, projectId = '@INIT' } = props;
     this.$appGroupWrap = createRef();
-    const isShow = safeParse(localStorage.getItem(`${type}/${projectId}`));
-    this.state = {
-      isShow: isShow === null ? true : isShow,
-    };
   }
 
   componentDidMount() {
-    this.computeMaxHeight(this.state.isShow);
+    this.computeMaxHeight();
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const { items, value } = this.props;
-    if (nextState.isShow !== this.state.isShow) return true;
+  shouldComponentUpdate(nextProps) {
+    const { items, value, expandKeys } = this.props;
+    if (expandKeys !== nextProps.expandKeys) return true;
     if (items.length !== nextProps.items.length) return true;
     if (value !== nextProps.value) return true;
     if (items.filter(app => !!app.isMarked).length !== nextProps.items.filter(app => !!app.isMarked).length)
@@ -38,12 +33,15 @@ export default class SideAppGroup extends Component {
   }
 
   componentDidUpdate() {
-    this.computeMaxHeight(this.state.isShow);
+    this.computeMaxHeight();
   }
 
   // 动态设置max-height属性以使展开收起动画更顺滑
-  computeMaxHeight = isShow => {
+  computeMaxHeight = () => {
+    const { type, projectId = '@INIT', expandKeys } = this.props;
+    const isShow = expandKeys.includes(`${type}/${projectId}`);
     const $ele = this.$appGroupWrap.current;
+
     if (isShow && $ele) {
       const { scrollHeight } = $ele;
       $ele.style.maxHeight = `${scrollHeight}px`;
@@ -51,31 +49,18 @@ export default class SideAppGroup extends Component {
     }
   };
 
-  switchState = () => {
-    const { type, projectId = '@INIT' } = this.props;
-    this.setState(({ isShow }) => {
-      safeLocalStorageSetItem(`${type}/${projectId}`, !isShow);
-      this.computeMaxHeight(!isShow);
-      return {
-        isShow: !isShow,
-      };
-    });
-  };
   render() {
-    let { type, projectName, items = [], ...props } = this.props;
-    let { isShow } = this.state;
-    isShow = isShow === null ? true : isShow;
+    let { type, projectName, items = [], expandKeys, onExpandCollapse, projectId = '@INIT', ...props } = this.props;
+    const isShow = expandKeys.includes(`${type}/${projectId}`);
     items = items.filter(o => !o.pcDisplay || canEditApp(o.permissionType)); //排除pc端未发布的
     if (items.length <= 0) {
       return '';
     }
     return (
       <div className="sideAppGroupWrap">
-        <div className="sideAppGroupTitleWrap">
+        <div className="sideAppGroupTitleWrap pointer" onClick={() => onExpandCollapse(`${type}/${projectId}`)}>
           <div className="sideAppGroupTitle overflow_ellipsis">{projectName || TYPE_TO_TITLE[type]}</div>
-          <div className="displayState pointer" onClick={this.switchState}>
-            {isShow ? _l('隐藏') : _l('展开')}
-          </div>
+          <div className="displayState">{isShow ? _l('收起') : _l('展开')}</div>
         </div>
         <div ref={this.$appGroupWrap} className={cx('sideAppGroup', { hideGroup: !isShow })}>
           {items && items.map((item, index) => <SideAppItem {...item} {...props} key={index} type={type} />)}

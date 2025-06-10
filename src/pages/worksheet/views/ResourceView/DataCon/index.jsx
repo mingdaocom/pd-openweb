@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { types, timeWidth, timeWidthHalf, weekObj, dayTimeByPart } from '../config';
+import styled from 'styled-components';
+import { browserIsMobile } from 'src/utils/common';
+import { dayTimeByPart, timeWidth, timeWidthHalf, types, weekObj } from '../config';
 import GroupCon from './GroupCon';
-import { browserIsMobile } from 'src/util';
 
 const Wrap = styled.div`
   width: ${props => (!props.width ? '100%' : props.width + 'px')};

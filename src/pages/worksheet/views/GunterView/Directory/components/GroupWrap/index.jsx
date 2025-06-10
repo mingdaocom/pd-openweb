@@ -203,7 +203,7 @@ export default class GroupWrap extends Component {
   }
   renderControlName() {
     const { dragValue, widthConfig } = this.state;
-    const { width, controls, viewConfig } = this.props;
+    const { controls, viewConfig } = this.props;
     const displayControls = viewConfig.displayControls || [];
     const titleControl = _.find(controls, { attribute: 1 });
     const startControl = _.find(controls, { controlId: viewConfig.startId }) || {};
@@ -214,10 +214,12 @@ export default class GroupWrap extends Component {
       <GroupingChildWrapper className="overflowHidden">
         <RecordWrapper className="valignWrapper groupingControlHeader">
           <Icon className="Gray_9e Font17 mRight5 Visibility" icon="more_horiz" />
-          <div className="groupingName relative overflow_ellipsis" style={{ width: widthConfig[0] }}>
-            {titleControl.controlName}
-            {this.renderDrag(0)}
-          </div>
+          {!viewConfig.hideTitle && (
+            <div className="groupingName relative overflow_ellipsis" style={{ width: widthConfig[0] }}>
+              {titleControl.controlName}
+              {this.renderDrag(0)}
+            </div>
+          )}
           {displayControls.map((data, index) => (
             <div className="field" key={data.controlId} style={{ width: widthConfig[index + 1] }}>
               {data.controlName}

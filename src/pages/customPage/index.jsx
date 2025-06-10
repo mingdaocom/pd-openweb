@@ -369,6 +369,12 @@ export default class CustomPage extends Component {
                   : undefined,
                 value: _.isEmpty(item.dynamicSource) ? item.value : undefined,
                 control: undefined,
+                objectControls: item.objectControls.map(object => {
+                  return {
+                    ...object,
+                    control: undefined,
+                  };
+                })
               };
             }),
           });

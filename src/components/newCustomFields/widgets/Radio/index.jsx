@@ -1,13 +1,13 @@
-import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
-import { Radio } from 'ming-ui';
+import React, { Component } from 'react';
 import cx from 'classnames';
-import { isLightColor } from 'src/util';
-import { browserIsMobile } from 'src/util';
-import OtherInput from '../Checkbox/OtherInput';
-import { getCheckAndOther } from '../../tools/utils';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Radio } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { browserIsMobile } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
+import { getCheckAndOther } from '../../tools/utils';
+import OtherInput from '../Checkbox/OtherInput';
 
 class Widgets extends Component {
   static propTypes = {

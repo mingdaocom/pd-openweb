@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { number, bool } from 'prop-types';
+import { Dropdown, Menu } from 'antd';
+import cx from 'classnames';
+import { bool, number } from 'prop-types';
+import { Icon, MdLink } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import withEscClose from 'ming-ui/decorators/withEscClose';
-import { Icon, MdLink } from 'ming-ui';
-import { Dropdown, Menu } from 'antd';
 import { navigateTo } from 'src/router/navigateTo';
-import cx from 'classnames';
-import './index.less';
 import Content from './Content';
+import './index.less';
 
 @withClickAway
 @withEscClose
@@ -29,7 +29,7 @@ export default class IndexSide extends Component {
           <MdLink className="homepageWrap" to={'/dashboard'}>
             <div className="homepage">
               <Icon icon="home_page" className="Font24" />
-              <span>{_l('首页')}</span>
+              <span>{_l('工作台')}</span>
             </div>
           </MdLink>
           <Dropdown

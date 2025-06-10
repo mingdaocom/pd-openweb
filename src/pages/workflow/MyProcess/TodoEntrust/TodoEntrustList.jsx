@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import './index.less';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, Dialog, UserHead, UserName, Tooltip } from 'ming-ui';
-import { Popup, Button } from 'antd-mobile';
-import styled from 'styled-components';
-import moment from 'moment';
-import delegationApi from '../../api/delegation';
-import TodoEntrustModal from './TodoEntrustModal';
-import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
-import { browserIsMobile } from 'src/util';
+import { Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import delegationApi from '../../api/delegation';
+import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
+import { browserIsMobile } from 'src/utils/common';
+import TodoEntrustModal from './TodoEntrustModal';
+import './index.less';
 
 const CardWrapper = styled.div`
   width: 100%;

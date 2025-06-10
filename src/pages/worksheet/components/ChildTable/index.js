@@ -1,6 +1,7 @@
 import React from 'react';
-import { Provider, connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
 import _, { get, isFunction } from 'lodash';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import ChildTable from './ChildTable';
 import generateStore from './redux/store';
 import './style.less';
@@ -35,6 +36,7 @@ export default class extends React.Component {
         relationWorksheetId: worksheetId,
         recordId,
         masterData,
+        DataFormat,
       });
     this.store.init();
     this.bindSubscribe();
@@ -49,6 +51,9 @@ export default class extends React.Component {
   }
 
   componentWillUnmount() {
+    if (isFunction(get(this, 'props.control.setLoadingInfo'))) {
+      this.props.control.setLoadingInfo('loadRows_' + this.props.control.controlId, false);
+    }
     if (isFunction(this.unsubscribe)) {
       this.unsubscribe();
     }

@@ -1,14 +1,16 @@
+import { notification } from 'antd';
 import io from 'socket.io-client';
-import { wsexcelSocketInit } from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ImportDataFromExcel';
-import { wsexcelbatchSocketInit } from 'src/pages/worksheet/components/DialogImportExcelCreate/index.js';
-import workflowSocketInit from 'src/pages/workflow/socket';
+import exportPivotTableSocket from 'statistics/components/socket';
 import worksheetSocket from 'worksheet/components/socket';
 import appSocketInit from 'src/pages/Admin/app/appManagement/socket';
-import exportPivotTableSocket from 'statistics/components/socket';
-import customNotice from './customNotice';
 import appManageSocket from 'src/pages/AppSettings/components/socket';
-import { getPssId } from 'src/util/pssId';
-import { notification } from 'antd';
+import workflowSocketInit from 'src/pages/workflow/socket';
+import { wsexcelSocketInit } from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ImportDataFromExcel';
+import { wsexcelbatchSocketInit } from 'src/pages/worksheet/components/DialogImportExcelCreate/index.js';
+import { getPssId } from 'src/utils/pssId';
+import customNotice from './customNotice';
+import marketNotice from './marketNotice';
+import getNotice from './marketNotice/getNotice';
 
 export const socketInit = () => {
   if (window.IM === undefined) {

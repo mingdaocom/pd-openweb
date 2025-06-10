@@ -1,10 +1,10 @@
 import { find, get } from 'lodash';
-import { getAdvanceSetting } from 'src/util';
-import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
-import RegExpValidator from 'src/util/expression';
+import { isOpenPermit } from 'src/pages/FormSet/util';
 import { FIELD_REG_EXP } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { getAdvanceSetting } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
 
 export const RENDER_RECORD_NECESSARY_ATTR = [
   'controlId',

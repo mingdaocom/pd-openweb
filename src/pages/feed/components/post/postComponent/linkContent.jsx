@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { htmlDecodeReg } from 'src/util';
+import PropTypes from 'prop-types';
+import { htmlDecodeReg } from 'src/utils/common';
 
 /**
  * 链接型动态所带的链接和图片

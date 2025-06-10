@@ -1,9 +1,9 @@
-﻿import { CALL_API } from '../middleware/api';
-import { PAGE_SIZE, COMPANY_DEPARMENTID } from '../constant';
-import Config from '../../../../config';
+﻿import _ from 'lodash';
 import departmentController from 'src/api/department';
-import { getCurrentProject } from 'src/util';
-import _ from 'lodash';
+import { getCurrentProject } from 'src/utils/project';
+import Config from '../../../../config';
+import { COMPANY_DEPARMENTID, PAGE_SIZE } from '../constant';
+import { CALL_API } from '../middleware/api';
 
 // async actions and action creator
 export const DEPARTMENT_REQUEST = 'DEPARTMENT_REQUEST';

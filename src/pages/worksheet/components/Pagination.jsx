@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Input, Dropdown } from 'ming-ui';
-import _ from 'lodash';
+import _, { get } from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dropdown, Input } from 'ming-ui';
 
 const Con = styled.div`
   font-size: 14px;
@@ -89,6 +89,7 @@ const pageSizeNums = [
 
 export default class Pagination extends React.Component {
   static propTypes = {
+    appendToBody: PropTypes.bool,
     disabled: PropTypes.bool,
     abnormalMode: PropTypes.bool,
     className: PropTypes.string,
@@ -234,6 +235,7 @@ export default class Pagination extends React.Component {
       pageIndex,
       maxCount,
       allCount,
+      appendToBody,
       countForShow,
       onPrev,
       onNext,
@@ -262,9 +264,13 @@ export default class Pagination extends React.Component {
           destroyPopupOnHide
           popupAlign={{
             points: ['tl', 'bl'],
+            overflow: {
+              adjustX: true,
+              adjustY: true,
+            },
           }}
           popup={this.renderPopup()}
-          getPopupContainer={() => this.conRef.current || document.body}
+          getPopupContainer={() => (appendToBody || !get(this, 'conRef.current') ? document.body : this.conRef.current)}
         >
           <PageNum className={cx({ abnormalMode })}>
             {abnormalMode

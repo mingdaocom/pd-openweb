@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import favoriteAjax from 'src/api/favorite';
+import { RecordInfoModal } from 'mobile/Record';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import Back from '../components/Back';
 import SearchResultEmpty from '../components/SearchResultEmpty';
 import SearchWrap from './SearchWrap';
-import Back from '../components/Back';
-import { RecordInfoModal } from 'mobile/Record';
-import favoriteAjax from 'src/api/favorite';
-import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import styled from 'styled-components';
 
 const Wrap = styled.div`
   height: 100%;

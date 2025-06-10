@@ -2,12 +2,12 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
 import RelationList from 'mobile/RelationRow/RelationList';
 import RelateRecord from 'src/components/newCustomFields/widgets/RelateRecord';
 import RelationSearch from 'src/components/newCustomFields/widgets/RelationSearch';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import { ADD_EVENT_ENUM } from '../../../pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import { FROM } from '../tools/config';
 
@@ -24,8 +24,11 @@ const TabCon = styled.div`
     &.top {
       top: 49px;
     }
-    &.top43 {
-      top: 43px;
+    &.top41 {
+      top: 41px;
+    }
+    &.top0 {
+      top: 0 !important;
     }
   }
   &.addStyle {
@@ -118,6 +121,7 @@ export default function MobileWidgetSection(props) {
     data = [],
     tabControls,
     isDraft,
+    view = {},
     mobileApprovalRecordInfo = {},
   } = props;
   const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
@@ -324,6 +328,7 @@ export default function MobileWidgetSection(props) {
             className={cx(`fixedTabs Fixed w100 hide top`, {
               addStyle: _.includes([FROM.H5_ADD], from),
               hide: !disabled,
+              top0: view.viewType === 6 && view.childType === 1 && location.pathname.includes('mobile/mobileView'),
             })}
           >
             {TabsContent()}

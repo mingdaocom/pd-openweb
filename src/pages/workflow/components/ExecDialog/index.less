@@ -196,6 +196,13 @@
     display: flex;
     justify-content: center;
   }
+
+  .refreshBtn.isLoading {
+    .icon-task-later {
+      display: inline-block;
+      animation: rotate 0.6s infinite linear;
+    }
+  }
 }
 
 .addApproveWayDialog {
@@ -283,10 +290,23 @@
   }
 
   .customFieldsContainer {
-    .triggerTraget {
+    .triggerTraget,
+    .uploadFromMobile {
       height: 1px !important;
       visibility: hidden;
       border: none;
+    }
+  }
+  .signatureFromMobile {
+    font-size: 12px;
+    color: #757575;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    .icon {
+      font-size: 16px;
+      margin-right: 6px;
     }
   }
 }

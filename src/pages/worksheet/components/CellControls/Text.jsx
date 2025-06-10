@@ -8,14 +8,12 @@ import styled from 'styled-components';
 import { Linkify, Textarea } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { emitter, isKeyBoardInputChar } from 'worksheet/util';
-import { accMul, browserIsMobile, formatNumberFromInput, formatStrZero } from 'src/util';
-import { toFixed } from '../../../../util';
+import { accMul, browserIsMobile, emitter, isKeyBoardInputChar } from 'src/utils/common';
+import { formatNumberFromInput, formatStrZero, renderText, toFixed } from 'src/utils/control';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
-import renderText from './renderText';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -275,8 +273,8 @@ export default class Text extends React.Component {
         }
       }
     }
-    if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
-      if (_.isFunction(navigator.clipboard.readText)) {
+    if (e.key.toLowerCase() === 'v' && (e.ctrlKey || e.metaKey)) {
+      if (_.isFunction(_.get(navigator, 'clipboard.readText'))) {
         navigator.clipboard
           .readText()
           .then(setKeyboardValue)

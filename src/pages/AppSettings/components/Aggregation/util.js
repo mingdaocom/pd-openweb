@@ -1,24 +1,24 @@
 import { useEffect, useRef } from 'react';
 import _ from 'lodash';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import {
   OPERATION_TYPE_DATA,
   TIME_DATA_PARTICLE,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-import { API_ENUM_TO_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
+import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import {
-  isFormulaResultAsSubtotal,
-  isFormulaResultAsSubtotalTime,
-  isFormulaResultAsSubtotalDateTime,
-  isFormulaResultAsNumber,
-  isFormulaResultAsDateTime,
   isFormulaResultAsDate,
+  isFormulaResultAsDateTime,
+  isFormulaResultAsNumber,
+  isFormulaResultAsSubtotal,
+  isFormulaResultAsSubtotalDateTime,
+  isFormulaResultAsSubtotalTime,
   isFormulaResultAsTime,
 } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { API_ENUM_TO_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
+import { VersionProductType } from 'src/utils/enum';
+import { getSyncLicenseInfo } from 'src/utils/project';
 import { DATE_TIME_DATA_PARTICLE, GROUPLIMITTYPES } from './config';
-import { getSyncLicenseInfo } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum.js';
 
 export const getNodeInfo = (flowData, type) => {
   return _.values(_.get(flowData, 'aggTableNodes') || {}).find(o => _.get(o, 'nodeType') === type) || {};
@@ -786,8 +786,8 @@ export const formatAggConfig = (it, isAdd) => {
   const dot = ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
     ? undefined
     : isAdd
-    ? 2
-    : _.get(it, 'controlSetting.advancedSetting.dot') || _.get(it, 'controlSetting.dot');
+      ? 2
+      : _.get(it, 'controlSetting.advancedSetting.dot') || _.get(it, 'controlSetting.dot');
 
   const suffix = ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
     ? undefined

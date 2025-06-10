@@ -1,15 +1,15 @@
-import React, { Fragment, useState, useEffect, useCallback, useRef } from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { LoadDiv, SvgIcon, Icon } from 'ming-ui';
+import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
 import { Tooltip } from 'antd';
-import Trigger from 'rc-trigger';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import homeAppApi from 'src/api/homeApp';
-import appManagementApi from 'src/api/appManagement';
 import cx from 'classnames';
-import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { getTranslateInfo } from 'src/utils/app';
 
 const dndAccept = 'navigationGroup';
 

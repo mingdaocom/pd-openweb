@@ -1,23 +1,23 @@
 ﻿import React from 'react';
-import preall from 'src/common/preall';
-import './css/style.less';
-import shareajax from 'src/api/share';
-import qs from 'query-string';
+import { renderToString } from 'react-dom/server';
 import doT from 'dot';
-import { downloadFile } from 'src/util';
-import frameTplHtml from './tpl/frame.html';
-import fileItemHtml from './tpl/fileItem.html';
+import _ from 'lodash';
+import qs from 'query-string';
+import { Dialog, LoadDiv } from 'ming-ui';
+import shareajax from 'src/api/share';
+import shareFolderAjax from 'src/api/shareFolder';
+import preall from 'src/common/preall';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { browserIsMobile, downloadFile, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import MobileSharePreview from '../shareMobile/shareMobile';
+import fileItemHtml from './tpl/fileItem.html';
+import frameTplHtml from './tpl/frame.html';
+import './css/style.less';
+
 var frameTpl = doT.template(frameTplHtml);
 var fileItemTpl = doT.template(fileItemHtml);
-import MobileSharePreview from '../shareMobile/shareMobile';
-import shareFolderAjax from 'src/api/shareFolder';
-import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import { browserIsMobile, getClassNameByExt } from 'src/util';
-import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
-import { LoadDiv, Dialog } from 'ming-ui';
-import { renderToString } from 'react-dom/server';
 
 const loading = renderToString(<LoadDiv />);
 

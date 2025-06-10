@@ -1,47 +1,48 @@
 import React, { Component, Fragment } from 'react';
-import './index.less';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import processVersion from '../api/processVersion';
-import {
-  Icon,
-  Dropdown,
-  ScrollView,
-  LoadDiv,
-  Support,
-  Button,
-  Tooltip,
-  Menu,
-  MenuItem,
-  WaterMark,
-  UpgradeIcon,
-  SvgIcon,
-  UserHead,
-  MdLink,
-} from 'ming-ui';
+import DocumentTitle from 'react-document-title';
+import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
 import qs from 'query-string';
 import { navigateTo } from 'router/navigateTo';
-import cx from 'classnames';
-import Search from '../components/Search';
-import { APP_TYPE } from '../WorkflowSettings/enum';
-import PublishBtn from './components/PublishBtn';
-import DeleteFlowBtn from './components/DeleteFlowBtn';
-import CopyFlowBtn from './components/CopyFlowBtn';
-import ListName from './components/ListName';
-import { FLOW_TYPE, TYPES, FLOW_TYPE_NULL, START_APP_TYPE, getActionTypeContent, DATE_SCOPE } from './utils/index';
-import CreateWorkflow from './components/CreateWorkflow';
 import styled from 'styled-components';
-import DocumentTitle from 'react-document-title';
+import {
+  Button,
+  Dropdown,
+  Icon,
+  LoadDiv,
+  MdLink,
+  Menu,
+  MenuItem,
+  ScrollView,
+  Support,
+  SvgIcon,
+  Tooltip,
+  UpgradeIcon,
+  UserHead,
+  WaterMark,
+} from 'ming-ui';
+import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import processVersion from '../api/processVersion';
+import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import processAjax from 'src/pages/workflow/api/process';
-import appManagementAjax from 'src/api/appManagement';
-import _ from 'lodash';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { getFeatureStatus, setFavicon, getTranslateInfo, getAppFeaturesPath } from 'src/util';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
-import moment from 'moment';
-import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { getAppFeaturesPath, getTranslateInfo, setFavicon } from 'src/utils/app';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import Search from '../components/Search';
+import { APP_TYPE } from '../WorkflowSettings/enum';
+import CopyFlowBtn from './components/CopyFlowBtn';
+import CreateWorkflow from './components/CreateWorkflow';
+import DeleteFlowBtn from './components/DeleteFlowBtn';
+import ListName from './components/ListName';
+import PublishBtn from './components/PublishBtn';
+import { DATE_SCOPE, FLOW_TYPE, FLOW_TYPE_NULL, getActionTypeContent, START_APP_TYPE, TYPES } from './utils/index';
+import './index.less';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -604,12 +605,12 @@ class AppWorkflowList extends Component {
             {type === FLOW_TYPE.OTHER_APP
               ? _l('修改工作表')
               : type === FLOW_TYPE.CUSTOM_ACTION
-              ? _l('数据源')
-              : type === FLOW_TYPE.APPROVAL
-              ? _l('触发流程')
-              : type
-              ? _l('触发方式')
-              : _l('类型')}
+                ? _l('数据源')
+                : type === FLOW_TYPE.APPROVAL
+                  ? _l('触发流程')
+                  : type
+                    ? _l('触发方式')
+                    : _l('类型')}
           </div>
           <div className="w270 pRight20 flexRow">
             {type === FLOW_TYPE.OTHER_APP ? (
@@ -688,10 +689,10 @@ class AppWorkflowList extends Component {
             {item.groupId === 'timer'
               ? _l('定时触发')
               : item.groupId === 'User'
-              ? _l('组织人员事件触发')
-              : item.groupId === 'ExternalUser'
-              ? _l('外部用户事件触发')
-              : item.groupName}
+                ? _l('组织人员事件触发')
+                : item.groupId === 'ExternalUser'
+                  ? _l('外部用户事件触发')
+                  : item.groupName}
           </div>
         )}
 

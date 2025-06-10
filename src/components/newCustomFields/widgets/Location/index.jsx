@@ -1,34 +1,39 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
+import { Toast } from 'antd-mobile';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Toast } from 'antd-mobile';
 import Amap from 'ming-ui/components/amap/Amap';
 import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
-import MDMap from 'ming-ui/components/amap/MDMap';
-import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
-import { wgs84togcj02 } from 'worksheet/util-purejs';
-import { FROM } from '../../tools/config';
-import { browserIsMobile, toFixed, getMapConfig, compatibleMDJS } from 'src/util';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
+import MDMap from 'ming-ui/components/amap/MDMap';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
+import { browserIsMobile } from 'src/utils/common';
+import { getMapConfig, toFixed, wgs84togcj02 } from 'src/utils/control';
+import { compatibleMDJS } from 'src/utils/project';
 import {
-  bindWeiXin,
-  bindWxWork,
-  bindFeishu,
   bindDing,
+  bindFeishu,
+  bindWeiXin,
   bindWeLink,
+  bindWxWork,
   handleTriggerEvent,
 } from '../../tools/authentication';
-import _ from 'lodash';
+import { FROM } from '../../tools/config';
 
 const LocationWrap = styled.div`
   .location {
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.12),
+      0 0 2px rgba(0, 0, 0, 0.12);
     border-radius: 4px;
     position: relative;
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12),
+        0 0 2px rgba(0, 0, 0, 0.12);
       .deleteIcon {
         display: block;
       }

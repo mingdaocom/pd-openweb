@@ -1,7 +1,7 @@
-import { existAccountHint } from 'src/util';
+import { dialogSelectUser } from 'ming-ui/functions';
+import { existAccountHint } from 'src/utils/common';
 import * as ajax from './ajax';
 import Constant from './constant';
-import { dialogSelectUser } from 'ming-ui/functions';
 
 const showInviteBox = options => {
   let param = {

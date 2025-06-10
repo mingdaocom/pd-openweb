@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
+import moment from 'moment';
 import styled from 'styled-components';
 import certificationApi from '../../api/certification';
-import _ from 'lodash';
-import { SOURCE_TYPE } from './index';
-import moment from 'moment';
+import { ENTERPRISE_FIELD_LABEL, SOURCE_TYPE } from './constant';
 
 const Wrapper = styled.div`
   background: #fff;
@@ -45,8 +45,7 @@ const Wrapper = styled.div`
 export default function CertificationDetail(props) {
   const { certSource, projectId } = _.get(props, 'match.params');
   const [certInfo, setCertInfo] = useState({});
-  const [loading, setLoading] = useState(true);
-  const { authType, personalInfo = {}, enterpriseInfo = {}, createTime } = certInfo;
+  const { authType, personalInfo = {}, enterpriseInfo = {}, createTime, operatorAccount } = certInfo || {};
 
   useEffect(() => {
     getCertInfo();
@@ -55,7 +54,6 @@ export default function CertificationDetail(props) {
   const getCertInfo = () => {
     certificationApi.getCertInfo({ projectId, certSource: SOURCE_TYPE[certSource] }).then(res => {
       setCertInfo(res);
-      setLoading(false);
     });
   };
 
@@ -73,36 +71,42 @@ export default function CertificationDetail(props) {
 
   return (
     <Wrapper>
-      <div className="Font20 bold mBottom25 pLeft24 pRight24">{authType === 2 ? _l('企业认证') : _l('个人认证')}</div>
+      <div className="Font20 bold mBottom25 pLeft24 pRight24">{authType === 2 ? _l('组织认证') : _l('个人认证')}</div>
 
       {authType === 2 ? (
         <div className="detailContent">
           <div className="sectioninfo">
-            <div className="title">{_l('企业类型')}</div>
+            <div className="title">{_l('组织类型')}</div>
             <div className="rowItem">
               <span className="label">{_l('类型:')}</span>
               <span>
                 {enterpriseInfo.enterpriseType === 1
                   ? _l('企业')
                   : enterpriseInfo.enterpriseType === 2
-                  ? _l('政府/事业单位')
-                  : _l('其他组织')}
+                    ? _l('政府/事业单位')
+                    : _l('社会组织')}
               </span>
             </div>
           </div>
 
           <div className="sectioninfo">
-            <div className="title">{_l('企业信息')}</div>
+            <div className="title">{_l('组织信息')}</div>
             <div className="rowItem">
-              <span className="label">{_l('公司全称:')}</span>
+              <span className="label">
+                {_.get(ENTERPRISE_FIELD_LABEL, [enterpriseInfo.enterpriseType, 'companyName', 'label']) + ':'}
+              </span>
               <span>{enterpriseInfo.companyName}</span>
             </div>
             <div className="rowItem">
-              <span className="label">{_l('社会信用代码:')}</span>
+              <span className="label">
+                {_.get(ENTERPRISE_FIELD_LABEL, [enterpriseInfo.enterpriseType, 'creditCode', 'label']) + ':'}
+              </span>
               <span>{maskCode(enterpriseInfo.creditCode)}</span>
             </div>
             <div className="rowItem">
-              <span className="label">{_l('营业执照有效期:')}</span>
+              <span className="label">
+                {_.get(ENTERPRISE_FIELD_LABEL, [enterpriseInfo.enterpriseType, 'creditValidDate', 'label']) + ':'}
+              </span>
               <span>
                 {formatValidDate(
                   enterpriseInfo.businessLicenseValidDateStart,
@@ -111,7 +115,9 @@ export default function CertificationDetail(props) {
               </span>
             </div>
             <div className="rowItem flexRow">
-              <span className="label">{_l('营业执照:')}</span>
+              <span className="label">
+                {_.get(ENTERPRISE_FIELD_LABEL, [enterpriseInfo.enterpriseType, 'businessLicense', 'label']) + ':'}
+              </span>
               <img src={enterpriseInfo.businessLicenseUrl} />
             </div>
           </div>
@@ -154,10 +160,6 @@ export default function CertificationDetail(props) {
           <div className="sectioninfo">
             <div className="title">{_l('个人信息')}</div>
             <div className="rowItem">
-              <span className="label">{_l('手机号:')}</span>
-              <span>{maskCode(personalInfo.mobile, 3, 4)}</span>
-            </div>
-            <div className="rowItem">
               <span className="label">{_l('身份证类型:')}</span>
               <span>{_l('大陆身份证')}</span>
             </div>
@@ -165,16 +167,13 @@ export default function CertificationDetail(props) {
               <span className="label">{_l('身份证号:')}</span>
               <span>{maskCode(personalInfo.idNumber)}</span>
             </div>
+          </div>
+
+          <div className="sectioninfo">
+            <div className="title">{_l('操作账号')}</div>
             <div className="rowItem">
-              <span className="label">{_l('身份证有效期:')}</span>
-              <span>{formatValidDate(personalInfo.idCardValidDateStart, personalInfo.idCardValidDateEnd)}</span>
-            </div>
-            <div className="rowItem flexRow">
-              <span className="label">{_l('身份证:')}</span>
-              <div className="flexRow">
-                <img src={personalInfo.idCardFrontUrl} />
-                <img className="mLeft8" src={personalInfo.idCardBackUrl} />
-              </div>
+              <span className="label">{_l('手机号:')}</span>
+              <span>{operatorAccount}</span>
             </div>
           </div>
 

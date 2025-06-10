@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import '../WorksheetRecordLogValue.less';
-import WorksheetRecordLogSubTable from './WorksheetRecordLogSubTable';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import WorksheetRecordLogSubTable from './WorksheetRecordLogSubTable';
+import '../WorksheetRecordLogValue.less';
 
 function WorksheetRecordLogSubList(props) {
   const { prop } = props;

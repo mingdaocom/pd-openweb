@@ -1,14 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, RadioGroup } from 'ming-ui';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { getAdvanceSetting } from 'src/utils/control';
 import Abstract from '../Abstract';
 import CoverSetting from '../CoverSettingCon';
 import DisplayControl from '../DisplayControl';
-import { getAdvanceSetting } from 'src/util';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import _ from 'lodash';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
 const Wrap = styled.div`
   .rowClumns {

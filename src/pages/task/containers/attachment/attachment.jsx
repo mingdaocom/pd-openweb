@@ -1,16 +1,16 @@
 ﻿import React, { Component } from 'react';
-import './attachment.less';
 import { connect } from 'react-redux';
-import ajaxRequest from 'src/api/taskCenter';
-import config from '../../config/config';
-import { errorMessage, setStateToStorage } from '../../utils/utils';
 import cx from 'classnames';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import ajaxRequest from 'src/api/taskCenter';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { downloadFile, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import config from '../../config/config';
 import { attachmentSwitch } from '../../redux/actions';
+import { errorMessage, setStateToStorage } from '../../utils/utils';
 import TaskDetail from '../taskDetail/taskDetail';
-import { downloadFile, getClassNameByExt } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import './attachment.less';
 
 const attachmentSettings = {
   dialog:

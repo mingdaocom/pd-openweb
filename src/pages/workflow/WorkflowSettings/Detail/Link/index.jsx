@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Icon, Checkbox, Dropdown } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SelectNodeObject,
-  CustomTextarea,
-  WriteFields,
-  Deadline,
-  ButtonName,
-  SpecificFieldsValue,
-} from '../components';
 import _ from 'lodash';
 import moment from 'moment';
+import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import {
+  ButtonName,
+  CustomTextarea,
+  Deadline,
+  DetailFooter,
+  DetailHeader,
+  SelectNodeObject,
+  SpecificFieldsValue,
+  WriteFields,
+} from '../components';
 
 export default class Link extends Component {
   constructor(props) {
@@ -348,6 +348,7 @@ export default class Link extends Component {
               addNotAllowView={data.addNotAllowView}
               hideTypes={data.linkType === 1 ? [2, 3] : []}
               readonlyControlTypes={[21, 26, 27, 48]}
+              allowExport={data.linkType === 2}
               updateSource={this.updateSource}
             />
           </Fragment>
@@ -377,6 +378,8 @@ export default class Link extends Component {
         if (item.property !== 4) {
           item.property = 1;
         }
+
+        item.allowExport = '0';
       });
     }
 

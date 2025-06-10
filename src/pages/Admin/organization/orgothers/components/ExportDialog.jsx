@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
-import { Checkbox, DatePicker } from 'antd';
-import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
+import { Checkbox } from 'antd';
 import moment from 'moment';
-import { addToken } from 'src/util';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
+import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
+import { addToken } from 'src/utils/common';
+import 'rc-trigger/assets/index.css';
 
 const Wrap = styled.div`
   color: #151515;

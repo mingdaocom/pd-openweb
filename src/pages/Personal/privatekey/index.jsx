@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Input, Button, Textarea, Tooltip } from 'ming-ui';
-import { getRequest } from 'src/util';
 import ClipboardButton from 'react-clipboard.js';
+import moment from 'moment';
+import { Button, Icon, Input, Textarea, Tooltip } from 'ming-ui';
 import privateGuide from 'src/api/privateGuide';
+import { getRequest } from 'src/utils/common';
 import ApplyPrivateKey from './ApplyPrivateKey';
 import './privatekey.less';
 import 'rc-trigger/assets/index.css';
-import moment from 'moment';
 
 const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型专业版'), _l('教学版'), _l('专业版试用')];
 

@@ -1,12 +1,14 @@
 import React, { Fragment } from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import { Qr, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
-import { dateConvertToUserZone } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { getDateToEn } from 'src/pages/widgetConfig/util/setting';
+import RegExpValidator from 'src/utils/expression';
+import { dateConvertToUserZone } from 'src/utils/project';
 import {
   DEFAULT_FONT_SIZE,
   DefaultNameWidth,
@@ -461,9 +463,11 @@ export default class Con extends React.Component {
       return '';
     }
     let controls = [];
+    let allControlsOfRelation = [];
     if (tableList.showControls && tableList.showControls.length > 0) {
       //数据根据ShowControls处理
       controls = sortByShowControls(tableList);
+      allControlsOfRelation = controls;
       //只展示checked
       controls = controls.filter(it => {
         let data = relationControls.find(o => o.controlId === it.controlId) || [];
@@ -560,6 +564,7 @@ export default class Con extends React.Component {
           <TableRelation
             dataSource={list}
             controls={controls}
+            allControls={allControlsOfRelation}
             orderNumberCheck={orderNumberCheck}
             id={tableList.controlId}
             printData={printData}
@@ -593,7 +598,7 @@ export default class Con extends React.Component {
                     user_info: relationUserInfo,
                     controls: getFormData(controls, o),
                     projectId,
-                    allControls:  getFormData(allControls, o),
+                    allControls: getFormData(allControls, o),
                   };
 
                   return this.isShow(
@@ -1049,10 +1054,16 @@ export default class Con extends React.Component {
       >
         {sysFeild.map(it => {
           if (!it) return null;
+          const formatText = _.get(
+            (printData.advanceSettings || []).find(l => l.key === it),
+            'value',
+          );
+          const isSysFormatTime = _.endsWith(it, 'Time');
+
           return (
             <span>
               {SYST_PRINT_TXT[it]}
-              {printData[it]}
+              {isSysFormatTime && formatText ? getDateToEn(formatText, printData[it]) : printData[it]}
             </span>
           );
         })}
@@ -1067,6 +1078,10 @@ export default class Con extends React.Component {
     const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
     const formNameLeft = this.isShow(printData.formName, printData.formNameChecked && formNameSite === '1');
+    const printFormatText = _.get(
+      advanceSettings.find(l => l.key === 'printTime'),
+      'value',
+    );
 
     return (
       <div className="flex">
@@ -1209,7 +1224,9 @@ export default class Con extends React.Component {
                   {printData.printTime && (
                     <span>
                       {_l('打印时间：')}
-                      {dateConvertToUserZone(new Date())}
+                      {printFormatText
+                        ? getDateToEn(printFormatText, dateConvertToUserZone(new Date()))
+                        : dateConvertToUserZone(new Date())}
                     </span>
                   )}
                 </p>

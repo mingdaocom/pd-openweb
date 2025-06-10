@@ -5,12 +5,12 @@ import _ from 'lodash';
 import { Support } from 'ming-ui';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
-import ExplanList from './container/ExplanList';
-import ExplanDetail from './container/ExplanDetail';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import DataBase from './container/DataBase';
+import ExplanDetail from './container/ExplanDetail';
+import ExplanList from './container/ExplanList';
 import ManageDataBase from './container/ManageDataBase';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
 import './index.less';
 
 export default class ExclusiveComp extends Component {

@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import worksheetAjax from 'src/api/worksheet';
-import { Icon, Checkbox } from 'ming-ui';
-import { Input, Tooltip, Select } from 'antd';
+import { Input, Select, Tooltip } from 'antd';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Checkbox, Icon } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import './index.less';
 
 const { Option } = Select;
 
@@ -92,6 +92,13 @@ const QA_TEXT = [
     ),
   },
 ];
+
+const USERS_INDEX = {
+  controlType: 0,
+  id: 'users',
+  name: 'users',
+  type: 0,
+};
 
 export default class CreateIndex extends Component {
   constructor(props) {
@@ -322,8 +329,8 @@ export default class CreateIndex extends Component {
                             item.isDelete
                               ? _l('字段已删除')
                               : _.get(getFieldObjById(item.fieldId), 'name')
-                              ? _.get(getFieldObjById(item.fieldId), 'name')
-                              : item.fieldId
+                                ? _.get(getFieldObjById(item.fieldId), 'name')
+                                : item.fieldId
                           }
                           disabled
                           className={cx('col1 mRight8', { Red: item.isDelete })}
@@ -339,7 +346,7 @@ export default class CreateIndex extends Component {
                       showSearch={true}
                       filterOption={(val, option) => option.children.toLowerCase().includes(val.toLowerCase())}
                     >
-                      {(item.selectFiledsList || []).map(f => (
+                      {(item.selectFiledsList || []).concat(USERS_INDEX).map(f => (
                         <Option value={f.id} key={f.id}>
                           {f.name}
                         </Option>
@@ -354,8 +361,8 @@ export default class CreateIndex extends Component {
                       item.indexType && item.indexType !== 'text'
                         ? Number(item.indexType)
                         : item.indexType === 'text'
-                        ? item.indexType
-                        : ''
+                          ? item.indexType
+                          : ''
                     }
                   >
                     {(RULES[item.type || 0] || []).map((v, i) => (

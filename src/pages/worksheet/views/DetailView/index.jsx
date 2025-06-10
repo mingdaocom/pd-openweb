@@ -1,20 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { LoadDiv } from 'ming-ui';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import * as detailActions from 'src/pages/worksheet/redux/actions/detailView';
-import * as baseAction from 'src/pages/worksheet/redux/actions';
-import './index.less';
-import ScrollView from 'ming-ui/components/ScrollView';
-import DetailItem from './DetaiIItem';
-import ViewEmpty from '../components/ViewEmpty';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import cx from 'classnames';
+import { LoadDiv } from 'ming-ui';
+import ScrollView from 'ming-ui/components/ScrollView';
 import DragMask from 'worksheet/common/DragMask';
-import { getAdvanceSetting } from 'src/util';
-import { getCardWidth } from 'worksheet/util';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import * as baseAction from 'src/pages/worksheet/redux/actions';
+import * as detailActions from 'src/pages/worksheet/redux/actions/detailView';
+import { getAdvanceSetting } from 'src/utils/control';
+import { getCardWidth } from 'src/utils/worksheet';
+import ViewEmpty from '../components/ViewEmpty';
+import DetailItem from './DetaiIItem';
+import './index.less';
 
 const LeftListWrapper = styled.div(
   ({ width }) => `
@@ -166,7 +166,7 @@ function DetailView(props) {
   const changeGroupStatus = isOpen => {
     setIsOpenGroup(isOpen);
     setGroupFilterWidth(
-      isOpen ? window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
+      isOpen ? cardWidth || window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
     );
   };
 

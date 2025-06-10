@@ -18,7 +18,7 @@ import AliasDialog from 'src/pages/FormSet/components/AliasDialog.jsx';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import Share from 'src/pages/worksheet/components/Share';
 import { navigateTo } from 'src/router/navigateTo';
-import { setFavicon } from 'src/util';
+import { setFavicon } from 'src/utils/app';
 import {
   ADD_API_CONTROLS,
   ADD_WORKSHEET_SUCCESS,
@@ -248,9 +248,11 @@ class WorksheetApi extends Component {
 
   getAuthorizes = () => {
     appManagementAjax.getAuthorizes({ appId: this.getId() }).then(authorizes => {
-      this.setState({
-        authorizes,
-      });
+      const newAppInfo = {
+        ...this.state.appInfo,
+        apiRequest: !!authorizes.length ? _.pick(authorizes[0], ['appKey', 'sign']) : {},
+      };
+      this.setState({ authorizes, appInfo: newAppInfo });
     });
   };
 
@@ -1067,7 +1069,7 @@ class WorksheetApi extends Component {
                     <div className="Font14 mTop15">
                       {_l('接口地址：') + __api_server__.main}FixedData/getCitysByParentID
                     </div>
-                    <div className="Font14">{_l('提交参数：{"parentId": "省份or城市id", "keywords": ""}')}</div>
+                    <div className="Font14">{_l('提交参数：{"parentId": "国家or省份or城市id", "keywords": ""}')}</div>
                     <div className="Font14">{_l('提交方式：')}POST</div>
                     <div className="Font14">{_l('返回内容：')}JSON</div>
                   </Fragment>
@@ -1645,12 +1647,6 @@ class WorksheetApi extends Component {
       });
   }, 300);
 
-  changeShareVisible = value => {
-    this.setState({
-      shareVisible: value,
-    });
-  };
-
   /**
    * 渲染选项集
    */
@@ -1775,7 +1771,13 @@ class WorksheetApi extends Component {
           {!isSharePage && (
             <div
               className="shareButton Hand Gray_75 flexRow valignWrapper"
-              onClick={() => this.changeShareVisible(true)}
+              onClick={() => {
+                if (!_.get(appInfo, 'apiRequest.appKey')) {
+                  alert(_l('授权管理中至少有一个密钥，才允许分享'), 3);
+                  return;
+                }
+                this.setState({ shareVisible: true });
+              }}
             >
               <Icon icon="share" className="mRight8 Font18" />
               <span className="Font14">{_l('分享')}</span>
@@ -1818,8 +1820,7 @@ class WorksheetApi extends Component {
                     <div className="Font22 bold">{_l('概述')}</div>
                     <div className="Font14 mTop15">
                       {_l(
-                        '该%0 API提供了一个简单的方法来整合您的%0与任何外部系统的数据。API严格遵循REST语义，使用JSON编码对象，并依赖标准HTTP代码来指示操作结果。',
-                        dataApp.name,
+                        '本文档提供了一个简单的方法来实现实现应用数据和任何外部数据的集成。API严格遵循REST语义，使用JSON编码对象，并依赖标准HTTP代码来指示操作结果。',
                       )}
                     </div>
                   </div>
@@ -1887,7 +1888,7 @@ class WorksheetApi extends Component {
               sourceId: _.get(appInfo, 'apiRequest.appKey'),
               title: _l('API说明'),
             }}
-            onClose={() => this.changeShareVisible(false)}
+            onClose={() => this.setState({ shareVisible: false })}
           />
         )}
       </div>

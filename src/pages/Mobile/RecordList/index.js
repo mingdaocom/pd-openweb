@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import DocumentTitle from 'react-document-title';
 import { SpinLoading, Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { WaterMark } from 'ming-ui';
-import DocumentTitle from 'react-document-title';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { RecordInfoModal } from 'mobile/Record';
@@ -14,16 +14,17 @@ import { openAddRecord } from 'mobile/Record/addRecord';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
 import { getShowViews } from 'src/pages/worksheet/views/util';
-import { getRequest, handlePushState, mdAppResponse } from 'src/util';
+import { getRequest } from 'src/utils/common';
+import { handlePushState, mdAppResponse } from 'src/utils/project';
 import AppPermissions from '../components/AppPermissions';
 import Back from '../components/Back';
 import SlideGroupFilter from './GroupFilter/SlideGroupFilter';
-import './index.less';
 import * as actions from './redux/actions';
 import State from './State';
 import alreadyDelete from './State/assets/alreadyDelete.png';
 import { getDefaultValueInCreate, getViewActionInfo } from './util';
 import View from './View';
+import './index.less';
 
 @withRouter
 @AppPermissions

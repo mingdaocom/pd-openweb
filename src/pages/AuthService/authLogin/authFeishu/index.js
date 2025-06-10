@@ -1,15 +1,15 @@
+import { setPssId } from 'src/utils/pssId';
 import {
-  ajax,
-  login,
-  browserIsMobile,
-  getRequest,
-  checkLogin,
-  formatOtherParam,
   addOtherParam,
+  ajax,
+  browserIsMobile,
+  checkLogin,
   checkOriginUrl,
-  getGlobalMeta
-} from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+  formatOtherParam,
+  getGlobalMeta,
+  getRequest,
+  login,
+} from 'src/utils/sso';
 
 const { code, state, url, p, ...otherParam } = getRequest();
 const isMobile = browserIsMobile();
@@ -29,7 +29,7 @@ if (code) {
         state,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           getGlobalMeta().then(() => {
@@ -63,7 +63,7 @@ if (code) {
         projectId,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { agentId, state, callBackUrl, isLark } = result.data;
         const defaultCallBackUrl = isLark ? 'https://accounts.larksuite.com' : 'https://open.feishu.cn/open-apis';
         const redirect_uri = encodeURIComponent(

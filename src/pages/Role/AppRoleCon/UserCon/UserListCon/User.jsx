@@ -18,7 +18,7 @@ import Table from 'src/pages/Role/component/Table';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { dateConvertToUserZone, getCurrentProject } from 'src/util';
+import { dateConvertToUserZone, getCurrentProject } from 'src/utils/project';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;

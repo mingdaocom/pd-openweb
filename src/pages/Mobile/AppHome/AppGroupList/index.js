@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../redux/actions';
-import { Icon, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
-import { getCurrentProject } from 'src/util';
-import Back from '../../components/Back';
-
-import './index.less';
 import _ from 'lodash';
+import { Icon, SvgIcon } from 'ming-ui';
+import { getCurrentProject } from 'src/utils/project';
+import Back from '../../components/Back';
+import * as actions from '../redux/actions';
+import './index.less';
+
 const groupTitleList = {
   markedGroup: _l('星标'),
   personalGroups: _l('个人'),

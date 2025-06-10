@@ -11,7 +11,7 @@ export const Option = styled.div`
   font-size: 12px;
   display: inline-block;
   margin: 0 12px 12px 0;
-  color: #757575;
+  color: #151515;
   padding: 4px 12px;
   border-radius: 28px;
   max-width: 200px;

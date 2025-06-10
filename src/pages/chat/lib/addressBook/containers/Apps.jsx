@@ -1,7 +1,7 @@
 import React from 'react';
-import { config } from '../config';
 import cx from 'classnames';
-import { APPLICATION_ICON } from 'src/util/enum';
+import { APPLICATION_ICON } from 'src/utils/enum';
+import { config } from '../config';
 
 export default function Apps(props) {
   const { forbidSuites } = md.global.SysSettings;

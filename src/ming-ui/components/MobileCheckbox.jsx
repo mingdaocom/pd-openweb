@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Icon } from 'ming-ui';
-import { Popup, List } from 'antd-mobile';
+import { List } from 'antd-mobile';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Checkbox, Icon, PopupWrapper } from 'ming-ui';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
-import _ from 'lodash';
 
 export default class MobileCheckbox extends Component {
   static propTypes = {
@@ -50,6 +50,22 @@ export default class MobileCheckbox extends Component {
     }
   };
 
+  onClose = () => {
+    this.setState({ visible: false });
+  };
+
+  onClear = () => {
+    const { callback = () => {} } = this.props;
+    this.setState({ selectChecked: [], visible: false });
+    callback([]);
+  };
+
+  handleSave = selectChecked => {
+    const { callback = () => {} } = this.props;
+    this.setState({ visible: false });
+    callback(selectChecked);
+  };
+
   render() {
     const {
       disabled,
@@ -91,29 +107,17 @@ export default class MobileCheckbox extends Component {
             })}
         </span>
 
-        <Popup visible={visible} className="mobileCheckboxDialog mobileModal minFull topRadius">
+        <PopupWrapper
+          className="mobileCheckboxDialog"
+          bodyClassName="heightPopupBody40"
+          visible={visible}
+          title={controlName}
+          confirmDisable={!selectChecked.length}
+          onClose={this.onClose}
+          onConfirm={() => this.handleSave(selectChecked)}
+          onClear={this.onClear}
+        >
           <div className="flexColumn h100">
-            <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper pLeft15 pRight15">
-              <div
-                className="Hand Red bold Font15 mRight10"
-                onClick={() => {
-                  callback([]);
-                  this.setState({ selectChecked: [], visible: false });
-                }}
-              >
-                {_l('清除')}
-              </div>
-              <div className="Font15 Gray bold flex ellipsis TxtCenter">{controlName}</div>
-              <div
-                className="Hand ThemeColor bold Font15 mLeft10"
-                onClick={() => {
-                  this.setState({ visible: false });
-                  callback(selectChecked);
-                }}
-              >
-                {_l('确定')}
-              </div>
-            </div>
             <div className="mobileCheckboxSearchWrapper">
               <Icon icon="h5_search" className="Gray_75 Font14" />
               <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
@@ -127,7 +131,7 @@ export default class MobileCheckbox extends Component {
               </form>
               {keywords && (
                 <Icon
-                  icon="workflow_cancel"
+                  icon="workflow_cancel Gray_bd"
                   onClick={() => {
                     this.setState({ keywords: '' });
                   }}
@@ -163,7 +167,12 @@ export default class MobileCheckbox extends Component {
                     ) !== -1,
                 )
                 .map(item => (
-                  <List.Item className="mobileCheckboxListItem" key={item.key} arrowIcon={false} onClick={() => this.onChange(item.key)}>
+                  <List.Item
+                    className="mobileCheckboxListItem"
+                    key={item.key}
+                    arrowIcon={false}
+                    onClick={() => this.onChange(item.key)}
+                  >
                     <Checkbox
                       className="flexRow alignItemsCenter"
                       text={renderText ? renderText(item) : item.value}
@@ -189,7 +198,7 @@ export default class MobileCheckbox extends Component {
               )}
             </List>
           </div>
-        </Popup>
+        </PopupWrapper>
       </Fragment>
     );
   }

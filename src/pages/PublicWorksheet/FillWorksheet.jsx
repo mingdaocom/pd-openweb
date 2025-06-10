@@ -13,7 +13,7 @@ import CustomFields from 'src/components/newCustomFields';
 import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { checkMobileVerify, controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
-import { browserIsMobile, getRequest } from 'src/util';
+import { browserIsMobile, getRequest } from 'src/utils/common';
 import CountDown from '../publicWorksheetConfig/common/CountDown';
 import { TIME_TYPE } from '../publicWorksheetConfig/enum';
 import { getLimitWriteTimeDisplayText } from '../publicWorksheetConfig/utils';
@@ -68,6 +68,7 @@ export default class FillWorksheet extends React.Component {
     this.state = {
       showError: false,
       formData: props.formData,
+      submitBtnLoading: true,
     };
   }
 
@@ -81,6 +82,11 @@ export default class FillWorksheet extends React.Component {
         }
         return '关闭提示';
       };
+    }
+    if (!this.props.loading) {
+      setTimeout(() => {
+        this.setState({ submitBtnLoading: false });
+      }, 100);
     }
   }
 
@@ -113,6 +119,29 @@ export default class FillWorksheet extends React.Component {
       cacheFieldData = {},
       writeScope,
     } = publicWorksheetInfo;
+
+    const submitSuccess = () => {
+      const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
+      if (writeScope === 1 && !wxUserInfo.openId) {
+        const submitStorage = getPublicSubmitStorage(shareId);
+        safeLocalStorageSetItem(
+          'publicWorksheetSubmit_' + shareId,
+          JSON.stringify([...submitStorage, new Date().toISOString()]),
+        );
+      }
+
+      if (cacheFieldData.isEnable) {
+        const cacheData = (data || []).map(item => ({
+          controlId: item.controlId,
+          value:
+            item.type === 34 ? (_.get(item, 'value.rows') ? JSON.stringify(item.value.rows) : undefined) : item.value,
+        }));
+        localForage.setItem(`cacheFieldData_${shareId}`, cacheData);
+      }
+      //提交成功，清除未提交缓存
+      localForage.removeItem(`cacheDraft_${shareId}`);
+    };
+
     let hasError;
     const submit = res => {
       if (res && !res.ticket) {
@@ -167,35 +196,13 @@ export default class FillWorksheet extends React.Component {
           }
 
           // 添加成功
-          const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
-          if (writeScope === 1 && !wxUserInfo.openId) {
-            const submitStorage = getPublicSubmitStorage(shareId);
-            safeLocalStorageSetItem(
-              'publicWorksheetSubmit_' + publicWorksheetInfo.shareId,
-              JSON.stringify([...submitStorage, new Date().toISOString()]),
-            );
-          }
-
-          if (cacheFieldData.isEnable) {
-            const cacheData = (data || []).map(item => ({
-              controlId: item.controlId,
-              value:
-                item.type === 34
-                  ? _.get(item, 'value.rows')
-                    ? JSON.stringify(item.value.rows)
-                    : undefined
-                  : item.value,
-            }));
-            localForage.setItem(`cacheFieldData_${publicWorksheetInfo.shareId}`, cacheData);
-          }
-          //提交成功，清除未提交缓存
-          localForage.removeItem(`cacheDraft_${publicWorksheetInfo.shareId}`);
+          (!res.isPaySuccessAddRecord || browserIsMobile()) && submitSuccess();
 
           window.onbeforeunload = null;
           this.setState({
             submitLoading: false,
           });
-          onSubmit(res.isPayOrder, res.rowId, data);
+          onSubmit(res, data, submitSuccess);
         },
       );
     };
@@ -242,7 +249,7 @@ export default class FillWorksheet extends React.Component {
 
   render() {
     const { loading, publicWorksheetInfo = {}, rules, status, isPreview, themeBgColor } = this.props;
-    const { submitLoading, formData, showError } = this.state;
+    const { submitLoading, formData, showError, submitBtnLoading } = this.state;
     const {
       name,
       desc,
@@ -422,27 +429,29 @@ export default class FillWorksheet extends React.Component {
             </Fragment>
           )}
         </div>
-        <div className={cx('submitCon', { TxtLeft: submit === 'left', TxtRight: submit === 'right' })}>
-          <Button
-            className="submitBtn"
-            disabled={
-              !formData.filter(c => controlState(c, 4).visible).length ||
-              status === FILL_STATUS.NOT_IN_FILL_TIME ||
-              isPreview
-            }
-            loading={submitLoading}
-            style={{
-              height: '40px',
-              lineHeight: '40px',
-              background: themeBgColor,
-              padding: 0,
-              color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
-            }}
-            onClick={this.handleSubmit}
-          >
-            <span className="InlineBlock ellipsis w100">{submitBtnName}</span>
-          </Button>
-        </div>
+        {!loading && !submitBtnLoading && (
+          <div className={cx('submitCon', { TxtLeft: submit === 'left', TxtRight: submit === 'right' })}>
+            <Button
+              className="submitBtn"
+              disabled={
+                !formData.filter(c => controlState(c, 4).visible).length ||
+                status === FILL_STATUS.NOT_IN_FILL_TIME ||
+                isPreview
+              }
+              loading={submitLoading}
+              style={{
+                height: '40px',
+                lineHeight: '40px',
+                background: themeBgColor,
+                padding: 0,
+                color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
+              }}
+              onClick={this.handleSubmit}
+            >
+              <span className="InlineBlock ellipsis w100">{submitBtnName}</span>
+            </Button>
+          </div>
+        )}
         {!md.global.Config.IsLocal && worksheetId && footer !== 'no' && window.top === window.self && (
           <div className="mingdaoCon">
             {_l('由 %0 创建的表单', projectName || '')}

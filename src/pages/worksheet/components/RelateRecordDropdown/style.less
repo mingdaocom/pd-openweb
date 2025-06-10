@@ -7,6 +7,8 @@
     border-radius: 4px;
     padding-right: 30px;
     border: 1px solid transparent;
+    display: flex;
+    flex-wrap: wrap;
     .clearIcon,
     .dropIcon {
       position: absolute;
@@ -31,7 +33,7 @@
       padding-left: 10px;
       position: relative;
       display: inline-block;
-      max-width: calc(~'100% - 30px');
+      // max-width: calc(~'100% - 30px');
       line-height: 34px;
       color: #151515;
       &.active {
@@ -52,11 +54,13 @@
         }
       }
     }
+    .itemContainer {
+      max-width: calc(~'100% - 30px');
+    }
     .activeSelectedItem {
       position: relative;
       display: inline-block;
-      max-width: calc(~'100% - 30px');
-      margin: 0 0 5px 6px;
+      margin: 6px 0 0 6px;
       line-height: 24px;
       padding: 0 10px;
       background-color: rgba(0, 100, 240, 0.08);
@@ -68,9 +72,13 @@
       &.active.allowRemove {
         padding-right: 24px !important;
       }
+      &.active {
+        background-color: #e8e8e8;
+      }
     }
     .normalSelectedItem,
     .activeSelectedItem {
+      max-width: 100%;
       .icon-close {
         cursor: pointer;
         position: absolute;
@@ -122,7 +130,9 @@
       padding-right: 0px;
       .normalSelectedItem:not(.addBtn),
       .activeSelectedItem:not(.addBtn) {
-        max-width: calc(~'100% - 13px');
+        .itemContainer {
+          max-width: calc(~'100% - 13px');
+        }
         cursor: default;
       }
       .dropIcon {

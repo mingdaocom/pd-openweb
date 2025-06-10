@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet.js';
 import { controlState, getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
-import RegExpValidator from 'src/util/expression';
-import { compatibleMDJS } from 'src/util';
+import RegExpValidator from 'src/utils/expression';
+import { compatibleMDJS } from 'src/utils/project';
 
 let timer = null;
 
@@ -22,6 +22,7 @@ export const handleAPPScanCode = ({
   handleSubmit = () => {},
   onCancel = () => {},
   handleReStart = () => {},
+  handOverNavigation = () => {},
 }) => {
   localStorage.removeItem('scanRelateRecordValues');
   if (!window.isMingDaoApp) return;
@@ -99,14 +100,26 @@ export const handleAPPScanCode = ({
           } else if (currentControl.type === 14) {
             // 附件
             const originValue = currentControl.value ? JSON.parse(currentControl.value) : [];
-            updateData({
-              controlId: cid,
-              value: JSON.stringify({
-                attachments: JSON.parse(value),
-                knowledgeAtts: [],
-                attachmentData: originValue,
-              }),
-            });
+            if (_.isObject(originValue)) {
+              const { attachments = [], attachmentData = [] } = originValue;
+              updateData({
+                controlId: cid,
+                value: JSON.stringify({
+                  attachments: attachments.concat(JSON.parse(value)),
+                  knowledgeAtts: [],
+                  attachmentData,
+                }),
+              });
+            } else {
+              updateData({
+                controlId: cid,
+                value: JSON.stringify({
+                  attachments: JSON.parse(value),
+                  knowledgeAtts: [],
+                  attachmentData: originValue,
+                }),
+              });
+            }
           } else {
             const index = _.findIndex(scanFinishData, v => v.controlId === cid);
             scanFinishData[index] = { ...scanFinishData[index], value };
@@ -120,6 +133,8 @@ export const handleAPPScanCode = ({
       },
       cancel: function () {
         // 用户取消, H5端需要结束创建流程, 关闭创建页面
+        handOverNavigation(true);
+
         onCancel();
       },
     });
@@ -145,7 +160,13 @@ export const handleRelateRow = (control = {}, content, worksheetInfo, updateData
       .then(result => {
         result = result.data || {};
         if (currentWorksheetId === result.worksheetId) {
-          getRelateData(control, content, result, worksheetInfo, updateData);
+          getRelateData(
+            control,
+            content,
+            { ...result, isPublic: content.includes('worksheetshare') },
+            worksheetInfo,
+            updateData,
+          );
         } else {
           alert(_l('无法关联，此记录不在可关联的范围内'), 3);
         }
@@ -188,6 +209,51 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
   const { scanlink, scancontrol, scancontrolid } = _.get(control, 'advancedSetting') || {};
   const scanControl = _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid);
 
+  const handleRelateResult = firstRow => {
+    const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
+    const nameValue = titleControl ? firstRow[titleControl.controlId] : undefined;
+    const relateDataInfo = {
+      isNew: true,
+      isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
+      sourcevalue: JSON.stringify(firstRow),
+      row: firstRow,
+      type: 8,
+      sid: firstRow.rowid,
+      name: getCurrentValue(titleControl, nameValue, { type: 2 }),
+    };
+    let isNoRepeat = true;
+    const scanRelateRecordValues = localStorage.getItem('scanRelateRecordValues')
+      ? JSON.parse(localStorage.getItem('scanRelateRecordValues'))
+      : {};
+    if (!scanRelateRecordValues[control.controlId]) {
+      scanRelateRecordValues[control.controlId] = [relateDataInfo];
+      localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
+    } else {
+      const currentRelateRecords = scanRelateRecordValues[control.controlId];
+      isNoRepeat = _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1;
+      scanRelateRecordValues[control.controlId] =
+        _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1
+          ? currentRelateRecords.concat(relateDataInfo)
+          : currentRelateRecords;
+      localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
+    }
+    if (!_.isEmpty(firstRow)) {
+      updateData({
+        controlId: control.controlId,
+        value: JSON.stringify(scanRelateRecordValues[control.controlId]),
+        isInit: true,
+      });
+    }
+
+    handleScanRelationLoaded({
+      controlId,
+      controlName,
+      title: getCurrentValue(titleControl, nameValue, { type: 2 }),
+      rowId: firstRow.rowid,
+      type: !isNoRepeat ? '3' : _.isEmpty(firstRow) ? '1' : undefined,
+    });
+  };
+
   if (
     (scanlink !== '1' && RegExpValidator.isURL(content)) ||
     (scancontrol !== '1' && !RegExpValidator.isURL(content))
@@ -199,6 +265,22 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
       rowId: '',
       type: '2',
     });
+    return;
+  }
+  const extraParams = _.pick(extra, ['appId', 'worksheetId', 'viewId', 'rowId']);
+
+  // 处理公开分享链接（getFilterRows无权限访问）
+  if (extra.isPublic) {
+    sheetAjax
+      .getRowDetail({
+        ...extraParams,
+        checkView: true,
+        getTemplate: true,
+        getType: 3,
+      })
+      .then(res => {
+        handleRelateResult(res.rowData ? JSON.parse(res.rowData) : undefined);
+      });
     return;
   }
 
@@ -234,50 +316,8 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
       ...extra,
     })
     .then(res => {
-      const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
       const firstRow = res.data && res.data.length ? res.data[0] : {};
-      const nameValue = titleControl ? firstRow[titleControl.controlId] : undefined;
-      const relateDataInfo = {
-        isNew: true,
-        isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
-        sourcevalue: JSON.stringify(firstRow),
-        row: firstRow,
-        type: 8,
-        sid: firstRow.rowid,
-        name: getCurrentValue(titleControl, nameValue, { type: 2 }),
-      };
-      let isNoRepeat = true;
-      const scanRelateRecordValues = localStorage.getItem('scanRelateRecordValues')
-        ? JSON.parse(localStorage.getItem('scanRelateRecordValues'))
-        : {};
-      console.log(scanRelateRecordValues, 'scanRelateRecordValues');
-      if (!scanRelateRecordValues[control.controlId]) {
-        scanRelateRecordValues[control.controlId] = [relateDataInfo];
-        localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
-      } else {
-        const currentRelateRecords = scanRelateRecordValues[control.controlId];
-        isNoRepeat = _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1;
-        scanRelateRecordValues[control.controlId] =
-          _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1
-            ? currentRelateRecords.concat(relateDataInfo)
-            : currentRelateRecords;
-        localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
-      }
-      if (!_.isEmpty(firstRow)) {
-        updateData({
-          controlId: control.controlId,
-          value: JSON.stringify(scanRelateRecordValues[control.controlId]),
-          isInit: true,
-        });
-      }
-
-      handleScanRelationLoaded({
-        controlId,
-        controlName,
-        title: getCurrentValue(titleControl, nameValue, { type: 2 }),
-        rowId: firstRow.rowid,
-        type: !isNoRepeat ? '3' : _.isEmpty(firstRow) ? '1' : undefined,
-      });
+      handleRelateResult(firstRow);
     });
 };
 

@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  TriggerCondition,
-  SpecificFieldsValue,
-  LoopProcessParameters,
-} from '../components';
-import { ACTION_ID } from '../../enum';
 import _ from 'lodash';
+import { LoadDiv, Radio, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { ACTION_ID } from '../../enum';
 import { checkConditionsIsNull } from '../../utils';
+import {
+  DetailFooter,
+  DetailHeader,
+  LoopProcessParameters,
+  SpecificFieldsValue,
+  TransferTriggerUser,
+  TriggerCondition,
+} from '../components';
 
 export default class LoopProcess extends Component {
   constructor(props) {
@@ -181,6 +182,8 @@ export default class LoopProcess extends Component {
         <div className="Font13 mTop10 Gray_75">
           {_l('值范围为1~10000。为避免影响性能或超时，到达最大循环次数时将自动终止循环并进入后续流程。')}
         </div>
+
+        <TransferTriggerUser {...this.props} data={data} updateSource={this.updateSource} />
 
         <div className="Font13 mTop20 bold">{_l('循环中流程中止时')}</div>
         {END_LIST.map(item => (

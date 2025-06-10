@@ -451,6 +451,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.roleId 角色id
+  * @param {boolean} args.isPortal 是否外部门户 角色
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -463,6 +464,7 @@ export default {
   * 获取应用下所有工作表信息生成添加角色模板
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {boolean} args.isPortal 是否外部门户 角色
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1637,8 +1639,11 @@ export default {
   * @param {array} args.roles 勾选升级的角色
   * @param {boolean} args.backupCurrentVersion 备份当前版本
   * @param {boolean} args.matchOffice 是否匹配用户
-  * @param {boolean} args.roleHide 不更新角色显影配置（隐藏应用）
-  * @param {boolean} args.noUpgradeStyle 不升级应用外观，导航
+  * @param {boolean} args.upgradeStyle 是否升级应用外观导航
+  * @param {boolean} args.upgradeLang 是否升级语言
+  * @param {boolean} args.upgradeTimeZone 是否升级时区
+  * @param {boolean} args.upgradeName 是否升级名称
+  * @param {boolean} args.upgradeHide 是否升级显影配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1690,8 +1695,11 @@ export default {
   * @param {array} args.roles 勾选升级的角色
   * @param {boolean} args.backupCurrentVersion 备份当前版本
   * @param {boolean} args.matchOffice 是否匹配用户
-  * @param {boolean} args.roleHide 不更新角色显影配置（隐藏应用）
-  * @param {boolean} args.noUpgradeStyle 不升级应用外观，导航
+  * @param {boolean} args.upgradeStyle 是否升级应用外观导航
+  * @param {boolean} args.upgradeLang 是否升级语言
+  * @param {boolean} args.upgradeTimeZone 是否升级时区
+  * @param {boolean} args.upgradeName 是否升级名称
+  * @param {boolean} args.upgradeHide 是否升级显影配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1797,10 +1805,13 @@ export default {
   * @param {string} args.projectId 组织id
   * @param {string} args.batchId 批次id
   * @param {array} args.datas 批量导入升级业务数据
-  * @param {boolean} args.noUpgradeStyle 不升级应用外观，导航
   * @param {boolean} args.matchOffice 是否匹配组织人员等信息
-  * @param {boolean} args.roleHide 不更新角色显影配置（隐藏应用）
   * @param {boolean} args.backupCurrentVersion 是否备份当前应用
+  * @param {boolean} args.upgradeStyle 是否升级应用外观导航
+  * @param {boolean} args.upgradeLang 是否升级语言
+  * @param {boolean} args.upgradeTimeZone 是否升级时区
+  * @param {boolean} args.upgradeName 是否升级名称
+  * @param {boolean} args.upgradeHide 是否升级显影配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2015,5 +2026,46 @@ export default {
    getOfflineItems: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'GetOfflineItems', args, options);
+   },
+  /**
+  * 获取备份定时任务
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getBackupTask: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetBackupTask', args, options);
+   },
+  /**
+  * 修改定时备份任务状态
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {integer} args.status 状态 （0 = 关闭，1 = 启用，2 = 删除）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editBackupTaskStatus: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditBackupTaskStatus', args, options);
+   },
+  /**
+  * 修改定时备份任务信息
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {integer} args.cycleType 周期类型 (1= 每天，2 = 每周，3 = 每月)
+  * @param {integer} args.cycleValue 具体周期值 （日期（1-31），星期（0 = 星期天））
+  * @param {boolean} args.datum 备份数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editBackupTaskInfo: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditBackupTaskInfo', args, options);
    },
 };

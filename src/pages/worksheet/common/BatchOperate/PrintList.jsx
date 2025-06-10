@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Icon, Menu, MenuItem, LoadDiv } from 'ming-ui';
-import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
-import worksheetAjax from 'src/api/worksheet';
-import webCacheAjax from 'src/api/webCache';
-import IconText from 'worksheet/components/IconText';
-import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
-import { generatePdf } from '../PrintQrBarCode/GeneratingPdf';
-import { getFeatureStatus, addBehaviorLog } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { PRINT_TYPE_STYLE, PRINT_TYPE, PRINT_TEMP } from 'src/pages/Print/config';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
+import webCacheAjax from 'src/api/webCache';
+import worksheetAjax from 'src/api/worksheet';
+import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
+import IconText from 'worksheet/components/IconText';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
+import { VersionProductType } from 'src/utils/enum';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { generatePdf } from '../PrintQrBarCode/GeneratingPdf';
 
 const Con = styled.div`
   position: relative;

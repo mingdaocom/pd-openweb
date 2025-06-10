@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
-import { string } from 'prop-types';
-import { Checkbox } from 'ming-ui';
-import { isLightColor } from 'src/util';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { OptionsWrap, OptionWrap, CommonDisplay } from '../../styled';
-import { getAdvanceSetting, getOptions, parseOptionValue, getItemOptionWidth } from '../../util/setting';
 import { find } from 'lodash';
+import styled from 'styled-components';
+import { Checkbox } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { isLightColor } from 'src/utils/control';
+import { CommonDisplay, OptionsWrap, OptionWrap } from '../../styled';
+import { getAdvanceSetting, getItemOptionWidth, getOptions, parseOptionValue } from '../../util/setting';
 
 const MultiSelectDrop = styled(CommonDisplay)`
   min-height: 34px;

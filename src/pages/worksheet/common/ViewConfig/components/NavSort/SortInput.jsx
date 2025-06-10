@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
+import styled from 'styled-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
-import { getSortData } from 'src/pages/worksheet/util';
-import { SettingItem, EditInfo } from 'src/pages/widgetConfig/styled/index.js';
+import { EditInfo, SettingItem } from 'src/pages/widgetConfig/styled/index.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
+import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
+import { getSortData } from 'src/utils/control';
 
 export default function (props) {
   const { view, onChange, relationControls, advancedSettingKey, viewControlData, canClear } = props;
@@ -30,7 +30,7 @@ export default function (props) {
             }, '')
           ) : (
             <span className="Gray_75">
-              {!!viewControlData.viewId ? _l('按关联视图的配置') : _l('未设置（按添加顺序）')}
+              {!!viewControlData.viewId ? _l('按关联视图的配置') : _l('未设置（按添加时间顺序）')}
             </span>
           )}
         </div>

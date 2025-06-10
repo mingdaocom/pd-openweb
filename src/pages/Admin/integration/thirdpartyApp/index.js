@@ -1,15 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Icon, Dialog, Input, LoadDiv } from 'ming-ui';
-import { getRandStr } from 'src/components/UploadFiles/utils';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import Config from '../../config';
 import styled from 'styled-components';
+import { Button, Dialog, Icon, Input, LoadDiv } from 'ming-ui';
 import application from 'src/api/application';
-import { getToken } from 'src/util';
-import 'rc-trigger/assets/index.css';
+import { getToken } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import Config from '../../config';
 import './index.less';
-import RegExpValidator from 'src/util/expression';
+import 'rc-trigger/assets/index.css';
 
 const UploadContent = styled.div`
   align-items: flex-end;

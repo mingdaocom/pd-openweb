@@ -1,6 +1,5 @@
-import _, { includes, uniq } from 'lodash';
 import { combineReducers } from 'redux';
-import { browserIsMobile } from 'src/util';
+import _, { includes, uniq } from 'lodash';
 
 function dataLoading(state = true, action) {
   switch (action.type) {
@@ -85,18 +84,6 @@ function originRows(state = [], action) {
   }
 }
 
-function fillEmptyRows(rows, emptyCount = 0) {
-  if (rows.length < emptyCount) {
-    return rows.concat(
-      new Array(emptyCount - rows.length).fill().map(() => ({
-        rowid: 'empty-' + Math.random().toString(32),
-      })),
-    );
-  } else {
-    return rows;
-  }
-}
-
 function rows(state = [], action) {
   const emptyCount = action.emptyCount || 0;
   let insertIndex;
@@ -140,7 +127,16 @@ function rows(state = [], action) {
     case 'UPDATE_STATE':
       newState = action.state;
   }
-  return newState.length < emptyCount && !browserIsMobile() ? fillEmptyRows(newState, emptyCount) : newState;
+  return newState;
+}
+
+function pagination(state = { pageIndex: 1, pageSize: 20, count: 0 }, action) {
+  switch (action.type) {
+    case 'UPDATE_PAGINATION':
+      return { ...state, ...action.pagination };
+    default:
+      return state;
+  }
 }
 
 export default combineReducers({
@@ -152,4 +148,5 @@ export default combineReducers({
   lastAction,
   rows,
   changes,
+  pagination,
 });

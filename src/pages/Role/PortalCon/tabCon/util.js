@@ -1,10 +1,11 @@
 import React from 'react';
-import CellControl from 'worksheet/components/CellControls';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { Checkbox, Switch, Radio } from 'ming-ui';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
-import { portalBaseControl } from './config'
+import { Checkbox, Radio, Switch } from 'ming-ui';
+import CellControl from 'worksheet/components/CellControls';
+import { getSwitchItemNames, renderText as renderCellText } from 'src/utils/control';
+import { portalBaseControl } from './config';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+
 export const pageSize = 20;
 export const COLORS = [
   '#F5F5F5',
@@ -64,7 +65,7 @@ export const renderText = o => {
   }
 };
 
-export const formatPortalData = (currentData) => {
+export const formatPortalData = currentData => {
   return currentData
     .filter(o => portalBaseControl.includes(o.controlId))
     .concat(...currentData.filter(o => !portalBaseControl.includes(o.controlId)))
@@ -81,9 +82,7 @@ export const formatPortalData = (currentData) => {
         if ('portal_status' === o.controlId) {
           return {
             ...da,
-            options: !safeParse(o.value, 'array').includes('5')
-              ? o.options.filter(it => it.key !== '5')
-              : o.options,
+            options: !safeParse(o.value, 'array').includes('5') ? o.options.filter(it => it.key !== '5') : o.options,
             disabled: safeParse(o.value, 'array').includes('5'),
           };
         } else {
@@ -92,5 +91,15 @@ export const formatPortalData = (currentData) => {
       } else {
         return { ...o, row: i, fieldPermission: '' };
       }
-    })
+    });
+};
+
+export const formatDataForPortalControl = (data) => {
+  return data.map(c => formatControlToServer(c, { isNewRecord: true }))
+    .map(o => {
+      if (o.type == 29 && o.editType === 9) {
+        return { ...o, editType: 0, value: "[]" };
+      }
+      return o;
+    });
 }

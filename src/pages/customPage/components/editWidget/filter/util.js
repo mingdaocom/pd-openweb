@@ -74,7 +74,8 @@ export const formatFilters = filters => {
 
     if (controlData) {
       const newFastFilters = handleConditionsDefault([{ ...data, controlId: controlData.controlId }], [controlData]);
-      Object.assign(data, newFastFilters[0]);
+      const values = _.pick(newFastFilters[0], ['value', 'values']);
+      Object.assign(data, values);
     }
 
     return {

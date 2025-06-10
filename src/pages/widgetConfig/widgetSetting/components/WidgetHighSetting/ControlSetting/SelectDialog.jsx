@@ -1,53 +1,13 @@
 import React, { useState } from 'react';
-import { Dialog } from 'ming-ui';
-import styled from 'styled-components';
 import { Dropdown } from 'antd';
 import update from 'immutability-helper';
-import 'intl-tel-input/build/css/intlTelInput.min.css';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
+import { DropdownContentWrap } from '../../../../styled';
 import allData from './telData';
-import { DropdownContent } from '../../../../styled';
+import '../../../../styled/style.less';
+import 'intl-tel-input/build/css/intlTelInput.min.css';
 
-const Wrap = styled(DropdownContent)`
-  overflow: hidden;
-  .searchWrap {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0 16px;
-    margin-bottom: 6px;
-    border-bottom: 1px solid #f0f0f0;
-    input {
-      line-height: 36px;
-      border: none;
-      outline: none;
-      padding-left: 8px;
-    }
-  }
-  .emptyText {
-    margin: 0 auto;
-    line-height: 38px;
-    color: #9e9e9e;
-    font-size: 13px;
-    text-align: center;
-  }
-  .countryContent {
-    width: 100%;
-    max-height: 260px;
-    overflow-x: hidden;
-  }
-  .item {
-    display: flex;
-    align-items: center;
-    line-height: 36px;
-    &:not(disabled):hover {
-      background-color: #f5f5f5;
-      color: #151515;
-    }
-    .countryName {
-      margin: 0 6px;
-    }
-  }
-`;
 const SelectInfoWrap = styled.div`
   .countryList {
     display: flex;
@@ -88,7 +48,7 @@ const SelectInfoWrap = styled.div`
   }
 `;
 
-export const SelectCountryDropdown = ({ unique, data, setData, selectableData }) => {
+export const SelectCountryDropdown = ({ unique, data, setData, selectableData, style }) => {
   const [value, setValue] = useState('');
   const filteredData = value
     ? selectableData.filter(
@@ -96,7 +56,7 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData })
       )
     : selectableData;
   return (
-    <Wrap>
+    <DropdownContentWrap style={style}>
       <div className="searchWrap" onClick={e => e.stopPropagation()}>
         <i className="icon-search Font16 Gray_75"></i>
         <input
@@ -136,7 +96,7 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData })
       ) : (
         <div className="emptyText">{_l(value ? '暂无搜索结果' : _l('暂无可选项'))}</div>
       )}
-    </Wrap>
+    </DropdownContentWrap>
   );
 };
 
@@ -152,7 +112,7 @@ export default function SelectCountryDialog(props) {
     return initData;
   };
   return (
-    <Dialog title={title} visible onOk={() => onOk(data)} onCancel={onCancel}>
+    <Dialog title={title} visible onOk={() => onOk(data)} onCancel={onCancel} dialogClasses="selectDialogZIndex">
       <Dropdown
         trigger={['click']}
         overlay={<SelectCountryDropdown data={data} setData={setData} selectableData={getSelectableData()} />}

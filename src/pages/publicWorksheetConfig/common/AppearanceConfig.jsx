@@ -1,21 +1,21 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import { bindActionCreators } from 'redux';
 import { Drawer } from 'antd';
-import { QiniuUpload, Icon, ScrollView, Radio, Switch } from 'ming-ui';
-import * as actions from '../redux/actions';
-import PictureSelect from '../components/PictureSelect';
-import { Hr, H1, H3, Absolute, CustomButton } from 'worksheet/components/Basics';
-import { coverurls, LAYOUT_OPTIONS } from '../enum';
-import _ from 'lodash';
 import { Tooltip } from 'antd';
-import { getThemeColors } from 'src/util';
-import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
-import cx from 'classnames';
-import { getPageConfig } from '../utils';
 import { TinyColor } from '@ctrl/tinycolor';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Icon, QiniuUpload, Radio, ScrollView, Switch } from 'ming-ui';
+import { Absolute, CustomButton, H1, H3, Hr } from 'worksheet/components/Basics';
+import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
+import { getThemeColors } from 'src/utils/project';
+import PictureSelect from '../components/PictureSelect';
+import { coverurls, LAYOUT_OPTIONS } from '../enum';
+import * as actions from '../redux/actions';
+import { getPageConfig } from '../utils';
 
 const Con = styled.div`
   padding: 0 24px;
@@ -150,7 +150,9 @@ const LayoutSettingWrap = styled.div`
     margin-bottom: 16px;
     border-radius: 3px;
     &:hover {
-      box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+      box-shadow:
+        0 4px 20px #00000021,
+        0 2px 6px #0000001a;
     }
   }
 `;

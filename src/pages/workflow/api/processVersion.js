@@ -202,7 +202,7 @@ var processVersion = {
    * 修改预警配置
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestInstanceWarning} {accountIds:通知人(array),companyId:网络id(string),value:预警值(integer),}*request
+   * @param {RequestInstanceWarning} {accountIds:通知人(array),companyId:网络id(string),enableEmail:邮件(boolean),enableSms:短信(boolean),value:预警值(integer),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

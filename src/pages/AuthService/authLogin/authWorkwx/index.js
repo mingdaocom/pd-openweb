@@ -1,5 +1,15 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam, checkOriginUrl, getGlobalMeta } from 'src/util/sso';
-import { setPssId } from 'src/util/pssId';
+import { setPssId } from 'src/utils/pssId';
+import {
+  addOtherParam,
+  ajax,
+  browserIsMobile,
+  checkLogin,
+  checkOriginUrl,
+  formatOtherParam,
+  getGlobalMeta,
+  getRequest,
+  login,
+} from 'src/utils/sso';
 
 const { code, state, url, p, ...otherParam } = getRequest();
 const isMobile = browserIsMobile();
@@ -19,7 +29,7 @@ if (code) {
         state,
       },
       async: true,
-      succees: result => {
+      success: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
           getGlobalMeta().then(() => {
@@ -53,8 +63,8 @@ if (code) {
         projectId,
       },
       async: true,
-      succees: result => {
-        const { corpId, agentId, state } = result.data;
+      success: result => {
+        const { corpId, state } = result.data;
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/workwx?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );

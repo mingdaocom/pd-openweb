@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { FROM } from '../../../tools/config';
-import './style.less';
-import { getClassNameByExt } from 'src/util';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import _ from 'lodash';
 import moment from 'moment';
+import { Icon } from 'ming-ui';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { getClassNameByExt } from 'src/utils/common';
+import { FROM } from '../../../tools/config';
+import './style.less';
 
 const Icons = {
   0: '',

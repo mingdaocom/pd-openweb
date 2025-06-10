@@ -1,4 +1,111 @@
 .boxCalendar {
+  .fc-event-main {
+    position: initial !important;
+  }
+  .fc-daygrid-dot-event {
+    border: 1px solid #dddddd;
+    background: #fff;
+    padding: 0;
+    &:hover {
+      background: #0000001a;
+    }
+  }
+  .fc-daygrid-event-dot {
+    border-radius: 3px 0px 0px 3px;
+    margin: 0 4px 0 0;
+    border-left: 2px solid rgb(201, 230, 252);
+    border-right: none;
+    border-bottom: none;
+    border-top: none;
+    height: 16px;
+  }
+  .fc-daygrid-day-bottom {
+    line-height: 14px;
+  }
+  .fc-daygrid-day-frame {
+    min-height: 50px !important;
+    height: 100%;
+  }
+  .calendarCon.boldEvent {
+    .fc-daygrid-day-frame {
+      min-height: 70px !important;
+    }
+    .fc-daygrid-event-dot {
+      height: 38px;
+    }
+    .fc-more-popover {
+      .fc-event {
+        .fc-event-main,
+        .fc-event-main-frame,
+        .fc-event-title-container,
+        .fc-event-title {
+          width: 100%;
+          height: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        height: 40px !important; /* 强制覆盖默认样式 */
+        .fc-event-title-container {
+          display: flex;
+          align-items: center;
+        }
+        .fc-event-title {
+          height: auto;
+          max-height: 40px;
+          line-height: 18px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: break-spaces;
+          word-break: break-all;
+          display: -webkit-box;
+          -webkit-line-clamp: 2 !important;
+          -webkit-box-orient: vertical;
+        }
+      }
+    }
+    .fc-dayGridMonth-view {
+      .fc-daygrid-day-bottom {
+        line-height: 38px;
+        padding: 0 3px 0;
+        width: 100%;
+      }
+      /* 全局设置所有事件的高度 */
+      .fc-daygrid-event.fc-daygrid-dot-event.fc-event,
+      .fc-daygrid-event.fc-daygrid-block-event.fc-h-event.fc-event {
+        .fc-event-main,
+        .fc-event-main-frame,
+        .fc-event-title-container,
+        .fc-event-title {
+          width: 100%;
+          height: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        height: 40px !important; /* 强制覆盖默认样式 */
+        .fc-event-title-container {
+          display: flex;
+          align-items: center;
+        }
+        .fc-event-title {
+          height: auto;
+          max-height: 40px;
+          line-height: 18px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: break-spaces;
+          word-break: break-all;
+          display: -webkit-box;
+          -webkit-line-clamp: 2 !important;
+          -webkit-box-orient: vertical;
+        }
+      }
+    }
+  }
+
   display: flex;
   width: 100%;
   min-height: 100%;
@@ -6,6 +113,16 @@
   overflow: hidden;
   background: #fff;
   color: #151515;
+  .fc-daygrid-event-harness,
+  .fc-timegrid-event-harness,
+  .fc-scroller-harness,
+  .fc-scrollgrid-section,
+  .fc-timegrid-col-events {
+    z-index: 10 !important;
+    &:hover {
+      z-index: 11 !important;
+    }
+  }
   .fc-daygrid-event {
     .titleTxt {
       max-width: 60%;
@@ -167,7 +284,7 @@
     opacity: 0;
     &.show {
       opacity: 1;
-      z-index: 10;
+      z-index: 11;
     }
     border-radius: 3px;
     box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
@@ -487,4 +604,19 @@
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   text-align: center;
+}
+
+.calendarPopoverWrap {
+  width: 300px;
+  .ant-popover-inner-content {
+    padding: 0;
+  }
+  .ant-popover-arrow,
+  .recordOperateWrap {
+    display: none;
+  }
+  .cardCon .fieldContentWrap {
+    max-height: 200px;
+    overflow: auto;
+  }
 }

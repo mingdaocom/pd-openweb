@@ -1,20 +1,19 @@
-import React, { Fragment, useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import cx from 'classnames';
+import _, { includes } from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Switch } from 'ming-ui';
-import EventEmitter from 'events';
-import { openTestFunctionDialog } from './common/TestFunctionDialog';
-import { validateFnExpression } from 'src/pages/worksheet/util';
-import SelectFnControl from './common/SelectFnControl';
+import { emitter, validateFnExpression } from 'src/utils/common';
 import CodeEdit from './common/CodeEdit';
-import Tip from './common/Tip';
 import Footer from './common/Footer';
+import SelectFnControl from './common/SelectFnControl';
+import { openTestFunctionDialog } from './common/TestFunctionDialog';
+import Tip from './common/Tip';
 import './style.less';
-import cx from 'classnames';
-import _, { includes } from 'lodash';
 
 if (!window.emitter) {
-  window.emitter = new EventEmitter();
+  window.emitter = emitter;
 }
 
 const Con = styled.div`

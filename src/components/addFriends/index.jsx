@@ -1,16 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dialog, FunctionWrap } from 'ming-ui';
 import cx from 'classnames';
-import AddressBookInvite from './AddressBookInvite';
-import MobileOrEmailInvite from './MobileOrEmailInvite';
-import PublicLink from './PublicLink';
-import DetailList from './DetailList';
-import './index.less';
 import _ from 'lodash';
+import { Dialog, FunctionWrap, Icon } from 'ming-ui';
 import account from 'src/api/account';
+import { checkCertification } from 'src/components/checkCertification';
 import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { FROM_TYPE, TAB_MODE, DETAIL_MODE, DETAIL_MODE_TEXT, TABS } from './enum';
+import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
+import { getCurrentProject } from 'src/utils/project';
+import AddressBookInvite from './AddressBookInvite';
+import DetailList from './DetailList';
+import { DETAIL_MODE, DETAIL_MODE_TEXT, FROM_TYPE, TAB_MODE, TABS } from './enum';
+import MobileOrEmailInvite from './MobileOrEmailInvite';
+import PublicLink from './PublicLink';
+import './index.less';
 
 class AddFriends extends Component {
   constructor(props) {
@@ -19,7 +22,7 @@ class AddFriends extends Component {
       visible: true,
       selectTab: TABS[0].value,
       isPayUsers: true,
-      authType: 0, // 0未认证 1: 个人认证 2: 企业认证
+      authType: 0, // 0未认证 1: 个人认证 2: 组织认证
       detailMode: 0, //
       url: '',
       code: '',
@@ -33,12 +36,13 @@ class AddFriends extends Component {
     const { Config: { IsLocal } = {}, Account: { projects = [] } = {} } = md.global;
     const myPermissions = projectId ? getMyPermissions(projectId) : [];
     const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
+    const licenseType = getCurrentProject(projectId).licenseType;
 
     this.setState(
       {
         isPayUsers: projects.some(item => item.licenseType === 1) || IsLocal,
         myPermissions,
-        selectTab: hasMemberManageAuth ? TABS[0].value : TABS[1].value,
+        selectTab: [0, 2].includes(licenseType) ? TABS[2].value : hasMemberManageAuth ? TABS[0].value : TABS[1].value,
       },
       () => {
         // 非付费用户获取认证信息
@@ -114,7 +118,7 @@ class AddFriends extends Component {
 
   renderTabs = () => {
     const { selectTab, myPermissions = [] } = this.state;
-    const { fromType } = this.props;
+    const { fromType, projectId } = this.props;
     const isPersonal = fromType === FROM_TYPE.PERSONAL;
     const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
 
@@ -130,7 +134,11 @@ class AddFriends extends Component {
           return (
             <li
               key={tab.value}
-              onClick={() => this.setState({ selectTab: tab.value })}
+              onClick={() => {
+                if (tab.value === selectTab) return;
+
+                checkCertification({ projectId, checkSuccess: () => this.setState({ selectTab: tab.value }) });
+              }}
               className={cx('AddFriends-head-navbar__item', {
                 'AddFriends-head-navbar__item--active': selectTab === tab.value,
               })}
@@ -183,9 +191,14 @@ class AddFriends extends Component {
               {_l(
                 '近期有不法分子利用平台进行诈骗活动。为了保护平台安全，此功能需要完成身份认证后才能使用。对您使用造成的不便，深表歉意！',
               )}
-              <a href={`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`}>
+              <span
+                className="ThemeColor ThemeHoverColor2 pointer"
+                onClick={() =>
+                  (location.href = `/certification/project/${projectId || getCurrentProjectId()}?returnUrl=${encodeURIComponent(location.href)}`)
+                }
+              >
                 {_l('前往认证')}
-              </a>
+              </span>
             </div>
           )}
           {this.renderTabs()}

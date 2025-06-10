@@ -1,16 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import userController from 'src/api/user';
-import { LoadDiv, Checkbox, Dialog, VerifyPasswordConfirm, UserHead } from 'ming-ui';
-import PaginationWrap from '../../../../components/PaginationWrap';
-import './style.less';
-import Empty from '../../../../common/TableEmpty';
-import { getCurrentProject } from 'src/util';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { downloadFile } from '../../../../util';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import { Checkbox, Dialog, LoadDiv, UserHead, VerifyPasswordConfirm } from 'ming-ui';
+import userController from 'src/api/user';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { getCurrentProject } from 'src/utils/project';
+import Empty from '../../../../common/TableEmpty';
+import PaginationWrap from '../../../../components/PaginationWrap';
+import { downloadFile } from '../../../../util';
+import './style.less';
 
 export default class ResignList extends React.Component {
   static propTypes = {

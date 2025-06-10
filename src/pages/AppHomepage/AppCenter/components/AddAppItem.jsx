@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { string, func, array } from 'prop-types';
-import { Icon, Menu, MenuItem, Dialog } from 'ming-ui';
-import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
-import ImportApp from 'src/pages/Admin/app/appManagement/modules/ImportApp.jsx';
-import { navigateTo } from 'src/router/navigateTo';
 import { generate } from '@ant-design/colors';
-import { getFeatureStatus, getThemeColors, getCurrentProject } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-import ExternalLinkDialog from './ExternalLinkDialog';
-import homeAppAjax from 'src/api/homeApp';
-import SelectDBInstance from './SelectDBInstance';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { array, func, string } from 'prop-types';
 import Trigger from 'rc-trigger';
+import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp';
+import { hasPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import ImportApp from 'src/pages/Admin/app/appManagement/modules/ImportApp.jsx';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getCurrentProject, getFeatureStatus, getThemeColors } from 'src/utils/project';
+import ExternalLinkDialog from './ExternalLinkDialog';
+import SelectDBInstance from './SelectDBInstance';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },

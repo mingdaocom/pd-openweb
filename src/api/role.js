@@ -28,7 +28,7 @@ export default {
      return mdyAPI('Role', 'GetMyJoinedRoleList', args, options);
    },
   /**
-  * 【角色列表，仅 超级管理员 会调】获取 所有角色的 角色列表（包含 标识  是否是我加入的角色）
+  * 【角色列表，只限 超级管理员 能调】获取 所有角色的 角色列表（包含 标识  是否是我加入的角色）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {integer} args.pageIndex 页数
@@ -297,6 +297,18 @@ export default {
    isSuperAdmin: function (args, options = {}) {
      
      return mdyAPI('Role', 'IsSuperAdmin', args, options);
+   },
+  /**
+  * 验证 用户是否是 最后一名【超级管理员】
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   isLastSuperAdmin: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'IsLastSuperAdmin', args, options);
    },
   /**
   * 判断是否具有组织账户管理员权限

@@ -1,22 +1,23 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import PropTypes from 'prop-types';
-import UploadFile from 'src/components/UploadFiles';
-import Commenter from 'src/components/comment/commenter';
-import { htmlDecodeReg, dateConvertToUserZone } from 'src/util';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import Avatar from './avatar';
-import UserLink from './userLink';
-import ReplyTo from './replyTo';
-import { SOURCE_TYPE } from '../../constants';
-import { formatTopic, splitSourceId, buildSourceLink } from '../../util';
-import { formatMsgDate } from 'src/pages/chat/utils';
-import DiscussionController from 'src/api/discussion';
-import postAjax from 'src/api/post';
-import confirm from 'ming-ui/components/Dialog/Confirm';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import { UserCard } from 'ming-ui';
+import confirm from 'ming-ui/components/Dialog/Confirm';
+import DiscussionController from 'src/api/discussion';
+import postAjax from 'src/api/post';
+import Commenter from 'src/components/comment/commenter';
+import UploadFile from 'src/components/UploadFiles';
+import { formatMsgDate } from 'src/pages/chat/utils';
+import { htmlDecodeReg } from 'src/utils/common';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { dateConvertToUserZone } from 'src/utils/project';
+import { SOURCE_TYPE } from '../../constants';
+import { buildSourceLink, formatTopic, splitSourceId } from '../../util';
+import Avatar from './avatar';
+import ReplyTo from './replyTo';
+import UserLink from './userLink';
 
 const removeTopicConfirm = props => {
   const { replyId, isDeleteAttachment } = props;

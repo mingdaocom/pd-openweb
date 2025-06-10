@@ -232,7 +232,7 @@ export default class extends PureComponent {
                 </Tooltip>
               </div>
             ) : null}
-            {showCheckbox && optionalControls.length > 0 && !isForPortal ? (
+            {showCheckbox && optionalControls.length > 0 ? (
               <div className="mTop15 flexRow">
                 <div className="left">
                   <span className="flexRow alignItemsCenter">
@@ -249,12 +249,14 @@ export default class extends PureComponent {
                       }}
                     />
                     <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
-                    <Tooltip
-                      text={<span>{_l('在本应用【用户-扩展】中管理用户的权限标签')} </span>}
-                      popupPlacement="top"
-                    >
-                      <Icon icon="workflow_error" className="Font16 Gray_9e mLeft3 TxtMiddle" />
-                    </Tooltip>
+                    {!isForPortal && (
+                      <Tooltip
+                        text={<span>{_l('在本应用【用户-扩展】中管理用户的权限标签')} </span>}
+                        popupPlacement="top"
+                      >
+                        <Icon icon="workflow_error" className="Font16 Gray_9e mLeft3 TxtMiddle" />
+                      </Tooltip>
+                    )}
                   </span>
                 </div>
                 <div className="right mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>

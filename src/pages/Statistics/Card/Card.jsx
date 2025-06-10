@@ -1,25 +1,28 @@
-import React, { Component, Fragment, useMemo, useImperativeHandle, forwardRef } from 'react';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { Tooltip, Popover } from 'antd';
-import ChartDialog from '../ChartDialog';
-import login from 'src/api/login';
-import reportApi from '../api/report';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
+import React, { Component, forwardRef, Fragment, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
-import { fillValueMap, chartNav, isOptionControl } from '../common';
-import { reportTypes } from '../Charts/common';
-import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
-import Sort from '../components/Sort';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { getFilledRequestParams } from 'src/pages/worksheet/util';
-import MoreOverlay from './MoreOverlay';
-import charts from '../Charts';
-import { browserIsMobile, getAppFeaturesPath, getTranslateInfo } from 'src/util';
-import { fillUrl } from 'src/router/navigateTo';
-import './Card.less';
+import { Popover, Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import reportApi from '../api/report';
+import login from 'src/api/login';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { configureStore } from 'src/redux/configureStore';
+import { fillUrl } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
+import { getFilledRequestParams } from 'src/utils/common';
+import ChartDialog from '../ChartDialog';
+import charts from '../Charts';
+import { reportTypes } from '../Charts/common';
+import { chartNav, fillValueMap, isOptionControl } from '../common';
+import { Abnormal, Loading, WithoutData } from '../components/ChartStatus';
+import Sort from '../components/Sort';
+import MoreOverlay from './MoreOverlay';
+import './Card.less';
 
 const isMobile = browserIsMobile();
 
@@ -42,7 +45,7 @@ class Card extends Component {
       sheetVisible: false,
       isLinkageFilter: true,
       activeData: undefined,
-      sorts: undefined
+      sorts: undefined,
     };
     this.isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   }
@@ -91,7 +94,7 @@ class Card extends Component {
       filtersGroup,
       linkageFiltersGroup,
       pageId,
-      sourceType
+      sourceType,
     } = props || this.props;
     const isEmbed = location.href.includes('embed/chart');
     const { isLinkageFilter, sorts } = this.state;
@@ -111,25 +114,27 @@ class Card extends Component {
         : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
       ...getFilledRequestParams({}),
     });
-    this.request.then(result => {
-      result.reportId = report.id;
-      this.setState({
-        reportData: fillValueMap(result, pageId),
-        loading: false,
+    this.request
+      .then(result => {
+        result.reportId = report.id;
+        this.setState({
+          reportData: fillValueMap(result, pageId),
+          loading: false,
+        });
+        this.props.onLoad(result);
+      })
+      .catch(error => {
+        if (!window.shareState.id) return;
+        const result = {
+          reportId: report.id,
+          status: 0,
+        };
+        this.setState({
+          reportData: result,
+          loading: false,
+        });
+        this.props.onLoad(result);
       });
-      this.props.onLoad(result);
-    }).catch(error => {
-      if (!window.shareState.id) return;
-      const result = {
-        reportId: report.id,
-        status: 0
-      }
-      this.setState({
-        reportData: result,
-        loading: false,
-      });
-      this.props.onLoad(result);
-    });
     needTimingRefresh && needRefresh && this.initInterval();
   };
   handleOperateClick = ({ settingVisible, sheetVisible = false, activeData }) => {
@@ -319,14 +324,19 @@ class Card extends Component {
       projectId,
       onCancelFavorite,
     } = this.props;
-    const { reportType, yaxisList = [], xaxes = {} } = reportData;
+    const { reportType, yaxisList = [], xaxes = {}, style } = reportData;
     const { titleStyle = 0, pageBgColor, pageStyleType = 'light' } = customPageConfig;
+    const pageTitleStyles = customPageConfig.titleStyles || {};
+    const titleStyles = _.get(style, 'titleStyles') || defaultTitleStyles;
+    const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
     const isLight = pageStyleType === 'light';
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable].includes(reportType);
     const translateInfo = getTranslateInfo(appId, null, report.id);
     const getBgColor = () => {
-      const hideNumberChartName = [reportTypes.NumberChart].includes(reportType) ? yaxisList.length === 1 && !xaxes.controlId : !showTitle;
+      const hideNumberChartName = [reportTypes.NumberChart].includes(reportType)
+        ? ((yaxisList.length === 1 && !xaxes.controlId) || !showTitle)
+        : !showTitle;
       if (this.state.loading) {
         return {};
       }
@@ -339,7 +349,7 @@ class Card extends Component {
           '--widget-icon-hover-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
           marginBottom: 8,
           backgroundColor: themeColor,
-        }
+        };
       }
       if (titleStyle === 2) {
         return {
@@ -349,26 +359,25 @@ class Card extends Component {
           '--widget-icon-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
           '--widget-icon-hover-color': isLight && !hideNumberChartName ? '#ffffffcc' : undefined,
           marginBottom: 8,
-          background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`
-        }
+          background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`,
+        };
       }
       if (titleStyle === 3) {
         return {
           margin: '0 10px 8px',
           padding: 0,
           borderBottom: `2px solid transparent`,
-          borderImage: `linear-gradient(to right, ${themeColor}, ${pageBgColor}) 1`
-        }
+          borderImage: `linear-gradient(to right, ${themeColor}, ${pageBgColor}) 1`,
+        };
       }
       return {};
-    }
-
+    };
     return (
       <div
         className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className, {
           hideChartHeader: !showTitle,
           hideNumberChartName: !showTitle,
-          headerHover: showTitle
+          headerHover: showTitle,
         })}
       >
         <div className="header" style={getBgColor()}>
@@ -381,8 +390,14 @@ class Card extends Component {
               </Tooltip>
             </DragHandle>
           )}
-          <div className="flex valignWrapper" style={{ minWidth: 0 }}>
-            <div className="pointer ellipsis bold reportName" style={{ maxWidth: '80%' }}>
+          <div
+            className={cx('flex valignWrapper', { justifyContentCenter: newTitleStyles.textAlign === 'center' })}
+            style={{ minWidth: 0 }}
+          >
+            <div
+              className="pointer ellipsis reportName"
+              style={{ maxWidth: '80%', ...replaceTitleStyle(newTitleStyles, themeColor) }}
+            >
               {translateInfo.name || reportData.name}
             </div>
             {reportData.desc && (
@@ -429,9 +444,7 @@ class Card extends Component {
                 }
               >
                 <Tooltip title={_l('作用于图表的条件')} placement="bottom">
-                  <span
-                    className={cx('mLeft7 pTop5 filterCriteriaIcon', { 'tip-bottom-right': !showTitle })}
-                  >
+                  <span className={cx('mLeft7 pTop5 filterCriteriaIcon', { 'tip-bottom-right': !showTitle })}>
                     <Icon icon="filter_criteria" className="Font18 pointer Gray_9e" />
                   </span>
                 </Tooltip>
@@ -467,7 +480,7 @@ class Card extends Component {
                   pivotTable: {
                     columns: reportData.columns,
                     lines: reportData.lines,
-                  }
+                  },
                 }}
                 reportType={reportData.reportType}
                 map={reportData.map}
@@ -475,9 +488,12 @@ class Card extends Component {
                 reportData={reportData}
                 onChangeCurrentReport={data => {
                   const { sorts } = data;
-                  this.setState({
-                    sorts
-                  }, this.getData);
+                  this.setState(
+                    {
+                      sorts,
+                    },
+                    this.getData,
+                  );
                 }}
               >
                 <span className="iconItem Gray_9e">
@@ -489,10 +505,7 @@ class Card extends Component {
             )}
             {needRefresh && reportData.status > 0 && (
               <Tooltip title={_l('刷新')} placement="bottom">
-                <span
-                  onClick={() => this.getData(this.props, true)}
-                  className="iconItem Gray_9e freshDataIconWrap"
-                >
+                <span onClick={() => this.getData(this.props, true)} className="iconItem Gray_9e freshDataIconWrap">
                   <Icon className="Font20" icon="refresh1" />
                 </span>
               </Tooltip>
@@ -549,24 +562,24 @@ class Card extends Component {
                 onOpenSetting={
                   (sourceType === 1 ? isCharge : permissions)
                     ? () => {
-                      this.handleOperateClick({
-                        settingVisible: true,
-                        activeData: undefined,
-                      });
-                    }
+                        this.handleOperateClick({
+                          settingVisible: true,
+                          activeData: undefined,
+                        });
+                      }
                     : null
                 }
                 onSheetView={
                   isSheetView
                     ? () => {
-                      this.setState({
-                        dialogVisible: true,
-                        sheetVisible: true,
-                        settingVisible: false,
-                        scopeVisible: false,
-                        activeData: undefined,
-                      });
-                    }
+                        this.setState({
+                          dialogVisible: true,
+                          sheetVisible: true,
+                          settingVisible: false,
+                          scopeVisible: false,
+                          activeData: undefined,
+                        });
+                      }
                     : null
                 }
               />

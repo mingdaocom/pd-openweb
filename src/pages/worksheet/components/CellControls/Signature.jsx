@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { browserIsMobile, compatibleMDJS } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
 import EditableCellCon from '../EditableCellCon';
 import { FROM } from './enum';
 
@@ -129,6 +130,7 @@ export default class Signature extends React.Component {
         projectId={projectId}
         appId={appId}
         worksheetId={worksheetId}
+        controlId={cell.controlId}
         ref={this.editRef}
         onlySignature
         isEdit

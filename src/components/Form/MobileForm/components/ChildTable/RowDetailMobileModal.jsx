@@ -16,8 +16,11 @@ export default function RowDetailModal(props) {
     onDelete,
     onSwitch,
     allowDelete,
+    allowCopy,
     isExceed,
     isEditCurrentRow,
+    copyRow,
+    deleteRow = () => {},
   } = props;
   const formContent = useRef(null);
   const rowId = data.rowid || '';
@@ -27,7 +30,7 @@ export default function RowDetailModal(props) {
       : 'edit'
     : 'edit';
   const disabled = mobileIsEdit ? props.disabled : true;
-  let deleteConformAction = null;
+  let closeConfirmFunc = null;
 
   // 切换上一条/下一条
   const handleSwitch = type => {
@@ -46,28 +49,38 @@ export default function RowDetailModal(props) {
     }
   };
 
-  // 删除记录
-  const deleteRecord = rowid => {
-    deleteConformAction = ActionSheet.show({
+  const handleClose = rowid => {
+    if (!mobileIsEdit || disabled) {
+      onClose();
+      return;
+    }
+
+    closeConfirmFunc = ActionSheet.show({
       popupClassName: 'md-adm-actionSheet',
       actions: [],
       extra: (
         <div className="flexColumn w100">
-          <div className="bold Gray Font17 pTop10">{_l('确定删除此记录 ?')}</div>
+          <div className="bold Gray Font17 pTop10">{_l('是否保存当前记录?')}</div>
           <div className="valignWrapper flexRow confirm mTop24">
             <Button
               className="flex mRight6 bold Gray_75 flex ellipsis Font13"
-              onClick={() => deleteConformAction.close()}
+              onClick={() => {
+                closeConfirmFunc.close();
+                onClose();
+                deleteRow(rowid);
+              }}
             >
-              {_l('取消')}
+              {_l('放弃')}
             </Button>
             <Button
               className="flex mLeft6 bold flex ellipsis Font13"
-              color="danger"
+              color="primary"
               onClick={() => {
-                deleteConformAction.close();
-                onDelete(rowid);
-                onClose();
+                closeConfirmFunc.close();
+                const hasError = formContent.current.handleSave(false, false, false);
+                if (!(!_.isUndefined(hasError) && !hasError)) {
+                  onClose();
+                }
               }}
             >
               {_l('确定')}
@@ -81,8 +94,20 @@ export default function RowDetailModal(props) {
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>
-        {!props.disabled && allowDelete && (
-          <i className="headerBtn icon icon-task-new-delete Font18 Red" onClick={() => deleteRecord(data.rowid)}></i>
+        {isEditCurrentRow && !props.disabled && allowDelete && (
+          <i
+            className="headerBtn icon icon-task-new-delete Font18 Red"
+            onClick={() => onDelete(data.rowid, onClose)}
+          ></i>
+        )}
+        {allowCopy && (
+          <i
+            className="icon icon-copy Font18 ThemeColor mLeft10"
+            onClick={() => {
+              const rowData = formContent.current.isVerified();
+              rowData && copyRow(rowData);
+            }}
+          />
         )}
         <div className="flex"></div>
         {type === 'edit' && !disabled ? (
@@ -102,7 +127,7 @@ export default function RowDetailModal(props) {
             {_l('保存')}
           </span>
         ) : (
-          <i className="headerBtn icon icon-delete_out Gray_9e Font20" onClick={() => onClose()}></i>
+          <i className="headerBtn icon icon-delete_out Gray_9e Font20" onClick={() => handleClose(data.rowid)}></i>
         )}
       </div>
       <div className="forCon flex leftAlign">
@@ -151,7 +176,7 @@ export default function RowDetailModal(props) {
   );
   return (
     <Popup
-      className={cx('childTableRowDetailMobileDialog mobileModal minFull topRadius', className)}
+      className={cx('mobileChildTableRowDetailDialog mobileModal minFull topRadius', className)}
       onCancel={onClose}
       visible={visible}
     >

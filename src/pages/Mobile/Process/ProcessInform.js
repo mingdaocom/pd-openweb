@@ -1,20 +1,20 @@
-import React, { Fragment, Component } from 'react';
-import cx from 'classnames';
-import qs from 'query-string';
+import React, { Component, Fragment } from 'react';
 import { Tabs } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import qs from 'query-string';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
-import Back from '../components/Back';
-import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { handlePushState, handleReplaceState } from 'src/util';
-import { processInformTabs } from './enum';
+import ProcessRecordInfo from 'mobile/ProcessRecord';
+import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
+import Back from '../components/Back';
 import Card from './Card';
+import { processInformTabs } from './enum';
 import './index.less';
-import _ from 'lodash';
 
 export default class ProcessInform extends Component {
   constructor(props) {
@@ -30,8 +30,8 @@ export default class ProcessInform extends Component {
       currentTab: _.find(processInformTabs, { id: tab }) ? tab : processInformTabs[0].id,
       searchValue: '',
       countData: {},
-      previewRecord: {}
-    }
+      previewRecord: {},
+    };
   }
   componentDidMount() {
     this.getTodoList();
@@ -93,19 +93,22 @@ export default class ProcessInform extends Component {
     });
   }
   handleChangeCompleteTab = id => {
-    this.setState({
-      loading: false,
-      pageIndex: 1,
-      isMore: true,
-      list: [],
-      currentTab: id,
-    }, () => {
-      this.getTodoList();
-    });
-  }
+    this.setState(
+      {
+        loading: false,
+        pageIndex: 1,
+        isMore: true,
+        list: [],
+        currentTab: id,
+      },
+      () => {
+        this.getTodoList();
+      },
+    );
+  };
   handleScrollEnd = tab => {
     this.getTodoList();
-  }
+  };
 
   handleRead = item => {
     const { list, visible, countData } = this.state;
@@ -122,12 +125,12 @@ export default class ProcessInform extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchWrapper valignWrapper">
-        <Icon icon="search" className="Gray_9e Font20 pointer"/>
+        <Icon icon="search" className="Gray_9e Font20 pointer" />
         <input
           value={searchValue}
           type="text"
           placeholder={_l('搜索记录名称')}
-          onChange={(e) => {
+          onChange={e => {
             this.setState({
               searchValue: e.target.value,
             });
@@ -141,11 +144,14 @@ export default class ProcessInform extends Component {
             icon="close"
             className="Gray_75 Font20 pointer"
             onClick={() => {
-              this.setState({
-                searchValue: '',
-              }, () => {
-                this.handleChangeCompleteTab(this.state.currentTab);
-              });
+              this.setState(
+                {
+                  searchValue: '',
+                },
+                () => {
+                  this.handleChangeCompleteTab(this.state.currentTab);
+                },
+              );
             }}
           />
         ) : null}
@@ -155,7 +161,9 @@ export default class ProcessInform extends Component {
   renderWithoutData() {
     return (
       <div className="withoutData">
-        <div className="icnoWrapper"><Icon icon="ic-line"/></div>
+        <div className="icnoWrapper">
+          <Icon icon="ic-line" />
+        </div>
         <span>{_l('暂无内容')}</span>
       </div>
     );
@@ -197,7 +205,11 @@ export default class ProcessInform extends Component {
             />
           </div>
         ))}
-        {loading ? <div className={cx({withoutData: pageIndex == 1})}><LoadDiv size="middle"/></div> : null}
+        {loading ? (
+          <div className={cx({ withoutData: pageIndex == 1 })}>
+            <LoadDiv size="middle" />
+          </div>
+        ) : null}
         {!loading && _.isEmpty(list) ? this.renderWithoutData() : null}
       </ScrollView>
     );
@@ -237,7 +249,12 @@ export default class ProcessInform extends Component {
             >
               {processInformTabs.map(tab => (
                 <Tabs.Tab
-                  title={<span>{tab.name} {tab.id === 'unread' && countData.waitingExamine ? `(${countData.waitingExamine})` : null}</span>}
+                  title={
+                    <span>
+                      {tab.name}{' '}
+                      {tab.id === 'unread' && countData.waitingExamine ? `(${countData.waitingExamine})` : null}
+                    </span>
+                  }
                   key={tab.id}
                 />
               ))}
@@ -260,7 +277,7 @@ export default class ProcessInform extends Component {
             onClose={() => {
               history.back();
               this.setState({
-                previewRecord: {}
+                previewRecord: {},
               });
             }}
           />
@@ -269,4 +286,3 @@ export default class ProcessInform extends Component {
     );
   }
 }
-

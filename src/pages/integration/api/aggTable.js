@@ -92,6 +92,23 @@ var aggTable = {
   },
 
   /**
+   * 重新同步聚合表
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.appId 应用id
+   * @param {string} args.aggTableId 聚合表配置id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  reSync: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'aggTable/reSync';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'aggTablereSync', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 获取聚合流配置信息
    *
    * @param {Object} args 请求参数
@@ -141,6 +158,23 @@ var aggTable = {
     base.ajaxOptions.url = base.server(options) + 'aggTable/move';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'aggTablemove', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 重新同步聚合表前置检查
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.appId 应用id
+   * @param {string} args.aggTableId 聚合表配置id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  preReSyncCheck: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'aggTable/preReSyncCheck';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'aggTablepreReSyncCheck', JSON.stringify(args), $.extend(base, options));
   },
 
   /**

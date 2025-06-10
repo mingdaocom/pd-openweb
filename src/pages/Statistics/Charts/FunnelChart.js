@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getStyleColor } from './common';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
-import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { toFixed } from 'src/util';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { toFixed } from 'src/utils/control';
+import { formatrChartValue, formatYaxisList, getChartColors, getLegendType, getStyleColor } from './common';
 
 const mergeDataTime = (data, contrastData) => {
   const maxLengthData = data.length > contrastData.length ? data : contrastData;
@@ -24,9 +24,10 @@ const mergeDataTime = (data, contrastData) => {
       }
     },
   );
-  const newContrastData = (maxLength !== contrastData.length
-    ? contrastData.concat(Array.from({ length: maxLength - contrastData.length }))
-    : contrastData
+  const newContrastData = (
+    maxLength !== contrastData.length
+      ? contrastData.concat(Array.from({ length: maxLength - contrastData.length }))
+      : contrastData
   ).map((item, index) => {
     let groupName = _l('上一期');
     if (item) {
@@ -63,7 +64,7 @@ const formatEmptyDataPosition = (data, isAccumulate, xaxisEmpty) => {
   }
 
   return cloneData;
-}
+};
 
 // 兼容多数值显示
 const fillMapValue = map => {
@@ -72,18 +73,18 @@ const fillMapValue = map => {
       return {
         ...item,
         x: data.key,
-        originalX: data.c_id
-      }
+        originalX: data.c_id,
+      };
     });
     return {
       ...data,
-      value
-    }
+      value,
+    };
   });
   const value = data.map(item => item.value[0]);
   data[0].value = value;
   return [data[0]];
-}
+};
 
 const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId, xaxisEmpty }, yaxisList) => {
   const result = [];
@@ -130,7 +131,7 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
 const getControlMinAndMax = (yaxisList, data) => {
   const result = {};
 
-  const get = (id) => {
+  const get = id => {
     let values = [];
     for (let i = 0; i < data.length; i++) {
       values.push(data[i].value);
@@ -140,16 +141,16 @@ const getControlMinAndMax = (yaxisList, data) => {
     return {
       min,
       max,
-      center: (max + min) / 2
-    }
-  }
+      center: (max + min) / 2,
+    };
+  };
 
   yaxisList.forEach(item => {
     result[item.controlId] = get(item.controlId);
   });
 
   return result;
-}
+};
 
 export default class extends Component {
   constructor(props) {
@@ -161,7 +162,7 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-    }
+    };
     this.contrastData = null;
     this.FunnelChart = null;
   }
@@ -187,7 +188,10 @@ export default class extends Component {
       style.funnelShape !== oldStyle.funnelShape ||
       style.funnelCurvature !== oldStyle.funnelCurvature ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -211,7 +215,10 @@ export default class extends Component {
     if (this.chartEl) {
       this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId;
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+        xaxes.controlId;
       if (this.isViewOriginalData || this.isLinkageData) {
         this.FunnelChart.on('element:click', this.handleClick);
       }
@@ -228,7 +235,7 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -241,31 +248,34 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: gEvent.x + 20,
-        y: gEvent.y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: gEvent.x + 20,
+          y: gEvent.y,
+        },
+        contrastType: currentData.isContrast ? contrastType : undefined,
+        match: param,
+        linkageMatch,
       },
-      contrastType: currentData.isContrast ? contrastType : undefined,
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match, contrastType } = this.state;
@@ -273,31 +283,37 @@ export default class extends Component {
     const data = {
       isPersonal: false,
       match,
-      contrastType
-    }
+      contrastType,
+    };
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const config = this.getComponentConfig(this.props);
-      this.FunnelChart && this.FunnelChart.update(config);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const config = this.getComponentConfig(this.props);
+        this.FunnelChart && this.FunnelChart.update(config);
+      },
+    );
+  };
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, xaxes } = reportData;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const data = formatChartData(map, displaySetup, xaxes, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -310,10 +326,10 @@ export default class extends Component {
         value,
         controlMinAndMax,
         rule,
-        controlId: yaxisList[0].controlId
+        controlId: yaxisList[0].controlId,
       });
       return color || colors[0];
-    }
+    };
 
     this.setCount(newYaxisList);
 
@@ -327,7 +343,7 @@ export default class extends Component {
         },
       },
       tooltip: {
-        formatter: (item) => {
+        formatter: item => {
           if (style.funnelCurvature == 1) {
             item.value = _.find(data, { index: item.index }).value;
           }
@@ -336,19 +352,25 @@ export default class extends Component {
           const labelValue = formatrChartValue(value, false, newYaxisList);
           return {
             name,
-            value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+            value: _.isNumber(value)
+              ? style.tooltipValueType
+                ? labelValue
+                : value.toLocaleString('zh', { minimumFractionDigits: dot })
+              : '--',
           };
         },
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
+            }
+          : undefined,
       },
       isTransposed: displaySetup.showChartType === 2,
       shape: style.funnelShape,
@@ -358,7 +380,7 @@ export default class extends Component {
       color: ({ name }) => {
         const index = _.findIndex(data, { name });
         const { id, value } = _.find(data, { name }) || {};
-        let color = colors[index % colors.length];;
+        let color = colors[index % colors.length];
         if (isRuleColor) {
           color = getRuleColor(value);
         }
@@ -379,32 +401,33 @@ export default class extends Component {
             radio: { style: { r: 6 } },
             itemName: {
               style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
-            }
-          }
-        : false,
-      conversionTag: displaySetup.showNumber && style.funnelCurvature !== 1
-        ? {
-            formatter: data => {
-              const { CONVERSATION_FIELD, PERCENT_FIELD } = this.FunnelComponent;
-              let percentage = 0;
-              if (displaySetup.isAccumulate) {
-                percentage = data[PERCENT_FIELD] * 100
-              } else {
-                if (data[CONVERSATION_FIELD][0] === 0) {
-                  percentage = 0;
-                } else {
-                  percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
-                }
-              }
-              return _l('转化率%0', `${toFixed(percentage, 2)}%`);
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
             },
-            style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
           }
         : false,
+      conversionTag:
+        displaySetup.showNumber && style.funnelCurvature !== 1
+          ? {
+              formatter: data => {
+                const { CONVERSATION_FIELD, PERCENT_FIELD } = this.FunnelComponent;
+                let percentage = 0;
+                if (displaySetup.isAccumulate) {
+                  percentage = data[PERCENT_FIELD] * 100;
+                } else {
+                  if (data[CONVERSATION_FIELD][0] === 0) {
+                    percentage = 0;
+                  } else {
+                    percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
+                  }
+                }
+                return _l('转化率%0', `${toFixed(percentage, 2)}%`);
+              },
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
+            }
+          : false,
       label: {
         callback: (xField, yField) => {
           if (style.funnelCurvature == 1) {
@@ -437,7 +460,7 @@ export default class extends Component {
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
   renderOverlay() {
@@ -465,7 +488,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
@@ -477,7 +500,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
+            <span data-tip={originalCount ? originalCount : null} className="count">
+              {count}
+            </span>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

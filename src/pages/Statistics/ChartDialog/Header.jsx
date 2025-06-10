@@ -1,42 +1,47 @@
-import React, { Fragment, Component } from 'react';
-import cx from 'classnames';
-import { Icon, Input } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
 import { Tooltip } from 'antd';
-import reportConfig from '../api/reportConfig';
-import ChartDesc from '../components/ChartDesc';
-import Trigger from 'rc-trigger';
-import { getTranslateInfo } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, Input } from 'ming-ui';
+import reportConfig from '../api/reportConfig';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
+import { getTranslateInfo } from 'src/utils/app';
+import ChartDesc from '../components/ChartDesc';
 
 export default class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isEdit: false,
-      editDescVisible: false
-    }
+      editDescVisible: false,
+    };
   }
-  handleBlur = (event) => {
+  handleBlur = event => {
     const name = event.target.value;
     const { report } = this.props;
     if (report.id) {
-      reportConfig.updateReportName({
-        reportId: report.id,
-        name
-      }).then(result => {});
+      reportConfig
+        .updateReportName({
+          reportId: report.id,
+          name,
+        })
+        .then(result => {});
     }
     this.setState({ isEdit: false });
     this.props.changeCurrentReport({ name });
-  }
+  };
   render() {
-    const { appId, report, permissions, currentReport, reportData } = this.props;
+    const { appId, report, permissions, currentReport, reportData, themeColor, customPageConfig = {} } = this.props;
+    const pageTitleStyles = customPageConfig.titleStyles || {};
+    const titleStyles = _.get(currentReport.style, 'titleStyles') || defaultTitleStyles;
+    const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
     const { displaySetup = {} } = reportData;
     const { isEdit, editDescVisible } = this.state;
     const translateInfo = getTranslateInfo(appId, null, report.id);
     return (
       <Fragment>
-      {
-        isEdit ? (
+        {isEdit ? (
           <Input
             autoFocus
             className="flex mRight20"
@@ -49,7 +54,7 @@ export default class Header extends Component {
         ) : (
           <div className="nameWrapper valignWrapper flex">
             {(window.shareState.shareId ? displaySetup.showTitle : true) && (
-              <span className="ellipsis bold Font16">
+              <span className="ellipsis" style={{ ...replaceTitleStyle(newTitleStyles, themeColor) }}>
                 {translateInfo.name || currentReport.name}
               </span>
             )}
@@ -67,18 +72,18 @@ export default class Header extends Component {
             {(permissions ? true : currentReport.desc) && (
               <Trigger
                 action={['click']}
-                popup={(
+                popup={
                   <ChartDesc
                     reportId={report.id}
                     desc={currentReport.desc}
-                    onSave={(desc) => {
+                    onSave={desc => {
                       this.props.changeCurrentReport({ desc });
                     }}
                     onClose={() => {
                       this.setState({ editDescVisible: false });
                     }}
                   />
-                )}
+                }
                 popupVisible={editDescVisible}
                 onPopupVisibleChange={visible => {
                   if (!permissions) return;
@@ -90,17 +95,21 @@ export default class Header extends Component {
                   overflow: { adjustX: true, adjustY: true },
                 }}
               >
-                <Tooltip title={translateInfo.description || currentReport.desc || _l('编辑图表说明')} placement="bottom">
+                <Tooltip
+                  title={translateInfo.description || currentReport.desc || _l('编辑图表说明')}
+                  placement="bottom"
+                >
                   <Icon
                     icon="info"
-                    className={cx('Font18 pointer Gray_9e mLeft7', { hideDesc: !editDescVisible && _.isEmpty(currentReport.desc) })}
+                    className={cx('Font18 pointer Gray_9e mLeft7', {
+                      hideDesc: !editDescVisible && _.isEmpty(currentReport.desc),
+                    })}
                   />
                 </Tooltip>
               </Trigger>
             )}
           </div>
-        )
-      }
+        )}
       </Fragment>
     );
   }

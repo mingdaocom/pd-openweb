@@ -1,27 +1,30 @@
-import sheetAjax from 'src/api/worksheet';
-import {
-  getDays,
-  getWorkDays,
-  getWeeks,
-  getMonths,
-  getQuarters,
-  getYears,
-  changeViewConfig,
-  getRowsTime,
-  formatRecordTime,
-  groupingTimeBlock,
-  fillRecordsTimeBlockColor,
-  fillRecordTimeBlockColor,
-  getRecordIndex,
-  formatWeekDay,
-  sortGrouping,
-} from 'src/pages/worksheet/views/GunterView/util';
-import { getDynamicValue, controlState } from 'src/components/newCustomFields/tools/formUtils';
-import { formatQuickFilter, getFilledRequestParams, handleRecordError } from 'worksheet/util';
-import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
-import { dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import sheetAjax from 'src/api/worksheet';
+import { controlState, getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
+import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
+import {
+  changeViewConfig,
+  fillRecordsTimeBlockColor,
+  fillRecordTimeBlockColor,
+  formatRecordTime,
+  formatWeekDay,
+  getDays,
+  getMaxTime,
+  getMonths,
+  getQuarters,
+  getRecordIndex,
+  getRowsTime,
+  getWeeks,
+  getWorkDays,
+  getYears,
+  groupingTimeBlock,
+  sortGrouping,
+} from 'src/pages/worksheet/views/GunterView/util';
+import { getFilledRequestParams } from 'src/utils/common';
+import { formatQuickFilter } from 'src/utils/filter';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
+import { handleRecordError } from 'src/utils/record';
 
 const updatePeriodList = ({ result, parent }) => {
   return (dispatch, getState) => {
@@ -52,7 +55,7 @@ const getExportPeriodList = (type, { startTime, endTime }, viewConfig) => {
   }
 };
 
-export const fetchRows = () => {
+export const fetchRows = callBackFun => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [] } = getState().sheet;
     const { filterControls } = getState().mobile;
@@ -61,7 +64,7 @@ export const fetchRows = () => {
       filters.filterControls = filterControls;
     }
 
-    const view = base.viewId ? (_.find(views, { viewId: base.viewId }) || views[0]) : views[0];
+    const view = base.viewId ? _.find(views, { viewId: base.viewId }) || views[0] : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: true });
     sheetAjax
@@ -81,9 +84,10 @@ export const fetchRows = () => {
         setTimeout(
           () => {
             const { gunterView } = getState().sheet;
-            const { colorId, startId, endId, startType, endType } = gunterView.viewConfig;
+            const { colorId, startId, endId, startType, endType, showgroupcolor } = gunterView.viewConfig;
             const startFormat = startType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
             const endFormat = endType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+            const selectControlOptions = _.get(selectControl, 'options') || [];
             const grouping = sortGrouping(
               data.map(item => {
                 const rows = (item.rows || []).map(row => {
@@ -108,6 +112,10 @@ export const fetchRows = () => {
                 return {
                   ...item,
                   ...times,
+                  color:
+                    showgroupcolor === '1'
+                      ? _.get(_.find(selectControlOptions, { key: item.key }), 'color') || '#B1C4D5'
+                      : '#B1C4D5',
                   rows,
                   subVisible: localStorage.getItem(key) ? true : isGunterExport,
                 };
@@ -121,17 +129,18 @@ export const fetchRows = () => {
               const type = gunterViewType
                 ? Number(gunterViewType)
                 : calendartype
-                ? Number(calendartype)
-                : PERIOD_TYPE.day;
+                  ? Number(calendartype)
+                  : PERIOD_TYPE.day;
               dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: type });
               dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: changeViewConfig(type, gunterView.viewConfig) });
               const periodList = getExportPeriodList(type, getRowsTime(grouping), gunterView.viewConfig);
-              groupingTimeBlock(grouping, periodList.result, gunterView.viewConfig);
               dispatch(updatePeriodList(periodList));
+              groupingTimeBlock(grouping, periodList.result, gunterView.viewConfig);
             } else {
               groupingTimeBlock(grouping, gunterView.periodList, gunterView.viewConfig);
             }
             dispatch(updateGroupingData(fillRecordsTimeBlockColor(grouping, _.find(controls, { controlId: colorId }))));
+            callBackFun && callBackFun(grouping);
             dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: false });
             gunterView.chartScroll.enable && gunterView.chartScroll.enable();
           },
@@ -229,8 +238,11 @@ export const resetLoadGunterView = () => {
     if (chartScroll && chartScroll.disable) {
       chartScroll.disable();
     }
-    dispatch(refreshGunterView());
-    dispatch(fetchRows());
+    dispatch(
+      fetchRows(grouping => {
+        dispatch(refreshGunterView(getMaxTime(grouping)));
+      }),
+    );
   };
 };
 
@@ -269,10 +281,23 @@ export const updataPeriodType = (value, time) => {
 export const updateViewConfig = view => {
   return (dispatch, getState) => {
     const { base, views, gunterView, controls } = getState().sheet;
-    const { advancedSetting, viewControl, displayControls } = base.viewId
-      ? (_.find(views, { viewId: base.viewId }) || views[0])
-      : views[0];
-    const { unweekday, begindate, enddate, colorid, calendartype, milepost, clicktype, viewtitle } = advancedSetting;
+    const {
+      advancedSetting,
+      viewControl,
+      displayControls = [],
+    } = base.viewId ? _.find(views, { viewId: base.viewId }) || views[0] : views[0];
+    const {
+      unweekday,
+      begindate,
+      enddate,
+      colorid,
+      calendartype,
+      milepost,
+      clicktype,
+      viewtitle,
+      showgroupcolor,
+      navtitle,
+    } = advancedSetting;
     const titleControl = _.find(controls, { attribute: 1 }) || {};
     const startControl = _.find(controls, { controlId: begindate }) || {};
     const endControl = _.find(controls, { controlId: enddate }) || {};
@@ -290,7 +315,9 @@ export const updateViewConfig = view => {
       startId: begindate,
       endId: enddate,
       viewControl,
-      displayControls: displayControls.map(c => _.find(controls, { controlId: c })).filter(_ => _),
+      displayControls: (navtitle === titleControl.controlId ? displayControls : [navtitle].concat(displayControls))
+        .map(c => _.find(controls, { controlId: c }))
+        .filter(_ => _),
       colorId: colorid,
       startFormat: startControl.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
       endFormat: endControl.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
@@ -300,8 +327,11 @@ export const updateViewConfig = view => {
       startDisable: startControl.disabled || !controlState(startControl, 3).editable,
       endDisable: endControl.disabled || !controlState(endControl, 3).editable,
       titleDisable: titleControl.disabled || !controlState(titleControl, 3).editable,
+      hideTitle: navtitle && navtitle !== titleControl.controlId,
       clickType: clicktype || '0',
+      advancedSetting,
       viewtitle,
+      showgroupcolor,
     };
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: newConfig });
   };
@@ -383,6 +413,12 @@ export const addRecord = (cell, row) => {
         const { key } = _.find(groupControl.options, { key: row.groupId });
         value = JSON.stringify([key]);
       }
+      if ([26, 48].includes(groupControl.type)) {
+        value = JSON.stringify([JSON.parse(name)]);
+      }
+      if ([27].includes(groupControl.type)) {
+        value = JSON.stringify([{ departmentId: value, departmentName: name }]);
+      }
       if (value === '-1') {
         value = '';
       }
@@ -415,7 +451,27 @@ export const addRecord = (cell, row) => {
         c.type !== 30 &&
         !_.find(receiveControls, { controlId: c.controlId })
       ) {
-        const value = getDynamicValue(row, c);
+        let value = getDynamicValue(
+          controls.map(i => ({ ...i, value: row[i.controlId] })),
+          { ...c, value: row[c.controlId] },
+        );
+        if (c.type === 34) {
+          try {
+            const records = safeParse(value || '[]');
+            if (records.length) {
+              const tempValue = records.map(staticRow => {
+                const rows = [];
+                Object.keys(staticRow).forEach(key => {
+                  rows.push({ controlId: key === 'rowid' ? 'tempRowId' : key, value: staticRow[key] });
+                });
+                return rows;
+              });
+              value = JSON.stringify(tempValue);
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        }
         receiveControls.push({
           controlId: c.controlId,
           controlName: c.controlName,
@@ -440,8 +496,12 @@ export const addRecord = (cell, row) => {
         if (data.resultCode === 1) {
           dispatch(updateGroupingRow(data.data, row.rowid));
         }
-        if (data.resultCode === 11) {
-          alert(_l('创建失败，%0不允许重复', titleControl.controlName || ''), 3);
+        const errors = {
+          11: _l('创建失败，%0不允许重复', titleControl.controlName || ''),
+          22: _l('创建失败，子表字段存在重复数据'),
+        };
+        if (errors[data.resultCode]) {
+          alert(errors[data.resultCode], 3);
           const newGrouping = grouping.map(item => {
             const newRows = item.rows.filter(item => item.rowid !== row.rowid);
             return {
@@ -721,6 +781,16 @@ export const moveGroupingRow = (data, newKey, oldKey) => {
     });
     groupingTimeBlock(newGrouping, periodList, viewConfig);
     dispatch(updateGroupingData(newGrouping));
+  };
+};
+
+export const handleCopySuccess = (data, addIndex) => {
+  return (dispatch, getState) => {
+    const { gunterView } = getState().sheet;
+    const { grouping } = gunterView;
+    const { rows } = _.find(grouping, { key: groupKey });
+    const index = _.findIndex(rows, { rowid: row.rowid });
+    this.props.addNewRecord(data, index + 1);
   };
 };
 

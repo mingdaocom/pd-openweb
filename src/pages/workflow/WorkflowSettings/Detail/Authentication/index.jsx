@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Icon, RadioGroup, Checkbox } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SingleControlValue,
-  KeyPairs,
-  CustomTextarea,
-  TestParameter,
-  ParameterList,
-} from '../components';
-import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, LoadDiv, RadioGroup, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { formatTestParameters } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  KeyPairs,
+  ParameterList,
+  SingleControlValue,
+  TestParameter,
+} from '../components';
 
 const Tabs = styled.ul`
   border-bottom: 3px solid #f5f5f5;
@@ -445,7 +445,7 @@ export default class Authentication extends Component {
           {_l('获取 Access Token')}
         </div>
 
-        {(!hasAuth || (hasAuth && data.actionId !== ACTION_ID.CREDENTIALS)) && (
+        {(!isIntegration || (hasAuth && data.actionId !== ACTION_ID.CREDENTIALS)) && (
           <Fragment>
             <div className="Font13 bold mTop20">
               {data.actionId === ACTION_ID.REFRESH_CREDENTIALS ? _l('自动刷新频率') : _l('Access Token 过期时间')}

@@ -1,14 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import TransferController from 'src/api/transfer';
-import { LoadDiv, Checkbox, Button, UserHead, UserCard } from 'ming-ui';
-import Empty from '../../../../common/TableEmpty';
-import { htmlEncodeReg } from 'src/util';
-import { dialogSelectUser } from 'ming-ui/functions';
-import PaginationWrap from '../../../../components/PaginationWrap';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
+import { Button, Checkbox, LoadDiv, UserCard, UserHead } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import TransferController from 'src/api/transfer';
+import { htmlEncodeReg } from 'src/utils/common';
+import Empty from '../../../../common/TableEmpty';
+import PaginationWrap from '../../../../components/PaginationWrap';
 
 const TYPES = {
   OA: 'OA',

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Switch, Icon, Button, LoadDiv } from 'ming-ui';
-import { Input, Checkbox } from 'antd';
-import projectSettingController from 'src/api/projectSetting';
+import { Checkbox, Input } from 'antd';
 import styled from 'styled-components';
-import { encrypt } from 'src/util';
+import { Button, Icon, LoadDiv, Switch } from 'ming-ui';
+import projectSettingController from 'src/api/projectSetting';
+import { encrypt } from 'src/utils/common';
 
 const ipRegExp =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/;
@@ -231,10 +231,10 @@ export default class WebProxySetting extends Component {
                     (!ip || !portNumber
                       ? _l('请输入服务器地址')
                       : !ipRegExp.test(ip)
-                      ? _l('地址格式不正确')
-                      : !portRegExp.test(portNumber)
-                      ? _l('无效的端口号')
-                      : '')}
+                        ? _l('地址格式不正确')
+                        : !portRegExp.test(portNumber)
+                          ? _l('无效的端口号')
+                          : '')}
                 </div>
               </div>
             </div>

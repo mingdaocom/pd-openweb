@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { Support } from 'ming-ui';
+import dataLimitAjax from 'src/api/dataLimit';
+import projectSettingController from 'src/api/projectSetting';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import { VersionProductType } from 'src/utils/enum';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
-import { VersionProductType } from 'src/util/enum';
 import EncryptRules from './encryptRules';
-import WebProxySetting from './WebProxySetting';
-import LimitFileDownloadSetting from './LimitFileDownloadSetting';
 import LimitAttachmentUpload from './LimitAttachmentUpload';
-import projectSettingController from 'src/api/projectSetting';
-import dataLimitAjax from 'src/api/dataLimit';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import LimitFileDownloadSetting from './LimitFileDownloadSetting';
 import WaterMarkSettingDialog from './WaterMarkSettingDialog';
+import WebProxySetting from './WebProxySetting';
 
 export default class DataCom extends Component {
   constructor(props) {
@@ -188,8 +188,8 @@ export default class DataCom extends Component {
                 customContent: !limitFileDownload
                   ? undefined
                   : limitType === 0
-                  ? _l('已设置：禁止所有设备下载')
-                  : _l('已设置：禁止所有Web移动端下载'),
+                    ? _l('已设置：禁止所有设备下载')
+                    : _l('已设置：禁止所有Web移动端下载'),
                 clickSwitch: this.setLimitDownloadStatus,
                 clickSetting: () => this.setState({ showLimitDownload: true }),
               },

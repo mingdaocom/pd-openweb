@@ -47,9 +47,6 @@ export default class Announcement extends Component {
       compile: false,
     });
   }
-  convertValue(value) {
-    return value ? utils.toLink(utils.tagConvert(value)).replace(/\r\n|\n/gi, '<br/>') : _l('暂无群公告');
-  }
   renderTextarea() {
     const { value } = this.state;
     return (
@@ -72,7 +69,7 @@ export default class Announcement extends Component {
       <div className={cx('ChatPanel-Announcement ChatPanel-sessionInfo-item', { 'ChatPanel-Announcement-compile': compile })}>
         <div className="ChatPanel-Announcement-hander ChatPanel-sessionInfo-hander">{_l('群公告')}</div>
         <div className="ChatPanel-Announcement-body">
-          <div className="ChatPanel-Announcement-text" dangerouslySetInnerHTML={{ __html: this.convertValue(value) }} />
+          <div className="ChatPanel-Announcement-text" dangerouslySetInnerHTML={{ __html: utils.convertGroupAbout(value) }} />
         </div>
       </div>
     );

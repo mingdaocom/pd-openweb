@@ -1,12 +1,12 @@
-import React, { useRef, useEffect, useMemo, useState } from 'react';
-import { string } from 'prop-types';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
-import { genUrl, parseLink } from '../../util';
-import { browserIsMobile } from 'src/util';
-import { Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
+import { string } from 'prop-types';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { genUrl, parseLink } from '../../util';
 
 const PreviewWrap = styled.div`
   height: 100%;
@@ -92,12 +92,8 @@ function PreviewContent(props) {
   }
 
   if (!hrefReg.test(value)) {
-    return (
-      <div className="h100 flexRow alignItemsCenter justifyContentCenter">
-        {_l('嵌入链接无法解析')}
-      </div>
-    )
-  };
+    return <div className="h100 flexRow alignItemsCenter justifyContentCenter">{_l('嵌入链接无法解析')}</div>;
+  }
 
   function parseLink(link) {
     const url = genUrl(link, param, info);

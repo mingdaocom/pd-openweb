@@ -9,8 +9,8 @@ import RegisterController from 'src/api/register';
 import DepDropDown from 'src/pages/AuthService/components/DepDropDown.jsx';
 import { ActionResult } from 'src/pages/AuthService/config.js';
 import { getDepartmentInfo, registerSuc } from 'src/pages/AuthService/register/util.js';
-import { getRequest, mdAppResponse } from 'src/util';
-import { encrypt } from 'src/util';
+import { encrypt, getRequest } from 'src/utils/common';
+import { mdAppResponse } from 'src/utils/project';
 
 const Wrap = styled.div`
   .Dropdown--placeholder,

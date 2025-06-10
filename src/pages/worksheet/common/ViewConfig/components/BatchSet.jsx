@@ -1,18 +1,18 @@
 import React from 'react';
-import { Modal, InputNumber, Tooltip, Checkbox } from 'antd';
 import { useSetState } from 'react-use';
-import { Icon, Dropdown, Button } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import styled from 'styled-components';
+import { Checkbox, InputNumber, Modal, Tooltip } from 'antd';
 import cx from 'classnames';
-import { getSummaryInfo } from 'worksheet/util';
-import { WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import worksheetAjax from 'src/api/worksheet';
 import _, { get } from 'lodash';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
-import { controlIsNumber } from 'src/pages/worksheet/util.js';
+import styled from 'styled-components';
+import { Button, Dropdown, Icon } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import worksheetAjax from 'src/api/worksheet';
+import { WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import { sortControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import { controlIsNumber } from 'src/utils/control';
+import { getSummaryInfo } from 'src/utils/record';
 import BatchShowtypeDrop from './BatchShowtypeDrop';
 
 const WrapCon = styled.div`
@@ -258,7 +258,7 @@ export default function BatchSetDialog(props) {
                       <InputNumber
                         type="number"
                         className="w100"
-                        value={Math.round(info.width) || 200}
+                        value={Math.round(info.width) || ([1, 2].includes(o.type) && o.attribute === 1 ? 350 : 150)}
                         onChange={width => {
                           changeValue({
                             ...info,

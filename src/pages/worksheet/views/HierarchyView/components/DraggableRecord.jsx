@@ -1,20 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { isDisabledCreate, isTextTitle } from '../../util';
-import cx from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+import { useDrag, useDrop } from 'react-dnd-latest';
+import cx from 'classnames';
+import { noop, pick } from 'lodash';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
-import AddRecord from './AddRecord';
-import { dealHierarchyData, getRelateDefaultValue } from '../util';
-import { getRecordColorConfig } from 'worksheet/util';
-import { ITEM_TYPE } from '../config';
-import CountTip from './CountTip';
+import { browserIsMobile } from 'src/utils/common';
+import { getRecordColorConfig } from 'src/utils/record';
 import EditableCard from '../../components/EditableCard';
-import RecordPortal from '../../components/RecordPortal';
 import EditingRecordItem from '../../components/EditingRecordItem';
-import { noop, pick } from 'lodash';
-import { useDrag, useDrop } from 'react-dnd-latest';
-import { browserIsMobile } from 'src/util';
+import RecordPortal from '../../components/RecordPortal';
+import { isDisabledCreate, isTextTitle } from '../../util';
+import { ITEM_TYPE } from '../config';
+import { dealHierarchyData, getRelateDefaultValue } from '../util';
+import AddRecord from './AddRecord';
+import CountTip from './CountTip';
 
 const OperationWrap = styled(FlexCenter)`
   position: absolute;
@@ -216,7 +216,7 @@ export default function DraggableRecord(props) {
       {isEditTitle && (
         <RecordPortal closeEdit={closeEdit}>
           <EditingRecordItem
-            data={{ ...recordData, rowId }}
+            data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
             stateData={data}
             currentView={view}
             allowCopy={allowAdd}

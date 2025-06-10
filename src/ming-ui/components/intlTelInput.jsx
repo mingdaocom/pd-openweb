@@ -270,8 +270,10 @@ export default function MDIntlTelInput(element, options) {
   const preferredCountries = options.preferredCountries ||
     _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn', 'hk', 'mo', 'tw'];
   const intlTelInputInstance = intlTelInput(element, finalOptions);
-  const sortCountryList = () => {
-    const countryList = document.querySelector(".iti__country-list");
+  const sortCountryList = d => {
+    const countryContainer = d.closest('.iti').querySelector('.iti__country-container');
+    if (!countryContainer) return;
+    const countryList = countryContainer.querySelector('.iti__country-list');
     if (!countryList) return;
     const allCountries = Array.from(countryList.querySelectorAll('.iti__country'));
     const countryElementMap = {};
@@ -305,13 +307,13 @@ export default function MDIntlTelInput(element, options) {
   $(element).on('open:countrydropdown', e => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-      sortCountryList();
+      sortCountryList(e.target);
       // 动态绑定搜索框的输入事件，搜索后恢复排序
-      const searchInput = document.querySelector('.iti__search-input');
+      const searchInput = e.target.closest('.iti').querySelector('.iti__search-input');
       if (searchInput) {
         searchInput.addEventListener('input', () => {
           if (searchInput.value === '') {
-            setTimeout(sortCountryList, 100);
+            setTimeout(() => sortCountryList(e.target), 100);
           }
         });
       }

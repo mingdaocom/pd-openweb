@@ -1,19 +1,19 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-
+import { useKey } from 'react-use';
 import cx from 'classnames';
 import _, { get } from 'lodash';
+import styled from 'styled-components';
 import { Button, Dialog, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { useKey } from 'react-use';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
+import ChildTable from 'worksheet/components/ChildTable';
+import { ROW_HEIGHT } from 'worksheet/constants/enum';
 import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import styled from 'styled-components';
-import ChildTable from 'worksheet/components/ChildTable';
-import { ROW_HEIGHT } from 'worksheet/constants/enum';
-import { emitter, handleRecordError } from 'worksheet/util';
+import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
+import { emitter } from 'src/utils/common';
 
 /**
  * TODO
@@ -158,7 +158,7 @@ export default function ChildTableDialog(props) {
       return;
     }
     const store = cache.current.comp.props.store;
-    const errors = store.getErrors();
+    const errors = getSubListErrorOfStore(store);
     const validatedResult = onValidator({ item: { ...control, value } });
     if (validatedResult.errorType) {
       alert(validatedResult.errorText, 3);
@@ -331,7 +331,15 @@ export default function ChildTableDialog(props) {
                 const { rows, lastAction = {} } = changedValues;
                 if (
                   !_.includes(
-                    ['DELETE_ROW', 'DELETE_ROWS', 'ADD_ROW', 'UPDATE_ROW', 'UPDATE_ROWS', 'ADD_ROWS'],
+                    [
+                      'DELETE_ROW',
+                      'DELETE_ROWS',
+                      'ADD_ROW',
+                      'UPDATE_ROW',
+                      'UPDATE_ROWS',
+                      'ADD_ROWS',
+                      'CLEAR_AND_SET_ROWS',
+                    ],
                     lastAction.type,
                   )
                 ) {
@@ -346,12 +354,14 @@ export default function ChildTableDialog(props) {
                     deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
                   } else if (lastAction.type === 'DELETE_ROWS') {
                     deleted = _.uniqBy(deleted.concat(lastAction.rowIds)).filter(id => !/^(temp|default)/.test(id));
+                  } else if (lastAction.type === 'CLEAR_AND_SET_ROWS') {
+                    deleted = lastAction.deleted;
                   }
                   if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
                     updated = _.uniqBy(updated.concat(lastAction.rowid));
                   } else if (lastAction.type === 'UPDATE_ROWS') {
                     updated = _.uniqBy(updated.concat(lastAction.rowIds));
-                  } else if (lastAction.type === 'ADD_ROWS') {
+                  } else if (lastAction.type === 'ADD_ROWS' || lastAction.type === 'CLEAR_AND_SET_ROWS') {
                     updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
                   }
                   return { ...oldValue, updated, deleted, rows };

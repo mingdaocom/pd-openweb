@@ -124,6 +124,7 @@ export default class extends Component {
       match: null
     }
     this.GaugeChart = null;
+    this.g2plotComponent = {};
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {

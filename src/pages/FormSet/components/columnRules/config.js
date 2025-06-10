@@ -1,26 +1,27 @@
-import {
-  formatOriginFilterGroupValue,
-  checkConditionAvailable,
-  getTypeKey,
-  getFilterTypes,
-  getConditionType,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
-import {
-  CONTROL_FILTER_WHITELIST,
-  FILTER_CONDITION_TYPE,
-  API_ENUM_TO_TYPE,
-  DATE_OPTIONS,
-  DEFAULT_COLUMNS,
-  getControlSelectType,
-  DATE_RANGE_TYPE_OPTIONS,
-} from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { getIconByType, getSwitchItemNames, isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS, SYS } from 'pages/widgetConfig/config/widget';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import moment from 'moment';
-import { getUnUniqName } from 'src/util';
+import { SYS, SYS_CONTROLS, WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
+import { getIconByType, isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import {
+  API_ENUM_TO_TYPE,
+  CONTROL_FILTER_WHITELIST,
+  DATE_OPTIONS,
+  DATE_RANGE_TYPE_OPTIONS,
+  DEFAULT_COLUMNS,
+  FILTER_CONDITION_TYPE,
+  getControlSelectType,
+} from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
+import {
+  checkConditionAvailable,
+  formatOriginFilterGroupValue,
+  getConditionType,
+  getFilterTypes,
+  getTypeKey,
+} from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
+import { getUnUniqName } from 'src/utils/common';
+import { getSwitchItemNames } from 'src/utils/control';
 
 //初始规则数据
 export const originRuleItem = {
@@ -468,7 +469,7 @@ export const filterText = (key, filterData, control) => {
     case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
     case CONTROL_FILTER_WHITELIST.CASCADER.value:
       const { values = [] } = filterData;
-      return values.map(item => safeParse(item || '{}').name).join(',');
+      return (values || []).map(item => safeParse(item || '{}').name).join(',');
     default:
       return _.isEmpty(filterData.values) ? '' : filterData.values.join(',');
   }

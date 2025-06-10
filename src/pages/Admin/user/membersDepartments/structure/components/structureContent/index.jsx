@@ -1,18 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { LoadDiv, Checkbox, Dialog, antNotification } from 'ming-ui';
-import * as entitiesActions from '../../actions/entities';
-import * as currentActions from '../../actions/current';
-import DialogBatchEdit from '../../modules/dialogBatchEdit';
-import UserTable from '../userList/userTable';
-import ApprovalContent from '../ApprovalContent';
-import RoleController from 'src/api/role';
 import cx from 'classnames';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import addFriends from 'src/components/addFriends';
-import AddUser from '../AddUser';
+import { antNotification, Checkbox, Dialog, LoadDiv } from 'ming-ui';
+import RoleController from 'src/api/role';
 import userAjax from 'src/api/user';
+import addFriends from 'src/components/addFriends';
+import { checkCertification } from 'src/components/checkCertification';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import * as currentActions from '../../actions/current';
+import * as entitiesActions from '../../actions/entities';
+import DialogBatchEdit from '../../modules/dialogBatchEdit';
+import AddUser from '../AddUser';
+import ApprovalContent from '../ApprovalContent';
+import UserTable from '../userList/userTable';
 
 class StructureContent extends Component {
   constructor(props) {
@@ -250,7 +251,10 @@ class StructureContent extends Component {
           <div className="actList flexRow">
             {typeCursor === 0 || typeCursor === 1 || departmentId ? (
               <Fragment>
-                <div className="actBtn primaryBtn" onClick={this.addUser}>
+                <div
+                  className="actBtn primaryBtn"
+                  onClick={() => checkCertification({ projectId, checkSuccess: this.addUser })}
+                >
                   {_l('添加成员')}
                 </div>
                 <div className="actBtn" onClick={this.inviteMore}>
@@ -276,7 +280,11 @@ class StructureContent extends Component {
               <Fragment>
                 <div
                   className={cx('actBtn', { disabledBtn: _.isEmpty(selectedAccountIds) })}
-                  onClick={_.isEmpty(selectedAccountIds) ? () => {} : this.reInvite}
+                  onClick={
+                    _.isEmpty(selectedAccountIds)
+                      ? () => {}
+                      : () => checkCertification({ projectId, checkSuccess: this.reInvite })
+                  }
                 >
                   {_l('重新邀请')}
                 </div>

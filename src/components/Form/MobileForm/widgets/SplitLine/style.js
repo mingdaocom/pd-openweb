@@ -26,7 +26,7 @@ export const SectionItemWrap = styled.div`
     }
 
     .titleText {
-      font-size: 15px;
+      font-size: 1.2em;
       font-weight: 600;
       line-height: 20px;
       white-space: break-spaces;

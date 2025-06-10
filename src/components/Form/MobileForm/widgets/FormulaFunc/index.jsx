@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Linkify } from 'ming-ui';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { renderText as renderCellText } from 'src/utils/control';
 
 const FormulaFunc = props => {
   const { advancedSetting = {}, formDisabled } = props;

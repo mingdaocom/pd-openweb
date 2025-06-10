@@ -1,11 +1,11 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { DROPDOWN_GROUPLIST, TYPENAMES, INBOXTYPES } from '../constants';
+import { browserIsMobile } from 'src/utils/common';
+import { DROPDOWN_GROUPLIST, INBOXTYPES, TYPENAMES } from '../constants';
 import InboxHeader from './inboxHeader';
 import InboxList from './inboxList';
-import { browserIsMobile } from 'src/util';
 import '../style.less';
-import _ from 'lodash';
 
 const getInitialLoadType = inboxType => {
   if (inboxType && DROPDOWN_GROUPLIST[inboxType]) {
@@ -37,10 +37,7 @@ export default class Inbox extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.inboxType !== this.props.inboxType ||
-      nextProps.count !== this.props.count
-    ) {
+    if (nextProps.inboxType !== this.props.inboxType || nextProps.count !== this.props.count) {
       this.setState({
         filter: null,
         type: getInitialLoadType(nextProps.inboxType),
@@ -58,7 +55,7 @@ export default class Inbox extends React.Component {
     this.setState({
       updateNow: Date.now(),
     });
-  }
+  };
 
   changeFaviorite = inboxFavorite => {
     this.setState({
@@ -105,7 +102,7 @@ export default class Inbox extends React.Component {
           weak_count: ['calendar'].includes(inboxType) ? weak_count : undefined,
           filter,
           updateNow,
-          requestNow
+          requestNow,
         }}
       />
     );

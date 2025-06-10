@@ -5,16 +5,21 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ScrollView, Skeleton } from 'ming-ui';
+import { ScrollView, Skeleton, Tooltip } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
+import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { emitter } from 'worksheet/util';
 import ViewContext from 'worksheet/views/ViewContext';
 import CustomFields from 'src/components/newCustomFields';
 import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
-import { browserIsMobile, formatNumberThousand } from 'src/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import { browserIsMobile } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import { formatNumberThousand } from 'src/utils/control';
 import SectionTableNav from '../../../../../components/newCustomFields/components/SectionTableNav';
 import Abnormal from './Abnormal';
 import FormCover from './FormCover';
@@ -95,13 +100,27 @@ const PayWrap = styled.div`
   top: 0;
 `;
 const PayButton = styled.div`
-  padding: 0 40px;
+  padding: 0 25px;
   line-height: 32px;
   border-radius: 3px;
   color: #fff;
   background: rgba(76, 175, 80, 0.9);
   &:hover {
     background: rgba(76, 175, 80, 1);
+  }
+`;
+
+const PayShare = styled.div`
+  width: 32px;
+  height: 32px;
+  background: #f2fcf2;
+  border: 1px solid #4caf50;
+  color: #4caf50;
+  text-align: center;
+  margin-left: 6px;
+  border-radius: 3px;
+  &:hover {
+    background: #e2fce2;
   }
 `;
 
@@ -396,6 +415,25 @@ function RecordForm(props) {
       }
     }
   }
+
+  const handlePayShare = () => {
+    handleShare({
+      width: 640,
+      isPayShare: true,
+      title: _l('发送给其他人付款'),
+      isCharge: get(viewContext, 'isCharge') || recordbase.isCharge,
+      appId: recordinfo.appId,
+      worksheetId,
+      viewId,
+      recordId,
+      privateShare: false,
+      hidePublicShare: false,
+      hidePublicTitle: true,
+      publicShareDesc: _l('获取带付款按钮的记录分享链接，得到此链接的所有人都可以查看记录并进行付款。'),
+      getShareLinkTxt: _l('获取链接'),
+    });
+  };
+
   const isMobile = browserIsMobile();
 
   const renderFormSection = () => {
@@ -471,7 +509,7 @@ function RecordForm(props) {
                   <PayWrap className="flexRow alignItemsCenter">
                     <div className="flex Bold Font14 ellipsis">{_l('支付内容：%0', payConfig.payDescription)}</div>
                     <span className="Gray mLeft25 Font17 Bold">
-                      ¥ {_l('%0 元', formatNumberThousand(payConfig.payAmount))}
+                      {_l('%0 元', formatNumberThousand(payConfig.payAmount))}
                     </span>
                     <PayButton
                       className="mLeft25 Bold Hand"
@@ -483,6 +521,7 @@ function RecordForm(props) {
                           orderId: payConfig.orderId,
                           projectId: recordinfo.projectId || props.projectId,
                           appId: recordinfo.appId,
+                          payNow: payConfig.isAtOncePayment,
                           onUpdateSuccess: updateObj => {
                             onRefresh();
                           },
@@ -491,6 +530,15 @@ function RecordForm(props) {
                     >
                       {_l('付款')}
                     </PayButton>
+                    {!_.get(window, 'shareState.isPublicRecord') &&
+                      isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
+                      !md.global.Account.isPortal && (
+                        <Tooltip popupPlacement="bottom" text={_l('发送给其他人付款')}>
+                          <PayShare onClick={handlePayShare}>
+                            <i className="icon icon-Collection LineHeight32 Font20 Hand" />
+                          </PayShare>
+                        </Tooltip>
+                      )}
                   </PayWrap>
                 )}
                 {type === 'edit' && (
@@ -534,6 +582,7 @@ function RecordForm(props) {
                 )}
                 <div className={cx('recordInfoFormContent', { noAuth: !allowEdit })}>
                   <CustomFields
+                    isEditing={iseditting}
                     ignoreLock={ignoreLock}
                     forceFull={formWidth < 500 ? 1 : undefined}
                     ref={customwidget}

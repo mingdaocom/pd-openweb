@@ -1,15 +1,16 @@
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { getAdvanceSetting } from 'src/util';
+import _ from 'lodash';
 import moment from 'moment';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { isLightColor, dateConvertToUserZone } from 'src/util';
-import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
-import _ from 'lodash';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import { getRecordColor, getRecordColorConfig } from 'worksheet/util';
 import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/control';
+import { isLightColor } from 'src/utils/control';
+import { dateConvertToUserZone } from 'src/utils/project';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 
 const defaultColor = '#C9E6FC';
 export const eventStr = {
@@ -69,10 +70,7 @@ const getStart = (data, o) => {
 const getEnd = (data, o) => {
   return !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
     ? ''
-    : moment(
-      //全天事件 都要加一天
-      !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
-    ).format(o.endFormat);
+    : moment(!getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day')).format(o.endFormat);
 };
 const getIsOverOneDay = (data, o) => {
   return (
@@ -80,7 +78,7 @@ const getIsOverOneDay = (data, o) => {
     moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439
   );
 };
-const getTitleControls = (worksheetControls) => {
+const getTitleControls = worksheetControls => {
   return worksheetControls.find(item => item.attribute === 1) || [];
 };
 const getStringColor = (calendarData, data, currentView) => {
@@ -90,9 +88,9 @@ const getStringColor = (calendarData, data, currentView) => {
   //未设置颜色时，背景色的默认颜色为：蓝色浅色，黑色文字
   return coloridData
     ? (
-      colorOptions.find(it => (coloridData && coloridData.startsWith('other') ? 'other' : coloridData) === it.key) ||
-      []
-    ).color || defaultColor
+        colorOptions.find(it => (coloridData && coloridData.startsWith('other') ? 'other' : coloridData) === it.key) ||
+        []
+      ).color || defaultColor
     : defaultColor;
 };
 
@@ -252,13 +250,22 @@ export const getCalendarViewType = (strType, data) => {
 };
 
 export const isTimeStyle = (data = {}) => {
-  return data.type === 16 || (data.type === 38 && data.enumDefault === 2 && data.unit !== '3');
+  let type = data.type;
+  if (type === 30) {
+    type = data.sourceControlType;
+  }
+  return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
 };
 
 export const getTimeControls = controls => {
   return controls.filter(
     item =>
-      item.controlId !== 'utime' && (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
+      item.controlId !== 'utime' &&
+      (_.includes([15, 16], item.type) ||
+        (item.type === 30 && //支持他表字段 仅存储(9,10,11)
+          [15, 16].includes(item.sourceControlType) &&
+          (item.strDefault || '').split('')[0] !== '1') ||
+        (item.type === 38 && item.enumDefault === 2)),
   );
 };
 
@@ -318,4 +325,84 @@ export const setSysWorkflowTimeControlFormat = (controls = [], sheetSwitchPermit
       return true;
     }
   });
+};
+
+export const formatEventTime = (time, hour24) => {
+  if (hour24 === '0') {
+    //12小时
+    let hour = new Date(time.replace(/\-/g, '/')).getHours();
+    let mm = new Date(time.replace(/\-/g, '/')).getMinutes();
+    let h = hour % 12 <= 0 ? 12 : hour % 12;
+    return `${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`;
+  }
+  //24小时
+  return moment(time).format('HH:mm');
+};
+
+export const getCurrentView = props => {
+  const { views = [], base = {} } = props;
+  const { viewId } = base;
+  return views.find(o => o.viewId === viewId) || {};
+};
+
+export const renderLine = (random, view) => {
+  $(`.boxCalendar_${random} .fc-timegrid-body .linBox`).remove();
+  if (!$('.fc-day-today').length) return;
+  const [start, end] = (_.get(view, 'advancedSetting.showtime') || '00:00-23:59').split('-');
+  const now = new Date();
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = start.split(':').map(Number);
+  const [endH, endM] = end.split(':').map(Number);
+  if (currentMins < startH * 60 + startM || currentMins > endH * 60 + endM) return;
+  const hourHeight = 36;
+  const top =
+    ((currentMins - startH * 60 - startM) / (endH * 60 + endM - startH * 60 - startM)) *
+    hourHeight *
+    (endH - startH + (endM - startM) / 60);
+
+  $(`.boxCalendar_${random} .fc-timegrid-body`).append(`
+    <div class="linBox" style="
+      top: ${top}px;
+      left: 43px;
+      width: 100%;
+      position: absolute;
+      z-index: 100000;
+      text-align: right;
+    ">
+      <div class="rect"></div><div class="rectLine"></div>
+    </div>
+  `);
+};
+
+export const changeEndStr = (end, allDay, calendarview) => {
+  const { calendarData = {} } = calendarview;
+  const { endFormat } = calendarData;
+
+  // 日期字段，结束时间按前一天的23:59:59处理（即减去一天）
+  // return moment(endData.type === 16 ? end : moment(end).subtract(1, 'day')).format(endFormat);
+  if (!allDay) {
+    return moment(end).format(endFormat);
+  } else {
+    return `${moment(end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`;
+  }
+};
+
+export const getRows = (start, end, calendarview) => {
+  const { calendarFormatData = [] } = calendarview;
+  let list = calendarFormatData;
+  let rows = [];
+  list = list
+    .filter(o => !!o.start)
+    .sort((a, b) => {
+      return new Date(a.start) - new Date(b.start);
+    });
+  list.map(o => {
+    if (
+      (moment(o.start).isSameOrBefore(start, 'day') && moment(o.end).isSameOrAfter(end, 'day')) ||
+      moment(o.start).isSame(start, 'day')
+    ) {
+      rows.push(o.extendedProps);
+    }
+  });
+  return rows;
 };

@@ -1,44 +1,34 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { QiniuUpload } from 'ming-ui';
 import cx from 'classnames';
-import './index.less';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import FileComponent from './File';
-import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
-import {
-  formatResponseData,
-  isValid,
-  getAttachmentTotalSize,
-  findIndex,
-  getFilesSize,
-  formatTemporaryData,
-  formatKcAttachmentData,
-  checkAccountUploadLimit,
-  openMdDialog,
-  findIsId,
-  checkFileAvailable,
-} from './utils';
-import { FROM } from 'src/components/newCustomFields/tools/config';
-import { formatFileSize } from 'src/util';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
-import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
-
-export const errorCode = {
-  40001: _l('鉴权失败'),
-  40002: _l('非法的文件类型'),
-  40003: _l('bucket 不存在'),
-  40004: _l('文件大小错误'),
-  50002: _l('系统错误 metadata error'),
-  50003: _l('系统错误 hash error'),
-  50004: _l('系统错误')
-}
-
-import RegExpValidator from 'src/util/expression';
+import PropTypes from 'prop-types';
+import { QiniuUpload } from 'ming-ui';
+import { addLinkFile } from 'ming-ui/functions';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
+import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
+import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
+import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import { FROM } from 'src/components/newCustomFields/tools/config';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
+import { formatFileSize } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import FileComponent from './File';
+import {
+  checkAccountUploadLimit,
+  checkFileAvailable,
+  findIndex,
+  findIsId,
+  formatKcAttachmentData,
+  formatResponseData,
+  formatTemporaryData,
+  getAttachmentTotalSize,
+  getFilesSize,
+  isValid,
+  openMdDialog,
+} from './utils';
+import './index.less';
 
 export default class UploadFiles extends Component {
   static contextType = RecordInfoContext;
@@ -534,8 +524,8 @@ export default class UploadFiles extends Component {
               path: item.previewUrl
                 ? `${item.previewUrl}`
                 : item.url
-                ? `${item.url}&imageView2/1/w/200/h/140`
-                : `${item.serverName}${item.key}`,
+                  ? `${item.url}&imageView2/1/w/200/h/140`
+                  : `${item.serverName}${item.key}`,
               previewAttachmentType: 'QINIU',
               size: item.fileSize,
               fileid: item.fileID,
@@ -873,7 +863,21 @@ export default class UploadFiles extends Component {
     );
   }
   render() {
-    let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink, canAddKnowledge, from } = this.props;
+    let {
+      advancedSetting,
+      controlId,
+      worksheetId,
+      viewId,
+      isUpload,
+      arrowLeft,
+      minWidth,
+      maxWidth,
+      height,
+      allowUploadFileFromMobile,
+      canAddLink,
+      canAddKnowledge,
+      callFrom,
+    } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
@@ -915,14 +919,46 @@ export default class UploadFiles extends Component {
                   <span>{_l('链接文件')}</span>
                 </div>
               )}
+              {allowUploadFileFromMobile && (
+                <GenScanUploadQr
+                  worksheetId={worksheetId}
+                  viewId={viewId}
+                  from={callFrom}
+                  controlId={controlId}
+                  rowId={this.props.recordId || _.get(this, 'context.recordBaseInfo.recordId')}
+                  onScanResultUpdate={files => {
+                    const { temporaryData } = this.state;
+
+                    // 附件数量
+                    if (
+                      advancedSetting &&
+                      advancedSetting.maxcount &&
+                      this.state.originCount + temporaryData.length + files.length > Number(advancedSetting.maxcount)
+                    ) {
+                      alert(_l('最多上传%0个文件', advancedSetting.maxcount), 2);
+                      return;
+                    }
+                    const newTemporaryData = [...temporaryData, ...files];
+                    this.setState({
+                      temporaryData: newTemporaryData,
+                    });
+                    this.props.onTemporaryDataUpdate(newTemporaryData);
+                    this.props.onUploadComplete(true);
+                  }}
+                >
+                  <div className="flexRow valignWrapper">
+                    <i className="icon icon-zendeskHelp-qrcode Gray_9e Font19" />
+                    <span>{_l('扫码上传')}</span>
+                  </div>
+                </GenScanUploadQr>
+              )}
             </div>
             <div className="UploadFiles-ramSize">
               <div className="UploadFiles-attachmentProgress">
                 <div style={{ width: `${currentPrograss}%` }} className="UploadFiles-currentProgress ThemeBGColor3" />
               </div>
               <div className="UploadFiles-info">
-                {totalSize}
-                /{md.global.SysSettings.fileUploadLimitSize}M(
+                {totalSize}/{md.global.SysSettings.fileUploadLimitSize}M(
                 {canAddLink ? _l('至多本地,链接各100个') : _l('至多本地文件各100个')})
               </div>
             </div>

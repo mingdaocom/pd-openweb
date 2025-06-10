@@ -251,3 +251,8 @@ export const DISPLAY_USER_TYPE_OPTIONS = [
     value: '2',
   },
 ];
+
+export const DISPLAY_RC_TITLE_STYLE = [
+  { icon: 'align_vertical_top1', value: '0', text: _l('顶对齐') },
+  { icon: 'align_vertical_center', value: '1', text: _l('居中对齐') },
+];

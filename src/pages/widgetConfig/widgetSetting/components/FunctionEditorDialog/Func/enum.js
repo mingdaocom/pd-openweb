@@ -3,8 +3,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
-import { calcDate, countChar } from 'worksheet/util-purejs';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { calcDate, countChar } from 'src/utils/common';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);

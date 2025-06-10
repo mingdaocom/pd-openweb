@@ -718,7 +718,7 @@ export default class Approval extends Component {
 
         <Checkbox
           className="mTop15 flexRow"
-          text={_l('否决')}
+          text={_l('拒绝')}
           checked={!_.includes(data.operationTypeList, -5)}
           onClick={checked => this.switchApprovalSettings(checked, -5)}
         />
@@ -748,18 +748,7 @@ export default class Approval extends Component {
             {data.isCallBack && (
               <div className="flowBackBox Font12 mTop10">
                 <div>
-                  <span className="Gray_75 mRight5">{_l('处理完成后')}</span>
-                  {data.callBackType === 0 && _l('重新执行流程')}
-                  {data.callBackType === 1
-                    ? data.callBackMultipleLevel === 1
-                      ? _l('直接返回退回的层级')
-                      : _.includes([0, 11], data.multipleLevelType)
-                        ? _l('直接返回审批节点')
-                        : _l('返回此节点的第一级')
-                    : ''}
-                </div>
-                <div className="mTop4">
-                  <span className="Gray_75 mRight5">{_l('允许退回的节点')}</span>
+                  <span className="Gray_75 mRight5">{_l('可退回到的节点')}</span>
                   {data.callBackNodeType === 0 && (
                     <Fragment>
                       {data.callBackNodes.map(o => Object.values(o)).join('、') || _l('无可退回的节点')}
@@ -772,6 +761,17 @@ export default class Approval extends Component {
                       .filter(o => _.includes(data.callBackNodeIds, Object.keys(o)[0]))
                       .map(o => Object.values(o))
                       .join('、')}
+                </div>
+                <div className="mTop4">
+                  <span className="Gray_75 mRight5">{_l('被退回的节点重新提交时')}</span>
+                  {data.callBackType === 0 && _l('重新执行流程')}
+                  {data.callBackType === 1
+                    ? data.callBackMultipleLevel === 1
+                      ? _l('直接返回退回的层级')
+                      : _.includes([0, 11], data.multipleLevelType)
+                        ? _l('直接返回审批节点')
+                        : _l('返回此节点的第一级')
+                    : ''}
                 </div>
                 <Icon
                   type="edit"
@@ -1075,7 +1075,7 @@ export default class Approval extends Component {
           title={_l('启用邮件通知')}
           desc={
             <span>
-              {_l('启用后，待办消息同时会以邮件的形式发送给相关负责人。')}
+              {_l('启用后，待办通知、催办和限时处理提醒同时会以邮件的形式发送给相关负责人。')}
               {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
                 _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
             </span>
@@ -1354,8 +1354,8 @@ export default class Approval extends Component {
 
                   <ButtonName
                     buttons={[
-                      { key: 'passBtnName', title: _l('通过按钮'), placeholder: _l('通过') },
-                      { key: 'overruleBtnName', title: _l('否决按钮'), placeholder: _l('否决') },
+                      { key: 'passBtnName', title: _l('同意按钮'), placeholder: _l('同意') },
+                      { key: 'overruleBtnName', title: _l('拒绝按钮'), placeholder: _l('拒绝') },
                       { key: 'returnBtnName', title: _l('退回按钮'), placeholder: _l('退回') },
                     ]}
                     data={data}

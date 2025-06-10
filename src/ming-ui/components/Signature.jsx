@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import Icon from './Icon';
-import styled from 'styled-components';
-import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import axios from 'axios';
-import { getToken } from 'src/util';
+import { get, isFunction, replace } from 'lodash';
+import * as SignaturePad from 'signature_pad/dist/signature_pad';
+import styled from 'styled-components';
 import accountSettingAjax from 'src/api/accountSetting';
+import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
+import { getToken } from 'src/utils/common';
+import Icon from './Icon';
 
 const SignatureBox = styled.div`
   width: 100%;
@@ -25,6 +27,18 @@ const SignatureBox = styled.div`
   .flexRow {
     align-items: center;
   }
+  .signatureFromMobile {
+    font-size: 12px;
+    color: #757575;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    .icon {
+      font-size: 16px;
+      margin-right: 6px;
+    }
+  }
 `;
 
 export default class Signature extends Component {
@@ -32,6 +46,7 @@ export default class Signature extends Component {
     isEdit: false,
     signature: '',
     key: '',
+    showButton: typeof this.props.showButton === 'undefined' ? true : this.props.showButton,
   };
 
   isComplete = true;
@@ -43,6 +58,7 @@ export default class Signature extends Component {
   }
 
   initCanvas = () => {
+    const { onBegin } = this.props;
     const canvas = document.getElementById('signatureCanvas');
 
     if (!canvas) return;
@@ -53,6 +69,9 @@ export default class Signature extends Component {
     this.signaturePad = new SignaturePad.default(canvas, {
       onBegin: () => {
         this.setState({ isEdit: true });
+        if (isFunction(onBegin)) {
+          onBegin();
+        }
       },
     });
   };
@@ -72,7 +91,7 @@ export default class Signature extends Component {
     return !isEdit && !signature;
   }
 
-  saveSignature = (callback = () => {}) => {
+  saveSignature = (callback = () => {}, { getTokenFn } = {}) => {
     const { signature, key } = this.state;
 
     if (signature) {
@@ -84,7 +103,7 @@ export default class Signature extends Component {
 
     this.isComplete = false;
 
-    getToken([{ bucket: 4, ext: '.png' }]).then(res => {
+    (getTokenFn || getToken)([{ bucket: 4, ext: '.png' }]).then(res => {
       if (res.error) {
         alert(res.error);
       } else {
@@ -99,8 +118,10 @@ export default class Signature extends Component {
           .then(({ data }) => {
             const { key = '' } = data || {};
 
-            accountSettingAjax.editSign({ url: res[0].url });
-            callback({ bucket: 4, key });
+            if (get(window, 'md.global.Account.accountId')) {
+              accountSettingAjax.editSign({ url: res[0].url });
+            }
+            callback({ bucket: 4, key, url: res[0].url });
             this.isComplete = true;
           });
       }
@@ -115,7 +136,8 @@ export default class Signature extends Component {
   };
 
   render() {
-    const { isEdit, signature } = this.state;
+    const { showUploadFromMobile, worksheetId, viewId, canvasStyle = {} } = this.props;
+    const { isEdit, signature, showButton } = this.state;
 
     return (
       <SignatureBox>
@@ -124,24 +146,50 @@ export default class Signature extends Component {
             <img src={signature} className="w100 h100" />
           </div>
         ) : (
-          <canvas id="signatureCanvas" className="signatureCanvas" />
+          <canvas id="signatureCanvas" className="signatureCanvas" style={canvasStyle} />
         )}
 
-        <div className="flexRow mTop10" style={{ minHeight: 20 }}>
-          {!md.global.Account.isPortal && (
-            <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.getSignature}>
-              {_l('使用上次签名')}
-            </span>
-          )}
+        {showButton && (
+          <div className="flexRow mTop10" style={{ minHeight: 20 }}>
+            {!md.global.Account.isPortal && (
+              <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.getSignature}>
+                {_l('使用上次签名')}
+              </span>
+            )}
+            {showUploadFromMobile && (
+              <GenScanUploadQr
+                worksheetId={worksheetId}
+                viewId={viewId}
+                type={2}
+                onScanResultUpdate={files => {
+                  if (get(files, '0.url')) {
+                    this.setState({
+                      isEdit: false,
+                      signature: get(files, '0.url'),
+                      key: replace(files[0].url.replace(/\?.*$/, ''), md.global.FileStoreConfig.pictureHost, ''),
+                    });
+                    if (get(window, 'md.global.Account.accountId')) {
+                      accountSettingAjax.editSign({ url: get(files, '0.url') });
+                    }
+                  }
+                }}
+              >
+                <div className="signatureFromMobile">
+                  <i className="icon icon-zendeskHelp-qrcode"></i>
+                  {_l('扫码签名')}
+                </div>
+              </GenScanUploadQr>
+            )}
 
-          <div className="flex" />
-          {(isEdit || !!signature) && (
-            <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.clear}>
-              <Icon icon="e-signature" className="Font16 mRight5" />
-              {_l('重新签名')}
-            </span>
-          )}
-        </div>
+            <div className="flex" />
+            {(isEdit || !!signature) && (
+              <span className="ThemeColor3 ThemeHoverColor2 pointer flexRow" onClick={this.clear}>
+                <Icon icon="e-signature" className="Font16 mRight5" />
+                {_l('重新签名')}
+              </span>
+            )}
+          </div>
+        )}
       </SignatureBox>
     );
   }

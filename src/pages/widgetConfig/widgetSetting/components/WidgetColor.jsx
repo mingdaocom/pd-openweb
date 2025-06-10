@@ -1,7 +1,20 @@
 import React from 'react';
-import { Icon, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
-import { getColorCountByBg } from 'src/util';
+import { ColorPicker, Icon } from 'ming-ui';
+
+/**
+ * 根据背景色判断文字颜色
+ * @param {string} backgroundColor - 背景色，格式为 '#RRGGBB'
+ * @returns {number} - 文字颜色判断值
+ */
+const getColorCountByBg = backgroundColor => {
+  const parseHex = hex => parseInt(hex, 16);
+  const [r, g, b] = [backgroundColor.slice(1, 3), backgroundColor.slice(3, 5), backgroundColor.slice(5, 7)].map(
+    parseHex,
+  );
+
+  return r * 0.299 + g * 0.587 + b * 0.114;
+};
 
 const SelectIcon = styled.div`
   width: 32px;

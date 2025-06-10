@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import { checkValueByFilterRegex } from '../../tools/formUtils';
 import MobileSearch from './MobileSearch';
 import { clearValue, getParamsByConfigs, getShowValue, handleUpdateApi } from './util';

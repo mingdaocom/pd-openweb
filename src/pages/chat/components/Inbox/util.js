@@ -1,7 +1,8 @@
-import { MSGTYPES, APPID, SOURCE_TYPE } from './constants';
-import { browserIsMobile } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import moment from 'moment';
+import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
+import { browserIsMobile } from 'src/utils/common';
+import { APPID, MSGTYPES, SOURCE_TYPE } from './constants';
+
 export const formatInboxItem = function (inboxItem) {
   const createUser = inboxItem.CreateUser || {};
   const { accountId, fullname, avatar } = createUser;

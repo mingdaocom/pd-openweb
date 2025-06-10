@@ -6,7 +6,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import ReacordItem from './RecordItem';
 
@@ -78,9 +78,15 @@ export default class RelateRecordList extends React.PureComponent {
   }
 
   handleEnter = () => {
-    const { onItemClick, onNewRecord } = this.props;
-    const { activeId, records } = this.state;
-    if (activeId === 'newRecord') {
+    const { allowNewRecord, onItemClick, onNewRecord } = this.props;
+    const { error, activeId, records, allowAdd } = this.state;
+    if (
+      records.length === 0 &&
+      allowNewRecord &&
+      allowAdd &&
+      !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')) &&
+      (!error || error === 'notCorrectCondition')
+    ) {
       onNewRecord();
       return;
     }
@@ -119,9 +125,6 @@ export default class RelateRecordList extends React.PureComponent {
     const newActiveRecord = records[currentIndex + offset];
     this.handleUpdateScroll(currentIndex + offset);
     if (!newActiveRecord) {
-      this.setState({
-        activeId: 'newRecord',
-      });
       return;
     }
     const newActiveId = newActiveRecord.rowid;

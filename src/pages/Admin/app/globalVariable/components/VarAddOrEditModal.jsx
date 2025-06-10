@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer, Select, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -231,6 +231,7 @@ export default function VarAddOrEditModal(props) {
   const [formData, setFormData] = useSetState(initFormData);
   const [authApps, setAuthApps] = useState([]);
   const [valueFocused, setValueFocused] = useState(false);
+  const inputRef = createRef();
 
   useEffect(() => {
     if (!_.isEmpty(defaultFormValue)) {
@@ -239,6 +240,13 @@ export default function VarAddOrEditModal(props) {
         setAuthApps(defaultFormValue.apps.filter(item => _.includes(defaultFormValue.appIds, item.appId)));
     }
   }, [defaultFormValue]);
+
+  useEffect(() => {
+    console.log(inputRef, 'inputRef');
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const onCloseAndClearData = () => {
     onClose();
@@ -404,6 +412,7 @@ export default function VarAddOrEditModal(props) {
 
   return (
     <VarDrawer
+      autoFocus={false}
       visible={visible}
       width={600}
       placement="right"
@@ -426,7 +435,12 @@ export default function VarAddOrEditModal(props) {
               <Icon icon="info_outline" className="Gray_bd mLeft8 pointer" />
             </Tooltip>
           </div>
-          <Input disabled={isEdit} value={formData.name} onChange={name => setFormData({ name })} />
+          <Input
+            disabled={isEdit}
+            manualRef={inputRef}
+            value={formData.name}
+            onChange={name => setFormData({ name })}
+          />
         </FormItem>
         <FormItem>
           <div className="labelText">

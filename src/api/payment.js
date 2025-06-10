@@ -275,6 +275,18 @@ export default {
      return mdyAPI('Payment', 'DeleteMerchant', args, options);
    },
   /**
+  * 删除订单
+  * @param {Object} args 请求参数
+  * @param {string} args.orderId 订单ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deletePayOrder: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'DeletePayOrder', args, options);
+   },
+  /**
   * 获取订单汇总
   * @param {Object} args 请求参数
   * @param {string} args.startDate 开始时间
@@ -491,6 +503,7 @@ export default {
   * @param {string} args.appId AppId
   * @param {string} args.projectId
   * @param {string} args.viewId
+  * @param {boolean} args.isOtherPayment 是否他人付款
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

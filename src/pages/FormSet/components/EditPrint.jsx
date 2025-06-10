@@ -1,34 +1,24 @@
 import React from 'react';
-import { Icon, Checkbox, Menu, MenuItem, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import './editPrint.less';
-import createUploader from 'src/library/plupload/createUploader';
-import { getUrlByBucketName, getFeatureStatus } from 'src/util';
+import { Button, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
-import sheetAjax from 'src/api/worksheet';
-import RegExpValidator from 'src/util/expression';
-import { VersionProductType } from 'src/util/enum';
 import attachmentAjax from 'src/api/attachment';
+import sheetAjax from 'src/api/worksheet';
+import createUploader from 'src/library/plupload/createUploader';
 import { createEditFileLink } from 'src/pages/UploadTemplateSheet/utils';
+import { VersionProductType } from 'src/utils/enum';
+import RegExpValidator from 'src/utils/expression';
+import { getFeatureStatus } from 'src/utils/project';
+import PrintTemSetting from './PrintTemSetting';
+import './editPrint.less';
 
 const SUFFIX = {
   Word: 'docx',
   Excel: 'xlsx',
 };
 
-const AJAX_URL = {
-  Word: 'Word',
-  Excel: 'Xlsx',
-};
-
-const EXPORT_URL = {
-  UploadWord: '/ExportWord/UploadWord',
-  UploadExcel: '/ExportXlsx/UploadXlsx',
-  CreateWord: '/ExportWord/CreateWord',
-  CreateExcel: '/ExportXlsx/CreateXlsx',
-};
+const EDIT_PRINT_URL = '/PrintTemplate/EditPrint';
 
 const EDIT_OPTIONS = [
   {
@@ -41,7 +31,6 @@ const EDIT_OPTIONS = [
   },
 ];
 
-@withClickAway
 class EditPrint extends React.Component {
   constructor(props) {
     super(props);
@@ -63,6 +52,8 @@ class EditPrint extends React.Component {
       createEditLoading: false,
       allowEditAfterPrint: false,
       featureType: getFeatureStatus(props.projectId, VersionProductType.editAttachment),
+      advanceSettings: [],
+      createType: undefined,
     };
     this.con = React.createRef();
   }
@@ -72,7 +63,11 @@ class EditPrint extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (nextProps.templateId !== this.props.templateId || nextProps.fileType !== this.props.fileType) {
+    if (
+      nextProps.templateId !== this.props.templateId ||
+      nextProps.fileType !== this.props.fileType ||
+      !_.isEqual(nextProps.templateData, this.props.templateData)
+    ) {
       this.uploaderDestroy();
       this.setData(nextProps);
     }
@@ -89,13 +84,16 @@ class EditPrint extends React.Component {
   }
 
   setData = nextProps => {
-    const { fileType, templateData = {} } = nextProps || this.props;
+    const { fileType, templateData = {}, worksheetName, type } = nextProps || this.props;
+
     this.setState({
-      templateName: templateData.name,
+      templateName: templateData.name || worksheetName,
       fileName: templateData.formName,
-      hasChange: false,
+      hasChange: !!this.state.createType,
       allowDownloadPermission: templateData.allowDownloadPermission || 0,
       allowEditAfterPrint: templateData.allowEditAfterPrint || false,
+      advanceSettings: templateData.advanceSettings || [],
+      isCreate: type !== 'edit',
     });
 
     this.createUploader(fileType);
@@ -122,6 +120,12 @@ class EditPrint extends React.Component {
       this.uploader.destroy();
     }
   };
+
+  refreshUploader = () => {
+    this.uploaderDestroy();
+    this.createUploader(this.props.fileType);
+  };
+
   /**
    * 创建上传
    */
@@ -151,25 +155,26 @@ class EditPrint extends React.Component {
         },
         FilesAdded: (up, file) => {
           up.setOption('auto_start', true);
+          up.disableBrowse();
         },
         UploadProgress: (uploader, file) => {
           this.setState({ loading: true, suc: false, loadPer: file.percent });
         },
         FileUploaded: (up, file, info) => {
-          const { bucket, key, fsize } = info.response;
+          const { key } = info.response;
           this.setState(
             {
               loading: false,
               suc: true,
               loadPer: file.percent,
-              url: getUrlByBucketName(bucket) + key,
+              url: md.global.FileStoreConfig.documentHost + key,
               key: key,
               file: file,
+              createType: undefined,
             },
-            () => {
-              this.onOk();
-            },
+            this.refreshUploader,
           );
+          up.disableBrowse(false);
         },
         Error: (up, err, errTip) => {
           this.setState({
@@ -191,132 +196,71 @@ class EditPrint extends React.Component {
     this.setState({ bindCreateUpload: true });
   }
 
-  editDownload = (key = 'allowDownloadPermission') => {
-    const { hasChange } = this.state;
-    const value = !this.state[key];
-    this.setState(
-      {
-        [key]: key === 'allowDownloadPermission' ? Number(value) : Boolean(value),
-        allowDownloadChange: true,
-      },
-      () => {
-        if (!hasChange && !!this.props.templateId) this.onOk(false);
-      },
-    );
-  };
+  onOk = async () => {
+    const { fileName, createType, key, templateName, allowDownloadPermission, allowEditAfterPrint, advanceSettings } =
+      this.state;
+    const { worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word', onClose } = this.props;
 
-  onOk = async (closeFlag = true) => {
-    const { fileName, hasChange, allowDownloadPermission, allowDownloadChange, allowEditAfterPrint } = this.state;
-    const {
-      onClose,
-      worksheetId,
-      downLoadUrl,
-      templateId,
-      refreshFn,
-      fileType = 'Word',
-      appId,
-      updatePrint,
-    } = this.props;
-
-    if (allowDownloadChange && templateId) {
-      sheetAjax
-        .editTemplateDownloadPermission({
-          id: templateId,
-          allowDownloadPermission,
-          allowEditAfterPrint,
-        })
-        .then(res => {
-          if (!hasChange) {
-            closeFlag && onClose();
-            updatePrint(templateId, { allowDownloadPermission, allowEditAfterPrint });
-          }
-        });
-    }
-    if (!hasChange) {
-      return;
-    }
-    let ajaxUrl;
+    this.setState({ saveLoading: true });
     let option;
     //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
     const token = await appManagementAjax.getToken({
       worksheetId: worksheetId || templateId,
       tokenType: 5,
     });
-    if (templateId) {
-      ajaxUrl = downLoadUrl + EXPORT_URL[`Upload${fileType}`];
-      option = {
-        id: templateId,
-        accountId: md.global.Account.accountId,
-        doc: this.state.key,
-        name: fileName,
-        token,
-      };
-    } else {
-      ajaxUrl = downLoadUrl + EXPORT_URL[`Create${fileType}`];
-      option = {
-        worksheetId: worksheetId,
-        accountId: md.global.Account.accountId,
-        doc: this.state.key,
-        name: fileName,
-        token,
-        appId,
-      };
-    }
+
+    option = {
+      token,
+      worksheetId,
+      accountId: md.global.Account.accountId,
+      doc: key || undefined,
+      fileName,
+      id: templateId,
+      type: fileType === 'Word' ? 2 : 5,
+      createType,
+      name: templateName,
+      allowDownloadPermission,
+      allowEditAfterPrint,
+      advanceSettings,
+    };
+
     window
       .mdyAPI('', '', option, {
         ajaxOptions: {
-          url: ajaxUrl,
-          header: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+          url: downLoadUrl + EDIT_PRINT_URL,
         },
-        customParseResponse: true,
       })
       .then(res => {
-        if (res.status !== 1) {
-          alert(res.message, 2);
-          this.setState({ error: true });
-          this.uploaderDestroy();
-          this.createUploader(this.props.fileType);
+        if (res) {
+          refreshFn();
+          onClose();
+          alert(templateId ? _l('修改成功') : _l('添加成功'));
         } else {
-          if (!templateId && res.data) {
-            this.setState({ templateId: res.data });
-
-            sheetAjax
-              .editTemplateDownloadPermission({
-                id: res.data,
-                allowDownloadPermission,
-                allowEditAfterPrint,
-              })
-              .then(res => {
-                if (res) {
-                  refreshFn();
-                  alert(_l('添加成功'));
-                  return;
-                }
-              });
-          } else {
-            refreshFn();
-            alert(templateId ? _l('修改成功') : _l('添加成功'));
-          }
+          alert(templateId ? _l('修改失败') : _l('添加失败'), 2);
+          this.setState({ error: true, saveLoading: false });
+          this.refreshUploader();
         }
       });
   };
 
   onCreateEdit = item => {
-    const { worksheetId, downLoadUrl, fileType = 'Word', refreshFn, appId } = this.props;
-    const { allowDownloadPermission, allowEditAfterPrint } = this.state;
+    const { worksheetId, downLoadUrl, fileType = 'Word', refreshFn } = this.props;
+    const { allowDownloadPermission, allowEditAfterPrint, templateName, advanceSettings } = this.state;
 
-    this.setState({ createEditLoading: true, popupVisible: false });
+    this.setState({ createEditLoading: true, popupVisible: false, createType: item.value });
     createEditFileLink({
       worksheetId,
       downLoadUrl,
-      allowDownloadPermission,
-      allowEditAfterPrint,
-      fileType: AJAX_URL[fileType],
-      type: item.value,
-      editTemplateDownloadPermission: true,
-      appId,
+      type: fileType === 'Word' ? 2 : 5,
+      createType: item.value,
+      name: templateName,
+      params: {
+        doc: undefined,
+        fileName: undefined,
+        allowDownloadPermission,
+        allowEditAfterPrint,
+        advanceSettings,
+      },
       createCompleted: id => {
         this.setState({ createEditLoading: false });
         refreshFn(true, id);
@@ -338,8 +282,62 @@ class EditPrint extends React.Component {
       })
       .then(res => {
         if (res.wpsEditUrl) window.open(res.wpsEditUrl);
-        this.setState({ createEditLoading: false });
+        this.setState({ createEditLoading: false, hasChange: true });
       });
+  };
+
+  onChange = value => this.setState(value);
+
+  getDisabledOkBtn = () => {
+    const {
+      loading,
+      fileName,
+      templateName,
+      hasChange,
+      allowDownloadPermission,
+      error,
+      allowEditAfterPrint,
+      advanceSettings,
+      saveLoading,
+    } = this.state;
+    const { templateData } = this.props;
+
+    return (
+      (!hasChange &&
+        _.isEqual(_.pick(templateData, ['name', 'allowDownloadPermission', 'allowEditAfterPrint', 'advanceSettings']), {
+          name: templateName,
+          allowDownloadPermission,
+          allowEditAfterPrint,
+          advanceSettings,
+        })) ||
+      loading ||
+      !fileName ||
+      !templateName ||
+      !!error ||
+      !!saveLoading ||
+      (_.get(
+        advanceSettings.find(l => l.key === 'export_type'),
+        'value',
+      ) === '1' &&
+        !_.get(
+          advanceSettings.find(l => l.key === 'export_name'),
+          'value',
+        ))
+    );
+  };
+
+  handleClose = () => {
+    const { isCreate } = this.state;
+    const { templateId, onClose, refreshFn } = this.props;
+
+    if (isCreate && templateId) {
+      sheetAjax.deletePrint({ id: templateId }).then(res => {
+        res && refreshFn();
+      });
+      return;
+    }
+
+    onClose();
   };
 
   renderEditFileBtn = () => {
@@ -403,18 +401,32 @@ class EditPrint extends React.Component {
       hasChange,
       allowDownloadPermission,
       error,
-      createEditLoading,
       allowEditAfterPrint,
       featureType,
+      advanceSettings,
+      isCreate,
     } = this.state;
-    const { onClose, worksheetId, downLoadUrl, templateId, fileType = 'Word', roleType } = this.props;
+    const {
+      onClose,
+      worksheetId,
+      downLoadUrl,
+      templateId,
+      fileType = 'Word',
+      roleType,
+      controls,
+      projectId,
+      templateData,
+      exampleData,
+      updateExampleData,
+    } = this.props;
 
     const isAdmin = roleType === 2;
+    const disabledOkBtn = this.getDisabledOkBtn();
 
     return (
       <div className="editPrint upload flexColumn h100">
-        <h5 className="title overflow_ellipsis">
-          {templateId ? _l('编辑模板: %0', templateName) : _l('新建模板')}
+        <h5 className="tempTitle overflow_ellipsis">
+          {templateId && !isCreate ? _l('编辑模板: %0', _.get(templateData, 'name')) : _l('新建模板')}
           <Icon
             icon="clear_1"
             className="closeBtnN"
@@ -465,12 +477,7 @@ class EditPrint extends React.Component {
                       <span
                         className="downLoad"
                         onClick={() => {
-                          let ajaxUrl;
-                          let option;
-                          ajaxUrl = downLoadUrl + '/ExportWord/DownloadWord';
-                          option = {
-                            id: templateId,
-                          };
+                          let ajaxUrl = downLoadUrl + '/ExportWord/DownloadWord';
                           const exportDocument = document;
                           const form = exportDocument.createElement('form');
                           const hiddenField = exportDocument.createElement('input');
@@ -517,7 +524,6 @@ class EditPrint extends React.Component {
                 <React.Fragment>
                   <span className="lineBox">
                     <span className="line" style={{ width: `${loadPer}%` }}></span>
-                    {/* <span className="text">{_l('上传中…')}</span> */}
                   </span>
                   <span className="per">{loadPer}%</span>
                   <Icon
@@ -541,25 +547,27 @@ class EditPrint extends React.Component {
                 </React.Fragment>
               )}
             </p>
-            <div className="checkBoxCon">
-              <Checkbox
-                className="Font14 mTop18"
-                onClick={() => this.editDownload()}
-                checked={!allowDownloadPermission}
-              >
-                {_l('允许成员下载打印文件')}
-              </Checkbox>
-              {md.global.Config.EnableDocEdit !== false && (
-                <Checkbox
-                  className="Font14 mTop18"
-                  onClick={() => this.editDownload('allowEditAfterPrint')}
-                  checked={allowEditAfterPrint}
-                >
-                  {_l('允许编辑后再打印')}
-                </Checkbox>
-              )}
-            </div>
+            <PrintTemSetting
+              controls={controls}
+              projectId={projectId}
+              worksheetId={worksheetId}
+              exampleData={exampleData}
+              templateName={templateName}
+              advanceSettings={advanceSettings}
+              allowEditAfterPrint={allowEditAfterPrint}
+              allowDownloadPermission={allowDownloadPermission}
+              onChange={this.onChange}
+              updateExampleData={updateExampleData}
+            />
           </div>
+        </div>
+        <div className="btnWrap">
+          <Button size="mdbig" disabled={disabledOkBtn} onClick={this.onOk}>
+            {_l('确定')}
+          </Button>
+          <Button size="mdbig" type="ghost" onClick={this.handleClose}>
+            {_l('取消')}
+          </Button>
         </div>
       </div>
     );

@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon, MdLink, Tooltip } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import './ViewItems.less';
-import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, MdLink, Tooltip } from 'ming-ui';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
+import { getTranslateInfo } from 'src/utils/app';
 import SettingMenu from './SettingMenu';
+import './ViewItems.less';
+import 'rc-trigger/assets/index.css';
+
 export default class Item extends Component {
   static defaultProps = {
     item: {},
@@ -136,8 +137,8 @@ export default class Item extends Component {
                 customViewDebugUrl
                   ? _l('开发调试中，本地脚本: %0', customViewDebugUrl)
                   : codeUrl
-                  ? _l('视图插件调试中，使用的是提交历史中的版本。')
-                  : _l('视图插件调试中')
+                    ? _l('视图插件调试中，使用的是提交历史中的版本。')
+                    : _l('视图插件调试中')
               }
             >
               <i className="developIcon icon icon-setting"></i>

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
+import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
 import EmptyStatus from '../EmptyStatus';
-import { handlePushState, handleReplaceState } from 'src/util';
+
 const processList = [
   { key: 'waitingApproval', icon: 'stamp', text: _l('审批'), tab: 'waitingApproval' },
   { key: 'waitingWrite', icon: 'fill', text: _l('填写'), tab: 'waitingWrite' },

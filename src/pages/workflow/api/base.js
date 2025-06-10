@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 export const controllerName = 'Workflow';
 
 export default {

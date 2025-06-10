@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dropdown, LoadDiv, Radio, Checkbox } from 'ming-ui';
 import cx from 'classnames';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  CustomTextarea,
-  SpecificFieldsValue,
-  SingleControlValue,
-  PromptSound,
-  Member,
-  SelectUserDropDown,
-} from '../components';
-import { PUSH_TYPE, PUSH_LIST, APP_TYPE, ACTION_ID } from '../../enum';
-import homeApp from 'src/api/homeApp';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import homeApp from 'src/api/homeApp';
+import { ACTION_ID, APP_TYPE, PUSH_LIST, PUSH_TYPE } from '../../enum';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  Member,
+  PromptSound,
+  SelectUserDropDown,
+  SingleControlValue,
+  SpecificFieldsValue,
+} from '../components';
 import OpenActionContent from './OpenActionContent';
 
 const MsgTypeBtn = styled.div`
@@ -342,10 +342,10 @@ export default class Push extends Component {
           {data.pushType === PUSH_TYPE.ALERT
             ? _l('在顶部显示并自动消失。用于一句话的简短提示')
             : data.pushType === PUSH_TYPE.NOTIFICATION
-            ? _l('在底部显示并可设为不自动消失。可包含标题、描述、按钮，适合较多文字或带有操作的通知')
-            : _l(
-                '触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个',
-              )}
+              ? _l('在底部显示并可设为不自动消失。可包含标题、描述、按钮，适合较多文字或带有操作的通知')
+              : _l(
+                  '触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个',
+                )}
         </div>
 
         <div className="Font13 bold mTop20">{_l('推送内容')}</div>
@@ -691,7 +691,7 @@ export default class Push extends Component {
           </div>
         )}
 
-        {data.duration !== 0 && (
+        {(data.duration !== 0 || data.pushType === PUSH_TYPE.ALERT) && (
           <div className="flexRow mTop10 alignItemsCenter">
             <div className="flex">
               <SpecificFieldsValue

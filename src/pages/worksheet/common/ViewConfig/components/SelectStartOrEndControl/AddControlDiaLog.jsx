@@ -1,13 +1,14 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import WidgetBase from 'src/pages/widgetConfig/widgetSetting/components/WidgetBase';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
+import { v4 as uuidv4 } from 'uuid';
 import { Dialog } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
-import _ from 'lodash';
+import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import WidgetBase from 'src/pages/widgetConfig/widgetSetting/components/WidgetBase';
+import './index.less';
 
 const Wrap = styled.div(
   ({ height }) => `

@@ -47,6 +47,7 @@ export default function AppSettingHeader(props) {
     needUpgrade,
     description,
     extraElement,
+    extraTitleElement,
     link,
     customBtn,
     handleSearch = () => {},
@@ -56,7 +57,10 @@ export default function AppSettingHeader(props) {
   return (
     <HeaderWrap className={warpClassName}>
       <div className="flexRow alignItemsCenter content">
-        <div className="Font17 bold flex">{title}</div>
+        <div className="Font17 bold flex">
+          <span>{title}</span>
+          {extraTitleElement && <Fragment>{extraTitleElement}</Fragment>}
+        </div>
         {extraElement && <Fragment>{extraElement}</Fragment>}
         {showSearch && (
           <div className="searchWrap">
@@ -94,6 +98,7 @@ AppSettingHeader.propTypes = {
   needUpgrade: bool,
   description: string,
   extraElement: any,
+  extraTitleElement: any,
   handleAdd: func,
   link: string,
   customBtn: element, // 自定义添加按钮

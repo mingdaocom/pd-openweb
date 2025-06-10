@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { dialogEditWorksheet } from 'src/pages/widgetConfig';
-import { WIDGETS_TO_API_TYPE_ENUM, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import sheetAjax from 'src/api/worksheet';
 import { getVisibleControls } from 'src/pages/Print/util';
-import { LINE_HEIGHT, NODE_WIDTH, HIDE_FIELDS } from '../../utils';
-import { iconSvg } from '../../config';
-import { getTranslateInfo } from 'src/util';
+import { dialogEditWorksheet } from 'src/pages/widgetConfig';
+import { DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference/index';
+import { getTranslateInfo } from 'src/utils/app';
+import { iconSvg } from '../../config';
+import { HIDE_FIELDS, LINE_HEIGHT, NODE_WIDTH } from '../../utils';
 import './index.less';
 
 const TIPS = [_l('焦点'), _l('编辑表单')];
@@ -84,7 +84,6 @@ export default function CustomErNode(props) {
       globalSheetInfo: {
         appId,
         worksheetId: item.worksheetId,
-        name: item.worksheetName,
         worksheetList: data.list,
         name: worksheetName,
       },

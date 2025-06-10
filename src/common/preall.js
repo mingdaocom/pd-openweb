@@ -6,7 +6,7 @@ import accountSetting from 'src/api/accountSetting';
 import global from 'src/api/global';
 import { resetPortalUrl } from 'src/pages/AuthService/portalAccount/util.js';
 import { navigateTo, navigateToLogin, navigateToLogout, redirect } from 'src/router/navigateTo';
-import { getPssId, setPssId } from 'src/util/pssId';
+import { getPssId, setPssId } from 'src/utils/pssId';
 
 /** 存储分发类入口 状态 和 分享id */
 const parseShareId = () => {

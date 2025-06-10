@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Dialog from 'ming-ui/components/Dialog/Dialog';
+import PropTypes from 'prop-types';
+import { Checkbox, Dialog } from 'ming-ui';
 
 export default class PrintOptDialog extends Component {
   static propTypes = {
@@ -184,17 +184,15 @@ export default class PrintOptDialog extends Component {
       <div className="controlOption mBottom32">
         <span className="Block Font13 Gray_9e mBottom16">{`${_l('流程中的节点内容')}`}</span>
         {workflow.map(item => (
-          <div
-            className="controlOptionItem mBottom15 InlineBlock pointer"
+          <Checkbox
+            className="controlOptionItem mBottom15"
             key={item.flowNode.id}
-            title={item.flowNode.name}
+            text={item.flowNode.name}
+            checked={item.show}
             onClick={() => {
               this.toggleWorkflowCheckItem(item.flowNode.id);
             }}
-          >
-            <input type="checkbox" onChange={() => {}} checked={item.show} className="TxtMiddle" />
-            <span className="TxtMiddle">{item.flowNode.name}</span>
-          </div>
+          />
         ))}
       </div>
     );
@@ -205,17 +203,15 @@ export default class PrintOptDialog extends Component {
       <div className="controlOption mBottom32">
         <span className="Block Font13 Gray_9e mBottom16">{_l('任务')}</span>
         {task.map(item => (
-          <div
-            className="controlOptionItem mBottom15 InlineBlock pointer"
+          <Checkbox
+            className="controlOptionItem mBottom15"
             key={item.key}
-            title={item.name}
+            text={item.name}
+            checked={item.show}
             onClick={() => {
               this.toggleTaskCheckItem(item.key);
             }}
-          >
-            <input type="checkbox" onChange={() => {}} checked={item.show} className="TxtMiddle" />
-            <span className="TxtMiddle">{item.name}</span>
-          </div>
+          />
         ))}
       </div>
     );
@@ -287,29 +283,22 @@ export default class PrintOptDialog extends Component {
               .map(
                 (item, index) =>
                   !item.printHide && (
-                    <div
-                      className="controlOptionItem mBottom15 InlineBlock pointer"
+                    <Checkbox
+                      className="controlOptionItem mBottom15"
                       key={index}
-                      title={item.type === 22 ? _l('分段') : item.controlName}
+                      text={item.type === 22 ? (item.controlName ? item.controlName : _l('分段')) : item.controlName}
+                      checked={this.state.controlOption.indexOf(item.controlId) > -1}
                       onClick={() => {
                         this.toggleCheckItem(item.controlId);
                       }}
-                    >
-                      <input
-                        type="checkbox"
-                        onChange={() => {}}
-                        checked={this.state.controlOption.indexOf(item.controlId) > -1}
-                        className="TxtMiddle"
-                      />
-                      <span className="TxtMiddle">
-                        {item.type === 22 ? (item.controlName ? item.controlName : _l('分段')) : item.controlName}
-                      </span>
-                    </div>
+                    />
                   ),
               )}
             {this.props.worksheetId && (
-              <div
-                className="controlOptionItem mBottom15 InlineBlock pointer"
+              <Checkbox
+                className="controlOptionItem mBottom15"
+                text={_l('二维码')}
+                checked={options.showWorkflowQrCode}
                 onClick={() => {
                   this.setState({
                     options: Object.assign({}, options, {
@@ -317,10 +306,7 @@ export default class PrintOptDialog extends Component {
                     }),
                   });
                 }}
-              >
-                <input type="checkbox" onChange={() => {}} checked={options.showWorkflowQrCode} />
-                <span className="TxtMiddle">{_l('二维码')}</span>
-              </div>
+              />
             )}
             <div className="formDetailEvaluate">
               {this.state.reqInfo.formControls &&
@@ -328,41 +314,23 @@ export default class PrintOptDialog extends Component {
                   (formControlItem, index) =>
                     formControlItem.tempControls.filter(item => item.needEvaluate).length > 0 &&
                     formControlItem.tempControls.filter(item => !item.printHide).length > 0 && (
-                      <div
-                        className="controlOptionItem mBottom15 InlineBlock pointer"
+                      <Checkbox
+                        className="controlOptionItem mBottom15"
                         key={index}
-                        title={
+                        text={
                           this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId).length >
                             0 &&
                           this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId)[0]
                             .controlName + '统计'
                         }
+                        checked={this.state.controlOption.indexOf('formDetailEvaluate-' + formControlItem.formId) > -1}
                         onClick={() => {
                           this.toggleCheckItem('formDetailEvaluate-' + formControlItem.formId);
                         }}
-                      >
-                        <input
-                          type="checkbox"
-                          onChange={() => {}}
-                          checked={
-                            this.state.controlOption.indexOf('formDetailEvaluate-' + formControlItem.formId) > -1
-                          }
-                          className="TxtMiddle"
-                        />
-                        <span className="TxtMiddle">
-                          {this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId)
-                            .length > 0 &&
-                            this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId)[0]
-                              .controlName + '统计'}
-                        </span>
-                      </div>
+                      />
                     ),
                 )}
             </div>
-            {/*<div className="controlOptionItem allSelect pointer mTop10 Gray_9e" onClick={this.toggleCheckAll}>
-              <input type="checkbox" className="TxtMiddle" checked={this.state.printCheckAll} />
-              <span className="TxtMiddle">{_l('全部')}</span>
-            </div>*/}
           </div>
         )}
         {this.props.type === 'hr' && this.renderApprovalFlow()}

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import account from 'src/api/account';
-import { Dialog, VerifyPasswordInput } from 'ming-ui';
-import { encrypt } from 'src/util';
-import { captcha } from 'ming-ui/functions';
-import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
+import { Dialog, VerifyPasswordInput } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
+import account from 'src/api/account';
+import { encrypt } from 'src/utils/common';
+import './index.less';
 
 export default class ValidPassWord extends Component {
   constructor() {

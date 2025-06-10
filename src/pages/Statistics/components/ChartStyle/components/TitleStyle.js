@@ -51,7 +51,7 @@ const alignTypes = [
 const TitleStyle = props => {
   const { name, type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
   const { currentReport = {}, changeCurrentReport } = props;
-  const { displaySetup = {} } = currentReport;
+  const { displaySetup = {}, yaxisList = [] } = currentReport;
   const pivotTableStyle = replaceColor({
     pivotTableStyle: style.pivotTableStyle || defaultPivotTableStyle,
     customPageConfig: {},
@@ -163,12 +163,27 @@ const TitleStyle = props => {
               className="mLeft0"
               checked={displaySetup.mergeCell}
               onChange={e => {
-                changeCurrentReport({
+                const { pivotTable = {} } = currentReport;
+                const param = {
                   displaySetup: {
                     ...displaySetup,
                     mergeCell: e.target.checked,
                   },
-                });
+                  pivotTable
+                }
+                if (!e.target.checked) {
+                  const { lines = [] } = pivotTable;
+                  const newLines = lines.map((n, index) => {
+                    return index ? { ...n, subTotal: false } : n;
+                  });
+                  if (!newLines.filter(n => n.subTotal).length) {
+                    param.yaxisList = yaxisList.map(n => {
+                      return { ...n, showPercent: 0 }
+                    });
+                  }
+                  param.pivotTable.lines = newLines;
+                }
+                changeCurrentReport(param, true);
               }}
             >
               {_l('合并单元格')}

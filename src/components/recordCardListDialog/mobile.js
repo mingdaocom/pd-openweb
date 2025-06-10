@@ -10,12 +10,14 @@ import sheetAjax from 'src/api/worksheet';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
+import { getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
 import RecordCard from 'src/components/recordCard';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import { handlePushState, handleReplaceState } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { fieldCanSort } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+import { compatibleMDJS, handlePushState, handleReplaceState } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import MobileFilter from './MobileFilter';
 import './mobile.less';
 
@@ -72,7 +74,16 @@ export default class RecordCardListDialog extends Component {
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
   }
   componentDidMount() {
-    const { control, keyWords, parentWorksheetId, staticRecords = [] } = this.props;
+    const {
+      control,
+      keyWords,
+      parentWorksheetId,
+      staticRecords = [],
+      filterRowIds,
+      onOk = () => {},
+      onClose = () => {},
+    } = this.props;
+
     if (!_.isEmpty(staticRecords)) {
       this.setState({ list: staticRecords, loading: false });
       return;
@@ -146,18 +157,21 @@ export default class RecordCardListDialog extends Component {
       recordId,
       controlId,
       multiple,
-      control,
+      control = {},
       formData,
       getDataType,
       relationRowIds = [],
       isScan,
       fastSearchControlArgs,
       isDraft,
+      onOk = () => {},
+      onClose = () => {},
+      handleReplaceHistoryState = () => {},
     } = this.props;
     const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch, ignoreAllFilters } = this.state;
     let getFilterRowsPromise, args;
     let filterControls;
-    if (control && control.advancedSetting.filters) {
+    if (control && _.get(control, 'advancedSetting.filters')) {
       if (worksheetInfo) {
         control.relationControls = worksheetInfo.template.controls;
       }
@@ -192,6 +206,7 @@ export default class RecordCardListDialog extends Component {
         'values',
         'minValue',
         'maxValue',
+        'advancedSetting',
       ]),
     );
     const fastFilters =
@@ -311,6 +326,39 @@ export default class RecordCardListDialog extends Component {
             if (!this.state.loadouted && filteredList.length < 8) {
               this.loadNext();
             }
+
+            if (window.isMingDaoApp && isScan && multiple) {
+              const firstRow = res.data && res.data.length ? res.data[0] : {};
+              if (filteredList.length > 1) {
+                // 终止扫码，用户手动选
+                compatibleMDJS('stopScanWithControls', { cid: controlId, cancel: () => {} });
+              } else if (filteredList.length === 1) {
+                const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
+                const nameValue = titleControl ? firstRow[titleControl.controlId] : undefined;
+                // 直接关联
+                onOk([firstRow]);
+                this.appScanCallback({
+                  controlId,
+                  enumDefault: control.enumDefault,
+                  controlName: control.controlName,
+                  title: getCurrentValue(titleControl, nameValue, { type: 2 }),
+                  rowId: firstRow.rowid,
+                });
+                onClose();
+                handleReplaceHistoryState();
+              } else {
+                this.appScanCallback({
+                  controlId,
+                  enumDefault: control.enumDefault,
+                  controlName: control.controlName,
+                  title: '',
+                  rowId: '',
+                  type: _.isEmpty(firstRow) ? '1' : '3',
+                });
+                onClose();
+                handleReplaceHistoryState();
+              }
+            }
           },
         );
       } else {
@@ -321,6 +369,30 @@ export default class RecordCardListDialog extends Component {
       }
     });
   }
+
+  // 关联记录关联成功将当前关联数据通过js sdk返回给APP
+  appScanCallback = ({ enumDefault, controlId, controlName, title, rowId, type, msg }) => {
+    if (enumDefault !== 2) {
+      return;
+    }
+    compatibleMDJS('scanRelationLoaded', {
+      cid: controlId,
+      cname: controlName,
+      relation: _.includes(['2', '3'], type)
+        ? {}
+        : {
+            title: title, //关联记录的标题, 注意转换为纯文本提供
+            rowId: rowId, //关联记录的Id
+          },
+      error: !type
+        ? undefined
+        : {
+            type, //"1": 无数据, "2": 不在关联范围内,
+            msg, // 对应描述
+          },
+    });
+  };
+
   loadNext() {
     this.setState(
       {
@@ -490,6 +562,14 @@ export default class RecordCardListDialog extends Component {
               placeholder={_l('搜索%0', this.title)}
               value={keyWords}
               onChange={e => {
+                if (this.isOnComposition) return;
+                this.handleSearch(e.target.value);
+              }}
+              onCompositionStart={() => (this.isOnComposition = true)}
+              onCompositionEnd={e => {
+                if (e.type === 'compositionend') {
+                  this.isOnComposition = false;
+                }
                 this.handleSearch(e.target.value);
               }}
             />
@@ -540,7 +620,7 @@ export default class RecordCardListDialog extends Component {
               className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10"
               onClick={() => this.setState({ filtersVisible: true })}
             >
-              <Icon className={cx('Font20 Gray_9e', { ThemeColor: quickFilters.length })} icon="filter" />
+              <Icon className={cx('Font20', { ThemeColor: quickFilters.length })} icon="filter" />
             </div>
             <MobileFilter
               filtersVisible={filtersVisible}

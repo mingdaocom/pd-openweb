@@ -1,19 +1,22 @@
-import React, { createRef, Component, Fragment } from 'react';
-import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import React, { Component, createRef, Fragment } from 'react';
+import { Tooltip } from 'antd';
 import { Popup } from 'antd-mobile';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import axios from 'axios';
 import cx from 'classnames';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import _, { get } from 'lodash';
+import Trigger from 'rc-trigger';
+import * as SignaturePad from 'signature_pad/dist/signature_pad';
+import styled from 'styled-components';
+import { Button } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { browserIsMobile, getToken, compatibleMDJS } from 'src/util';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import accountSettingAjax from 'src/api/accountSetting';
+import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
-import _ from 'lodash';
+import { browserIsMobile, getToken } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
+import 'rc-trigger/assets/index.css';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -64,10 +67,14 @@ const SignatureWrap = styled.div`
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.12),
+    0 0 2px rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.12),
+      0 0 2px rgba(0, 0, 0, 0.12);
     .remove {
       visibility: visible;
     }
@@ -90,8 +97,52 @@ const Footer = styled.div`
     color: #9e9e9e;
     cursor: pointer;
   }
-  .lastSignature {
-    margin: 0 auto 0 0;
+  .signatureFromMobile {
+    font-size: 12px;
+    color: #9e9e9e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    cursor: pointer;
+    &.showLast {
+      margin-left: 10px;
+    }
+    &:hover {
+      color: #757575;
+    }
+    .icon {
+      font-size: 16px;
+      margin-right: 6px;
+    }
+  }
+`;
+
+const ButtonsCon = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const GrayButton = styled.div`
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-weight: bold;
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  &.iconButton {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
@@ -211,6 +262,7 @@ export default class Signature extends Component {
             if (window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) {
               this.props.onChange(res[0].url);
             } else {
+              if (!get(window, 'md.global.Account.accountId')) return;
               accountSettingAjax.editSign({ url: res[0].url }).then(result => {
                 if (result) {
                   this.props.onChange(res[0].url);
@@ -305,16 +357,38 @@ export default class Signature extends Component {
   };
 
   renderFooter() {
-    const { advancedSetting: { uselast } = {} } = this.props;
+    const { worksheetId, controlId, recordId, viewIdForPermit, advancedSetting: { uselast } = {} } = this.props;
     const { isEdit } = this.state;
-
+    const showLast =
+      uselast === '1' && !(window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord'));
     return (
       <Footer>
-        {uselast === '1' && !(window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) && (
+        {showLast && (
           <div className="ThemeColor3 ThemeHoverColor2 pointer lastSignature" onClick={this.useLastSignature}>
             {_l('使用上次签名')}
           </div>
         )}
+        <GenScanUploadQr
+          worksheetId={worksheetId}
+          viewId={viewIdForPermit}
+          controlId={controlId}
+          rowId={recordId}
+          type={2}
+          onScanResultUpdate={files => {
+            if (get(files, '0.url')) {
+              this.props.onChange(get(files, '0.url'));
+              if (get(window, 'md.global.Account.accountId')) {
+                accountSettingAjax.editSign({ url: get(files, '0.url') });
+              }
+            }
+          }}
+        >
+          <div className={cx('signatureFromMobile', { showLast })}>
+            <i className="icon icon-zendeskHelp-qrcode Font18"></i>
+            {_l('扫码签名')}
+          </div>
+        </GenScanUploadQr>
+        <div className="flex"></div>
         {isEdit && (
           <div className="clearSignature" onClick={this.clear}>
             {_l('清除')}
@@ -328,7 +402,18 @@ export default class Signature extends Component {
   }
 
   renderSignature = () => {
-    const { onlySignature, children, visible, popupContainer, destroyPopupOnHide, popupAlign } = this.props;
+    const {
+      worksheetId,
+      viewIdForPermit,
+      controlId,
+      recordId,
+      onlySignature,
+      children,
+      visible,
+      popupContainer,
+      destroyPopupOnHide,
+      popupAlign,
+    } = this.props;
     const { popupVisible, lastInfo } = this.state;
 
     return browserIsMobile() ? (
@@ -398,16 +483,41 @@ export default class Signature extends Component {
         }
       >
         {!onlySignature ? (
-          <div
-            className="addSignature"
-            onClick={e => {
-              this.setState({ popupVisible: true });
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-          >
-            <i className="icon-e-signature Font17"></i>
-            <span className="mLeft5">{_l('添加签名')}</span>
-          </div>
+          <ButtonsCon>
+            <GrayButton
+              type="ghostgray"
+              onClick={e => {
+                this.setState({ popupVisible: true });
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+            >
+              <i className="icon-e-signature Font17 Gray_9e"></i>
+              <span className="mLeft5">{_l('添加签名')}</span>
+            </GrayButton>
+            <GenScanUploadQr
+              worksheetId={worksheetId}
+              viewId={viewIdForPermit}
+              controlId={controlId}
+              rowId={recordId}
+              type={2}
+              onScanResultUpdate={files => {
+                if (get(files, '0.url')) {
+                  this.props.onChange(get(files, '0.url'));
+                  if (get(window, 'md.global.Account.accountId')) {
+                    accountSettingAjax.editSign({ url: get(files, '0.url') });
+                  }
+                }
+              }}
+            >
+              <div>
+                <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
+                  <GrayButton type="ghostgray" className="iconButton">
+                    <i className="icon icon-mobile Font20 Gray_9e"></i>
+                  </GrayButton>
+                </Tooltip>
+              </div>
+            </GenScanUploadQr>
+          </ButtonsCon>
         ) : (
           children
         )}
@@ -428,11 +538,7 @@ export default class Signature extends Component {
     }
 
     return (
-      <SignatureBox
-        ref={this.$ref}
-        autoHeight={!!value}
-        className={cx('signature', { 'customFormControlBox ThemeHoverColor3': !value })}
-      >
+      <SignatureBox ref={this.$ref} autoHeight={!!value} className={cx('signature')}>
         {value ? (
           <SignatureWrap
             onClick={e => {

@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import DropDownSet from '../DropDownSet';
+import React, { useEffect, useState } from 'react';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Icon } from 'ming-ui';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/util';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
-import DisplayControl from '../DisplayControl';
-import _ from 'lodash';
-import { useSetState } from 'react-use';
-import { SwitchStyle } from '../style';
 import { COVER_DISPLAY_MODE } from 'src/pages/worksheet/common/ViewConfig/config.js';
-import { Dropdown, Icon } from 'ming-ui';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { isRelateRecordTableControl } from 'worksheet/util';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import DisplayControl from '../DisplayControl';
+import DropDownSet from '../DropDownSet';
+import { SwitchStyle } from '../style';
+
 
 const WrapNullTxt = styled.div`
   font-weight: 400;

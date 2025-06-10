@@ -1,26 +1,33 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
-import { SpinLoading } from 'antd-mobile';
-import { WaterMark } from 'ming-ui';
-import Back from '../components/Back';
-import styled from 'styled-components';
-import customApi from 'statistics/api/custom';
-import homeAppApi from 'src/api/homeApp';
+import store from 'redux/configureStore';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
-import { getDefaultLayout, getEnumType, reorderComponents, replaceColor } from 'src/pages/customPage/util';
-import { loadSDK } from 'src/components/newCustomFields/tools/utils';
-import WidgetDisplay from './WidgetDisplay';
-import AppPermissions from '../components/AppPermissions';
-import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
-import store from 'redux/configureStore';
-import { updateFilterComponents } from './redux/actions';
-import { getTranslateInfo } from 'src/util';
-import LinkageBtn from './LinkageBtn';
 import 'react-grid-layout/css/styles.css';
+import { SpinLoading } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { WaterMark } from 'ming-ui';
+import homeAppApi from 'src/api/homeApp';
+import customApi from 'statistics/api/custom';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { loadSDK } from 'src/components/newCustomFields/tools/utils';
+import {
+  getDefaultLayout,
+  getEnumType,
+  isLightColor,
+  reorderComponents,
+  replaceColor,
+} from 'src/pages/customPage/util';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { compatibleMDJS } from 'src/utils/project';
+import AppPermissions from '../components/AppPermissions';
+import Back from '../components/Back';
+import LinkageBtn from './LinkageBtn';
+import { updateFilterComponents } from './redux/actions';
+import WidgetDisplay from './WidgetDisplay';
 
 const getLayout = components =>
   components.map((item = {}, index) => {
@@ -46,10 +53,15 @@ const LayoutContent = styled.div`
     &.haveTitle {
       height: calc(100% - 40px);
     }
-    &.filter, &.tabs {
+    &.filter,
+    &.tabs {
       overflow: inherit;
       box-shadow: none;
-      background-color: transparent;
+      background-color: transparent !important;
+    }
+    &.richText {
+      box-shadow: none;
+      background: transparent !important;
     }
   }
   .componentTitle {
@@ -57,6 +69,7 @@ const LayoutContent = styled.div`
     line-height: 32px;
     margin-bottom: 4px;
     font-size: 16px;
+    color: var(--title-color);
   }
 `;
 
@@ -136,6 +149,7 @@ export default class CustomPage extends Component {
           appId: params.worksheetId,
         })
         .then(result => {
+          compatibleMDJS('workItemInfo', { item: result });
           if (appNaviStyle === 2) {
             let navSheetList = _.flatten(
               appSection.map(item => {
@@ -161,7 +175,7 @@ export default class CustomPage extends Component {
             pageComponents: newPageComponents,
             loading: false,
             pageName: result.name,
-            pageConfig: replaceColor(result.config || {}, _.get(result.apk, 'iconColor'))
+            pageConfig: replaceColor(result.config || {}, _.get(result.apk, 'iconColor')),
           });
           store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
         });
@@ -172,21 +186,23 @@ export default class CustomPage extends Component {
   }
   getPageInfo(props) {
     const { params } = props.match;
-    homeAppApi.getPageInfo({
-      appId: params.appId,
-      groupId: params.groupId,
-      id: params.worksheetId,
-    }).then(data => {
-      this.setState({
-        pageName: data.name,
-        urlTemplate: data.urlTemplate
+    homeAppApi
+      .getPageInfo({
+        appId: params.appId,
+        groupId: params.groupId,
+        id: params.worksheetId,
+      })
+      .then(data => {
+        this.setState({
+          pageName: data.name,
+          urlTemplate: data.urlTemplate,
+        });
       });
-    });
   }
   renderLoading() {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter h100">
-        <SpinLoading color='primary' />
+        <SpinLoading color="primary" />
       </div>
     );
   }
@@ -208,49 +224,76 @@ export default class CustomPage extends Component {
     const pageComponents = this.state.pageComponents.filter(c => !c.sectionId);
     const { params } = this.props.match;
     const layout = getLayout(pageComponents);
+    const bgIsDark = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
+    const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
     return (
-      <GridLayout
-        width={document.documentElement.clientWidth}
-        className="layout mBottom30"
-        cols={2}
-        rowHeight={40}
-        margin={[10, 10]}
-        isDraggable={false}
-        isResizable={false}
-        draggableCancel=".componentTitle"
-        layout={layout}
+      <div
+        style={{
+          backgroundColor: pageConfig.pageBgColor,
+          '--title-color': bgIsDark ? '#ffffffcc' : '#333',
+          '--icon-color': bgIsDark ? '#ffffffcc' : '#9e9e9e',
+          '--bg-color': bgIsDark ? '#e6e6e633' : '#e6e6e6',
+          '--widget-color': pageConfig.widgetBgColor,
+          '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
+          '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
+          '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#2196f3',
+          '--app-primary-color': apk.iconColor
+        }}
       >
-        {pageComponents.map((widget, index) => {
-          const { id, type } = widget;
-          const { title, titleVisible } = widget.mobile;
-          const componentType = getEnumType(type);
-          const translateInfo = getTranslateInfo(apk.appId, null, componentType === 'analysis' ? widget.value : widget.id);
-          return (
-            <LayoutContent key={`${id || index}`} className="resizableWrap">
-              {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{translateInfo.mobileTitle || title}</div>}
-              <div className={cx('widgetContent', componentType, { haveTitle: titleVisible })}>
-                <WidgetDisplay
-                  pageComponents={allPageComponents}
-                  pageConfig={pageConfig}
-                  componentType={componentType}
-                  widget={widget}
-                  apk={apk}
-                  ids={{
-                    appId: params.appId,
-                    groupId: params.groupId,
-                    worksheetId: params.worksheetId,
+        <GridLayout
+          width={document.documentElement.clientWidth}
+          className="layout"
+          cols={2}
+          rowHeight={40}
+          margin={[10, 10]}
+          isDraggable={false}
+          isResizable={false}
+          draggableCancel=".componentTitle"
+          layout={layout}
+        >
+          {pageComponents.map((widget, index) => {
+            const { id, type } = widget;
+            const { title, titleVisible } = widget.mobile;
+            const componentType = getEnumType(type);
+            const translateInfo = getTranslateInfo(
+              apk.appId,
+              null,
+              componentType === 'analysis' ? widget.value : widget.id,
+            );
+            return (
+              <LayoutContent key={`${id || index}`} className="resizableWrap">
+                {titleVisible && (
+                  <div className="componentTitle overflow_ellipsis bold">{translateInfo.mobileTitle || title}</div>
+                )}
+                <div
+                  className={cx('widgetContent', componentType, { haveTitle: titleVisible })}
+                  style={{
+                    backgroundColor: pageConfig.widgetBgColor,
                   }}
-                  updateComponents={newComponents => {
-                    this.setState({
-                      pageComponents: newComponents
-                    });
-                  }}
-                />
-              </div>
-            </LayoutContent>
-          );
-        })}
-      </GridLayout>
+                >
+                  <WidgetDisplay
+                    pageComponents={allPageComponents}
+                    pageConfig={pageConfig}
+                    componentType={componentType}
+                    widget={widget}
+                    apk={apk}
+                    ids={{
+                      appId: params.appId,
+                      groupId: params.groupId,
+                      worksheetId: params.worksheetId,
+                    }}
+                    updateComponents={newComponents => {
+                      this.setState({
+                        pageComponents: newComponents,
+                      });
+                    }}
+                  />
+                </div>
+              </LayoutContent>
+            );
+          })}
+        </GridLayout>
+      </div>
     );
   }
   renderUrlTemplate() {
@@ -288,27 +331,32 @@ export default class CustomPage extends Component {
       <WaterMark projectId={apk.projectId}>
         <div id="componentsWrap" className="h100 w100 GrayBG" style={{ overflowY: 'auto' }}>
           <DocumentTitle title={pageTitle || pageName || _l('自定义页面')} />
-          {urlTemplate ? (
-            this.renderUrlTemplate()
-          ) : (
-            loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()
-          )}
-          {!window.isMingDaoApp && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && !_.get(window, 'shareState.shareId') && !location.href.includes('embed/page') && (
-            <Back
-              style={{ bottom: appNaviStyle === 2 ? '70px' : '20px' }}
-              className="low"
-              icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
-              onClick={() => {
-                if (appNaviStyle === 2 && location.href.includes('mobile/app')) {
-                  window.mobileNavigateTo('/mobile/dashboard');
-                  return;
-                }
-                const { params } = this.props.match;
-                window.mobileNavigateTo(`/mobile/app/${params.appId}`);
-              }}
-            />
-          )}
-          <LinkageBtn/>
+          {urlTemplate
+            ? this.renderUrlTemplate()
+            : loading
+              ? this.renderLoading()
+              : pageComponents.length
+                ? this.renderContent()
+                : this.renderWithoutData()}
+          {!window.isMingDaoApp &&
+            !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) &&
+            !_.get(window, 'shareState.shareId') &&
+            !location.href.includes('embed/page') && (
+              <Back
+                style={{ bottom: appNaviStyle === 2 ? '70px' : '20px' }}
+                className="low"
+                icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
+                onClick={() => {
+                  if (appNaviStyle === 2 && location.href.includes('mobile/app')) {
+                    window.mobileNavigateTo('/mobile/dashboard');
+                    return;
+                  }
+                  const { params } = this.props.match;
+                  window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+                }}
+              />
+            )}
+          <LinkageBtn />
         </div>
       </WaterMark>
     );

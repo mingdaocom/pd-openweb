@@ -1,14 +1,14 @@
 import React, { Fragment, useState } from 'react';
-import cx from 'classnames';
-import { Icon, Dialog } from 'ming-ui';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import EditDescription from './EditDescription';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import cx from 'classnames';
+import { Dialog, Icon } from 'ming-ui';
 import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from 'src/pages/widgetConfig/config/index';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { LANG_DATA_TYPE } from '../config';
 import { filterHtmlTag } from '../util';
+import EditDescription from './EditDescription';
+import EditInput from './EditInput';
 import SubTable from './SubTable';
 
 export default function ControlContent(props) {
@@ -32,8 +32,8 @@ export default function ControlContent(props) {
       type: LANG_DATA_TYPE.wrokSheetFiled,
       data: {
         ...translateInfo,
-        ...info
-      }
+        ...info,
+      },
     });
   };
 
@@ -41,7 +41,9 @@ export default function ControlContent(props) {
   const desc = comparisonLangId ? comparisonLangInfo.description : control.desc;
   const open = comparisonLangId ? comparisonLangInfo['1'] : _.get(_.find(itemNames, { key: '1' }), 'value');
   const close = comparisonLangId ? comparisonLangInfo['0'] : _.get(_.find(itemNames, { key: '0' }), 'value');
-  const suffix = comparisonLangId ? comparisonLangInfo.suffix : _.get(control.advancedSetting, 'suffix') || _.get(control.advancedSetting, 'prefix');
+  const suffix = comparisonLangId
+    ? comparisonLangInfo.suffix
+    : _.get(control.advancedSetting, 'suffix') || _.get(control.advancedSetting, 'prefix');
   const otherhint = comparisonLangId ? comparisonLangInfo.otherhint : _.get(control.advancedSetting, 'otherhint');
   const withoutOptions = options.filter(n => n.key !== 'other').filter(item => !translateInfo[item.key]);
 
@@ -53,30 +55,30 @@ export default function ControlContent(props) {
       </div>
       <div className="flexRow alignItemsCenter nodeItem">
         <div className="Font13 mRight20 label">{_l('字段名称')}</div>
-        <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : control.controlName} disabled={true} />
-        <EditInput
-          className="flex"
-          value={translateInfo.name}
-          onChange={value => handleSave({ name: value })}
+        <Input
+          className="flex mRight20"
+          value={comparisonLangId ? comparisonLangInfo.name : control.controlName}
+          disabled={true}
         />
+        <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
       </div>
-      {
-        (HAS_EXPLAIN_CONTROL.includes(type) ||
+      {(HAS_EXPLAIN_CONTROL.includes(type) ||
         (type === 11 && showtype !== '2') ||
         (type === 10 && checktype === '1') ||
         (type === 29 && showtype === '3')) && (
-          <div className="flexRow alignItemsCenter nodeItem">
-            <div className="Font13 mRight20 label">{_.includes([14, 43, 49], type) ? _l('按钮名称') : _l('引导文字')}</div>
-            <Input className="flex mRight20" value={hint} disabled={true} />
-            <EditInput
-              className="flex"
-              disabled={!hint}
-              value={translateInfo.hintText}
-              onChange={value => handleSave({ hintText: value })}
-            />
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">
+            {_.includes([14, 43, 49], type) ? _l('按钮名称') : _l('引导文字')}
           </div>
-        )
-      }
+          <Input className="flex mRight20" value={hint} disabled={true} />
+          <EditInput
+            className="flex"
+            disabled={!hint}
+            value={translateInfo.hintText}
+            onChange={value => handleSave({ hintText: value })}
+          />
+        </div>
+      )}
       {!NO_DES_WIDGET.includes(type) && !isSubTable && (
         <div className="flexRow nodeItem">
           <div className="Font13 mRight20 label">{_l('字段说明')}</div>
@@ -91,8 +93,8 @@ export default function ControlContent(props) {
           />
         </div>
       )}
-      {[9, 10, 11].includes(type) && (
-        dataSource && _.find(collections, { collectionId: dataSource }) ? (
+      {[9, 10, 11].includes(type) &&
+        (dataSource && _.find(collections, { collectionId: dataSource }) ? (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('选项')}</div>
             <div className="flex mRight20">
@@ -108,8 +110,8 @@ export default function ControlContent(props) {
                     selected: true,
                     node: {
                       key: dataSource,
-                      type: 'collections'
-                    }
+                      type: 'collections',
+                    },
                   });
                   setTimeout(() => {
                     const el = document.querySelector('.navScroll');
@@ -139,7 +141,9 @@ export default function ControlContent(props) {
               )}
               {dataSource && !_.find(collections, { collectionId: dataSource }) ? null : (
                 <div className="flex">
-                  <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(control.controlId)}>{_l('编辑译文')}</span>
+                  <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(control.controlId)}>
+                    {_l('编辑译文')}
+                  </span>
                 </div>
               )}
             </div>
@@ -156,8 +160,7 @@ export default function ControlContent(props) {
               </div>
             )}
           </Fragment>
-        )
-      )}
+        ))}
       {type === 34 && (
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('子表字段')}</div>
@@ -166,7 +169,7 @@ export default function ControlContent(props) {
             worksheetId={dataSource}
             control={control}
             translateInfo={translateInfo}
-            renderControlContent={(props) => <ControlContent {...props} />}
+            renderControlContent={props => <ControlContent {...props} />}
           />
         </div>
       )}
@@ -175,7 +178,8 @@ export default function ControlContent(props) {
           <div className="Font13 mRight20 label">{_l('备注内容')}</div>
           <Input.TextArea
             style={{ resize: 'none' }}
-            className="flex mRight20" value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.remark : control.dataSource)}
+            className="flex mRight20"
+            value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.remark : control.dataSource)}
             disabled={true}
           />
           <EditDescription
@@ -242,26 +246,28 @@ export default function ControlContent(props) {
           visible={true}
           className="editLingualDialog"
           width={860}
-          title={(
+          title={
             <div className="flexRow alignItemsCenter mBottom10">
               <Icon icon={getIconByType(type)} className="Font20 Gray_9e mRight10" />
               <span>{translateInfo.name || control.controlName}</span>
             </div>
-          )}
+          }
           showFooter={false}
           onCancel={() => setOptionsEditDialogVisible('')}
         >
-          {options.filter(item => item.key !== 'other').map(item => (
-            <div className="flexRow alignItemsCenter nodeItem" key={item.key}>
-              <Input className="flex mRight20" value={item.value} disabled={true} />
-              <EditInput
-                className="flex"
-                disabled={!item.value}
-                value={translateInfo[item.key]}
-                onChange={value => handleSave({ [item.key]: value })}
-              />
-            </div>
-          ))}
+          {options
+            .filter(item => item.key !== 'other')
+            .map(item => (
+              <div className="flexRow alignItemsCenter nodeItem" key={item.key}>
+                <Input className="flex mRight20" value={item.value} disabled={true} />
+                <EditInput
+                  className="flex"
+                  disabled={!item.value}
+                  value={translateInfo[item.key]}
+                  onChange={value => handleSave({ [item.key]: value })}
+                />
+              </div>
+            ))}
         </Dialog>
       )}
     </div>

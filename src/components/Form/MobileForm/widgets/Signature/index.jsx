@@ -7,7 +7,8 @@ import styled from 'styled-components';
 import { Button, Icon } from 'ming-ui';
 import accountSettingAjax from 'src/api/accountSetting';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { compatibleMDJS, getToken } from 'src/util';
+import { getToken } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
 import 'rc-trigger/assets/index.css';
 
 const Footer = styled.div`
@@ -140,6 +141,7 @@ const Signature = props => {
   };
 
   const preview = e => {
+    e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
 
     compatibleMDJS('previewSignature', { url: value }, () => {

@@ -1,24 +1,25 @@
-import React, { useEffect, useState, useRef } from 'react';
-import Form from './Form.jsx';
-import { useSetState, useKey } from 'react-use';
+import React, { useEffect, useRef, useState } from 'react';
+import { useKey, useSetState } from 'react-use';
 import cx from 'classnames';
-import { InviteFromType } from 'src/pages/AuthService/config.js';
-import { hasCaptcha, getAccountTypes, isTel, validation } from 'src/pages/AuthService/util.js';
-import { captcha } from 'ming-ui/functions';
-import { getRequest, htmlDecodeReg } from 'src/util';
 import _ from 'lodash';
-import ChangeLang from 'src/components/ChangeLang';
+import { Icon, LoadDiv, Tooltip } from 'ming-ui';
 import Checkbox from 'ming-ui/components/Checkbox';
-import { navigateTo } from 'src/router/navigateTo';
+import { captcha } from 'ming-ui/functions';
 import appManagementController from 'src/api/appManagement';
-import { registerAction } from 'src/pages/AuthService/register/util.js';
+import ChangeLang from 'src/components/ChangeLang';
 import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
-import { Icon, Tooltip, LoadDiv } from 'ming-ui';
+import { InviteFromType } from 'src/pages/AuthService/config.js';
+import { registerAction } from 'src/pages/AuthService/register/util.js';
+import { getAccountTypes, hasCaptcha, isTel, validation } from 'src/pages/AuthService/util.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { htmlDecodeReg } from 'src/utils/common';
+import Form from './Form.jsx';
 
 // 'privacyText'  注册 需要勾选 使用条款 与 隐私条款
 export default function (props) {
   const {
-    onChange = () => { },
+    onChange = () => {},
     warnList = [],
     titleStr = '',
     createAccountLoading,

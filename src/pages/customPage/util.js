@@ -1,20 +1,24 @@
-import styled from 'styled-components';
-import { MAX_COMPONENT_COUNT } from './config';
-import maxBy from 'lodash/maxBy';
-import { widgets, containerWidgets } from './enum';
-import { get } from 'lodash';
-import domtoimage from 'dom-to-image';
-import { reportTypes } from 'statistics/Charts/common';
-import { v4 as uuidv4 } from 'uuid';
 import { generate } from '@ant-design/colors';
-import * as utils from 'src/util';
-import { SYS_COLOR } from 'src/pages/Admin/settings/config';
 import { TinyColor } from '@ctrl/tinycolor';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getDefaultCondition, redefineComplexControl, formatConditionForSave } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import domtoimage from 'dom-to-image';
+import { get } from 'lodash';
+import maxBy from 'lodash/maxBy';
 import moment from 'moment';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { reportTypes } from 'statistics/Charts/common';
+import { SYS_COLOR } from 'src/pages/Admin/settings/config';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import {
+  formatConditionForSave,
+  getDefaultCondition,
+  redefineComplexControl,
+} from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { isLightColor as utilsIsLightColor } from 'src/utils/control';
+import { MAX_COMPONENT_COUNT } from './config';
+import { containerWidgets, widgets } from './enum';
 
 export const FlexCenter = styled.div`
   display: flex;
@@ -26,23 +30,43 @@ const enumObj = obj => {
   return obj;
 };
 
-export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5, filter: 6, carousel: 7, ai: 8, tabs: 9, card: 10 });
+export const enumWidgetType = enumObj({
+  analysis: 1,
+  richText: 2,
+  embedUrl: 3,
+  button: 4,
+  view: 5,
+  filter: 6,
+  carousel: 7,
+  ai: 8,
+  tabs: 9,
+  card: 10,
+  image: 11,
+});
 
 export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
   const id = component.id || component.uuid;
   return _.findIndex(components, item => item.id === id || item.uuid === id);
 };
-export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type }) => {
+export const getDefaultLayout = ({
+  components = [],
+  index = components.length,
+  layoutType = 'web',
+  titleVisible,
+  type,
+}) => {
   if (layoutType === 'web') {
     if (['view', 'tabs'].includes(type)) {
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 6 };
     } else if (type === 'filter') {
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 2 };
+    } else if (type === 'image') {
+      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 2 };
     } else {
       return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 2 };
     }
-  };
+  }
   if (layoutType === 'mobile') {
     const { type } = _.pick(components[index], 'type');
     const { y = 0, h = 6 } = maxBy(components, item => get(item, ['mobile', 'layout', 'y'])) || {};
@@ -52,6 +76,8 @@ export const getDefaultLayout = ({ components = [], index = components.length, l
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 4 };
     } else if (enumType === 'filter') {
       return { x: 0, y: y + h, w: 4, h: 1, minW, minH: 1 };
+    } else if (enumType === 'image') {
+      return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 2 };
     } else {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 7 : 6, minW, minH: 2 };
     }
@@ -72,18 +98,25 @@ export const getIconByType = type => {
   return _.get({ ...widgets, ...containerWidgets }[getEnumType(type)], 'icon');
 };
 
-const htmlReg = /<.+?>/g;
+function filterHTML(input) {
+  const div = document.createElement('div');
+  div.innerHTML = input;
+  const text = div.textContent || div.innerText || '';
+  return text.replace(/\u00A0/g, ' ').trim();
+}
+
 export const getComponentTitleText = component => {
   const { value = '', type, name, button, config = {}, componentConfig = {} } = component;
   const enumType = getEnumType(type);
   if (enumType === 'analysis') return name || _l('未命名图表');
-  if (enumType === 'richText') return value.replace(htmlReg, '');
+  if (enumType === 'richText') return filterHTML(value) || _l('文本');
   if (enumType === 'button') return _.get(button, ['buttonList', '0', 'name']);
   if (enumType === 'view') return config.name;
   if (enumType === 'filter') return _l('筛选组件');
   if (enumType === 'carousel') return _l('轮播图');
   if (enumType === 'tabs') return _.get(componentConfig, 'name') || _l('标签页');
   if (enumType === 'card') return _.get(componentConfig, 'name') || _l('卡片');
+  if (enumType === 'image') return _.get(componentConfig, 'name') || _l('图片');
   if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };
@@ -111,7 +144,7 @@ export const getLayout = (components, layoutType) => {
       ? { ...layout, i: `${id || index}` }
       : { ...getDefaultLayout({ components, index, layoutType, titleVisible }), i: `${id || index}` };
   });
-}
+};
 
 export const computeWidth = ({ width, count, margin = 20 }) => {
   return { width: `calc(${100 / count}% - ${margin}px)` };
@@ -194,7 +227,6 @@ const addHintWatermark = (canvas, layouts) => {
 };
 
 const addUserWatermark = (canvas, currentProject) => {
-
   const getValue = key => {
     switch (key) {
       case 'mobilePhone':
@@ -242,7 +274,7 @@ const addUserWatermark = (canvas, currentProject) => {
 
     resolve(canvas);
   });
-}
+};
 
 export const createFontLink = () => {
   return new Promise((resolve, reject) => {
@@ -254,11 +286,12 @@ export const createFontLink = () => {
     link.setAttribute('href', '/staticfiles/iconfont/iconfont.css');
     document.head.appendChild(link);
   });
-}
+};
 
 export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) => {
   return new Promise((resolve, reject) => {
-    const wrap = document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
+    const wrap =
+      document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
     const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
     const embedUrls = wrap.querySelectorAll('.widgetContent.embedUrl');
     const countryLayers = [...wrap.querySelectorAll(`.statisticsCard-${reportTypes.CountryLayer}`)].map(
@@ -292,7 +325,8 @@ export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) =>
         }
         fontlinksheet && fontlinksheet.remove();
         newCanvas.toBlob(blob => resolve(blob));
-      }).catch((error, data) => {
+      })
+      .catch((error, data) => {
         fontlinksheet && fontlinksheet.remove();
         console.log(error, data);
       });
@@ -317,14 +351,14 @@ export const fillObjectId = components => {
           ...c,
           config: {
             ...config,
-            objectId: uuidv4()
-          }
-        }
+            objectId: uuidv4(),
+          },
+        };
       }
     }
     return c;
   });
-}
+};
 
 export const formatNavfilters = data => {
   const { advancedSetting } = data;
@@ -333,16 +367,16 @@ export const formatNavfilters = data => {
     const res = JSON.parse(navfilters);
     const { values } = handleCondition({
       ...data,
-      values: res
+      values: res,
     });
     return JSON.stringify(values);
   }
   if (['3'].includes(navshow) && navfilters && !showNavfilters) {
     const res = JSON.parse(navfilters);
-    return JSON.stringify(res.map(handleCondition))
+    return JSON.stringify(res.map(handleCondition));
   }
   return navfilters;
-}
+};
 
 export const replaceColor = (config, iconColor) => {
   const iconColors = iconColor ? generate(iconColor) : [];
@@ -384,14 +418,14 @@ export const replaceColor = (config, iconColor) => {
     data.numberChartColor = lightColor;
   }
   return data;
-}
+};
 
 export const isLightColor = color => {
   if (_.find(SYS_COLOR, { color: color.toLocaleUpperCase() })) {
     return false;
   }
-  return utils.isLightColor(color);
-}
+  return utilsIsLightColor(color);
+};
 
 function getQuarterDateRange(year, quarter) {
   let startMonth, endMonth;
@@ -416,8 +450,14 @@ function getQuarterDateRange(year, quarter) {
       throw new Error('Invalid quarter');
   }
 
-  const startOfQuarter = moment().year(year).month(startMonth - 1).startOf('month');
-  const endOfQuarter = moment().year(year).month(endMonth - 1).endOf('month');
+  const startOfQuarter = moment()
+    .year(year)
+    .month(startMonth - 1)
+    .startOf('month');
+  const endOfQuarter = moment()
+    .year(year)
+    .month(endMonth - 1)
+    .endOf('month');
 
   return [startOfQuarter, endOfQuarter];
 }
@@ -427,7 +467,11 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
   for (let key in linkageFiltersGroup) {
     const data = linkageFiltersGroup[key];
     const { onlyChartIds = [] } = data;
-    if (data.sheetId === sheetId && reportId !== data.reportId && (onlyChartIds.length ? onlyChartIds.includes(objectId) : true)) {
+    if (
+      data.sheetId === sheetId &&
+      reportId !== data.reportId &&
+      (onlyChartIds.length ? onlyChartIds.includes(objectId) : true)
+    ) {
       result.push({
         ...data,
         filters: data.filters.map(item => {
@@ -441,7 +485,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             control: undefined,
             spliceType: 1,
             dataType,
-            filterType
+            filterType,
           };
           // 如果内容为空，按照为空查找
           if (_.isNull(data.values[0]) || _.isUndefined(data.values[0]) || data.values[0] === '') {
@@ -461,10 +505,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             return data;
           }
           // 子表和关联表按照关联表查找
-          if (
-            item.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST ||
-            item.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET
-          ) {
+          if (item.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST || item.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
             data.dataType = WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET;
             data.filterType = FILTER_CONDITION_TYPE.RCEQ;
             return data;
@@ -472,7 +513,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
           // 处理日期格式字段
           if (
             item.type === WIDGETS_TO_API_TYPE_ENUM.DATE ||
-            item.type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME && control
+            (item.type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME && control)
           ) {
             const { particleSizeType = 1 } = control;
             const value = data.values[0];
@@ -496,8 +537,14 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             // 月
             if (particleSizeType === 3) {
               const [year, month] = value.split('/');
-              const start = moment().year(year).month(month - 1).startOf('month');
-              const end = moment().year(year).month(month - 1).endOf('month');
+              const start = moment()
+                .year(year)
+                .month(month - 1)
+                .startOf('month');
+              const end = moment()
+                .year(year)
+                .month(month - 1)
+                .endOf('month');
               data.filterType = FILTER_CONDITION_TYPE.DATE_BETWEEN;
               data.minValue = start.format('YYYY-MM-DD');
               data.maxValue = end.format('YYYY-MM-DD');
@@ -551,19 +598,21 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             data.filterType = FILTER_CONDITION_TYPE.BETWEEN;
           }
           return data;
-        })
+        }),
       });
     }
   }
-  const filters = _.flatten(result.map(item => {
-    return item.filters;
-  }));
+  const filters = _.flatten(
+    result.map(item => {
+      return item.filters;
+    }),
+  );
   const initiateChartIds = result.map(item => item.widgetId);
   return {
     linkageFiltersGroup: filters,
-    initiateChartIds
+    initiateChartIds,
   };
-}
+};
 
 export const updateLayout = (components, config) => {
   const oldCols = 12;
@@ -578,15 +627,16 @@ export const updateLayout = (components, config) => {
       ...c,
       web: {
         ...web,
-        layout: layout ? {
-          ...layout,
-          w: Math.round((layout.w / oldCols) * newCols),
-          x: Math.round((layout.x / oldCols) * newCols),
-          h: Math.round((layout.h / oldCols) * 24),
-          y: Math.round((layout.y / oldCols) * 24),
-        } : layout
-      }
-    }
+        layout: layout
+          ? {
+              ...layout,
+              w: Math.round((layout.w / oldCols) * newCols),
+              x: Math.round((layout.x / oldCols) * newCols),
+              h: Math.round((layout.h / oldCols) * 24),
+              y: Math.round((layout.y / oldCols) * 24),
+            }
+          : layout,
+      },
+    };
   });
-}
-
+};

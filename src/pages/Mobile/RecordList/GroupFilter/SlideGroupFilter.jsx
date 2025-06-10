@@ -1,6 +1,6 @@
-import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Popup } from 'antd-mobile';
+import styled from 'styled-components';
 import GroupFilterList from './GroupFilterList';
 
 const FilterWrap = styled.div`
@@ -15,8 +15,14 @@ const CloseIcon = styled.i`
 `;
 
 export default function SlideGroupFilter(props) {
+  const { base } = props;
+  const { appId, viewId } = base;
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentGroup, setCurrentGroup] = useState({});
+
+  useEffect(() => {
+    setCurrentGroup([]);
+  }, [viewId]);
 
   return (
     <Fragment>

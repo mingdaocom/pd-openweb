@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,7 +47,7 @@ const WidgetWrap = styled.div`
   }
 `;
 
-function WidgetList({ components, addWidget = _.noop, ...rest }) {
+function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, ...rest }) {
   const [createWidget, setWidget] = useState({});
   const renderWidget = key => {
     const { icon, name } = { ...widgets, ...containerWidgets }[key];
@@ -55,8 +56,8 @@ function WidgetList({ components, addWidget = _.noop, ...rest }) {
         key={key}
         onClick={() => {
           if (!componentCountLimit(components)) return;
+          const type = getEnumType(key);
           if (containerWidgets[key]) {
-            const type = getEnumType(key);
             const componentConfig =
               key === 'tabs'
                 ? {
@@ -83,6 +84,37 @@ function WidgetList({ components, addWidget = _.noop, ...rest }) {
                 objectId: uuidv4(),
               },
               componentConfig,
+            });
+            setTimeout(() => {
+              const componentsWrap = document.querySelector('#componentsWrap');
+              componentsWrap.scrollTop = componentsWrap.scrollHeight;
+            });
+          } else if (key === 'image') {
+            addWidget({
+              type,
+              componentConfig: {
+                showType: 1,
+                showName: false,
+                name: _l('图片') + (components.filter(c => [11, 'image'].includes(c.type)).length || ''),
+              },
+              sectionId: activeContainerInfo.sectionId || undefined,
+              tabId: activeContainerInfo.tabId || undefined,
+            });
+            setTimeout(() => {
+              const componentsWrap = document.querySelector('#componentsWrap');
+              componentsWrap.scrollTop = componentsWrap.scrollHeight;
+            });
+          } else if (key === 'richText') {
+            addWidget({
+              type,
+              componentConfig: {
+                showType: 1,
+                name: _l('文本') + (components.filter(c => [2, 'richText'].includes(c.type)).length || ''),
+              },
+              value: `<h1><strong>${_l('在这里拟定一个标题')}</strong></h1><p>${_l('快来开始创作吧！')}</p>`,
+              editRichText: true,
+              sectionId: activeContainerInfo.sectionId || undefined,
+              tabId: activeContainerInfo.tabId || undefined,
             });
             setTimeout(() => {
               const componentsWrap = document.querySelector('#componentsWrap');
@@ -117,4 +149,6 @@ function WidgetList({ components, addWidget = _.noop, ...rest }) {
   );
 }
 
-export default WidgetList;
+export default connect(state => ({
+  activeContainerInfo: state.customPage.activeContainerInfo,
+}))(WidgetList);

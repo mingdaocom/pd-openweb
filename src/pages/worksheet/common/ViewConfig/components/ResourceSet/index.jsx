@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Dropdown, CheckBlock, Icon, Checkbox } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import BaseInfo from './BaseInfo';
-import _ from 'lodash';
-import { TimeDropdownChoose, ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { Select } from 'antd';
 import cx from 'classnames';
-import { weekObj, resourceTypes } from 'src/pages/worksheet/views/ResourceView/config.js';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
+import { ShowChoose, TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import { resourceTypes, weekObj } from 'src/pages/worksheet/views/ResourceView/config.js';
+import BaseInfo from './BaseInfo';
 import EditTimes from './EditTimes';
 
 const Wrap = styled.div`
@@ -132,49 +133,70 @@ export default function ResourceSet(props) {
       </div>
       <div className="commonConfigItem Font13 bold mTop24">{_l('行高')}</div>
       <div className="commonConfigItem mTop6">
-        <CheckBlock
-          data={[
+        <AnimationWrap>
+          {[
             { text: _l('紧凑'), value: 0 }, // 34
             { text: _l('中等'), value: 1 }, // 50
             { text: _l('宽松'), value: 2 }, // 70
             // { text: _l('超高'), value: 3 }, // 100
-          ]}
-          value={rowHeight}
-          onChange={value => {
-            if (rowHeight !== value) {
-              updateCurrentView({
-                ...view,
-                appId,
-                rowHeight: value,
-                editAttrs: ['rowHeight'],
-              });
-            }
-          }}
-        />
+          ].map(item => {
+            return (
+              <div
+                className={cx('animaItem overflow_ellipsis', {
+                  active: rowHeight === item.value,
+                })}
+                onClick={() => {
+                  const { value } = item;
+                  if (rowHeight !== value) {
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      rowHeight: value,
+                      editAttrs: ['rowHeight'],
+                    });
+                  }
+                }}
+              >
+                {item.text}
+              </div>
+            );
+          })}
+        </AnimationWrap>
       </div>
       <div className="commonConfigItem Font13 bold mTop24">{_l('默认视图')}</div>
       <div className="commonConfigItem mTop6">
-        <CheckBlock
-          data={resourceTypes}
-          value={
-            !_.get(props, 'view.advancedSetting.calendarType') ? '0' : _.get(props, 'view.advancedSetting.calendarType')
-          }
-          onChange={value => {
+        <AnimationWrap>
+          {resourceTypes.map(item => {
             const calendarType = !_.get(props, 'view.advancedSetting.calendarType')
               ? '0'
               : _.get(props, 'view.advancedSetting.calendarType');
-            if (calendarType !== value) {
-              safeLocalStorageSetItem(`${view.viewId}_resource_type`, resourceTypes.find(o => o.value === value).key);
-              updateCurrentView({
-                ...view,
-                appId,
-                advancedSetting: { calendarType: value },
-                editAdKeys: ['calendarType'],
-                editAttrs: ['advancedSetting'],
-              });
-            }
-          }}
-        />
+            return (
+              <div
+                className={cx('animaItem overflow_ellipsis', {
+                  active: calendarType === item.value,
+                })}
+                onClick={() => {
+                  const { value } = item;
+                  if (calendarType !== value) {
+                    safeLocalStorageSetItem(
+                      `${view.viewId}_resource_type`,
+                      resourceTypes.find(o => o.value === value).key,
+                    );
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      advancedSetting: { calendarType: value },
+                      editAdKeys: ['calendarType'],
+                      editAttrs: ['advancedSetting'],
+                    });
+                  }
+                }}
+              >
+                {item.text}
+              </div>
+            );
+          })}
+        </AnimationWrap>
       </div>
       <div className="title Font13 bold mTop24">{_l('每周的第一天')}</div>
       <TimeDropdownChoose>
@@ -228,12 +250,14 @@ export default function ResourceSet(props) {
           text={_l('只显示工作日')}
         />
         {!!_.get(props, 'view.advancedSetting.unweekday') && (
-          <div className="hiddenDaysBox mTop16">
+          <AnimationWrap className="hiddenDaysBox mTop16">
             {weekObj.map((it, i) => {
               let n = i + 1;
               return (
-                <li
-                  className={cx({ checked: (_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) < 0 })}
+                <div
+                  className={cx('animaItem overflow_ellipsis', {
+                    active: (_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) < 0,
+                  })}
                   onClick={e => {
                     let str = _.get(props, 'view.advancedSetting.unweekday');
                     if ((_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) >= 0) {
@@ -255,10 +279,10 @@ export default function ResourceSet(props) {
                   }}
                 >
                   {it}
-                </li>
+                </div>
               );
             })}
-          </div>
+          </AnimationWrap>
         )}
       </ShowChoose>
       <Checkbox

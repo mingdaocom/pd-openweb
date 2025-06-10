@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
-import { Icon, Checkbox, Radio, Tooltip } from 'ming-ui';
-import { sortByShowControls, isRelation } from '../../util';
-import { UN_PRINT_CONTROL, SYST_PRINT, PRINT_FILE_OPTIONS, USER_CONTROLS } from '../../config';
 import _ from 'lodash';
+import { Checkbox, Icon, Radio, Tooltip } from 'ming-ui';
+import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
+import { PRINT_FILE_OPTIONS, SYST_PRINT, TIME_FORMAT, UN_PRINT_CONTROL, USER_CONTROLS } from '../../config';
+import { isRelation, sortByShowControls } from '../../util';
 
 const ControlsSettingConfig = [
   {
@@ -46,6 +47,7 @@ export default function ControlsSetting(props) {
     ),
   );
   const [expandKey, setExpandKey] = useState([]);
+  const [formatDialogVisible, setFormatDialogVisible] = useState(false);
 
   const handleChecked = it => {
     if (SYST_PRINT[it.controlId]) {
@@ -144,6 +146,14 @@ export default function ControlsSetting(props) {
 
   const handleExpand = (id, value) => setExpandKey(value ? expandKey.filter(l => l !== id) : expandKey.concat(id));
 
+  const changeTimeFormat = value => {
+    changeAdvanceSettings({
+      key: TIME_FORMAT[formatDialogVisible],
+      value: value,
+    });
+    setFormatDialogVisible(false);
+  };
+
   const renderFileRadio = id => {
     return (
       <div className="mTop12 mLeft26">
@@ -177,6 +187,7 @@ export default function ControlsSetting(props) {
           let isClearSelected = isRelationControls && getRelationControlsShowPart(it);
           let sectionLi = it.type === 52 ? controls.filter(l => l.sectionId === it.controlId) : [];
           let isChecked = !isRelationControls ? it.checked : getIsChecked(it);
+          const isSysTime = !!SYST_PRINT[it.controlId] && _.endsWith(it.controlId, 'time');
 
           if (it.type === 52 && sectionLi.length !== 0) {
             isChecked = sectionLi.some(l => l.checked);
@@ -210,6 +221,13 @@ export default function ControlsSetting(props) {
                   {it.expand && it.type === 52 && <div className="Relative sectionLiCon">{renderLi(sectionLi)}</div>}
                   {it.type === 26 && it.expand && renderUserChild(it, it.controlId)}
                 </div>
+              )}
+              {isSysTime && (
+                <Icon
+                  icon="settings"
+                  className="Font18 moreList Gray_9d Hand TxtCenter TxtBottom"
+                  onClick={() => setFormatDialogVisible(it.controlId)}
+                />
               )}
               {it.type === 14 && isChecked && renderFileRadio(it.controlId)}
             </div>
@@ -322,14 +340,31 @@ export default function ControlsSetting(props) {
 
   if (hide) return null;
 
-  return ControlsSettingConfig.map((l, i) => {
-    if (l.key === 'signature' && !signature.length) return null;
+  return (
+    <Fragment>
+      {ControlsSettingConfig.map((l, i) => {
+        if (l.key === 'signature' && !signature.length) return null;
 
-    return (
-      <React.Fragment>
-        <p className="Bold mTop15 Gray_9e">{l.label}</p>
-        {renderLi([systemControl, controls.filter(l => !l.sectionId), signature][i])}
-      </React.Fragment>
-    );
-  });
+        return (
+          <React.Fragment>
+            <p className="Bold mTop15 Gray_9e">{l.label}</p>
+            {renderLi([systemControl, controls.filter(l => !l.sectionId), signature][i])}
+          </React.Fragment>
+        );
+      })}
+      {!!formatDialogVisible && (
+        <ShowFormatDialog
+          showformat={
+            _.get(
+              advanceSettings.find(l => l.key === TIME_FORMAT[formatDialogVisible]),
+              'value',
+            ) || 'YYYY-MM-DD HH:mm:ss'
+          }
+          type={16}
+          onClose={() => setFormatDialogVisible(false)}
+          onOk={changeTimeFormat}
+        />
+      )}
+    </Fragment>
+  );
 }

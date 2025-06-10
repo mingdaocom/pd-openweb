@@ -1,19 +1,27 @@
-var Toolbar = {};
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { htmlEncodeReg } from 'src/util';
-import showCategoryListTpl from './tpl/showCategoryList.html';
-import ClassificationCalendarListAddTpl from './tpl/ClassificationCalendarListAdd.html';
-import toolbarTpl from './tpl/toolbar.html';
-import updateCategoryListTpl from './tpl/updateCategoryList.html';
-import synchronousTpl from './tpl/synchronous.html';
-import calendarInviteTpl from './tpl/calendarInvite.html';
-import addOtherUserTpl from './tpl/addOtherUser.html';
-import ClassificationCalendarHtml from './tpl/ClassificationCalendar.html';
+import { renderToString } from 'react-dom/server';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import moment from 'moment';
+import { Dialog, LoadDiv, UserCard, UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import calendarAjax from 'src/api/calendar';
-import { Dialog, UserHead, UserCard, LoadDiv } from 'ming-ui';
-import { renderToString } from 'react-dom/server';
+import { htmlEncodeReg } from 'src/utils/common';
+import Calendar from '../calendar/calendar';
+import { formatRecur } from '../calendarDetail/common';
+import Comm from '../comm/comm';
+import addOtherUserTpl from './tpl/addOtherUser.html';
+import calendarInviteTpl from './tpl/calendarInvite.html';
+import ClassificationCalendarHtml from './tpl/ClassificationCalendar.html';
+import ClassificationCalendarListAddTpl from './tpl/ClassificationCalendarListAdd.html';
+import showCategoryListTpl from './tpl/showCategoryList.html';
+import synchronousTpl from './tpl/synchronous.html';
+import toolbarTpl from './tpl/toolbar.html';
+import updateCategoryListTpl from './tpl/updateCategoryList.html';
+import './toolbar.less';
+
+var Toolbar = {};
 
 Toolbar.settings = {
   oldCategoryList: [],
@@ -23,17 +31,8 @@ Toolbar.settings = {
   isComplete: true,
 };
 
-import './toolbar.less';
-import Comm from '../comm/comm';
-import Calendar from '../calendar/calendar';
-
 Toolbar.Comm = Comm;
 Toolbar.Calendar = Calendar;
-
-import _ from 'lodash';
-import copy from 'copy-to-clipboard';
-import { formatRecur } from '../calendarDetail/common';
-import moment from 'moment';
 
 // 绑定事件
 Toolbar.Event = function () {
@@ -661,8 +660,8 @@ Toolbar.Method = {
                             status === '0'
                               ? 'calendarCenterLabelNosubmit'
                               : status === '1'
-                              ? 'calendarCenterLabelSubmit'
-                              : 'calendarCenterLabelRefuse'
+                                ? 'calendarCenterLabelSubmit'
+                                : 'calendarCenterLabelRefuse'
                           }`}
                         ></span>
                       )}

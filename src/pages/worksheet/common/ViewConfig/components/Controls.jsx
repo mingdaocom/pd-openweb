@@ -1,10 +1,11 @@
 import React from 'react';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/';
 import _ from 'lodash';
-import { getAdvanceSetting } from 'src/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import SortColumns from 'src/pages/worksheet/components/SortColumns/';
+import { getAdvanceSetting } from 'src/utils/control';
+
 // 字段
 export default class Controls extends React.Component {
   constructor(props) {

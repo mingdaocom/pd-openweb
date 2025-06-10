@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { get } from 'lodash';
-import { getPssId } from 'src/util/pssId';
+import { getPssId } from 'src/utils/pssId';
 
 function mdPost({ action, controller, data, abortController } = {}) {
   return window.mdyAPI(controller, action, data, { abortController });

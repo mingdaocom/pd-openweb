@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import accountController from 'src/api/account';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
 import './style.css';
 
 var ACTIONRESULTS = {

@@ -1,15 +1,15 @@
 import React from 'react';
-import { Input } from 'ming-ui';
 import cx from 'classnames';
-import styled from 'styled-components';
 import { func, number, string } from 'prop-types';
-import { formatNumberFromInput } from 'src/util';
+import styled from 'styled-components';
+import { Input } from 'ming-ui';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import { formatNumberFromInput } from 'src/utils/control';
 
 const InputCon = styled(Input)`
   width: 100%;
   border: none !important;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 `;
 
 export default function Number(props) {
@@ -53,7 +53,7 @@ export default function Number(props) {
               onChange({ value: newValue.trim(), filterType: FILTER_CONDITION_TYPE.EQ });
             }}
           />
-        )}        
+        )}
       </div>
     </div>
   );

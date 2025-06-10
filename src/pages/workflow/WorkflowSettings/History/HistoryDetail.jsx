@@ -1,24 +1,24 @@
 import React, { Component, Fragment } from 'react';
-import { string, func, bool } from 'prop-types';
 import cx from 'classnames';
-import { Icon, LoadDiv } from 'ming-ui';
-import HistoryStatus from './components/HistoryStatus';
-import NodeIcon from './components/NodeIcon';
-import api from '../../api/instance';
-import {
-  FLOW_STATUS,
-  NODE_STATUS,
-  FLOW_FAIL_REASON,
-  STATUS2COLOR,
-  NODE_TYPE,
-  ACTION_TYPE,
-  COUNTER_TYPE,
-} from './config';
-import instanceVersion from '../../api/instanceVersion';
-import process from '../../api/process';
 import _ from 'lodash';
 import moment from 'moment';
+import { bool, func, string } from 'prop-types';
+import { Icon, LoadDiv } from 'ming-ui';
+import api from '../../api/instance';
+import instanceVersion from '../../api/instanceVersion';
+import process from '../../api/process';
 import { APP_TYPE, OPERATION_TYPE } from '../enum';
+import HistoryStatus from './components/HistoryStatus';
+import NodeIcon from './components/NodeIcon';
+import {
+  ACTION_TYPE,
+  COUNTER_TYPE,
+  FLOW_FAIL_REASON,
+  FLOW_STATUS,
+  NODE_STATUS,
+  NODE_TYPE,
+  STATUS2COLOR,
+} from './config';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
@@ -345,8 +345,8 @@ export default class HistoryDetail extends Component {
     const { status } = FLOW_STATUS[data.status];
     const { color, bgColor } = STATUS2COLOR[status];
     const resultTypeText = {
-      1: _l('通过'),
-      2: _l('否决'),
+      1: _l('同意'),
+      2: _l('拒绝'),
       3: _l('有数据'),
       4: _l('无数据'),
     };
@@ -371,10 +371,10 @@ export default class HistoryDetail extends Component {
                   ? cause === 40007
                     ? FLOW_FAIL_REASON[cause]
                     : !nodeName
-                    ? FLOW_FAIL_REASON[cause] || causeMsg
-                    : `${_l('节点:')} ${nodeName}, ${
-                        cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
-                      }`
+                      ? FLOW_FAIL_REASON[cause] || causeMsg
+                      : `${_l('节点:')} ${nodeName}, ${
+                          cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
+                        }`
                   : ''}
               </div>
             </div>
@@ -452,12 +452,12 @@ export default class HistoryDetail extends Component {
                           {flowNode.type !== 1
                             ? name
                             : resultTypeId
-                            ? resultTypeText[
-                                (_.find(flowNode.flows, o => o.id === flowNode.flowIds[0]) || {}).resultTypeId ||
-                                  resultTypeId
-                              ]
-                            : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds[0]) || {})
-                                .name || _l('分支')}
+                              ? resultTypeText[
+                                  (_.find(flowNode.flows, o => o.id === flowNode.flowIds[0]) || {}).resultTypeId ||
+                                    resultTypeId
+                                ]
+                              : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds[0]) || {})
+                                  .name || _l('分支')}
                           {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}
                         </div>
                         {alias && <div className="Gray_75 Font13 ellipsis">{_l('别名：%0', alias)}</div>}
@@ -471,8 +471,8 @@ export default class HistoryDetail extends Component {
                       {_.includes([16, 20, 26, 29], flowNode.type)
                         ? this.renderSubProcess(item)
                         : flowNode.type === 19
-                        ? this.renderTemplateInfo(item)
-                        : this.renderOperationInfo(item, index === works.length - 1)}
+                          ? this.renderTemplateInfo(item)
+                          : this.renderOperationInfo(item, index === works.length - 1)}
                     </div>
 
                     <div className="operationTime Gray_75">

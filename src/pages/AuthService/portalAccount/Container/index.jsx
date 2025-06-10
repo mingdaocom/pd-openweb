@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
 import { Icon, SvgIcon } from 'ming-ui';
+import ChangeLang from 'src/components/ChangeLang';
+import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
+import { browserIsMobile } from 'src/utils/common';
+import { WrapContainer } from '../style';
 import { statusList } from '../util';
 import LoginContainer from './LoginContainer';
-import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
-import ChangeLang from 'src/components/ChangeLang';
-import { WrapContainer } from '../style';
 
 export default function Container(props) {
   const {

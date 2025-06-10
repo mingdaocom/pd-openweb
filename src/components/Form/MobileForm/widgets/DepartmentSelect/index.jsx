@@ -90,7 +90,7 @@ function DepartmentSelect(props) {
           {selectDepartments.map(item => renderItem(item))}
           {!disabled && (
             <div className="TxtCenter customFormAddBtn" onClick={pickDepartment}>
-              <i className="icon-plus icon" />
+              <i className="icon-add icon" />
             </div>
           )}
         </Fragment>
@@ -102,6 +102,7 @@ function DepartmentSelect(props) {
           visible={true}
           type="department"
           onlyOne={isUnique}
+          hideClearBtn={false}
           onClose={() => setShowSelectDepartment(false)}
           onSave={onSave}
           appId={appId || ''}

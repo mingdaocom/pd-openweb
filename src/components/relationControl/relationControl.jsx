@@ -1,13 +1,13 @@
-﻿import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
-import './less/relationControl.less';
+﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import ajaxRequest from 'src/api/form';
-import { LoadDiv, DatePicker, UserHead } from 'ming-ui';
-import { getClassNameByExt } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import { DatePicker, LoadDiv, UserHead } from 'ming-ui';
+import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import ajaxRequest from 'src/api/form';
+import { getClassNameByExt } from 'src/utils/common';
+import './less/relationControl.less';
 
 const defaultArr = [
   {

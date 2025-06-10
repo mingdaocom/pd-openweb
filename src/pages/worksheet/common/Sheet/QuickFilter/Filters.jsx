@@ -5,6 +5,7 @@ import QuickFilter from './QuickFilter';
 export default function Filters(props) {
   const {
     projectId,
+    showTextAdvanced,
     isDark,
     appId,
     mode,
@@ -18,6 +19,7 @@ export default function Filters(props) {
   } = props;
   return (
     <QuickFilter
+      showTextAdvanced={showTextAdvanced}
       isDark={isDark}
       projectId={projectId}
       appId={appId}

@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import './index.less';
 import { Input } from 'antd';
-import userPassword from 'src/api/account';
-import { encrypt } from 'src/util';
-import RegExpValidator from 'src/util/expression';
 import _ from 'lodash';
+import userPassword from 'src/api/account';
 import { navigateToLogout } from 'src/router/navigateTo';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import './index.less';
 
 export default class EditPassword extends Component {
   constructor(props) {

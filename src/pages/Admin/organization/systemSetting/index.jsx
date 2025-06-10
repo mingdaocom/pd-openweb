@@ -9,7 +9,7 @@ import Config from '../../config';
 export default class OrgInfo extends Component {
   constructor() {
     super();
-    Config.setPageTitle(_l('基础信息'));
+    Config.setPageTitle(_l('组织信息'));
     this.state = {
       level: 1,
     };

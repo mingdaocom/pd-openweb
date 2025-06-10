@@ -1,42 +1,39 @@
 ﻿import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _, { find, get } from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, EditingBar, WaterMark, Button } from 'ming-ui';
+import { Button, Dialog, EditingBar, WaterMark } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import paymentAjax from 'src/api/payment.js';
 import worksheetAjax from 'src/api/worksheet';
 import DragMask from 'worksheet/common/DragMask';
+import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
+import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
+import { getTranslateInfo } from 'src/utils/app';
 import {
   emitter,
-  updateOptionsOfControls,
-  isRelateRecordTableControl,
-  filterHidedSubList,
-  checkCellIsEmpty,
   getRowGetType,
-  formatRecordToRelateRecord,
-  getRecordTempValue,
-  saveTempRecordValueToLocal,
-  removeTempRecordValueFromLocal,
   KVGet,
-} from 'worksheet/util';
-import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import RecordInfoContext from './RecordInfoContext';
-import { loadRecord, updateRecord, deleteRecord, RecordApi, handleSubmitDraft } from './crtl';
-import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
+  removeTempRecordValueFromLocal,
+  saveTempRecordValueToLocal,
+} from 'src/utils/common';
+import { isRelateRecordTableControl, updateOptionsOfControls } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
+import { getRecordTempValue } from 'src/utils/record';
+import SheetContext from '../Sheet/SheetContext';
+import { deleteRecord, handleSubmitDraft, loadRecord, RecordApi, updateRecord } from './crtl';
 import RecordForm from './RecordForm';
 import Header from './RecordForm/Header';
+import RecordInfoContext from './RecordInfoContext';
 import RecordInfoRight from './RecordInfoRight';
-import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import './RecordInfo.less';
-import externalPortalAjax from 'src/api/externalPortal';
-import { addBehaviorLog, getTranslateInfo } from 'src/util';
-import _, { find, get } from 'lodash';
-import SheetContext from '../Sheet/SheetContext';
-import paymentAjax from 'src/api/payment.js';
 
-const SIDE_MIN_WIDTH = 400;
+const SIDE_MIN_WIDTH = 200 + 226;
 
 const Drag = styled.div`
   z-index: 11;
@@ -299,6 +296,7 @@ export default class RecordInfo extends Component {
       appId,
       rowId,
       viewId,
+      isOtherPayment: _.get(window, 'shareState.isPublicRecord') && location.search.includes('payshare=true'),
     });
   };
 
@@ -311,7 +309,15 @@ export default class RecordInfo extends Component {
     return sideWidth;
   }
 
-  async loadRecord({ recordId, props, needReLoadSheetSwitch, closeWhenNotViewData, needUpdateControlIds, isRefresh }) {
+  async loadRecord({
+    recordId,
+    props,
+    needReLoadSheetSwitch,
+    closeWhenNotViewData,
+    needUpdateControlIds,
+    isRefresh,
+    cb = _.noop,
+  }) {
     const {
       from,
       view = {},
@@ -361,10 +367,12 @@ export default class RecordInfo extends Component {
         addBehaviorLog('worksheetRecord', worksheetId, { rowId: recordId }, true);
       let portalConfigSet = {};
       const id = this.props.projectId || data.projectId;
-      // 支付配置（草稿箱、对外公开分享\公开表单无支付）
+      // 支付配置（草稿箱、对外公开分享\公开表单无支付 公开分享记录通过支付分享可支付）
       let payConfig =
         from === RECORD_INFO_FROM.DRAFT ||
-        this.isPublicShare ||
+        (this.isPublicShare &&
+          _.get(window, 'shareState.isPublicRecord') &&
+          !location.search.includes('payshare=true')) ||
         _.get(window, 'shareState.isPublicForm') ||
         _.get(window, 'shareState.isPublicWorkflowRecord') ||
         (!_.isUndefined(enablePayment) && !enablePayment) ||
@@ -433,39 +441,48 @@ export default class RecordInfo extends Component {
             .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
         : data.formData;
 
-      this.setState({
-        ...portalConfigSet,
-        payConfig,
-        sideVisible:
-          (md.global.Account.isPortal &&
-            !portalConfigSet.allowExAccountDiscuss &&
-            (!portalConfigSet.approved || !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId))) ||
-          isPublicShare ||
-          _.get(window, 'shareState.isPublicForm') ||
-          _.get(window, 'shareState.isPublicWorkflowRecord')
-            ? false
-            : this.state.sideVisible, //外部门户是否开启讨论
-        formSectionWidth: 0,
-        recordinfo: {
-          ...data,
-          allowAdd,
-          ...(data.rules ? {} : { rules }),
-          isWorksheetQuery: isWorksheetQuery || _.isUndefined(isWorksheetQuery),
-        },
-        tempFormData: needUpdateControlIds
-          ? tempFormData
-              .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
-              .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
-          : data.formData,
-        formFlag: Math.random().toString(),
+      this.setState(
+        {
+          ...portalConfigSet,
+          payConfig,
+          sideVisible:
+            data.resultCode !== 71 &&
+            ((md.global.Account.isPortal &&
+              !portalConfigSet.allowExAccountDiscuss &&
+              (!portalConfigSet.approved ||
+                !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId))) ||
+            isPublicShare ||
+            _.get(window, 'shareState.isPublicForm') ||
+            _.get(window, 'shareState.isPublicWorkflowRecord')
+              ? false
+              : this.state.sideVisible), //外部门户是否开启讨论
+          formSectionWidth: 0,
+          recordinfo: {
+            ...data,
+            allowAdd,
+            ...(data.rules ? {} : { rules }),
+            isWorksheetQuery: isWorksheetQuery || _.isUndefined(isWorksheetQuery),
+          },
+          tempFormData: needUpdateControlIds
+            ? tempFormData
+                .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
+                .concat(
+                  needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity),
+                )
+            : data.formData,
+          formFlag: Math.random().toString(),
 
-        loading: false,
-        refreshBtnNeedLoading: false,
-        widgetStyle: data.advancedSetting || this.state.widgetStyle,
-        ...(needReLoadSheetSwitch ? { sheetSwitchPermit } : {}),
-        ...(!isRefresh ? { formDidMountFlag: Math.random().toString() } : {}),
-      });
-      this.loadTempValue({ updateTime: data.updateTime });
+          loading: false,
+          refreshBtnNeedLoading: false,
+          widgetStyle: data.advancedSetting || this.state.widgetStyle,
+          ...(needReLoadSheetSwitch ? { sheetSwitchPermit } : {}),
+          ...(!isRefresh ? { formDidMountFlag: Math.random().toString() } : {}),
+        },
+        (...args) => {
+          cb(...args);
+          this.loadTempValue({ updateTime: data.updateTime });
+        },
+      );
     } catch (res) {
       if (instanceId && workId && res.errorCode === 10) {
         onError(res);
@@ -653,8 +670,8 @@ export default class RecordInfo extends Component {
       from === RECORD_INFO_FROM.DRAFT
         ? allowAdd
         : _.isUndefined(this.props.allowEdit)
-        ? recordinfo.allowEdit
-        : this.props.allowEdit;
+          ? recordinfo.allowEdit
+          : this.props.allowEdit;
     const isDraftChildTableDefault =
       from === RECORD_INFO_FROM.DRAFT && data.filter(t => t.type === 34).some(it => _.get(it, 'value.isDefault'));
     this.setState({
@@ -957,11 +974,6 @@ export default class RecordInfo extends Component {
     this.setState({
       refreshBtnNeedLoading: true,
     });
-    _.each(this.refreshEvents || {}, fn => {
-      if (_.isFunction(fn)) {
-        fn({ doNotResetPageIndex });
-      }
-    });
     const { recordId, worksheetId, appId, viewId } = this.state;
     this.loadRecord({
       recordId,
@@ -973,6 +985,13 @@ export default class RecordInfo extends Component {
         worksheetId,
       },
       isRefresh: true,
+      cb: () => {
+        _.each(this.refreshEvents || {}, fn => {
+          if (_.isFunction(fn)) {
+            fn({ doNotResetPageIndex });
+          }
+        });
+      },
     });
     if (reloadDiscuss) {
       emitter.emit('RELOAD_RECORD_INFO_DISCUSS');
@@ -1124,6 +1143,8 @@ export default class RecordInfo extends Component {
       isSubList,
       isCharge,
       isSmall,
+      fromIsDraft: from === RECORD_INFO_FROM.DRAFT,
+      fromIsWorkflow: from === RECORD_INFO_FROM.WORKFLOW,
       recordTitle,
       allowEdit:
         from === RECORD_INFO_FROM.DRAFT ? allowAdd : _.isUndefined(allowEdit) ? recordinfo.allowEdit : allowEdit,
@@ -1236,6 +1257,7 @@ export default class RecordInfo extends Component {
                   isCharge={isCharge}
                   printCharge={printCharge}
                   from={from}
+                  sideBarBtnVisible={recordinfo.resultCode === 1}
                   isOpenNewAddedRecord={isOpenNewAddedRecord}
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
@@ -1546,6 +1568,8 @@ export default class RecordInfo extends Component {
                   projectId={this.props.projectId || recordinfo.projectId}
                   controls={controls}
                   formFlag={formFlag}
+                  instanceId={instanceId}
+                  workId={workId}
                   formdata={tempFormData.map(o => {
                     if (o.controlId === 'ownerid') {
                       //更新拥有者数据

@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import config from '../../utils/config';
-import * as actions from '../../redux/actions';
-import * as socket from '../../utils/socket';
-import Constant from '../../utils/constant';
-import SearchMember from '../../components/SearchMember';
 import Trigger from 'rc-trigger';
-import './index.less';
-import { createDiscussion } from '../../utils/group';
-import AddressBook from '../../lib/addressBook';
 import Tooltip from 'ming-ui/components/Tooltip';
-import CreateGroup from 'src/components/group/create/creatGroup';
 import addFriends from 'src/components/addFriends';
+import createGroup from 'src/pages/Group/createGroup';
+import SearchMember from '../../components/SearchMember';
+import AddressBook from '../../lib/addressBook';
+import * as actions from '../../redux/actions';
+import config from '../../utils/config';
+import Constant from '../../utils/constant';
+import { createDiscussion } from '../../utils/group';
+import * as socket from '../../utils/socket';
+import './index.less';
 
 class Btns extends Component {
   constructor(props) {
@@ -106,12 +106,12 @@ class Btns extends Component {
     });
     this.handleMenuChange();
   }
-  handleCreateGroup() {
-    CreateGroup.createInit({
-      callback(group) {},
-    });
+
+  handleCreateGroup = () => {
+    createGroup({});
     this.handleMenuChange();
-  }
+  };
+
   handleAddressBook(data) {
     const { accountId, groupId, type } = data;
     if (accountId) {
@@ -215,7 +215,7 @@ class Btns extends Component {
         <div
           className="menuItem ThemeBGColor3"
           title={_l('创建群组进行协作，群组可以设置管理员管理群组成员，并可作为动态分享范围，关联部门')}
-          onClick={this.handleCreateGroup.bind(this)}
+          onClick={this.handleCreateGroup}
         >
           <i className="icon-group" />
           <div className="menuItem-text">{_l('创建群组')}</div>

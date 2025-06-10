@@ -1,11 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import filterXss from 'xss';
 import { Dialog, RichText } from 'ming-ui';
+import { renderText } from 'src/utils/control';
 import EditableCellCon from '../EditableCellCon';
-import { regexFilterHtmlScript } from 'worksheet/util';
-import renderText from './renderText';
 
+/**
+ * regexFilter 正则方式过滤 html标签
+ * 优点：快
+ * 缺点：转义后的字符没有处理 (可以用 https://github.com/mathiasbynens/he 处理)
+ */
+export function regexFilterHtmlScript(str) {
+  return filterXss(str).replace(/(<([^>]+)>)/gi, '');
+}
 export default class Text extends React.Component {
   static propTypes = {
     className: PropTypes.string,

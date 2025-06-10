@@ -1,6 +1,6 @@
-import { VersionProductType } from 'src/util/enum';
 import viewPluginApi from 'src/api/plugin';
 import workflowPluginApi from 'src/pages/workflow/api/Plugin';
+import { VersionProductType } from 'src/utils/enum';
 
 export const sideNavList = [
   {

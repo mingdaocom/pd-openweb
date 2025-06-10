@@ -1,27 +1,28 @@
 import React from 'react';
-import DocumentTitle from 'react-document-title';
-import Sidenav from './Sidenav';
 import { Route, Switch } from 'react-router-dom';
-import APILibrary from './apiIntegration';
-import ConnectList from './apiIntegration/ConnectList';
-import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
-import { emitter, getCurrentProject } from 'src/util';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import Connector from './dataIntegration/connector';
-import DataSource from './dataIntegration/source';
-import DataMirror from './dataIntegration/dataMirror';
-import Stats from './dataIntegration/stats';
-import SyncTask from './dataIntegration/task';
-import TaskCon from './dataIntegration/TaskCon';
-import { integrationConfig } from 'src/pages/integration/config.js';
-import './svgIcon';
-import { navigateTo } from 'src/router/navigateTo';
+import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus } from 'src/util';
+import { integrationConfig } from 'src/pages/integration/config.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { emitter } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { getCurrentProject } from 'src/utils/project';
+import { getFeatureStatus } from 'src/utils/project';
+import APILibrary from './apiIntegration';
+import ConnectList from './apiIntegration/ConnectList';
+import Connector from './dataIntegration/connector';
+import DataMirror from './dataIntegration/dataMirror';
+import DataSource from './dataIntegration/source';
+import Stats from './dataIntegration/stats';
+import SyncTask from './dataIntegration/task';
+import TaskCon from './dataIntegration/TaskCon';
+import Sidenav from './Sidenav';
+import './svgIcon';
 
 const ROUTE_CONFIG_PATH = {
   connectList: '/integration/connectList',
@@ -155,10 +156,10 @@ export default class HubContainer extends React.Component {
       const navigateLink = !menuAuth.noCreateTaskMenu
         ? '/integration/dataConnect'
         : !menuAuth.noSyncTaskMenu
-        ? '/integration/task'
-        : !menuAuth.noSourceMenu
-        ? '/integration/source'
-        : '/integration';
+          ? '/integration/task'
+          : !menuAuth.noSourceMenu
+            ? '/integration/source'
+            : '/integration';
       navigateTo(navigateLink);
       return;
     }

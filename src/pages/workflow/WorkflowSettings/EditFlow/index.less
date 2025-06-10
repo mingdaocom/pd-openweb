@@ -699,7 +699,7 @@
     }
     .icon-cancel {
       position: absolute;
-      top: 11px;
+      top: 8px;
       right: 11px;
       cursor: pointer;
     }
@@ -716,51 +716,73 @@
   }
   .createNodeFooterBtn {
     height: 40px;
-    border-radius: 3px;
+    border-radius: 6px;
     border: 1px solid #ccc;
     display: flex;
     align-items: center;
-    width: 100%;
     justify-content: center;
+    margin: 20px 8px;
   }
   .createNodeDialogNav {
     width: 200px;
     height: 100%;
-    padding: 20px 16px 0;
+    padding: 20px 4px 0;
     background: #f5f6f7;
   }
   .createNodeDialogNavList {
-    li {
+    > li {
       cursor: pointer;
       height: 40px;
       border-radius: 4px;
+      position: relative;
+      padding-left: 40px;
+      &::before {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        content: '';
+        background: url('../../asset/createNodeIcon.png') no-repeat;
+        background-size: 48px 16px;
+        width: 16px;
+        height: 16px;
+      }
+      &[data-type='plugin'] {
+        &::before {
+          background-position: -16px 0;
+        }
+      }
+      &[data-type='api'] {
+        &::before {
+          background-position: -32px 0;
+        }
+      }
       &:hover {
         background: rgba(0, 0, 0, 0.03);
       }
       &.active {
-        color: #2196f3;
+        font-weight: bold;
         background: #FFFFFF !important;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-        i {
-          color: #2196f3;
+        &::after {
+          position: absolute;
+          width: 3px;
+          height: 16px;
+          background: #2196f3;
+          top: 12px;
+          left: 0;
+          content: '';
+          border-radius: 3px;
         }
-      }
-      i {
-        color: #757575;
       }
     }
   }
-  .createNodeDialogNavLine {
-    background: #ddd;
-    height: 1px;
-    margin: 12px 0;
-  }
   .createNodeDialogNavTags {
     font-size: 13px;
+    margin: 2px 0;
     li {
       height: 40px;
       line-height: 40px;
-      padding-left: 12px;
+      padding-left: 40px;
       color: #515151;
     }
   }

@@ -1,22 +1,18 @@
-import { quickSelectUser } from 'ming-ui/functions';
-import worksheetAjax from 'src/api/worksheet';
-import publicWorksheetApi from 'src/api/publicWorksheet';
-import { getRowDetail } from 'worksheet/api';
-import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import { getAppFeaturesPath } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import _ from 'lodash';
-import {
-  handleRecordError,
-  postWithToken,
-  replaceBtnsTranslateInfo,
-  replaceRulesTranslateInfo,
-  getRecordLandUrl,
-} from 'worksheet/util';
-import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
+import { quickSelectUser } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
+import publicWorksheetApi from 'src/api/publicWorksheet';
+import worksheetAjax from 'src/api/worksheet';
+import { getRowDetail } from 'worksheet/api';
 import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
+import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
+import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import { getAppFeaturesPath } from 'src/utils/app';
+import { postWithToken } from 'src/utils/common';
+import { getRecordLandUrl, handleRecordError } from 'src/utils/record';
+import { replaceBtnsTranslateInfo, replaceRulesTranslateInfo } from 'src/utils/translate';
 
 export function getWorksheetInfo(...args) {
   return worksheetAjax.getWorksheetInfo(...args);
@@ -68,7 +64,10 @@ export function loadRecord({
     }
     promise
       .then(([row, rules]) => {
-        if (row.resultCode === 1) {
+        if (row.resultCode === 1 || row.resultCode === 71) {
+          if (row.roleType !== 0) {
+            row.resultCode = 1;
+          }
           resolve(rules ? { ...row, rules: replaceRulesTranslateInfo(appId, worksheetId, rules) } : row);
         } else {
           reject(row);
@@ -214,6 +213,15 @@ export function handleSubmitDraft(
     if (!_.isEmpty(filters)) {
       filters.forEach(it => {
         controlIds = controlIds.concat((it.groupFilters || []).map(v => v.controlId)).concat(it.controlId);
+        if (it.groupFilters && it.groupFilters.length > 0) {
+          it.groupFilters.forEach(v => {
+            controlIds = controlIds.concat(v.controlId);
+            if (v.dynamicSource && v.dynamicSource.length > 0) {
+              const cids = v.dynamicSource.reduce((ids, s) => ids.concat(s.cid), []);
+              controlIds = controlIds.concat(cids);
+            }
+          });
+        }
       });
     }
     if (!_.isEmpty(ruleItems)) {

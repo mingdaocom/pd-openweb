@@ -516,7 +516,7 @@ export default class Message extends Component {
         <div className="bold mTop20">{_l('短信签名')}</div>
         <div className="Gray_75 mTop10">
           {_l(
-            '签名内容长度为2-20个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
+            '签名内容长度为2-20个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。签名必须线下完成实名登记，且一个营业执照只能设置一个签名。',
           )}
         </div>
 
@@ -531,7 +531,7 @@ export default class Message extends Component {
               onFocus={() => this.setState({ showSignList: true })}
               disabled={!isCertified}
               onBlur={evt => {
-                const value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
+                const value = evt.currentTarget.value.trim().replace(/[^\u4e00-\u9fa5a-zA-Z ]/g, '');
 
                 this.setState({ showSignList: false, sign: value });
               }}

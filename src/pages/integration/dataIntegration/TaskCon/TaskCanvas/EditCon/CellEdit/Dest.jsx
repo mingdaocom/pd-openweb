@@ -109,8 +109,9 @@ export default function DestEdit(props) {
           <Input
             className="setSheetName"
             placeholder={_l('请输入')}
-            value={sheetName}
-            onChange={sheetName => {
+            defaultValue={sheetName}
+            onBlur={e => {
+              const sheetName = e.target.value
               onChangeInfo({
                 sheetName,
                 node: {
@@ -166,12 +167,12 @@ export default function DestEdit(props) {
                 destField: !o.destField
                   ? o.destField
                   : {
-                      ...o.sourceField,
-                      ...o.destField,
-                      dataType: _.get(o, 'destField.dataType'),
-                      oid: null,
-                      id: null,
-                    },
+                    ...o.sourceField,
+                    ...o.destField,
+                    dataType: _.get(o, 'destField.dataType'),
+                    oid: null,
+                    id: null,
+                  },
               };
             }
           });

@@ -1,22 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
-import moment from 'moment';
-import { Button, Icon, Tooltip, LoadDiv, UserName } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Button, Icon, LoadDiv, Tooltip, UserName } from 'ming-ui';
+import projectAjax from 'src/api/project';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import EditNameDialog from '../component/EditNameDialog';
+import Status from '../component/Status';
+import { COMPUTING_INSTANCE_STATUS } from '../config';
+import EXCLUSIVE_BIG from '../images/exclusive_big.png';
 import EXCLUSIVE_EXPLAN_IMG from '../images/exclusive_explan.png';
 import EXCLUSIVE_EXPLAN_HUI_IMG from '../images/exclusive_explan_hui.png';
-import EXCLUSIVE_BIG from '../images/exclusive_big.png';
-import Status from '../component/Status';
-import EditNameDialog from '../component/EditNameDialog';
-import projectAjax from 'src/api/project';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import { navigateTo } from 'src/router/navigateTo';
-import { COMPUTING_INSTANCE_STATUS } from '../config';
-import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
 import '../index.less';
 
 const MoreOperateMenu = styled.ul`

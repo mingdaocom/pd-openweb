@@ -1,19 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { string, func, bool } from 'prop-types';
-import autoSize from 'ming-ui/decorators/autoSize';
-import ScrollView from 'ming-ui/components/ScrollView';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import instanceVersion from '../../api/instanceVersion';
-import { STATUS_ERROR_MESSAGE } from './config';
-import './index.less';
-import Header from './Header';
-import Steps from './Steps';
-import worksheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
-import StepHeader from './StepHeader';
+import { bool, func, string } from 'prop-types';
 import { Icon } from 'ming-ui';
+import ScrollView from 'ming-ui/components/ScrollView';
+import autoSize from 'ming-ui/decorators/autoSize';
 import instance from '../../api/instance';
-import { getTranslateInfo, addBehaviorLog } from 'src/util';
+import instanceVersion from '../../api/instanceVersion';
+import worksheetAjax from 'src/api/worksheet';
+import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
+import { getTranslateInfo } from 'src/utils/app';
+import { addBehaviorLog } from 'src/utils/project';
+import { STATUS_ERROR_MESSAGE } from './config';
+import Header from './Header';
+import StepHeader from './StepHeader';
+import Steps from './Steps';
+import './index.less';
 
 const WorkflowHistory = props => {
   return (
@@ -208,7 +209,7 @@ export default class ExecDialog extends Component {
         recordId={rowId}
         worksheetId={worksheetId}
         recordTitle={data.recordTitle ? data.title : ''}
-        renderHeader={({ resultCode }) => {
+        renderHeader={({ resultCode, isLoading, onRefresh }) => {
           return (
             <Header
               projectId={projectId}
@@ -222,6 +223,12 @@ export default class ExecDialog extends Component {
               worksheetId={worksheetId}
               noAuth={resultCode === 7}
               instanceId={id}
+              isLoading={isLoading}
+              onRefresh={() => {
+                this.getData();
+                this.getPermit();
+                onRefresh();
+              }}
               {...this.props}
             />
           );

@@ -1,9 +1,10 @@
-import { InviteFromType } from '../config';
-import { setPssId } from 'src/util/pssId';
-import { getRequest, encrypt } from 'src/util';
-import { ActionResult, AccountNextActions } from 'src/pages/AuthService/config';
 import registerApi from 'src/api/register';
-import { getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util'
+import { AccountNextActions, ActionResult } from 'src/pages/AuthService/config';
+import { getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util';
+import { getRequest } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
+import { setPssId } from 'src/utils/pssId';
+import { InviteFromType } from '../config';
 
 export const getTitle = () => {
   const { type } = getRequest();
@@ -51,9 +52,24 @@ export const getDes = authInfo => {
 export const getDepartmentInfo = props => {
   const { userCard = [] } = props;
   const { departments = [], workSites = [], jobs = [] } = userCard;
-  let departmentsN = departments.length <= 0 ? [{ value: 'null', text: _l('暂无部门') }] : _.map(departments, item => { return { value: item.departmentId, text: item.departmentName } });
-  let workSitesN = workSites.length <= 0 ? [{ value: 'null', text: _l('暂无工作地点') }] : _.map(workSites, item => { return { value: item.workSiteId, text: item.workSiteName } });
-  let jobsN = jobs.length <= 0 ? [{ value: 'null', text: _l('暂无职位') }] : _.map(jobs, item => { return { value: item.jobId, text: item.jobName } });
+  let departmentsN =
+    departments.length <= 0
+      ? [{ value: 'null', text: _l('暂无部门') }]
+      : _.map(departments, item => {
+          return { value: item.departmentId, text: item.departmentName };
+        });
+  let workSitesN =
+    workSites.length <= 0
+      ? [{ value: 'null', text: _l('暂无工作地点') }]
+      : _.map(workSites, item => {
+          return { value: item.workSiteId, text: item.workSiteName };
+        });
+  let jobsN =
+    jobs.length <= 0
+      ? [{ value: 'null', text: _l('暂无职位') }]
+      : _.map(jobs, item => {
+          return { value: item.jobId, text: item.jobName };
+        });
   return { departmentsArr: departmentsN, workSitesArr: workSitesN, jobsArr: jobsN };
 };
 
@@ -97,62 +113,64 @@ export const registerFailCb = ({ actionResult, accountInfo, onChange }) => {
 //注册后 创建账号相关处理
 export const doCreateAccount = ({ accountInfo, callback, onChange }) => {
   const { password, emailOrTel, verifyCode, confirmation, isLink, TPParams = {}, dialCode, nextAction } = accountInfo;
-  registerApi.createAccount({
-    account: encrypt(dialCode + emailOrTel),
-    password: encrypt(password),
-    fullname: '',
-    verifyCode,
-    confirmation,
-    isLink: location.href.indexOf('linkInvite') >= 0,
-    unionId: TPParams.unionId,
-    state: TPParams.state,
-    tpType: TPParams.tpType,
-    setSession: nextAction == AccountNextActions.login,
-    regFrom: window.localStorage.getItem('RegFrom'),
-    referrer: window.localStorage.getItem('Referrer'),
-  }).then(data => {
-    data.token && onChange({ tokenProjectCode: data.token });
-    // 接口调用成功后需要删除 cookie RegFrom 和  Referrer
-    delCookie('RegFrom');
-    window.localStorage.removeItem('Referrer');
-    onChange({ createAccountLoading: false });
-    if (data.actionResult == ActionResult.success) {
-      setPssId(data.sessionId);
-      const { tpType } = TPParams;
+  registerApi
+    .createAccount({
+      account: encrypt(dialCode + emailOrTel),
+      password: encrypt(password),
+      fullname: '',
+      verifyCode,
+      confirmation,
+      isLink: location.href.indexOf('linkInvite') >= 0,
+      unionId: TPParams.unionId,
+      state: TPParams.state,
+      tpType: TPParams.tpType,
+      setSession: nextAction == AccountNextActions.login,
+      regFrom: window.localStorage.getItem('RegFrom'),
+      referrer: window.localStorage.getItem('Referrer'),
+    })
+    .then(data => {
+      data.token && onChange({ tokenProjectCode: data.token });
+      // 接口调用成功后需要删除 cookie RegFrom 和  Referrer
+      delCookie('RegFrom');
+      window.localStorage.removeItem('Referrer');
+      onChange({ createAccountLoading: false });
+      if (data.actionResult == ActionResult.success) {
+        setPssId(data.sessionId);
+        const { tpType } = TPParams;
 
-      if ([7, 8].includes(tpType)) {
-        //url 中的 tpType 参数为 7 或 8 ，则直接进
-        location.href = '/app';
+        if ([7, 8].includes(tpType)) {
+          //url 中的 tpType 参数为 7 或 8 ，则直接进
+          location.href = '/app';
 
-        if (window.isMingDaoApp) {
-          mdAppResponse({
-            sessionId: 'register',
-            type: 'native',
-            settings: { action: 'registerSuccess', account: dialCode + emailOrTel, password },
-          });
+          if (window.isMingDaoApp) {
+            mdAppResponse({
+              sessionId: 'register',
+              type: 'native',
+              settings: { action: 'registerSuccess', account: dialCode + emailOrTel, password },
+            });
+          }
+          return;
         }
-        return;
+        callback && callback();
+      } else if (data.actionResult == ActionResult.userAccountExists) {
+        onChange({ focusDiv: '', warnList: [{ tipDom: 'inputAccount', warnTxt: _l('账号已注册') }] });
+      } else if (data.actionResult == ActionResult.inviteLinkExpirate) {
+        onChange({ step: 'inviteLinkExpirate' });
+      } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
+        onChange({ focusDiv: '', warnList: [{ tipDom: 'inputCode', warnTxt: _l('验证码错误'), isError: true }] });
+      } else if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
+        onChange({
+          focusDiv: '',
+          warnList: [{ tipDom: 'inputCode', warnTxt: _l('验证码已经失效，请重新发送'), isError: true }],
+        });
+      } else {
+        alert(_l('操作失败'), 3);
       }
-      callback && callback();
-    } else if (data.actionResult == ActionResult.userAccountExists) {
-      onChange({ focusDiv: '', warnList: [{ tipDom: 'inputAccount', warnTxt: _l('账号已注册') }] });
-    } else if (data.actionResult == ActionResult.inviteLinkExpirate) {
-      onChange({ step: 'inviteLinkExpirate' });
-    } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
-      onChange({ focusDiv: '', warnList: [{ tipDom: 'inputCode', warnTxt: _l('验证码错误'), isError: true }] });
-    } else if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
-      onChange({
-        focusDiv: '',
-        warnList: [{ tipDom: 'inputCode', warnTxt: _l('验证码已经失效，请重新发送'), isError: true }],
-      });
-    } else {
-      alert(_l('操作失败'), 3);
-    }
-  });
+    });
 };
 
 // 注册
-export const registerAction = ({ res = {}, info = {}, onChange = () => { }, callback }) => {
+export const registerAction = ({ res = {}, info = {}, onChange = () => {}, callback }) => {
   const { password, emailOrTel, confirmation, isLink, loginForAdd, dialCode, nextAction } = info;
   let { ticket, randstr, captchaType } = res;
   let params = {};
@@ -171,67 +189,73 @@ export const registerAction = ({ res = {}, info = {}, onChange = () => { }, call
     if (loginForAdd) {
       // 登录当前已有账户
       if (nextAction == AccountNextActions.login) {
-        registerApi.joinByExistAccount({
-          // 如果已有账号加入某个邀请模块(不含加入公司)
-          account: encrypt(dialCode + emailOrTel),
-          password: encrypt(password),
-          confirmation: confirmation,
-          isLink: location.href.indexOf('linkInvite') >= 0,
-          ...params,
-        }).then(data => {
-          onChange({ createAccountLoading: false });
-          if (data.actionResult == ActionResult.success) {
-            setPssId(data.sessionId);
-            registerSuc(info);
-          } else {
-            registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
-          }
-        });
-      } else if (nextAction == AccountNextActions.userCardInfo) {
-        if (location.href.indexOf('join') >= 0) {
-          registerApi.checkExistAccountByConfirmation({
-            // 检验已存在用户
-            confirmation: confirmation,
-            password: encrypt(password),
-            ...params,
-          }).then(data => {
-            onChange({ createAccountLoading: false });
-            data.token && onChange({ tokenProjectCode: data.token });
-            if (data.actionResult == ActionResult.success) {
-              onChange({ step: 'editInfo' });
-            } else {
-              registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
-            }
-          });
-        } else {
-          registerApi.checkExistAccount({
-            // 已有账号检测
+        registerApi
+          .joinByExistAccount({
+            // 如果已有账号加入某个邀请模块(不含加入公司)
             account: encrypt(dialCode + emailOrTel),
             password: encrypt(password),
+            confirmation: confirmation,
+            isLink: location.href.indexOf('linkInvite') >= 0,
             ...params,
-          }).then(data => {
+          })
+          .then(data => {
             onChange({ createAccountLoading: false });
-            data.token && onChange({ tokenProjectCode: data.token });
             if (data.actionResult == ActionResult.success) {
               setPssId(data.sessionId);
-              if (nextAction == AccountNextActions.createProject) {
-                onChange({ step: 'create' });
-              } else if (nextAction == AccountNextActions.userCardInfo) {
-                onChange({ step: 'editInfo' });
-              } else {
-                onChange({ step: 'editInfo' });
-              }
-            } else if (data.actionResult == ActionResult.isLock) {
-              alert(_l('账号已被锁定，请稍后再试'), 3);
-            } else if (
-              data.actionResult == ActionResult.firstLoginResetPassword ||
-              data.actionResult == ActionResult.passwordOverdue
-            ) {
-              alert(_l('密码已过期，请重置后重新操作'), 3);
+              registerSuc(info);
             } else {
               registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
             }
           });
+      } else if (nextAction == AccountNextActions.userCardInfo) {
+        if (location.href.indexOf('join') >= 0) {
+          registerApi
+            .checkExistAccountByConfirmation({
+              // 检验已存在用户
+              confirmation: confirmation,
+              password: encrypt(password),
+              ...params,
+            })
+            .then(data => {
+              onChange({ createAccountLoading: false });
+              data.token && onChange({ tokenProjectCode: data.token });
+              if (data.actionResult == ActionResult.success) {
+                onChange({ step: 'editInfo' });
+              } else {
+                registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
+              }
+            });
+        } else {
+          registerApi
+            .checkExistAccount({
+              // 已有账号检测
+              account: encrypt(dialCode + emailOrTel),
+              password: encrypt(password),
+              ...params,
+            })
+            .then(data => {
+              onChange({ createAccountLoading: false });
+              data.token && onChange({ tokenProjectCode: data.token });
+              if (data.actionResult == ActionResult.success) {
+                setPssId(data.sessionId);
+                if (nextAction == AccountNextActions.createProject) {
+                  onChange({ step: 'create' });
+                } else if (nextAction == AccountNextActions.userCardInfo) {
+                  onChange({ step: 'editInfo' });
+                } else {
+                  onChange({ step: 'editInfo' });
+                }
+              } else if (data.actionResult == ActionResult.isLock) {
+                alert(_l('账号已被锁定，请稍后再试'), 3);
+              } else if (
+                data.actionResult == ActionResult.firstLoginResetPassword ||
+                data.actionResult == ActionResult.passwordOverdue
+              ) {
+                alert(_l('密码已过期，请重置后重新操作'), 3);
+              } else {
+                registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
+              }
+            });
         }
       }
     } else {
@@ -256,7 +280,7 @@ export const registerSuc = ({ emailOrTel, dialCode, password }, action) => {
   if (returnUrl.indexOf('type=privatekey') > -1) {
     location.href = returnUrl;
   } else {
-    toMDPage()
+    toMDPage();
   }
 
   if (window.isMingDaoApp) {

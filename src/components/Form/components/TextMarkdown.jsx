@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, MdMarkdown } from 'ming-ui';
 import MarkdownDialog from 'src/ming-ui/components/MdMarkdown/MarkdownDialog.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import { ADD_EVENT_ENUM } from '../core/enum';
 
 const TextMarkdownWrap = styled.div`
@@ -58,7 +58,7 @@ export default function TextMarkdown(props) {
 
   const isMobile = browserIsMobile();
   const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
-  const maxHeight = isMobile ? 400 : Number(advancedSetting.maxheight || '400');
+  const maxHeight = isMobile ? 10000 : Number(advancedSetting.maxheight || '400');
 
   const getCommonProps = () => {
     return {

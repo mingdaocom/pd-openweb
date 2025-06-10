@@ -1,23 +1,25 @@
-import PropTypes from 'prop-types';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import { diffChars } from 'diff';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import fixedDataController from 'src/api/fixedData';
-import MobileCityPicker from './MobileCityPciker';
 import { Icon, LoadDiv } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import fixedDataController from 'src/api/fixedData';
+import { browserIsMobile } from 'src/utils/common';
+import MobileCityPicker from './MobileCityPciker';
 import '../less/CityPicker.less';
 import 'rc-trigger/assets/index.css';
-import _ from 'lodash';
-import { diffChars } from 'diff';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
 const CascaderSelectWrap = styled.div`
   background: #fff;
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   padding: 6px 0;
   z-index: 11;
   height: 211px;
@@ -55,7 +57,9 @@ const CascaderSearchSelectWrap = styled.ul`
   padding: 6px 0;
   background: #fff;
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   z-index: 11;
   li {
     height: 32px;
@@ -78,8 +82,10 @@ export default function CityPicker(props) {
   const {
     id = 'CityPicker',
     level = 3,
+    chooserange = 'CN',
+    projectId,
     search,
-    placeholder = _l('省/市/县'),
+    placeholder = _l('选择地区'),
     defaultValue = '',
     popupParentNode = document.body,
     className = '',
@@ -132,13 +138,13 @@ export default function CityPicker(props) {
 
   useEffect(() => {
     if (visible && !search && (!data.length || !_.isArray(data[0]))) {
-      getCitys();
+      getCitys({ parentId: chooserange || '' });
       return;
     }
   }, [visible]);
 
   useEffect(() => {
-    visible && getCitys({ keywords: search });
+    visible && getCitys({ keywords: search, parentId: chooserange || '' });
   }, [search]);
 
   useEffect(() => {
@@ -162,11 +168,20 @@ export default function CityPicker(props) {
   };
 
   const getCitys = (param = {}, key = 0) => {
-    const { parentId = '', keywords = '' } = param;
+    const { parentId = 'CN', keywords = '' } = param;
 
     setLoadingId(parentId || 'all');
     fixedDataController
-      .getCitysByParentID({ parentId: parentId, keywords: keywords, layer: level, textSplit: '/', isLast: mustLast })
+      .getCitysByParentID({
+        parentId: parentId,
+        keywords: keywords,
+        layer: level,
+        textSplit: '/',
+        isLast: mustLast,
+        projectId: projectId,
+        isGetCounty: !chooserange,
+        langType: getCurrentLangCode(),
+      })
       .then(res => {
         setLoadingId(false);
         keywords ? setData(res.citys) : setData(data.slice(0, key).concat([res.citys]));
@@ -189,8 +204,8 @@ export default function CityPicker(props) {
             ? Math.max(0, currentIndex - 1)
             : Math.min(currentIndex + 1, data.length - 1)
           : e.keyCode === 38
-          ? data.length - 1
-          : 0;
+            ? data.length - 1
+            : 0;
       setSearchSelect(data[nextIndex]);
       activeItemScrollView();
       return;
@@ -278,6 +293,7 @@ export default function CityPicker(props) {
                     active: _.get(searchSelect, 'id') === item.id,
                   })}
                   key={`CascaderSearchSelectWrap-List-Item-${item.id}`}
+                  title={item.path}
                   onClick={e => {
                     e.stopPropagation();
                     callback([item], item.path.split('/').length);
@@ -313,6 +329,7 @@ export default function CityPicker(props) {
                             active: select.find(l => l.id === item.id),
                           })}
                           key={`CascaderSelectWrap-List-Item-${item.id}`}
+                          title={item.name}
                           onClick={e => {
                             e.stopPropagation();
                             handleClick(
@@ -381,7 +398,7 @@ export default function CityPicker(props) {
         onClear={handleClear}
         showConfirmBtn={showConfirmBtn}
         onClose={handleClose}
-        getCitys={getCitys}
+        getCitys={({ keywords = '' } = {}) => getCitys({ keywords, parentId: chooserange || '' })}
         handleClick={handleClick}
       >
         {renderContent()}

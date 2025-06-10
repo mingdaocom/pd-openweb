@@ -1,10 +1,17 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import ChildTable from '../../components/ChildTable';
+
+const SubListWrap = styled.div`
+  &.tableWrap {
+    margin-right: -20px;
+  }
+`;
 
 export default function SubList(props) {
   const {
-    value,
     recordId,
     from,
     registerCell,
@@ -24,7 +31,7 @@ export default function SubList(props) {
 
   const debounceChange = _.debounce(onChange, 500);
 
-  const handleChange = ({ rows, originRows = [], lastAction = {} }, mode) => {
+  const handleChange = ({ rows, originRows = [], lastAction = {} }, value) => {
     const onChangeData = lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? debounceChange : onChange;
     const isAdd = !recordId;
     if (
@@ -43,6 +50,7 @@ export default function SubList(props) {
           'UPDATE_TREE_TABLE_VIEW_ITEM',
           'UPDATE_TREE_TABLE_VIEW_TREE_MAP',
           'WORKSHEET_SHEETVIEW_APPEND_ROWS',
+          'UPDATE_PAGINATION',
         ],
         lastAction.type,
       ) &&
@@ -91,7 +99,7 @@ export default function SubList(props) {
   };
 
   return (
-    <div className="mobileSubList">
+    <SubListWrap className={`mobileSubList ${_.get(control, 'advancedSetting.h5showtype') === '3' ? 'tableWrap' : ''}`}>
       <ChildTable
         showSearch
         showExport
@@ -116,7 +124,7 @@ export default function SubList(props) {
         onChange={handleChange}
         mobileIsEdit={!disabled && !formDisabled}
       />
-    </div>
+    </SubListWrap>
   );
 }
 

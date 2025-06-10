@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Dialog, LoadDiv, Icon } from 'ming-ui';
-import SelectCertification from './SelectCertification';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import certificationApi from '../../api/certification';
+import SelectCertification from './SelectCertification';
 
 const Wrapper = styled.div`
   display: flex;
@@ -104,7 +104,7 @@ export default function CertificationButton(props) {
       </div>
       {projectId && authType === 1 && (
         <div className="certBtn mLeft12" onClick={() => onVerify(true)}>
-          {_l('升级到企业认证')}
+          {_l('升级到组织认证')}
         </div>
       )}
 

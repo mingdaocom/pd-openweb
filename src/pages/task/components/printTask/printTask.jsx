@@ -1,11 +1,12 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import postAjax from 'src/api/taskCenter';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { htmlDecodeReg, formatNumberThousand } from 'src/util';
-import './printTask.less';
-import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import postAjax from 'src/api/taskCenter';
+import { navigateTo } from 'src/router/navigateTo';
+import { formatNumberThousand } from 'src/utils/control';
+import { htmlDecodeReg } from 'src/utils/project';
+import './printTask.less';
 
 export default class PrintTask extends Component {
   constructor(props) {

@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useSetState } from 'react-use';
-import { getRequest } from 'src/util';
-import loginController from 'src/api/login';
-import { setPssId } from 'src/util/pssId';
-import { checkLogin } from 'src/util/sso';
-import { Wrap } from './style';
-const request = getRequest();
-import { LoginResult } from 'src/pages/AuthService/login/config.js';
 import { LoadDiv } from 'ming-ui';
+import loginController from 'src/api/login';
+import { LoginResult } from 'src/pages/AuthService/login/config.js';
+import { getDataByFilterXSS } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { setPssId } from 'src/utils/pssId';
+import { checkLogin } from 'src/utils/sso';
+import { Wrap } from './style';
+
+const request = getRequest();
 
 const TPTYPES = {
   weixin: 1,
@@ -37,7 +39,7 @@ function Container(props) {
     if ((unionId && state && tpType) || (account && password)) {
       const isApp = window.isDingTalk || window.isWxWork || window.isWeLink || window.isFeiShu;
       if (isApp && checkLogin()) {
-        const redirectUrl = returnUrl || '/dashboard';
+        const redirectUrl = returnUrl ? getDataByFilterXSS(returnUrl) : '/dashboard';
         window.location.replace(redirectUrl);
       } else {
         login();

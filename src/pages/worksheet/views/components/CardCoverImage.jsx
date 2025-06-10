@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
+import { head, includes } from 'lodash';
 import styled from 'styled-components';
-import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import { getAdvanceSetting, getClassNameByExt, browserIsMobile, addBehaviorLog } from 'src/util';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
-import { filter, includes, head, get } from 'lodash';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getMultiRelateViewConfig } from '../util';
-import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import { browserIsMobile, getClassNameByExt } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
+import { getMultiRelateViewConfig } from '../util';
 
 const CoverImageWrap = styled.div`
   position: relative;

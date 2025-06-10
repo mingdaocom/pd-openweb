@@ -5,8 +5,8 @@ import qs from 'query-string';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { LoadDiv } from 'ming-ui';
-import { formatQuickFilter } from 'worksheet/util';
-import { emitter } from 'worksheet/util';
+import { emitter } from 'src/utils/common';
+import { formatQuickFilter } from 'src/utils/filter';
 import WidgetBridge from './bridge';
 
 const Con = styled.div`
@@ -144,6 +144,7 @@ export default function WidgetContainer(props) {
   return (
     <Con>
       <CustomWidget
+        className="customWidgetIframe"
         allow="geolocation; microphone; camera; fullscreen;"
         allowFullscreen
         ref={iframeRef}

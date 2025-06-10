@@ -1,19 +1,30 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Switch, LoadDiv, Tooltip, Support, UpgradeIcon, VerifyPasswordConfirm, Checkbox, Button } from 'ming-ui';
 import { Input, Select } from 'antd';
 import cx from 'classnames';
-import './index.less';
-import { formListTop, formListBottom } from './form.config.js';
-import projectSettingController from 'src/api/projectSetting';
-import Config from '../../config';
-import ViewKeyDialog from './ViewKey';
-import { getFeatureStatus, getCurrentProject } from 'src/util';
-import { upgradeVersionDialog, buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
+import {
+  Button,
+  Checkbox,
+  Dropdown,
+  Icon,
+  LoadDiv,
+  Support,
+  Switch,
+  Tooltip,
+  UpgradeIcon,
+  VerifyPasswordConfirm,
+} from 'ming-ui';
+import projectSettingController from 'src/api/projectSetting';
 import { hasPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import SettingIconAndName from '../../components/SettingIconAndName';
+import Config from '../../config';
+import { accountTxtInfo, formListBottom, formListTop, loginSetting } from './form.config.js';
+import ViewKeyDialog from './ViewKey';
+import './index.less';
 
 const headerTitle = {
   index: _l('其他'),
@@ -276,8 +287,16 @@ export default class OtherTool extends Component {
   };
 
   handleCheck() {
-    const { DNGroupList = [], searchRange } = this.state;
-    const list = formListTop.concat(formListBottom);
+    const { DNGroupList = [], searchRange, accountTxtType, accountTxt } = this.state;
+    const loginSettingData =
+      accountTxtType === 100
+        ? loginSetting.concat({
+            label: '',
+            key: 'accountTxt',
+            errorMsg: _l('请输入自定义显示名称'),
+          })
+        : loginSetting;
+    const list = formListTop.concat(formListBottom).concat(loginSettingData);
     const dnGroupError = searchRange === 0 || (searchRange === 1 && DNGroupList.every(it => !!it.dn && !!it.groupName));
     const errorInfo = {};
     list.forEach(({ key, errorMsg }) => {
@@ -310,11 +329,25 @@ export default class OtherTool extends Component {
     this.setState({ DNGroupList: copyDNGroupList });
   };
 
+  changeAccountTxtInfo = () => {};
+
   renderCompType(key, compType = 'input', inputDisabled, placeholder) {
     const { searchRange, DNGroupList = [], errorInfo = {} } = this.state;
     switch (compType) {
       case 'select':
         return this.selectTypeComp(key);
+      case 'dropDown':
+        return (
+          <Dropdown
+            border
+            style={{ width: '40%' }}
+            menuClass="w100"
+            isAppendBody
+            data={accountTxtInfo}
+            value={this.state[key]}
+            onChange={value => this.setState({ [key]: value })}
+          />
+        );
       case 'password':
         return (
           <Input.Password
@@ -484,16 +517,27 @@ export default class OtherTool extends Component {
   }
 
   renderLdap() {
-    const { createIfNotExists } = this.state;
+    const { createIfNotExists, accountTxtType } = this.state;
 
     return (
       <div className="formBox">
         <div className="formModuleTitle mTop0">{_l('服务器设置（带*为必填项）')}</div>
         {this.renderFormCommon(formListTop)}
         <div className="splitLine"></div>
+        <div className="formModuleTitle mBottom15">{_l('登录设置')}</div>
+        <div className="Gray_9e mBottom15">{_l('设置LDAP登录时作为用户登录账号的字段')}</div>
+        {this.renderFormCommon(
+          accountTxtType === 100
+            ? loginSetting.concat({
+                label: '',
+                key: 'accountTxt',
+                errorMsg: _l('请输入自定义显示名称'),
+              })
+            : loginSetting,
+        )}
         <div className="formModuleTitle mBottom15">{_l('账号映射')}</div>
-        <div className="Gray_9e mBottom15">{_l('用户使用LDAP登录时，将通过以下字段匹配系统账号')}</div>
-        {this.renderFormCommon(formListBottom.slice(0, 2))}
+        <div className="Gray_9e mBottom15">{_l('设置LDAP服务器中用于和本系统账号匹配的字段')}</div>
+        {this.renderFormCommon(formListBottom.slice(0, 1))}
         <div style={{ marginLeft: 150 }}>
           <Checkbox
             text={_l('当无法通过以上字段匹配到系统账号时，新建一个账号')}
@@ -503,7 +547,7 @@ export default class OtherTool extends Component {
         </div>
         <div className="formModuleTitle mBottom15">{_l('同步信息')}</div>
         <div className="Gray_9e mBottom15">{_l('勾选后，在用户使用LDAP登录时，将同步以下账号信息')}</div>
-        {this.renderFormCommon(formListBottom.slice(2))}
+        {this.renderFormCommon(formListBottom.slice(1))}
 
         <Button
           type="primary"
@@ -541,6 +585,8 @@ export default class OtherTool extends Component {
       mustWorkphone,
       createIfNotExists,
       initLdapData = {},
+      accountTxtType,
+      accountTxt,
     } = this.state;
 
     if (noneError) {
@@ -576,6 +622,8 @@ export default class OtherTool extends Component {
           mustJob,
           mustWorkphone,
           createIfNotExists,
+          accountTxtType,
+          accountTxt,
           ...extra,
         })
         .then(data => {
@@ -613,6 +661,8 @@ export default class OtherTool extends Component {
                 mustJob,
                 mustWorkphone,
                 createIfNotExists,
+                accountTxtType,
+                accountTxt,
               },
             });
           } else {

@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, ActionSheet } from 'antd-mobile';
-import { Icon, Button, SvgIcon } from 'ming-ui';
-import ApplicationItem from '../ApplicationItem';
-import { generateRandomPassword, getCurrentProject } from 'src/util';
-import styled from 'styled-components';
+import { ActionSheet, Dialog } from 'antd-mobile';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Icon, SvgIcon } from 'ming-ui';
+import { generateRandomPassword } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import ApplicationItem from '../ApplicationItem';
+import './index.less';
 
 const GroupIcon = styled(SvgIcon)`
   font-size: 0px;
@@ -29,7 +30,7 @@ export default class ApplicationList extends Component {
   }
 
   componentWillUnmount() {
-    this.actionSheetHandler && this.actionSheetHandler.close()
+    this.actionSheetHandler && this.actionSheetHandler.close();
   }
 
   renderErr() {
@@ -118,7 +119,7 @@ export default class ApplicationList extends Component {
             <Icon className={cx('mRight10 Gray_9e Font18')} icon="add1" />
             <span className="Bold">{_l('自定义创建')}</span>
           </Fragment>
-        )
+        ),
       },
     ];
     this.actionSheetHandler = ActionSheet.show({
@@ -140,11 +141,11 @@ export default class ApplicationList extends Component {
           Dialog.alert({
             content: title,
             confirmText: _l('我知道了'),
-            onAction: () => {}
+            onAction: () => {},
           });
         }
         this.actionSheetHandler.close();
-      }
+      },
     });
   };
 

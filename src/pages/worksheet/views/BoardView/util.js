@@ -1,10 +1,10 @@
 import { isEmpty } from 'lodash';
-import { getAdvanceSetting } from 'src/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { RENDER_RECORD_NECESSARY_ATTR, filterAndFormatterControls, getRecordAttachments } from '../util';
-import { CAN_AS_BOARD_OPTION } from './config';
-import { getRecordColorConfig } from 'worksheet/util';
 import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
+import { getAdvanceSetting } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/control';
+import { getRecordColorConfig } from 'src/utils/record';
+import { filterAndFormatterControls, getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
+import { CAN_AS_BOARD_OPTION } from './config';
 
 // 处理从后端获取的看板数据
 export const dealBoardViewData = props => {

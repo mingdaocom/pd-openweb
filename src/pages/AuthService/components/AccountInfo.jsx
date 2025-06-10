@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import AjaxLogin from 'src/api/login.js';
-import { useSetState } from 'react-use';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
 
 const Wrap = styled.div`
   .userAvatar {
@@ -19,7 +19,7 @@ const types = {
   1: _l('微信'),
   2: 'QQ',
   13: 'Google',
-  14: 'Microsoft'
+  14: 'Microsoft',
 };
 export default function (props) {
   const [{ loading, name, avatar }, setState] = useSetState({ loading: true, name: '', avatar: '' });

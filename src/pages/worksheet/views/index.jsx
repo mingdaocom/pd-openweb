@@ -1,27 +1,28 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import cx from 'classnames';
+import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Skeleton } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import CalendarView from 'worksheet/views/CalendarView';
+import UnNormal from 'worksheet/views/components/UnNormal';
+import GalleryView from 'worksheet/views/GalleryView';
+import GunterView from 'worksheet/views/GunterView/enter';
 import SheetView from 'worksheet/views/SheetView';
 import TreeTableView from 'worksheet/views/TreeTableView';
-import ViewContext from './ViewContext';
-import BoardView from './BoardView';
-import HierarchyView from './HierarchyView';
+import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
 import { navigateTo } from 'src/router/navigateTo';
-import GalleryView from 'worksheet/views/GalleryView';
-import CalendarView from 'worksheet/views/CalendarView';
-import GunterView from 'worksheet/views/GunterView/enter';
-import { Skeleton } from 'ming-ui';
-import UnNormal from 'worksheet/views/components/UnNormal';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import styled from 'styled-components';
-import _, { get } from 'lodash';
-import HierarchyVerticalView from './HierarchyVerticalView';
-import HierarchyMixView from './HierarchyMixView';
-import DetailView from './DetailView';
+import BoardView from './BoardView';
 import CustomWidgetView from './CustomWidgetView';
+import DetailView from './DetailView';
+import HierarchyMixView from './HierarchyMixView';
+import HierarchyVerticalView from './HierarchyVerticalView';
+import HierarchyView from './HierarchyView';
 import MapView from './MapView';
 import ResourceView from './ResourceView';
-import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
+import ViewContext from './ViewContext';
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
 
@@ -163,16 +164,19 @@ function View(props) {
       clearInterval(cache.current.refreshTimer);
     }
     if (authRefreshTime && _.includes(['10', '30', '60', '120', '180', '240', '300'], String(authRefreshTime))) {
-      cache.current.refreshTimer = setInterval(() => {
-        if (
-          document.querySelector('.workSheetNewRecord.mdModal') ||
-          document.querySelector('.workSheetRecordInfo.mdModal') ||
-          document.querySelector('.fillRecordControls.mdModal')
-        ) {
-          return;
-        }
-        refreshSheet(view, { noLoading: true, isAutoRefresh: true });
-      }, Number(authRefreshTime) * 1000);
+      cache.current.refreshTimer = setInterval(
+        () => {
+          if (
+            document.querySelector('.workSheetNewRecord.mdModal') ||
+            document.querySelector('.workSheetRecordInfo.mdModal') ||
+            document.querySelector('.fillRecordControls.mdModal')
+          ) {
+            return;
+          }
+          refreshSheet(view, { noLoading: true, isAutoRefresh: true });
+        },
+        Number(authRefreshTime) * 1000,
+      );
     }
     return () => {
       if (cache.current.refreshTimer) {
@@ -187,7 +191,7 @@ function View(props) {
 
   return (
     <ViewContext.Provider value={{ isCharge: props.isCharge }}>
-      <Con>
+      <Con className={cx('viewCon', `viewType-${viewType}`)}>
         {!Component || activeViewStatus !== 1 ? (
           <UnNormal resultCode={error ? -999999 : activeViewStatus} />
         ) : (

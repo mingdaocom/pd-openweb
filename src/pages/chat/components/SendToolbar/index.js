@@ -5,12 +5,10 @@ import Trigger from 'rc-trigger';
 import chatAjax from 'src/api/chat';
 import GroupController from 'src/api/group';
 import Emotion from 'src/components/emotion/emotion';
-import { errorCode } from 'src/components/UploadFiles';
-import { getToken, setCaretPosition } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { getToken, setCaretPosition } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import '../../lib/mentionInput/js/mentionInput';
 import * as utils from '../../utils';
-import * as ajax from '../../utils/ajax';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import * as socket from '../../utils/socket';
@@ -209,15 +207,6 @@ export default class SendToolbar extends Component {
           uploadFile.ft = isPicture ? 1 : 2;
 
           _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
-        },
-        Error(uploader, error) {
-          if (error.code === 50001) {
-            alert(error.message, 2);
-          } else if (errorCode[error.code]) {
-            alert(errorCode[error.code], 2);
-          } else {
-            alert(_l('上传失败'), 2);
-          }
         },
       },
     };

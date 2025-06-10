@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LoadDiv } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
 import './style.less';
 
 const Entrance = (props, ref) => {

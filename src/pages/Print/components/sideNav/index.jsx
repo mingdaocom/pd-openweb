@@ -435,6 +435,7 @@ class SideNav extends React.Component {
               titleChecked: printData.titleChecked,
               printTime: printData.printTime,
               printAccount: printData.printAccount,
+              advanceSettings: printData.advanceSettings,
             }}
             changeAdvanceSettings={this.changeAdvanceSettings}
           />

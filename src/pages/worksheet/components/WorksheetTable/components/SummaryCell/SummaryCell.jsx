@@ -1,13 +1,15 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { emitter, getSummaryInfo } from 'worksheet/util';
 import { Menu, MenuItem } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import './SummaryCell.less';
-import _ from 'lodash';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { emitter } from 'src/utils/common';
+import { getSummaryInfo } from 'src/utils/record';
 import SummaryContent from './SummaryContent';
+import './SummaryCell.less';
+
 const ClickAwayable = createDecoratedComponent(withClickAway); //
 
 export default class extends React.Component {

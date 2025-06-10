@@ -1,13 +1,13 @@
 import React from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { LoadDiv, Icon, Checkbox } from 'ming-ui';
-import externalPortalAjax from 'src/api/externalPortal';
-import Form from './Form';
-import { navigateTo } from 'router/navigateTo';
 import moment from 'moment';
+import { navigateTo } from 'router/navigateTo';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
 import { validation } from 'src/pages/AuthService/util.js';
 import { WrapWXCon } from '../style';
-import { useSetState } from 'react-use';
+import Form from './Form';
 
 export default function (props) {
   const {
@@ -54,8 +54,8 @@ export default function (props) {
         registerMode.email && registerMode.phone
           ? _l('请输入手机/邮箱！')
           : registerMode.phone
-          ? _l('请输入手机号！')
-          : _l('请输入邮箱！');
+            ? _l('请输入手机号！')
+            : _l('请输入邮箱！');
       updateWarn([{ tipDom: 'inputAccount', warnTxt: way }]);
       return;
     }
@@ -96,8 +96,8 @@ export default function (props) {
           {allowUserType === 9
             ? _l('仅受邀用户可以注册')
             : isNoRightTime
-            ? _l('当前门户暂不支持注册，仅允许已有账号登录')
-            : ''}
+              ? _l('当前门户暂不支持注册，仅允许已有账号登录')
+              : ''}
         </p>
       );
     } else {
@@ -148,37 +148,46 @@ export default function (props) {
           {paramForPcWx ? _l('绑定并登录/注册') : _l('登录/注册')}
           {sending ? '...' : ''}
         </div>
-        {termsAndAgreementEnable && (
-          <div className="mTop12 Gray Bold Font14 TxtTop LineHeight22 flexRow">
-            <Checkbox checked={hasCheck} onClick={() => setState({ hasCheck: !hasCheck })} className="Hand" name="" />
-            <div className="flex alignItemsCenter">
-              {_l('同意')}
-              <span
-                className="ThemeColor3 Hand mRight5 mLeft5"
-                onClick={() => {
-                  window.open(`${location.origin}${window.subPath || ''}/agreen?appId=${appId}`);
-                }}
-              >
-                《{_l('用户协议')}》
-              </span>
-              {_l('与')}
-              <span
-                className="ThemeColor3 Hand mLeft5"
-                onClick={() => {
-                  window.open(`${location.origin}${window.subPath || ''}/privacy?appId=${appId}`);
-                }}
-              >
-                《{_l('隐私政策')}》
-              </span>
-            </div>
-          </div>
-        )}
-        {!paramForPcWx && autoLogin && (
-          <div className="mTop12 flexRow alignItemsCenter">
-            <div className="flexRow alignItemsCenter" onClick={() => setAutoLogin(!isAutoLogin)}>
-              <Checkbox checked={isAutoLogin} className="Hand" name="" />
-              <span className="Gray Font14 Bold Hand">{_l('7天内免登录')}</span>
-            </div>
+        {(termsAndAgreementEnable || (!paramForPcWx && autoLogin)) && (
+          <div className="mTop40">
+            {termsAndAgreementEnable && (
+              <div className="mTop12 Gray Bold Font14 TxtTop LineHeight22 flexRow">
+                <Checkbox
+                  checked={hasCheck}
+                  onClick={() => setState({ hasCheck: !hasCheck })}
+                  className="Hand"
+                  name=""
+                />
+                <div className="flex alignItemsCenter">
+                  {_l('同意')}
+                  <span
+                    className="ThemeColor3 Hand mRight5 mLeft5"
+                    onClick={() => {
+                      window.open(`${location.origin}${window.subPath || ''}/agreen?appId=${appId}`);
+                    }}
+                  >
+                    《{_l('用户协议')}》
+                  </span>
+                  {_l('与')}
+                  <span
+                    className="ThemeColor3 Hand mLeft5"
+                    onClick={() => {
+                      window.open(`${location.origin}${window.subPath || ''}/privacy?appId=${appId}`);
+                    }}
+                  >
+                    《{_l('隐私政策')}》
+                  </span>
+                </div>
+              </div>
+            )}
+            {!paramForPcWx && autoLogin && (
+              <div className="mTop12 flexRow alignItemsCenter">
+                <div className="flexRow alignItemsCenter" onClick={() => setAutoLogin(!isAutoLogin)}>
+                  <Checkbox checked={isAutoLogin} className="Hand" name="" />
+                  <span className="Gray Font14 Bold Hand">{_l('7天内免登录')}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
         {footerNotice()}
@@ -257,11 +266,11 @@ export default function (props) {
           </div>
           {autoLogin && (
             <div
-              className="mTop20 flexRow alignItemsCenter Hand justifyContentCenter"
+              className="mTop32 flexRow alignItemsCenter Hand justifyContentCenter"
               onClick={() => setAutoLogin(!isAutoLogin)}
             >
               <Checkbox checked={isAutoLogin} className="" name="" />
-              <span className="Gray_9e">{_l('7天内免登录')}</span>
+              <span className="Gray_9e Font14 Bold Hand">{_l('7天内免登录')}</span>
             </div>
           )}
           {footerNotice(true)}

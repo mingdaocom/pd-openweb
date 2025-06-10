@@ -1,10 +1,10 @@
 import React from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Modal } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
+import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import { browserIsMobile } from 'src/utils/common';
 
 const RecordCon = styled.div`
   display: flex;

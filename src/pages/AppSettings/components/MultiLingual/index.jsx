@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoadDiv } from 'ming-ui';
-import LingualList from './LingualList';
-import EditLingual from './EditLingual';
 import appManagementApi from 'src/api/appManagement';
+import fixedDataApi from 'src/api/fixedData';
 import worksheetApi from 'src/api/worksheet';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/util';
-import fixedDataApi from 'src/api/fixedData';
+import { getRequest } from 'src/utils/common';
+import EditLingual from './EditLingual';
+import LingualList from './LingualList';
 
 const keys = {
   'zh-Hans': 'zh_hansName',
   'zh-Hant': 'zh_hantName',
-  'en': 'enName',
-  'ja': 'jaName',
+  en: 'enName',
+  ja: 'jaName',
 };
 
 export default function MultiLingual(props) {
@@ -31,19 +31,19 @@ export default function MultiLingual(props) {
     Promise.all([
       worksheetApi.getCollectionsByAppId({
         appId: id,
-        status: 1
+        status: 1,
       }),
       appManagementApi.getAppLangs({
         projectId,
-        appId: id
-      })
+        appId: id,
+      }),
     ]).then(([collectionsData, appLangsData]) => {
       setCollections(collectionsData.data);
       setLangs(appLangsData);
       setLangInfo(_.find(appLangsData, { id: langId }));
       setLoading(false);
     });
-  }
+  };
 
   useEffect(() => {
     if (data.id !== match.params.appId) {
@@ -71,7 +71,7 @@ export default function MultiLingual(props) {
       <EditLingual
         app={{
           ...data,
-          collections
+          collections,
         }}
         currentLangKey={currentLangKey}
         langs={langs}

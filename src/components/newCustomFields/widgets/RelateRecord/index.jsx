@@ -5,14 +5,15 @@ import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/utils/common';
+import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'src/utils/record';
 
 export default class Widgets extends Component {
   static propTypes = {
     // disabled: PropTypes.bool,
+    isEditing: PropTypes.bool,
     appId: PropTypes.string, // 他表字段被关联表所在应用 id
     viewId: PropTypes.string, // 他表字段被关联表所在应用所在视图 id
     worksheetId: PropTypes.string, // 他表字段所在表 id
@@ -106,7 +107,7 @@ export default class Widgets extends Component {
     if (type === 'array') {
       onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, args)));
     } else {
-      const { count, records, deletedIds, addedIds, searchByChange } = args;
+      const { count, records, deletedIds, needFullUpdate, addedIds, searchByChange } = args;
       if (records.length) {
         onChange(
           JSON.stringify(
@@ -115,6 +116,7 @@ export default class Widgets extends Component {
               deletedIds,
               count,
               isFromDefault: this.isFromDefault,
+              needFullUpdate,
             }),
           ),
           undefined,
@@ -128,6 +130,7 @@ export default class Widgets extends Component {
 
   render() {
     const {
+      isEditing,
       appId,
       flag,
       customFields,
@@ -200,6 +203,7 @@ export default class Widgets extends Component {
       <React.Fragment>
         {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile() ? (
           <RelateRecordCards
+            formIsEditing={isEditing}
             appId={appId}
             ref={this.cardsComp}
             flag={flag}
@@ -222,6 +226,7 @@ export default class Widgets extends Component {
           />
         ) : (
           <RelateRecordDropdown
+            formIsEditing={isEditing}
             appId={appId}
             control={{ ...this.props }}
             formData={formData}

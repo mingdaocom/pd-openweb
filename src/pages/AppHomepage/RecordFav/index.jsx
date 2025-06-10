@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect } from 'react';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
-import { Icon, SvgIcon, ScrollView, SortableList } from 'ming-ui';
 import cx from 'classnames';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import Item from './Item';
+import _ from 'lodash';
+import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
+import styled from 'styled-components';
+import { Icon, ScrollView, SortableList, SvgIcon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite.js';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { addBehaviorLog } from 'src/util';
-import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { addBehaviorLog } from 'src/utils/project';
+import Item from './Item';
 import './index.less';
 
 const BaseBtnCon = styled.div`

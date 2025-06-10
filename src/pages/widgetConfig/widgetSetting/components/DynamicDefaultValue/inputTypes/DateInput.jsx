@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { shape, number, func } from 'prop-types';
-import moment from 'moment';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
-import { getDatePickerConfigs } from '../../../../util/setting';
 import _ from 'lodash';
-import { MdAntDateRangePicker, MdAntDatePicker } from 'ming-ui';
+import moment from 'moment';
+import { func, number, shape } from 'prop-types';
+import { MdAntDatePicker, MdAntDateRangePicker } from 'ming-ui';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { getDatePickerConfigs } from '../../../../util/setting';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 
 export default class DateInput extends Component {
   static propTypes = {
@@ -102,7 +102,7 @@ export default class DateInput extends Component {
           <MdAntDateRangePicker
             className="customAntPicker timeMaxOrMinCon"
             key={defValue}
-            value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+            value={minValue && maxValue ? [moment(minValue, formatMode), moment(maxValue, formatMode)] : []}
             showTime={dateProps.mode === 'datetime'}
             picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
             format={dateProps.formatMode}

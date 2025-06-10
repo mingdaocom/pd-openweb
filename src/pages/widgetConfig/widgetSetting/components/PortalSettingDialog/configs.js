@@ -10,8 +10,8 @@ export const HAS_OPTION_CONTROL = [9, 10, 11];
 // 地区
 export const HAS_AREA_CONTROL = [19, 23, 24];
 
-// 电话
-export const HAS_PHONE_CONTROL = [3, 4];
+// 关联记录
+export const HAS_RELATE_CONTROL = [29];
 
 // 验证
 export const HAS_VERITY_CONTROL = [2, 3, 4, 5, 7, 9, 10, 11, 15, 16, 17, 18, 19, 23, 24, 36];

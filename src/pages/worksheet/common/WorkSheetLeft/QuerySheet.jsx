@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Icon, Input } from 'ming-ui';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
-import { Input, Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import sheetAjax from 'src/api/worksheet';
 import WorkSheetItem from './WorkSheetItem';
-import { groupSheetList } from '../../util';
-import _ from 'lodash';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class QuerySheet extends Component {
@@ -30,28 +30,30 @@ export default class QuerySheet extends Component {
   }.bind(this);
   renderSheetList() {
     const { workSheetList } = this.state;
-    return workSheetList.map((project, i) => (
-      project.worksheets.length > 0 &&
-      <div className="projectSheetList" key={i}>
-        <div className="title Gray_bd"> {project.projectId ? project.name : _l('个人')} </div>
-        {project.worksheets.map((sheet, index) => (
-          <WorkSheetItem
-            className="ThemeHoverBGColor3"
-            showRight={false}
-            key={index}
-            sheetInfo={sheet}
-            name={sheet.name}
-            count={sheet.count}
-            sheetActions={this.props.sheetActions}
-            hideSearchList={this.hideSearchList}
-          />
-        ))}
-      </div>
-    ));
+    return workSheetList.map(
+      (project, i) =>
+        project.worksheets.length > 0 && (
+          <div className="projectSheetList" key={i}>
+            <div className="title Gray_bd"> {project.projectId ? project.name : _l('个人')} </div>
+            {project.worksheets.map((sheet, index) => (
+              <WorkSheetItem
+                className="ThemeHoverBGColor3"
+                showRight={false}
+                key={index}
+                sheetInfo={sheet}
+                name={sheet.name}
+                count={sheet.count}
+                sheetActions={this.props.sheetActions}
+                hideSearchList={this.hideSearchList}
+              />
+            ))}
+          </div>
+        ),
+    );
   }
   getSearchData = function () {
     this.setState({ listVisible: !!this.state.keyWords, isLoading: true });
-    sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then((data) => {
+    sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then(data => {
       this.setState({
         listVisible: !!this.state.keyWords,
         workSheetList: data,
@@ -68,7 +70,7 @@ export default class QuerySheet extends Component {
             className="icon icon-search pointer ThemeColor9"
             onClick={() => {
               this.setState({ isLoading: true });
-              sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then((data) => {
+              sheetAjax.getWorksheets({ keyWords: this.state.keyWords }).then(data => {
                 this.setState({
                   listVisible: !!this.state.keyWords,
                   keyWords: this.state.keyWords,
@@ -82,17 +84,21 @@ export default class QuerySheet extends Component {
             className="ming Input ThemeColor10 flex"
             placeholder={_l('搜索工作表')}
             value={this.state.keyWords}
-            onChange={(event) => {
+            onChange={event => {
               this.setState({
                 keyWords: event.target.value,
                 isLoading: true,
               });
             }}
             onFocus={() => {
-              $('.worksheet .workSheetLeft .querySheet .search').removeClass('ThemeBorderColor8').addClass('ThemeBorderColor3');
+              $('.worksheet .workSheetLeft .querySheet .search')
+                .removeClass('ThemeBorderColor8')
+                .addClass('ThemeBorderColor3');
             }}
             onBlur={() => {
-              $('.worksheet .workSheetLeft .querySheet .search').removeClass('ThemeBorderColor3').addClass('ThemeBorderColor8');
+              $('.worksheet .workSheetLeft .querySheet .search')
+                .removeClass('ThemeBorderColor3')
+                .addClass('ThemeBorderColor8');
             }}
             onKeyUp={() => {
               this.setState({ isLoading: true });
@@ -100,7 +106,12 @@ export default class QuerySheet extends Component {
             }}
           />
           {this.state.keyWords && (
-            <span className="clean Right LineHeight36 pointer" onClick={() => { this.setState({ listVisible: false, keyWords: '' }); }}>
+            <span
+              className="clean Right LineHeight36 pointer"
+              onClick={() => {
+                this.setState({ listVisible: false, keyWords: '' });
+              }}
+            >
               <Icon icon="closeelement-bg-circle ThemeColor8 Font14" />
             </span>
           )}
@@ -115,7 +126,7 @@ export default class QuerySheet extends Component {
               });
             }}
           >
-            {isLoading && <LoadDiv className='mTop12 mBottom12' />}
+            {isLoading && <LoadDiv className="mTop12 mBottom12" />}
             {!isLoading &&
               (workSheetList.filter(item => item.worksheets.length > 0).length > 0 ? (
                 <div className="sheetList">{this.renderSheetList()}</div>

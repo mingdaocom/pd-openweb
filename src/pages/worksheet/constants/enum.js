@@ -414,3 +414,8 @@ export const BUTTON_ACTION_TYPE = {
   CONTINUE_ADD: 2,
   OPEN_RECORD: 3,
 };
+
+export const UPLOAD_TYPE = {
+  ATTACHMENT: 1,
+  SIGNATURE: 2,
+};

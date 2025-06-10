@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog } from 'ming-ui';
-import account from 'src/api/account';
-import { htmlEncodeReg } from 'src/util';
 import { dialogSelectUser } from 'ming-ui/functions';
+import account from 'src/api/account';
+import { htmlEncodeReg } from 'src/utils/common';
 import './index.less';
 
 export default class ExitDialog extends Component {
@@ -88,9 +88,8 @@ export default class ExitDialog extends Component {
     return (
       <Fragment>
         {needTransfer ? (
-          <div className="mTop15 mBottom20 borderBox">
-            <p>{_l('你是该组织唯一管理员，需要先移交管理身份再退出')}</p>
-            <p>{_l('退出后，管理员可以在后台交接或分配您负责的剩余工作')}</p>
+          <div className="borderBox">
+            <p>{_l('需要先移交管理身份再退出，退出后，管理员可以在后台交接或分配您负责的剩余工作')}</p>
             <div>
               <span
                 className="icon-addapplication Font32 ThemeColor3 ThemeHoverColor2 TxtMiddle Hand"
@@ -109,20 +108,19 @@ export default class ExitDialog extends Component {
             </div>
             <button
               type="button"
-              className="ming Button Button--primary Button--medium w100 exitProject"
+              className="ming Button Button--primary Button--medium exitProject"
               onClick={() => this.handleExit()}
             >
               {_l('确定')}
             </button>
           </div>
         ) : (
-          <div className="mTop15 mBottom20 borderBox">
-            <p>{_l('你确认要退出：%0 ?', companyName)}</p>
-            <p>{_l('退出后，管理员可以在后台交接或分配您负责的剩余工作')}</p>
+          <div className="borderBox">
+            <p className="mBottom0">{_l('退出后，管理员可以在后台交接或分配您负责的剩余工作')}</p>
             <button
               type="button"
               id="submitBtn"
-              className="ming Button Button--primary Button--medium w100 exitProject"
+              className="ming Button Button--primary Button--medium exitProject"
               onClick={() => this.handleExit()}
             >
               {_l('确定')}

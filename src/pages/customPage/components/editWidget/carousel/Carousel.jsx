@@ -1,20 +1,20 @@
-import React, { useState, Fragment, useEffect, useRef } from 'react';
-import { Icon, LoadDiv, BarCode, Qr } from 'ming-ui';
-import homeAppApi from 'src/api/homeApp';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Carousel } from 'antd';
-import styled from 'styled-components';
-import homeAppAjax from 'src/api/homeApp';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { RecordInfoModal } from 'mobile/Record';
-import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
-import { parseDataSource } from 'src/pages/widgetConfig/util';
-import { getUrlList } from './util';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { BarCode, Icon, LoadDiv, Qr } from 'ming-ui';
+import homeAppApi from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
+import { RecordInfoModal } from 'mobile/Record';
+import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { browserIsMobile } from 'src/utils/common';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { getUrlList } from './util';
 
 const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-dots li {
@@ -216,33 +216,37 @@ export default function CarouselPreview(props) {
                   ...JSON.parse(data.image),
                   rowId: data.rowId,
                 };
-              })
+              }),
             );
           }
           if (imageControl.type === 47) {
             setImageData(
-              imageData.map(data => {
-                return {
-                  image: getBarCodeValue({
-                    data: [{
-                      ...imageControl,
-                      value: data.image
-                    }],
-                    control: {
-                      enumDefault: imageControl.enumDefault,
-                      enumDefault2: imageControl.enumDefault2,
-                      dataSource: image
-                    },
-                    codeInfo: {
-                      recordId: data.rowId,
-                      appId,
-                      worksheetId,
-                      viewId
-                    },
-                  }),
-                  rowId: data.rowId,
-                }
-              }).filter(n => n.image)
+              imageData
+                .map(data => {
+                  return {
+                    image: getBarCodeValue({
+                      data: [
+                        {
+                          ...imageControl,
+                          value: data.image,
+                        },
+                      ],
+                      control: {
+                        enumDefault: imageControl.enumDefault,
+                        enumDefault2: imageControl.enumDefault2,
+                        dataSource: image,
+                      },
+                      codeInfo: {
+                        recordId: data.rowId,
+                        appId,
+                        worksheetId,
+                        viewId,
+                      },
+                    }),
+                    rowId: data.rowId,
+                  };
+                })
+                .filter(n => n.image),
             );
           }
           setRowData(rowData.map(data => JSON.parse(data)));
@@ -273,7 +277,12 @@ export default function CarouselPreview(props) {
   const style = {
     position: 'relative',
     height: contentHeight,
-    backgroundColor: imageControl.type === 14 ? (isDark ? customPageConfig.widgetBgColor || config.fillColor : config.fillColor) : '#fff',
+    backgroundColor:
+      imageControl.type === 14
+        ? isDark
+          ? customPageConfig.widgetBgColor || config.fillColor
+          : config.fillColor
+        : '#fff',
   };
 
   async function handleTriggerAction(data) {
@@ -371,13 +380,7 @@ export default function CarouselPreview(props) {
   const renderFileImage = (record, data) => {
     const url = `${data.viewUrl}&|imageView2/0/q/100`;
     if (config.fill === 3) {
-      return (
-        <img
-          onClick={() => handleTriggerAction(record)}
-          src={url}
-          className="w100 h100"
-        />
-      );
+      return <img onClick={() => handleTriggerAction(record)} src={url} className="w100 h100" />;
     } else {
       return (
         <div
@@ -387,7 +390,7 @@ export default function CarouselPreview(props) {
         />
       );
     }
-  }
+  };
 
   const renderBarCode = (record, data) => {
     const { advancedSetting: { width, faultrate } = {}, enumDefault } = imageControl;
@@ -410,7 +413,7 @@ export default function CarouselPreview(props) {
         )}
       </div>
     );
-  }
+  };
 
   const renderImage = data => {
     const record = _.find(rowData, { rowid: data.rowId }) || {};

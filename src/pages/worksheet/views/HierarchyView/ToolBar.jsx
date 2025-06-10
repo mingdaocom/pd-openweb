@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import styled, { css } from 'styled-components';
-import cx from 'classnames';
-import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import { ActionSheet } from 'antd-mobile';
+import cx from 'classnames';
+import styled, { css } from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
 import { FlexCenter } from 'worksheet/styled';
-import { browserIsMobile } from 'src/util';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
 import 'src/pages/worksheet/views/GunterView/Chart/components/ToolBar/index.less';
+import { browserIsMobile } from 'src/utils/common';
 
 const SCALE_LIMIT = {
   min: 50,

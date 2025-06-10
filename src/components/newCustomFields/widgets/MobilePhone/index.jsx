@@ -1,16 +1,16 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { FROM } from '../../tools/config';
-import { browserIsMobile } from 'src/util';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { Icon } from 'ming-ui';
 import intlTelInput, { initIntlTelInput } from 'ming-ui/components/intlTelInput';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { browserIsMobile } from 'src/utils/common';
+import { FROM } from '../../tools/config';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -71,7 +71,7 @@ export default class Widgets extends Component {
         customPlaceholder: () => hint,
         initialCountry: this.initialCountry(),
         preferredCountries: this.getCountries(advancedSetting.commcountries),
-        onlyCountries: this.getCountries(advancedSetting.allowcountries),
+        onlyCountries: this.getCountries(advancedSetting.allowcountries, this.initialCountry()),
         separateDialCode: true,
         showSelectedDialCode: true,
         countrySearch: this.getSearchResult(advancedSetting.commcountries),
@@ -97,7 +97,10 @@ export default class Widgets extends Component {
       }
     }
     if (nextProps.flag !== this.props.flag) {
-      this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
+      this.setState({
+        maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1',
+        itiWidth: $(this.input).css('padding-left'),
+      });
     }
   }
 
@@ -120,19 +123,19 @@ export default class Widgets extends Component {
   }
 
   initialCountry() {
-    const { enumDefault = 0, advancedSetting } = this.props;
+    const { advancedSetting } = this.props;
     const initialCountry = _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn';
-    return enumDefault === 1
-      ? initialCountry
-      : advancedSetting.defaultarea
-        ? JSON.parse(advancedSetting.defaultarea).iso2
-        : initialCountry;
+    return advancedSetting.defaultarea ? JSON.parse(advancedSetting.defaultarea).iso2 : initialCountry;
   }
 
-  getCountries(countries = '[]') {
+  getCountries(countries = '[]', defaultCountry) {
     const { enumDefault = 0 } = this.props;
     const preferredCountries = _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'];
-    return enumDefault === 1 ? preferredCountries : JSON.parse(countries).map(o => o.iso2);
+    if (enumDefault === 1) return [...preferredCountries, defaultCountry].filter(_.identity);
+    const allCountries = _.isEmpty(JSON.parse(countries))
+      ? []
+      : [...JSON.parse(countries).map(o => o.iso2), defaultCountry].filter(_.identity);
+    return _.uniq(allCountries);
   }
 
   getSearchResult(commcountries = '[]') {
@@ -184,6 +187,8 @@ export default class Widgets extends Component {
     }
 
     this.setState({ hideCountry: !_.keys(countryData).length, itiWidth: $(this.input).css('padding-left') });
+
+    if (!this.props.value && !value) return;
 
     this.props.value !== value && this.props.onChange(value);
   }, 300);

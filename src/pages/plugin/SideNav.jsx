@@ -2,8 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, MdLink } from 'ming-ui';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { sideNavList } from './config';
 
 const Wrap = styled.div`

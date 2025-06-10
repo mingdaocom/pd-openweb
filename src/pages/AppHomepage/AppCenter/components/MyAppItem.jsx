@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import { bool, func, oneOf, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import { string, func, oneOf, bool } from 'prop-types';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import AppOperator from './AppOperator';
-import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
-import { compareProps } from 'src/pages/PageHeader/util';
-import AppStatusComp from './AppStatus';
-import _ from 'lodash';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
-import ExternalLinkDialog from './ExternalLinkDialog';
-import ManageUserDialog from 'src/pages/Role/AppRoleCon/ManageUserDialog.jsx';
-import { addBehaviorLog } from 'src/util';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
+import { compareProps } from 'src/pages/PageHeader/util';
+import ManageUserDialog from 'src/pages/Role/AppRoleCon/ManageUserDialog.jsx';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { addBehaviorLog } from 'src/utils/project';
+import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
+import AppOperator from './AppOperator';
+import AppStatusComp from './AppStatus';
+import ExternalLinkDialog from './ExternalLinkDialog';
+import 'rc-trigger/assets/index.css';
 
 @withClickAway
 export default class MyAppItem extends Component {
@@ -205,7 +205,7 @@ export default class MyAppItem extends Component {
       allowCreate,
       myPermissions = [],
       sourceType,
-      isGoodsStatus
+      isGoodsStatus,
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const iconColor = this.props.iconColor || '#2196f3';
@@ -262,43 +262,46 @@ export default class MyAppItem extends Component {
           >
             <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
           </div>
-          {(canEditApp(permissionType, isLock) || canEditData(permissionType) || (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) && !hideTrigger && (
-            <Trigger
-              popupVisible={editAppVisible}
-              popupClassName="myAppItemOperatorTriggerWrap"
-              popup={
-                <AppOperator
-                  groupType={type}
-                  projectId={projectId}
-                  disabledCopy={type === 'external' || isExternalApp}
-                  groups={groups}
-                  selectedGroupIds={groupIds}
-                  role={permissionType}
-                  isLock={isLock}
-                  createType={createType}
-                  onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
-                  onClick={id => this.switchVisible({ editAppVisible: false }, () => this.handleMoreClick(id))}
-                  onClickAway={() => this.switchVisible({ editAppVisible: false })}
-                  isDashboard={isDashboard}
-                  allowCreate={allowCreate}
-                  myPermissions={myPermissions}
-                  sourceType={sourceType}
-                  isGoodsStatus={isGoodsStatus}
-                />
-              }
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [0, 0],
-                overflow: { adjustX: true },
-              }}
-              getPopupContainer={() => this.$myAppItem.current}
-              destroyPopupOnHide
-            >
-              <div className="myAppItemMore appItemIcon" onClick={() => this.switchVisible({ editAppVisible: true })}>
-                <Icon className={cx('moreOperation Font18', { active: editAppVisible })} icon="task-point-more" />
-              </div>
-            </Trigger>
-          )}
+          {(canEditApp(permissionType, isLock) ||
+            canEditData(permissionType) ||
+            (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) &&
+            !hideTrigger && (
+              <Trigger
+                popupVisible={editAppVisible}
+                popupClassName="myAppItemOperatorTriggerWrap"
+                popup={
+                  <AppOperator
+                    groupType={type}
+                    projectId={projectId}
+                    disabledCopy={type === 'external' || isExternalApp}
+                    groups={groups}
+                    selectedGroupIds={groupIds}
+                    role={permissionType}
+                    isLock={isLock}
+                    createType={createType}
+                    onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
+                    onClick={id => this.switchVisible({ editAppVisible: false }, () => this.handleMoreClick(id))}
+                    onClickAway={() => this.switchVisible({ editAppVisible: false })}
+                    isDashboard={isDashboard}
+                    allowCreate={allowCreate}
+                    myPermissions={myPermissions}
+                    sourceType={sourceType}
+                    isGoodsStatus={isGoodsStatus}
+                  />
+                }
+                popupAlign={{
+                  points: ['tl', 'bl'],
+                  offset: [0, 0],
+                  overflow: { adjustX: true },
+                }}
+                getPopupContainer={() => this.$myAppItem.current}
+                destroyPopupOnHide
+              >
+                <div className="myAppItemMore appItemIcon" onClick={() => this.switchVisible({ editAppVisible: true })}>
+                  <Icon className={cx('moreOperation Font18', { active: editAppVisible })} icon="task-point-more" />
+                </div>
+              </Trigger>
+            )}
           {delAppConfirmVisible && (
             <VerifyDel
               para={{ appId: id, projectId: projectId, name: name }}

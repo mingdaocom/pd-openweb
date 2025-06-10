@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Icon, ScrollView, LoadDiv } from 'ming-ui';
 import { Input } from 'antd';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import Trigger from 'rc-trigger';
-import { INTEGRATION_INFO } from '../../config';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import { INTEGRATION_INFO } from '../../config';
+import './index.less';
 
 export default class SyncDialog extends Component {
   constructor(props) {
@@ -103,6 +103,9 @@ export default class SyncDialog extends Component {
                   showCancel: false,
                 });
               }
+            })
+            .catch(err => {
+              this.setState({ confirmVisible: false, syncLoading: false });
             });
         }}
       >
@@ -128,7 +131,7 @@ export default class SyncDialog extends Component {
       }
     });
     this.props.onCancel();
-    this.setState({ confirmVisible: true });
+    this.setState({ confirmVisible: true, syncLoading: false });
   };
   // 选择绑定用户
   bindQWUser = (accountId, userInfo) => {

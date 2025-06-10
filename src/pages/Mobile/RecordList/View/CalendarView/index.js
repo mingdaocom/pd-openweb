@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { isIllegalFormat } from 'src/pages/worksheet/views/CalendarView/util';
-import ScheduleModal from './components/ScheduleModal';
-import ViewErrorPage from '../components/ViewErrorPage';
-import * as calendarActions from 'src/pages/worksheet/redux/actions/calendarview';
-import * as actions from 'mobile/RecordList/redux/actions';
-import { RecordInfoModal } from 'mobile/Record';
-import { getAdvanceSetting, handlePushState, handleReplaceState } from 'src/util';
-import { Icon } from 'ming-ui';
-import './index.less';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import moment from 'moment';
-import { isOpenPermit } from 'src/pages/FormSet/util';
+import { Icon } from 'ming-ui';
+import { RecordInfoModal } from 'mobile/Record';
+import * as actions from 'mobile/RecordList/redux/actions';
 import { permitList } from 'src/pages/FormSet/config';
+import { isOpenPermit } from 'src/pages/FormSet/util';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
+import * as calendarActions from 'src/pages/worksheet/redux/actions/calendarview';
+import { isIllegalFormat } from 'src/pages/worksheet/views/CalendarView/util';
+import { getAdvanceSetting } from 'src/utils/control';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
+import ViewErrorPage from '../components/ViewErrorPage';
+import ScheduleModal from './components/ScheduleModal';
+import './index.less';
 
 class MobileCalendarView extends Component {
   constructor(props) {

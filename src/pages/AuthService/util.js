@@ -1,10 +1,9 @@
-
-import filterXSS from 'xss';
 import _ from 'lodash';
-import { getRequest, mdAppResponse } from 'src/util';
+import filterXSS from 'xss';
 import { initIntlTelInput, telIsValidNumber } from 'ming-ui/components/intlTelInput';
-import RegExpValidator from 'src/util/expression';
-
+import { getRequest } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { mdAppResponse } from 'src/utils/project';
 
 // 当前页面是否有验证码层
 export const hasCaptcha = () => {
@@ -14,7 +13,10 @@ export const hasCaptcha = () => {
   );
 };
 
-export const getDataByFilterXSS = summary => {
+export const getDataByFilterXSS = url => {
+  if (!url) return '/dashboard';
+  const data = new URL(decodeURIComponent(url));
+  const summary = data.href;
   let domain = summary.split('/'); //以“/”进行分割
   if (domain[2]) {
     domain = domain[2];
@@ -147,7 +149,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
       };
       //手机号验证
       const isTelRule = () => {
-        if (!(telIsValidNumber(emailOrTel))) {
+        if (!telIsValidNumber(emailOrTel)) {
           warnList.push({ tipDom: 'inputAccount', warnTxt: _l('手机号格式错误') });
           isRight = false;
         }
@@ -235,7 +237,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
   return { isRight, warnList };
 };
 
-export const renderClassName = (warnList, key, value,) => {
+export const renderClassName = (warnList, key, value) => {
   const warn = warnList.find(o => o.tipDom === key);
   return {
     hasValue: !!value || focusDiv === key,

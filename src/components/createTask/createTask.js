@@ -1,23 +1,23 @@
-﻿import UploadFiles from 'src/components/UploadFiles';
-import React from 'react';
+﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
-import createShare from 'src/components/createShare/createShare';
 import Store from 'redux/configureStore';
+import doT from 'dot';
+import moment from 'moment';
+import filterXss from 'xss';
+import { Dialog, Dropdown, UserCard } from 'ming-ui';
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { quickSelectUser } from 'ming-ui/functions';
+import calendarAjaxRequest from 'src/api/calendar';
+import ajaxRequest from 'src/api/taskCenter';
+import 'src/components/autoTextarea/autoTextarea';
+import createShare from 'src/components/createShare/createShare';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import UploadFiles from 'src/components/UploadFiles';
 import { addTask } from 'src/pages/task/redux/actions';
 import { formatTaskTime } from 'src/pages/task/utils/utils';
-import './css/createTask.css';
-import ajaxRequest from 'src/api/taskCenter';
-import calendarAjaxRequest from 'src/api/calendar';
-import filterXss from 'xss';
-import { quickSelectUser } from 'ming-ui/functions';
-import { htmlEncodeReg } from 'src/util';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import doT from 'dot';
+import { htmlEncodeReg } from 'src/utils/common';
 import taskHtml from './tpl/createTask.html';
-import 'src/components/autoTextarea/autoTextarea';
-import moment from 'moment';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import { Dialog, Dropdown, UserCard } from 'ming-ui';
+import './css/createTask.css';
 
 var CreateTask = function (opts) {
   var _this = this;

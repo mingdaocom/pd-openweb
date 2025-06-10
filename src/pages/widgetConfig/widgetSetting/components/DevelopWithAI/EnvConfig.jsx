@@ -1,15 +1,15 @@
 import React, { Fragment, useRef, useState } from 'react';
+import { Drawer } from 'antd';
+import { find, get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Drawer } from 'antd';
 import { Dropdown, RadioGroup, Switch } from 'ming-ui';
-import { selectRecord } from 'src/components/recordCardListDialog';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { selectRecords } from 'src/components/SelectRecords';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import CustomReference from '../CustomWidget/CustomReference';
-import { find, get, pick } from 'lodash';
-import { getFormData } from './util';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
+import CustomReference from '../CustomWidget/CustomReference';
+import { getFormData } from './util';
 
 const Con = styled.div`
   position: relative;
@@ -295,11 +295,11 @@ export default function EnvConfig(props) {
       {!mockRecord ? (
         <LoadMockDataBtn
           onClick={() =>
-            selectRecord({
+            selectRecords({
               canSelectAll: false,
               pageSize: 25,
               multiple: false,
-              relateSheetId: worksheetId,
+              worksheetId,
               onOk: selectedRecords => {
                 setMockRecord(selectedRecords[0]);
               },

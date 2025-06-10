@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
-import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import cx from 'classnames';
-import { LoadDiv } from 'ming-ui';
-import RecordItem from './RecordItem';
-import { AddRecord } from '../components';
-import BoardTitle from './BoardTitle';
-import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
-import { includes, find, get } from 'lodash';
-import { isDisabledCreate } from '../../util';
-import { useSetState } from 'react-use';
 import { useDrop } from 'react-dnd-latest';
-import { browserIsMobile } from 'src/util';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
+import { find, get, includes } from 'lodash';
 import styled from 'styled-components';
-import { getCardWidth } from 'src/pages/worksheet/util';
+import { LoadDiv } from 'ming-ui';
+import NewRecord from 'worksheet/common/newRecord/NewRecord';
+import { browserIsMobile } from 'src/utils/common';
+import { getCardWidth } from 'src/utils/worksheet';
+import { isDisabledCreate } from '../../util';
+import { AddRecord } from '../components';
+import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
+import BoardTitle from './BoardTitle';
+import RecordItem from './RecordItem';
 
 const Wrap = styled.div`
   width: ${props => `${(props.width ? props.width : 280) + 12 * 2}px`};

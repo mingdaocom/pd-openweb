@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Checkbox, RadioGroup, Switch } from 'ming-ui';
-import { getSwitchItemNames } from '../../tools/utils';
+import { getSwitchItemNames } from 'src/utils/control';
 
 const CheckWidgetWrap = styled.div`
   display: flex;

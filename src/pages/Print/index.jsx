@@ -10,15 +10,16 @@ import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
-import { addBehaviorLog, getAppLangDetail, getFeatureStatus, getTranslateInfo } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
+import { renderText as renderCellText } from 'src/utils/control';
+import { VersionProductType } from 'src/utils/enum';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import Con from './components/content';
 import Header from './components/header';
 import SaveDia from './components/saveDia';
@@ -108,7 +109,12 @@ class PrintForm extends React.Component {
             : this.state.isUserAdmin,
       });
 
-      if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
+      if (
+        from === fromType.PRINT &&
+        [typeForCon.NEW, typeForCon.PREVIEW].includes(type) &&
+        appId &&
+        printType !== 'flow'
+      ) {
         getAppLangDetail(data).then(() => {
           cb && cb();
         });

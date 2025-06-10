@@ -1,20 +1,20 @@
 import React from 'react';
-import { Icon, Dropdown, RadioGroup, Dialog, Tooltip } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
-import ChooseWidget from './ChooseWidget';
-import styled from 'styled-components';
-import Input from '../components/Inputs';
-import { DEF_TYPES, DEF_R_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import _, { isArray } from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Icon, RadioGroup, Tooltip } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { DEF_R_TYPES, DEF_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import {
-  formatControlsBySectionId,
-  getSectionId,
-  getRealData,
   canNotForCustomWrite,
+  formatControlsBySectionId,
+  getRealData,
+  getSectionId,
   isOnlyRead,
 } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import Input from '../components/Inputs';
+import ChooseWidget from './ChooseWidget';
 
 const Wrap = styled.div`
   .controlname {

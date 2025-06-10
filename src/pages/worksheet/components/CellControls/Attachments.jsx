@@ -13,8 +13,9 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { addBehaviorLog, browserIsMobile, compatibleMDJS, formatFileSize, getClassNameByExt } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
 import { FROM } from './enum';
 
 const Con = styled.div`
@@ -778,8 +779,11 @@ function cellAttachments(props, sourceRef) {
   if (isediting && allowupload === '1') {
     const popContent = (
       <UploadFilesTrigger
+        allowUploadFileFromMobile
         appId={appId}
         worksheetId={worksheetId}
+        controlId={cell.controlId}
+        recordId={rest.recordId}
         originCount={attachments.length}
         advancedSetting={advancedSetting}
         id={cell.controlId + rest.recordId}

@@ -9,9 +9,9 @@ import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { isWpsPreview } from 'src/pages/kc/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { compatibleMDJS, formatFileSize, getClassNameByExt } from 'src/util';
-import { addBehaviorLog, addToken, browserIsMobile } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
 import ImageCard from './ImageCard';
 import LargeImageCard from './LargeImageCard';
 import ListCard, { ListCardHeader } from './ListCard';
@@ -125,7 +125,7 @@ const SortableListWrap = props => {
       <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
         <SortableList
           dragPreviewImage
-          canDrag={canDrag}
+          canDrag={canDrag && list.length > 1}
           useDragHandle={isListCard}
           itemKey="fileID"
           itemClassName={showCardTypes[showType]}
@@ -167,6 +167,7 @@ const Files = props => {
   const [viewMoreVisible, setViewMoreVisible] = useState(false);
   const [viewMore, setViewMore] = useState(props.viewMore);
   const [smallSize, setSmallSize] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [wpsEditUrls, setWpsEditUrls] = useState({});
   const { recordBaseInfo = {} } = useContext(RecordInfoContext) || props;
   const ref = useRef(null);
@@ -500,7 +501,7 @@ const Files = props => {
         ref={ref}
         isListCard={isListCard}
         style={viewMore && !isLargeImageCard ? { maxHeight: heights[showType] * showLineCount } : undefined}
-        canDrag={allowSort}
+        canDrag={allowSort && !isEditing}
         className={className}
         smallSize={smallSize}
         list={
@@ -515,6 +516,7 @@ const Files = props => {
         isOtherSheet={isOtherSheet}
         isSubListFile={isSubListFile}
         masterData={masterData}
+        onChangeIsEditing={setIsEditing}
         onDeleteMDFile={handleDeleteMDFile}
         onDeleteKCFile={handleDeleteKCFile}
         onDeleteFile={handleDeleteFile}

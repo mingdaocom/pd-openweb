@@ -1,22 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import DocumentTitle from 'react-document-title';
+import { useDeepCompareEffect } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Button, Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import DocumentTitle from 'react-document-title';
-import { connect } from 'react-redux';
-import { useDeepCompareEffect } from 'react-use';
-import { bindActionCreators } from 'redux';
-import styled from 'styled-components';
+import homeAppAjax from 'src/api/homeApp';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { loadWorksheet, unshiftSheetRow, updateFiltersGroup } from 'mobile/RecordList/redux/actions';
 import View from 'mobile/RecordList/View';
-import homeAppAjax from 'src/api/homeApp';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SlideGroupFilter from 'src/pages/Mobile/RecordList/GroupFilter/SlideGroupFilter.jsx';
 import { addNewRecord, updateFilters } from 'src/pages/worksheet/redux/actions';
-import { mdAppResponse } from 'src/util';
+import { mdAppResponse } from 'src/utils/project';
 
 const Con = styled.div`
   width: 100%;
@@ -29,6 +29,9 @@ const ViewCon = styled.div`
   flex: 1;
   min-height: 0;
   border: 1px solid #e0e0e0 !important;
+  .toolBarWrap {
+    z-index: 100 !important;
+  }
 `;
 
 const Header = styled.div`
@@ -42,7 +45,7 @@ const AddBtn = styled.div`
   bottom: 20px;
   width: 100%;
   text-align: center;
-  z-index: 1;
+  z-index: 12;
   button {
     height: 44px;
     display: flex !important;

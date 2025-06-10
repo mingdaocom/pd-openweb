@@ -1,6 +1,7 @@
 ﻿// root node departmentId
 // root node departmentId
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
+
 export const COMPANY_DEPARMENTID = '';
 
 export const PAGE_SIZE = 50;
@@ -31,8 +32,7 @@ export const ACTIONS = {
   INACTIVE_USER_REQUEST: 'INACTIVE_USER_REQUEST',
   APPROVAL_USER_REQUEST: 'APPROVAL_USER_REQUEST',
   FULL_TREE_REQUEST: 'FULL_TREE_REQUEST',
-  SEARCH_REQUEST:'SEARCH_REQUEST',
-
+  SEARCH_REQUEST: 'SEARCH_REQUEST',
 };
 
 export const getEllipsisDep = str => {
@@ -79,8 +79,8 @@ export const checkForm = {
     return !$.trim(password)
       ? _l('密码不能为空')
       : !RegExpValidator.isPasswordValid(password)
-      ? passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字')
-      : '';
+        ? passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字')
+        : '';
   },
   mobilePhone: (mobilePhone, iti) => {
     return !mobilePhone ? _l('请输入手机号') : iti && !iti.isValidNumber() ? _l('手机号格式错误') : '';

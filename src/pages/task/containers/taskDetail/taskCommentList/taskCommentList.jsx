@@ -1,11 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import './taskCommentList.less';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import { htmlDecodeReg } from 'src/util';
-import { removeTaskDiscussions, addTaskDiscussions, discussionsAddMembers, updateCommentList } from '../../../redux/actions';
+import { htmlDecodeReg } from 'src/utils/common';
+import {
+  addTaskDiscussions,
+  discussionsAddMembers,
+  removeTaskDiscussions,
+  updateCommentList,
+} from '../../../redux/actions';
+import './taskCommentList.less';
 
 class TaskCommentList extends Component {
   constructor(props) {
@@ -25,7 +30,7 @@ class TaskCommentList extends Component {
   /**
    * 更新讨论列表
    */
-  updateCommentList = (data) => {
+  updateCommentList = data => {
     const { taskId, addPostSuccessCount } = this.props;
 
     addPostSuccessCount();
@@ -35,7 +40,7 @@ class TaskCommentList extends Component {
   /**
    * 回复讨论
    */
-  onSubmit = (data) => {
+  onSubmit = data => {
     const { taskId } = this.props;
 
     this.props.dispatch(addTaskDiscussions(taskId, data));
@@ -48,7 +53,7 @@ class TaskCommentList extends Component {
   /**
    * 删除讨论回调
    */
-  removeDiscussionsCallback = (discussionId) => {
+  removeDiscussionsCallback = discussionId => {
     this.props.dispatch(removeTaskDiscussions(this.props.taskId, discussionId));
   };
 
@@ -70,7 +75,10 @@ class TaskCommentList extends Component {
     return (
       <Fragment>
         <div className="isOnlyLookBox">
-          <span className={cx('isOnlyLook', { checked: onlyLookMe })} onClick={() => this.setState({ onlyLookMe: !onlyLookMe })}>
+          <span
+            className={cx('isOnlyLook', { checked: onlyLookMe })}
+            onClick={() => this.setState({ onlyLookMe: !onlyLookMe })}
+          >
             <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
             {_l('只显示与我有关')}
           </span>

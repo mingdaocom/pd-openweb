@@ -24,7 +24,7 @@ export default class Abstract extends React.Component {
       controls: worksheetControls.filter(
         item =>
           !SYS.includes(item.controlId) && // 排除系统字段
-          !(_.includes([48], item.sourceControlType) && item.type === 30), //排除他表字段 组织角色控件
+          !((_.includes([48], item.sourceControlType) || item.strDefault === '10') && item.type === 30), //排除他表字段 组织角色控件
       ),
       filter: item => _.includes(AS_ABSTRACT_CONTROL, (item.type === 30 ? item.sourceControlType : item.type)),
     });

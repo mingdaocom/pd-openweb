@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Input, Icon, Checkbox } from 'ming-ui';
 import { DatePicker, TimePicker } from 'antd';
-import Trigger from 'rc-trigger';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import localeEn from 'antd/es/date-picker/locale/en_US';
-import { FFILLLIMIT_OPTIONS, TIME_PERIOD_TYPE, TIME_PERIOD_OPTIONS, TIME_TYPE, WEEKS, MONTHS } from '../../enum';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
-import _ from 'lodash';
 import dayjs from 'dayjs';
+import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Input } from 'ming-ui';
+import { generateRandomPassword } from 'src/utils/common';
+import { FFILLLIMIT_OPTIONS, MONTHS, TIME_PERIOD_OPTIONS, TIME_PERIOD_TYPE, TIME_TYPE, WEEKS } from '../../enum';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
-import { generateRandomPassword } from 'src/util';
 
 const { RangePicker } = DatePicker;
 
@@ -220,8 +220,8 @@ export default function DataCollectionSettings(props) {
           ? parseInt(value) > maxValue
             ? maxValue
             : parseInt(value) < minValue
-            ? minValue
-            : parseInt(value)
+              ? minValue
+              : parseInt(value)
           : '';
       newTimeRange[type][from] = setValue;
       setState({ timeRange: newTimeRange });
@@ -266,8 +266,8 @@ export default function DataCollectionSettings(props) {
         selectedHour < 0
           ? Array.from({ length: 60 }, (_, k) => k)
           : selectedHour === endHour
-          ? Array.from({ length: 60 - endMinute }, (_, k) => k + endMinute)
-          : [];
+            ? Array.from({ length: 60 - endMinute }, (_, k) => k + endMinute)
+            : [];
     }
     if (from === 'end' && itemData.start) {
       const [startHour, startMinute] = itemData.start.split(':').map(item => parseInt(item));
@@ -276,8 +276,8 @@ export default function DataCollectionSettings(props) {
         selectedHour < 0
           ? Array.from({ length: 60 }, (_, k) => k)
           : selectedHour === startHour
-          ? Array.from({ length: startMinute + 1 }, (_, k) => k)
-          : [];
+            ? Array.from({ length: startMinute + 1 }, (_, k) => k)
+            : [];
     }
     return { disabledHours, disabledMinutes };
   };

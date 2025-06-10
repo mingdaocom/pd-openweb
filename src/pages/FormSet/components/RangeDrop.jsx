@@ -1,8 +1,8 @@
 import React from 'react';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, Radio } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, Radio } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 
 const HeaderRange = styled.div`
   display: block;
@@ -60,43 +60,16 @@ const RangeBox = styled.div`
       color: #151515;
     }
   }
-  .conLine {
-    margin: 0 24px;
-    border-bottom: 1px solid #eaeaea;
-  }
-  .inputTxt {
-    font-weight: normal;
-  }
   .dropOptionTrigger {
     padding: 24px;
     max-height: 260px;
     overflow: auto;
-    .viewName {
-      word-break: break-all;
-    }
   }
 `;
 @withClickAway
 export class RangeDrop extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      allView: false,
-    };
-  }
-  componentDidMount() {
-    const { printData, views } = this.props;
-    this.setState({
-      allView: this.getViews(views).length === printData.views.length,
-    });
-  }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEmpty(this.props.printData, nextProps.printData)) {
-      const { printData, views } = nextProps;
-      this.setState({
-        allView: this.getViews(views).length === printData.views.length,
-      });
-    }
   }
 
   getViews(list) {
@@ -105,7 +78,6 @@ export class RangeDrop extends React.Component {
 
   render() {
     const { printData, views, setData, className } = this.props;
-    const { allView } = this.state;
     const viewList = this.getViews(views);
 
     return (
@@ -151,47 +123,21 @@ export class RangeDrop extends React.Component {
               <div className="viewListLi">
                 {viewList.map(it => {
                   return (
-                    <div
-                      className="mTop15 mLeft25 Hand"
-                      onClick={() => {
-                        if (printData.views.map(o => o.viewId).includes(it.viewId)) {
-                          this.setState({
-                            allView: false,
-                          });
-                          setData({
-                            printData: {
-                              ...printData,
-                              views: printData.views.filter(o => it.viewId !== o.viewId),
-                            },
-                            viewId: it.viewId,
-                          });
-                        } else {
-                          let data = printData.views;
-                          data.push(it);
-                          setData(
-                            {
-                              printData: {
-                                ...printData,
-                                views: data,
-                              },
-                              viewId: it.viewId,
-                            },
-                            () => {
-                              this.setState({
-                                allView: this.getViews(this.state.views).length === this.state.printData.views.length,
-                              });
-                            },
-                          );
-                        }
+                    <Checkbox
+                      className="mTop15 mLeft25"
+                      text={it.name}
+                      checked={printData.views.map(o => o.viewId).includes(it.viewId)}
+                      onClick={checked => {
+                        setData({
+                          printData: {
+                            ...printData,
+                            views: checked
+                              ? printData.views.filter(o => it.viewId !== o.viewId)
+                              : printData.views.concat(it),
+                          },
+                        });
                       }}
-                    >
-                      <input
-                        type="checkbox"
-                        className="viewInput TxtMiddle"
-                        checked={printData.views.map(o => o.viewId).includes(it.viewId)}
-                      />
-                      <span className="TxtMiddle viewName">{it.name}</span>
-                    </div>
+                    />
                   );
                 })}
               </div>

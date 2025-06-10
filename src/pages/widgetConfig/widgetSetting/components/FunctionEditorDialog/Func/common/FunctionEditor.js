@@ -1,16 +1,16 @@
 import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import CodeMirror from 'codemirror';
+import _, { get, identity, isEmpty } from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getControlType } from './ControlList';
-import useShowHint from '../lib/show-hint';
-import useMatchBrackets from '../lib/matchbrackets';
+import { emitter } from 'src/utils/common';
+import { checkTypeSupportForFunction, functions } from '../enum';
 import useCloseBrackets from '../lib/closebrackets';
 import setJavascriptMode from '../lib/javascript';
-import { checkTypeSupportForFunction, functions } from '../enum';
+import useMatchBrackets from '../lib/matchbrackets';
+import useShowHint from '../lib/show-hint';
+import { getControlType } from './ControlList';
 import '../lib/show-hint.css';
-import EventEmitter from 'events';
-import _, { get, identity, isEmpty } from 'lodash';
 
 const TagWrapper = ({ onDidMount = () => {}, tag }) => {
   useLayoutEffect(() => {
@@ -21,7 +21,7 @@ const TagWrapper = ({ onDidMount = () => {}, tag }) => {
 };
 
 if (!window.emitter) {
-  window.emitter = new EventEmitter();
+  window.emitter = emitter;
 }
 
 setJavascriptMode(CodeMirror);

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
 import { Input } from 'antd';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { getTranslateInfo } from 'src/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { getTranslateInfo } from 'src/utils/app';
 
 const Wrap = styled.div`
   position: relative;

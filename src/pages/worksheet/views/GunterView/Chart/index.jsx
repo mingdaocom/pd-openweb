@@ -58,6 +58,9 @@ export default class GunterChart extends Component {
         window.groupingScrollLock = true;
       });
     }
+    if (window.isWindows) {
+      window.addEventListener('wheel', this.handleWheel);
+    }
     this.props.updateChartScroll(scroll);
   }
   componentWillReceiveProps(nextProps) {
@@ -103,12 +106,15 @@ export default class GunterChart extends Component {
       chartScroll.off('scroll', this.linkageScroll);
       chartScroll.destroy && chartScroll.destroy();
     }
+    if (window.isWindows) {
+      window.removeEventListener('wheel', this.handleWheel);
+    }
   }
   setScrollValue = value => {
     const { chartScroll } = this.props.gunterView;
     chartScroll.scrollTo(chartScroll.x + value, chartScroll.y);
     chartScroll._execEvent('scroll');
-  };
+  }
   handleScroll = event => {
     const { chartScroll, viewConfig } = this.props.gunterView;
     const { loading } = this.state;
@@ -172,7 +178,7 @@ export default class GunterChart extends Component {
     }
     this.headerEl && (this.headerEl.style.transform = `translateX(${chartScroll.x}px)`);
     this.timeDotWrapperEl && (this.timeDotWrapperEl.style.transform = `translateY(${chartScroll.y}px)`);
-  };
+  }
   linkageScroll = () => {
     const { groupingScroll, chartScroll } = this.props.gunterView;
     if (window.groupingScrollLock) {
@@ -182,10 +188,20 @@ export default class GunterChart extends Component {
       groupingScroll.scrollTo(groupingScroll.x, chartScroll.y);
       groupingScroll._execEvent('scroll');
     }
-  };
+  }
   handleUpdateGroupingVisible = () => {
     this.props.updateGroupingVisible();
-  };
+  }
+  handleWheel = e => {
+    const { chartScroll } = this.props.gunterView;
+    if (e.shiftKey) {
+      if (e.deltaY >= 0) {
+        chartScroll.scrollTo(chartScroll.x - 30, chartScroll.y);
+      } else {
+        chartScroll.scrollTo(chartScroll.x + 30, chartScroll.y);
+      }
+    }
+  }
   renderContent() {
     const { gunterView } = this.props;
     const { grouping, withoutArrangementVisible } = gunterView;

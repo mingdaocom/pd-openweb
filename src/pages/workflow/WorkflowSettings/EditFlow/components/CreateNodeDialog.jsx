@@ -9,8 +9,8 @@ import { checkPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import CodeSnippet from '../../../components/CodeSnippet';
 import SelectProcess from '../../../components/SelectProcess';
 import { ACTION_ID, APP_TYPE, NODE_TYPE, TRIGGER_ID } from '../../enum';
@@ -349,13 +349,13 @@ export default class CreateNodeDialog extends Component {
                 },
               ],
             },
-            {
-              type: 4,
-              name: _l('审批'),
-              iconColor: '#7E57C2',
-              iconName: 'icon-workflow_ea',
-              describe: _l('添加一个人工审批节点，流程将等待执行后再继续'),
-            },
+            // {
+            //   type: 4,
+            //   name: _l('审批'),
+            //   iconColor: '#7E57C2',
+            //   iconName: 'icon-workflow_ea',
+            //   describe: _l('添加一个人工审批节点，流程将等待执行后再继续'),
+            // },
             {
               type: 3,
               name: _l('填写%03025'),
@@ -1414,11 +1414,10 @@ export default class CreateNodeDialog extends Component {
     const featureType = getFeatureStatus(flowInfo.companyId, VersionProductType.flowPlugin);
     let source = tab === 1 ? list : pluginList;
     const LIST = [
-      { key: 'system', icon: 'icon-workflow', text: _l('系统'), events: () => this.setState({ tab: 1 }) },
-      { key: 'plugin', icon: 'icon-extension', text: _l('插件'), events: () => this.setState({ tab: 2 }) },
+      { key: 'system', text: _l('系统'), events: () => this.setState({ tab: 1, keywords: '' }) },
+      { key: 'plugin', text: _l('插件'), events: () => this.setState({ tab: 2, keywords: '' }) },
       {
         key: 'api',
-        icon: 'icon-connect',
         text: 'API',
         events: () => {
           dialogSelectIntegrationApi({
@@ -1436,7 +1435,6 @@ export default class CreateNodeDialog extends Component {
           });
         },
       },
-      { key: 'copy', icon: 'icon-copy', text: _l('复制'), events: () => selectCopy(flowInfo.id) },
     ];
     const MODE = [
       { icon: 'icon-list1', value: 1 },
@@ -1454,14 +1452,6 @@ export default class CreateNodeDialog extends Component {
 
     if (isPlugin || md.global.SysSettings.hideIntegration) {
       _.remove(LIST, o => o.key === 'api');
-    }
-
-    if (
-      (selectProcessId && flowInfo.id !== selectProcessId) ||
-      isApproval ||
-      (flowNodeMap[flowInfo.startNodeId] || {}).nextId === '99'
-    ) {
-      _.remove(LIST, o => o.key === 'copy');
     }
 
     if (keywords.trim()) {
@@ -1501,7 +1491,7 @@ export default class CreateNodeDialog extends Component {
     return (
       <div className="flexRow flex">
         <div className="createNodeDialogNav flexColumn">
-          <div className="Font17 bold flexRow alignItemsCenter mLeft4">
+          <div className="Font17 bold flexRow alignItemsCenter mLeft16">
             {_l('添加动作')}
             <Support
               className="mLeft5"
@@ -1511,46 +1501,61 @@ export default class CreateNodeDialog extends Component {
             />
           </div>
 
-          <ul className="createNodeDialogNavList mTop20">
-            {LIST.map((o, index) => (
-              <li
-                key={o.key}
-                className={cx('flexRow alignItemsCenter Font14 bold', { active: index === tab - 1 })}
-                onClick={o.events}
-              >
-                <i className={cx('Font16 mLeft10 mRight10', o.icon)} />
-                {o.text}
-              </li>
-            ))}
-          </ul>
+          <ScrollView className="flex mTop20">
+            <ul className="createNodeDialogNavList">
+              {LIST.map((o, index) => (
+                <Fragment>
+                  <li
+                    key={o.key}
+                    data-type={o.key}
+                    className={cx('flexRow alignItemsCenter Font14 bold', { active: index === tab - 1 })}
+                    onClick={o.events}
+                  >
+                    {o.text}
+                  </li>
 
-          {!!source.length && <div className="createNodeDialogNavLine" />}
+                  {o.key === 'system' && (
+                    <ul className="createNodeDialogNavTags">
+                      {(tab === 1 ? source : list).map((o, index) => (
+                        <li
+                          key={o.id}
+                          className={cx('ThemeHoverColor3 pointer', {
+                            'ThemeColor3 bold': currentSectionIndex === index && tab === 1,
+                          })}
+                          onClick={() => {
+                            this.setState({ tab: 1, keywords: tab === 2 ? '' : keywords }, () => {
+                              const sections = document.querySelectorAll('.workflowSectionName');
 
-          <ScrollView className="flex">
-            <ul className="createNodeDialogNavTags">
-              {source.map((o, index) => (
-                <li
-                  key={o.id}
-                  className={cx('ThemeHoverColor3 pointer', { ThemeColor3: currentSectionIndex === index })}
-                  onClick={() => {
-                    const sections = document.querySelectorAll('.workflowSectionName');
-
-                    sections[index].scrollIntoView();
-                  }}
-                >
-                  {o.name}
-                </li>
+                              sections[index].scrollIntoView();
+                            });
+                          }}
+                        >
+                          {o.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Fragment>
               ))}
             </ul>
           </ScrollView>
 
           {tab === 2 && (
-            <div
-              className="createNodeFooterBtn ThemeHoverColor3 ThemeHoverBorderColor3 pointer mTop20"
-              onClick={() => window.open('/plugin/node')}
-            >
-              <span className="Font14 bold">{_l('添加插件')}</span>
-              <i className="mLeft5 icon-task-new-detail Font12" />
+            <div className="createNodeFooterBtn ThemeHoverColor3 pointer" onClick={() => window.open('/plugin/node')}>
+              <i className="icon-task-new-detail Font12" />
+              <span className="mLeft5 Font14 bold">{_l('添加插件')}</span>
+            </div>
+          )}
+
+          {!(
+            (selectProcessId && flowInfo.id !== selectProcessId) ||
+            isApproval ||
+            (flowNodeMap[flowInfo.startNodeId] || {}).nextId === '99' ||
+            tab === 2
+          ) && (
+            <div className="createNodeFooterBtn ThemeHoverColor3 pointer" onClick={() => selectCopy(flowInfo.id)}>
+              <i className="icon-copy Font14" />
+              <span className="mLeft5 Font14 bold">{_l('复制节点')}</span>
             </div>
           )}
         </div>

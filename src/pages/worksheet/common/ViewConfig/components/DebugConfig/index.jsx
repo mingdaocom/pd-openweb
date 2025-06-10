@@ -1,13 +1,13 @@
-import React, { createRef, useState, useEffect, useRef, Fragment } from 'react';
+import React, { createRef, Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Dropdown, TagTextarea, Support } from 'ming-ui';
-import { devTapList } from 'src/pages/worksheet/common/ViewConfig/components/DebugConfig/config.js';
-import _ from 'lodash';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Icon, Support, TagTextarea } from 'ming-ui';
 import Input from 'ming-ui/components/Input';
-import { emitter } from 'src/util';
+import { devTapList } from 'src/pages/worksheet/common/ViewConfig/components/DebugConfig/config.js';
+import { emitter } from 'src/utils/common';
 import tailwindIcon from './tailwind.svg';
 import vueIcon from './vue.svg';
 
@@ -141,7 +141,16 @@ export default function DebugConfig(params) {
   const { worksheetId, view = {}, onChangeView } = params;
   const { viewId, pluginInfo = {} } = view;
   const [
-    { stepState, cur, editHref, templateType, customViewDebugUrl, localStorageCustomViewDebugUrl, configuration, version },
+    {
+      stepState,
+      cur,
+      editHref,
+      templateType,
+      customViewDebugUrl,
+      localStorageCustomViewDebugUrl,
+      configuration,
+      version,
+    },
     setState,
   ] = useSetState({
     stepState: 0,

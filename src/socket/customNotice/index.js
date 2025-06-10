@@ -1,11 +1,11 @@
 import React from 'react';
+import _ from 'lodash';
+import { match } from 'path-to-regexp';
 import { antNotification, Icon } from 'ming-ui';
 import { renderBtnList } from 'ming-ui/functions/mdNotification';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
-import { downloadFile, emitter } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
-import _ from 'lodash';
-import { match } from 'path-to-regexp';
+import { downloadFile, emitter } from 'src/utils/common';
 
 const integrationParams = match('/integrationConnect/:id?/:tab?');
 

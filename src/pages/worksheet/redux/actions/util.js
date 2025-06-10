@@ -1,5 +1,6 @@
 import { find } from 'lodash';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+
 export const dealData = data => {
   const res = {};
   data.forEach(item => {
@@ -102,7 +103,7 @@ export function sortDataByCustomItems(data, view = {}, controls = [], firstNotSp
   const viewControls = _.find(controls, c => c.controlId === view.viewControl);
   if (!_.isEmpty(customItems) && viewControls) {
     const sortIds = customItems.map(i => {
-      const type = viewControls.type === 30 ? viewControls.sourceControlType : viewControls.type
+      const type = viewControls.type === 30 ? viewControls.sourceControlType : viewControls.type;
       if (_.includes([9, 10, 11, 28], type)) {
         return i;
       } else {
@@ -124,3 +125,5 @@ export function sortDataByCustomItems(data, view = {}, controls = [], firstNotSp
   }
   return data;
 }
+
+// export function getUserRole() {}

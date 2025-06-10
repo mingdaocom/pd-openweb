@@ -1,13 +1,39 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { PREVIEW_TYPE } from '../constant/enum';
-import * as Actions from '../actions/action';
-import ThumbnailItem from '../thumbnailItem';
 import _ from 'lodash';
-import { b64toBlob } from 'src/util';
+import PropTypes from 'prop-types';
+import * as Actions from '../actions/action';
+import { PREVIEW_TYPE } from '../constant/enum';
+import ThumbnailItem from '../thumbnailItem';
+
+/**
+ * base64 字符串转 blob
+ * @param {*} b64Data
+ * @param {*} contentType
+ * @param {*} sliceSize
+ * @returns
+ */
+const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
+};
 
 class ThumbnailGuide extends React.Component {
   static propTypes = {

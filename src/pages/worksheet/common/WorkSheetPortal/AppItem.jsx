@@ -1,13 +1,13 @@
-import React, { Component, Fragment, useState, useEffect } from 'react';
-import { Icon, MdLink, Tooltip, SvgIcon } from 'ming-ui';
+import React, { Component, Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
-import { convertColor } from '../WorkSheetLeft/WorkSheetItem';
-import MoreOperation from '../WorkSheetLeft/MoreOperation';
-import Drag from '../WorkSheetLeft/Drag';
-import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
-import { getTranslateInfo } from 'src/util';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
+import { getTranslateInfo } from 'src/utils/app';
+import Drag from '../WorkSheetLeft/Drag';
+import MoreOperation from '../WorkSheetLeft/MoreOperation';
+import { convertColor } from '../WorkSheetLeft/WorkSheetItem';
 
 const AppItem = props => {
   const { appItem, appPkg, projectId, appId, groupId, isCharge } = props;

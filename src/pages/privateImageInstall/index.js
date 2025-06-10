@@ -1,14 +1,14 @@
-import React, { Fragment, Component } from 'react';
-import { Input, Button, Textarea, LoadDiv } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
+import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
+import { Button, Input, LoadDiv, Textarea } from 'ming-ui';
 import privateGuide from 'src/api/privateGuide';
+import 'src/common/mdcss/Themes/theme.less';
 import logo from 'src/pages/emailValidate/logo.png';
+import { encrypt, getRequest } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import weixinCode from './images/weixin.png';
 import './index.less';
-import 'src/common/mdcss/Themes/theme.less';
-import { encrypt, getRequest } from 'src/util';
-import RegExpValidator from 'src/util/expression';
-import { createRoot } from 'react-dom/client';
 
 class PrivateImageInstall extends Component {
   constructor(props) {

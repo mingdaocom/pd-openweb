@@ -47,6 +47,7 @@ export default class extends Component {
       linkageMatch: null,
     }
     this.BidirectionalBarChart = null;
+    this.g2plotComponent = {};
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {

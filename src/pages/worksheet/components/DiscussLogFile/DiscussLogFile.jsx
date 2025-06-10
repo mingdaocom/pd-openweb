@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { emitter } from 'worksheet/util';
-import WorkSheetComment from './WorkSheetComment';
-import PayLog from './PayLog';
-import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
-import './DiscussLogFile.less';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
-import { getRequest } from 'src/util';
+import PropTypes from 'prop-types';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { getRequest } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
+import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
+import PayLog from './PayLog';
+import WorkSheetComment from './WorkSheetComment';
+import './DiscussLogFile.less';
 
 @errorBoundary
 class DiscussLogFile extends Component {
@@ -135,7 +135,9 @@ class DiscussLogFile extends Component {
                 <WorkSheetComment status={status} {...this.props} doNotLoadAtDidMount={doNotLoadAtDidMount} />
               </div>
             )}
-            {status === 2 && forReacordDiscussion && <WorksheetRocordLog ref={this.logRef} {...this.props} />}
+            {status === 2 && !configLoading && forReacordDiscussion && (
+              <WorksheetRocordLog ref={this.logRef} {...this.props} />
+            )}
           </div>
         )}
       </div>

@@ -8,7 +8,7 @@ import { Button, Dialog, Icon, LoadDiv, Support, Textarea } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
-import { PUBLIC_KEY } from 'src/util/enum';
+import { PUBLIC_KEY } from 'src/utils/enum';
 import './createMerchant.less';
 
 const wechatFormInfo = [
@@ -71,10 +71,10 @@ export default function CreateWechatOrAliMerchant(props) {
       ? wechatFormInfo
       : aliFormInfo
     : isWechat
-      ? wechatFormInfo.filter(item => _.includes(['appId', 'shortName'], item.field))
+      ? wechatFormInfo.filter(item => _.includes(['shortName'], item.field))
       : aliFormInfo.slice(1, 2);
   const secretFormInfo = isWechat
-    ? wechatFormInfo.filter(item => !_.includes(['appId', 'shortName'], item.field))
+    ? wechatFormInfo.filter(item => !_.includes(['shortName'], item.field))
     : aliFormInfo.filter(item => item.field !== 'shortName');
   const [isScroll, setIsScroll] = useState(false);
   const [loading, setLoading] = useState(!isCreate || isWechat);
@@ -233,48 +233,32 @@ export default function CreateWechatOrAliMerchant(props) {
           className={cx('formItem mBottom15 Relative', { w100: _.includes(['privateKey', 'publicKey'], item.field) })}
           key={item.field}
         >
-          {isSubmit && (item.field !== 'appId' || !isWechat) && !_.trim(formData[item.field]) && (
+          {isSubmit && !_.trim(formData[item.field]) && (
             <div className="errorMessage">
               <span>{item.placeholder}</span>
               <i className="errorArrow" />
             </div>
           )}
           <div className="Gray_75 mBottom5 bold Relative">
-            {(item.field !== 'appId' || !isWechat) && <div className="required">*</div>}
+            <div className="required">*</div>
             {item.label}
           </div>
           <div className="form">
-            {isWechat && item.field === 'appId' ? (
-              loading ? (
-                <LoadDiv />
-              ) : !!appId ? (
-                <div className="disabledForm">{appId}</div>
-              ) : (
-                <div className="Gray_9e noBindWeiXin">
-                  {_l('暂未绑定认证的服务号，')}
-                  <a href={`/admin/weixin/${projectId}`} className="ThemeColor">
-                    {_l('请前往组织后台')}
-                  </a>
-                  {_l('添加微信服务号')}
-                </div>
-              )
-            ) : (
-              <Textarea
-                className={`w100 placeholderColor ${
-                  _.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
-                }`}
-                style={{ maxHeight: 350 }}
-                value={formData[item.field]}
-                placeholder={item.placeholder}
-                onChange={value => {
-                  setFormData({
-                    [item.field]: value,
-                    isSubmit: !value,
-                    formChanged: _.trim(value) !== initData[item.field],
-                  });
-                }}
-              />
-            )}
+            <Textarea
+              className={`w100 placeholderColor ${
+                _.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
+              }`}
+              style={{ maxHeight: 350 }}
+              value={formData[item.field]}
+              placeholder={item.placeholder}
+              onChange={value => {
+                setFormData({
+                  [item.field]: value,
+                  isSubmit: !value,
+                  formChanged: _.trim(value) !== initData[item.field],
+                });
+              }}
+            />
           </div>
         </div>
       );
@@ -295,7 +279,9 @@ export default function CreateWechatOrAliMerchant(props) {
             <Fragment>
               <div>
                 <span className="TxtMiddle mRight5">{_l('1、支付费率及提现费率可在您的')}</span>
-                <a target="_blank" href="https://pay.weixin.qq.com">{_l('微信支付商户平台')}</a>
+                <a target="_blank" href="https://pay.weixin.qq.com">
+                  {_l('微信支付商户平台')}
+                </a>
                 <span className="TxtMiddle mLeft5">{_l('查看')}</span>
               </div>
               {md.global.Config.IsLocal ? (
@@ -305,20 +291,26 @@ export default function CreateWechatOrAliMerchant(props) {
                   <span className="TxtMiddle mRight5">
                     {_l('2、资金直达微信，本平台仅收取商户功能费，支持先试用后付费，点击')}
                   </span>
-                  <a target="_blank" href={`/upgrade/choose?projectId=${projectId}`}>{_l('查看具体费用')}</a>
+                  <a target="_blank" href={`/upgrade/choose?projectId=${projectId}`}>
+                    {_l('查看具体费用')}
+                  </a>
                 </div>
               )}
               <div>{_l('3、密钥、证书等字段信息采用动态加密存储，保存后掩码显示，保障信息安全')}</div>
               <div>
                 <span className="TxtMiddle mRight5"> {_l('4、配置内容请参考')}</span>
-                <a target="_blank" href={`${md.global.Config.WebUrl}wechatmerchantguide`}>{_l('商户号配置指引')}</a>
+                <a target="_blank" href={`${md.global.Config.WebUrl}wechatmerchantguide`}>
+                  {_l('商户号配置指引')}
+                </a>
               </div>
             </Fragment>
           ) : (
             <Fragment>
               <div>
                 <span className="mRight5"> {_l('1、支付费率及提现费率可在您的')}</span>
-                <a target="_blank" href="https://b.alipay.com">{_l('支付宝商户平台')}</a>
+                <a target="_blank" href="https://b.alipay.com">
+                  {_l('支付宝商户平台')}
+                </a>
                 <span className="TxtMiddle mLeft5">{_l('查看')}</span>
               </div>
               {md.global.Config.IsLocal ? (
@@ -328,14 +320,18 @@ export default function CreateWechatOrAliMerchant(props) {
                   <span className="TxtMiddle mRight5">
                     {_l('2、资金直达支付宝，本平台仅收取商户功能费，支持先试用后付费，点击')}
                   </span>
-                  <a target="_blank" href={`/upgrade/choose?projectId=${projectId}`}>{_l('查看具体费用')}</a>
+                  <a target="_blank" href={`/upgrade/choose?projectId=${projectId}`}>
+                    {_l('查看具体费用')}
+                  </a>
                 </div>
               )}
               <div>{_l('3、支付宝退款退费：退款时服务费不退回，请及时充值保证后续退款成功')}</div>
               <div>{_l('4、密钥、证书等字段信息采用动态加密存储，保存后掩码显示，保障信息安全')}</div>
               <div>
                 <span className="TxtMiddle mRight5"> {_l('5、配置内容请参考')}</span>{' '}
-                <a target="_blank" href={`${md.global.Config.WebUrl}alimerchantguide`}>{_l('商户号配置指引')}</a>
+                <a target="_blank" href={`${md.global.Config.WebUrl}alimerchantguide`}>
+                  {_l('商户号配置指引')}
+                </a>
               </div>
             </Fragment>
           )}

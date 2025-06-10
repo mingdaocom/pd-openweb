@@ -1,18 +1,20 @@
-import './css/mobileShare.less';
 import doT from 'dot';
-import qs from 'query-string';
-import { downloadFile, formatFileSize, getClassNameByExt } from 'src/util';
-import mobileShareHtml from './tpl/mobileShare.htm';
-var mobileShareTpl = doT.template(mobileShareHtml);
-import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
-import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
-import shareajax from 'src/api/share';
-import chatAjax from 'src/api/chat';
-import weixinAjax from 'src/api/weixin';
-import attachmentAjax from 'src/api/attachment';
-import kcAjax from 'src/api/kc';
 import moment from 'moment';
-import RegExpValidator from 'src/util/expression';
+import qs from 'query-string';
+import attachmentAjax from 'src/api/attachment';
+import chatAjax from 'src/api/chat';
+import kcAjax from 'src/api/kc';
+import shareajax from 'src/api/share';
+import weixinAjax from 'src/api/weixin';
+import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
+import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
+import { downloadFile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import mobileShareHtml from './tpl/mobileShare.htm';
+import './css/mobileShare.less';
+
+var mobileShareTpl = doT.template(mobileShareHtml);
+
 var RENDER_BY_SERVICE_TYPE = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'pdf'];
 
 $('html').addClass('AppKc AppKcShare');

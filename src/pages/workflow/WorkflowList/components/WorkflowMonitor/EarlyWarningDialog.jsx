@@ -1,24 +1,29 @@
 import React, { Component } from 'react';
-import { Dialog, Button, UserHead, Input, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Icon, Input, Tooltip, UserHead } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectUser } from 'ming-ui/functions';
-import styled from 'styled-components';
-import cx from 'classnames';
 
 const NotifierCon = styled.div`
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
+  .notifierUsers {
+    display: flex;
+    gap: 10px 20px;
+    flex: 1;
+    flex-wrap: wrap;
+  }
 `;
 const NotifierItem = styled.div`
   display: flex;
   align-items: center;
   background: #f7f7f7;
-  margin-right: 20px;
-  margin-bottom: 10px;
   padding-right: 10px;
   border-radius: 24px;
+  max-width: 200px;
 `;
 
 const AddNotifierBtn = styled.div`
@@ -43,12 +48,32 @@ const InputWrap = styled(Input)`
   }
 `;
 
+const NoticeMethod = styled.div`
+  .methods {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+`;
+
+const NOTICE_METHOD_OPTIONS = [
+  { value: '1', label: _l('系统消息') },
+  { value: '2', label: _l('短信') },
+  { value: '3', label: _l('邮件') },
+];
+
+const ALERT_TIP = {
+  workflow: _l('请输入整数，数值必须 大于0，小于 100001'),
+  balance: _l('输入金额错误，输入的金额范围在10到100,000之间'),
+};
+
 class EarlyWarningDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
       notifiers: props.notifiers || [],
       warningValue: props.type === 'balance' && props.warningValue < 10 ? undefined : props.warningValue,
+      noticeTypes: props.noticeTypes && props.noticeTypes.length ? props.noticeTypes : ['1'],
     };
   }
   addNotifier = () => {
@@ -73,67 +98,77 @@ class EarlyWarningDialog extends Component {
   };
 
   changeBalanceWarningValue = value => {
+    const { type = 'balance' } = this.props;
     let val = value.replace(/[^0-9]/g, '');
-    const overLimit = Number(val) < 10 || Number(val) > 100000;
+    const overLimit =
+      type === 'workflow' ? Number(val) < 1 || Number(val) > 100001 : Number(val) < 10 || Number(val) > 100000;
+
+    overLimit && alert(ALERT_TIP[type], 3);
 
     this.setState({ warningValue: val, overLimit });
+  };
+
+  onChangeNoticeTypes = value => {
+    const { noticeTypes } = this.state;
+
+    this.setState({
+      noticeTypes: _.uniq(
+        noticeTypes.includes(value) ? noticeTypes.filter(l => l !== value) : noticeTypes.concat(value),
+      ),
+    });
   };
 
   renderSetting = () => {
     const { type } = this.props;
     const { warningValue, overLimit } = this.state;
 
-    switch (type) {
-      case 'balance':
-        return (
-          <div className="mBottom16">
-            <span className="mRight16">{_l('当组织账户余额低于')}</span>
-            <InputWrap
-              placeholder={_l('请输入')}
-              className={cx('mRight16', { overLimit, mTop10: _.includes([1], getCurrentLangCode()) })}
-              value={warningValue}
-              onChange={this.changeBalanceWarningValue}
-            />
-            <span>{_l('时%250310')}</span>
-          </div>
-        );
+    if (!_.includes(['balance', 'workflow'], type)) return null;
 
-      case 'workflow':
-        return (
-          <div className="mBottom16">
-            <span>{_l('当累积排队超过 / 降低到')}</span>
-            <Select
-              className="mdAntSelect mLeft20 mRight10"
-              style={{ width: 160 }}
-              value={warningValue}
-              onChange={val => this.setState({ warningValue: val })}
+    return (
+      <div className="mBottom26">
+        <span className="mRight16">
+          {type === 'balance' ? _l('当组织账户余额低于') : _l('当累积排队超过 / 降低到')}
+        </span>
+        <InputWrap
+          placeholder={_l('请输入')}
+          className={cx('mRight16', { overLimit, mTop10: _.includes([1], getCurrentLangCode()) })}
+          value={warningValue}
+          onChange={this.changeBalanceWarningValue}
+        />
+        <span>{type === 'balance' ? _l('时%25310') : _l('条时')}</span>
+      </div>
+    );
+  };
+
+  renderNoticeMethod = () => {
+    const { noticeTypes } = this.state;
+
+    return (
+      <NoticeMethod className="mTop26">
+        <div className="mBottom12">
+          {_l('通知方式')}
+          <Tooltip text={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
+            <Icon icon="info" className="Gray_bd mLeft8 Font16" />
+          </Tooltip>
+        </div>
+        <div className="methods">
+          {NOTICE_METHOD_OPTIONS.map((item, index) => (
+            <Checkbox
+              checked={noticeTypes.includes(item.value)}
+              disabled={index === 0}
+              onClick={() => this.onChangeNoticeTypes(item.value)}
             >
-              {[
-                { value: 1, label: 1 },
-                { value: 10, label: 10 },
-                { value: 20, label: 20 },
-                { value: 50, label: 50 },
-                { value: 100, label: 100 },
-                { value: 200, label: 200 },
-                { value: 500, label: 500 },
-                { value: 1000, label: 1000 },
-              ].map(it => (
-                <Select.Option key={it.value} value={it.value}>
-                  {it.label}
-                </Select.Option>
-              ))}
-            </Select>
-            <span>{_l('条时')}</span>
-          </div>
-        );
-      default:
-        return null;
-    }
+              <span>{item.label}</span>
+            </Checkbox>
+          ))}
+        </div>
+      </NoticeMethod>
+    );
   };
 
   render() {
-    const { type, isWarning, onCancel = () => {}, closeWarning = () => {} } = this.props;
-    const { notifiers = [], warningValue } = this.state;
+    const { type = 'balance', isWarning, onCancel = () => {}, closeWarning = () => {} } = this.props;
+    const { notifiers = [], warningValue, noticeTypes, overLimit } = this.state;
     const isWorkflow = type === 'workflow';
 
     return (
@@ -162,10 +197,9 @@ class EarlyWarningDialog extends Component {
             <div className="flex TxtLeft">
               {isWarning ? (
                 <Button
-                  className="pLeft0 pRight0"
-                  style={{ minWidth: 0 }}
+                  style={{ minWidth: 0, padding: '0 8px' }}
                   type="link"
-                  onClick={() => closeWarning(isWorkflow ? 0 : warningValue, [], onCancel)}
+                  onClick={() => closeWarning(isWorkflow ? 0 : warningValue, [], [], onCancel)}
                 >
                   {_l('关闭预警')}
                 </Button>
@@ -178,12 +212,8 @@ class EarlyWarningDialog extends Component {
             </Button>
             <Button
               onClick={() => {
-                if (
-                  type === 'balance' &&
-                  (!warningValue || Number(warningValue) < 10 || Number(warningValue) > 100000)
-                ) {
-                  this.setState({ overLimit: true });
-                  alert(_l('输入金额错误，输入的金额范围在10到100,000之间'), 3);
+                if (overLimit) {
+                  alert(ALERT_TIP[type], 3);
                   return;
                 }
 
@@ -191,7 +221,7 @@ class EarlyWarningDialog extends Component {
                   return alert(_l('请选择通知人'), 3);
                 }
 
-                this.props.onOk(warningValue, notifiers, onCancel);
+                this.props.onOk(warningValue, notifiers, noticeTypes, onCancel);
               }}
             >
               {_l('确定')}
@@ -202,31 +232,34 @@ class EarlyWarningDialog extends Component {
         {this.renderSetting()}
         <NotifierCon>
           <span className="txtMiddle mRight20 pTop5">{_l('通知')}</span>
-          {notifiers.map(it => {
-            return (
-              <NotifierItem>
-                <UserHead
-                  className="circle"
-                  user={{
-                    userHead: it.avatar,
-                    accountId: it.accountId,
-                  }}
-                  size={28}
-                />
-                <div className="userName flexRow pLeft5">
-                  <span className="ellipsis flex">{it.fullname}</span>
-                  <i
-                    className="ming Icon icon-default icon icon-close Font16 mLeft8 Gray_75 Hand"
-                    onClick={() => this.deleteNotifier(it.accountId)}
+          <div className="notifierUsers">
+            {notifiers.map(it => {
+              return (
+                <NotifierItem>
+                  <UserHead
+                    className="circle"
+                    user={{
+                      userHead: it.avatar,
+                      accountId: it.accountId,
+                    }}
+                    size={28}
                   />
-                </div>
-              </NotifierItem>
-            );
-          })}
-          <AddNotifierBtn className="Hand" onClick={this.addNotifier}>
-            <i className="ming Icon icon-default icon icon-plus Font16" />
-          </AddNotifierBtn>
+                  <div className="userName flexRow pLeft5">
+                    <span className="ellipsis flex">{it.fullname}</span>
+                    <i
+                      className="ming Icon icon-default icon icon-close Font16 mLeft8 Gray_75 Hand"
+                      onClick={() => this.deleteNotifier(it.accountId)}
+                    />
+                  </div>
+                </NotifierItem>
+              );
+            })}
+            <AddNotifierBtn className="Hand" onClick={this.addNotifier}>
+              <i className="ming Icon icon-default icon icon-plus Font16" />
+            </AddNotifierBtn>
+          </div>
         </NotifierCon>
+        {this.renderNoticeMethod()}
       </Dialog>
     );
   }

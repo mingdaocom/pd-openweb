@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import { getIconByType, canSetAsTitle } from 'src/pages/widgetConfig/util';
-import { Dropdown } from 'ming-ui';
 import cx from 'classnames';
-import ConcatenateSetting from 'src/pages/widgetConfig/widgetSetting/settings/concatenate.jsx';
+import styled from 'styled-components';
+import { Dropdown } from 'ming-ui';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
+import ConcatenateSetting from 'src/pages/widgetConfig/widgetSetting/settings/concatenate.jsx';
 
 const Wrap = styled.div`
   .fieldsWrap .fieldList li {
@@ -66,7 +66,7 @@ function TitleDrop(props) {
 }
 
 export default function (props) {
-  const { isCard, advancedSetting, className, worksheetControls, handleChange } = props;
+  const { isCard, advancedSetting, className, worksheetControls, handleChange, title } = props;
   const { viewtitle } = advancedSetting;
   const controls = worksheetControls
     .filter(o => canSetAsTitle(o) && !_.includes(ALL_SYS, o.controlId))
@@ -80,7 +80,7 @@ export default function (props) {
     });
   return (
     <Wrap className={className}>
-      <div className="title Font13 bold"> {!isCard ? _l('标签名称') : _l('标题')}</div>
+      <div className="title Font13 bold"> {title || _l('标题')}</div>
       {!isCard && <div className="Gray_75 mTop8 Font13">{_l('指定显示在时间块上的内容')}</div>}
       <div className="settingContent mTop8">
         {isCard ? (

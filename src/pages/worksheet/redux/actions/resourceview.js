@@ -1,26 +1,27 @@
-import sheetAjax from 'src/api/worksheet';
-import {
-  getViewTimesList,
-  formatRecordTime,
-  formatRecordPoint,
-  calculateTop,
-} from 'src/pages/worksheet/views/ResourceView/util.js';
-import { sortGrouping, fillRecordTimeBlockColor } from 'src/pages/worksheet/views/GunterView/util.js';
-import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
-import { dateConvertToServerZone, dateConvertToUserZone } from 'src/util';
+import dayjs from 'dayjs';
 import _ from 'lodash';
 import moment from 'moment';
-import dayjs from 'dayjs';
+import sheetAjax from 'src/api/worksheet';
+import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
+import { getHoverColor } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { fillRecordTimeBlockColor, sortGrouping } from 'src/pages/worksheet/views/GunterView/util.js';
 import {
-  types,
-  timeWidth,
-  timeWidthHalf,
   kanbanSize,
   pageSize,
+  timeWidth,
+  timeWidthHalf,
+  types,
 } from 'src/pages/worksheet/views/ResourceView/config.js';
-import { getHoverColor } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { isLightColor } from 'src/util';
-import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
+import {
+  calculateTop,
+  formatRecordPoint,
+  formatRecordTime,
+  getViewTimesList,
+} from 'src/pages/worksheet/views/ResourceView/util.js';
+import { getFilledRequestParams } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
+import { formatQuickFilter } from 'src/utils/filter';
+import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
 
 export const initData = () => {
   return (dispatch, getState) => {
@@ -323,16 +324,16 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
         value: [9, 10, 11].includes(viewControlData.type)
           ? JSON.stringify([newKey])
           : viewControlData.type === 29
-          ? JSON.stringify([{ name: newData.name, sid: newData.key }])
-          : viewControlData.type === 26 && viewControlData.controlId === 'ownerid'
-          ? newKey
-          : viewControlData.type === 26
-          ? `[${newData.name}]`
-          : 27 === viewControlData.type
-          ? JSON.stringify([{ departmentId: newKey, departmentName: newData.name }])
-          : 48 === viewControlData.type
-          ? JSON.stringify([{ organizeId: newKey, organizeName: newData.name }])
-          : newData.data,
+            ? JSON.stringify([{ name: newData.name, sid: newData.key }])
+            : viewControlData.type === 26 && viewControlData.controlId === 'ownerid'
+              ? newKey
+              : viewControlData.type === 26
+                ? `[${newData.name}]`
+                : 27 === viewControlData.type
+                  ? JSON.stringify([{ departmentId: newKey, departmentName: newData.name }])
+                  : 48 === viewControlData.type
+                    ? JSON.stringify([{ organizeId: newKey, organizeName: newData.name }])
+                    : newData.data,
       });
     }
 

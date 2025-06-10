@@ -1,18 +1,18 @@
 import { combineReducers } from 'redux';
 import { isEmpty } from 'lodash';
-import * as worksheet from './worksheet';
+import { browserIsMobile } from 'src/utils/common';
 import boardView from './boardView';
-import * as hierarchyView from './hierarchyView';
-import * as sheetview from './sheetview';
-import * as galleryview from './galleryview';
 import * as calendarview from './calendarview';
-import * as gunterView from './gunterview';
-import * as excelCreateAppAndSheet from './excelCreateAppAndSheet';
-import * as detailView from './detailView';
 import * as customWidgetView from './customWidgetView';
+import * as detailView from './detailView';
+import * as excelCreateAppAndSheet from './excelCreateAppAndSheet';
+import * as galleryview from './galleryview';
+import * as gunterView from './gunterview';
+import * as hierarchyView from './hierarchyView';
 import mapView from './mapView';
 import * as resourceView from './resourceview';
-import { browserIsMobile } from 'src/util';
+import * as sheetview from './sheetview';
+import * as worksheet from './worksheet';
 
 function base(state = {}, action) {
   switch (action.type) {
@@ -87,6 +87,15 @@ function fieldShowCount(state = 0, action) {
   }
 }
 
+function saveViewSetLoading(state = false, action) {
+  switch (action.type) {
+    case 'VIEW_UPDATE_VIEW_SET_LOADING':
+      return action.saveViewSetLoading || false;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   base,
   isCharge,
@@ -105,4 +114,5 @@ export default combineReducers({
   customWidgetView: combineReducers(customWidgetView),
   mapView,
   resourceview: combineReducers(resourceView),
+  saveViewSetLoading,
 });

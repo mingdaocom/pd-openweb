@@ -1,9 +1,11 @@
 import React, { Fragment } from 'react';
-import { Icon, Tooltip, CheckBlock, Radio } from 'ming-ui';
+import cx from 'classnames';
 import _ from 'lodash';
-import { SwitchStyle } from './style';
-import { setList } from '../config';
+import { Icon, Radio, Tooltip } from 'ming-ui';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { setList } from '../config';
+import { SwitchStyle } from './style';
 
 export default function TableSet(props) {
   const { appId, view, updateCurrentView } = props;
@@ -31,18 +33,21 @@ export default function TableSet(props) {
     <div className="dataSetting">
       <div className="commonConfigItem Font13 bold">{_l('行高')}</div>
       <div className="commonConfigItem mTop12 mBottom32">
-        <CheckBlock
-          data={[
+        <AnimationWrap>
+          {[
             { text: _l('紧凑'), value: 0 }, // 34
             { text: _l('中等'), value: 1 }, // 50
             { text: _l('高'), value: 2 }, // 70
             { text: _l('超高'), value: 3 }, // 100
-          ]}
-          value={_.get(view, 'rowHeight') || 0}
-          onChange={value => {
-            handleChange({ rowHeight: value }, ['rowHeight']);
-          }}
-        />
+          ].map(item => (
+            <div
+              className={cx('animaItem overflow_ellipsis', { active: (_.get(view, 'rowHeight') || 0) === item.value })}
+              onClick={() => handleChange({ rowHeight: item.value }, ['rowHeight'])}
+            >
+              {item.text}
+            </div>
+          ))}
+        </AnimationWrap>
       </div>
       <div className="commonConfigItem Font13 bold">{_l('显示设置')}</div>
       {setList
@@ -54,8 +59,8 @@ export default function TableSet(props) {
             ? _.get(view, `advancedSetting.${o.key}`) === '1'
             : _.get(view, `advancedSetting.${o.key}`) !== '0';
           return (
-            <div className="">
-              <SwitchStyle>
+            <div className="flexRow">
+              <SwitchStyle className="flex">
                 <Icon
                   icon={show ? 'ic_toggle_on' : 'ic_toggle_off'}
                   className="Font28 Hand"
@@ -70,6 +75,27 @@ export default function TableSet(props) {
                   </Tooltip>
                 )}
               </SwitchStyle>
+              {['titlewrap'].includes(o.key) && show && (
+                <AnimationWrap>
+                  {[
+                    { value: 0, tips: _l('顶对齐'), icon: 'align_vertical_top' },
+                    { value: 1, tips: _l('垂直居中对齐'), icon: 'align_vertical_center' },
+                  ].map(item => {
+                    return (
+                      <Tooltip text={<span>{item.tips}</span>} popupPlacement="top">
+                        <div
+                          className={cx('animaItem overflow_ellipsis pLeft16 pRight16', {
+                            active: (_.get(view, 'advancedSetting.rctitlestyle') || '0') === item.value + '',
+                          })}
+                          onClick={() => handleChange({ rctitlestyle: item.value })}
+                        >
+                          <Icon icon={item.icon} className="Font16" />
+                        </div>
+                      </Tooltip>
+                    );
+                  })}
+                </AnimationWrap>
+              )}
             </div>
           );
         })}

@@ -1,10 +1,10 @@
 ﻿import React, { Component } from 'react';
 import Avatar from 'react-avatar-edit';
+import styled from 'styled-components';
 import { Button } from 'ming-ui';
 import accountAjax from 'src/api/account';
-import { getToken } from 'src/util';
-import { browserIsMobile } from 'src/util';
-import styled from 'styled-components';
+import { browserIsMobile, getToken } from 'src/utils/common';
+
 const Wrap = styled.div`
   position: fixed;
   bottom: 0;

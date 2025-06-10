@@ -47,7 +47,11 @@ export default class SearchInput extends Component {
     const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder, triggerWhenBlurWithEmpty } = this.props;
     return (
       <div
-        className={cx('searchInputComp', className, { default: !isFocus, flex: isFocus }, isFocus ? focusedClass : '')}
+        className={cx(
+          'mobileSearchInputComp queryInput mobileQueryInput',
+          className,
+          isFocus ? `inputFocus ${focusedClass}` : 'inputBlur',
+        )}
         style={style}
       >
         <div className="inputCon">
@@ -113,8 +117,8 @@ export default class SearchInput extends Component {
             }}
           />
           <i
-            className={cx('icon icon-cancel Hand Gray_9e', {
-              none: !value,
+            className={cx('icon icon-workflow_cancel Gray_9e Font16', {
+              hide: !value,
             })}
             onClick={() => {
               this.setState({ value: '', isFocus: false }, () => {

@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
-import { Icon, Button, Dialog, Input } from 'ming-ui';
 import copy from 'copy-to-clipboard';
-import RegExpValidator from 'src/util/expression';
+import { Button, Dialog, Icon, Input } from 'ming-ui';
+import RegExpValidator from 'src/utils/expression';
 
 const CreateLinkDialog = props => {
   const { visible, onCancel } = props;

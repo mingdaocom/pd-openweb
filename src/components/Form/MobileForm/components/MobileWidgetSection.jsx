@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import RelationList from 'mobile/RelationRow/RelationList';
-import RelationSearch from 'src/components/newCustomFields/widgets/RelationSearch';
+import RelationSearch from 'src/components/Form/MobileForm/widgets/RelationSearch';
 import { FROM } from '../../core/config';
 import { ADD_EVENT_ENUM } from '../../core/enum';
 import RelateRecord from '../widgets/RelateRecord';
@@ -24,8 +24,11 @@ const TabCon = styled.div`
     &.top {
       top: 49px;
     }
-    &.top43 {
-      top: 43px;
+    &.top41 {
+      top: 41px;
+    }
+    &.top0 {
+      top: 0 !important;
     }
   }
   &.shareRecord.fixedTabs {
@@ -133,6 +136,7 @@ function MobileWidgetSection(props) {
     flag,
     from,
     isDraft,
+    view = {},
     tabControls = [],
     data = [],
     loadMoreRelateCards,
@@ -274,7 +278,7 @@ function MobileWidgetSection(props) {
       const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId);
       const c = { ...activeControl, disabled: initC.disabled, value: initC.value, isDraft };
       return (
-        <RelateTabCon className="customMobileFormContainer pTop10 pLeft20 pRight20">
+        <RelateTabCon className="customMobileFormContainer pTop10">
           <RelateRecord
             {...c}
             worksheetId={worksheetId}
@@ -298,7 +302,7 @@ function MobileWidgetSection(props) {
     // 查询记录列表 新增
     if (activeControl.type === 51) {
       return (
-        <div className={cx({ 'customMobileFormContainer pLeft20 pRight20 pTop5': !_.includes([FROM.H5_ADD], from) })}>
+        <div className="customMobileFormContainer pTop10 mLeft0 mRight0">
           <RelationSearch
             {...activeControl}
             viewId={viewId}
@@ -327,6 +331,7 @@ function MobileWidgetSection(props) {
             className={cx(`fixedTabs Fixed w100 hide top`, {
               hide: !disabled,
               shareRecord: window.shareState.isPublicRecord,
+              top0: view.viewType === 6 && view.childType === 1 && location.pathname.includes('mobile/mobileView'),
             })}
           >
             {TabsContent()}

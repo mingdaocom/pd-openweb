@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { Input } from 'antd';
+import cx from 'classnames';
+import styled from 'styled-components';
 
 const PointerConfigWrap = styled.div`
   display: flex;
@@ -31,6 +32,12 @@ const PointerConfigWrap = styled.div`
       }
       i {
         color: #9e9e9e;
+      }
+      &.disable {
+        cursor: not-allowed;
+        i {
+          color: #e5e5e5;
+        }
       }
     }
   }
@@ -74,11 +81,11 @@ export default function NumInput(props) {
     <PointerConfigWrap className={props.className}>
       <Input value={countNum} onChange={handleChange} onBlur={handleBlur} />
       <div className="numberControlBox">
-        <div className="iconWrap addIcon" onClick={addNumber}>
-          <i className="icon-arrow-up-border pointer" />
+        <div className={cx('iconWrap addIcon', { disable: maxNum && maxNum <= countNum })} onClick={addNumber}>
+          <i className={cx('icon-arrow-up-border pointer')} />
         </div>
-        <div className="iconWrap subIcon" onClick={reduceNumber}>
-          <i className="icon-arrow-down-border pointer" />
+        <div className={cx('iconWrap subIcon', { disable: minNum && minNum >= countNum })} onClick={reduceNumber}>
+          <i className={cx('icon-arrow-down-border pointer')} />
         </div>
       </div>
     </PointerConfigWrap>

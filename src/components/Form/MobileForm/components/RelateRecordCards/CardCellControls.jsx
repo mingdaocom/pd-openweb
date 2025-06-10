@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
-import { checkCellIsEmpty, checkControlCanSetStyle } from 'worksheet/util';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { checkControlCanSetStyle } from 'src/utils/control';
 import { getRecordCardStyle } from '../../tools/utils';
 
 const Control = styled.div`

@@ -120,6 +120,18 @@ export default {
      return mdyAPI('ProjectSetting', 'GetOnlyManagerCreateApp', args, options);
    },
   /**
+  * 获取 是否只允许管理员删除应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOnlyManagerDeleteApp: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'GetOnlyManagerDeleteApp', args, options);
+   },
+  /**
   * 获取 是否自动订购工作流升级包
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -544,6 +556,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {Object} args 请求参数
   * @param {string} args.projectId
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用（可空，空置不设置该值）
+  * @param {boolean} args.onlyManagerDeleteApp 是否 只允许管理员删除应用（可空，空置不设置该值）
   * @param {boolean} args.apiIntgOnlyManager 是否 只允许管理员创建应用（可空，空置不设置该值）
   * @param {boolean} args.dataPipeOnlyManager 数据集成 仅管理员 可用开关（可空，空置不设置该值）
   * @param {boolean} args.pluginsOnlyManager 插件 仅管理员 可用开关（可空，空置不设置该值）
@@ -579,6 +592,8 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {boolean} args.noticeEnabled 是否开启余额告警提醒
   * @param {integer} args.balanceLimit 提醒余额
   * @param {array} args.accountIds 提醒用户列表
+  * @param {array} args.noticeTypes 提醒方式
+1：系统消息；2：短信；3：邮件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -623,6 +638,8 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {boolean} args.mustJob 必须同步用户职位
   * @param {boolean} args.mustWorkphone 必须同步工作电话
   * @param {boolean} args.createIfNotExists 无匹配账户时新建
+  * @param {integer} args.accountTxtType 登录账户显示名称 类型（10=用户名、12=手机号、13=邮箱、100=自定义）
+  * @param {string} args.accountTxt 登录账户显示名称 自定义值（自定义 类型时的 值）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -739,6 +756,33 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
    editApiProxySettings: function (args, options = {}) {
      
      return mdyAPI('ProjectSetting', 'EditApiProxySettings', args, options);
+   },
+  /**
+  * 获取 组织成员字段显示/隐藏配置（有内存缓存）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getUserFieldSettings: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'GetUserFieldSettings', args, options);
+   },
+  /**
+  * 保存 组织成员字段显示/隐藏配置
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {} args.baseSetting
+  * @param {} args.cardSetting
+  * @param {} args.searchSetting
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setUserFieldSettings: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetUserFieldSettings', args, options);
    },
   /**
   * 

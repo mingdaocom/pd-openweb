@@ -1,18 +1,18 @@
-import React, { useState, Component, Fragment, useEffect } from 'react';
-import { Dropdown, Input, AutoComplete } from 'antd';
-import styled from 'styled-components';
-import { Tooltip, Icon } from 'ming-ui';
-import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
-import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
-import { DndProvider } from 'react-dnd-latest';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
+import { DndProvider } from 'react-dnd-latest';
+import { AutoComplete } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { getSearchData } from 'worksheet/views/util';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
-import { getSearchData } from 'worksheet/views/util';
+import { browserIsMobile } from 'src/utils/common';
+import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
 
 const Wrapper = styled.div`
   border-radius: 4px;
@@ -25,7 +25,10 @@ const Wrapper = styled.div`
   .ant-select-auto-complete {
     z-index: 2;
     width: 100%;
-    box-shadow: 0 3px 6px -4px rgb(0 0 0 / 12%), 0 6px 16px 0 rgb(0 0 0 / 8%), 0 9px 28px 8px rgb(0 0 0 / 5%);
+    box-shadow:
+      0 3px 6px -4px rgb(0 0 0 / 12%),
+      0 6px 16px 0 rgb(0 0 0 / 8%),
+      0 9px 28px 8px rgb(0 0 0 / 5%);
   }
   .ant-select-open .ant-select-selection-search-input {
     border-radius: 4px 4px 0 0;
@@ -106,7 +109,7 @@ function SearchRecord(props) {
 
   useEffect(() => {
     updateSearchRecord(view, activeRecord);
-  }, [activeRecord])
+  }, [activeRecord]);
 
   const handleSearch = value => {
     if (value) {

@@ -13,22 +13,17 @@ import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import { BUTTON_ACTION_TYPE } from 'worksheet/constants/enum';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import { canEditData } from 'worksheet/redux/actions/util';
-import {
-  formatRecordToRelateRecord,
-  getRecordTempValue,
-  isRelateRecordTableControl,
-  parseRecordTempValue,
-  removeTempRecordValueFromLocal,
-  saveTempRecordValueToLocal,
-} from 'worksheet/util';
-import { emitter, KVGet } from 'worksheet/util';
 import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import Share from 'src/pages/worksheet/components/Share';
-import { browserIsMobile } from 'src/util';
-import { compatibleMDJS, getRequest, emitter as ViewEmitter } from 'src/util';
+import { browserIsMobile, emitter, getRequest } from 'src/utils/common';
+import { removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/common';
+import { KVGet } from 'src/utils/common';
+import { isRelateRecordTableControl } from 'src/utils/control';
+import { compatibleMDJS } from 'src/utils/project';
+import { formatRecordToRelateRecord, getRecordTempValue, parseRecordTempValue } from 'src/utils/record';
 import RecordInfoContext from '../recordInfo/RecordInfoContext';
 import MobileRecordRecoverConfirm from './MobileRecordRecoverConfirm';
 import './NewRecord.less';
@@ -75,7 +70,7 @@ function focusInput(formcon) {
   if (!$formWrap) {
     return;
   }
-  const $firstText = $formWrap.querySelector('.customFormItem:first-child .customFormTextareaBox input.smallInput');
+  const $firstText = $formWrap.querySelector('.customFormItem:first-child .customFormTextareaBox');
   if ($firstText) {
     $firstText.click();
   }
@@ -222,7 +217,7 @@ function NewRecordForm(props) {
             worksheetId,
             isAdd: true,
             callback: total => {
-              ViewEmitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total });
+              emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total });
             },
           });
           onCancel();
@@ -328,10 +323,6 @@ function NewRecordForm(props) {
               });
             }
 
-            // APP集成H5前置扫码继续扫码提交下一条
-            if (isContinue && offlineUpload !== '1') {
-              handleAPPScanCodeFunc(originFormdata);
-            }
             let dataForAutoFill = [...formdata];
             if (advancedSetting.reservecontrols) {
               const controlIds = safeParse(advancedSetting.reservecontrols, 'array');
@@ -339,6 +330,12 @@ function NewRecordForm(props) {
                 _.includes(controlIds, c.controlId) ? c : _.find(originFormdata, { controlId: c.controlId }),
               );
             }
+
+            // APP集成H5前置扫码继续扫码提交下一条
+            if (isContinue && offlineUpload !== '1') {
+              handleAPPScanCodeFunc(!autoFill ? originFormdata : dataForAutoFill);
+            }
+
             if (!autoFill) {
               setFormdata(originFormdata);
               if (get(customwidget, 'current.dataFormat.callStore')) {
@@ -414,7 +411,7 @@ function NewRecordForm(props) {
           }
         },
         onSubmitEnd: () => {
-          ViewEmitter.emit('ROWS_UPDATE');
+          emitter.emit('ROWS_UPDATE');
           onSubmitEnd();
           setRequesting(false);
         },
@@ -425,7 +422,7 @@ function NewRecordForm(props) {
   }
   registerFunc({ newRecord, setRestoreVisible });
   const RecordCon = notDialog ? React.Fragment : ScrollView;
-  const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
+  const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || _l('记录'));
   const fillTempRecordValue = (tempNewRecord, formData) => {
     setIsSettingTempData(true);
     const savedData = safeParse(tempNewRecord);
@@ -466,6 +463,7 @@ function NewRecordForm(props) {
   }
 
   const handleAPPScanCodeFunc = newFormdata => {
+    const { autoFill } = cache.current.newRecordOptions || {};
     newFormdata = newFormdata && !_.isEmpty(newFormdata) ? newFormdata : formdata;
     const controls = newFormdata.map(item => {
       if (_.get(item, 'advancedSetting.defsource')) {
@@ -485,7 +483,11 @@ function NewRecordForm(props) {
         setRandom(Math.random());
       },
       handleSubmit: isContinueNext => {
-        props.handleAdd(isContinueNext);
+        if (_.isUndefined(autoFill)) {
+          props.handleAdd(isContinueNext);
+        } else {
+          props.handleAdd(isContinueNext, autoFill);
+        }
       },
       handleReStart: () => {
         setFormdata(originFormdata);
@@ -493,6 +495,7 @@ function NewRecordForm(props) {
         handleAPPScanCodeFunc(controls);
       },
       onCancel,
+      handOverNavigation,
     });
   };
 

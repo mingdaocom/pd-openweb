@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Inbox } from 'src/pages/chat/components/Inbox';
 import 'src/pages/chat/containers/ChatPanel/index.less';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as socket from 'src/pages/chat/utils/socket';
-import { Inbox } from 'src/pages/chat/components/Inbox';
-import { browserIsMobile } from 'src/util';
-import styled from 'styled-components';
+import { browserIsMobile } from 'src/utils/common';
+
 const Wrap = styled.div`
   .back {
     height: 50px;
@@ -88,7 +89,9 @@ export default class PortalMg extends Component {
       >
         {currentSession.iconType ? (
           <Wrap
-            className={cx('ChatPanel ChatPanel-inbox ChatPanel-active', { flexColumn: md.global.Account.isPortal && browserIsMobile() })}
+            className={cx('ChatPanel ChatPanel-inbox ChatPanel-active', {
+              flexColumn: md.global.Account.isPortal && browserIsMobile(),
+            })}
           >
             {md.global.Account.isPortal && browserIsMobile() ? (
               <React.Fragment>

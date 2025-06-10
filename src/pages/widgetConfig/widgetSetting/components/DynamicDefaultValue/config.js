@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 /* 可以作为文本拼接的控件 */
 export const CAN_AS_TEXT_DYNAMIC_FIELD = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33, 35, 36, 40, 46, 48, 50,
@@ -92,7 +93,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy|temp-name|print-time)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg|user|time|address|xy|temp-name|print-time)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -134,6 +135,11 @@ export const H5_WATER_MASK_TYPES = [
   { id: 'time', text: _l('当前拍摄时间'), key: 'h5waterMask', icon: 'icon-access_time' },
   { id: 'address', text: _l('当前地点'), key: 'h5waterMask', icon: 'icon-location' },
   { id: 'xy', text: _l('当前地点经纬度'), key: 'h5waterMask', icon: 'icon-a-latlng' },
+];
+
+export const PRINT_TEMP_TYPES = [
+  { id: 'temp-name', text: _l('模版名称'), key: 'printTemp', icon: 'icon-letter_a' },
+  { id: 'print-time', text: _l('导出时间'), key: 'printTemp', icon: 'icon-event' },
 ];
 
 export const CUR_SEARCH_TYPES = [
@@ -248,6 +254,7 @@ export const OTHER_FIELD_TYPE = {
   TRIGGER_DEPARTMENT: 'triggerDepartment',
   TRIGGER_ORG: 'triggerOrg',
   Location: 'location',
+  PRINT_TEMP: 'printTemp',
 };
 
 export const CURRENT_TYPES = {
@@ -352,7 +359,9 @@ export const DYNAMIC_FROM_MODE = {
   SEARCH_WORKSHEET: 6, // 查询工作表
   USER_CONFIG: 7, // 成员选择范围
   ORG_CONFIG: 8, // 组织角色选择范围
+  DEPART_CONFIG: 13, //部门选择范围
   CUSTOM_EVENT: 9, // 自定义事件
   FAST_FILTER: 10, // 快速筛选
   H5_WATER_MASK: 11, // h5照片水印
+  PRINT_TEMP: 12, // 打印模板
 };

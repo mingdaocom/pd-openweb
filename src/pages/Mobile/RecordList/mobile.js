@@ -1,23 +1,24 @@
-import React, { Fragment, Component } from 'react';
-import { SpinLoading } from 'antd-mobile';
+import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
-import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
-import * as actions from './redux/actions';
+import { bindActionCreators } from 'redux';
+import { SpinLoading } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import FixedPage from 'mobile/App/FixedPage.jsx';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
+import { getRequest } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import { mdAppResponse } from 'src/utils/project';
 import AppPermissions from '../components/AppPermissions';
+import * as actions from './redux/actions';
 import State from './State';
+import alreadyDelete from './State/assets/alreadyDelete.png';
 import View from './View';
 import './index.less';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getAdvanceSetting } from 'src/util';
-import cx from 'classnames';
-import FixedPage from 'mobile/App/FixedPage.jsx';
-import alreadyDelete from './State/assets/alreadyDelete.png';
-import { mdAppResponse, getRequest } from 'src/util';
-import _ from 'lodash';
 
 @withRouter
 @AppPermissions
@@ -88,17 +89,11 @@ class RecordList extends Component {
     if (now) {
       this.props.updateBase({ viewId: view.viewId });
       this.props.resetSheetView();
-    } else {}
+    } else {
+    }
   };
   renderContent() {
-    const {
-      base,
-      worksheetInfo,
-      sheetSwitchPermit,
-      match,
-      batchOptVisible,
-      appDetail,
-    } = this.props;
+    const { base, worksheetInfo, sheetSwitchPermit, match, batchOptVisible, appDetail } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
     const { appNaviStyle } = detail;
@@ -174,7 +169,7 @@ class RecordList extends Component {
     if (workSheetLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }
@@ -184,9 +179,7 @@ class RecordList extends Component {
     }
 
     return (
-      <div className="flexRow justifyContentCenter alignItemsCenter w100 relative h100">
-        {this.renderContent()}
-      </div>
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 relative h100">{this.renderContent()}</div>
     );
   }
 }

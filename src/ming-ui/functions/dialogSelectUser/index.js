@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { Icon, Dropdown, Dialog, FunctionWrap } from 'ming-ui';
-import GeneralSelect from './GeneralSelect';
-import { browserIsMobile } from 'src/util';
-import NoData from './GeneralSelect/NoData';
-import './index.less';
 import _ from 'lodash';
+import { Dialog, Dropdown, FunctionWrap, Icon } from 'ming-ui';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { browserIsMobile } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import GeneralSelect from './GeneralSelect';
+import NoData from './GeneralSelect/NoData';
+import './index.less';
 
 // dataRange枚举(0:所有联系人, 1: 好友, 2:网络用户,3:其他协作---7.7版本移除 )
 const dataRangeTypes = {
@@ -22,6 +23,7 @@ class DialogSelectUser extends Component {
     this.state = {
       dataRange: filterProjectId ? dataRange : projectId ? 2 : dataRange,
       projectId: filterProjectId ? '' : projectId,
+      currentProject: getCurrentProject(projectId, true),
     };
   }
 
@@ -48,7 +50,8 @@ class DialogSelectUser extends Component {
    * 获取下拉列表(全部联系人、好友、网络等)
    */
   initDropList = async () => {
-    const { SelectUserSettings = {} } = this.props;
+    const { SelectUserSettings = {}, projectId } = this.props;
+    const { currentProject } = this.state;
     let list = [];
 
     if (!SelectUserSettings.filterAll) {
@@ -90,6 +93,14 @@ class DialogSelectUser extends Component {
         });
       }
     }
+
+    if (!_.find(list, l => l.value === projectId) && currentProject.projectStatus === 2) {
+      list.push({
+        value: currentProject.projectId,
+        text: currentProject.companyName,
+      });
+    }
+
     this.getSettings(list);
     this.setState({ list });
   };
@@ -99,11 +110,8 @@ class DialogSelectUser extends Component {
    */
   renderHeader = () => {
     const { SelectUserSettings = {} } = this.props;
-    const { dataRange, projectId, list = [] } = this.state;
-    const curValue =
-      projectId && _.find(md.global.Account.projects, project => project.projectId === projectId)
-        ? projectId
-        : dataRange;
+    const { dataRange, projectId, list = [], currentProject } = this.state;
+    const curValue = projectId && currentProject ? projectId : dataRange;
 
     return (
       <div className="dialogSelectTitleContainer">
@@ -139,7 +147,7 @@ class DialogSelectUser extends Component {
       fromAdmin = false,
       SelectUserSettings: settings,
     } = this.props;
-    const { projectId, dataRange } = this.state;
+    const { projectId, dataRange, currentProject } = this.state;
 
     if (settings.projectId !== projectId || settings.dataRange !== dataRange) {
       settings.projectId = projectId;
@@ -184,13 +192,7 @@ class DialogSelectUser extends Component {
     };
 
     // 外部协作任何网络、联系人、好友都没有
-    if (
-      settings.filterAll &&
-      settings.filterFriend &&
-      settings.filterOtherProject &&
-      projectId &&
-      !_.find(md.global.Account.projects, project => project.projectId === projectId)
-    ) {
+    if (settings.filterAll && settings.filterFriend && settings.filterOtherProject && projectId && !currentProject) {
       return (
         <div className="GSelect-box">
           <NoData>{_l('您的账号不是该组织成员')}</NoData>

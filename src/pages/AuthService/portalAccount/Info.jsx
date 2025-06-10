@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { LoadDiv, SvgIcon } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import { accountResultAction, setAutoLoginKey, statusList } from './util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import _ from 'lodash';
+import { browserIsMobile } from 'src/utils/common';
+import { accountResultAction, setAutoLoginKey, statusList } from './util';
 
 const Wrap = styled.div`
   .Hide {
@@ -123,6 +123,8 @@ export default function Info(props) {
             }
             let { staticValue = '' } = defsource;
             return { ...o, value: staticValue || o.value };
+          } else if (o.type === 29) {
+            return { ...o, enumDefault2: 1 };
           } else {
             return o;
           }
@@ -135,6 +137,42 @@ export default function Info(props) {
       setComponents(res);
     });
   }, []);
+  const onLogin = data => {
+    setSending(true);
+    window.clientId = '';
+    sessionStorage.removeItem('clientId');
+    setTimeout(() => {
+      externalPortalAjax
+        .infoLogin(
+          {
+            state,
+            receiveControls: data.map(c => formatControlToServer(c, { isNewRecord: true })),
+            autoLogin: autoLogin && isAutoLogin,
+          },
+          props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+        )
+        .then(res => {
+          setSending(false);
+          setAutoLoginKey({ ...res, appId });
+          // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
+          const { accountResult, sessionId, accountId, projectId } = res;
+          if (statusList.includes(accountResult)) {
+            setStatus(accountResult);
+          } else if ([20].includes(accountResult)) {
+            return alert(
+              registerMode.email && registerMode.phone
+                ? _l('手机号/邮箱或者验证码错误！')
+                : registerMode.phone
+                  ? _l('手机号或者验证码错误')
+                  : _l('邮箱或者验证码错误'),
+              3,
+            );
+          } else {
+            accountResultAction(res, props.customLink);
+          }
+        });
+    }, 500);
+  };
   return (
     <Wrap
       className={cx('infoCon', {
@@ -158,40 +196,15 @@ export default function Info(props) {
               if (sending) {
                 return;
               }
-              let { data, hasError } = customwidget.current.getSubmitData();
+              let { data = [], hasError } = customwidget.current.getSubmitData();
+              if (data.find(o => o.type === 29 && safeParse(o.value, 'array').length > 5)) {
+                alert(_l('最多只能关联 5 条记录'), 3);
+                return;
+              }
               if (hasError) {
                 return;
               }
-              setSending(true);
-              externalPortalAjax
-                .infoLogin(
-                  {
-                    state,
-                    receiveControls: data.map(formatControlToServer),
-                    autoLogin: autoLogin && isAutoLogin,
-                  },
-                  props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
-                )
-                .then(res => {
-                  setSending(false);
-                  setAutoLoginKey({ ...res, appId });
-                  // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
-                  const { accountResult, sessionId, accountId, projectId } = res;
-                  if (statusList.includes(accountResult)) {
-                    setStatus(accountResult);
-                  } else if ([20].includes(accountResult)) {
-                    return alert(
-                      registerMode.email && registerMode.phone
-                        ? _l('手机号/邮箱或者验证码错误！')
-                        : registerMode.phone
-                          ? _l('手机号或者验证码错误')
-                          : _l('邮箱或者验证码错误'),
-                      3,
-                    );
-                  } else {
-                    accountResultAction(res, props.customLink);
-                  }
-                });
+              onLogin(data);
             }}
           >
             {_l('提交')}

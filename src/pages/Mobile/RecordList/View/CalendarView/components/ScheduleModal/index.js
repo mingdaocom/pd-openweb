@@ -1,14 +1,14 @@
-import React, { Fragment, Component } from 'react';
-import { Popup } from 'antd-mobile';
-import { ScrollView, LoadDiv, Icon } from 'ming-ui';
-import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { RecordInfoModal } from 'mobile/Record';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { handlePushState, handleReplaceState } from 'src/util';
+import { Popup } from 'antd-mobile';
 import cx from 'classnames';
-import './index.less';
 import moment from 'moment';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { RecordInfoModal } from 'mobile/Record';
+import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { handlePushState, handleReplaceState } from 'src/utils/project';
+import './index.less';
 
 let tabList = [
   { key: 'eventAll', txt: _l('全部') },
@@ -212,11 +212,7 @@ class ScheduleModal extends Component {
     const eventData = calenderEventList[typeEvent];
     return (
       <Fragment>
-        <Popup
-          visible={visible}
-          onClose={showschedule}
-          className="mobileSchedulekModal mobileModal minFull topRadius"
-        >
+        <Popup visible={visible} onClose={showschedule} className="mobileSchedulekModal mobileModal minFull topRadius">
           <div className="header">
             {_l('排期')}
             <Icon icon="close" className="closeIcon" onClick={showschedule} />

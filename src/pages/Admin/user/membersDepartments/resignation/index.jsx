@@ -1,18 +1,18 @@
 ﻿import React from 'react';
-import moment from 'moment';
-import { Tooltip, Dialog, UserHead, UserName, Dropdown } from 'ming-ui';
-import PageTableCon from '../../../components/PageTableCon';
-import userAjax from 'src/api/user';
-import HandOver from './handOver';
-import styled from 'styled-components';
-import SearchInput from './SearchInput';
-import WorkHandoverDialog from '../../../components/WorkHandoverDialog';
-import { getCurrentProject } from 'src/util';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import ActionDrop from './ActionDrop';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import _ from 'lodash';
+import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Tooltip, UserHead, UserName } from 'ming-ui';
+import userAjax from 'src/api/user';
+import { hasPermission } from 'src/components/checkPermission';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { getCurrentProject } from 'src/utils/project';
+import PageTableCon from '../../../components/PageTableCon';
+import WorkHandoverDialog from '../../../components/WorkHandoverDialog';
+import ActionDrop from './ActionDrop';
+import HandOver from './handOver';
+import SearchInput from './SearchInput';
 
 const KEYWORDS_TYPES = [
   {

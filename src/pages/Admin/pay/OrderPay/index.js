@@ -1,17 +1,18 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
 import DocumentTitle from 'react-document-title';
-import { LoadDiv, Button, Dialog, Qr } from 'ming-ui';
-import paymentAjax from 'src/api/payment';
-import { browserIsMobile, getRequest, formatNumberThousand } from 'src/util';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { match } from 'path-to-regexp';
+import { Button, Dialog, LoadDiv, Qr } from 'ming-ui';
+import paymentAjax from 'src/api/payment';
+import preall from 'src/common/preall';
+import { browserIsMobile, getRequest } from 'src/utils/common';
+import { formatNumberThousand } from 'src/utils/control';
+import PayErrorIcon from '../components/PayErrorIcon';
 import { getOrderStatusInfo } from '../config';
 import { formatDate } from '../util';
-import PayErrorIcon from '../components/PayErrorIcon';
-import { match } from 'path-to-regexp';
+import './index.less';
 
 const formatWeChatPayInfo = payInfo => {
   if (!payInfo) return {};
@@ -66,6 +67,7 @@ export default class OrderPay extends Component {
       orderId: orderId,
       paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
     });
+    orderInfo.msg = orderInfo.status === 8 ? _l('订单已取消') : orderInfo.msg;
     const { status, wechatPayStatus, expireCountdown, msg, amount, expireTime } = orderInfo || {};
 
     if (status !== 0 || !!msg) {
@@ -189,11 +191,11 @@ export default class OrderPay extends Component {
   // 无需支付时时效倒计时
   handleCountDown = expireCountdown => {
     if (expireCountdown > 0) {
-      this.setState({ expireCountdown }, () => {
+      this.setState({ expireCountdown, loading: false }, () => {
         this.timer = setTimeout(() => this.handleCountDown(expireCountdown - 1), 1000);
       });
     } else {
-      this.setState({ orderStatus: 4 });
+      this.setState({ orderStatus: 4, loading: false });
     }
   };
 
@@ -205,6 +207,12 @@ export default class OrderPay extends Component {
     paymentAjax
       .getPayOrderStatus({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
       .then(({ status, expireCountdown, msg, amount, description }) => {
+        msg = status === 8 ? _l('订单已取消') : msg;
+
+        if (status === 8 && $('.qrCodeWrap')) {
+          $('.qrCodeWrap').parents('.mui-dialog-container').parents('div').remove();
+        }
+
         if (_.includes([1, 4], status)) {
           this.getData();
           $('.qrCodeWrap').parent().parent().remove();
@@ -214,6 +222,7 @@ export default class OrderPay extends Component {
               orderStatus: orderInfo.expireTime !== 0 && expireCountdown < 0 ? 4 : status,
               expireCountdown,
               orderInfo: !!msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
+              loading: false,
             },
             () => {
               if (amount === 0 && !msg) {
@@ -270,7 +279,9 @@ export default class OrderPay extends Component {
             <Fragment>
               <div className="orderInfoItem">
                 <span>{_l('支付金额：')}</span>
-                <span className="color_4c bold Font32">{_l('%0元', amount <= 0 ? 0 : formatNumberThousand(amount))}</span>
+                <span className="color_4c bold Font32">
+                  {_l('%0元', amount <= 0 ? 0 : formatNumberThousand(amount))}
+                </span>
               </div>
               <div className="orderInfoItem">
                 <span>{_l('支付内容：')}</span>
@@ -278,12 +289,12 @@ export default class OrderPay extends Component {
               </div>
               <div className="orderInfoItem">
                 <span>{_l('收款账户：')}</span>
-                <span className='bold'>{shortName}</span>
+                <span className="bold">{shortName}</span>
               </div>
               {_.includes([1, 2, 3, 5], orderStatus) && amount > 0 && (
                 <div className="orderInfoItem">
                   <span>{_l('支付方式：')}</span>
-                  <span className='bold'>{payOrderType === 0 ? _l('支付宝') : _l('微信')}</span>
+                  <span className="bold">{payOrderType === 0 ? _l('支付宝') : _l('微信')}</span>
                 </div>
               )}
               <div className="orderInfoItem">
@@ -292,7 +303,7 @@ export default class OrderPay extends Component {
               </div>
               <div className="orderInfoItem">
                 <span>{_l('下单时间：')}</span>
-                <span className='bold'>{formatDate(createTime)}</span>
+                <span className="bold">{formatDate(createTime)}</span>
               </div>
               {_.includes([1, 2, 3, 5], orderStatus) && (
                 <Fragment>
@@ -304,7 +315,7 @@ export default class OrderPay extends Component {
                   )}
                   <div className="orderInfoItem">
                     <span>{_l('支付时间：')}</span>
-                    <span className='bold'>{formatDate(paidTime)}</span>
+                    <span className="bold">{formatDate(paidTime)}</span>
                   </div>
                 </Fragment>
               )}
@@ -318,9 +329,10 @@ export default class OrderPay extends Component {
   renderError = () => {
     const { orderInfo = {}, errorMessage } = this.state;
     const { description, orderId, createTime, shortName, status, msg } = orderInfo;
+    const isMobile = browserIsMobile();
 
     return (
-      <Fragment>
+      <div className={cx('flexColumn', { payOrderCon: !isMobile, h100: isMobile })}>
         <PayErrorIcon className="mobilePayErrorIcon" />
         <div className="Red mTop24 mBottom50 bold Font17 TxtCenter">
           {_.includes([50, 70, 73, 74], status) ? _l('未查询到支付内容或付款金额！') : msg || errorMessage}
@@ -343,7 +355,7 @@ export default class OrderPay extends Component {
           <span>{_l('下单时间：')}</span>
           <span>{formatDate(createTime)}</span>
         </div>
-      </Fragment>
+      </div>
     );
   };
 
@@ -410,7 +422,7 @@ export default class OrderPay extends Component {
         ) : orderStatus ? (
           this.renderError()
         ) : (
-          <Fragment>
+          <div className={cx('flexColumn', { payOrderCon: !isMobile, h100: isMobile })}>
             <div className="orderInfo">
               {expireTime ? (
                 <div className="Font15 TxtCenter mBottom6">
@@ -444,7 +456,7 @@ export default class OrderPay extends Component {
                 <span>{formatDate(createTime)}</span>
               </div>
             </div>
-            <div className="flex"></div>
+            {isMobile && <div className="flex"></div>}
             {window.isWeiXin || isAli || amount <= 0 ? (
               <Button
                 radius
@@ -514,7 +526,7 @@ export default class OrderPay extends Component {
                 )}
               </div>
             )}
-          </Fragment>
+          </div>
         )}
       </div>
     );

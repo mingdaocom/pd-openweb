@@ -1,27 +1,23 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { get, isEmpty } from 'lodash';
-import { EditInfo } from '../../../../styled';
-import SearchConfig from '../../../components/relateSheet/SearchConfig';
-import { formatViewToDropdown } from '../../../../util';
-import { SYSTEM_CONTROL } from '../../../../config/widget';
-import { FilterItemTexts, FilterDialog } from '../../../components/FilterData';
+import { isEmpty } from 'lodash';
+import { Checkbox, Dropdown } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'src/pages/widgetConfig/util/setting';
+import { SYSTEM_CONTROL } from '../../../../config/widget';
+import { formatViewToDropdown } from '../../../../util';
+import { FilterDialog, FilterItemTexts } from '../../../components/FilterData';
 
 export default function RelateConfig(props) {
-  const { data, onChange, globalSheetInfo = {}, globalSheetControls, allControls } = props;
+  const { data, onChange, globalSheetControls, allControls } = props;
   const { enumDefault, strDefault, dataSource, viewId, controlId } = data;
-  let { showtype = String(enumDefault), searchcontrol = '', showcount = '0', layercontrolid } = getAdvanceSetting(data);
-  const searchfilters = getAdvanceSetting(data, 'searchfilters');
+  let { showtype = String(enumDefault), showcount = '0', layercontrolid } = getAdvanceSetting(data);
   const resultfilters = getAdvanceSetting(data, 'resultfilters');
   const [isHiddenOtherViewRecord] = strDefault.split('');
   const { loading = true, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
 
-  const [{ isRelateView, searchVisible, resultFilterVisible, resultVisible }, setState] = useSetState({
+  const [{ isRelateView, resultFilterVisible, resultVisible }, setState] = useSetState({
     isRelateView: Boolean(viewId),
-    searchVisible: false,
     resultFilterVisible: false,
     resultVisible: (resultfilters && resultfilters.length > 0) || !!+isHiddenOtherViewRecord,
   });
@@ -39,57 +35,6 @@ export default function RelateConfig(props) {
 
   return (
     <Fragment>
-      <div className="labelWrap">
-        <Checkbox
-          size="small"
-          checked={!!searchcontrol}
-          onClick={() => {
-            if (searchcontrol) {
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  searchcontrol: '',
-                  searchtype: '',
-                  clicksearch: '',
-                  searchfilters: '',
-                }),
-              );
-            }
-            setState({ searchVisible: !searchcontrol });
-          }}
-        >
-          <span style={{ marginRight: '6px' }}>{_l('查询设置')}</span>
-          <Tooltip
-            className="hoverTip"
-            title={<span>{_l('设置用户选择关联记录时可以搜索和筛选的字段')}</span>}
-            popupPlacement="bottom"
-          >
-            <i className="icon pointer icon-help Gray_bd Font15" />
-          </Tooltip>
-        </Checkbox>
-      </div>
-      {searchcontrol && (
-        <EditInfo style={{ marginTop: '8px' }} onClick={() => setState({ searchVisible: true })}>
-          <div className="text overflow_ellipsis Gray">
-            <span className="Bold mRight3">{_l('搜索')}</span>
-            {get(
-              controls.find(item => item.controlId === searchcontrol),
-              'controlName',
-            ) || _l('字段已删除')}
-            {searchfilters.length > 0 && (
-              <Fragment>
-                <span className="Bold mRight3">{_l('；筛选')}</span>
-                {_l('%0个字段', searchfilters.length)}
-              </Fragment>
-            )}
-          </div>
-          <div className="edit">
-            <i className="icon-edit"></i>
-          </div>
-        </EditInfo>
-      )}
-      {searchVisible && (
-        <SearchConfig {...props} controls={controls} onClose={() => setState({ searchVisible: false })} />
-      )}
       <div className="labelWrap">
         <Checkbox
           size="small"

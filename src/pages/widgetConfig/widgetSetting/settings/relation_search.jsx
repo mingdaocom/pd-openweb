@@ -1,24 +1,24 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { isEmpty } from 'lodash';
 import { useSetState } from 'react-use';
-import { Dropdown, RadioGroup, Icon } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { handleAdvancedSettingChange, getControlsSorts, getAdvanceSetting } from '../../util/setting';
-import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
-import { getSortData } from 'src/pages/worksheet/util';
-import { EditInfo, SettingItem, AnimationWrap } from '../../styled';
-import { WHOLE_SIZE } from '../../config/Drag';
+import { isEmpty } from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dropdown, Icon, RadioGroup } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { toEditWidgetPage, getFilterRelateControls, filterSysControls, formatControlsToDropdown } from '../../util';
-import { SYSTEM_CONTROL } from '../../config/widget';
-import { FilterItemTexts } from '../components/FilterData';
-import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
-import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
-import { SUPPORT_RELATE_SEARCH } from '../../config';
+import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+import { getSortData } from 'src/utils/control';
+import { SUPPORT_RELATE_SEARCH } from '../../config';
+import { WHOLE_SIZE } from '../../config/Drag';
+import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
+import { SYSTEM_CONTROL } from '../../config/widget';
+import { AnimationWrap, EditInfo, SettingItem } from '../../styled';
+import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, toEditWidgetPage } from '../../util';
+import { getAdvanceSetting, getControlsSorts, handleAdvancedSettingChange } from '../../util/setting';
+import { FilterItemTexts } from '../components/FilterData';
+import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
 
 const FILL_TYPES = [
   { text: _l('填满'), value: '0' },

@@ -3,11 +3,16 @@ import Loadable from 'react-loadable';
 import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
 import { Icon, LoadDiv, Tooltip, UpgradeIcon } from 'ming-ui';
+import { hasPermission } from 'src/components/checkPermission';
+import { getMyPermissions } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus, getTranslateInfo, setFavicon } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { setFavicon } from 'src/utils/app';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import Beta from './components/Beta';
 import { routerConfigs } from './routerConfig';
 import { getAppConfig } from './util';
@@ -27,6 +32,8 @@ class AppSettings extends Component {
       data: {},
       delAppConfirmVisible: false,
       collapseAppManageNav: localStorage.getItem('collapseAppManageNav') === 'true' ? true : false,
+      myPermissions: [],
+      allowDelete: true,
     };
   }
 
@@ -69,7 +76,10 @@ class AppSettings extends Component {
           return;
         }
         data.name = getTranslateInfo(id, null, id).name || data.name;
-        this.setState({ data, loading: false }, this.getConfigList);
+        this.setState({ data, loading: false }, () => {
+          this.getMyPermissions();
+          this.getConfigList();
+        });
       })
       .catch(err => {
         this.setState({ loading: false });
@@ -149,6 +159,20 @@ class AppSettings extends Component {
     }
   };
 
+  getMyPermissions = () => {
+    const { data } = this.state;
+    const { projectId } = data;
+
+    getMyPermissions(projectId, false).then(permissionIds =>
+      this.setState({
+        myPermissions: permissionIds,
+        allowDelete:
+          !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
+          hasPermission(permissionIds, PERMISSION_ENUM.CREATE_APP),
+      }),
+    );
+  };
+
   render() {
     const {
       currentConfigType,
@@ -157,6 +181,7 @@ class AppSettings extends Component {
       delAppConfirmVisible,
       configList = [],
       collapseAppManageNav,
+      allowDelete,
     } = this.state;
     const { id: appId, name, permissionType, projectId, fixed } = data;
     const featureId = (_.find(configList, it => it.type === currentConfigType) || {})['featureId'];
@@ -196,55 +221,57 @@ class AppSettings extends Component {
       <div className="manageAppWrap flexRow">
         <div className={cx('manageAppLeft', { collapseManageAppLeft: collapseAppManageNav })}>
           <div className="flex">
-            {configList.map(item => {
-              const { type, icon, text } = item;
-              return (
-                <Fragment>
-                  {_.includes(['publish', 'language', 'recyclebin', 'appOfflineSubmit'], type) && (
-                    <div className="line"></div>
-                  )}
-                  <div
-                    key={type}
-                    className={cx(`configItem ${type}`, {
-                      active: type === currentConfigType,
-                      collapseItem: collapseAppManageNav,
-                    })}
-                    onClick={() => {
-                      // 删除应用
-                      if (type === 'del') {
-                        this.setState({ delAppConfirmVisible: true });
-                        return;
-                      }
-                      safeLocalStorageSetItem('appManageMenu', type);
-                      navigateTo(`/app/${appId}/settings/${type}`);
-                      this.setState({ currentConfigType: type });
-                    }}
-                  >
-                    {collapseAppManageNav ? (
-                      <Tooltip popupPlacement="right" popupAlign={{ offset: [5, 0] }} text={<span>{text}</span>}>
-                        <Icon className="appConfigItemIcon Font18" icon={icon} />
-                      </Tooltip>
-                    ) : (
-                      <Icon className="appConfigItemIcon Font18 mRight10" icon={icon} />
+            {configList
+              .filter(v => (allowDelete ? true : v.type !== 'del'))
+              .map(item => {
+                const { type, icon, text } = item;
+                return (
+                  <Fragment>
+                    {_.includes(['publish', 'language', 'recyclebin', 'appOfflineSubmit'], type) && (
+                      <div className="line"></div>
                     )}
-                    {!collapseAppManageNav && (
-                      <Fragment>
-                        <span className="flex">
-                          {text}
-                          {['appOfflineSubmit'].includes(type) && <Beta className="mRight15" />}
-                        </span>
-                        {item.featureId &&
-                          getFeatureStatus(projectId, item.featureId) === '2' &&
-                          _.includes(
-                            ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregations'],
-                            type,
-                          ) && <UpgradeIcon />}
-                      </Fragment>
-                    )}
-                  </div>
-                </Fragment>
-              );
-            })}
+                    <div
+                      key={type}
+                      className={cx(`configItem ${type}`, {
+                        active: type === currentConfigType,
+                        collapseItem: collapseAppManageNav,
+                      })}
+                      onClick={() => {
+                        // 删除应用
+                        if (type === 'del') {
+                          this.setState({ delAppConfirmVisible: true });
+                          return;
+                        }
+                        safeLocalStorageSetItem('appManageMenu', type);
+                        navigateTo(`/app/${appId}/settings/${type}`);
+                        this.setState({ currentConfigType: type });
+                      }}
+                    >
+                      {collapseAppManageNav ? (
+                        <Tooltip popupPlacement="right" popupAlign={{ offset: [5, 0] }} text={<span>{text}</span>}>
+                          <Icon className="appConfigItemIcon Font18" icon={icon} />
+                        </Tooltip>
+                      ) : (
+                        <Icon className="appConfigItemIcon Font18 mRight10" icon={icon} />
+                      )}
+                      {!collapseAppManageNav && (
+                        <Fragment>
+                          <span className="flex">
+                            {text}
+                            {['appOfflineSubmit'].includes(type) && <Beta className="mRight15" />}
+                          </span>
+                          {item.featureId &&
+                            getFeatureStatus(projectId, item.featureId) === '2' &&
+                            _.includes(
+                              ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregations'],
+                              type,
+                            ) && <UpgradeIcon />}
+                        </Fragment>
+                      )}
+                    </div>
+                  </Fragment>
+                );
+              })}
           </div>
           <div className={cx('collapseWrap TxtRight', { collapseHideWrap: collapseAppManageNav })}>
             <Tooltip text={<span>{!collapseAppManageNav ? _l('收起') : _l('展开')}</span>}>

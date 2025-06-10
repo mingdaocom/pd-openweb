@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting } from 'src/utils/control';
+import { renderText as renderCellText } from 'src/utils/control';
 import {
   filterAndFormatterControls,
   getMultiRelateViewConfig,

@@ -1,11 +1,12 @@
-import './style.less';
-import { formatFileSize, getClassNameByExt } from 'src/util';
-import mainTpl from './main.htm';
+import React from 'react';
 import doT from 'dot';
 import moment from 'moment';
-import { Dialog, Button } from 'ming-ui';
-import React from 'react';
-import RegExpValidator from 'src/util/expression';
+import { Button, Dialog } from 'ming-ui';
+import { formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import mainTpl from './main.htm';
+import './style.less';
+
 var FileConfirm = function (file, callback) {
   var FC = this;
   FC.file = file;

@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import RegExpValidator from 'src/util/expression';
-
+import RegExpValidator from 'src/utils/expression';
 import './RecordCard.less';
 
 const FROMS = {

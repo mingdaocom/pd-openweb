@@ -1,12 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { emitter } from 'worksheet/util';
 import cx from 'classnames';
+import _, { get } from 'lodash';
+import PropTypes from 'prop-types';
 import { Menu, MenuItem } from 'ming-ui';
-import { fieldCanSort, getSortData, controlBatchCanEdit } from 'worksheet/util';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import _, { get } from 'lodash';
+import { emitter } from 'src/utils/common';
+import { controlBatchCanEdit } from 'src/utils/control';
+import { fieldCanSort, getSortData } from 'src/utils/control';
 
 export default function ColumnHead(props) {
   const {

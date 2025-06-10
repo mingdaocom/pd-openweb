@@ -90,7 +90,7 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
 
 export const loadRowRelationRows = (relationControl, getType) => async (dispatch, getState) => {
   const { base, loadParams, relationRows, rowInfo } = getState().mobile;
-  const { pageIndex } = loadParams;
+  const { pageIndex, keywords } = loadParams;
   const { instanceId, workId, rowId, worksheetId, controlId } = base;
   const PAGE_SIZE = 10;
   const params = {
@@ -100,6 +100,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     getType,
     instanceId,
     workId,
+    keywords,
   };
   const control = relationControl || _.find(rowInfo.templateControls, { controlId }) || {};
 
@@ -176,7 +177,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
       }
       dispatch({
         type: 'MOBILE_RELATION_ROWS',
-        data: relationRows.concat(result.data),
+        data: pageIndex === 1 ? result.data : relationRows.concat(result.data),
       });
       dispatch({
         type: 'MOBILE_RELATION_LOAD_PARAMS',
@@ -203,13 +204,15 @@ export const updateRelationRows = (data, value) => (dispatch, getState) => {
   });
 };
 
-export const updatePageIndex = index => (dispatch, getState) => {
-  dispatch({
-    type: 'MOBILE_RELATION_LOAD_PARAMS',
-    data: { pageIndex: index },
-  });
-  dispatch(loadRowRelationRows());
-};
+export const updatePageIndex =
+  (index, params = {}) =>
+  (dispatch, getState) => {
+    dispatch({
+      type: 'MOBILE_RELATION_LOAD_PARAMS',
+      data: { pageIndex: index, ...params },
+    });
+    dispatch(loadRowRelationRows());
+  };
 
 export const updateActionParams = data => (dispatch, getState) => {
   dispatch({
@@ -225,6 +228,7 @@ export const reset = () => (dispatch, getState) => {
       pageIndex: 1,
       loading: true,
       isMore: true,
+      keywords: '',
     },
   });
   dispatch({

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { LoadDiv } from 'ming-ui';
-import preall from 'src/common/preall';
-import sheetApi from 'src/api/worksheet';
-import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
-import { shareGetAppLangDetail } from 'src/util';
-import RecordShare from './RecordShare';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
+import preall from 'src/common/preall';
+import { shareGetAppLangDetail } from 'src/utils/app';
+import RecordShare from './RecordShare';
 
 const Entry = props => {
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const Entry = props => {
     window.clientId = clientId;
     getShareInfoByShareId({
       clientId,
-      printId
+      printId,
     }).then(async result => {
       const { data } = result;
       const { appId, projectId } = data;

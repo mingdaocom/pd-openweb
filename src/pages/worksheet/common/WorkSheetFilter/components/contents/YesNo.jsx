@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
+import _, { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { RadioGroup } from 'ming-ui';
+import { getSwitchItemNames } from 'src/utils/control';
 import { FILTER_CONDITION_TYPE } from '../../enum';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import _, { includes } from 'lodash';
 
 export default class YesNo extends Component {
   static propTypes = {

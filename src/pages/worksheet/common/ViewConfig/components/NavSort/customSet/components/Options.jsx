@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { isLightColor } from 'src/util';
+import { isLightColor } from 'src/utils/control';
 
 const Wrap = styled.span`
   padding: 5px 8px;

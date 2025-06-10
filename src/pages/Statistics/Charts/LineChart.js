@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
+import { Dropdown, Menu } from 'antd';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { formatSummaryName, formatterTooltipTitle, isFormatNumber, isTimeControl } from 'statistics/common';
+import { toFixed } from 'src/utils/control';
 import {
-  getLegendType,
   formatControlInfo,
-  formatrChartValue,
   formatrChartAxisValue,
-  reportTypes,
+  formatrChartValue,
   formatYaxisList,
+  getAuxiliaryLineConfig,
+  getChartColors,
+  getEmptyChartData,
+  getLegendType,
   getMaxValue,
   getMinValue,
-  getChartColors,
-  getAuxiliaryLineConfig,
-  getEmptyChartData
+  reportTypes,
 } from './common';
-import { Icon } from 'ming-ui';
-import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isFormatNumber, isTimeControl, formatterTooltipTitle } from 'statistics/common';
-import _ from 'lodash';
-import { toFixed } from 'src/util';
 
 const lastDateText = _l('上一期');
 
@@ -49,7 +49,7 @@ const mergeData = (data, contrastData) => {
     return !_.find(result, { originalId: item.originalId });
   });
   return notFindData.concat(result);
-}
+};
 
 const formatPerPileChartData = result => {
   const groupResult = _.groupBy(result, 'name');
@@ -96,16 +96,18 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, split
         return n.originalX === name;
       });
       if (current.length) {
-        const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
+        const { rename, emptyShowType } = element.c_id
+          ? _.find(yaxisList, { controlId: element.c_id }) || {}
+          : yaxisList[0];
         const hideEmptyValue = !emptyShowType && current[0].v === null;
         if (!hideEmptyValue && element.originalKey) {
           result.push({
             controlId: element.c_id,
-            groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
+            groupName: `${splitControlId ? element.key : rename || element.key}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
             groupKey: element.originalKey,
             value: current[0].v || (emptyShowType ? 0 : null),
             name: item.x,
-            originalId: item.originalX || item.x
+            originalId: item.originalX || item.x,
           });
         }
       }
@@ -116,18 +118,20 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, split
 
 const getLineValue = value => {
   if (value) {
-    return [{
-      type: 'line',
-      start: ['min', value],
-      end: ['max', value],
-      style: {
-        stroke: '#151515',
+    return [
+      {
+        type: 'line',
+        start: ['min', value],
+        end: ['max', value],
+        style: {
+          stroke: '#151515',
+        },
       },
-    }]
+    ];
   } else {
-    return []
+    return [];
   }
-}
+};
 
 export default class extends Component {
   constructor(props) {
@@ -139,8 +143,9 @@ export default class extends Component {
       contrastType: false,
       match: null,
       linkageMatch: null,
-    }
+    };
     this.LineChart = null;
+    this.g2plotComponent = {};
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {
@@ -176,7 +181,10 @@ export default class extends Component {
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(style.chartShowLabelIds, oldStyle.chartShowLabelIds) ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -203,7 +211,10 @@ export default class extends Component {
     if (this.chartEl) {
       this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);;
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+        (xaxes.controlId || split.controlId);
       if (this.isViewOriginalData || this.isLinkageData) {
         this.LineChart.on('element:click', this.handleClick);
       }
@@ -220,12 +231,12 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
-      param[xaxes.cid] = contrastType ? currentData.originalName : (isNumber && value ? Number(value) : value);
+      param[xaxes.cid] = contrastType ? currentData.originalName : isNumber && value ? Number(value) : value;
       linkageMatch.value = value;
       linkageMatch.filters.push({
         controlId: xaxes.controlId,
@@ -233,7 +244,7 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (split.controlId) {
@@ -249,31 +260,34 @@ export default class extends Component {
         controlName: split.controlName,
         controlValue: _.get(formatControlInfo(currentData.groupName), 'name'),
         type: split.controlType,
-        control: split
+        control: split,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: gEvent.x + 20,
-        y: gEvent.y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: gEvent.x + 20,
+          y: gEvent.y,
+        },
+        contrastType: currentData.isContrast ? contrastType : undefined,
+        match: param,
+        linkageMatch,
       },
-      contrastType: currentData.isContrast ? contrastType : undefined,
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match, contrastType } = this.state;
@@ -281,24 +295,27 @@ export default class extends Component {
     const data = {
       isPersonal: false,
       contrastType,
-      match
-    }
+      match,
+    };
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const { LineChartConfig } = this.getComponentConfig(this.props);
-      this.LineChart.update(LineChartConfig);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const { LineChartConfig } = this.getComponentConfig(this.props);
+        this.LineChart.update(LineChartConfig);
+      },
+    );
+  };
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
@@ -306,23 +323,37 @@ export default class extends Component {
     const { map, contrastMap, displaySetup, xaxes, yaxisList, split } = reportData;
     const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const { position } = getLegendType(legendType);
     const { length = 0 } = _.isEmpty(map) ? _.get(contrastMap[0], 'value') || {} : _.get(map[0], 'value') || {};
     const { chartShowLabelIds = ['all'] } = style;
     const isPercentStackedArea = displaySetup.showChartType == 2 && isPerPile;
-    const LineValue = isPercentStackedArea ? 0 : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
+    const LineValue = isPercentStackedArea
+      ? 0
+      : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
     const sortData = formatChartData(map, yaxisList, displaySetup, split.controlId);
     const newYaxisList = formatYaxisList(sortData, yaxisList);
-    const maxValue = getMaxValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
-    const minValue = getMinValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
+    const maxValue = getMaxValue(
+      sortData,
+      contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null,
+    );
+    const minValue = getMinValue(
+      sortData,
+      contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null,
+    );
     const { Line, Area } = this.g2plotComponent;
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
     const colors = getChartColors(style, themeColor, projectId);
-    const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, { yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList, colors });
-  
+    const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, {
+      yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList,
+      colors,
+    });
+
     this.setState({ newYaxisList });
-  
+
     const baseConfig = {
       appendPadding: [15, 15, 5, 0],
       seriesField: 'groupName',
@@ -335,7 +366,7 @@ export default class extends Component {
           formatter: value => {
             const item = _.find(sortData, { originalId: value });
             return item ? item.name || _l('空') : value;
-          }
+          },
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -350,24 +381,27 @@ export default class extends Component {
       connectNulls: xaxes.emptyType !== 3,
       smooth: displaySetup.showChartType,
       animation: true,
-      slider: style.showXAxisSlider ? {
-        start: 0,
-        end: 0.5,
-        formatter: () => null
-      } : undefined,
-      legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId || contrastMap.length)
+      slider: style.showXAxisSlider
         ? {
-            position,
-            flipPage: true,
-            itemHeight: 20,
-            radio: { style: { r: 6 } },
-            itemName: {
-              style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
-            }
+            start: 0,
+            end: 0.5,
+            formatter: () => null,
           }
-        : false,
+        : undefined,
+      legend:
+        displaySetup.showLegend && (yaxisList.length > 1 || split.controlId || contrastMap.length)
+          ? {
+              position,
+              flipPage: true,
+              itemHeight: 20,
+              radio: { style: { r: 6 } },
+              itemName: {
+                style: {
+                  fill: isDark ? '#ffffffcc' : undefined,
+                },
+              },
+            }
+          : false,
       yAxis: {
         minLimit: _.isNumber(ydisplay.minValue) ? ydisplay.minValue : null,
         maxLimit: ydisplay.maxValue || (LineValue > maxValue ? parseInt(LineValue) + parseInt(LineValue / 5) : null),
@@ -376,18 +410,20 @@ export default class extends Component {
             ? {
                 text: ydisplay.title,
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined
-                }
+                  fill: isDark ? '#ffffffcc' : undefined,
+                },
               }
             : null,
-        label: ydisplay.showDial ? {
-          formatter: (value, obj) => {
-            return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
-          },
-          style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
-        } : null,
+        label: ydisplay.showDial
+          ? {
+              formatter: (value, obj) => {
+                return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
+              },
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
+            }
+          : null,
         grid: {
           line: ydisplay.showDial
             ? {
@@ -405,8 +441,8 @@ export default class extends Component {
             ? {
                 text: xdisplay.title,
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined
-                }
+                  fill: isDark ? '#ffffffcc' : undefined,
+                },
               }
             : null,
         label: xdisplay.showDial
@@ -417,8 +453,8 @@ export default class extends Component {
                 return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
             }
           : null,
         line: ydisplay.lineStyle === 1 ? {} : null,
@@ -433,26 +469,32 @@ export default class extends Component {
           if (isPercentStackedArea) {
             return {
               name,
-              value: style.tooltipValueType ? labelValue : `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
-            }
+              value: style.tooltipValueType ? labelValue : `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`,
+            };
           } else {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
-            }
+              value: _.isNumber(value)
+                ? style.tooltipValueType
+                  ? labelValue
+                  : value.toLocaleString('zh', { minimumFractionDigits: dot })
+                : '--',
+            };
           }
         },
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
+            }
+          : undefined,
       },
       point: displaySetup.showNumber
         ? {
@@ -464,13 +506,15 @@ export default class extends Component {
         ? {
             layout: [
               displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null,
-              (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
+              (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue)
+                ? { type: 'limit-in-plot' }
+                : null,
             ],
             content: ({ value, groupName, controlId }) => {
               const render = () => {
                 const id = split.controlId ? newYaxisList[0].controlId : controlId;
                 return formatrChartValue(value, isPercentStackedArea, newYaxisList, value ? undefined : id);
-              }
+              };
               if (chartShowLabelIds.length && chartShowLabelIds.includes('all')) {
                 return render();
               }
@@ -480,14 +524,11 @@ export default class extends Component {
               return render();
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
+              fill: isDark ? '#ffffffcc' : undefined,
+            },
           }
         : false,
-      annotations: [
-        ...getLineValue(LineValue),
-        ...auxiliaryLineConfig
-      ]
+      annotations: [...getLineValue(LineValue), ...auxiliaryLineConfig],
     };
     if ([0, 1].includes(displaySetup.showChartType)) {
       baseConfig.lineStyle = {
@@ -518,7 +559,7 @@ export default class extends Component {
         }),
         yaxisList,
         displaySetup,
-        split.controlId
+        split.controlId,
       );
       const isTime = isTimeControl(xaxes.controlType);
       const newData = isTime ? mergeDataTime(sortData, contrastData) : mergeData(sortData, contrastData);
@@ -526,7 +567,7 @@ export default class extends Component {
       baseConfig.meta.originalId.formatter = value => {
         const item = _.find(data, { originalId: value });
         return item ? item.name || _l('空') : value;
-      }
+      };
       return {
         LineChartComponent: ChartComponent,
         LineChartConfig: Object.assign({}, baseConfig, {
@@ -546,14 +587,14 @@ export default class extends Component {
                 return {
                   name: xAxisName ? `${name} ${xAxisName} ` : name,
                   value: newValue,
-                }
+                };
               } else {
                 const item = _.find(sortData, { originalId: xName }) || {};
                 const xAxisName = isTime ? item.originalName : item.name;
                 return {
                   name: xAxisName ? `${name} ${xAxisName} ` : name,
                   value: newValue,
-                }
+                };
               }
             },
           },
@@ -587,18 +628,20 @@ export default class extends Component {
       const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
       return {
         count,
-        originalCount
-      }
-    }
+        originalCount,
+      };
+    };
     const renderItem = data => {
       const { count, originalCount } = get(data.sum);
       return (
         <Fragment>
           <span>{formatSummaryName(data)}: </span>
-          <span data-tip={originalCount ? originalCount : null} className="count Font22">{count || 0}</span>
+          <span data-tip={originalCount ? originalCount : null} className="count Font22">
+            {count || 0}
+          </span>
         </Fragment>
       );
-    }
+    };
 
     if ('all' in summary) {
       const { all, controlList = [] } = summary;
@@ -613,18 +656,14 @@ export default class extends Component {
             <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
               {renderItem({
                 ...data,
-                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName'),
               })}
             </div>
           ))}
         </div>
       );
     } else {
-      return (
-        <div className="pBottom10">
-          {renderItem(summary)}
-        </div>
-      );
+      return <div className="pBottom10">{renderItem(summary)}</div>;
     }
   }
   render() {
@@ -634,7 +673,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}

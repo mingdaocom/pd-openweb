@@ -1,36 +1,37 @@
-import React, { useRef, useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { useClickAway } from 'react-use';
+import { find, findIndex, get, identity, includes, isArray, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
 import { arrayOf, bool, func, number, shape } from 'prop-types';
-import { WORKSHEETTABLE_FROM_MODULE, RECORD_INFO_FROM, ROW_HEIGHT } from 'worksheet/constants/enum';
+import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { RECORD_INFO_FROM, ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { addBehaviorLog } from 'src/util';
-import { useClickAway } from 'react-use';
-import WorksheetTable from 'worksheet/components/WorksheetTable';
-import { getVisibleControls } from './utils';
-import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
-import { find, findIndex, get, identity, includes, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
+import { addBehaviorLog } from 'src/utils/project';
 import * as actions from './redux/action';
-import RowHead from './RelateRecordTableRowHead';
 import ColumnHead from './RelateRecordTableColumnHead';
-import { bindActionCreators } from 'redux';
+import RowHead from './RelateRecordTableRowHead';
+import { getVisibleControls } from './utils';
 
 function getCellWidths(control, controls) {
-  const result = {};
   let widths = [];
   try {
     widths = JSON.parse(control.advancedSetting.widths);
   } catch (err) {}
-  if (widths.length) {
+  if (isArray(widths)) {
+    const result = {};
     control.showControls
       .map(scid => find((controls || control.relationControls || []).concat(SYSTEM_CONTROL), c => c.controlId === scid))
       .filter(c => c)
       .forEach((c, i) => {
         result[c.controlId] = widths[i];
       });
+    return result;
   }
-  return result;
+  return widths;
 }
 
 function getTableConfig(control) {
@@ -220,6 +221,7 @@ function TableComp(props) {
       scrollBarHoverShow
       isRelateRecordList
       wrapControlName={get(control, 'advancedSetting.titlewrap') === '1'}
+      headTitleCenter={get(control, 'advancedSetting.rctitlestyle') === '1'}
       disablePanVertical
       {...tableConfig}
       ref={worksheetTableRef}
@@ -449,9 +451,16 @@ function TableComp(props) {
           highlightRows: {},
         });
       }}
-      updateCell={(...args) => {
-        onUpdateCell();
-        updateCell(...args);
+      updateCell={(args, options = {}) => {
+        updateCell(args, {
+          ...options,
+          updateSuccessCb: (...cbArgs) => {
+            onUpdateCell();
+            if (_.isFunction(options.updateSuccessCb)) {
+              options.updateSuccessCb(...cbArgs);
+            }
+          },
+        });
       }}
       onColumnWidthChange={(controlId, value) => {
         updateTableState({

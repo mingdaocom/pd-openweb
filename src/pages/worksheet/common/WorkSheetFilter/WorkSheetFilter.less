@@ -378,7 +378,9 @@
 .addFilterPopup {
   background-color: #fff;
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   .columnsFilter {
     padding: 0 10px;
     border-bottom: 1px solid #e0e0e0;
@@ -526,9 +528,14 @@
     min-height: 36px;
     border-color: #d0d0d0 !important;
     box-shadow: none !important;
-    padding: 6px 4px !important;
+    padding: 3px 4px !important;
     .ant-select-selection-overflow {
       gap: 6px;
+    }
+  }
+  &.ant-select-focused {
+    .ant-select-selector {
+      border-color: #2196f3 !important;
     }
   }
 }
@@ -1011,7 +1018,9 @@
   }
 
   .selectBox {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.2),
+      0 2px 6px rgba(0, 0, 0, 0.15);
     display: inline-block;
     width: 100%;
     position: absolute;

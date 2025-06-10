@@ -1,19 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, LoadDiv, UserHead, UserName, Dialog } from 'ming-ui';
-import SearchWrap from 'src/pages/Admin/components/SearchWrap';
-import PageTableCon from 'src/pages/Admin/components/PageTableCon';
-import Empty from '../../../common/TableEmpty';
-import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
-import { REFUND_STATUS, PAY_CHANNEL_TXT } from '../../config';
-import paymentAjax from 'src/api/payment';
-import appManagementAjax from 'src/api/appManagement';
-import styled from 'styled-components';
 import _ from 'lodash';
-import transactionEmptyImg from '../../images/withdrawals.png';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
+import PageTableCon from 'src/pages/Admin/components/PageTableCon';
+import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import Empty from '../../../common/TableEmpty';
+import { PAY_CHANNEL_TXT, REFUND_STATUS } from '../../config';
+import transactionEmptyImg from '../../images/withdrawals.png';
 
 const TransactionDetailsWrap = styled.div`
   height: 100%;

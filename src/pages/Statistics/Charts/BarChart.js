@@ -1,26 +1,26 @@
 import React, { Component, Fragment } from 'react';
+import { Dropdown, Menu } from 'antd';
+import { TinyColor } from '@ctrl/tinycolor';
+import { Icon } from 'ming-ui';
+import { formatSummaryName, formatterTooltipTitle, getIsAlienationColor, isFormatNumber } from 'statistics/common';
+import { toFixed } from 'src/utils/control';
 import {
-  getLegendType,
   formatControlInfo,
-  formatrChartValue,
+  formatNumberValue,
   formatrChartAxisValue,
-  reportTypes,
-  getMaxValue,
-  getMinValue,
+  formatrChartValue,
   formatYaxisList,
-  getChartColors,
   getAlienationColor,
   getAuxiliaryLineConfig,
+  getChartColors,
   getControlMinAndMax,
-  getStyleColor,
   getEmptyChartData,
-  formatNumberValue
+  getLegendType,
+  getMaxValue,
+  getMinValue,
+  getStyleColor,
+  reportTypes,
 } from './common';
-import { Icon } from 'ming-ui';
-import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, getIsAlienationColor, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
-import { toFixed } from 'src/util';
-import { TinyColor } from '@ctrl/tinycolor';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
   const result = _.toArray(_.groupBy(data, 'originalId'));
@@ -59,12 +59,14 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
     data.forEach((element, index) => {
       const target = element.value.filter(n => n.originalX === item.originalX);
       if (target.length) {
-        const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
+        const { rename, emptyShowType } = element.c_id
+          ? _.find(yaxisList, { controlId: element.c_id }) || {}
+          : yaxisList[0];
         const hideEmptyValue = !emptyShowType && !target[0].v;
         if (!hideEmptyValue && element.originalKey) {
           result.push({
             controlId: element.c_id,
-            groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.BarChart}-chart-${element.c_id || element.originalKey}`,
+            groupName: `${splitControlId ? element.key : rename || element.key}-md-${reportTypes.BarChart}-chart-${element.c_id || element.originalKey}`,
             groupKey: element.originalKey,
             value: target[0].v || (emptyShowType ? 0 : null),
             name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
@@ -108,8 +110,9 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-    }
+    };
     this.BarChart = null;
+    this.g2plotComponent = {};
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {
@@ -146,7 +149,10 @@ export default class extends Component {
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -171,14 +177,17 @@ export default class extends Component {
     if (this.chartEl) {
       this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+        (xaxes.controlId || split.controlId);
       if (this.isViewOriginalData || this.isLinkageData) {
         this.BarChart.on('element:click', this.handleClick);
       }
       this.BarChart && this.BarChart.render();
     }
   }
-  handleClick = (data) => {
+  handleClick = data => {
     const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
@@ -188,7 +197,7 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -201,7 +210,7 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.data.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (split.controlId) {
@@ -217,61 +226,70 @@ export default class extends Component {
         controlName: split.controlName,
         controlValue: formatControlInfo(currentData.data.groupName).name,
         type: split.controlType,
-        control: split
+        control: split,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: event.x + 20,
-        y: event.y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: event.x + 20,
+          y: event.y,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     this.setState({ dropdownVisible: false });
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const { BarChartConfig } = this.getComponentConfig(this.props);
-      this.BarChart.update(BarChartConfig);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const { BarChartConfig } = this.getComponentConfig(this.props);
+        this.BarChart.update(BarChartConfig);
+      },
+    );
+  };
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, displaySetup, xaxes, yaxisList, split, reportId, summary } = reportData;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const {
       isPile,
       isPerPile,
@@ -291,15 +309,21 @@ export default class extends Component {
     const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId);
     const isVertical = showChartType === 1;
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || split.controlId) ? formatDataCount(data, isVertical, newYaxisList) : [];
+    const countConfig =
+      showPileTotal && isPile && (yaxisList.length > 1 || split.controlId)
+        ? formatDataCount(data, isVertical, newYaxisList)
+        : [];
     const maxValue = getMaxValue(data);
     const minValue = getMinValue(data);
     const colors = getChartColors(style, themeColor, projectId);
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
-    const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
-    const isCustomColor = style ? (style.colorType === 2 && isAlienationColor) : false;
-    const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, { yaxisList: isPile || isPerPile ? [] : yaxisList, colors });
+    const isOptionsColor = isNewChart ? isAlienationColor : style ? style.colorType === 0 && isAlienationColor : false;
+    const isCustomColor = style ? style.colorType === 2 && isAlienationColor : false;
+    const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, {
+      yaxisList: isPile || isPerPile ? [] : yaxisList,
+      colors,
+    });
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -309,22 +333,22 @@ export default class extends Component {
         value,
         controlMinAndMax,
         rule,
-        controlId: yaxisList[0].controlId
+        controlId: yaxisList[0].controlId,
       });
       return color || colors[0];
-    }
+    };
 
     const baseConfig = {
       data: data.length ? data : getEmptyChartData(reportData),
       appendPadding: isVertical ? [25, 0, 5, 0] : [10, 70, 0, 0],
-      seriesField: (isOptionsColor || isCustomColor) ? 'originalId' : 'groupName',
+      seriesField: isOptionsColor || isCustomColor ? 'originalId' : 'groupName',
       meta: {
         originalId: {
           type: 'cat',
           formatter: value => {
             const item = _.find(data, { originalId: value });
             return item ? item.name || _l('空') : value;
-          }
+          },
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -339,11 +363,14 @@ export default class extends Component {
         ? this.getyAxis(displaySetup, newYaxisList, isDark)
         : this.getxAxis(displaySetup, xaxes, isDark),
       animation: true,
-      slider: style.showXAxisSlider && isVertical ? {
-        start: 0,
-        end: 0.5,
-        formatter: () => null
-      } : undefined,
+      slider:
+        style.showXAxisSlider && isVertical
+          ? {
+              start: 0,
+              end: 0.5,
+              formatter: () => null,
+            }
+          : undefined,
       rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
       theme: {
         background: isDark ? widgetBgColor : '#ffffffcc',
@@ -383,24 +410,25 @@ export default class extends Component {
         }
         return color;
       },
-      legend: showLegend && (yaxisList.length > 1 || split.controlId)
-        ? {
-            position,
-            flipPage: true,
-            itemHeight: 20,
-            radio: { style: { r: 6 } },
-            itemName: {
-              style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
+      legend:
+        showLegend && (yaxisList.length > 1 || split.controlId)
+          ? {
+              position,
+              flipPage: true,
+              itemHeight: 20,
+              radio: { style: { r: 6 } },
+              itemName: {
+                style: {
+                  fill: isDark ? '#ffffffcc' : undefined,
+                },
+              },
             }
-          }
-        : false,
+          : false,
       tooltip: {
         shared: true,
         showMarkers: false,
         title: formatterTooltipTitle(xaxes),
-        formatter: (item) => {
+        formatter: item => {
           const { value, groupName } = item;
           const { name, id } = formatControlInfo(groupName);
           const getLabelPercent = value => {
@@ -409,101 +437,112 @@ export default class extends Component {
               if (yaxisList.length > 1) {
                 const result = _.filter(data, { originalId });
                 const count = _.reduce(result, (total, item) => total + item.value, 0);
-                const percentValue = value && count ? formatNumberValue((value / count * 100), percent) : undefined;
-                return (percentValue && count) ? `(${percentValue}%)` : '';
+                const percentValue = value && count ? formatNumberValue((value / count) * 100, percent) : undefined;
+                return percentValue && count ? `(${percentValue}%)` : '';
               }
               if (displaySetup.showTotal) {
                 const controlId = split.controlId ? newYaxisList[0].controlId : id;
-                const count = summary.all ? summary.sum : _.get((summary.controlList ? _.find(summary.controlList, { controlId }) : summary), 'sum');
-                const percentValue = formatNumberValue(value / count * 100, percent);
-                return (percentValue && count) ? `(${percentValue}%)` : '';
+                const count = summary.all
+                  ? summary.sum
+                  : _.get(summary.controlList ? _.find(summary.controlList, { controlId }) : summary, 'sum');
+                const percentValue = formatNumberValue((value / count) * 100, percent);
+                return percentValue && count ? `(${percentValue}%)` : '';
               }
               return '';
             }
             return '';
-          }
+          };
           if (isOptionsColor || isCustomColor) {
             const { value } = item;
             const name = yaxisList[0].controlName;
             return {
               name,
-              value: _.isNumber(value) ? `${value} ${getLabelPercent(value)}` : '--'
-            }
+              value: _.isNumber(value) ? `${value} ${getLabelPercent(value)}` : '--',
+            };
           }
           const labelValue = `${formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id)} ${getLabelPercent(value)}`;
           if (isPerPile) {
             return {
               name,
-              value: style.tooltipValueType ? labelValue : `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
-            }
+              value: style.tooltipValueType ? labelValue : `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`,
+            };
           } else {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? style.tooltipValueType ? labelValue : `${value.toLocaleString('zh', { minimumFractionDigits: dot })} ${getLabelPercent(value)}` : '--'
-            }
+              value: _.isNumber(value)
+                ? style.tooltipValueType
+                  ? labelValue
+                  : `${value.toLocaleString('zh', { minimumFractionDigits: dot })} ${getLabelPercent(value)}`
+                : '--',
+            };
           }
         },
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
+            }
+          : undefined,
       },
-      label: showNumber || showPercent
-        ? {
-            position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
-            layout: [
-              hideOverlapText ? { type: 'hide-overlap' } : null,
-              isPile || isPerPile ? { type: 'adjust-color' } : null,
-              (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
-            ],
-            content: (labelData) => {
-              const { value, groupName, controlId, originalId } = labelData;
-              const id = split.controlId ? newYaxisList[0].controlId : controlId;
-              const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
-              if (showPercent && !isPerPile) {
-                if (yaxisList.length > 1) {
-                  const result = _.filter(data, { originalId });
-                  const count = _.reduce(result, (total, item) => total + item.value, 0);
-                  const percentValue = value && count ? formatNumberValue((value / count * 100), percent) : undefined;
-                  if (showNumber && showPercent && count) {
-                    return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
+      label:
+        showNumber || showPercent
+          ? {
+              position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
+              layout: [
+                hideOverlapText ? { type: 'hide-overlap' } : null,
+                isPile || isPerPile ? { type: 'adjust-color' } : null,
+                (ydisplay.maxValue && ydisplay.maxValue < maxValue) ||
+                (ydisplay.minValue && ydisplay.minValue > minValue)
+                  ? { type: 'limit-in-plot' }
+                  : null,
+              ],
+              content: labelData => {
+                const { value, groupName, controlId, originalId } = labelData;
+                const id = split.controlId ? newYaxisList[0].controlId : controlId;
+                const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
+                if (showPercent && !isPerPile) {
+                  if (yaxisList.length > 1) {
+                    const result = _.filter(data, { originalId });
+                    const count = _.reduce(result, (total, item) => total + item.value, 0);
+                    const percentValue = value && count ? formatNumberValue((value / count) * 100, percent) : undefined;
+                    if (showNumber && showPercent && count) {
+                      return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
+                    }
+                    if (showPercent && percentValue && count) {
+                      return `${percentValue}%`;
+                    }
+                    return labelValue;
                   }
-                  if (showPercent && percentValue && count) {
-                    return `${percentValue}%`;
+                  if (displaySetup.showTotal) {
+                    const count = summary.all
+                      ? summary.sum
+                      : _.get(summary.controlList ? _.find(summary.controlList, { controlId: id }) : summary, 'sum');
+                    const percentValue = formatNumberValue((value / count) * 100, percent);
+                    if (showNumber && showPercent && count) {
+                      return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
+                    }
+                    if (showPercent && percentValue && count) {
+                      return `${percentValue}%`;
+                    }
                   }
                   return labelValue;
+                } else {
+                  return labelValue;
                 }
-                if (displaySetup.showTotal) {
-                  const count = summary.all ? summary.sum : _.get((summary.controlList ? _.find(summary.controlList, { controlId: id }) : summary), 'sum');
-                  const percentValue = formatNumberValue(value / count * 100, percent);
-                  if (showNumber && showPercent && count) {
-                    return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
-                  }
-                  if (showPercent && percentValue && count) {
-                    return `${percentValue}%`;
-                  }
-                }
-                return labelValue;
-              } else {
-                return labelValue;
-              }
-            },
-            style: {
-              fill: isDark ? '#ffffffcc' : undefined
+              },
+              style: {
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
             }
-          }
-        : false,
-      annotations: [
-        ...countConfig,
-        ...auxiliaryLineConfig
-      ],
+          : false,
+      annotations: [...countConfig, ...auxiliaryLineConfig],
     };
 
     this.setState({ newYaxisList });
@@ -524,7 +563,7 @@ export default class extends Component {
     } else {
       const splitList = split.controlId ? _.uniqBy(data, 'name') : [];
       // 分组
-      baseConfig.isGroup = (isOptionsColor || isCustomColor || splitList.length === data.length) ? false : true;
+      baseConfig.isGroup = isOptionsColor || isCustomColor || splitList.length === data.length ? false : true;
     }
 
     const { Column, Bar } = this.g2plotComponent;
@@ -544,18 +583,18 @@ export default class extends Component {
           ? {
               text: ydisplay.title,
               style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
             }
           : null,
       label: ydisplay.showDial
         ? {
-            formatter: (value) => {
+            formatter: value => {
               return value ? formatrChartAxisValue(Number(value), isPerPile, yaxisList) : null;
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
+              fill: isDark ? '#ffffffcc' : undefined,
+            },
           }
         : null,
       grid: {
@@ -578,8 +617,8 @@ export default class extends Component {
           ? {
               text: xdisplay.title,
               style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
+                fill: isDark ? '#ffffffcc' : undefined,
+              },
             }
           : null,
       label: xdisplay.showDial
@@ -591,8 +630,8 @@ export default class extends Component {
               return particleSizeType === 6 && showFormat === '0' ? _l('%0时', name) : name;
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
+              fill: isDark ? '#ffffffcc' : undefined,
+            },
           }
         : null,
       line: ydisplay.lineStyle === 1 ? {} : null,
@@ -604,7 +643,7 @@ export default class extends Component {
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
   renderOverlay() {
@@ -633,18 +672,20 @@ export default class extends Component {
       const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
       return {
         count,
-        originalCount
-      }
-    }
+        originalCount,
+      };
+    };
     const renderItem = data => {
       const { count, originalCount } = get(data.sum);
       return (
         <Fragment>
           <span>{formatSummaryName(data)}: </span>
-          <span data-tip={originalCount ? originalCount : null} className="count Font22">{count || 0}</span>
+          <span data-tip={originalCount ? originalCount : null} className="count Font22">
+            {count || 0}
+          </span>
         </Fragment>
       );
-    }
+    };
 
     if ('all' in summary) {
       const { all, controlList = [] } = summary;
@@ -659,18 +700,14 @@ export default class extends Component {
             <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
               {renderItem({
                 ...data,
-                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName'),
               })}
             </div>
           ))}
         </div>
       );
     } else {
-      return (
-        <div className="pBottom10">
-          {renderItem(summary)}
-        </div>
-      );
+      return <div className="pBottom10">{renderItem(summary)}</div>;
     }
   }
   render() {
@@ -680,7 +717,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}

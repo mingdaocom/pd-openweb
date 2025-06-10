@@ -1,34 +1,34 @@
-import React, { useState, useEffect, createContext, useReducer, useContext, useRef, useImperativeHandle } from 'react';
+import React, { createContext, useContext, useEffect, useImperativeHandle, useReducer, useRef, useState } from 'react';
 import { LoadDiv } from 'ming-ui';
-import WidgetsVerifyCode from './components/WidgetsVerifyCode';
-import WidgetsDesc from './components/WidgetsDesc';
-import FreeField from './components/FreeField';
+import { isCustomWidget } from 'src/pages/widgetConfig/util';
+import { browserIsMobile } from 'src/utils/common';
+import { isRelateRecordTableControl } from 'src/utils/control';
 import FormWidget from './components/FormWidget';
-import { browserIsMobile } from 'src/util';
-import { reducer, initialState } from './store/reducers';
+import FreeField from './components/FreeField';
+import WidgetsDesc from './components/WidgetsDesc';
+import WidgetsVerifyCode from './components/WidgetsVerifyCode';
+import { FORM_ERROR_TYPE, FROM } from './core/config';
+import DataFormat from './core/DataFormat';
+import { ADD_EVENT_ENUM } from './core/enum';
+import { commonDefaultProps, commonPropTypes } from './core/formPropTypes';
+import { controlState, convertControl, isUnTextWidget, loadSDK } from './core/utils';
 import {
-  updateErrorItemsAction,
-  updateUniqueErrorItemsAction,
-  updateLoadingItemsAction,
-  updateRulesLoadingAction,
+  checkControlUniqueAction,
+  getConfigAction,
+  getFilterDataByRuleAction,
+  getSubmitDataAction,
+  handleChangeAction,
+  submitFormDataAction,
+  triggerCustomEventAction,
   updateActiveTabControlIdAction,
   updateConfigLockAction,
-  getFilterDataByRuleAction,
-  getConfigAction,
+  updateErrorItemsAction,
   updateErrorStateAction,
-  getSubmitDataAction,
-  submitFormDataAction,
-  handleChangeAction,
-  triggerCustomEventAction,
-  checkControlUniqueAction,
+  updateLoadingItemsAction,
+  updateRulesLoadingAction,
+  updateUniqueErrorItemsAction,
 } from './store/actions';
-import { loadSDK, convertControl, controlState, isUnTextWidget } from './core/utils';
-import DataFormat from './core/DataFormat';
-import { FORM_ERROR_TYPE, FROM } from './core/config';
-import { commonPropTypes, commonDefaultProps } from './core/formPropTypes';
-import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { ADD_EVENT_ENUM } from './core/enum';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { initialState, reducer } from './store/reducers';
 
 export const EntranceContext = createContext();
 
@@ -183,7 +183,7 @@ const Entrance = React.forwardRef((props, ref) => {
   };
 
   const triggerCustomEvent = params => {
-    triggerCustomEventAction(dispatch, params, state, dataFormat.current, updateRenderData, handleChange);
+    triggerCustomEventAction(dispatch, params, props, state, dataFormat.current, updateRenderData, handleChange);
   };
 
   const checkControlUnique = (controlId, controlType, controlValue) => {
@@ -449,8 +449,12 @@ const Entrance = React.forwardRef((props, ref) => {
             // h5附件上传完成后才能触发自定义事件
             let uploadFieldTriggerEvent = true;
             if (browserIsMobile() && item.type === 14) {
-              const attachmentsData = value ? JSON.parse(value) : {};
-              uploadFieldTriggerEvent = !_.some(attachmentsData.attachments || [], v => !v.fileID);
+              uploadFieldTriggerEvent = !_.isEqual(item.value, value);
+              item.value = value;
+              if (isUnTextWidget(item) && uploadFieldTriggerEvent) {
+                triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
+              }
+              return;
             }
 
             // 非文本类值改变时触发自定义事件
@@ -491,7 +495,7 @@ const Entrance = React.forwardRef((props, ref) => {
           submitChildTableCheckData={submitFormData}
         />
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
-        </FormWidget>
+      </FormWidget>
     );
   };
 
@@ -581,6 +585,7 @@ const Entrance = React.forwardRef((props, ref) => {
     submitFormData,
     getSubmitData,
     handleChange,
+    getFilterDataByRule,
     dataFormat: dataFormat.current,
   }));
 

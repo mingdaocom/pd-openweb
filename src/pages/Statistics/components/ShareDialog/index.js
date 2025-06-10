@@ -1,19 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import appManagement from 'src/api/appManagement';
-import { Icon, Switch, LoadDiv } from 'ming-ui';
-import { Modal, Tooltip, Popover } from 'antd';
-import { BtnWrap, UrlWrap } from 'src/pages/customPage/pageContent/ShareDialog';
 import ClipboardButton from 'react-clipboard.js';
+import { Modal, Popover, Tooltip } from 'antd';
 import { saveAs } from 'file-saver';
-import { getAppFeaturesPath } from 'src/util';
+import { Icon, LoadDiv, Switch } from 'ming-ui';
+import appManagement from 'src/api/appManagement';
+import { BtnWrap, UrlWrap } from 'src/pages/customPage/pageContent/ShareDialog';
+import { getAppFeaturesPath } from 'src/utils/app';
 
 export default class ShareDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
-      data: null
-    }
+      data: null,
+    };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible && !this.props.visible) {
@@ -22,27 +22,31 @@ export default class ShareDialog extends Component {
   }
   initConfig(props) {
     const { sourceId } = props;
-    appManagement.getEntityShare({
-      sourceId,
-      sourceType: 31
-    }).then(data => {
-      this.setState({ data, loading: false });
-    });
+    appManagement
+      .getEntityShare({
+        sourceId,
+        sourceType: 31,
+      })
+      .then(data => {
+        this.setState({ data, loading: false });
+      });
   }
   handleStatus = () => {
     const { sourceId } = this.props;
     const { status } = this.state.data;
-    appManagement.editEntityShareStatus({
-      sourceId,
-      sourceType: 31,
-      status: status ? 0 : 1
-    }).then(result => {
-      const { flag, appEntityShare } = result;
-      if (flag) {
-        this.setState({ data: appEntityShare });
-      }
-    });
-  }
+    appManagement
+      .editEntityShareStatus({
+        sourceId,
+        sourceType: 31,
+        status: status ? 0 : 1,
+      })
+      .then(result => {
+        const { flag, appEntityShare } = result;
+        if (flag) {
+          this.setState({ data: appEntityShare });
+        }
+      });
+  };
   renderContent() {
     const { isCharge } = this.props;
     const { data = {} } = this.state;
@@ -53,21 +57,13 @@ export default class ShareDialog extends Component {
         <div className="Font15 bold mBottom16">{_l('公开分享')}</div>
         <div className="Font13 Gray_9e mBottom16">{_l('获得链接的所有人都可以查看')}</div>
         <div className="flexRow">
-          <Switch
-            checked={!!status}
-            disabled={!isCharge}
-            onClick={this.handleStatus}
-          />
+          <Switch checked={!!status} disabled={!isCharge} onClick={this.handleStatus} />
           <div className="mLeft8">{status ? _l('开启') : _l('关闭')}</div>
         </div>
         {!!status && (
           <div className="flexRow mTop16 valignWrapper">
             <UrlWrap className="flex valignWrapper mRight10">
-              <input
-                type="text"
-                value={url}
-                readOnly="readonly"
-              />
+              <input type="text" value={url} readOnly="readonly" />
               <Tooltip title={_l('新窗口打开')}>
                 <Icon
                   icon="launch"
@@ -88,18 +84,23 @@ export default class ShareDialog extends Component {
               <BtnWrap className="mRight10 pointer copy valignWrapper">{_l('复制')}</BtnWrap>
             </ClipboardButton>
             <Popover
-              content={(
+              content={
                 <Fragment>
                   <img style={{ width: 164, height: 164 }} src={qrurl} />
                   <div className="Font13 TxtCenter mTop5">{_l('扫描二维码')}</div>
                   <div className="Font13 TxtCenter">{_l('发送分享链接')}</div>
                   <div className="TxtCenter">
-                    <a className="Font13" onClick={() => { saveAs(qrurl, 'qrcode.jpg') }}>
+                    <a
+                      className="Font13"
+                      onClick={() => {
+                        saveAs(qrurl, 'qrcode.jpg');
+                      }}
+                    >
                       {_l('下载')}
                     </a>
                   </div>
                 </Fragment>
-              )}
+              }
             >
               <BtnWrap className="pointer qrCode valignWrapper">
                 <Icon className="Font22 Gray_75" icon="qr_code" />
@@ -125,8 +126,8 @@ export default class ShareDialog extends Component {
         footer={null}
         onCancel={onCancel}
       >
-        {loading ? <LoadDiv className="mBottom30"/> : this.renderContent()}
+        {loading ? <LoadDiv className="mBottom30" /> : this.renderContent()}
       </Modal>
-    )
+    );
   }
 }

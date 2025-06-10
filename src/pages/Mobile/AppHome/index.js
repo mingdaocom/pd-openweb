@@ -1,31 +1,31 @@
-import React, { Fragment, createRef } from 'react';
-import { bindActionCreators } from 'redux';
-import { Icon, WaterMark, SvgIcon, PullToRefreshWrapper } from 'ming-ui';
-import cx from 'classnames';
+import React, { createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
-import * as actions from './redux/actions';
-import * as appActions from '../App/redux/actions';
-import webCache from 'src/api/webCache';
-import TabBar from '../components/TabBar';
-import SelectProject from '../components/SelectProject';
-import BulletinBoard from 'src/pages/AppHomepage/Dashboard/BulletinBoard';
-import Process from './components/Process';
-import ApplicationItem from './components/ApplicationItem';
-import ApplicationList from './components/ApplicationBox';
-import EmptyStatus from './components/EmptyStatus';
-import { RecordInfoModal } from 'mobile/Record';
-import MobileChart from 'mobile/CustomPage/ChartContent';
-import arrowRightImg from './img/arrowRight.png';
-import arrowLeftImg from './img/arrowLeft.png';
-import './index.less';
-import AppGroupSkeleton from './components/AppGroupSkeleton';
-import { getCurrentProject, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
-import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
-import { loadSDK } from 'src/components/newCustomFields/tools/utils';
-import RegExpValidator from 'src/util/expression';
-import { MODULE_TYPES } from 'src/pages/AppHomepage/Dashboard/utils';
+import { bindActionCreators } from 'redux';
+import cx from 'classnames';
 import _, { get } from 'lodash';
 import moment from 'moment';
+import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
+import webCache from 'src/api/webCache';
+import MobileChart from 'mobile/CustomPage/ChartContent';
+import { RecordInfoModal } from 'mobile/Record';
+import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
+import { loadSDK } from 'src/components/newCustomFields/tools/utils';
+import BulletinBoard from 'src/pages/AppHomepage/Dashboard/BulletinBoard';
+import { MODULE_TYPES } from 'src/pages/AppHomepage/Dashboard/utils';
+import RegExpValidator from 'src/utils/expression';
+import { addBehaviorLog, getCurrentProject, handlePushState, handleReplaceState } from 'src/utils/project';
+import * as appActions from '../App/redux/actions';
+import SelectProject from '../components/SelectProject';
+import TabBar from '../components/TabBar';
+import AppGroupSkeleton from './components/AppGroupSkeleton';
+import ApplicationList from './components/ApplicationBox';
+import ApplicationItem from './components/ApplicationItem';
+import EmptyStatus from './components/EmptyStatus';
+import Process from './components/Process';
+import arrowLeftImg from './img/arrowLeft.png';
+import arrowRightImg from './img/arrowRight.png';
+import * as actions from './redux/actions';
+import './index.less';
 
 class AppHome extends React.Component {
   constructor(props) {
@@ -77,13 +77,19 @@ class AppHome extends React.Component {
   componentDidUpdate() {
     const { isHomeLoading, appHomeScrollY } = this.props;
 
-    if (!this.isSetScrollTop && !isHomeLoading > 0 && appHomeScrollY > 0 && this.contentRef && this.contentRef.current) {
+    if (
+      !this.isSetScrollTop &&
+      !isHomeLoading > 0 &&
+      appHomeScrollY > 0 &&
+      this.contentRef &&
+      this.contentRef.current
+    ) {
       this.contentRef.current.scrollTop = appHomeScrollY;
       this.isSetScrollTop = true;
     }
   }
 
-  handleScroll = (e) => {
+  handleScroll = e => {
     this.props.updateAppHomeScrollY(e.target.scrollTop);
   };
 
@@ -637,9 +643,7 @@ export default connect(
           'clearAllCollectCharts',
           'updateAppHomeScrollY',
         ]),
-        ..._.pick(appActions, [
-          'updateAppScrollY',
-        ])
+        ..._.pick(appActions, ['updateAppScrollY']),
       },
       dispatch,
     ),

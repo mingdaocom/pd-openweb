@@ -15,6 +15,13 @@ export const SettingItem = styled.div`
       box-shadow: none;
     }
   }
+  .DropdownBottom {
+    position: relative;
+    .ming.Menu.List {
+      top: 100% !important;
+      height: fit-content;
+    }
+  }
   .savedContent {
     display: flex;
     flex-direction: column;
@@ -42,6 +49,12 @@ export const SettingItem = styled.div`
   .ming.Radio {
     flex: 1;
     line-height: 24px;
+  }
+  .ming.RadioGroup.fixedWidth {
+    .Radio {
+      flex: unset;
+      margin-right: 36px;
+    }
   }
   .ming.Checkbox {
     display: flex;
@@ -223,7 +236,9 @@ export const SelectFieldsWrap = styled.div`
   }
   padding: 6px 0;
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   border: 1px solid #eee;
   background-color: #fff;
@@ -507,7 +522,9 @@ export const IntroMenu = styled.div`
   width: 160px;
   padding: 5px 0;
   background: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   .menuItem {
     display: flex;
     align-items: center;
@@ -639,6 +656,51 @@ export const DropdownContent = styled.div`
       i {
         color: #ffffff;
       }
+    }
+  }
+`;
+
+export const DropdownContentWrap = styled(DropdownContent)`
+  overflow: hidden;
+  .searchWrap {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 16px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #f0f0f0;
+    input {
+      line-height: 36px;
+      border: none;
+      outline: none;
+      padding-left: 8px;
+    }
+  }
+  .emptyText {
+    margin: 0 auto;
+    line-height: 38px;
+    color: #9e9e9e;
+    font-size: 13px;
+    text-align: center;
+  }
+  .countryContent {
+    width: 100%;
+    max-height: 260px;
+    overflow-x: hidden;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    line-height: 36px;
+    &:not(disabled):hover {
+      background-color: #f5f5f5;
+      color: #151515;
+    }
+    &.justityBetween {
+      justify-content: space-between;
+    }
+    .countryName {
+      margin: 0 6px;
     }
   }
 `;
@@ -783,6 +845,11 @@ export const AnimationWrap = styled.div`
       color: #bdbdbd !important;
       cursor: not-allowed;
     }
+    &.breakText {
+      word-break: break-word;
+      text-align: center;
+      line-height: 12px;
+    }
   }
 `;
 
@@ -849,6 +916,26 @@ export const BothRelateInfo = styled.div`
   }
   .sourceName {
     color: #2196f3;
+  }
+`;
+
+export const DisplayTabs = styled.div`
+  border-bottom: 1px solid #dddddd;
+  display: flex;
+  .tabItem {
+    padding: 5px 20px;
+    border-bottom: 3px solid transparent;
+    color: #757575;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    &.active {
+      color: #2196f3;
+      border-bottom-color: #2196f3 !important;
+    }
+    &:hover {
+      color: #2196f3;
+    }
   }
 `;
 

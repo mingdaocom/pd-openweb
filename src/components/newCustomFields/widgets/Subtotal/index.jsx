@@ -1,11 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Tooltip, Support } from 'ming-ui';
-import styled from 'styled-components';
-import { browserIsMobile, formatStrZero, formatNumberThousand } from 'src/util';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Support, Tooltip } from 'ming-ui';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import { browserIsMobile } from 'src/utils/common';
+import { formatNumberThousand, formatStrZero } from 'src/utils/control';
 
 const Tips = styled.div`
   max-width: 230;

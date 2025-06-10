@@ -1,5 +1,3 @@
-
-
 export const rowInfo = (state = {}, action) => {
   switch (action.type) {
     case 'MOBILE_RELATION_ROW_INFO':
@@ -7,16 +5,16 @@ export const rowInfo = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
-export const loadParams = (state = { pageIndex: 1, isMore: true, loading: true }, action) => {
+export const loadParams = (state = { pageIndex: 1, isMore: true, loading: true, keywords: '' }, action) => {
   switch (action.type) {
     case 'MOBILE_RELATION_LOAD_PARAMS':
       return { ...state, ...action.data };
     default:
       return state;
   }
-}
+};
 
 export const relationRows = (state = [], action) => {
   switch (action.type) {
@@ -25,7 +23,7 @@ export const relationRows = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 export const relationRow = (state = {}, action) => {
   switch (action.type) {
@@ -34,7 +32,7 @@ export const relationRow = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 export const permissionInfo = (state = {}, action) => {
   switch (action.type) {
@@ -43,19 +41,21 @@ export const permissionInfo = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
-export const actionParams = (state = {
-  showControls: [],
-  coverCid: '',
-  isEdit: false,
-  selectedRecordIds: []
-}, action) => {
+export const actionParams = (
+  state = {
+    showControls: [],
+    coverCid: '',
+    isEdit: false,
+    selectedRecordIds: [],
+  },
+  action,
+) => {
   switch (action.type) {
     case 'MOBILE_RELATION_ACTION_PARAMS':
       return { ...state, ...action.data };
     default:
       return state;
   }
-}
-
+};

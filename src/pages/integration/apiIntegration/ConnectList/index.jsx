@@ -1,24 +1,24 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import autoSize from 'ming-ui/decorators/autoSize';
-import { Support, ScrollView, Dropdown, Menu, Icon } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
-import List from './List';
-import { PageSize } from '../../config';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import ConnectWrap from '../ConnectWrap';
-import bg from 'staticfiles/images/query.png';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { MenuItemWrap } from 'src/pages/integration/apiIntegration/style.js';
-import ImportDialog from './ImportDialog';
 import Trigger from 'rc-trigger';
+import bg from 'staticfiles/images/query.png';
+import styled from 'styled-components';
+import { Dropdown, Icon, Menu, ScrollView, Support } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import { hasPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { MenuItemWrap } from 'src/pages/integration/apiIntegration/style.js';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { PageSize } from '../../config';
+import ConnectWrap from '../ConnectWrap';
+import ImportDialog from './ImportDialog';
+import List from './List';
 
 const TABLIST = [
   { tab: 1, txt: _l('自定义') },

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Select, Checkbox, Input } from 'antd';
-import { Icon, MdAntDatePicker } from 'ming-ui';
-import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { Checkbox, Input, Select } from 'antd';
 import _ from 'lodash';
-import { generateRandomPassword } from 'src/util';
+import moment from 'moment';
+import { Icon, MdAntDatePicker } from 'ming-ui';
+import { generateRandomPassword } from 'src/utils/common';
 import './Validity.less';
 
 const alwaysValue = '9999-12-31 23:59:59';
@@ -78,7 +78,7 @@ export default function Validity(props) {
   return (
     <div className="flexRow alignItemsCenter mTop16 validityDateConfig mBottom8">
       <div className="flex flexRow alignItemsCenter mRight10">
-        <div className="mRight8">{_l('链接有效期')}</div>
+        <div className="labelName mRight8 nowrap">{_l('链接有效期')}</div>
         {type === 5 ? (
           <MdAntDatePicker
             showTime={{ format: 'HH:mm' }}
@@ -130,11 +130,7 @@ export default function Validity(props) {
               <Select.Option key={data.value} value={data.value} className="validityDateOption pLeft20 pRight20">
                 <div className="Font13 ellipsis">
                   <span>{data.label}</span>
-                  {data.getSubLabel && (
-                    <span className="Gray_9e mLeft5">
-                      {data.getSubLabel()}
-                    </span>
-                  )}
+                  {data.getSubLabel && <span className="Gray_9e mLeft5">{data.getSubLabel()}</span>}
                 </div>
               </Select.Option>
             ))}

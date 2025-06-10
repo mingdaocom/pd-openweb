@@ -1,20 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { isDisabledCreate, isTextTitle } from '../../util';
-import cx from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+import { useDrag, useDrop } from 'react-dnd-latest';
+import cx from 'classnames';
+import { noop, pick } from 'lodash';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
-import { useDrag, useDrop } from 'react-dnd-latest';
-import { noop, pick } from 'lodash';
-import { getRecordColorConfig } from 'worksheet/util';
-import { browserIsMobile } from 'src/util';
-import AddRecord from '../../HierarchyView/components/AddRecord';
-import { dealHierarchyData, getRelateDefaultValue } from '../../HierarchyView/util';
-import { ITEM_TYPE } from '../../HierarchyView/config';
-import CountTip from '../../HierarchyView/components/CountTip';
-import RecordPortal from '../../components/RecordPortal';
+import { browserIsMobile } from 'src/utils/common';
+import { getRecordColorConfig } from 'src/utils/record';
 import EditableCard from '../../components/EditableCard';
 import EditingRecordItem from '../../components/EditingRecordItem';
+import RecordPortal from '../../components/RecordPortal';
+import AddRecord from '../../HierarchyView/components/AddRecord';
+import CountTip from '../../HierarchyView/components/CountTip';
+import { ITEM_TYPE } from '../../HierarchyView/config';
+import { dealHierarchyData, getRelateDefaultValue } from '../../HierarchyView/util';
+import { isDisabledCreate, isTextTitle } from '../../util';
 
 const OperationWrap = styled(FlexCenter)`
   position: absolute;
@@ -225,7 +225,7 @@ export default function DraggableRecord(props) {
       {isEditTitle && (
         <RecordPortal closeEdit={closeEdit}>
           <EditingRecordItem
-            data={{ ...recordData, rowId }}
+            data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
             stateData={data}
             currentView={view}
             allowCopy={allowAdd}

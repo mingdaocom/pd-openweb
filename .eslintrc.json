@@ -20,9 +20,7 @@
     "safeLocalStorageSetItem": true
   },
   "parser": "babel-eslint",
-  "plugins": [
-    "react"
-  ],
+  "plugins": ["react"],
   "root": true,
   "rules": {
     "arrow-body-style": 0,
@@ -43,10 +41,7 @@
     "jsx-a11y/label-has-for": 0,
     "jsx-a11y/no-static-element-interactions": 0,
     "linebreak-style": 0,
-    "max-len": [
-      1,
-      160
-    ],
+    "max-len": [1, 160],
     "new-cap": [
       1,
       {
@@ -78,24 +73,15 @@
     "no-global-assign": [
       2,
       {
-        "exceptions": [
-          "__webpack_public_path__"
-        ]
+        "exceptions": ["__webpack_public_path__"]
       }
     ],
     "no-lonely-if": 0,
-    "no-mixed-operators": [
-      2,
-      {
-        "allowSamePrecedence": true
-      }
-    ],
+    "no-mixed-operators": 0,
     "no-native-reassign": [
       1,
       {
-        "exceptions": [
-          "__webpack_public_path__"
-        ]
+        "exceptions": ["__webpack_public_path__"]
       }
     ],
     "no-nested-ternary": 1,
@@ -135,19 +121,12 @@
         "initialized": "never"
       }
     ],
-    "one-var-declaration-per-line": [
-      1,
-      "initializations"
-    ],
+    "one-var-declaration-per-line": [1, "initializations"],
     "operator-assignment": 0,
     "indent": 0,
     "prefer-template": 0,
     "quote-props": 0,
-    "quotes": [
-      1,
-      "single",
-      "avoid-escape"
-    ],
+    "quotes": [1, "single", "avoid-escape"],
     "react/jsx-uses-vars": 2,
     "react/forbid-prop-types": 1,
     "react/jsx-closing-bracket-location": 0,
@@ -176,24 +155,16 @@
     "react/sort-comp": [
       1,
       {
-        "order": [
-          "type-annotations",
-          "static-methods",
-          "lifecycle",
-          "everything-else",
-          "render"
-        ]
+        "order": ["type-annotations", "static-methods", "lifecycle", "everything-else", "render"]
       }
     ],
     "strict": 0,
     "template-curly-spacing": 0,
     "unicode-bom": 0,
     "vars-on-top": 0,
-    "wrap-iife": [
-      2,
-      "any"
-    ],
-    "space-before-function-paren": "off"
+    "wrap-iife": [2, "any"],
+    "space-before-function-paren": "off",
+    "no-undef": 2
   },
   "settings": {
     "import/resolver": {

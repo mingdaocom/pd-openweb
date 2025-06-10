@@ -10,7 +10,7 @@
     top: 0;
     left: 0;
     height: 7px;
-    background-color: #B1C4D5;
+    background-color: currentColor;
     &::before, &::after {
       content: '';
       position: absolute;
@@ -21,12 +21,12 @@
     &::before {
       left: 0;
       border: 7px solid transparent;
-      border-left-color: #B1C4D5;
+      border-left-color: currentColor;
     }
     &::after {
       right: 0;
       border: 7px solid transparent;
-      border-right-color: #B1C4D5;
+      border-right-color: currentColor;
     }
   }
   .milepostRecordBlock {
@@ -100,6 +100,19 @@
       position: absolute;
       top: -5px;
     }
+  }
+}
+
+.gunterPopoverWrap {
+  width: 300px;
+  z-index: 1000;
+  .ant-popover-inner-content {
+    padding: 0;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .ant-popover-arrow, .recordOperateWrap {
+    display: none;
   }
 }
 

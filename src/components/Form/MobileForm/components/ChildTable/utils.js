@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { filterEmptyChildTableRows, checkRulesErrorOfRow, checkCellIsEmpty } from 'worksheet/util';
-import { controlState } from '../../../core/utils';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { filterEmptyChildTableRows } from 'src/utils/record';
+import { checkRulesErrorOfRow } from 'src/utils/rule';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../../core/config';
 import { checkRuleLocked } from '../../../core/formUtils';
-import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from '../../../core/config';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
+import { controlState } from '../../../core/utils';
 
 function getControlCompareValue(c, value) {
   if (c.type === 26) {
@@ -80,8 +82,8 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
           errorItem.errorType === FORM_ERROR_TYPE.CUSTOM
             ? checkValueByFilterRegex(errorControl, _.get(errorControl, 'value'), controldata)
             : typeof FORM_ERROR_TYPE_TEXT[errorItem.errorType] === 'string'
-            ? FORM_ERROR_TYPE_TEXT[errorItem.errorType]
-            : FORM_ERROR_TYPE_TEXT[errorItem.errorType](errorControl);
+              ? FORM_ERROR_TYPE_TEXT[errorItem.errorType]
+              : FORM_ERROR_TYPE_TEXT[errorItem.errorType](errorControl);
       });
     });
     const uniqueControls = controls.filter(

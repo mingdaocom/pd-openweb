@@ -4,8 +4,8 @@ import { Dialog, Support } from 'ming-ui';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import 'src/pages/PageHeader/components/NetState/index.less';
 import { navigateTo } from 'src/router/navigateTo';
-import { getCurrentProject, getSyncLicenseInfo } from 'src/util';
-import { VersionProductHelpLink } from 'src/util/enum';
+import { VersionProductHelpLink } from 'src/utils/enum';
+import { getCurrentProject, getSyncLicenseInfo } from 'src/utils/project';
 
 /**
  * 升级版本dialog

@@ -1,18 +1,20 @@
-import './css/addOldTask.css';
-import { htmlEncodeReg } from 'src/util';
-import ajaxRequest from 'src/api/taskCenter';
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { LoadDiv, Dialog } from 'ming-ui';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import { htmlEncodeReg } from 'src/utils/common';
+import './css/addOldTask.css';
 
 const SearchTaskCon = styled.ul`
   background: #fff;
   display: block;
   padding: 6px 0;
-  -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   max-height: 300px;
   overflow-y: scroll;
   li {

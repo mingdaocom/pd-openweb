@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
-import SectionTableNav from './SectionTableNav';
-import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import _ from 'lodash';
+import styled from 'styled-components';
+import RelateRecordTable from 'worksheet/components/RelateRecordTable';
+import { browserIsMobile } from 'src/utils/common';
 import { ADD_EVENT_ENUM } from '../core/enum';
-import { browserIsMobile } from 'src/util';
+import SectionTableNav from './SectionTableNav';
 
 const Con = styled.div`
   margin-top: -2px;
@@ -40,7 +40,7 @@ function TableContainer(props) {
     updateWorksheetControls,
     onCountChange,
     onUpdateCell,
-    isDraft
+    isDraft,
   } = props;
   return (
     <RelateRecordTable
@@ -79,7 +79,7 @@ export default function WidgetSection(props) {
     activeTabControlId,
     setActiveTabControlId,
     hasCommon,
-    isDraft
+    isDraft,
   } = props;
   const {
     isSplit,
@@ -136,7 +136,10 @@ export default function WidgetSection(props) {
   const renderContent = () => {
     if (activeControl.type === 52) {
       return (
-        <div className={browserIsMobile() ? 'customMobileFormContainer' : 'customFieldsContainer'} style={isSplit ? { margin: 0, padding: '0 12px' } : {}}>
+        <div
+          className={browserIsMobile() ? 'customMobileFormContainer' : 'customFieldsContainer'}
+          style={isSplit ? { margin: 0, padding: '0 12px' } : {}}
+        >
           {activeControl.desc && <div className="Gray_9e WordBreak pLeft12 pRight12 mTop12">{activeControl.desc}</div>}
           {renderForm(activeControl.child)}
         </div>

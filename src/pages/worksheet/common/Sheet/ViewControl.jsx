@@ -1,48 +1,49 @@
-import PropTypes from 'prop-types';
-import React, { useState, useEffect, useRef } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
-import _, { get } from 'lodash';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { Tooltip, Slider } from 'ming-ui';
-import ViewConfig from 'worksheet/common/ViewConfig';
+import _, { get } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Slider, Tooltip } from 'ming-ui';
+import { copyViewConfig } from 'worksheet/common/CopyViewConfig';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
 import { exportSheet } from 'worksheet/common/ExportSheet';
-import { exportAttachment } from 'src/pages/worksheet/common/ExportAttachment';
-import ViewItems from 'worksheet/components/ViewItems';
+import ViewConfig from 'worksheet/common/ViewConfig';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import Pagination from 'worksheet/components/Pagination';
-import SearchRecord from 'worksheet/views/components/SearchRecord';
-import { navigateTo } from 'src/router/navigateTo';
+import ViewItems from 'worksheet/components/ViewItems';
 import {
+  clearFilters,
+  fireWhenViewLoaded,
+  loadCustomButtons,
+  loadManageView,
   refreshSheet,
+  saveView,
+  updateCurrentViewState,
+  updateCustomButtons,
+  updateGroupFilter,
+  updateSearchRecord,
   updateView,
   updateViews,
-  saveView,
-  loadCustomButtons,
-  updateCustomButtons,
-  updateWorksheetControls,
-  updateSearchRecord,
-  updateCurrentViewState,
   updateViewShowcount,
-  clearFilters,
-  updateGroupFilter,
-  fireWhenViewLoaded,
+  updateWorksheetControls,
   updateWorksheetInfo,
-  loadManageView,
 } from 'worksheet/redux/actions';
-import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
+import { canEditData } from 'worksheet/redux/actions/util';
+import SearchRecord from 'worksheet/views/components/SearchRecord';
 import { getSearchData } from 'worksheet/views/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { exportAttachment } from 'src/pages/worksheet/common/ExportAttachment';
 import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/Edit';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { filterHidedControls } from 'worksheet/util';
-import { canEditData } from 'worksheet/redux/actions/util';
 import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import renderCellText from 'worksheet/components/CellControls/renderText';
+import { navigateTo } from 'src/router/navigateTo';
+import { renderText as renderCellText } from 'src/utils/control';
+import { filterHidedControls } from 'src/utils/control';
 
 const Con = styled.div`
   display: flex;
@@ -107,7 +108,7 @@ function ViewControl(props) {
     updateWorksheetInfo,
     loadManageView,
   } = props;
-  const { worksheetId, projectId } = worksheetInfo;
+  const { worksheetId, projectId, appName } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
   const { pageIndex, pageSize, sortControls } = sheetFetchParams;
   const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
@@ -152,6 +153,17 @@ function ViewControl(props) {
     });
 
     return searchRecordData;
+  };
+
+  const onCopyConfig = (item, type) => {
+    copyViewConfig({
+      type,
+      appId,
+      views,
+      view: item,
+      visible: true,
+      updateViews,
+    });
   };
 
   return (
@@ -203,7 +215,7 @@ function ViewControl(props) {
               appId,
               worksheetId,
               viewId,
-              title: `${worksheetInfo.name}-${view.name}`,
+              title: `${appName}-${worksheetInfo.name}-${view.name}`,
             },
             getCopyContent: (type, url) => (type === 'private' ? url : `${url} ${worksheetInfo.name}-${view.name}`),
             onUpdate: value => {
@@ -278,6 +290,7 @@ function ViewControl(props) {
         getNavigateUrl={selectedView => {
           return `/app/${appId}/${groupId}/${worksheetId}/${selectedView.viewId}`;
         }}
+        onCopyConfig={onCopyConfig}
       />
       {/**本表层级视图、甘特图、地图 */}
       {((Number(view.viewType) === 2 && _.includes([0, 1], Number(view.childType))) ||
@@ -366,6 +379,7 @@ function ViewControl(props) {
       )}
       {viewConfigVisible && (
         <ViewConfig
+          saveViewSetLoading={props.saveViewSetLoading}
           appId={appId}
           currentSheetInfo={worksheetInfo}
           view={view}
@@ -416,6 +430,7 @@ function ViewControl(props) {
             '#quickSelectDept',
             '.ant-drawer-mask',
             '.attachmentsPreview',
+            '.ant-popover',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -508,6 +523,8 @@ function ViewControl(props) {
             '.TimePicker',
             '.attachmentsPreview',
             '#quickSelectDept',
+            '.ant-modal',
+            '.ant-popover',
           ]}
           showFastFilter={showFastFilter}
           onClickAway={() => {
@@ -553,6 +570,7 @@ ViewControl.propTypes = {
 
 export default connect(
   state => ({
+    saveViewSetLoading: state.sheet.saveViewSetLoading,
     views: state.sheet.views,
     sheetList: state.sheet.sheetList,
     app: state.sheet.app,

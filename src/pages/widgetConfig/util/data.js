@@ -2,6 +2,7 @@ import React from 'react';
 import {
   adjustControlSize,
   checkWidgetMaxNumErr,
+  filterOnlyShowField,
   fixedBottomWidgets,
   getBoundRowByTab,
   getControlByControlId,
@@ -17,9 +18,9 @@ import { Dialog, Support, Tooltip } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus } from 'src/util';
+import { renderText as renderCellText } from 'src/utils/control';
+import { getFeatureStatus } from 'src/utils/project';
 import { CAN_NOT_AS_TEXT_GROUP } from '../config';
 import { DRAG_MODE, WHOLE_SIZE } from '../config/Drag';
 import { ALL_SYS } from '../config/widget';
@@ -317,7 +318,7 @@ export const getFormulaControls = (controls, data) => {
 
 // 获取大写金额可用控件
 export const getMoneyCnControls = (controls, data) => {
-  controls = canSelectedControls(controls, data);
+  controls = canSelectedControls(filterOnlyShowField(controls), data);
   return controls.filter(item => {
     let type = item.type;
     let enumDefault2 = item.enumDefault2;
@@ -892,7 +893,6 @@ export const scrollToVisibleRange = (data, widgetProps) => {
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
   const { mode, path, location, displayItemType, rowIndex, activePath } = para;
-  data = data.map(item => (item.type === 90000 ? { ...item, type: 24 } : item));
   const tempData = head(data);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
   if (_.includes([49, 50], tempData.type) && featureType === '2') {

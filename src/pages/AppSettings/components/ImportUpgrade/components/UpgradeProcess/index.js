@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react';
 import { Steps } from 'antd';
-import { QiniuUpload, Button, Support, Dialog, SvgIcon, Checkbox, LoadDiv } from 'ming-ui';
-import UpgradeDetail from '../UpgradeDetail';
-import UpgradeStatus from '../UpgradeStatus';
-import UpgradeItemWrap from '../UpgradeItemWrap';
-import { UPGARADE_TYPE_LIST, UPGRADE_ERRORMSG, UPGRADE_DETAIL_TYPE_LIST } from '../../../../config';
-import { getCheckedInfo, getViewIcon } from '../../../../util';
-import { formatFileSize } from 'src/util';
-import appManagementAjax from 'src/api/appManagement';
-import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import _ from 'lodash';
-import UpgradeFileList from '../UpgradeFileList';
-import UpgradeSelectApp from '../UpgradeSelectApp';
 import Trigger from 'rc-trigger';
+import { Button, Checkbox, Dialog, LoadDiv, QiniuUpload, Support, SvgIcon, Tooltip } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { formatFileSize } from 'src/utils/common';
+import { UPGARADE_TYPE_LIST, UPGRADE_DETAIL_TYPE_LIST, UPGRADE_ERRORMSG } from '../../../../config';
+import { getCheckedInfo, getViewIcon } from '../../../../util';
+import UpgradeDetail from '../UpgradeDetail';
+import UpgradeFileList from '../UpgradeFileList';
+import UpgradeItemWrap from '../UpgradeItemWrap';
+import UpgradeSelectApp from '../UpgradeSelectApp';
+import UpgradeStatus from '../UpgradeStatus';
 import './index.less';
 
 const { Step } = Steps;
@@ -30,14 +30,6 @@ const ITEMS = [
 const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
 const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
 const AdvancedConfig = [
-  {
-    label: _l('不更新应用外观导航'),
-    key: 'noUpgradeStyle',
-  },
-  {
-    label: _l('不更新角色的显隐配置'),
-    key: 'roleHide',
-  },
   {
     label: _l('导入时匹配人员部门和组织角色'),
     key: 'matchOffice',
@@ -56,6 +48,13 @@ const ERROR_CODE = {
   32: _l('不允许导入市场购买的应用'),
   33: _l('该应用在组织下已存在，如需使用请从回收站内恢复”'),
 };
+const SETTINGS = [
+  { key: 'upgradeName', name: _l('所有名称和说明'), desc: _l('勾选时覆盖更新应用项、视图、工作流、角色的名称和说明') },
+  { key: 'upgradeHide', name: _l('所有显隐配置'), desc: _l('勾选时覆盖更新应用项、视图、角色的显隐配置') },
+  { key: 'upgradeStyle', name: _l('外观和导航'), desc: _l('勾选时覆盖更新主题色、导航色、导航设置、应用项排序') },
+  { key: 'upgradeLang', name: _l('应用语言') },
+  { key: 'upgradeTimeZone', name: _l('应用时区') },
+];
 
 export default class UpgradeProcess extends Component {
   constructor(props) {
@@ -87,6 +86,11 @@ export default class UpgradeProcess extends Component {
       currentAppIndex: 0,
       addFilesLoading: false,
       batchCheckUpgradeLoading: false,
+      upgradeName: false,
+      upgradeHide: false,
+      upgradeStyle: false,
+      upgradeLang: false,
+      upgradeTimeZone: false,
     };
   }
 
@@ -439,14 +443,14 @@ export default class UpgradeProcess extends Component {
             {compareLoading || batchCheckedLoading
               ? ''
               : _.isEmpty(file)
-              ? this.renderUploadBtn(
-                  <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
-                    {_l('上传文件')}
-                  </Button>,
-                )
-              : this.renderUploadBtn(
-                  <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
-                )}
+                ? this.renderUploadBtn(
+                    <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
+                      {_l('上传文件')}
+                    </Button>,
+                  )
+                : this.renderUploadBtn(
+                    <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
+                  )}
           </div>
         )}
       </Fragment>
@@ -471,12 +475,12 @@ export default class UpgradeProcess extends Component {
       checkedInfo: isDetail
         ? this.state.checkedInfo
         : isEmptyCheckedDetail
-        ? {
-            ...obj,
-            [`${type}CheckAll`]: false,
-            [`${type}CheckIds`]: obj[`${type}CheckIds`].filter(v => v !== id),
-          }
-        : obj,
+          ? {
+              ...obj,
+              [`${type}CheckAll`]: false,
+              [`${type}CheckIds`]: obj[`${type}CheckIds`].filter(v => v !== id),
+            }
+          : obj,
       worksheetDetailData: isDetail
         ? {
             ...worksheetDetailData,
@@ -511,12 +515,12 @@ export default class UpgradeProcess extends Component {
       checkedInfo: isDetail
         ? this.state.checkedInfo
         : isEmptyCheckedDetail
-        ? {
-            ...obj,
-            [`${type}CheckAll`]: false,
-            [`${type}CheckIds`]: obj[`${type}CheckIds`].filter(v => v !== id),
-          }
-        : obj,
+          ? {
+              ...obj,
+              [`${type}CheckAll`]: false,
+              [`${type}CheckIds`]: obj[`${type}CheckIds`].filter(v => v !== id),
+            }
+          : obj,
       worksheetDetailData: isDetail
         ? {
             ...worksheetDetailData,
@@ -579,7 +583,8 @@ export default class UpgradeProcess extends Component {
 
   handleUpgrade = () => {
     const { appDetail, projectId, type, onCancel } = this.props;
-    const { batchUpdate, files, upgradeId } = this.state;
+    const { batchUpdate, files, upgradeId, upgradeName, upgradeHide, upgradeStyle, upgradeLang, upgradeTimeZone } =
+      this.state;
 
     this.setState({ showUpgradeStatus: !batchUpdate });
 
@@ -604,8 +609,25 @@ export default class UpgradeProcess extends Component {
           ..._.pick(this.state, ['url', 'noUpgradeStyle', 'matchOffice', 'roleHide', 'backupCurrentVersion']),
         };
 
-    appManagementAjax[batchUpdate ? 'batchImport' : 'upgrade'](params);
+    appManagementAjax[batchUpdate ? 'batchImport' : 'upgrade']({
+      ...params,
+      upgradeName,
+      upgradeHide,
+      upgradeStyle,
+      upgradeLang,
+      upgradeTimeZone,
+    });
     type === '2' && onCancel();
+  };
+
+  selectAllSettings = value => {
+    this.setState({
+      upgradeName: value,
+      upgradeHide: value,
+      upgradeStyle: value,
+      upgradeLang: value,
+      upgradeTimeZone: value,
+    });
   };
 
   renderUpgradeScope = () => {
@@ -621,13 +643,38 @@ export default class UpgradeProcess extends Component {
         checkedUpgradeIds = checkedUpgradeIds.concat(checkedIds);
       }
     });
+    const selectAll = _.some(
+      ['upgradeName', 'upgradeHide', 'upgradeStyle', 'upgradeLang', 'upgradeTimeZone'],
+      item => !this.state[item],
+    );
 
     return (
       <div className={cx('pBottom68', { h100: batchCheckUpgradeLoading })}>
         <div className="Font14 mBottom20">
-          {batchUpdate
-            ? _l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')
-            : _l('本次升级将会有以下变更')}
+          {_l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')}
+        </div>
+        <div className="settingsWrap">
+          <div className="flexRow itemTitle">
+            <i className="icon-admin-apps Gray_9e Font18 mRight7 TxtMiddle" />
+            <span className="bold TxtMiddle">{_l('应用')}</span>
+            <span className="mLeft5 Gray_9e Hand" onClick={() => this.selectAllSettings(selectAll)}>
+              {selectAll ? _l('全选') : _l('取消全选')}
+            </span>
+          </div>
+          <ul className="flexRow">
+            {SETTINGS.map(v => (
+              <li className="mRight24 flexRow alignItemsCenter" key={v.key}>
+                <Checkbox checked={this.state[v.key]} onClick={checked => this.setState({ [v.key]: !checked })} />
+                <span className="">{v.name}</span>
+
+                {v.desc && (
+                  <Tooltip text={v.desc} popupPlacement="bottom">
+                    <i className="icon icon-info_outline mLeft5 Gray_75 Font16" />
+                  </Tooltip>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
         {batchUpdate && (
           <ul className="upgradeScopeAppBox mBottom20">
@@ -786,36 +833,6 @@ export default class UpgradeProcess extends Component {
     }
   };
 
-  renderAdvancedConfig = () => {
-    return (
-      <Trigger
-        action={['click']}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-        popup={
-          <ul className="upgradeScopeAdvancedConfig">
-            {AdvancedConfig.map(l => (
-              <li className="Hand" key={`upgradeScopeAdvancedConfig-${l.key}`}>
-                <Checkbox
-                  checked={this.state[l.key]}
-                  onClick={checked => {
-                    this.setState({ [l.key]: !checked });
-                  }}
-                />
-                <span className="">{l.label}</span>
-              </li>
-            ))}
-          </ul>
-        }
-      >
-        <span className="Hand ThemeColor">{_l('高级设置')}</span>
-      </Trigger>
-    );
-  };
-
   renderFooter = () => {
     const { current, checkedInfo = {}, batchUpdate, batchCheckUpgradeLoading } = this.state;
     const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
@@ -840,7 +857,19 @@ export default class UpgradeProcess extends Component {
           </div>
         ) : (
           <div className="actionContent">
-            {this.renderAdvancedConfig()}
+            <ul className="flexRow">
+              {AdvancedConfig.map(l => (
+                <li className="flexRow alignItemsCenter mLeft24" key={`upgradeScopeAdvancedConfig-${l.key}`}>
+                  <Checkbox
+                    checked={this.state[l.key]}
+                    onClick={checked => {
+                      this.setState({ [l.key]: !checked });
+                    }}
+                  />
+                  <span className="">{l.label}</span>
+                </li>
+              ))}
+            </ul>
             <Button type="primary" className="mLeft30" disabled={batchCheckUpgradeLoading} onClick={this.handleUpgrade}>
               {_l('开始导入')}
             </Button>

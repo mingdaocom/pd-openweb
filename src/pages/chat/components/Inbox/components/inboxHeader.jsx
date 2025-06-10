@@ -129,13 +129,13 @@ class InboxHeader extends React.Component {
       <div className="ChatPanel-addToolbar-menu">
         <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
           <i className="icon-set_top" />
-          <div className="menuItem-text">{isTop ? _l('取消置顶') : _l('置顶')}</div>
+          <div className="menuItem-text ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
         </div>
 
         {isPushNotice && (
           <div className="menuItem ThemeBGColor3" onClick={this.handleUpdatePushNotice.bind(this)}>
             <Icon icon={isPushNoticeValue ? 'notifications_off' : 'notifications'} className="Font16" />
-            <div className="menuItem-text">{isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒')}</div>
+            <div className="menuItem-text ellipsis">{isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒')}</div>
           </div>
         )}
       </div>

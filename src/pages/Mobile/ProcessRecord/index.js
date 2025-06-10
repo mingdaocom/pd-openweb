@@ -1,9 +1,10 @@
-import React, { Fragment, Component, useEffect } from 'react';
-import ProcessRecordInfo from './ProcessRecordInfo';
+import React, { Component, Fragment, useEffect } from 'react';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import Back from 'mobile/components/Back';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
+import { compatibleMDJS } from 'src/utils/project';
+import ProcessRecordInfo from './ProcessRecordInfo';
 
 export default props => {
   const { isModal, match } = props;
@@ -32,6 +33,10 @@ export default props => {
         instanceId={instanceId}
         workId={workId}
         onClose={() => {
+          if (window.isMingDaoApp && location.pathname.includes('mobile/processRecord')) {
+            compatibleMDJS('back', { closeAll: true });
+            return;
+          }
           window.mobileNavigateTo('/mobile/processMatters');
         }}
       />

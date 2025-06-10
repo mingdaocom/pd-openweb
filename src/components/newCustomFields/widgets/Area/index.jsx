@@ -1,15 +1,20 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Icon, CityPicker, Input } from 'ming-ui';
 import cx from 'classnames';
-import { FROM } from '../../tools/config';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { CityPicker, Icon, Input } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { FROM } from '../../tools/config';
 
 const HINT_TEXT = {
-  19: _l('省'),
-  23: _l('省-市'),
-  24: _l('省-市-县'),
+  1: _l('省'),
+  2: _l('省-市'),
+  3: _l('省-市-县'),
+};
+
+const SPECIAL_HINT_TEXT = {
+  1: _l('市'),
+  2: _l('市-县'),
 };
 
 export default class Widgets extends Component {
@@ -32,15 +37,15 @@ export default class Widgets extends Component {
   }
 
   onChange = (data, panelIndex) => {
-    const { anylevel } = _.get(this.props, 'advancedSetting') || {};
+    const { advancedSetting = {}, enumDefault, enumDefault2 } = this.props;
+    const { anylevel } = advancedSetting;
     const last = _.last(data);
     this.state.search && this.setState({ search: undefined, keywords: '' });
 
-    const level = this.props.type === 19 ? 1 : this.props.type === 23 ? 2 : 3;
     const index = last.path.split('/').length;
 
     // 必须选择最后一级
-    if (anylevel === '1' && !last.last && level > index) {
+    if (anylevel === '1' && !last.last && (enumDefault === 1 ? true : enumDefault2 > index)) {
       return;
     }
 
@@ -52,8 +57,20 @@ export default class Widgets extends Component {
   }, 500);
 
   render() {
-    const { disabled, type, from, value, onChange, advancedSetting, recordId, controlId } = this.props;
-    const { anylevel } = advancedSetting || {};
+    const {
+      disabled,
+      type,
+      from,
+      value,
+      onChange,
+      advancedSetting,
+      recordId,
+      controlId,
+      enumDefault2,
+      enumDefault,
+      projectId,
+    } = this.props;
+    const { anylevel, chooserange = 'CN' } = advancedSetting || {};
     const { search, keywords, visible } = this.state;
 
     let city;
@@ -68,10 +85,12 @@ export default class Widgets extends Component {
         id={`customFields-cityPicker-${controlId}-${recordId}`}
         search={keywords}
         defaultValue={city ? city.name : ''}
-        level={type === 19 ? 1 : type === 23 ? 2 : 3}
+        level={enumDefault2}
+        chooserange={chooserange}
         disabled={disabled}
         mustLast={anylevel === '1'}
         callback={this.onChange}
+        projectId={projectId}
         destroyPopupOnHide={true}
         showConfirmBtn={anylevel !== '1'}
         onClear={() => {
@@ -93,7 +112,15 @@ export default class Widgets extends Component {
         >
           <Input
             className={cx('flex minWidth0 mRight20 ellipsis CityPicker-input-textCon')}
-            placeholder={city ? city.name : HINT_TEXT[type]}
+            placeholder={
+              city
+                ? city.name
+                : enumDefault === 1 || !_.includes(['CN', 'TW', 'MO', 'HK'], chooserange)
+                  ? _l('请选择')
+                  : _.includes(['TW', 'MO', 'HK'], chooserange)
+                    ? SPECIAL_HINT_TEXT[enumDefault2]
+                    : HINT_TEXT[enumDefault2]
+            }
             value={visible ? search || '' : (city || { name: '' }).name}
             title={(disabled && _.get(city, 'name')) || ''}
             onChange={value => {

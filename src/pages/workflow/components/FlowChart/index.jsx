@@ -1,17 +1,17 @@
 import React, { Component, Fragment, memo } from 'react';
-import { string } from 'prop-types';
-import { LoadDiv, Icon, Modal } from 'ming-ui';
 import { Popup } from 'antd-mobile';
-import styled from 'styled-components';
-import flowNode from '../../api/flowNode';
-import { getSameLevelIds } from '../../WorkflowSettings/utils';
-import nodeModules from '../../WorkflowSettings/EditFlow/nodeModules';
-import { NODE_TYPE } from '../../WorkflowSettings/enum';
 import cx from 'classnames';
 import _ from 'lodash';
-import './index.less';
+import { string } from 'prop-types';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Modal } from 'ming-ui';
+import flowNode from '../../api/flowNode';
+import { browserIsMobile } from 'src/utils/common';
+import nodeModules from '../../WorkflowSettings/EditFlow/nodeModules';
+import { NODE_TYPE } from '../../WorkflowSettings/enum';
+import { getSameLevelIds } from '../../WorkflowSettings/utils';
 import '../../WorkflowSettings/EditFlow/index.less';
-import { browserIsMobile } from 'src/util';
+import './index.less';
 
 const Start = styled.div`
   padding: 0 0 32px 0 !important;

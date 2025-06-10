@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import preall from 'src/common/preall';
-import { getRequest } from 'src/util';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
 import paymentAjax from 'src/api/payment';
 import webCacheAjax from 'src/api/webCache';
+import preall from 'src/common/preall';
+import { getRequest } from 'src/utils/common';
 
 const Wrap = styled.div`
   padding-top: 20px;

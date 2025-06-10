@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { CityPicker } from 'ming-ui';
-import { quickSelectRole, quickSelectDept } from 'ming-ui/functions';
-import TagCon from './TagCon';
-import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { CityPicker } from 'ming-ui';
+import { quickSelectDept, quickSelectRole } from 'ming-ui/functions';
+import { FILTER_CONDITION_TYPE } from '../../enum';
+import TagCon from './TagCon';
 
 const SCORE_TEXT = [
   _l('一级'),
@@ -76,21 +76,12 @@ export default class Options extends Component {
       return [];
     }
   }
-  getAreaLevel(type, filterType) {
+  getAreaLevel(enumDefault2, filterType) {
     const isAreaContain = _.includes([FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN], filterType);
     if (isAreaContain) {
       return 3;
     }
-    if (type === 19) {
-      return 1; // 省
-    }
-    if (type === 23) {
-      return 2; // 省-市
-    }
-    if (type === 24) {
-      return 3; // 省-市-县
-    }
-    return 3;
+    return enumDefault2;
   }
 
   onFetchData = _.debounce(value => {
@@ -168,7 +159,8 @@ export default class Options extends Component {
       return <TagCon disabled={disabled} data={selectedOptions} onRemove={this.removeItem} />;
     }
     if (_.includes([19, 23, 24], control.type)) {
-      const areaLevel = this.getAreaLevel(control.type, type);
+      const areaLevel = this.getAreaLevel(control.enumDefault2, type);
+      const { chooserange = 'CN' } = control.advancedSetting || {};
 
       return (
         <div className="worksheetFilterOptionsCondition" ref={con => (this.con = con)}>
@@ -176,6 +168,8 @@ export default class Options extends Component {
             search={keywords}
             destroyPopupOnHide
             defaultValue={undefined}
+            chooserange={chooserange}
+            projectId={projectId}
             level={areaLevel}
             callback={(area, level) => {
               const last = _.last(area);

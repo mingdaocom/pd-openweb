@@ -1,18 +1,19 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import { ColorPicker, SortableList, Tooltip } from 'ming-ui';
-import { v4 as uuidv4 } from 'uuid';
-import styled from 'styled-components';
-import cx from 'classnames';
-import 'rc-trigger/assets/index.css';
-import update from 'immutability-helper';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
+import update from 'immutability-helper';
 import { every } from 'lodash';
-import { isLightColor, getUnUniqName } from 'src/util';
-import { getAdvanceSetting } from '../../../util/setting';
-import { OPTION_COLORS_LIST, MAX_OPTIONS_COUNT } from '../../../config';
-import BatchAdd from './BatchAdd';
-import AssignValue from './AssignValue';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { ColorPicker, SortableList, Tooltip } from 'ming-ui';
 import 'src/pages/widgetConfig/styled/style.less';
+import { getUnUniqName } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
+import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
+import { getAdvanceSetting } from '../../../util/setting';
+import AssignValue from './AssignValue';
+import BatchAdd from './BatchAdd';
+import 'rc-trigger/assets/index.css';
 
 const OptionsWrap = styled.div`
   margin-top: 8px;
@@ -219,8 +220,8 @@ function OptionItem({
                             ? options.length - 1
                             : focusIndex - 1
                           : focusIndex === options.length - 1
-                          ? 0
-                          : focusIndex + 1;
+                            ? 0
+                            : focusIndex + 1;
                       setIndex(nextIndex);
                       const timer = setTimeout(() => {
                         const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));

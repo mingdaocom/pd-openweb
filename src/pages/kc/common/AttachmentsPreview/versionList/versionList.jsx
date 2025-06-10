@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { LoadDiv } from 'ming-ui';
 import kcAjax from 'src/api/kc';
-import { downloadFile } from 'src/util';
-import _ from 'lodash';
+import { downloadFile } from 'src/utils/common';
 
 class VersionList extends React.Component {
   static propTypes() {

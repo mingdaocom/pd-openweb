@@ -1,14 +1,15 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import DatePicker from 'src/components/newCustomFields/widgets/Date';
-import CellErrorTips from './comps/CellErrorTip';
-import EditableCellCon from '../EditableCellCon';
-import renderText from './renderText';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import { renderText } from 'src/utils/control';
+import EditableCellCon from '../EditableCellCon';
+import CellErrorTips from './comps/CellErrorTip';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class Date extends React.Component {

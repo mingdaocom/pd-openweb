@@ -19,7 +19,7 @@ import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
-import RegExpValidator from 'src/util/expression';
+import RegExpValidator from 'src/utils/expression';
 import { FORMAT_TEXT, NODE_TYPE } from '../../../enum';
 import { getIcons, handleExecReturnValue, handleGlobalVariableName } from '../../../utils';
 import SelectOtherFields from '../SelectOtherFields';
@@ -924,7 +924,8 @@ export default class SingleControlValue extends Component {
 
     // 地区
     if (item.type === 19 || item.type === 23 || item.type === 24) {
-      const level = item.type === 19 ? 1 : item.type === 23 ? 2 : 3;
+      const currentControl = _.find(controls, obj => obj.controlId === item.fieldId);
+      const level = (_.find(controls, obj => obj.controlId === item.fieldId) || {}).enumDefault2;
       const cityText = safeParse(item.fieldValue || '{}').value || '';
 
       return (
@@ -939,7 +940,9 @@ export default class SingleControlValue extends Component {
             >
               <CityPicker
                 search={keywords}
+                chooserange={_.get(currentControl || {}, 'advancedSetting.chooserange')}
                 level={level}
+                projectId={this.props.companyId}
                 callback={citys => {
                   search && this.setState({ search: undefined, keywords: '' });
                   this.updateSingleControlValue(
@@ -955,7 +958,7 @@ export default class SingleControlValue extends Component {
               >
                 <Input
                   className="CityPicker-input-textCon w100"
-                  placeholder={item.type === 19 ? _l('省') : item.type === 23 ? _l('省/市') : _l('省/市/县')}
+                  placeholder={_l('选择地区')}
                   value={search !== undefined ? search : cityText}
                   onChange={value => {
                     this.setState({ search: value });

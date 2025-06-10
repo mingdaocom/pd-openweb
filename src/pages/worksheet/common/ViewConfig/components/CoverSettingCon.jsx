@@ -224,23 +224,25 @@ export default class CoverSetting extends React.Component {
                   </div>
                   <div className="mTop20 w100">
                     <div className="subTitle Gray_75">{_l('图片填充方式')}</div>
-                    <ButtonTabs
-                      className="mTop8"
-                      disabled={coverValue === 'notDisplay'}
-                      data={coverFillOptions}
-                      value={coverFillType}
-                      onChange={value => {
-                        if (coverFillType !== value) {
-                          handleChangeCoverStyle(
-                            JSON.stringify({
-                              position: coverPositiondata,
-                              style: coverType,
-                              type: value,
-                            }),
-                          );
-                        }
-                      }}
-                    />
+                    <div className="InlineBlock">
+                      <ButtonTabs
+                        className="mTop8 flexRow"
+                        disabled={coverValue === 'notDisplay'}
+                        data={coverFillOptions}
+                        value={coverFillType}
+                        onChange={value => {
+                          if (coverFillType !== value) {
+                            handleChangeCoverStyle(
+                              JSON.stringify({
+                                position: coverPositiondata,
+                                style: coverType,
+                                type: value,
+                              }),
+                            );
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </CoverSettingCon>
                 <div className="configSwitch mTop10">
@@ -259,42 +261,45 @@ export default class CoverSetting extends React.Component {
               </Fragment>
             )}
           </div>
-          {!!handleChangeCoverWidth && ![VIEW_DISPLAY_TYPE.map].includes(String(viewType)) && (
-            <div className="mTop24">
-              <div className="title Font13 bold">
-                {VIEW_DISPLAY_TYPE.gallery === String(viewType) ? _l('卡片最小宽度') : _l('卡片宽度')}
+          {!!handleChangeCoverWidth &&
+            ![VIEW_DISPLAY_TYPE.map, VIEW_DISPLAY_TYPE.gunter, VIEW_DISPLAY_TYPE.calendar].includes(
+              String(viewType),
+            ) && (
+              <div className="mTop24">
+                <div className="title Font13 bold">
+                  {VIEW_DISPLAY_TYPE.gallery === String(viewType) ? _l('卡片最小宽度') : _l('卡片宽度')}
+                </div>
+                <div className="flexRow cardWidthWrap">
+                  <ButtonTabs
+                    className="mTop8"
+                    data={CARD_WIDTH_OPTIONS}
+                    value={Number(cardwidth) < 5 ? cardwidth : '5'}
+                    onChange={value => {
+                      if (cardwidth !== value) {
+                        handleChangeCoverWidth(value === '5' ? '320' : value);
+                      }
+                    }}
+                  />
+                  {Number(cardwidth) > 4 && (
+                    <div className="mTop8 valignWrapper">
+                      <Input
+                        value={this.state.customWidth}
+                        type="number"
+                        min={200}
+                        max={800}
+                        onChange={e => this.setState({ customWidth: e })}
+                        onBlur={e => {
+                          const value = Math.max(200, Math.min(800, e.target.value));
+                          this.setState({ customWidth: value });
+                          handleChangeCoverWidth(value);
+                        }}
+                      />
+                      <span className="Font13 mLeft10">px</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flexRow cardWidthWrap">
-                <ButtonTabs
-                  className="mTop8"
-                  data={CARD_WIDTH_OPTIONS}
-                  value={Number(cardwidth) < 5 ? cardwidth : '5'}
-                  onChange={value => {
-                    if (cardwidth !== value) {
-                      handleChangeCoverWidth(value === '5' ? '320' : value);
-                    }
-                  }}
-                />
-                {Number(cardwidth) > 4 && (
-                  <div className="mTop8 valignWrapper">
-                    <Input
-                      value={this.state.customWidth}
-                      type="number"
-                      min={200}
-                      max={800}
-                      onChange={e => this.setState({ customWidth: e })}
-                      onBlur={e => {
-                        const value = Math.max(200, Math.min(800, e.target.value));
-                        this.setState({ customWidth: value });
-                        handleChangeCoverWidth(value);
-                      }}
-                    />
-                    <span className="Font13 mLeft10">px</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+            )}
         </SettingCon>
       </div>
     );

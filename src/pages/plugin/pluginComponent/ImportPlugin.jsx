@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Dialog, Support, Button, QiniuUpload, Icon, Input, SvgIcon } from 'ming-ui';
 import { Select } from 'antd';
-import functionWrap from 'ming-ui/components/FunctionWrap';
 import _ from 'lodash';
-import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
-import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
-import fileApi from 'src/api/file';
-import { formatFileSize } from 'src/util';
-import { fileCheckErrorMsg } from '../config';
 import moment from 'moment';
-import { pluginApiConfig, API_EXTENDS } from '../config';
+import styled from 'styled-components';
+import { Button, Dialog, Icon, Input, QiniuUpload, Support, SvgIcon } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import fileApi from 'src/api/file';
+import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
+import { formatFileSize } from 'src/utils/common';
+import { fileCheckErrorMsg } from '../config';
+import { API_EXTENDS, pluginApiConfig } from '../config';
 
 const UploadWrapper = styled.div`
   .uploadBox {

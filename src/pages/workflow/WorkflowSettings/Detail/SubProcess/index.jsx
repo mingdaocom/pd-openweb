@@ -9,6 +9,7 @@ import {
   ProcessVariablesInput,
   SelectNodeObject,
   SpecificFieldsValue,
+  TransferTriggerUser,
 } from '../components';
 
 export default class SubProcess extends Component {
@@ -79,7 +80,17 @@ export default class SubProcess extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, selectNodeId, executeType, subProcessId, nextExecute, fields, executeAll, executeAllCount } = data;
+    const {
+      name,
+      selectNodeId,
+      executeType,
+      subProcessId,
+      nextExecute,
+      fields,
+      executeAll,
+      executeAllCount,
+      fromTrigger,
+    } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -103,6 +114,7 @@ export default class SubProcess extends Component {
         fields,
         executeAll,
         executeAllCount,
+        fromTrigger,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -276,6 +288,8 @@ export default class SubProcess extends Component {
               desc={_l('向子流程的流程参数传递初始值，供子流程执行时使用')}
               updateSource={this.updateSource}
             />
+
+            <TransferTriggerUser {...this.props} data={data} updateSource={this.updateSource} />
           </Fragment>
         )}
       </Fragment>

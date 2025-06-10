@@ -28,15 +28,11 @@ const formatDate = (date, type) => {
     return day;
   }
   if (type === PERIOD_TYPE.week) {
-    const weeksDay = 6;
     const time = moment(date);
     const week = time.isoWeek();
-    const start = time.format('DD');
-    const end = time.add(weeksDay, 'd').format('DD');
     return (
       <Fragment>
-        {_l('%0周', week)}
-        <span className="Gray_75">{_l('%0日-%1日', start, end)}</span>
+        {week}{_l('周%05034')}
       </Fragment>
     );
   }

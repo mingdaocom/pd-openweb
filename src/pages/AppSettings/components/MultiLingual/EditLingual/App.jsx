@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import EditDescription from './EditDescription';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
 import { filterHtmlTag } from '../util';
+import EditDescription from './EditDescription';
+import EditInput from './EditInput';
 
 export default function App(props) {
   const { app, translateData, comparisonLangId, comparisonLangData, selectNode, onEditAppLang } = props;
@@ -21,10 +21,10 @@ export default function App(props) {
       type: LANG_DATA_TYPE.app,
       data: {
         ...translateInfo,
-        ...info
-      }
+        ...info,
+      },
     });
-  }
+  };
 
   return (
     <Fragment>
@@ -32,18 +32,19 @@ export default function App(props) {
         <div className="Font14 bold mBottom20">{getTranslateInfo(app.id, null, app.id).name || selectNode.name}</div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('应用名称')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : selectNode.name} disabled={true} />
-          <EditInput
-            className="flex"
-            value={translateInfo.name}
-            onChange={value => handleSave({ name: value })}
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.name : selectNode.name}
+            disabled={true}
           />
+          <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
         </div>
         <div className="flexRow nodeItem">
           <div className="Font13 mRight20 label">{_l('应用说明')}</div>
           <Input.TextArea
             style={{ resize: 'none' }}
-            className="flex mRight20" value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.description : selectNode.description)}
+            className="flex mRight20"
+            value={filterHtmlTag(comparisonLangId ? comparisonLangInfo.description : selectNode.description)}
             disabled={true}
           />
           <EditDescription

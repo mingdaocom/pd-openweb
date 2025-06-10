@@ -1,19 +1,20 @@
 import React from 'react';
-import moment from 'moment';
-import { Icon, Tooltip } from 'ming-ui';
-import _ from 'lodash';
-import filterXSS from 'xss';
 import cx from 'classnames';
-import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
+import _ from 'lodash';
+import moment from 'moment';
+import filterXSS from 'xss';
+import { Icon, Tooltip } from 'ming-ui';
+import { renderText } from 'src/utils/control';
 import {
-  WFSTATUS_OPTIONS,
-  WF_STATUS,
-  RETURN_OBJECT_CONTROL_TYPE,
-  FILTER_FIELD_BY_ATTR,
-  SOURCE_INFO,
   EDIT_TYPE_TEXT,
+  FILTER_FIELD_BY_ATTR,
+  RETURN_OBJECT_CONTROL_TYPE,
+  SOURCE_INFO,
   SUBLIST_FILE_EDIT_TYPE,
+  WF_STATUS,
+  WFSTATUS_OPTIONS,
 } from './enum.js';
+
 const reg = new RegExp('<[^<>]+>', 'g');
 
 export function assembleListData(data) {

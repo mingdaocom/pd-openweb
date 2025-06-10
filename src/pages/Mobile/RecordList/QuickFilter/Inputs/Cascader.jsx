@@ -1,12 +1,12 @@
-import React, { Fragment, Component } from 'react';
-import { Icon, Radio, LoadDiv } from 'ming-ui';
-import { Popup, List } from 'antd-mobile'
-import { arrayOf, bool, func, shape, string } from 'prop-types';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import sheetAjax from 'src/api/worksheet';
-import nzh from 'nzh';
-import styled from 'styled-components';
+import React, { Component, Fragment } from 'react';
+import { List, Popup } from 'antd-mobile';
 import _ from 'lodash';
+import nzh from 'nzh';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Radio } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { renderText as renderCellText } from 'src/utils/control';
 
 const CascaderCon = styled.div`
   position: relative;

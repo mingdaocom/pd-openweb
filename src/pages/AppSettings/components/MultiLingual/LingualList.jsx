@@ -150,7 +150,7 @@ export default function LingualList(props) {
                 <div className="flex pLeft10 bold langName" onClick={() => onChangeLangInfo(data)}>
                   {renderLangName(data)}
                 </div>
-                <div className="flex">{_.get(data, 'creator.fullname')}</div>
+                <div className="flex ellipsis pRight5">{_.get(data, 'creator.fullname')}</div>
                 <div className="flex">{window.createTimeSpan(data.createTime)}</div>
                 <div className="flex">{window.createTimeSpan(data.lastModifyTime)}</div>
                 <div className="operate">

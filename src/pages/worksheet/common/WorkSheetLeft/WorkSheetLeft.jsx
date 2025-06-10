@@ -1,19 +1,19 @@
-import React, { Component, Fragment, useState, useEffect } from 'react';
-import cx from 'classnames';
-import { bindActionCreators } from 'redux';
+import React, { Component, Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { DndProvider } from 'react-dnd-latest';
+import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { ScrollView, Icon, Tooltip, Skeleton } from 'ming-ui';
+import { DndProvider } from 'react-dnd-latest';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, ScrollView, Skeleton, Tooltip } from 'ming-ui';
 import Guidance from 'src/pages/worksheet/components/Guidance';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
-import WorkSheetItem from './WorkSheetItem';
-import WorkSheetGroup from './WorkSheetGroup';
+import { getAppFeaturesVisible } from 'src/utils/app';
 import CreateAppItem from './CreateAppItem';
+import WorkSheetGroup from './WorkSheetGroup';
+import WorkSheetItem from './WorkSheetItem';
 import './WorkSheetLeft.less';
-import { getAppFeaturesVisible } from 'src/util';
-import _ from 'lodash';
 
 function getProjectfoldedFromStorage() {
   let result = {};
@@ -143,14 +143,16 @@ class WorkSheetLeft extends Component {
     );
   }
   render() {
-    const { worksheetId, loading, isUnfold, guidanceVisible, secondLevelGroup = false, appPkg } = this.props;
+    const { worksheetId, loading, isUnfold, guidanceVisible, secondLevelGroup = false, appPkg, style } = this.props;
     const { data } = this;
     const sheetInfo = _.find(data, { workSheetId: worksheetId }) || {};
 
     // 获取url参数
     const { ln } = getAppFeaturesVisible();
+
     return (
       <div
+        style={style}
         className={cx('workSheetLeft flexRow', {
           workSheetLeftHide: appPkg.currentPcNaviStyle === 0 ? !isUnfold && ln : false,
           hide: !ln,

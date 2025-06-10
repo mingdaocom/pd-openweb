@@ -3,8 +3,8 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
 import smartSearchAjax from 'src/api/smartSearch';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { getCurrentProjectId } from '../utils';
 import OrgSelect from './OrgSelect';
 

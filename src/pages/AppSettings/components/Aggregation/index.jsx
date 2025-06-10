@@ -1,18 +1,18 @@
-import React, { Fragment, useState, useEffect, useRef, useCallback } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Dropdown, Icon, ScrollView } from 'ming-ui';
-import cx from 'classnames';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import Item from './components/Item';
-import Info from './components/Info';
-import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Dropdown, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
 import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import AppSettingHeader from '../AppSettingHeader';
-import { getRequest } from 'src/util';
+import Info from './components/Info';
+import Item from './components/Item';
 
 const Wrap = styled.div`
   .emptyIcon {

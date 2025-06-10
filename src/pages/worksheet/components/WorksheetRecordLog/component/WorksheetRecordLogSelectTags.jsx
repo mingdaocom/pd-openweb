@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { browserIsMobile } from 'src/util';
-import '../WorksheetRecordLogValue.less';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import renderTextCell from 'src/pages/worksheet/components/CellControls/renderText.js';
+import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderTextCell } from 'src/utils/control';
+import '../WorksheetRecordLogValue.less';
 
 const getTitle = (value, sourceControl) => {
   const data = safeParse(value, 'array');
@@ -167,8 +167,8 @@ function WorksheetRecordLogSelectTags(props) {
             preType.type === 'old'
               ? recordInfo.delList[preview].recordId
               : preType.type === 'new'
-              ? recordInfo.addList[preview].recordId
-              : recordInfo.defList[preview].recordId
+                ? recordInfo.addList[preview].recordId
+                : recordInfo.defList[preview].recordId
           }
           worksheetId={recordInfo.worksheetId}
         />

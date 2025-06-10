@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import loadScript from 'load-script';
 import { connect } from 'react-redux';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { LoadDiv } from 'ming-ui';
-import * as actions from 'src/pages/chat/redux/actions';
-import { emitter } from 'src/util';
+import loadScript from 'load-script';
 import _ from 'lodash';
 import moment from 'moment';
+import { LoadDiv } from 'ming-ui';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import * as actions from 'src/pages/chat/redux/actions';
+import { emitter } from 'src/utils/common';
 
 @connect(_ => ({}))
 class AppLib extends Component {

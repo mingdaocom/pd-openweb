@@ -1,14 +1,14 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Tooltip, Menu, MenuItem, Button } from 'ming-ui';
 import _ from 'lodash';
-import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig.jsx';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Button, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig.jsx';
 import { filterUnavailableConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-
 import { formatCondition } from './util';
+
 const Wrap = styled.div`
   height: 100%;
   .commonConfigItem,
@@ -55,7 +55,7 @@ export default function ViewFilter(props) {
   const [{ existingFilters, shwoMoreMenu, appearFilters, version }, setState] = useSetState({
     shwoMoreMenu: false,
     existingFilters: [],
-    appearFilters: view.filters,
+    appearFilters: view.filters || [],
     version: 0,
   });
 
@@ -74,12 +74,15 @@ export default function ViewFilter(props) {
   }, [props.worksheetId]);
 
   useEffect(() => {
+    if (props.saveViewSetLoading) return;
     const { view } = props;
     setState({
       appearFilters: view.filters || [],
     });
-  }, [props.view]);
+  }, [_.get(props, 'view.filters')]);
+
   const updateView = () => {
+    if (props.saveViewSetLoading || _.isEqual(appearFilters, view.filters)) return;
     const data = appearFilters.map(it => formatCondition(it, columns)).filter(_.identity);
     let filters = filterUnavailableConditions(data);
     updateCurrentView(
@@ -95,6 +98,7 @@ export default function ViewFilter(props) {
       },
     );
   };
+
   return (
     <Wrap className="flexColumn">
       <div className="viewSetTitle">{_l('过滤')}</div>
@@ -165,12 +169,21 @@ export default function ViewFilter(props) {
         </div>
         {(!_.isEqual(appearFilters, view.filters) || appearFilters.length > 0) && (
           <div className="footer pTop12 pBottom12 ">
-            <Button type="primary" onClick={() => updateView()} className="saveBtn">
+            <Button
+              type="primary"
+              onClick={() => updateView()}
+              className="saveBtn"
+              disabled={props.saveViewSetLoading || _.isEqual(appearFilters, view.filters)}
+            >
               {_l('保存')}
             </Button>
             <div
               className="cancelBtn Hand Gray_75 mLeft16"
               onClick={() => {
+                if (_.isEqual(appearFilters, view.filters)) {
+                  props.onClose()
+                  return
+                }
                 setState({
                   appearFilters: view.filters,
                   version: version + 1,

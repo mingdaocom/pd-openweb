@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { getPssId } from 'src/util/pssId';
+import { getPssId } from 'src/utils/pssId';
 
 export const socketInit = () => {
   if (window.IM === undefined) {

@@ -1,17 +1,18 @@
 import React, { Fragment, useEffect } from 'react';
-import { Dialog, Support, ScrollView, Button, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { SIDEBAR_LIST, SUB_MODULE_TYPES, MODULE_TYPES, SUBNAV_LIST, SIDEBAR_LIST_BY_WORKSHEET } from './config';
-import { ReferenceWrap } from './styled';
-import { WorksheetField, WorksheetRules, WorksheetView, WorksheetWorkflow } from './ReferenceModule';
-import workflowAjax from 'src/pages/workflow/api/worksheet';
-import worksheetAjax from 'src/api/worksheet';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import emptyBg from 'staticfiles/images/unReferenced.png';
-import { emitter, getTranslateInfo } from 'src/util';
+import { Button, Dialog, LoadDiv, ScrollView, Support } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import worksheetAjax from 'src/api/worksheet';
+import workflowAjax from 'src/pages/workflow/api/worksheetReference';
+import { getTranslateInfo } from 'src/utils/app';
+import { emitter } from 'src/utils/common';
+import { MODULE_TYPES, SIDEBAR_LIST, SIDEBAR_LIST_BY_WORKSHEET, SUB_MODULE_TYPES, SUBNAV_LIST } from './config';
+import { WorksheetField, WorksheetRules, WorksheetView, WorksheetWorkflow } from './ReferenceModule';
+import { ReferenceWrap } from './styled';
 import '../../../styled/style.less';
-import { Tooltip } from 'antd';
 
 const iteratee = item => {
   return item.parentId + '|' + item.id;

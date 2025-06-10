@@ -1,15 +1,15 @@
-import './folderSelectStyle.css';
-import '../layerMain.css';
-import { getClassNameByExt, htmlEncodeReg } from 'src/util';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import doT from 'dot';
-import rootTpl from './tpl/rootTpl.html';
-import nodeTpl from './tpl/nodeTpl.html';
-import ajax from 'src/api/kc';
-import _ from 'lodash';
 import React from 'react';
-import { LoadDiv, Dialog } from 'ming-ui';
 import { renderToString } from 'react-dom/server';
+import doT from 'dot';
+import _ from 'lodash';
+import { Dialog, LoadDiv } from 'ming-ui';
+import ajax from 'src/api/kc';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { getClassNameByExt, htmlEncodeReg } from 'src/utils/common';
+import nodeTpl from './tpl/nodeTpl.html';
+import rootTpl from './tpl/rootTpl.html';
+import '../layerMain.css';
+import './folderSelectStyle.css';
 
 const loading = renderToString(<LoadDiv />);
 
@@ -433,8 +433,8 @@ $.extend(FolderSelect.prototype, {
                         (visibleId === 1
                           ? 'icon-task-new-locked'
                           : visibleId === 4
-                          ? 'icon-global'
-                          : 'icon-group-members'),
+                            ? 'icon-global'
+                            : 'icon-group-members'),
                     );
                   $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
                 })
@@ -667,7 +667,7 @@ $.extend(FolderSelect.prototype, {
       folderSelect.getRootList();
       return;
     }
-
+    folderSelect.isLoading = true;
     var getNodesListAjax = (folderSelect.getNodesListAjax = ajax.getNodes(
       {
         rootType: settings.rootType,
@@ -685,6 +685,7 @@ $.extend(FolderSelect.prototype, {
     ));
     folderSelect.getNodesListAjax
       .then(function (result) {
+        folderSelect.isLoading = false;
         if (getNodesListAjax !== folderSelect.getNodesListAjax) {
           return;
         }
@@ -738,8 +739,8 @@ $.extend(FolderSelect.prototype, {
                   ? item.visibleType === 1
                     ? 'icon-task-new-locked'
                     : item.visibleType === 4
-                    ? 'icon-global'
-                    : 'icon-group-members'
+                      ? 'icon-global'
+                      : 'icon-group-members'
                   : '',
             });
             $li = $(liHtml);
@@ -931,8 +932,8 @@ $.extend(FolderSelect.prototype, {
                 isFolder = isRoot
                   ? NODE_TYPE.FOLDER
                   : $nodeItemName.data('node')
-                  ? $nodeItemName.data('node').type
-                  : null;
+                    ? $nodeItemName.data('node').type
+                    : null;
               if (isFolder == NODE_TYPE.FOLDER) {
                 $nodeItemName.dblclick();
                 return;
@@ -1107,6 +1108,9 @@ $.extend(FolderSelect.prototype, {
       .find('.folderNode')
       .off()
       .on('scroll', function () {
+        if (folderSelect.isLoading) {
+          return;
+        }
         var listCount;
         var $nodeList = $('.folderSelectDialog .folderContent .folderNode');
         if (isRoot) {
@@ -1255,8 +1259,8 @@ $.extend(FolderSelect.prototype, {
         ? node.visibleType === 1
           ? 'icon-task-new-locked'
           : node.visibleType === 4
-          ? 'icon-global'
-          : 'icon-group-members'
+            ? 'icon-global'
+            : 'icon-group-members'
         : '') +
       '"></i></span>';
     shareHtml +=

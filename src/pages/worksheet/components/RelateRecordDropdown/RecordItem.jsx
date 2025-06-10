@@ -1,11 +1,12 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import _ from 'lodash';
-import RegExpValidator from 'src/util/expression';
+import { renderText as renderCellText } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
+
 function getCoverControlData(data) {
   return _.find(data, file => RegExpValidator.fileIsPicture(file.ext) || file.previewUrl);
 }

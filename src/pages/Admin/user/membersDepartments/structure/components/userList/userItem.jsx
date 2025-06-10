@@ -9,12 +9,14 @@ import { Checkbox, Dialog, Input, Menu, MenuItem, Tooltip, UserHead } from 'ming
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import departmentController from 'src/api/department';
 import userController from 'src/api/user';
+import { checkCertification } from 'src/components/checkCertification';
 import { hasPermission } from 'src/components/checkPermission';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import TodoEntrustModal from 'src/pages/workflow/MyProcess/TodoEntrust/TodoEntrustModal';
-import { dateConvertToUserZone, encrypt } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { dateConvertToUserZone } from 'src/utils/project';
 import * as currentActions from '../../actions/current';
 import * as entitiesActions from '../../actions/entities';
 import { handoverDialog } from '../HandoverDialog';
@@ -30,6 +32,7 @@ class UserItem extends Component {
       fullDepartmentInfo: {},
       password: '',
       optListVisible: false,
+      isTopUp: props.user.displayOrder > 0,
     };
   }
 
@@ -305,12 +308,47 @@ class UserItem extends Component {
       });
   };
 
+  handleTopUp = e => {
+    const { accountId, projectId, departmentId, typeCursor } = this.props;
+    const { isTopUp } = this.state;
+    const promiseFun = !isTopUp ? departmentController.setTopDisplayOrder : departmentController.cancelTopDisplayOrder;
+
+    this.clickEvent(e);
+
+    promiseFun({
+      projectId,
+      departmentId,
+      memberId: accountId,
+    }).then(res => {
+      if (res) {
+        alert(isTopUp ? _l('取消置顶成功') : _l('置顶成功'));
+        this.setState({ isTopUp: !isTopUp });
+        this.refreshData(departmentId, typeCursor, projectId);
+      } else {
+        alert(isTopUp ? _l('取消置顶失败') : _l('置顶失败'), 2);
+      }
+    });
+  };
+
+  handleSort = e => {
+    this.clickEvent(e);
+    this.props.handleSortTopUp();
+  };
+
   renderAction = () => {
-    const { user, typeCursor, departmentId, authority = [] } = this.props;
+    const { user, typeCursor, departmentId, authority = [], projectId } = this.props;
+    const { isTopUp } = this.state;
 
     return _.includes([0, 1], typeCursor) ? (
       <Menu className="userOptList">
         <MenuItem onClick={this.handleEditUserClick}> {_l('编辑')}</MenuItem>
+        {!!departmentId && (
+          <Fragment>
+            <MenuItem onClick={this.handleTopUp}>{isTopUp ? _l('取消置顶') : _l('置顶')}</MenuItem>
+            {isTopUp && <MenuItem onClick={this.handleSort}>{_l('排序')}</MenuItem>}
+          </Fragment>
+        )}
+
         {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && (
           <MenuItem onClick={this.handleResetPasswordClick}> {_l('重置密码')}</MenuItem>
         )}
@@ -334,12 +372,26 @@ class UserItem extends Component {
       </Menu>
     ) : typeCursor === 2 ? (
       <Menu className="userOptList">
-        <MenuItem onClick={this.inviteAgain}>{_l('重新邀请')}</MenuItem>
+        <MenuItem
+          onClick={e => {
+            e.stopPropagation();
+            this.setState({ optListVisible: false });
+            checkCertification({ projectId, checkSuccess: this.inviteAgain.bind(this, e) });
+          }}
+        >
+          {_l('重新邀请')}
+        </MenuItem>
         <MenuItem onClick={this.cancelInviteAndRemove}>{_l('取消邀请并移除')}</MenuItem>
       </Menu>
     ) : _.includes([2, 3], user.status) ? (
       <Menu className="userOptList">
-        <MenuItem onClick={this.handleApprovalClick}>
+        <MenuItem
+          onClick={e => {
+            e.stopPropagation();
+            this.setState({ optListVisible: false });
+            checkCertification({ projectId, checkSuccess: this.handleApprovalClick.bind(this, e) });
+          }}
+        >
           {user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('批准加入') : ''}
         </MenuItem>
         {user.status == 3 && <MenuItem onClick={this.handleRefuseClick}>{_l('拒绝加入')}</MenuItem>}
@@ -362,7 +414,7 @@ class UserItem extends Component {
       editCurrentUser = {},
       departmentId,
     } = this.props;
-    const { isMinSc, optListVisible, showWorkHandover, showDelegate } = this.state;
+    const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
     let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
     const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
@@ -382,6 +434,7 @@ class UserItem extends Component {
           className={classNames('userItem Hand', {
             isChecked: isChecked,
             bgColor: editCurrentUser.accountId === user.accountId,
+            topUp: isTopUp,
           })}
           onClick={this.props.clickRow}
         >

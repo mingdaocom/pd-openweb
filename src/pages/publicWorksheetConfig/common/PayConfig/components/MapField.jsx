@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { Dialog, Dropdown, Icon, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
+import { Dialog, Dropdown, Icon, Tooltip } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import '../index.less';
@@ -154,6 +154,7 @@ export default class MapField extends Component {
         visible={visible}
         title={_l('建立字段映射')}
         okText={_l('保存')}
+        overlayClosable={false}
         onCancel={onCancel}
         onOk={this.onSave}
       >

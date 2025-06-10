@@ -1,13 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import worksheetAjax from 'src/api/worksheet';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import worksheetAjax from 'src/api/worksheet';
+import { browserIsMobile } from 'src/utils/common';
 import { isPublicLink } from '../../tools/utils';
-
 
 const EmbedWrap = styled.div`
   width: 100%;

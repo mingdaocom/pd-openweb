@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
-import { getRowGetType } from 'worksheet/util';
+import { Icon } from 'ming-ui';
 import attachmentApi from 'src/api/attachment';
 import worksheetApi from 'src/api/worksheet';
-import { compatibleMDJS } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
+import { getRowGetType } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+import { compatibleMDJS } from 'src/utils/project';
 import Files from '../../../components/Files';
 import { permitList } from '../../../core/enum';
 import { checkValueByFilterRegex, controlState } from '../../../core/formUtils';
@@ -310,6 +310,7 @@ export default class Widgets extends Component {
     const isArray = _.isArray(value);
     const attachments = isArray ? [] : value.attachments;
     const files = [...mobileFiles, ...mobileCameraFiles, ...mobileCamcorderFiles, ...attachments];
+    if (!files.length) return;
     this.filesChanged(_.uniqBy(files, 'fileID'), 'attachments');
   };
 
@@ -422,7 +423,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCamcorderFiles: _.uniqBy(
-                    [...this.state.mobileCamcorderFiles, ...files].filter(n => !('progress' in n)).concat(files),
+                    [...this.state.mobileCamcorderFiles, ...files].filter(n => !('progress' in n)),
                     'fileName',
                   ),
                 },

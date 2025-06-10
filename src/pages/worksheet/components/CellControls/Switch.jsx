@@ -2,13 +2,13 @@
  * 工作表控件-Checkbox
  */
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Checkbox, Switch as SwitchComponent, RadioGroup, Tooltip } from 'ming-ui';
-import { FROM } from './enum';
-import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Checkbox, RadioGroup, Switch as SwitchComponent, Tooltip } from 'ming-ui';
+import { browserIsMobile } from 'src/utils/common';
+import { getSwitchItemNames } from 'src/utils/control';
+import { FROM } from './enum';
 
 export default class Switch extends React.Component {
   static propTypes = {

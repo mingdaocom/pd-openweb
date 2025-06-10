@@ -103,7 +103,8 @@ const ListCard = props => {
     </Menu>
   );
 
-  const handlePreview = () => {
+  const handlePreview = e => {
+    e.stopPropagation();
     browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
   };
 

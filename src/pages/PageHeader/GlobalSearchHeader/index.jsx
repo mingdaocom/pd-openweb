@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import CommonUserHandle from '../components/CommonUserHandle';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/util';
+import { getRequest } from 'src/utils/common';
+import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
-import _ from 'lodash';
 
 const HomeEntry = styled.div`
   display: inline-block;
@@ -87,7 +87,7 @@ export default class GlobalSearchHeader extends Component {
     return (
       <div className="globalSearchHeaderWrap">
         <div className="netManageLogo">
-          <HomeEntry data-tip={_l('首页')} onClick={() => navigateTo('/dashboard')}>
+          <HomeEntry data-tip={_l('工作台')} onClick={() => navigateTo('/dashboard')}>
             <i className="icon-home_page Font18"></i>
           </HomeEntry>
           {text && <div className="netManageTitle">{text}</div>}

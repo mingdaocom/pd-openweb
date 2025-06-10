@@ -56,6 +56,7 @@ const MobilePhone = props => {
   const boxRef = useRef(null);
   const inputRef = useRef(null);
   const iti = useRef(null);
+  const destroy = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
   const [maskStatus, setMaskStatus] = useState(advancedSetting.datamask === '1');
@@ -72,16 +73,16 @@ const MobilePhone = props => {
 
   const initialCountry = () => {
     const initialCountry = _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn';
-    return enumDefault === 1
-      ? initialCountry
-      : advancedSetting.defaultarea
-        ? JSON.parse(advancedSetting.defaultarea).iso2
-        : initialCountry;
+    return advancedSetting.defaultarea ? JSON.parse(advancedSetting.defaultarea).iso2 : initialCountry;
   };
 
-  const getCountries = (countries = '[]') => {
+  const getCountries = (countries = '[]', defaultCountry) => {
     const preferredCountries = _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'];
-    return enumDefault === 1 ? preferredCountries : JSON.parse(countries).map(o => o.iso2);
+    if (enumDefault === 1) return [...preferredCountries, defaultCountry].filter(_.identity);
+    const allCountries = _.isEmpty(JSON.parse(countries))
+      ? []
+      : [...JSON.parse(countries).map(o => o.iso2), defaultCountry].filter(_.identity);
+    return _.uniq(allCountries);
   };
 
   const getSearchResult = (commcountries = '[]') => {
@@ -121,22 +122,19 @@ const MobilePhone = props => {
     }
   };
 
-  const onChange = useCallback(
-    _.debounce(props => {
-      const countryData = iti.current.getSelectedCountryData();
-      let currentValue;
-      if (!_.keys(countryData).length) {
-        currentValue = inputRef.current.value.replace(/ /g, '');
-      } else {
-        currentValue = iti.current.getNumber();
-      }
+  const onChange = _.debounce(props => {
+    const countryData = iti.current.getSelectedCountryData();
+    let currentValue;
+    if (!_.keys(countryData).length) {
+      currentValue = inputRef.current.value.replace(/ /g, '');
+    } else {
+      currentValue = iti.current.getNumber();
+    }
 
-      setHideCountry(!_.keys(countryData).length);
-      setItiWidth($(inputRef.current).css('padding-left'));
-      props.value !== currentValue && props.onChange(currentValue);
-    }, 300),
-    [],
-  );
+    setHideCountry(!_.keys(countryData).length);
+    setItiWidth($(inputRef.current).css('padding-left'));
+    props.value !== currentValue && props.onChange(currentValue);
+  }, 300)
 
   useEffect(() => {
     if (inputRef.current) {
@@ -144,7 +142,7 @@ const MobilePhone = props => {
         iti.current = intlTelInput(inputRef.current, {
           initialCountry: initialCountry(),
           preferredCountries: getCountries(advancedSetting.commcountries),
-          onlyCountries: getCountries(advancedSetting.allowcountries),
+          onlyCountries: getCountries(advancedSetting.allowcountries, initialCountry()),
           separateDialCode: true,
           showSelectedDialCode: true,
           countrySearch: getSearchResult(advancedSetting.commcountries),
@@ -173,6 +171,7 @@ const MobilePhone = props => {
   useEffect(() => {
     if (inputRef.current) {
       $(inputRef.current).on('close:countrydropdown keyup paste', () => {
+        if (destroy.current) return;
         setTimeout(() => {
           onChange(props);
         }, 10);
@@ -180,6 +179,7 @@ const MobilePhone = props => {
     }
 
     return () => {
+      destroy.current = true;
       iti.current && iti.current.destroy();
     };
   }, []);

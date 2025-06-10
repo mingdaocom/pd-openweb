@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, ActionSheet } from 'antd-mobile';
-import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
-import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
-import homeAppAjax from 'src/api/homeApp';
-import { generateRandomPassword, getCurrentProject } from 'src/util';
-import Back from '../../components/Back';
 import DocumentTitle from 'react-document-title';
+import { ActionSheet, Dialog } from 'antd-mobile';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp';
+import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
+import { generateRandomPassword } from 'src/utils/common';
+import { getCurrentProject } from 'src/utils/project';
+import Back from '../../components/Back';
+import './index.less';
 
 class AppList extends Component {
   constructor(props) {
@@ -82,7 +83,7 @@ class AppList extends Component {
             <Icon className={cx('mRight10 Gray_9e Font18')} icon="add1" />
             <span className="Bold">{_l('自定义创建')}</span>
           </Fragment>
-        )
+        ),
       },
     ];
     this.actionSheetHandler = ActionSheet.show({
@@ -104,11 +105,11 @@ class AppList extends Component {
           Dialog.alert({
             content: title,
             confirmText: _l('我知道了'),
-            onAction: () => {}
+            onAction: () => {},
           });
         }
         this.actionSheetHandler.close();
-      }
+      },
     });
   };
   render() {

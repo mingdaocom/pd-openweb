@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react';
+import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
 import homeAppAjax from 'src/api/homeApp';
-import { navigateTo } from 'router/navigateTo';
-import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
-import { getThemeColors } from 'src/util';
-import bgPng from '../assets/welcome.png';
-import _ from 'lodash';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
+import { getThemeColors } from 'src/utils/project';
+import bgPng from '../assets/welcome.png';
 
 const FullCon = styled.div`
   flex: 1;
@@ -41,7 +41,9 @@ const FullCon = styled.div`
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     cursor: pointer;
     &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 0px 2px rgba(0, 0, 0, 0.12);
+      box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.12),
+        0 0px 2px rgba(0, 0, 0, 0.12);
     }
     &:nth-child(2) {
       margin: 0 32px;

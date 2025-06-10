@@ -2,37 +2,37 @@ import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import './taskDetail.less';
-import ajaxRequest from 'src/api/taskCenter';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Dialog, LoadDiv } from 'ming-ui';
+import ScrollView from 'ming-ui/components/ScrollView';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import ajaxRequest from 'src/api/taskCenter';
+import FileList from 'src/components/comment/FileList';
+import ErrorState from 'src/components/errorPage/errorState';
+import RelationControl from 'src/components/relationControl/relationControl';
+import { navigateTo } from 'src/router/navigateTo';
+import { getAppFeaturesPath } from 'src/utils/app';
+import config, { OPEN_TYPE, RELATION_TYPES } from '../../config/config';
 import {
+  destroyTask,
   getTaskDetail,
   getTaskDiscussions,
   removeTaskMember,
-  destroyTask,
-  updateTaskParentId,
   updateTaskFolderId,
+  updateTaskParentId,
 } from '../../redux/actions';
-import ErrorState from 'src/components/errorPage/errorState';
-import config, { OPEN_TYPE, RELATION_TYPES } from '../../config/config';
+import { afterDeleteTask, afterUpdateTaskFolder, afterUpdateTaskParent, getLeftMenuCount } from '../../utils/taskComm';
 import { errorMessage } from '../../utils/utils';
-import ScrollView from 'ming-ui/components/ScrollView';
+import ChecklistContainer from './checklist/checklistContainer';
+import Header from './header/header';
+import SubTask from './subTask/subTask';
+import TaskBasic from './taskBasic/taskBasic';
 import TaskComment from './taskComment/taskComment';
 import TaskCommentList from './taskCommentList/taskCommentList';
-import TaskLog from './taskLog/taskLog';
-import FileList from 'src/components/comment/FileList';
-import ChecklistContainer from './checklist/checklistContainer';
-import SubTask from './subTask/subTask';
-import Header from './header/header';
-import { afterDeleteTask, afterUpdateTaskFolder, afterUpdateTaskParent, getLeftMenuCount } from '../../utils/taskComm';
-import RelationControl from 'src/components/relationControl/relationControl';
-import TaskBasic from './taskBasic/taskBasic';
-import TaskTime from './taskTime/taskTime';
 import TaskControl from './taskControl/taskControl';
-import { navigateTo } from 'src/router/navigateTo';
-import { LoadDiv, Dialog } from 'ming-ui';
-import { getAppFeaturesPath } from 'src/util';
+import TaskLog from './taskLog/taskLog';
+import TaskTime from './taskTime/taskTime';
+import './taskDetail.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const TAB_TYPE = {

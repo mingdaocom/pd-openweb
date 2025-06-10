@@ -1,34 +1,35 @@
 import React, { Fragment, useEffect, useRef } from 'react';
-import { string } from 'prop-types';
-import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import DocumentTitle from 'react-document-title';
+import { useFullscreen, useToggle } from 'react-use';
+import cx from 'classnames';
+import { pick } from 'lodash';
+import { string } from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import { useToggle, useFullscreen } from 'react-use';
-import 'rc-trigger/assets/index.css';
-import WebLayout from 'src/pages/customPage/webLayout';
-import {
-  updatePageInfo,
-  updateLoading,
-  updateEditPageVisible,
-  deleteLinkageFiltersGroup,
-} from 'src/pages/customPage/redux/action';
-import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
-import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
 import customApi from 'statistics/api/custom.js';
-import CustomPageHeader from './CustomPageHeader';
-import CustomPage from 'src/pages/customPage';
-import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import { browserIsMobile } from 'src/util';
-import { findSheet } from 'worksheet/util';
-import { enumWidgetType, updateLayout } from 'src/pages/customPage/util';
-import DocumentTitle from 'react-document-title';
-import { pick } from 'lodash';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import CustomPage from 'src/pages/customPage';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
-import { getTranslateInfo, addBehaviorLog } from 'src/util';
+import {
+  deleteLinkageFiltersGroup,
+  updateEditPageVisible,
+  updateLoading,
+  updatePageInfo,
+} from 'src/pages/customPage/redux/action';
+import { enumWidgetType, updateLayout } from 'src/pages/customPage/util';
+import WebLayout from 'src/pages/customPage/webLayout';
+import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
+import { deleteSheet, updateSheetList, updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
+import { getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project';
+import { findSheet } from 'src/utils/worksheet';
+import CustomPageHeader from './CustomPageHeader';
+import 'rc-trigger/assets/index.css';
 
 const CustomPageContentWrap = styled.div`
   flex: 1;
@@ -97,7 +98,7 @@ const CustomPageContentWrap = styled.div`
       }
     }
   }
-  .content {
+  > .content {
     min-height: 0;
     width: 100%;
     flex: 1;

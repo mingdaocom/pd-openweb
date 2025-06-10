@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Dialog, Input, LoadDiv, QiniuUpload } from 'ming-ui';
-import { encrypt } from 'src/util';
 import privatePushAjax from 'src/api/privatePush';
+import { encrypt } from 'src/utils/common';
 import { RequestLabel } from '../../common';
 
 const Wrap = styled.div`

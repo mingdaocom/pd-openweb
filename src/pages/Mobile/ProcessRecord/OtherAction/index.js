@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
+import { ActionSheet, Popup, TextArea } from 'antd-mobile';
 import cx from 'classnames';
-import { Popup, ActionSheet, TextArea } from 'antd-mobile';
-import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
-import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
-import verifyPassword from 'src/components/verifyPassword';
-import delegationApi from 'src/pages/workflow/api/delegation';
-import functionTemplateModal from '../FunctionTemplateModal';
-import SelectUser from 'mobile/components/SelectUser';
-import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
-import './index.less';
 import _ from 'lodash';
+import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
+import delegationApi from 'src/pages/workflow/api/delegation';
 import instanceAJAX from 'src/pages/workflow/api/instance';
+import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
+import SelectUser from 'mobile/components/SelectUser';
+import verifyPassword from 'src/components/verifyPassword';
+import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
+import functionTemplateModal from '../FunctionTemplateModal';
+import './index.less';
 
 export default class extends Component {
   constructor(props) {
@@ -509,7 +509,7 @@ export default class extends Component {
     const { action, instance, projectId } = this.props;
     const { content, backNodeId, customApproveContent, files, opinionList = [] } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
-    const { opinionTemplate, flowNode, app = {} } = instance || {};
+    const { opinionTemplate, flowNode, app = {}, btnMap = {} } = instance || {};
     const { inputType } = opinionTemplate || {};
     const opinionTemplateOpinions = _.get(opinionTemplate, 'opinions') || [];
     const { auth, allowUploadAttachment } = flowNode || {};
@@ -539,7 +539,12 @@ export default class extends Component {
     return (
       <Fragment>
         <div className="flex otherActionContent">
-          <div className="title Gray bold Font15 pTop13">{currentAction.headerText}</div>
+          <div className="title Gray bold Font15 pTop13">
+            {currentAction.headerText}
+            {action === 'pass' && (btnMap[4] || _l('同意'))}
+            {action === 'overrule' && (btnMap[5] || _l('拒绝'))}
+            {action === 'return' && (btnMap[17] || _l('退回'))}
+          </div>
           {this.renderVerifyPassword()}
           {!hideContent && (
             <Fragment>
@@ -550,7 +555,7 @@ export default class extends Component {
                       *
                     </div>
                   )}
-                  <div className="Font13 bold flex Gray">{_l('审批意见')}</div>
+                  <div className="Font13 bold flex Gray">{_l('意见')}</div>
                   {customApproveContent &&
                     _.includes(['pass', 'after', 'overrule', 'return'], action) &&
                     (!_.isEmpty(opinions) || !!opinionList.length) && (

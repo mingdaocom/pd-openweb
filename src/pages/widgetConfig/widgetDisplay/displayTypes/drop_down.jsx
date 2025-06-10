@@ -1,11 +1,11 @@
 import React from 'react';
 import cx from 'classnames';
+import { get, head } from 'lodash';
+import styled from 'styled-components';
 import { Steps } from 'ming-ui';
-import { isLightColor } from 'src/util';
+import { isLightColor } from 'src/utils/control';
 import { CommonDisplay, OptionWrap } from '../../styled';
 import { getAdvanceSetting, getOptions, parseOptionValue } from '../../util/setting';
-import styled from 'styled-components';
-import { get, head } from 'lodash';
 
 const ScalePoint = styled.span`
   cursor: pointer;

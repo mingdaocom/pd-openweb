@@ -51,7 +51,7 @@ export default function MySQLGuide(props) {
           command: `binlog_expire_logs_seconds=259200`
         </div>
         <div>log_bin=mysql-binlog -- For ubuntu, use: `/var/log/mysql/mysql-bin.log`</div>
-        <div>server-id=1 -- (only in the case of ubuntu)</div>
+        <div>server-id=1</div>
         <div>log_slave_updates=1</div>
       </div>
       <div className="subTitle">{_l('3. 如果修改过配置文件，需要重启MySQL服务器')}</div>

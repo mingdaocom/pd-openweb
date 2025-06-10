@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Icon, UpgradeIcon } from 'ming-ui';
-import '../index.less';
+import cx from 'classnames';
 import _ from 'lodash';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Search from 'src/pages/workflow/components/Search';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import GlobalVarTable from './GlobalVarTable';
 import VarAddOrEditModal from './VarAddOrEditModal';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
-import cx from 'classnames';
+import '../index.less';
 
 export default function GlobalVarRight(props) {
   const { projectId, activeItem, loading, varList, onRefreshVarList } = props;
@@ -62,19 +62,21 @@ export default function GlobalVarRight(props) {
         />
       </div>
 
-      <VarAddOrEditModal
-        visible={addOrEditVar.visible}
-        isEdit={addOrEditVar.isEdit}
-        onClose={() => {
-          setAddOrEditVar({ visible: false });
-          setDefaultFormValue({});
-          setActiveId('');
-        }}
-        projectId={projectId}
-        appId={activeItem === 'project' ? '' : activeItem}
-        defaultFormValue={defaultFormValue}
-        onRefreshVarList={onRefreshVarList}
-      />
+      {addOrEditVar.visible && (
+        <VarAddOrEditModal
+          visible={addOrEditVar.visible}
+          isEdit={addOrEditVar.isEdit}
+          onClose={() => {
+            setAddOrEditVar({ visible: false });
+            setDefaultFormValue({});
+            setActiveId('');
+          }}
+          projectId={projectId}
+          appId={activeItem === 'project' ? '' : activeItem}
+          defaultFormValue={defaultFormValue}
+          onRefreshVarList={onRefreshVarList}
+        />
+      )}
     </div>
   );
 }

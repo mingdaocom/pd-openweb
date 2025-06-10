@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
-import appManagement from 'src/api/appManagement';
-import projectAjax from 'src/api/project';
-import attachmentAjax from 'src/api/attachment';
-import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import { selectDateList, dateDimension, formatter, formatChartData } from '../../util';
-import { formatValue } from 'src/pages/Admin/homePage/config.js';
-import { dialogSelectDept } from 'ming-ui/functions';
-import LineChart from '../LineChart';
-import loadingSvg from '../loading.svg';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
-import { formatFileSize } from 'src/util';
+import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import { dialogSelectDept } from 'ming-ui/functions';
+import appManagement from 'src/api/appManagement';
+import attachmentAjax from 'src/api/attachment';
+import projectAjax from 'src/api/project';
+import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import { formatValue } from 'src/pages/Admin/homePage/config.js';
+import { formatFileSize } from 'src/utils/common';
+import { dateDimension, formatChartData, formatter, selectDateList } from '../../util';
+import LineChart from '../LineChart';
+import loadingSvg from '../loading.svg';
 
 const { Option } = Select;
 const Summary = styled.div`
@@ -461,8 +461,8 @@ export default class Overview extends Component {
             departmentInfo: !_.isEmpty(departments)
               ? departments[0]
               : !_.isEmpty(departmentTrees)
-              ? departmentTrees[0]
-              : {},
+                ? departmentTrees[0]
+                : {},
             depFlag: !_.isEmpty(departments) ? true : false,
           },
           () => {

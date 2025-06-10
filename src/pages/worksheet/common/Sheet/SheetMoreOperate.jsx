@@ -6,15 +6,16 @@ import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { openResetAutoNumber, openWorkSheetTrash } from 'worksheet/common';
-import { getHighAuthSheetSwitchPermit, saveSelectExtensionNavType } from 'worksheet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
 import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
 import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { saveSelectExtensionNavType } from 'src/utils/worksheet';
+import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
 import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 
 export default function SheetMoreOperate(props) {
@@ -174,7 +175,7 @@ export default function SheetMoreOperate(props) {
                   setSheetDescVisible(true);
                 }}
               >
-                <span className="text">{_l('编辑工作表说明%02033')}</span>
+                <span className="text">{_l('工作表说明')}</span>
               </MenuItem>
             </Fragment>
           )}

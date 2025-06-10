@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import cx from 'classnames';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import sheetApi from 'src/api/worksheet';
+import cx from 'classnames';
 import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 const Wrap = styled.div`
   .viewsNav {
@@ -17,7 +17,7 @@ const Wrap = styled.div`
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #F5F5F5;
+        background-color: #f5f5f5;
       }
     }
   }
@@ -43,13 +43,15 @@ export default function View(props) {
 
   useEffect(() => {
     setLoading(true);
-    sheetApi.getWorksheetInfo({
-      worksheetId: selectNode.workSheetId,
-      getViews: true
-    }).then(data => {
-      setLoading(false);
-      setSheetInfo(data);
-    });
+    sheetApi
+      .getWorksheetInfo({
+        worksheetId: selectNode.workSheetId,
+        getViews: true,
+      })
+      .then(data => {
+        setLoading(false);
+        setSheetInfo(data);
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -64,11 +66,13 @@ export default function View(props) {
     const el = document.querySelector(`.view-${item.viewId}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.viewName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const { views = [] } = sheetInfo;
 
@@ -76,11 +80,7 @@ export default function View(props) {
     const data = _.find(translateData, { correlationId: view.viewId }) || {};
     const translateInfo = data.data || {};
     return (
-      <div
-        className="view flexRow alignItemsCenter pointer"
-        key={view.viewId}
-        onClick={() => handlePositionView(view)}
-      >
+      <div className="view flexRow alignItemsCenter pointer" key={view.viewId} onClick={() => handlePositionView(view)}>
         <span className="mLeft5 Font13 ellipsis">{translateInfo.name || view.name}</span>
       </div>
     );
@@ -99,8 +99,8 @@ export default function View(props) {
         type: LANG_DATA_TYPE.wrokSheetView,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -111,16 +111,16 @@ export default function View(props) {
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('视图名称')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : view.name} disabled={true} />
-          <EditInput
-            className="flex"
-            value={translateInfo.name}
-            onChange={value => handleSave({ name: value })}
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.name : view.name}
+            disabled={true}
           />
+          <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <Wrap className="flexRow pAll10 h100">
@@ -131,7 +131,7 @@ export default function View(props) {
             placeholder={_l('视图')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
@@ -140,17 +140,11 @@ export default function View(props) {
           )}
         </div>
         <ScrollView className="flex">
-          {views.filter(view => view.name.includes(searchValue)).map(view => (
-            renderViewNav(view)
-          ))}
+          {views.filter(view => view.name.includes(searchValue)).map(view => renderViewNav(view))}
         </ScrollView>
       </div>
       <ScrollView className="viewsContent" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {views.map(view => (
-            renderViewContent(view)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{views.map(view => renderViewContent(view))}</div>
       </ScrollView>
     </Wrap>
   );

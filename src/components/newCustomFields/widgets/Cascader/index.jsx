@@ -1,17 +1,17 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import sheetAjax from 'src/api/worksheet';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { LoadDiv, Icon, Radio, PopupWrapper } from 'ming-ui';
-import cx from 'classnames';
 import { Cascader, TreeSelect } from 'antd';
-import { Popup, List } from 'antd-mobile';
-import { FROM } from '../../tools/config';
-import nzh from 'nzh';
-import { browserIsMobile } from 'src/util';
+import { List, Popup } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
-import { checkCellIsEmpty } from 'worksheet/util';
+import nzh from 'nzh';
+import PropTypes from 'prop-types';
+import { Icon, LoadDiv, PopupWrapper, Radio } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { browserIsMobile } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
+import { checkCellIsEmpty } from 'src/utils/control';
+import { FROM } from '../../tools/config';
 import './index.less';
 
 const getItem = value => {
@@ -710,10 +710,10 @@ export default class Widgets extends Component {
                   ? _l('搜索中...')
                   : _l('请输入更多关键词')
                 : isError
-                ? _l('数据源异常')
-                : options === null
-                ? _l('数据加载中...')
-                : _l('无数据')}
+                  ? _l('数据源异常')
+                  : options === null
+                    ? _l('数据加载中...')
+                    : _l('无数据')}
             </div>
           }
           treeData={keywords ? searchOptions || [] : options || []}
@@ -803,10 +803,10 @@ export default class Widgets extends Component {
               ? _l('搜索中...')
               : _l('请输入更多关键词')
             : isError
-            ? _l('数据源异常')
-            : options === null
-            ? _l('数据加载中...')
-            : _l('无数据')
+              ? _l('数据源异常')
+              : options === null
+                ? _l('数据加载中...')
+                : _l('无数据')
         }
         loadData={selectedOptions => this.loadData(selectedOptions[selectedOptions.length - 1].value)}
         onChange={this.cascaderChange}

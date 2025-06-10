@@ -1,17 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-
 import cx from 'classnames';
 import { find, get, isFunction, omit, uniq } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Button, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import PropTypes from 'prop-types';
 import CustomFields from 'src/components/newCustomFields';
-import { selectRecord } from 'src/components/recordCardListDialog';
+import { selectRecords } from 'src/components/SelectRecords';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
-import styled from 'styled-components';
-import { isRelateRecordTableControl } from 'worksheet/util';
-
+import { isRelateRecordTableControl } from 'src/utils/control';
 import CodeEdit from './CodeEdit';
 
 const Header = styled.div`
@@ -91,7 +89,6 @@ const TestCon = styled.div`
       font-weight: bold;
       font-size: 20px;
       color: #4caf50;
-      max-width: 50%;
       white-space: nowrap;
     }
     .name {
@@ -229,30 +226,32 @@ export default function TestFunctionDialog(props) {
         <TestCon>
           <div className="header">
             {_l('输入参数进行测试')}
-            <div
-              className="selectRecord"
-              onClick={() =>
-                selectRecord({
-                  canSelectAll: false,
-                  pageSize: 25,
-                  multiple: false,
-                  relateSheetId: worksheetId,
-                  onOk: selectedRecords => {
-                    if (selectedRecords && selectedRecords[0]) {
-                      const newFormData = {};
-                      controlIdsInExpression.forEach(controlId => {
-                        controlId = controlId.replace(/[a-zA-Z0-9]+-/, '');
-                        newFormData[controlId] = selectedRecords[0][controlId];
-                      });
-                      setTestFormValues(newFormData);
-                      setFormFlag(Math.random());
-                    }
-                  },
-                })
-              }
-            >
-              {_l('选择数据')}
-            </div>
+            {worksheetId && (
+              <div
+                className="selectRecord"
+                onClick={() =>
+                  selectRecords({
+                    canSelectAll: false,
+                    pageSize: 25,
+                    multiple: false,
+                    worksheetId,
+                    onOk: selectedRecords => {
+                      if (selectedRecords && selectedRecords[0]) {
+                        const newFormData = {};
+                        controlIdsInExpression.forEach(controlId => {
+                          controlId = controlId.replace(/[a-zA-Z0-9]+-/, '');
+                          newFormData[controlId] = selectedRecords[0][controlId];
+                        });
+                        setTestFormValues(newFormData);
+                        setFormFlag(Math.random());
+                      }
+                    },
+                  })
+                }
+              >
+                {_l('选择数据')}
+              </div>
+            )}
           </div>
           <div className={cx('controlName', { error: testError })}>
             <span className="name ellipsis">{title}</span>

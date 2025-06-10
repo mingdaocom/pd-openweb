@@ -1,15 +1,15 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Input, Dropdown } from 'ming-ui';
-import { Checkbox } from 'antd';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import sheetApi from 'src/api/worksheet';
-import { enumWidgetType } from 'src/pages/customPage/util';
-import { getTranslateInfo } from 'src/util';
-import { getShowViews } from 'src/pages/worksheet/views/util';
+import { Checkbox } from 'antd';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Input } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { enumWidgetType } from 'src/pages/customPage/util';
+import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
+import { getShowViews } from 'src/pages/worksheet/views/util';
+import { getTranslateInfo } from 'src/utils/app';
 
 const Wrap = styled.div`
   box-sizing: border-box;

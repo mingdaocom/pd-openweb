@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { SettingItem, AnimationWrap } from '../../../styled';
-import { handleAdvancedSettingChange } from '../../../util/setting';
-import { CALC_TYPE, OUTPUT_FORMULA_FUNC } from 'src/pages/widgetConfig/config/setting';
 import cx from 'classnames';
+import { CALC_TYPE, OUTPUT_FORMULA_FUNC } from 'src/pages/widgetConfig/config/setting';
+import { AnimationWrap, SettingItem } from '../../../styled';
+import { handleAdvancedSettingChange } from '../../../util/setting';
 
 const FORMULA_TYPES = [
   {
@@ -18,7 +18,7 @@ const FORMULA_TYPES = [
     text: _l('函数'),
   },
 ];
-export default function SwitchType({ data, onChange }) {
+export default function SwitchType({ data, fromAggregation, onChange }) {
   const { controlId, enumDefault2 } = data;
   const isSaved = controlId && !controlId.includes('-');
 
@@ -103,6 +103,7 @@ export default function SwitchType({ data, onChange }) {
           <div className="settingItemTitle">{_l('计算方式')}</div>
           <AnimationWrap>
             {FORMULA_TYPES.map(({ text, value }) => {
+              if (fromAggregation && value === 38) return;
               const isActive = data.type === value;
               return (
                 <div

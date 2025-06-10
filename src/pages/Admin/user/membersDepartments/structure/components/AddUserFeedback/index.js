@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import { Dialog, Button, UserHead } from 'ming-ui';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
-import { refuseUserJoinFunc } from '../refuseUserJoinDia';
-import userController from 'src/api/user';
-import { feedbackTypes } from '../../constant';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import styled from 'styled-components';
-import { getCurrentProject } from 'src/util';
+import { Button, Dialog, UserHead } from 'ming-ui';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import userController from 'src/api/user';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { getCurrentProject } from 'src/utils/project';
+import { feedbackTypes } from '../../constant';
+import { refuseUserJoinFunc } from '../refuseUserJoinDia';
 
 const FeedbackDialog = styled(Dialog)`
   .footer {

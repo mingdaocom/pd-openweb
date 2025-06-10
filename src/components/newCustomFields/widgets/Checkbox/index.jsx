@@ -1,16 +1,16 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Checkbox, MobileCheckbox, Icon } from 'ming-ui';
-import cx from 'classnames';
-import { isLightColor } from 'src/util';
-import { FROM } from '../../tools/config';
 import { Select } from 'antd';
-import { browserIsMobile } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
-import OtherInput from './OtherInput';
-import { getCheckAndOther } from '../../tools/utils';
+import PropTypes from 'prop-types';
+import { Checkbox, Icon, MobileCheckbox } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
+import { browserIsMobile } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
+import { FROM } from '../../tools/config';
+import { getCheckAndOther } from '../../tools/utils';
+import OtherInput from './OtherInput';
 
 class Widgets extends Component {
   static propTypes = {
@@ -69,8 +69,8 @@ class Widgets extends Component {
           maxWidth: noMaxWidth
             ? 'auto'
             : _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || browserIsMobile()
-            ? 'unset'
-            : 140,
+              ? 'unset'
+              : 140,
         }}
       >
         {item.key === 'other' && otherValue && disabled && browserIsMobile() ? otherValue : item.value}
@@ -259,6 +259,8 @@ class Widgets extends Component {
       advancedSetting = {},
       selectProps,
       onChange,
+      from,
+      flag,
     } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
     const canAddOption = noDelOptions.length < MAX_OPTIONS_COUNT;
@@ -286,6 +288,9 @@ class Widgets extends Component {
           ref={select => {
             this.select = select;
           }}
+          // getPopupContainer={triggerNode =>
+          //   from === FROM.NEWRECORD || (from === FROM.RECORDINFO && flag) ? triggerNode.parentNode : document.body
+          // }
           mode="multiple"
           dropdownClassName={dropdownClassName}
           className={cx('w100 customAntSelect', { optionDisabled: disabled })}

@@ -117,7 +117,7 @@ const featureData = [
   {
     className: 'importAndExport',
     name: _l('应用导入导出'),
-    dataTip: _l('通过导入导出，可实现在网络之间快速复制迁移应用和数据'),
+    dataTip: _l('通过导入导出，可实现在组织之间快速复制迁移应用和数据'),
     value0: 'basicPng',
     value1: 'basicPng',
     value2: 'basicPng',
@@ -256,6 +256,7 @@ const featureData = [
     value3: {
       row1: _l('不限'),
       row2: _l('有效期一年'),
+      row3: _l('定期备份'),
     },
   },
   {
@@ -440,7 +441,7 @@ const featureData = [
   {
     className: 'ding',
     name: _l('钉钉整合'),
-    dataTip: _l('将应用发布到钉钉内使用，可以在钉钉收到应用消息'),
+    dataTip: _l('在钉钉中使用HAP'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',

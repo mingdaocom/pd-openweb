@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Input, Tooltip, Icon, LoadDiv } from 'ming-ui';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dropdown, Icon, Input, LoadDiv, Tooltip } from 'ming-ui';
 import dataMirrorAjax from 'src/pages/integration/api/dw.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { emitter } from 'src/util';
+import { emitter } from 'src/utils/common';
 
 const WrapPopup = styled.div`
   width: 620px;

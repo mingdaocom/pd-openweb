@@ -7,8 +7,8 @@ import { CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/co
 import { LoginResult } from 'src/pages/AuthService/login/config.js';
 import { checkReturnUrl, getDataByFilterXSS } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/util';
-import { setPssId } from 'src/util/pssId';
+import { getRequest } from 'src/utils/common';
+import { setPssId } from 'src/utils/pssId';
 
 function useInterval(callback, delay) {
   const savedCallback = useRef(callback);

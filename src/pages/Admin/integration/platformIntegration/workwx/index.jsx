@@ -1,24 +1,24 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
-import { Switch, Icon, Button, LoadDiv, Checkbox, MdLink } from 'ming-ui';
-import { Popover, Radio, Input, Select } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
+import { Input, Popover, Radio, Select } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Checkbox, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
-import BuildAppNewRules from './BuildAppNewRules';
-import IntegrationSetPassword from '../components/IntegrationSetPassword';
-import IntegrationSync from '../components/IntegrationSync';
-import InterfaceLicense from './components/InterfaceLicense';
-import ChartSetting from './components/ChartSetting';
-import { integrationFailed, checkClearIntergrationData } from '../utils';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import CancelIntegration from '../components/CancelIntegration';
 import EnableScanLogin from '../components/EnableScanLogin';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import IntegrationSetPassword from '../components/IntegrationSetPassword';
+import IntegrationSync from '../components/IntegrationSync';
+import { checkClearIntergrationData, integrationFailed } from '../utils';
+import BuildAppNewRules from './BuildAppNewRules';
+import ChartSetting from './components/ChartSetting';
+import InterfaceLicense from './components/InterfaceLicense';
 import workwxPng1 from './workwxSyncCourse/img/1.png';
 import workwxPng2 from './workwxSyncCourse/img/2.png';
 import workwxPng3 from './workwxSyncCourse/img/3.png';
 import workwxPng4 from './workwxSyncCourse/img/4.png';
 import './style.less';
-import _ from 'lodash';
 
 const quickAprData = [
   { label: 'URL', key: 'url' },
@@ -277,7 +277,7 @@ export default class Workwx extends React.Component {
 
   stepRender = () => {
     let { intergrationType, show2, isHasInfo, isCloseDing, canEditInfo } = this.state;
-    const { projectId } = this.props;
+    const { projectId, featureType, featureId } = this.props;
 
     return (
       <div className="pBottom100">
@@ -375,6 +375,8 @@ export default class Workwx extends React.Component {
           step={intergrationType !== 2 ? '3.' : '2.'}
           syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
           projectId={projectId}
+          featureType={featureType}
+          featureId={featureId}
         />
       </div>
     );

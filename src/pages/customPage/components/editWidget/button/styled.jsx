@@ -57,6 +57,7 @@ export const GraphWrap = styled.div`
       text-align: left;
       flex: 1;
       width: 90px;
+      color: var(--widget-title-color) !important;
     }
   }
   .name {

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Dialog, Button } from 'ming-ui';
-import SyncDialog from '../SyncDialog';
 import cx from 'classnames';
+import { Button, Dialog } from 'ming-ui';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { INTEGRATION_INFO } from '../../config';
+import SyncDialog from '../SyncDialog';
 
 export default class IntegrationSync extends Component {
   constructor(props) {
@@ -69,6 +70,9 @@ export default class IntegrationSync extends Component {
             isBindRelationship: false,
           });
         }
+      })
+      .catch(err => {
+        this.setState({ loading: false });
       });
   };
 
@@ -99,7 +103,7 @@ export default class IntegrationSync extends Component {
   };
 
   render() {
-    const { projectId, step, integrationType, syncDisabled } = this.props;
+    const { projectId, step, integrationType, syncDisabled, featureType, featureId } = this.props;
     const {
       loading,
       showSyncDiaLog,
@@ -135,6 +139,11 @@ export default class IntegrationSync extends Component {
             disabled={loading}
             className={cx('syncBtn', { isNO: syncDisabled || showSyncDiaLog })}
             onClick={e => {
+              if (featureType === '2') {
+                buriedUpgradeVersionDialog(projectId, featureId);
+                return;
+              }
+
               if (syncDisabled || showSyncDiaLog) {
                 return;
               } else {

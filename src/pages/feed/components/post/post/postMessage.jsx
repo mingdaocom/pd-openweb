@@ -1,11 +1,11 @@
 ﻿import React from 'react';
 import { findDOMNode } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import createLinksForMessage from 'src/util/createLinksForMessage';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import CreateGroup from 'src/components/group/create/creatGroup';
 import { UserCard } from 'ming-ui';
+import createGroup from 'src/pages/Group/createGroup';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
 
 /**
  * 动态内容
@@ -74,7 +74,7 @@ class PostMessage extends React.Component {
       .find('[data-action=createGroup]')
       .on('click', evt => {
         evt.preventDefault();
-        CreateGroup.createInit({
+        createGroup({
           callback(group) {
             window.location.href =
               'group/groupValidate?' +

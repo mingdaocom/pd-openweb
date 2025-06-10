@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
-import Trigger from 'rc-trigger';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { dialogSelectUser } from 'ming-ui/functions';
+import Trigger from 'rc-trigger';
 import { Dialog, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
 import roleApi from 'src/api/role';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject } from 'src/utils/project';
 
 export default function RoleItem(props) {
   const { role, projectId, isApply, onRefreshRoleList, onOpenDrawer } = props;
@@ -13,7 +13,7 @@ export default function RoleItem(props) {
   const [popupVisibleId, setPopupVisibleId] = useState(null);
   const [isMembersOverflow, setIsMembersOverflow] = useState(false);
   const [isAuthOverflow, setIsAuthOverflow] = useState(false);
-  const { isHrVisible, isSuperAdmin } = getCurrentProject(projectId, true);
+  const { isHrVisible, isSuperAdmin, projectStatus } = getCurrentProject(projectId, true);
   const membersRef = useRef();
   const authRef = useRef();
 
@@ -134,7 +134,7 @@ export default function RoleItem(props) {
           </span>
           {isAuthOverflow && <span>{_l('等') + role.permissionNames.length + _l('项')}</span>}
         </div>
-        {isApply ? (
+        {isApply && projectStatus !== 2 ? (
           <div className="roleOperation">
             <span
               onClick={e => !hasApply && onClickHandle(e, 'applyRole')}

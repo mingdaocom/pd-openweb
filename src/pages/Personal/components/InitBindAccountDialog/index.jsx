@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
+import { Input } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
 import { Dialog, intlTelInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import cx from 'classnames';
-import { encrypt } from 'src/util';
-import accountController from 'src/api/account';
 import { captcha } from 'ming-ui/functions';
-import { Input } from 'antd';
+import accountController from 'src/api/account';
+import { encrypt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import './index.less';
-import RegExpValidator from 'src/util/expression';
-import _ from 'lodash';
 
 const checkFuncs = {
   account: ([input, iti]) => {

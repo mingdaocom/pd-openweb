@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import cx from 'classnames';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
-import EditInput from './EditInput';
-import report from 'statistics/api/report';
+import cx from 'classnames';
 import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import report from 'statistics/api/report';
+import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
-import { getTranslateInfo } from 'src/util';
+import EditInput from './EditInput';
 
 const Wrap = styled.div`
   .reportNav {
@@ -17,7 +17,7 @@ const Wrap = styled.div`
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #F5F5F5;
+        background-color: #f5f5f5;
       }
     }
   }
@@ -43,14 +43,16 @@ export default function StatisticsChart(props) {
 
   useEffect(() => {
     setLoading(true);
-    report.list({
-      appId: selectNode.workSheetId,
-      isOwner: false,
-      pageIndex: -1
-    }).then(data => {
-      setLoading(false);
-      setReportList(data.reports);
-    });
+    report
+      .list({
+        appId: selectNode.workSheetId,
+        isOwner: false,
+        pageIndex: -1,
+      })
+      .then(data => {
+        setLoading(false);
+        setReportList(data.reports);
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -63,9 +65,7 @@ export default function StatisticsChart(props) {
 
   if (!reportList.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">
-        {_l('没有统计图表')}
-      </div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有统计图表')}</div>
     );
   }
 
@@ -73,21 +73,19 @@ export default function StatisticsChart(props) {
     const el = document.querySelector(`.report-${item.id}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.reportName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
     $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+  };
 
   const renderReportNav = item => {
     const data = _.find(translateData, { correlationId: item.id }) || {};
     const translateInfo = data.data || {};
     return (
-      <div
-        className="report flexRow alignItemsCenter pointer"
-        key={item.id}
-        onClick={() => handlePositionReport(item)}
-      >
+      <div className="report flexRow alignItemsCenter pointer" key={item.id} onClick={() => handlePositionReport(item)}>
         <span className="mLeft5 Font13 ellipsis">{translateInfo.name || item.name}</span>
       </div>
     );
@@ -106,8 +104,8 @@ export default function StatisticsChart(props) {
         type: LANG_DATA_TYPE.wrokSheetStatistics,
         data: {
           ...translateInfo,
-          ...info
-        }
+          ...info,
+        },
       });
     };
 
@@ -118,16 +116,20 @@ export default function StatisticsChart(props) {
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('图表名称')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : item.name} disabled={true} />
-          <EditInput
-            className="flex"
-            value={translateInfo.name}
-            onChange={value => handleSave({ name: value })}
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.name : item.name}
+            disabled={true}
           />
+          <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
         </div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('图表说明')}</div>
-          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.description : item.desc} disabled={true} />
+          <Input
+            className="flex mRight20"
+            value={comparisonLangId ? comparisonLangInfo.description : item.desc}
+            disabled={true}
+          />
           <EditInput
             className="flex"
             disabled={!item.desc}
@@ -137,7 +139,7 @@ export default function StatisticsChart(props) {
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <Wrap className="flexRow pAll10 h100">
@@ -148,7 +150,7 @@ export default function StatisticsChart(props) {
             placeholder={_l('统计')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
@@ -157,17 +159,11 @@ export default function StatisticsChart(props) {
           )}
         </div>
         <ScrollView className="flex">
-          {reportList.filter(report => report.name.includes(searchValue)).map(report => (
-            renderReportNav(report)
-          ))}
+          {reportList.filter(report => report.name.includes(searchValue)).map(report => renderReportNav(report))}
         </ScrollView>
       </div>
       <ScrollView className="reportContent" ref={scrollViewRef}>
-        <div className="pLeft20 pRight20">
-          {reportList.map(report => (
-            renderReportContent(report)
-          ))}
-        </div>
+        <div className="pLeft20 pRight20">{reportList.map(report => renderReportContent(report))}</div>
       </ScrollView>
     </Wrap>
   );

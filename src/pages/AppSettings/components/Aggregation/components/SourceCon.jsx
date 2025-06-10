@@ -1,17 +1,17 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet.jsx';
-import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { Icon, SvgIcon } from 'ming-ui';
-import { WrapWorksheet, WrapSource, WrapSelectCon } from './style';
-import { getNodeInfo, getAllSourceList } from '../util';
-import cx from 'classnames';
 import { Tooltip } from 'antd';
-import { DEFAULT_COLORS } from '../config';
-import { filterForFilterDialog, updateConfig, getSourceMaxCountByVersion, sourceIsMax } from '../util';
-import { getTranslateInfo } from 'src/util';
+import cx from 'classnames';
 import _ from 'lodash';
-import { getSyncLicenseInfo } from 'src/util';
+import { Icon, SvgIcon } from 'ming-ui';
+import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet.jsx';
+import { getTranslateInfo } from 'src/utils/app';
+import { getSyncLicenseInfo } from 'src/utils/project';
+import { DEFAULT_COLORS } from '../config';
+import { getAllSourceList, getNodeInfo } from '../util';
+import { filterForFilterDialog, getSourceMaxCountByVersion, sourceIsMax, updateConfig } from '../util';
+import { WrapSelectCon, WrapSource, WrapWorksheet } from './style';
 
 export default function SourceCon(props) {
   const { projectId, appId, getWorksheets, onChange, onChangeByInit = () => {} } = props;

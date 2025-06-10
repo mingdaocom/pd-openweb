@@ -7,8 +7,8 @@ import fixedDataAjax from 'src/api/fixedData.js';
 import RegisterController from 'src/api/register';
 import { AccountNextActions } from 'src/pages/AuthService/config.js';
 import { registerSuc } from 'src/pages/AuthService/util.js';
-import { getRequest } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import { getRequest } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 
 let request = getRequest();
 const Wrap = styled.div`

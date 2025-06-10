@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import { VersionProductType } from 'src/utils/enum';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
-import { VersionProductType } from 'src/util/enum';
-import ContactsHiddenWrap from './contactsHidden';
 import DialogSettingInviteRules from '../../user/membersDepartments/structure/components/dialogSettingInviteRules';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import ContactsHiddenWrap from './contactsHidden';
 
 export default class Account extends Component {
   constructor(props) {

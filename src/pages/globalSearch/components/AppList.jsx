@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
-import TextHeightLine from './TextHeightLine';
-import { GLOBAL_SEARCH_LIST_SETTING, SEARCH_APP_ITEM_TYPE } from '../enum';
-import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
-import { getAppResultCodeText } from '../utils';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { addBehaviorLog, getFeatureStatus } from 'src/util';
 import smartSearchAjax from 'src/api/smartSearch';
-import { VersionProductType } from 'src/util/enum';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import { renderText } from 'src/utils/control';
+import { VersionProductType } from 'src/utils/enum';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { GLOBAL_SEARCH_LIST_SETTING, SEARCH_APP_ITEM_TYPE } from '../enum';
+import { getAppResultCodeText } from '../utils';
+import TextHeightLine from './TextHeightLine';
 
 const Box = styled.div`
   padding-bottom: 12px;
@@ -414,8 +414,8 @@ export default function AppList(props) {
                             16,
                           )}, ${parseInt(item.color.slice(5), 16)}, 0.06)`
                         : item.itemType === 3
-                        ? item.color
-                        : 'rgba(178, 178, 178, 0.14)',
+                          ? item.color
+                          : 'rgba(178, 178, 178, 0.14)',
                   }}
                 >
                   <SvgIcon

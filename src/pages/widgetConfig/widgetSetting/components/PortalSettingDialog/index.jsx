@@ -1,25 +1,25 @@
 import React, { Component } from 'react';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import {
-  HAS_EXPLAIN_CONTROL,
-  HAS_RADIO_CONTROL,
-  HAS_OPTION_CONTROL,
-  HAS_NUMBER_CONTROL,
-  HAS_AREA_CONTROL,
-  HAS_PHONE_CONTROL,
-  HAS_VERITY_CONTROL,
-} from './configs';
-import { enumWidgetType, getWidgetInfo } from 'src/pages/widgetConfig/util';
-import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
-import TelConfig from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/TelConfig';
-import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify';
-import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
 import 'src/pages/widgetConfig/styled/style.less';
+import { enumWidgetType, getWidgetInfo } from 'src/pages/widgetConfig/util';
+import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
+import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify';
+import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import Switch from '../../settings/switch';
 import DynamicDefaultValue from '../DynamicDefaultValue';
-import { SettingItem } from 'src/pages/widgetConfig/styled';
-import styled from 'styled-components';
-import cx from 'classnames';
+import RelateOperate from '../WidgetOperate/RelateOperate';
+import {
+  HAS_AREA_CONTROL,
+  HAS_EXPLAIN_CONTROL,
+  HAS_NUMBER_CONTROL,
+  HAS_OPTION_CONTROL,
+  HAS_RADIO_CONTROL,
+  HAS_RELATE_CONTROL,
+  HAS_VERITY_CONTROL,
+} from './configs';
 
 const PortalWrap = styled.div`
   & > div:first-child {
@@ -43,11 +43,11 @@ export default class PortalSettingDialog extends Component {
   };
 
   render() {
-    const { onClose, onOk, globalSheetInfo, from } = this.props;
+    const { onClose, onOk, globalSheetInfo, from, allControls } = this.props;
     const { data = {} } = this.state;
     const { type } = data;
     const ENUM_TYPE = enumWidgetType[type];
-    const allProps = { data, onChange: this.onChange, globalSheetInfo, from };
+    const allProps = { data, onChange: this.onChange, globalSheetInfo, from, allControls };
     const SettingComponent = Settings[ENUM_TYPE];
     const { icon, widgetName } = getWidgetInfo(type);
     return (
@@ -72,6 +72,14 @@ export default class PortalSettingDialog extends Component {
           {HAS_OPTION_CONTROL.includes(type) && <SettingComponent className="mTop0" {...allProps} fromPortal={true} />}
           {HAS_NUMBER_CONTROL.includes(type) && <SettingComponent {...allProps} fromPortal={true} />}
           {HAS_AREA_CONTROL.includes(type) && <SettingComponent {...allProps} />}
+          {HAS_RELATE_CONTROL.includes(type) && <SettingComponent {...allProps} fromPortal={true} />}
+          {/** 操作设置 */}
+          {HAS_RELATE_CONTROL.includes(type) && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('操作设置')}</div>
+              <RelateOperate {...allProps} fromPortal={true} />
+            </SettingItem>
+          )}
           {/** 检查项 */}
           {type === 36 && (
             <div className="checkWrap">
@@ -81,13 +89,6 @@ export default class PortalSettingDialog extends Component {
           )}
           {/**验证 */}
           {HAS_VERITY_CONTROL.includes(type) && <WidgetVerify {...allProps} fromPortal={true} />}
-          {/**电话设置 */}
-          {HAS_PHONE_CONTROL.includes(type) && (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('设置')}</div>
-              <TelConfig {...allProps} />
-            </SettingItem>
-          )}
           {/**引导文案 */}
           {HAS_EXPLAIN_CONTROL.includes(type) && <WidgetExplain {...allProps} />}
         </PortalWrap>

@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSetState } from 'react-use';
-import { getRequest } from 'src/util';
-import externalPortalAjax from 'src/api/externalPortal';
-import { accountResultAction } from './util';
-import { LoadDiv, Icon } from 'ming-ui';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
 import DocumentTitle from 'react-document-title';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import { getRequest } from 'src/utils/common';
+import { accountResultAction } from './util';
 
 const Wrap = styled.div`
   flex: 1;

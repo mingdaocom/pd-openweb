@@ -1,20 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
-import { Button, ScrollView, Dialog, Switch, Skeleton } from 'ming-ui';
-import * as actions from '../redux/actions';
-import { Hr, H2, Tip9e } from 'worksheet/components/Basics';
-import ShareUrl from 'worksheet/components/ShareUrl';
-import ControlList from '../components/ControlList';
-import PublicConfig from './PublicConfig';
-import { VISIBLE_TYPE } from '../enum';
-import { getDisabledControls, renderLimitInfo, isDisplayPromptText } from '../utils';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Button, Dialog, ScrollView, Skeleton, Switch } from 'ming-ui';
+import { H2, Hr, Tip9e } from 'worksheet/components/Basics';
+import ShareUrl from 'worksheet/components/ShareUrl';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import ControlList from '../components/ControlList';
+import { VISIBLE_TYPE } from '../enum';
+import * as actions from '../redux/actions';
+import { getDisabledControls, isDisplayPromptText, renderLimitInfo } from '../utils';
+import PublicConfig from './PublicConfig';
 
 const BackBtn = styled.span`
   cursor: pointer;
@@ -144,7 +144,7 @@ class ConfigPanel extends React.Component {
           <BackBtn onClick={onCloseConfig}>{_l('完成')}</BackBtn>
           <PublishUrlContainer>
             <H2 className="InlineBlock" style={{ fontSize: 16 }}>
-              {_l('公开链接')}
+              {_l('公开表单')}
             </H2>
             <Switch
               className="publishUrlSwitch"

@@ -1,4 +1,4 @@
-import { addSubPathOfRoutes } from 'src/util';
+import { addSubPathOfRoutes } from 'src/utils/common';
 
 export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes(
   {
@@ -51,6 +51,6 @@ const withoutHeaderPathList = [
   'worksheet/formSet',
   'worksheet/uploadTemplateSheet',
   'gunterExport',
-  'printForm'
+  'printForm',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;

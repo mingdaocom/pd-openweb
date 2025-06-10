@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import PropTypes from 'prop-types';
-import { getAppFeaturesPath } from 'src/util';
+import { getAppFeaturesPath } from 'src/utils/app';
 
 /**
  * 动态和回复的脚，左侧是发布时间和来源，右侧由父组件通过children传入
@@ -53,8 +53,9 @@ function PostFooter(props) {
           }}
         >
           <a
-            href={`http://ditu.amap.com/regeo?lng=${location.longitude}&lat=${location.latitude}&name=${location.name ||
-              ''}&src=uriapi`}
+            href={`http://ditu.amap.com/regeo?lng=${location.longitude}&lat=${location.latitude}&name=${
+              location.name || ''
+            }&src=uriapi`}
             className="postLocation Font12 ThemeColor3 Hand"
             rel="noopener noreferrer"
             target="_blank"

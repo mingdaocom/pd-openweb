@@ -1,9 +1,10 @@
-import React, { Fragment, useMemo, useRef, useState, useEffect, useCallback } from 'react';
-import { arrayOf, number, shape, string, bool, func } from 'prop-types';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui';
-import { browserIsMobile, formatNumberFromInput } from 'src/util';
-import _ from 'lodash';
+import { browserIsMobile } from 'src/utils/common';
+import { formatNumberFromInput } from 'src/utils/control';
 
 const isMobile = browserIsMobile();
 
@@ -274,11 +275,7 @@ export default function Slider(props) {
   );
   const [valueForInput, setValueForInput] = useState(value);
   const isMobile = browserIsMobile();
-  const inputAttribute = isMobile
-    ? window.isIphone
-      ? { type: 'text' }
-      : { inputmode: 'decimal' }
-    : {};
+  const inputAttribute = isMobile ? (window.isIphone ? { type: 'text' } : { inputmode: 'decimal' }) : {};
   const color = getColor(itemcolor, value, showAsPercent);
   const scalePoints = useMemo(
     () =>
@@ -512,11 +509,7 @@ export default function Slider(props) {
         </InputCon>
       )}
       {showNumber && (!showInput || disabled) && (
-        <NumberValue
-          style={{ ...numStyle, width: numberWidth }}
-          disabled={props.disabled}
-          isMobile={isMobile}
-        >
+        <NumberValue style={{ ...numStyle, width: numberWidth }} disabled={props.disabled} isMobile={isMobile}>
           {!_.isUndefined(value) && (
             <Fragment>
               {value}

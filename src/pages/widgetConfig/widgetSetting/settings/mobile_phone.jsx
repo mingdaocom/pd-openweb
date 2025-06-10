@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
-import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { SettingItem } from '../../styled';
+import TelConfig from '../components/WidgetHighSetting/ControlSetting/TelConfig';
 
 const DISPLAY_OPTIONS = [
   {
@@ -41,6 +42,7 @@ export default function Text(props) {
           }}
         />
       </SettingItem>
+      {type === 3 && <TelConfig {...props} />}
     </Fragment>
   );
 }

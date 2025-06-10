@@ -1,30 +1,31 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { Support, ScrollView, Dropdown, LoadDiv, Icon, SvgIcon } from 'ming-ui';
 import { Switch, Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
 import bg from 'staticfiles/images/plugin_bg.png';
+import styled from 'styled-components';
+import { Dropdown, Icon, LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { hasPermission } from 'src/components/checkPermission';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { getRequest } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import {
+  API_EXTENDS,
   enableOptionList,
-  tabList,
+  PLUGIN_TYPE,
+  pluginApiConfig,
   pluginConfigType,
   pluginConstants,
-  pluginApiConfig,
-  PLUGIN_TYPE,
-  API_EXTENDS,
+  tabList,
 } from '../config';
+import { getPluginOperateText } from '../util';
+import ImportPlugin from './ImportPlugin';
 import OperateColumn from './OperateColumn';
 import PluginConfig from './PluginConfig';
-import ImportPlugin from './ImportPlugin';
-import { getPluginOperateText } from '../util';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getFeatureStatus, getRequest } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
 
 const Wrapper = styled.div`
   background: #fff;

@@ -1,13 +1,14 @@
 // import react, react-markdown-editor-lite, and a markdown parser you like
-import React, { useState, forwardRef, useEffect } from 'react';
-import MarkdownIt from 'markdown-it';
+import React, { forwardRef, useEffect, useState } from 'react';
 import MdEditor from 'react-markdown-editor-lite';
 // import style manually
 import 'react-markdown-editor-lite/lib/index.css';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { getToken } from 'src/util';
-import RegExpValidator from 'src/util/expression';
+import MarkdownIt from 'markdown-it';
+import styled from 'styled-components';
+import { getToken } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
+
 // Register plugins if required
 // MdEditor.use(YOUR_PLUGINS_HERE);
 

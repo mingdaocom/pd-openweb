@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import './index.less';
+import variableApi from 'src/api/variable';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import GlobalVarTable from 'src/pages/Admin/app/globalVariable/components/GlobalVarTable';
 import VarAddOrEditModal from 'src/pages/Admin/app/globalVariable/components/VarAddOrEditModal';
 import { REFRESH_TYPE } from 'src/pages/Admin/app/globalVariable/constant';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import AppSettingHeader from '../AppSettingHeader';
-import variableApi from 'src/api/variable';
-import { getFeatureStatus } from 'src/util';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import './index.less';
 
 const tabInfos = [
   { label: _l('应用'), value: 'app' },

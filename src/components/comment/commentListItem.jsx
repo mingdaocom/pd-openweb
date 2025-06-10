@@ -1,25 +1,27 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { SOURCE_TYPE } from './config';
-import createLinksForMessage from 'src/util/createLinksForMessage';
-import UploadFiles from 'src/components/UploadFiles';
-import { Tooltip, UserHead, LoadDiv, UserName, PreferenceTime } from 'ming-ui';
-import confirm from 'ming-ui/components/Dialog/Confirm';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
+import { Icon } from 'ming-ui';
+import { LoadDiv, PreferenceTime, Tooltip, UserHead, UserName } from 'ming-ui';
+import confirm from 'ming-ui/components/Dialog/Confirm';
 import discussionAjax from 'src/api/discussion';
+import UploadFiles from 'src/components/UploadFiles';
+import createLinksForMessage from 'src/utils/createLinksForMessage';
+import { SOURCE_TYPE } from './config';
 
 const Menu = styled.ul`
   width: 140px;
   padding: 5px 0;
   border-radius: 3px;
   background: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   li {
     padding: 0 16px;
     height: 36px;
@@ -79,7 +81,7 @@ export default class CommentListItem extends React.Component {
       removeComment,
     } = this.props;
 
-    this.setState({ popupVisible: false })
+    this.setState({ popupVisible: false });
 
     confirm({
       title: _l('您确定要删除该讨论吗？'),
@@ -147,7 +149,10 @@ export default class CommentListItem extends React.Component {
         }}
         popup={() => (
           <Menu>
-            <li className="overflow_ellipsis Hand Red" onClick={evt => this.checkMouseDownIsLeft(evt) && this.delComment()}>
+            <li
+              className="overflow_ellipsis Hand Red"
+              onClick={evt => this.checkMouseDownIsLeft(evt) && this.delComment()}
+            >
               {_l('删除讨论')}
             </li>
           </Menu>

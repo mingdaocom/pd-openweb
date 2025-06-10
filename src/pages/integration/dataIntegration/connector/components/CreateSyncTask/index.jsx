@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Radio } from 'ming-ui';
 import _ from 'lodash';
-import { DATABASE_TYPE, SYNC_TYPE } from '../../../constant';
-import OnlySyncStep from '../OnlySyncStep';
-import { v4 as uuidv4 } from 'uuid';
-import taskFlowApi from 'src/pages/integration/api/taskFlow';
-import { navigateTo } from 'src/router/navigateTo';
 import onlySyncBg from 'staticfiles/images/onlySync.png';
 import syncWithDealBg from 'staticfiles/images/syncWithDeal.png';
-import { getFeatureStatus } from 'src/util';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { Radio } from 'ming-ui';
+import taskFlowApi from 'src/pages/integration/api/taskFlow';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/util/enum';
+import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
+import { DATABASE_TYPE, SYNC_TYPE } from '../../../constant';
+import OnlySyncStep from '../OnlySyncStep';
 
 const SyncTaskWrapper = styled.div`
   display: flex;

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Dialog, Icon } from 'ming-ui';
-import styled from 'styled-components';
-import { isLightColor } from 'src/util';
-import cx from 'classnames';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
+import { isLightColor } from 'src/utils/control';
 import { MAX_OPTIONS_COUNT } from '../../../config';
 
 const DelateDialogWrap = styled.ul`

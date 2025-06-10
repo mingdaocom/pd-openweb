@@ -3,11 +3,11 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import ChooseControlsForAggregation from './ChooseControlsForAggregation';
-import CalculationDialog from './CalculationDialog';
-import { getNodeInfo, getAggFuncTypes, getRuleAlias, updateConfig, isDelStatus, formatAggConfig } from '../util';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
+import { formatAggConfig, getAggFuncTypes, getNodeInfo, getRuleAlias, isDelStatus, updateConfig } from '../util';
 import { AGG_CONTROL_MAX } from './../config';
+import CalculationDialog from './CalculationDialog';
+import ChooseControlsForAggregation from './ChooseControlsForAggregation';
 
 export default function AddAggregation(props) {
   const { onUpdate } = props;
@@ -123,7 +123,7 @@ export default function AddAggregation(props) {
       parentFieldInfo: {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
       isNotNull: true,
       isTitle: false, //是否是标题，只有是工作表字段才有值
-      mdType: 31,
+      mdType: control.type,
       name: control.controlName,
       precision: 0,
       scale: 0,

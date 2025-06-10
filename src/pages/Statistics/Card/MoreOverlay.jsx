@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from 'react';
+import { Divider, Dropdown, Menu } from 'antd';
 import cx from 'classnames';
-import { Icon, Dialog } from 'ming-ui';
+import _ from 'lodash';
+import { Dialog, Icon } from 'ming-ui';
+import reportConfig from '../api/reportConfig';
+import favoriteApi from 'src/api/favorite';
+import sheetApi from 'src/api/worksheet';
+import reportApi from 'statistics/api/report';
+import Share from 'src/pages/worksheet/components/Share';
+import { getFilledRequestParams } from 'src/utils/common';
 import { reportTypes } from '../Charts/common';
 import { exportExcel } from '../common';
-import Share from 'src/pages/worksheet/components/Share';
 import PageMove from '../components/PageMove';
-import reportConfig from '../api/reportConfig';
-import { Dropdown, Menu, Divider } from 'antd';
-import reportApi from 'statistics/api/report';
-import sheetApi from 'src/api/worksheet';
-import favoriteApi from 'src/api/favorite';
-import { getFilledRequestParams } from 'src/pages/worksheet/util';
-import _ from 'lodash';
 
 const confirm = Dialog.confirm;
 
@@ -22,7 +22,7 @@ export default class MoreOverlay extends Component {
       shareVisible: false,
       showPageMove: false,
       favorite: props.favorite,
-      placement: 'bottomRight'
+      placement: 'bottomRight',
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -163,7 +163,7 @@ export default class MoreOverlay extends Component {
       const elementBottomToContainerTop = elementRect.bottom - containerRect.top;
       const containerVisibleHeight = container.clientHeight;
       this.setState({
-        placement: containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight'
+        placement: containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight',
       });
     }
     if (dropdownVisible) {

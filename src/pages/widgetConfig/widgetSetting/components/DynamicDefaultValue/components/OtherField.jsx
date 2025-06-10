@@ -1,26 +1,27 @@
-import React, { Component, Fragment, useState, useEffect } from 'react';
-import { Tooltip } from 'ming-ui';
+import React, { Component, Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
-import { getControlType, getControls } from '../util';
-import { OtherFieldWrap } from '../styled';
+import _ from 'lodash';
+import { Tooltip } from 'ming-ui';
+import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import {
-  SYSTEM_FIELD_TO_TEXT,
-  USER_LIST,
-  SYSTEM_LIST,
-  CURRENT_TYPES,
-  CUR_SEARCH_TYPES,
+  CUR_EMPTY_TYPES,
+  CUR_LOCATION_TYPES,
   CUR_OCR_TYPES,
   CUR_OCR_URL_TYPES,
-  WATER_MASK_TYPES,
-  DYNAMIC_FROM_MODE,
-  CUR_EMPTY_TYPES,
+  CUR_SEARCH_TYPES,
+  CURRENT_TYPES,
   CUSTOM_PHP_TYPES,
-  CUR_LOCATION_TYPES,
+  DYNAMIC_FROM_MODE,
   H5_WATER_MASK_TYPES,
+  PRINT_TEMP_TYPES,
+  SYSTEM_FIELD_TO_TEXT,
+  SYSTEM_LIST,
+  USER_LIST,
+  WATER_MASK_TYPES,
 } from '../config';
-import _ from 'lodash';
-import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
+import { OtherFieldWrap } from '../styled';
+import { getControls, getControlType } from '../util';
 
 export default function OtherField(props) {
   const {
@@ -63,6 +64,15 @@ export default function OtherField(props) {
         _.find(_.flatten(Object.values(H5_WATER_MASK_TYPES)), i => i.id === fieldId),
         'text',
       );
+    }
+    if (
+      from === DYNAMIC_FROM_MODE.PRINT_TEMP &&
+      _.includes(
+        PRINT_TEMP_TYPES.map(i => i.id),
+        fieldId,
+      )
+    ) {
+      return PRINT_TEMP_TYPES.find(i => i.id === fieldId).text;
     }
     if (
       _.includes(

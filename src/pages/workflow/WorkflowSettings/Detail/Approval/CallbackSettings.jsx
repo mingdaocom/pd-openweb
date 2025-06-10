@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Icon, Dialog } from 'ming-ui';
 import _ from 'lodash';
+import { Dialog, Dropdown, Icon } from 'ming-ui';
 
 export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
   const [callbackOptions, setCallbackOptions] = useSetState({
@@ -51,31 +51,7 @@ export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
       }}
       onCancel={onClose}
     >
-      <div className="bold">{_l('处理完成后')}</div>
-      <Dropdown
-        className="mTop10 w100"
-        border
-        menuStyle={{ width: '100%' }}
-        data={CALL_BACK}
-        value={
-          callbackOptions.callBackType === 1 && callbackOptions.callBackMultipleLevel === 1
-            ? 2
-            : callbackOptions.callBackType
-        }
-        onChange={type => {
-          setCallbackOptions({
-            callBackType: type,
-            callBackMultipleLevel: type === 2 ? 1 : -1,
-            callBackNodeIds: [],
-          });
-
-          if (data.selectNodeId) {
-            getCallBackNodeNames(data.selectNodeId, type === 2 ? 1 : type);
-          }
-        }}
-      />
-
-      <div className="bold mTop20">{_l('允许退回的节点')}</div>
+      <div className="bold">{_l('可退回到的节点')}</div>
       <Dropdown
         className="mTop10 w100"
         border
@@ -83,7 +59,7 @@ export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
         data={CALLBACK_NODE_TYPE}
         value={callbackOptions.callBackNodeType}
         onChange={type => {
-          setCallbackOptions({ callBackNodeType: type });
+          setCallbackOptions({ callBackNodeType: type, callBackType: type === 2 ? 1 : callbackOptions.callBackType });
 
           if (data.selectNodeId && type === 3 && !data.callBackNodes.length) {
             getCallBackNodeNames(data.selectNodeId, callbackOptions.callBackType);
@@ -166,6 +142,34 @@ export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
             }}
           />
         </div>
+      )}
+
+      {callbackOptions.callBackNodeType !== 2 && (
+        <Fragment>
+          <div className="bold mTop20">{_l('被退回的节点重新提交时')}</div>
+          <Dropdown
+            className="mTop10 w100"
+            border
+            menuStyle={{ width: '100%' }}
+            data={CALL_BACK}
+            value={
+              callbackOptions.callBackType === 1 && callbackOptions.callBackMultipleLevel === 1
+                ? 2
+                : callbackOptions.callBackType
+            }
+            onChange={type => {
+              setCallbackOptions({
+                callBackType: type,
+                callBackMultipleLevel: type === 2 ? 1 : -1,
+                callBackNodeIds: [],
+              });
+
+              if (data.selectNodeId) {
+                getCallBackNodeNames(data.selectNodeId, type === 2 ? 1 : type);
+              }
+            }}
+          />
+        </Fragment>
       )}
     </Dialog>
   );

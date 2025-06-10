@@ -10,7 +10,7 @@ import { Icon, MdLink, Menu, MenuItem, SvgIcon } from 'ming-ui';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo } from 'src/utils/app';
 import { compareProps, getIds } from '../../util';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
 import 'rc-trigger/assets/index.css';
@@ -75,10 +75,6 @@ export default class SortableAppItem extends Component {
     );
   }
 
-  componentWillUnmount() {
-    clearTimeout(this.clickTimer);
-  }
-
   switchVisible = (obj, cb) => {
     this.setState(obj, cb);
   };
@@ -97,13 +93,6 @@ export default class SortableAppItem extends Component {
     const isNeedSendRequest = (value !== DEFAULT_GROUP_NAME && !!value) || type === DEFAULT_CREATE;
     renameAppGroup(appSectionId, { name: value }, isNeedSendRequest);
     if (this.state.dbClickedAppGroupId) this.setState({ dbClickedAppGroupId: '' });
-  };
-
-  handleDbClick = appSectionId => {
-    const { ensurePointerVisible, permissionType } = this.props;
-    if (!canEditApp(permissionType)) return;
-    clearTimeout(this.clickTimer);
-    this.setState({ dbClickedAppGroupId: appSectionId }, ensurePointerVisible);
   };
 
   getFirstAppItemId = () => {
@@ -188,6 +177,12 @@ export default class SortableAppItem extends Component {
               onFocus={this.handleFocus}
               onBlur={e => this.handleNameBlur(value, e)}
               onKeyDown={this.handleKeyDown}
+              onClick={e => {
+                const input = this.$nameRef.current;
+                if (window.isFirefox && input) {
+                  input.setSelectionRange(input.value.length, input.value.length);
+                }
+              }}
             />
           </div>
         ) : (
@@ -215,9 +210,7 @@ export default class SortableAppItem extends Component {
                 className="mRight5"
               />
             )}
-            <span title={showName} onDoubleClick={() => this.handleDbClick(appSectionId)}>
-              {showName}
-            </span>
+            <span title={showName}>{showName}</span>
           </MdLink>
         )}
         {canEditApp(permissionType) && !isUpgrade && (

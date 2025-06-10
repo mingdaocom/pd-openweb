@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Input, Select } from 'antd';
+import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
-import cx from 'classnames';
-import { formatNumberFromInput } from 'src/util';
+import { formatNumberFromInput } from 'src/utils/control';
 
 export default class DataFilter extends Component {
   constructor(props) {
@@ -11,14 +11,14 @@ export default class DataFilter extends Component {
     const { showXAxisCount } = props;
     this.state = {
       count: showXAxisCount,
-      showXAxisType: showXAxisCount < 0 ? 0 : 1
+      showXAxisType: showXAxisCount < 0 ? 0 : 1,
     };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.showXAxisCount !== this.props.showXAxisCount) {
       this.setState({
         count: nextProps.showXAxisCount,
-        showXAxisType: nextProps.showXAxisCount < 0 ? 0 : 1
+        showXAxisType: nextProps.showXAxisCount < 0 ? 0 : 1,
       });
     }
   }
@@ -62,19 +62,26 @@ export default class DataFilter extends Component {
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
               const newCount = value ? Math.abs(count) : -Math.abs(count);
-              this.setState({
-                count: newCount,
-                showXAxisType: value
-              }, this.handleSaveCount);
+              this.setState(
+                {
+                  count: newCount,
+                  showXAxisType: value,
+                },
+                this.handleSaveCount,
+              );
             }}
           >
-            <Select.Option className="selectOptionWrapper" key={1} value={1}>{_l('前')}</Select.Option>
-            <Select.Option className="selectOptionWrapper" key={0} value={0}>{_l('后')}</Select.Option>
+            <Select.Option className="selectOptionWrapper" key={1} value={1}>
+              {_l('前')}
+            </Select.Option>
+            <Select.Option className="selectOptionWrapper" key={0} value={0}>
+              {_l('后')}
+            </Select.Option>
           </Select>
           <Input
             style={{ width: 130, paddingLeft: 70 }}
             className="chartInput"
-            value={count ? (Math.abs(count)).toString() : ''}
+            value={count ? Math.abs(count).toString() : ''}
             onBlur={this.handleSaveCount}
             onKeyDown={event => {
               event.which === 13 && this.handleSaveCount();
@@ -89,9 +96,7 @@ export default class DataFilter extends Component {
             }}
           />
         </div>
-        <span>
-          {_l('项')}
-        </span>
+        <span>{_l('项')}</span>
       </div>
     );
   }

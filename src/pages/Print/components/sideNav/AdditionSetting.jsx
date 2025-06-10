@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
-import { Icon, Dropdown, Tooltip, Checkbox } from 'ming-ui';
-import { POSITION_OPTION } from '../../config';
 import _ from 'lodash';
+import { Checkbox, Dropdown, Icon, Tooltip } from 'ming-ui';
+import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
+import { POSITION_OPTION } from '../../config';
 
 const AdditionSettingConfig = [
   {
@@ -46,6 +47,33 @@ const QrCodeOption = [
 export default function AdditionSetting(props) {
   const { hide, formNameSite, shareType, printData, handChange, changeAdvanceSettings } = props;
 
+  const [formatDialogVisible, setFormatDialogVisible] = useState(false);
+
+  const changeTimeFormat = value => {
+    changeAdvanceSettings({
+      key: 'printTime',
+      value: value,
+    });
+    setFormatDialogVisible(false);
+  };
+
+  const renderFormatDialog = () => {
+    if (!formatDialogVisible) return null;
+
+    return (
+      <ShowFormatDialog
+        showformat={
+          _.get(
+            (printData.advanceSettings || []).find(l => l.key === 'printTime'),
+            'value',
+          ) || 'YYYY-MM-DD HH:mm:ss'
+        }
+        type={16}
+        onClose={() => setFormatDialogVisible(false)}
+        onOk={changeTimeFormat}
+      />
+    );
+  };
   if (hide) return null;
 
   return (
@@ -86,34 +114,46 @@ export default function AdditionSetting(props) {
           {printData.formName}
         </textarea>
       )}
-      {AdditionSettingConfig.map(l => (
-        <React.Fragment key={`AdditionSettingConfig-${l.key}`}>
-          <Checkbox
-            checked={printData[l.key]}
-            className="mTop12"
-            onClick={() =>
-              handChange({
-                [l.key]: !printData[l.key],
-              })
-            }
-            text={l.text}
-          />
-          {l.key === 'qrCode' && printData.qrCode && (
-            <Dropdown
-              className="forSizeText forQrCode"
-              value={shareType}
-              onChange={value =>
+      {AdditionSettingConfig.map(l => {
+        const isSysTime = _.endsWith(l.key, 'Time');
+
+        return (
+          <div className={cx('mTop12', { valignWrapper: isSysTime })} key={`AdditionSettingConfig-${l.key}`}>
+            <Checkbox
+              checked={printData[l.key]}
+              className={cx({ flex: isSysTime })}
+              onClick={() =>
                 handChange({
-                  shareType: value,
+                  [l.key]: !printData[l.key],
                 })
               }
-              data={QrCodeOption.filter(
-                o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 1),
-              )} //外部门户没有内部成员访问链接
+              text={l.text}
             />
-          )}
-        </React.Fragment>
-      ))}
+            {l.key === 'qrCode' && printData.qrCode && (
+              <Dropdown
+                className="forSizeText forQrCode"
+                value={shareType}
+                onChange={value =>
+                  handChange({
+                    shareType: value,
+                  })
+                }
+                data={QrCodeOption.filter(
+                  o => !md.global.Account.isPortal || (md.global.Account.isPortal && o.value !== 1),
+                )} //外部门户没有内部成员访问链接
+              />
+            )}
+            {isSysTime && (
+              <Icon
+                icon="settings"
+                className="Font18 Gray_9d Hand TxtCenter TxtBottom"
+                onClick={() => setFormatDialogVisible(true)}
+              />
+            )}
+          </div>
+        );
+      })}
+      {renderFormatDialog(printData.advanceSettings)}
     </React.Fragment>
   );
 }

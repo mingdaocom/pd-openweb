@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
-import cx from 'classnames';
 import { Skeleton } from 'antd';
-import { Checkbox, ScrollView, LoadDiv } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Checkbox, LoadDiv, ScrollView } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import smartSearchCtrl from 'src/api/smartSearch';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import CommonAjax from 'src/api/addressBook';
 import homeAppAjax from 'src/api/homeApp';
-import { getFeatureStatus, getCurrentProject } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
-import UserList from '../components/UserList';
-import GlobalSearchEmpty from '../components/GlobalSearchEmpty';
-import FilterPosition from '../components/FilterPosition';
-import List from '../components/List';
+import smartSearchCtrl from 'src/api/smartSearch';
+import { VersionProductType } from 'src/utils/enum';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import AppList from '../components/AppList';
+import FilterPosition from '../components/FilterPosition';
+import GlobalSearchEmpty from '../components/GlobalSearchEmpty';
+import List from '../components/List';
 import OrgSelect from '../components/OrgSelect';
+import UserList from '../components/UserList';
 import { getCurrentProjectId } from '../utils';
 import './GlobalSearchAllContent.less';
 
@@ -92,10 +92,10 @@ export default class GlobalSearchAllContent extends Component {
       return appData.total !== 0
         ? 'appData'
         : recordData.total !== 0
-        ? 'recordData'
-        : result.length !== 0
-        ? 'result'
-        : null;
+          ? 'recordData'
+          : result.length !== 0
+            ? 'result'
+            : null;
     } else if (section === 'appData') {
       return recordData.total !== 0 ? 'recordData' : result.length !== 0 ? 'result' : null;
     } else if (section === 'recordData') {

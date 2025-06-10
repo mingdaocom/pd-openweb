@@ -1,7 +1,7 @@
 ﻿import React, { Fragment } from 'react';
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
-import { generateRandomPassword } from 'src/util';
+import { generateRandomPassword } from 'src/utils/common';
 import './index.less';
 
 export default (callback = () => {}, onCancel = () => {}) => {
