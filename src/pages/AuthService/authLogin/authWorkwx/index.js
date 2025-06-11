@@ -64,7 +64,7 @@ if (code) {
       },
       async: true,
       success: result => {
-        const { corpId, state } = result.data;
+        const { corpId, agentId, state } = result.data;
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/workwx?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );

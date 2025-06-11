@@ -6,8 +6,8 @@ export const TAB_LIST = [
 
 export const CALENDAR_BUTTON_TEXT = {
   today: _l('今天'),
-  month: _l('月'),
-  week: _l('周'),
+  month: _l('月%06010'),
+  week: _l('周%05034'),
   day: _l('天'),
 };
 

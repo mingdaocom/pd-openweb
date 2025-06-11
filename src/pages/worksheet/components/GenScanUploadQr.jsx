@@ -162,9 +162,7 @@ function QrPopup({
   const [appendedAttachmentIds, setAppendedAttachmentIds] = useState([]);
   const [error, setError] = useState('');
   const [expired, setExpired] = useState(false);
-  const {
-    recordBaseInfo: { fromIsDraft, fromIsWorkflow },
-  } = useContext(RecordInfoContext);
+  const { recordBaseInfo: { fromIsDraft, fromIsWorkflow } = {} } = useContext(RecordInfoContext) || {};
   const listenScan = useCallback(
     newScanId => {
       if (cache.current.timer) {

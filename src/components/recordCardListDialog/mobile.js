@@ -72,6 +72,7 @@ export default class RecordCardListDialog extends Component {
     };
     this.clickSearch = clickSearch;
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
+    this.isOnComposition = false;
   }
   componentDidMount() {
     const {
@@ -559,8 +560,8 @@ export default class RecordCardListDialog extends Component {
             <input
               className="w100"
               type="search"
+              ref={node => (this.inputRef = node)}
               placeholder={_l('搜索%0', this.title)}
-              value={keyWords}
               onChange={e => {
                 if (this.isOnComposition) return;
                 this.handleSearch(e.target.value);
@@ -579,6 +580,9 @@ export default class RecordCardListDialog extends Component {
               className="Gray_9e"
               icon="workflow_cancel"
               onClick={() => {
+                if (this.inputRef) {
+                  this.inputRef.value = '';
+                }
                 this.handleSearch('');
               }}
             />

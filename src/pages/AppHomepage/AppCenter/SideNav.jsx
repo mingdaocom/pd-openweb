@@ -425,20 +425,29 @@ export default function SideNav(props) {
           <Spacer />
           <ResourceEntries>
             {sourcesList.map((entry, index) => renderResourceItem(entry, index))}
-            <Tooltip popupPlacement="right" text={isExpanded ? _l('收起导航') : _l('展开导航')}>
-              <ResourceEntry
-                className="resourceEntry expandBtn"
-                onClick={() => {
-                  setIsExpanded(!isExpanded);
-                  safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
-                }}
-              >
+
+            <div className="flexRow alignItemsCenter">
+              {md.global.Config.IsLocal && isExpanded && (
+                <div className="flex mTop6 Font12 Gray_9e" style={{ marginLeft: 44 }}>
+                  {'v' + md.global.Config.Version}
+                </div>
+              )}
+
+              <Tooltip popupPlacement="right" text={isExpanded ? _l('收起导航') : _l('展开导航')}>
+                <ResourceEntry
+                  className="resourceEntry expandBtn"
+                  onClick={() => {
+                    setIsExpanded(!isExpanded);
+                    safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
+                  }}
+                >
               <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>                
                 {'v' + md.global.Config.Version}
               </span>
               <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
-              </ResourceEntry>
-            </Tooltip>
+                </ResourceEntry>
+              </Tooltip>
+            </div>
           </ResourceEntries>
         </Content>
       </ScrollView>
