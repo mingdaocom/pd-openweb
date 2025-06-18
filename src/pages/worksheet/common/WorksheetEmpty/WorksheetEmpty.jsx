@@ -72,7 +72,7 @@ class WorksheetEmpty extends Component {
                 this.setState({ createType: 'worksheet' });
               }}
             >
-              {_l('从空白创建')}
+              {_l('從空白Sheet建立')}
             </Button>
             <Button
               className="excelCreateBtn bold"
