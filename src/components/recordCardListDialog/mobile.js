@@ -195,7 +195,8 @@ export default class RecordCardListDialog extends Component {
       return;
     }
 
-    const scanControl = _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid);
+    const scanControl =
+      _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid) || {};
     const quickFilters = this.state.quickFilters.map(f =>
       _.pick(f, [
         'controlId',

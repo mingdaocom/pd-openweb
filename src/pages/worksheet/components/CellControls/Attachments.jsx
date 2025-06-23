@@ -90,11 +90,13 @@ const AttachmentDoc = styled.span`
 
 const AttachmentDocFileName = styled.span`
   padding: 0 6px;
+  &:not(.isSingleFile) {
+    .name {
+      max-width: 200px;
+    }
+  }
   .ellipsis {
     display: inline-block;
-  }
-  .name {
-    max-width: 200px;
   }
   .ext {
     max-width: 100px;
@@ -512,6 +514,8 @@ function Attachment(props) {
     'imageView2/2/h/' + fileHeight,
   );
 
+  const isSingleFile = attachments.length === 1;
+
   useEffect(() => {
     setIsPicture(RegExpValidator.fileIsPicture(attachment.ext));
   }, [attachment.ext]);
@@ -522,7 +526,7 @@ function Attachment(props) {
         <HoverPreviewPanel
           isPicture={isPicture}
           isSubList={isSubList}
-          editable={editable && !(cell.required && attachments.length === 1 && !isSubList)}
+          editable={editable && !(cell.required && isSingleFile && !isSubList)}
           sheetSwitchPermit={sheetSwitchPermit}
           attachment={attachment}
           smallThumbnailUrl={smallThumbnailUrl}
@@ -609,7 +613,10 @@ function Attachment(props) {
           />
         )}
         {showFileName && (
-          <AttachmentDocFileName className="ellipsis" title={attachment.originalFilename + (attachment.ext || '')}>
+          <AttachmentDocFileName
+            className={cx('ellipsis', { isSingleFile })}
+            title={attachment.originalFilename + (attachment.ext || '')}
+          >
             <span className="name ellipsis">{attachment.originalFilename}</span>
             <span className="ext ellipsis">{attachment.ext || ''}</span>
           </AttachmentDocFileName>

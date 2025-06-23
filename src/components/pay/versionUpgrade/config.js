@@ -108,7 +108,7 @@ const featureData = [
   {
     className: 'recycle',
     name: _l('回收站'),
-    dataTip: _l('应用、应用项、字段、工作流、自定义动作回收站，支持一键恢复/彻底删除回收站内数据'),
+    dataTip: _l('应用项、字段、工作流、自定义动作回收站，支持一键恢复/彻底删除回收站内数据'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',

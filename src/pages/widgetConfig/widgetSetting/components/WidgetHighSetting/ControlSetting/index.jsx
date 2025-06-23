@@ -1,20 +1,20 @@
 import React, { Fragment } from 'react';
-import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
-import TelConfig from './TelConfig';
-import DateConfig, { ShowFormat } from './DateConfig';
-import TimeConfig from './TimeConfig';
-import ScoreConfig from './ScoreConfig';
-import DropConfig from './DropConfig';
-import NumberConfig from './NumberConfig';
-import AttachmentConfig from './AttachmentConfig';
-import FormulaDateConfig from './FormulaDateConfig';
-import RelateConfig from './RelateConfig';
-import CascaderConfig from './CascaderConfig';
-import RoleConfig from './RoleConfig';
-import SubListConfig from './SubListConfig';
 import _ from 'lodash';
+import { Checkbox } from 'ming-ui';
+import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
+import AttachmentConfig from './AttachmentConfig';
+import CascaderConfig from './CascaderConfig';
+import DateConfig, { ShowFormat } from './DateConfig';
+import DropConfig from './DropConfig';
+import FormulaDateConfig from './FormulaDateConfig';
+import NumberConfig from './NumberConfig';
+import RelateConfig from './RelateConfig';
+import RoleConfig from './RoleConfig';
+import ScoreConfig from './ScoreConfig';
+import SubListConfig from './SubListConfig';
+import TelConfig from './TelConfig';
+import TimeConfig from './TimeConfig';
 
 const TYPE_TO_COMP = {
   3: TelConfig,
@@ -34,7 +34,7 @@ const TYPE_TO_COMP = {
 };
 
 export default function WidgetConfig(props) {
-  const { data, onChange } = props;
+  const { data, onChange, from } = props;
   const { type, enumDefault, enumDefault2, strDefault, noticeItem } = data;
   const {
     showxy,
@@ -217,17 +217,19 @@ export default function WidgetConfig(props) {
   if (type === 26) {
     return (
       <Fragment>
-        <div className="labelWrap">
-          <Checkbox
-            className="checkboxWrap"
-            onClick={checked => {
-              onChange({ noticeItem: Number(!checked) });
-            }}
-            checked={noticeItem === 1}
-            text={_l('加入时收到通知')}
-            size="small"
-          />
-        </div>
+        {from !== 'subList' && (
+          <div className="labelWrap">
+            <Checkbox
+              className="checkboxWrap"
+              onClick={checked => {
+                onChange({ noticeItem: Number(!checked) });
+              }}
+              checked={noticeItem === 1}
+              text={_l('加入时收到通知')}
+              size="small"
+            />
+          </div>
+        )}
         {checkusertype !== '1' && (
           <div className="labelWrap">
             <Checkbox

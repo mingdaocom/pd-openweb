@@ -58,6 +58,11 @@ const RecordText = styled.div`
     max-width: 202px;
     ${({ inlineStyle }) => inlineStyle}
   }
+  &.isSingle {
+    .text {
+      max-width: 100%;
+    }
+  }
 `;
 
 const Splitter = styled.span`
@@ -305,7 +310,7 @@ function Texts(props) {
             inlineStyle={valueStyle.valueStyle}
             style={style}
             key={i}
-            className={cx({ 'ThemeColor3 Hand': allowOpenRecord })}
+            className={cx({ 'ThemeColor3 Hand': allowOpenRecord, isSingle: records.length === 1 })}
             onClick={() => {
               if (!allowOpenRecord) {
                 return;

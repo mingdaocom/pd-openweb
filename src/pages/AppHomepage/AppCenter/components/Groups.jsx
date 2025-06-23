@@ -4,11 +4,10 @@ import _ from 'lodash';
 import { arrayOf, bool, shape, string } from 'prop-types';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
-import { Dialog, ScrollView, SortableList, UpgradeIcon } from 'ming-ui';
+import { Dialog, ScrollView, SortableList } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { hasPermission } from 'src/components/checkPermission';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import { VersionProductType } from 'src/utils/enum';
@@ -130,19 +129,8 @@ export default function Groups(props) {
     {
       key: 'recycle',
       fontIcon: 'knowledge-recycle',
-      name: (
-        <span>
-          {_l('回收站')}
-          {isFree && <UpgradeIcon />}
-        </span>
-      ),
-      onClick: () => {
-        if (featureType === '2') {
-          buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
-        } else {
-          setTrashVisible(true);
-        }
-      },
+      name: _l('回收站'),
+      onClick: () => setTrashVisible(true),
     },
   ];
 

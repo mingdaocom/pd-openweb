@@ -102,9 +102,10 @@ export default function SubListStyle(props) {
             border
             className={cx({ error: isUnSupport })}
             cancelAble
-            placeholder={isDelete ? <span className="Red">{_l('已删除')}</span> : _l('选择子表中的关联本表字段')}
-            value={isDelete ? undefined : layercontrolid || undefined}
+            placeholder={_l('选择子表中的关联本表字段')}
+            value={layercontrolid || undefined}
             renderTitle={() => {
+              if (isDelete) return <span className="Red">{_l('已删除')}</span>;
               return _.get(
                 _.find(tableControls, t => t.controlId === layercontrolid),
                 'controlName',

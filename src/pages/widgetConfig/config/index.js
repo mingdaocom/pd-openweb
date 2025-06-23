@@ -146,7 +146,7 @@ export const HAVE_OPTION_WIDGET = [14, 29, 34];
 export const HAVE_TABLE_STYLE_WIDGET = [34];
 
 // 有高级设置的控件
-export const HAVE_HIGH_SETTING_WIDGET = [2, 6, 10, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46];
+export const HAVE_HIGH_SETTING_WIDGET = [2, 6, 10, 14, 15, 16, 23, 24, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46];
 
 // 有移动端设置的控件
 export const HAVE_MOBILE_WIDGET = [2, 29, 34, 43];

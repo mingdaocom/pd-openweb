@@ -174,7 +174,7 @@ export default class Widgets extends Component {
       },
       () => {
         if (isWx) {
-          handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin(), errType => {
+          handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin(projectId), errType => {
             if (errType) {
               import('html5-qrcode').then(data => {
                 this.qrCodeComponent = data;

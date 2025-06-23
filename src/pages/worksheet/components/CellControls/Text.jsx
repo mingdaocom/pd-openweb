@@ -209,7 +209,7 @@ export default class Text extends React.Component {
     if (
       !isSubList &&
       ([6, 8].includes(cell.type)
-        ? Number(oldValue === '' ? undefined : oldValue) === Number(value === '' ? undefined : value)
+        ? _.isEqual(Number(oldValue === '' ? undefined : oldValue), Number(value === '' ? undefined : value))
         : oldValue === value)
     ) {
       if (this.isNumberPercent && value) {

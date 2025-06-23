@@ -257,7 +257,7 @@ export default class extends Component {
       <div className={cx('flexRow valignWrapper item', isDark ? 'White' : 'Gray_9e')}>
         <div className="index alignItemsCenter justifyContentCenter flexRow">{_l('排行')}</div>
         <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}>{xaxes.rename || xaxes.controlName}</div>
-        {valueProgressVisible && <div className="valueProgressWrap" />}
+        {valueProgressVisible && <div className="valueProgressWrap Visibility" />}
         <div className="flexRow valignWrapper flex">
           {yaxisList.map(item => (
             <div key={item.controlId} className="value ellipsis" style={{ width: `${100 / yaxisList.length}%` }}>

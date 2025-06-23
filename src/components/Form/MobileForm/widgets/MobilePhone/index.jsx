@@ -85,11 +85,6 @@ const MobilePhone = props => {
     return _.uniq(allCountries);
   };
 
-  const getSearchResult = (commcountries = '[]') => {
-    const countries = safeParse(commcountries, 'array');
-    return _.isEmpty(countries);
-  };
-
   const getItiInputValue = value => {
     if (value && value.indexOf('+') > -1) {
       // 非编辑态iti被隐藏，本身的iti取不到区号
@@ -134,7 +129,7 @@ const MobilePhone = props => {
     setHideCountry(!_.keys(countryData).length);
     setItiWidth($(inputRef.current).css('padding-left'));
     props.value !== currentValue && props.onChange(currentValue);
-  }, 300)
+  }, 300);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -145,7 +140,7 @@ const MobilePhone = props => {
           onlyCountries: getCountries(advancedSetting.allowcountries, initialCountry()),
           separateDialCode: true,
           showSelectedDialCode: true,
-          countrySearch: getSearchResult(advancedSetting.commcountries),
+          countrySearch: true,
         });
       }
 

@@ -836,6 +836,9 @@ export default class ProcessMatters extends Component {
               previewRecord: {},
             });
           }}
+          onSave={() => {
+            alert(_l('操作成功'));
+          }}
         />
         {(approveType || encryptType) && this.renderSignatureDialog()}
         {rejectVisible && this.renderRejectDialog()}

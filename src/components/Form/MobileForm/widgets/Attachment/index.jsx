@@ -306,12 +306,8 @@ export default class Widgets extends Component {
 
   handleMobileChangeFiles = () => {
     const { mobileFiles, mobileCameraFiles, mobileCamcorderFiles } = this.state;
-    const value = JSON.parse(this.state.value || '[]');
-    const isArray = _.isArray(value);
-    const attachments = isArray ? [] : value.attachments;
-    const files = [...mobileFiles, ...mobileCameraFiles, ...mobileCamcorderFiles, ...attachments];
-    if (!files.length) return;
-    this.filesChanged(_.uniqBy(files, 'fileID'), 'attachments');
+    const files = [...mobileFiles, ...mobileCameraFiles, ...mobileCamcorderFiles];
+    this.filesChanged(files, 'attachments');
   };
 
   handleCheckMobileFiles = deletedFile => {
@@ -397,7 +393,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileFiles: _.uniqBy(
-                    [...this.state.mobileFiles, ...files].filter(n => !('progress' in n)),
+                    this.state.mobileFiles.filter(n => !('progress' in n)).concat(files),
                     'fileName',
                   ),
                 },
@@ -410,7 +406,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCameraFiles: _.uniqBy(
-                    [...this.state.mobileCameraFiles, ...files].filter(n => !('progress' in n)),
+                    this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files),
                     'fileName',
                   ),
                 },
@@ -423,7 +419,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCamcorderFiles: _.uniqBy(
-                    [...this.state.mobileCamcorderFiles, ...files].filter(n => !('progress' in n)),
+                    this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files),
                     'fileName',
                   ),
                 },

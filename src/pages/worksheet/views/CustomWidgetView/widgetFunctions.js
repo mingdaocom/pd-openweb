@@ -18,6 +18,7 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
+import { selectRecords } from 'src/components/SelectRecords';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
 import { emitter } from 'src/utils/common';

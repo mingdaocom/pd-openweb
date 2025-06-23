@@ -74,7 +74,7 @@ export default class Widgets extends Component {
         onlyCountries: this.getCountries(advancedSetting.allowcountries, this.initialCountry()),
         separateDialCode: true,
         showSelectedDialCode: true,
-        countrySearch: this.getSearchResult(advancedSetting.commcountries),
+        countrySearch: true,
       });
     }
 
@@ -136,11 +136,6 @@ export default class Widgets extends Component {
       ? []
       : [...JSON.parse(countries).map(o => o.iso2), defaultCountry].filter(_.identity);
     return _.uniq(allCountries);
-  }
-
-  getSearchResult(commcountries = '[]') {
-    const countries = safeParse(commcountries, 'array');
-    return _.isEmpty(countries);
   }
 
   setValue(value) {

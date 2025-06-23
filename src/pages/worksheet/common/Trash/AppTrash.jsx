@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { bool, func, string } from 'prop-types';
+import systemIcon from 'staticfiles/svg/system.svg';
 import styled from 'styled-components';
 import { SvgIcon, UserHead, VerifyPasswordConfirm } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
@@ -103,19 +104,24 @@ export default function AppTrash(props) {
             </span>,
           ],
           app.wsCount,
-          [
-            <UserHead
-              projectId={projectId}
-              className="cellUserHead"
-              user={{
-                userHead: app.deletePerson.avatar,
-                accountId: app.deletePerson.accountId,
-              }}
-              appId={app.appId}
-              size={24}
-            />,
-            <span className="mLeft8 ellipsis">{app.deletePerson.fullname || app.deletePerson.fullName}</span>,
-          ],
+          app.deletePerson
+            ? [
+                <UserHead
+                  projectId={projectId}
+                  className="cellUserHead"
+                  user={{
+                    userHead: app.deletePerson.avatar,
+                    accountId: app.deletePerson.accountId,
+                  }}
+                  appId={app.appId}
+                  size={24}
+                />,
+                <span className="mLeft8 ellipsis">{app.deletePerson.fullname || app.deletePerson.fullName}</span>,
+              ]
+            : [
+                <img src={systemIcon} style={{ width: 24, height: 24 }} alt={_l('系统')} />,
+                <span className="mLeft8 LineHeight24">{_l('系统')}</span>,
+              ],
           <span className="Gray_9e">{moment(app.deleteTime).format('YYYY-MM-DD HH:mm:ss')}</span>,
         ])}
         onScrollEnd={() => {

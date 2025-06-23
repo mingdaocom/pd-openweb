@@ -36,6 +36,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
   const isEnLang = md.global.Account.lang === 'en';
   const isLocal = md.global.Config.IsLocal;
   const isCloseProject = !_.find(md.global.Account.projects, l => l.projectId === projectId);
+  const analysisPermission = authority.includes(PERMISSION_ENUM.USER_ANALYTICS);
 
   useEffect(() => {
     document.title = _l('组织管理 - 首页 - %0', companyName);
@@ -695,10 +696,12 @@ export default function HomePage({ match, location: routerLocation, authority, .
       {renderBasicInfo()}
       <TitleWrap>
         <span className="flex overflow_ellipsis">{_l('组织额度')}</span>
-        <span className="titleBtn" onClick={() => linkHref('analytics')}>
-          <Icon icon="stats_line_chart" className="ThemeColor Font16 mRight3" />
-          {_l('使用分析')}
-        </span>
+        {analysisPermission && (
+          <span className="titleBtn" onClick={() => linkHref('analytics')}>
+            <Icon icon="stats_line_chart" className="ThemeColor Font16 mRight3" />
+            {_l('使用分析')}
+          </span>
+        )}
       </TitleWrap>
       {renderLimit()}
       <div className="quickEntry">

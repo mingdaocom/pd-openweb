@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
-import hapAI from './images/hapAI.png';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import HapAiDialog from './HapAiDialog';
+import hapAI from './images/hapAI.png';
 
 const collections = () => {
   const lang = window.getCurrentLang();
@@ -37,9 +37,7 @@ const collections = () => {
           id: 'api',
           text: _l('API文档'),
           icon: 'worksheet_API',
-          href: `${md.global.Config.WebUrl}apidoc/${
-            lang === 'zh-Hans' ? 'zh-Hans/' : 'en/'
-          }`,
+          href: `${md.global.Config.WebUrl}apidoc/${lang === 'zh-Hans' ? 'zh-Hans/' : 'en/'}`,
         },
       ],
     },

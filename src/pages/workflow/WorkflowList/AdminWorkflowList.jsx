@@ -555,7 +555,7 @@ export default class AdminWorkflowList extends Component {
               <div className="flex" />
               <Search
                 placeholder={_l('流程名称')}
-                handleChange={_.debounce(keyword => this.updateState(keyword.trim()), 500)}
+                handleChange={_.debounce(keyword => this.updateState({ keyWords: keyword.trim() }), 500)}
               />
             </div>
             <div className="flexRow manageList manageListHeader bold mTop16">

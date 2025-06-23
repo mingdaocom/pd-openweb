@@ -71,7 +71,7 @@ export default class Widgets extends Component {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
-        handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin());
+        handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin(projectId));
       }
       return;
     }

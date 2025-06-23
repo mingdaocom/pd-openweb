@@ -127,7 +127,7 @@ export default class ProcessRecordInfo extends Component {
   };
   render() {
     const { RecordInfo } = this.state;
-    const { workId, instanceId, onClose } = this.props;
+    const { workId, instanceId, onClose, onSave } = this.props;
     const { loading, workItem, instance, error, errorMsg, appInfo } = this.state;
 
     if (loading || !RecordInfo) {
@@ -179,6 +179,7 @@ export default class ProcessRecordInfo extends Component {
             workItem={workItem}
             instance={instance}
             onClose={onClose}
+            onSave={onSave}
           />
         }
         workflow={this.renderWorkflow}

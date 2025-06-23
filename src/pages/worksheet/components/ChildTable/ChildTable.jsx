@@ -970,7 +970,6 @@ class ChildTable extends React.Component {
       recordVisible: true,
       isEditCurrentRow: true,
     });
-    isMobile && rows[index] && updateRow({ rowid: rowid, value: rows[index] || {} });
   };
 
   handleClearCellError = key => {

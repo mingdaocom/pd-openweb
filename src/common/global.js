@@ -172,11 +172,31 @@ window._l = function (key, ...args) {
         : currentLang.path.replace('/staticfiles/lang', 'https://alifile.mingdaocloud.com/lang/HAP')) +
       `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
 
+    // 超时标志位
+    let timedOut = false;
+
+    // 设置3秒超时定时器
+    const timeoutId = setTimeout(() => {
+      timedOut = true;
+      xhrObj.abort();
+      console.warn(_l('多语言资源加载超时'));
+    }, 3000);
+
     xhrObj.open('GET', path, false);
+    xhrObj.onreadystatechange = () => {
+      if (xhrObj.readyState === 4) {
+        clearTimeout(timeoutId);
+
+        // 如果未超时且响应成功
+        if (!timedOut && xhrObj.status === 200) {
+          script.type = 'text/javascript';
+          script.text = xhrObj.responseText;
+          document.head.appendChild(script);
+        }
+      }
+    };
+
     xhrObj.send('');
-    script.type = 'text/javascript';
-    script.text = xhrObj.responseText;
-    document.head.appendChild(script);
   }
 })();
 
@@ -622,7 +642,7 @@ const insertLocalData = ({ key, moduleType, sourceId, version, data }) => {
 window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, clearSpecificKey }) => {
   const key = `${controllerName}_${actionName}`;
   const CACHE_PARAMS = generateLocalizationParams({
-    ...requestData,
+    ..._.pick(requestData, ['appId', 'projectId', 'correlationIds']),
     appLangId: requestData.langId || requestData.targetLangId,
     type: 20,
     worksheetId: requestData.worksheetId || requestData.workSheetId || requestData.sourceId,

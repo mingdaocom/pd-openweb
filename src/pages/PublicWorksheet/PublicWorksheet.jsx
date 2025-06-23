@@ -89,7 +89,11 @@ export default class PublicWorksheet extends React.Component {
 
           if (window.isWeiXin && window.wx) {
             const shareConfig = safeParse(_.get(info, 'publicWorksheetInfo.extendDatas.shareConfig'));
-            this.setWxShareConfig(shareConfig, _.get(info, 'publicWorksheetInfo.name'));
+            this.setWxShareConfig(
+              shareConfig,
+              _.get(info, 'publicWorksheetInfo.name'),
+              _.get(info, 'publicWorksheetInfo.projectId'),
+            );
           }
         },
       );
@@ -106,9 +110,9 @@ export default class PublicWorksheet extends React.Component {
     }
   };
 
-  setWxShareConfig(shareConfig, formName) {
+  setWxShareConfig(shareConfig, formName, projectId) {
     const entryUrl = sessionStorage.getItem('entryUrl');
-    weixinApi.getWeiXinConfig({ url: encodeURI(entryUrl || location.href) }).then(({ data, code }) => {
+    weixinApi.getWeiXinConfig({ url: encodeURI(entryUrl || location.href), projectId }).then(({ data, code }) => {
       if (code === 1) {
         window.wx.config({
           debug: false,

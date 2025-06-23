@@ -4,7 +4,7 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import img from 'staticfiles/images/billinfo_system.png';
+import systemIcon from 'staticfiles/svg/system.svg';
 import { Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import applicationAjax from 'src/api/application';
 import orderAjax from 'src/api/order';
@@ -149,7 +149,7 @@ export default function BillInfo({ match }) {
       </Fragment>
     ) : (
       <Fragment>
-        <img src={img} alt={_l('系统')} />
+        <img src={systemIcon} alt={_l('系统')} />
         <span>{_l('系统')}</span>
       </Fragment>
     );
@@ -200,7 +200,7 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       ) : (
                         <Fragment>
-                          <img src={img} alt={_l('系统')} />
+                          <img src={systemIcon} alt={_l('系统')} />
                           <span>{_l('系统')}</span>
                         </Fragment>
                       )}
@@ -228,7 +228,7 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       ) : (
                         <Fragment>
-                          <img src={img} alt={_l('系统')} />
+                          <img src={systemIcon} alt={_l('系统')} />
                           <span>{_l('系统')}</span>
                         </Fragment>
                       )}

@@ -313,7 +313,7 @@ class CommentItem extends React.Component {
           <a
             className="mLeft15"
             onClick={() => {
-              this.setState({ showCommenter: !showCommenter });
+              this.setState({ showCommenter: true });
             }}
           >
             {_l('回复')}
@@ -504,7 +504,6 @@ export default class CommentArea extends React.Component {
   }
 
   render() {
-    const { showComments } = this.state;
     return (
       <div className="Font12">
         <div>
@@ -512,7 +511,7 @@ export default class CommentArea extends React.Component {
             <a
               href="javascript:void 0;"
               onClick={() => {
-                this.setState({ showComments: !showComments, commenterIsFocus: true });
+                this.setState({ showComments: true, commenterIsFocus: true });
               }}
             >
               {_l('回复')}

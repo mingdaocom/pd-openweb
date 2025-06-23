@@ -59,6 +59,8 @@ export function loadRecord({
         worksheetAjax.getControlRules({
           worksheetId,
           type: 1, // 1字段显隐
+          instanceId,
+          workId,
         }),
       ]);
     }

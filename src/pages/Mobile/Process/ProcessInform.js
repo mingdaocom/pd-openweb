@@ -280,6 +280,9 @@ export default class ProcessInform extends Component {
                 previewRecord: {},
               });
             }}
+            onSave={() => {
+              alert(_l('操作成功'));
+            }}
           />
         </div>
       </div>

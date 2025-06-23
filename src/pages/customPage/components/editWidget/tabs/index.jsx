@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { updatePageInfo, updateComponents } from 'src/pages/customPage/redux/action';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import GridLayout from 'react-grid-layout';
-import { LayoutContent, LAYOUT_CONFIG } from '../../WidgetContent';
-import WidgetTools from '../../WidgetContent/WidgetTools';
-import { getEnumType, getLayout } from 'src/pages/customPage/util';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
+import { updateComponents, updatePageInfo } from 'src/pages/customPage/redux/action';
+import { getEnumType, getLayout } from 'src/pages/customPage/util';
+import { LAYOUT_CONFIG, LayoutContent } from '../../WidgetContent';
+import WidgetTools from '../../WidgetContent/WidgetTools';
 
 const ContentWrap = styled.div`
   &.cardStyleWrap {
@@ -18,6 +18,8 @@ const ContentWrap = styled.div`
     .tabsHeader {
       position: relative;
       top: -1px;
+      overflow-x: auto;
+      overflow-y: hidden;
       &::after {
         content: '';
         position: absolute;
@@ -29,7 +31,8 @@ const ContentWrap = styled.div`
       }
     }
   }
-  &.lucencyStyleWrap {}
+  &.lucencyStyleWrap {
+  }
   &.editableWrap {
     border-radius: 6px;
     border: 1px dashed var(--border-color);
@@ -57,7 +60,9 @@ const ContentWrap = styled.div`
       color: var(--widget-title-color);
       padding: 12px 10px 6px;
       margin-right: 10px;
-      &.active, &:hover {
+      white-space: pre;
+      &.active,
+      &:hover {
         position: relative;
         margin-bottom: 3px;
         &::after {
@@ -108,7 +113,7 @@ const ContentWrap = styled.div`
     }
   }
   .widgetContent {
-    &.richText>.flex{
+    &.richText > .flex {
       height: 100%;
     }
     &.solidBorder {
@@ -131,7 +136,9 @@ export const Tabs = props => {
   const titleStyles = customPageConfig.titleStyles || defaultTitleStyles;
   const isTabs = type === 9 || type === 'tabs';
   const isMobileLayout = isMobile || layoutType === 'mobile';
-  const tabComponents = components.filter(c => c.sectionId === objectId && (isTabs ? c.tabId === currentTab : true)).filter(c => isMobileLayout ? _.get(c, 'mobile.visible') : true);
+  const tabComponents = components
+    .filter(c => c.sectionId === objectId && (isTabs ? c.tabId === currentTab : true))
+    .filter(c => (isMobileLayout ? _.get(c, 'mobile.visible') : true));
   const displayRefs = [];
   const elementRef = useRef(null);
   const [width, setWidth] = useState(0);
@@ -162,7 +169,7 @@ export const Tabs = props => {
         props.updateLoadFilterComponentCount(filterComponents.length);
       } else {
         props.updatePageInfo({
-          loadFilterComponentCount: filterComponents.length
+          loadFilterComponentCount: filterComponents.length,
         });
       }
     }
@@ -173,7 +180,7 @@ export const Tabs = props => {
       if (elementRef.current) {
         setWidth(elementRef.current.offsetWidth);
       }
-    }
+    };
     const resizeObserver = new ResizeObserver(handleResize);
     if (elementRef.current) {
       resizeObserver.observe(elementRef.current);
@@ -182,7 +189,7 @@ export const Tabs = props => {
       if (elementRef.current) {
         resizeObserver.unobserve(elementRef.current);
       }
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -191,7 +198,9 @@ export const Tabs = props => {
 
   const getLayoutConfig = () => {
     const config = LAYOUT_CONFIG[layoutType];
-    const wrap = isTabs ? document.querySelector(`.tabs-${objectId} .tabsBody`) : document.querySelector(`.card-${objectId} .tabsBody`);
+    const wrap = isTabs
+      ? document.querySelector(`.tabs-${objectId} .tabsBody`)
+      : document.querySelector(`.card-${objectId} .tabsBody`);
     return {
       ...config,
       width: width || (wrap ? wrap.clientWidth : undefined),
@@ -205,9 +214,9 @@ export const Tabs = props => {
         ...c,
         [layoutType]: {
           ...c[layoutType],
-          layout: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH'])
-        }
-      }
+          layout: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH']),
+        },
+      };
     });
     const getThresholdValue = () => {
       if (layoutType === 'web') {
@@ -219,8 +228,10 @@ export const Tabs = props => {
       } else {
         return 1.5;
       }
-    }
-    const maxH = _.max(res.map(item => _.get(item, [layoutType, 'layout'])).map(layout => layout.h + layout.y)) + getThresholdValue();
+    };
+    const maxH =
+      _.max(res.map(item => _.get(item, [layoutType, 'layout'])).map(layout => layout.h + layout.y)) +
+      getThresholdValue();
     const newComponents = components.map(c => {
       if (c.id === widget.id && [9, 10, 'tabs', 'card'].includes(c.type) && maxH) {
         if (layoutType === 'web' && c.web && c.web.layout) {
@@ -234,7 +245,12 @@ export const Tabs = props => {
           c.mobile.layout.maxH = maxH;
         }
       }
-      return _.find(res, n => (isTabs ? n.tabId === c.tabId : n.sectionId === c.sectionId) && (n.id || n.uuid) === (c.id || c.uuid)) || c;
+      return (
+        _.find(
+          res,
+          n => (isTabs ? n.tabId === c.tabId : n.sectionId === c.sectionId) && (n.id || n.uuid) === (c.id || c.uuid),
+        ) || c
+      );
     });
     props.updateComponents(newComponents);
   };
@@ -252,20 +268,20 @@ export const Tabs = props => {
       style={{
         '--app-primary-color': themeColor,
         '--border-color': isDark ? '#e6e6e633' : '#bdbdbd',
-        '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5'
+        '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5',
       }}
     >
       <div
         className={cx('tabsHeader flexRow', {
           cardsHeader: !isTabs,
           hide: !isTabs && !showName,
-          justifyContentCenter: titleStyles.textAlign === 'center'
+          justifyContentCenter: titleStyles.textAlign === 'center',
         })}
       >
         {tabs.length ? (
           tabs.map(tab => (
             <div
-              className={cx('tab disableDrag Font15 bold pointer', `tab-${tab.id}`, { 'active': tab.id === currentTab })}
+              className={cx('tab disableDrag Font15 bold pointer', `tab-${tab.id}`, { active: tab.id === currentTab })}
               onClick={() => {
                 setCurrentTab(tab.id);
               }}
@@ -277,7 +293,7 @@ export const Tabs = props => {
           <div
             className="cardName"
             style={{
-              ...replaceTitleStyle(titleStyles, themeColor)
+              ...replaceTitleStyle(titleStyles, themeColor),
             }}
           >
             {name}
@@ -288,12 +304,14 @@ export const Tabs = props => {
         className={cx('tabsBody flex', {
           overflowYAuto: adjustScreen ? true : isMobileLayout,
           // overflowHidden: adjustScreen ? false : !isMobileLayout,
-          disableDrag: isTabs || (!isTabs && showName)
+          disableDrag: isTabs || (!isTabs && showName),
         })}
         ref={elementRef}
       >
         {!tabComponents.length && editable && (
-          <div className="flexRow alignItemsCenter justifyContentCenter w100 h100 Font15 Gray_75">{_l('添加或移动组件')}</div>
+          <div className="flexRow alignItemsCenter justifyContentCenter w100 h100 Font15 Gray_75">
+            {_l('添加或移动组件')}
+          </div>
         )}
         <div className="bodyContent">
           <GridLayout
@@ -336,12 +354,12 @@ export const Tabs = props => {
                       dashedBorder: showType === 2 && !showBorder && editable,
                     })}
                     style={{
-                      backgroundColor: customPageConfig.widgetBgColor
+                      backgroundColor: customPageConfig.widgetBgColor,
                     }}
                   >
                     <div className="flex">
-                      {WidgetDisplay && (
-                        isMobile ? (
+                      {WidgetDisplay &&
+                        (isMobile ? (
                           <WidgetDisplay.default
                             ids={ids}
                             widget={widget}
@@ -369,8 +387,7 @@ export const Tabs = props => {
                               displayRefs[index] = el;
                             }}
                           />
-                        )
-                      )}
+                        ))}
                     </div>
                   </div>
                 </LayoutContent>
@@ -381,13 +398,13 @@ export const Tabs = props => {
       </div>
     </ContentWrap>
   );
-}
+};
 
 export default connect(
-  (state) => ({
+  state => ({
     activeContainerInfo: state.customPage.activeContainerInfo,
     components: state.customPage.components,
     adjustScreen: state.customPage.adjustScreen,
   }),
-  dispatch => bindActionCreators({ updateComponents, updatePageInfo }, dispatch)
+  dispatch => bindActionCreators({ updateComponents, updatePageInfo }, dispatch),
 )(Tabs);

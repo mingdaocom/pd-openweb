@@ -231,7 +231,7 @@ function NewRecord(props) {
       return;
     }
 
-    if (_.isUndefined(appScanAutoFill)) {
+    if (_.isUndefined(appScanAutoFill) && window.isMingDaoApp) {
       setAutoFill(appScanAutoFill);
     }
 

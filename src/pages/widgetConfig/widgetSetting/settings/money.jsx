@@ -65,7 +65,7 @@ const SelectCountryDropdown = ({ data = [], lang, setData, setVisible }) => {
 };
 
 export default function Money(props) {
-  const { data, onChange, globalSheetInfo = {} } = props;
+  const { data = {}, onChange, globalSheetInfo = {} } = props;
   const { currency, showformat = '0', suffix, prefix } = getAdvanceSetting(data);
   const { currencycode } = safeParse(currency || '{}');
   const [currencyList, setList] = useState([]);
@@ -82,7 +82,7 @@ export default function Money(props) {
       setList(res);
     });
     // 未保存获取默认值
-    if (!currency && data.controlId.includes('-')) {
+    if (!currency && (data.controlId || '').includes('-')) {
       fixedDataAjax.getRegionConfigInfos({ projectId: globalSheetInfo.projectId }).then(res => {
         if (!_.isEmpty(res)) {
           onChange(

@@ -451,7 +451,7 @@ export default class AccountChart extends React.Component {
     }
     return (
       <div className="accountChartContainer">
-        <div className="Font17 Bold Gray mBottom6">{_l('账户')}</div>
+        <div className="Font17 Bold Gray mBottom6">{_l('账户与隐私')}</div>
         {this.renderWarning()}
         <div className="accountRowItem clearfix">
           <div className="accountLabel Gray_75">

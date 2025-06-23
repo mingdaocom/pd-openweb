@@ -520,6 +520,8 @@ export const supportSettingCollapse = (props, key) => {
         case 11:
           if (isCustom) return false;
           return dataSource ? advancedSetting.showtype !== '2' : true;
+        case 26:
+          return from !== 'subList' || advancedSetting.checkusertype !== '1';
         case 30:
           return strDefault.split('')[0] === '0';
         case 34:

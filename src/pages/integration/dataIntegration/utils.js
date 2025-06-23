@@ -1,15 +1,15 @@
-import { enumWidgetType, canSetAsTitle } from 'src/pages/widgetConfig/util';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import {
-  namePattern,
-  isValidName,
-  PERSONNEL_FIELDS,
-  DEPT_FIELDS,
-  SYSTEM_FIELD_IDS,
-  RELATED_RECORD_FIELDS,
-  DATABASE_TYPE,
-} from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
+import {
+  DATABASE_TYPE,
+  DEPT_FIELDS,
+  isValidName,
+  namePattern,
+  PERSONNEL_FIELDS,
+  RELATED_RECORD_FIELDS,
+  SYSTEM_FIELD_IDS,
+} from 'src/pages/integration/dataIntegration/constant.js';
+import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
+import { canSetAsTitle, enumWidgetType } from 'src/pages/widgetConfig/util';
 
 export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) => {
   const isDestAppType = destDsType === DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -261,8 +261,9 @@ export const getDefaultData = (
       ENUM_TYPE === 'DATE_TIME'
         ? { type: itemOptions[0].mdType, advancedSetting: { showtype: '6' } }
         : {
-            type: itemOptions[0].mdType,
             ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']),
+            type: itemOptions[0].mdType,
+            dot: itemOptions[0].defaultScale,
           };
 
     //工作表-设置默认类型，是否可设置默认标题判断

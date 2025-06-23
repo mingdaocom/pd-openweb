@@ -8,7 +8,7 @@ import ProcessRecordInfo from './ProcessRecordInfo';
 
 export default props => {
   const { isModal, match } = props;
-  const { className, visible, onClose } = props;
+  const { className, visible, onClose, onSave } = props;
 
   useEffect(() => {
     if (isModal) return;
@@ -21,7 +21,7 @@ export default props => {
     const { instanceId, workId } = props;
     return (
       <Popup className={cx('mobileModal full', className)} onClose={onClose} visible={visible}>
-        {instanceId && <ProcessRecordInfo isModal={true} instanceId={instanceId} workId={workId} onClose={onClose} />}
+        {instanceId && <ProcessRecordInfo isModal={true} instanceId={instanceId} workId={workId} onClose={onClose} onSave={onSave} />}
         <Back icon="back" className="Fixed" style={{ bottom: 120 }} onClick={onClose} />
       </Popup>
     );
@@ -39,6 +39,7 @@ export default props => {
           }
           window.mobileNavigateTo('/mobile/processMatters');
         }}
+        onSave={onSave}
       />
     );
   }

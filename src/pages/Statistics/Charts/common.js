@@ -664,7 +664,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
     const { magnitude, ydot, suffix, dot, fixType } = yaxisList[0];
     const { format } = _.find(numberLevel, { value: magnitude || 0 });
     if ([7, 8].includes(magnitude)) {
-      const result = toFixed(format(value), 0);
+      const result = toFixed(format(value), ydot);
       return fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else if (magnitude) {
       const result = Number(toFixed(format(value), Number(ydot)));

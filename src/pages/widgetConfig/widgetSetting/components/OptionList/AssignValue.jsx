@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Dialog } from 'ming-ui';
+import React, { useCallback, useEffect, useState } from 'react';
+import { InputNumber, Switch } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import styled from 'styled-components';
-import { Switch, InputNumber } from 'antd';
+import { Dialog } from 'ming-ui';
 import { getOptions } from '../../../util/setting';
 
 const AssignValueContent = styled.div`
@@ -20,7 +20,6 @@ const AssignValueContent = styled.div`
     display: flex;
     max-height: 445px;
     padding: 0 20px;
-    overflow: auto;
     box-sizing: border-box;
     ul {
       width: 50%;

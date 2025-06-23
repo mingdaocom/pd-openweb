@@ -207,7 +207,8 @@ export const handleRelateRow = (control = {}, content, worksheetInfo, updateData
 const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, updateData) => {
   const { controlId, controlName } = control;
   const { scanlink, scancontrol, scancontrolid } = _.get(control, 'advancedSetting') || {};
-  const scanControl = _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid);
+  const scanControl =
+    _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid) || {};
 
   const handleRelateResult = firstRow => {
     const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};

@@ -509,7 +509,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileFiles: _.uniqBy(
-                    [...this.state.mobileFiles, ...files].filter(n => !('progress' in n)),
+                    this.state.mobileFiles.filter(n => !('progress' in n)).concat(files),
                     'fileName',
                   ),
                 },
@@ -522,7 +522,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCameraFiles: _.uniqBy(
-                    [...this.state.mobileCameraFiles, ...files].filter(n => !('progress' in n)),
+                    this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files),
                     'fileName',
                   ),
                 },
@@ -535,7 +535,7 @@ export default class Widgets extends Component {
               this.setState(
                 {
                   mobileCamcorderFiles: _.uniqBy(
-                    [...this.state.mobileCamcorderFiles, ...files].filter(n => !('progress' in n)),
+                    this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files),
                     'fileName',
                   ),
                 },

@@ -171,6 +171,9 @@ function formatFunctionResult(control, value) {
           .toFixed(12)
           .toString()
           .match(/^-?[\d\.]+/)[0];
+        result = (result || '').replace(/\.([0-9]*[1-9])0+$|\.0+$/, (match, group) => {
+          return group ? `.${group}` : '';
+        });
       } catch (err) {}
       break;
     case WIDGETS_TO_API_TYPE_ENUM.DATE:

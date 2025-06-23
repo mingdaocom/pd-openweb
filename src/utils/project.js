@@ -52,7 +52,10 @@ export const getSyncLicenseInfo = projectId => {
   let projectInfo = _.find(projects.concat(externalProjects), o => o.projectId === projectId) || {};
 
   if (_.isEmpty(projectInfo)) {
-    if (window.isPublicApp) {
+    if (
+      window.isPublicApp ||
+      !/^[A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12}$/.test(projectId)
+    ) {
       return {};
     }
     const info = projectAjax.getProjectLicenseInfo({ projectId }, { ajaxOptions: { sync: true } });

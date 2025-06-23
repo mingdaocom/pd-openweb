@@ -126,7 +126,9 @@
       }
     }
     &.active {
-      box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4), 0 6px 24px rgba(33, 150, 243, 0.4);
+      box-shadow:
+        0 2px 6px rgba(33, 150, 243, 0.4),
+        0 6px 24px rgba(33, 150, 243, 0.4);
       .workflowStartNull {
         background: #fff !important;
         border-color: #ddd !important;
@@ -134,10 +136,15 @@
       }
     }
     &.errorShadow {
-      box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1), 0 1px 4px rgba(0, 0, 0, 0.16);
+      box-shadow:
+        0 0 1px 1px rgba(244, 67, 54, 1),
+        0 1px 4px rgba(0, 0, 0, 0.16);
     }
     &.errorShadow.active {
-      box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1), 0 2px 6px rgba(244, 67, 54, 0.4), 0 6px 24px rgba(33, 150, 243, 0.4);
+      box-shadow:
+        0 0 1px 1px rgba(244, 67, 54, 1),
+        0 2px 6px rgba(244, 67, 54, 0.4),
+        0 6px 24px rgba(33, 150, 243, 0.4);
     }
     &.workflowItemDisabled {
       .workflowName,
@@ -493,6 +500,7 @@
   &.mobile {
     top: 0;
     justify-content: center;
+    background: none;
   }
   &.addTop {
     top: 95px;
@@ -568,7 +576,9 @@
 .createNodeDialog {
   width: 840px;
   background: #fff;
-  box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 10px 23px 2px rgba(0, 0, 0, 0.2),
+    0 3px 6px rgba(0, 0, 0, 0.15);
   .createNodeDialogHeader {
     height: 55px;
     padding: 0 24px;
@@ -761,7 +771,7 @@
       }
       &.active {
         font-weight: bold;
-        background: #FFFFFF !important;
+        background: #ffffff !important;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
         &::after {
           position: absolute;
@@ -795,7 +805,7 @@
     margin-left: 20px;
     width: 60px;
     height: 32px;
-    background: #F5F5F5;
+    background: #f5f5f5;
     border-radius: 3px;
     padding: 2px;
     li {

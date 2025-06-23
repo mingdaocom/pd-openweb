@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Radio, Textarea, Checkbox } from 'ming-ui';
+import copy from 'copy-to-clipboard';
+import { Checkbox, Radio, Textarea } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
-import { ParameterList, CustomTextarea, KeyPairs } from '../components';
-import copy from 'copy-to-clipboard';
+import { CustomTextarea, KeyPairs, ParameterList } from '../components';
 
 const STATUS = {
   NULL: 0,
@@ -33,31 +33,29 @@ export default class WebhookContent extends Component {
    * 轮询获取参数
    */
   loopGetParameter() {
-    this.setInterval = setInterval(this.getAppTemplateControls, 6000);
+    this.setInterval = setInterval(this.getNodeDetail, 6000);
   }
 
   /**
    * 获取参数
    */
-  getAppTemplateControls = () => {
+  getNodeDetail = () => {
     const { data, processId, updateSource } = this.props;
     const { count, maxCount } = this.state;
 
-    flowNode
-      .getAppTemplateControls({ processId, nodeId: data.id, appId: processId, appType: data.appType })
-      .then(result => {
-        this.setState({ count: count + 1 });
+    flowNode.getNodeDetail({ processId, nodeId: data.id, flowNodeType: 0, appId: processId }).then(result => {
+      this.setState({ count: count + 1 });
 
-        // 超过次数
-        if (count + 1 >= maxCount || result.length) {
-          clearInterval(this.setInterval);
-        }
+      // 超过次数
+      if (count + 1 >= maxCount || result.controls.length) {
+        clearInterval(this.setInterval);
+      }
 
-        if (result.length) {
-          this.setState({ type: STATUS.COMPLETE });
-          updateSource({ controls: result });
-        }
-      });
+      if (result.controls.length) {
+        this.setState({ type: STATUS.COMPLETE });
+        updateSource({ controls: result.controls });
+      }
+    });
   };
 
   /**
@@ -68,7 +66,7 @@ export default class WebhookContent extends Component {
 
     if (checkJSON(data.jsonParam)) {
       window.mdyAPI('', '', data.jsonParam, { ajaxOptions: { url: data.hookUrl } }).then(() => {
-        this.getAppTemplateControls();
+        this.getNodeDetail();
       });
     } else {
       alert(_l('验证格式失败，请修改'), 2);
@@ -94,7 +92,7 @@ export default class WebhookContent extends Component {
       );
 
       window.mdyAPI('', '', requestData, { ajaxOptions: { url: data.hookUrl } }).then(() => {
-        this.getAppTemplateControls();
+        this.getNodeDetail();
       });
     } else {
       alert(_l('请配置key-value参数'), 2);

@@ -252,7 +252,7 @@ export default class SecuritySetting extends Component {
       <div className="securitySettingContainer">
         {!md.global.Config.IsLocal && (
           <Fragment>
-            <div className="Font17 mBottom30 Bold">{_l('安全')}</div>
+            <div className="Font17 mBottom30 Bold">{_l('安全设置')}</div>
             <div>
               {!md.global.Config.IsLocal && (
                 <div className="setRowItem">

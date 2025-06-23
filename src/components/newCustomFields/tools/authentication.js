@@ -1,12 +1,13 @@
 import weixinApi from 'src/api/weixin';
 import workWeiXinApi from 'src/api/workWeiXin';
 
-export const bindWeiXin = () => {
+export const bindWeiXin = (projectId) => {
   return new Promise((reslove, reject) => {
     const entryUrl = sessionStorage.getItem('entryUrl');
     const url = (window.isIphone ? entryUrl || location.href : location.href).split('#')[0];
     weixinApi.getWeiXinConfig({
       url: encodeURI(url),
+      projectId
     }).then(({ data, code }) => {
       if (code === 1) {
         window.wx.config({
