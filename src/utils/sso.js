@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { PUBLIC_KEY } from 'src/utils/enum';
 import { getPssId } from 'src/utils/pssId';
 
 export const browserIsMobile = () => {
@@ -42,7 +42,9 @@ export const ajax = {
       if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
         var result = JSON.parse(xhr.responseText);
         if (result.state) {
-          params.success.call(this, result);
+          interfaceDataDecryption(result).then(data => {
+            params.success.call(this, data);
+          });
         } else {
           window.alert(result.exception);
           params.error.call(this, result);
@@ -54,6 +56,24 @@ export const ajax = {
     };
     xhr.send(JSON.stringify(params.data));
   },
+};
+
+const interfaceDataDecryption = source => {
+  return new Promise(resolve => {
+    const { data, key, encrypted } = source || {};
+    if (encrypted) {
+      import('crypto-js').then(CryptoJS => {
+        const decrypted = CryptoJS.AES.decrypt(data, CryptoJS.enc.Utf8.parse(key), {
+          iv: CryptoJS.enc.Utf8.parse(PUBLIC_KEY.replace(/\r|\n/, '').slice(26, 42)),
+        });
+        resolve({
+          data: JSON.parse(decrypted.toString(CryptoJS.enc.Utf8)),
+        });
+      });
+    } else {
+      resolve(source);
+    }
+  });
 };
 
 export const login = () => {
