@@ -25,6 +25,7 @@ export default {
   * 返回微信JS-SDK配置
 返回时间戳签名等
   * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织Id
   * @param {string} args.url 地址
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

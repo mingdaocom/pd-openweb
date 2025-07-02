@@ -1,5 +1,4 @@
 ﻿import _ from 'lodash';
-import departmentController from 'src/api/department';
 import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../../config';
 import { COMPANY_DEPARMENTID, PAGE_SIZE } from '../constant';
@@ -295,24 +294,3 @@ export const updateImportExportResult = importExportResult => ({
   type: 'UPDATE_IMPORT_EXPORT_RESULT',
   importExportResult,
 });
-export const updateFullDepartmentInfo = (projectId, departmentIds) => (dispatch, getState) => {
-  const { fullDepartmentInfo = {} } = getState().entities;
-  departmentIds = departmentIds.filter(it => !fullDepartmentInfo[it]);
-  if (_.isEmpty(departmentIds)) {
-    return;
-  }
-  departmentController
-    .getDepartmentFullNameByIds({
-      projectId,
-      departmentIds,
-    })
-    .then(res => {
-      (res || []).forEach(it => {
-        fullDepartmentInfo[it.id] = it.name;
-      });
-      dispatch({
-        type: 'UPDATE_FULL_DEPARTMENT_INFO',
-        fullDepartmentInfo,
-      });
-    });
-};

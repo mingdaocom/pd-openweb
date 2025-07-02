@@ -1,22 +1,5 @@
 export default {
   /**
-  * 获取职位列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {string} args.keywords 关键词
-  * @param {} args.sortField
-  * @param {} args.sortType
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getJobs: function (args, options = {}) {
-     
-     return mdyAPI('Job', 'GetJobs', args, options);
-   },
-  /**
   * 添加职位
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
@@ -73,23 +56,7 @@ export default {
      return mdyAPI('Job', 'ImportJobList', args, options);
    },
   /**
-  * 获取 职位成员列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {string} args.jobId 职位id
-  * @param {string} args.keywords 关键词
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   pagedJobAccounts: function (args, options = {}) {
-     
-     return mdyAPI('Job', 'PagedJobAccounts', args, options);
-   },
-  /**
-  * 添加用户
+  * 添加 职位成员
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {string} args.jobId 职位id
@@ -103,7 +70,7 @@ export default {
      return mdyAPI('Job', 'AddJobUser', args, options);
    },
   /**
-  * 删除用户
+  * 移除 职位成员
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {string} args.accountId 账号Id
@@ -117,7 +84,7 @@ export default {
      return mdyAPI('Job', 'DeleteJobUser', args, options);
    },
   /**
-  * 删除用户
+  * 批量移除 职位成员
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {array} args.accountIds 账号Id
@@ -129,5 +96,38 @@ export default {
    deleteJobUsers: function (args, options = {}) {
      
      return mdyAPI('Job', 'DeleteJobUsers', args, options);
+   },
+  /**
+  * 获取职位列表（前后台共用?）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.keywords 关键词
+  * @param {} args.sortField
+  * @param {} args.sortType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getJobs: function (args, options = {}) {
+     
+     return mdyAPI('Job', 'GetJobs', args, options);
+   },
+  /**
+  * 获取 职位成员列表 （前后台共用?）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.jobId 职位id
+  * @param {string} args.keywords 关键词
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 页大小
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pagedJobAccounts: function (args, options = {}) {
+     
+     return mdyAPI('Job', 'PagedJobAccounts', args, options);
    },
 };

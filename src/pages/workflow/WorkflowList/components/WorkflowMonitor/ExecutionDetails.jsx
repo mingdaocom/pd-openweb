@@ -339,8 +339,8 @@ export default class ExecutionDetails extends Component {
                                   ) &&
                                   moment(res[i + 1]['lastModifiedDate']).isBefore(moment(res[i]['lastModifiedDate']))
                                 ) {
-                                  totalMinutes = moment(arr[0]['lastModifiedDate']).diff(
-                                    moment(arr[i + 1]['lastModifiedDate']),
+                                  totalMinutes = moment(res[0]['lastModifiedDate']).diff(
+                                    moment(res[i + 1]['lastModifiedDate']),
                                     'minute',
                                   );
                                   if (totalMinutes > 60 * 24) {

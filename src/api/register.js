@@ -140,7 +140,7 @@ export default {
      return mdyAPI('Register', 'SetAccountInfo', args, options);
    },
   /**
-  * 根据企业号加入网络(检验企业号是否正确，含userCard)
+  * 根据企业号加入组织(检验企业号是否正确，含userCard)
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
@@ -181,7 +181,7 @@ export default {
      return mdyAPI('Register', 'CheckCreateCompany', args, options);
    },
   /**
-  * 创建企业网络
+  * 创建组织
   * @param {Object} args 请求参数
   * @param {string} args.regFrom 注册广告来源
   * @param {string} args.referrer 注册来源页面
@@ -200,6 +200,7 @@ export default {
   * @param {string} args.state 第3方传递值
   * @param {} args.tpType
   * @param {integer} args.isInterested 是否对伙伴计划感兴趣
+  * @param {string} args.geoCountryRegionCode (地理位置)国家地区-编码
   * @param {string} args.extraDatas 组织额外注册信息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

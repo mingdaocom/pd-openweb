@@ -372,9 +372,7 @@ export default class OrderPay extends Component {
         <Fragment>
           <div className="qrCode">
             <Qr
-              content={`${md.global.Config.WebUrl}orderpay/${orderId}${
-                params.paymentModule ? '/' + params.paymentModule : ''
-              }`}
+              content={`${md.global.Config.WebUrl}orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`}
               width={250}
               height={250}
             />
@@ -515,8 +513,10 @@ export default class OrderPay extends Component {
                         : `alipays://platformapi/startapp?appId=10000007&qrcode=${currentUrl}`
                     }
                     onClick={() => {
-                      if (!isMobile || merchantPaymentChannel === 1 || location.pathname.includes('orderpay/mp-')) {
+                      if (!isMobile || location.pathname.includes('orderpay/mp-')) {
                         this.renderOrderQrCode(orderId, 2);
+                      } else if (merchantPaymentChannel === 1) {
+                        this.handleAliPay();
                       }
                     }}
                   >

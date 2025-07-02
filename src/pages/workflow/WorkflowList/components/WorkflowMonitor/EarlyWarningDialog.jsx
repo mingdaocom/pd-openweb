@@ -152,7 +152,11 @@ class EarlyWarningDialog extends Component {
           </Tooltip>
         </div>
         <div className="methods">
-          {NOTICE_METHOD_OPTIONS.map((item, index) => (
+          {NOTICE_METHOD_OPTIONS.filter(v =>
+            _.get(md, 'global.Config.IsLocal') && !_.get(md, 'global.SysSettings.enableSmsCustomContent')
+              ? v.value !== '2'
+              : true,
+          ).map((item, index) => (
             <Checkbox
               checked={noticeTypes.includes(item.value)}
               disabled={index === 0}

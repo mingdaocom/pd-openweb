@@ -61,15 +61,17 @@ export default function Login(props) {
   const onInit = () => {
     const request = getRequest();
     //检测是否已登录
-    if (checkLogin()) {
-      if (request.ReturnUrl) {
-        checkReturnUrl(request.ReturnUrl);
-        location.replace(getDataByFilterXSS(request.ReturnUrl));
+    loginController.checkLogin().then(data => {
+      if (data) {
+        if (request.ReturnUrl) {
+          checkReturnUrl(request.ReturnUrl);
+          location.replace(getDataByFilterXSS(request.ReturnUrl));
+          return;
+        }
+        location.href = browserIsMobile() ? `/mobile/dashboard` : `/dashboard`;
         return;
       }
-      location.href = browserIsMobile() ? `/mobile` : `/app`;
-      return;
-    }
+    });
     //检查是否sso登录
     ssoLogin(request.ReturnUrl);
     //获取本地缓存的登录信息

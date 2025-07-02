@@ -262,6 +262,7 @@ export default {
   * @param {string} args.rowId 行记录Id
   * @param {string} args.controlId 附件控件Id
   * @param {string} args.viewId 视图Id
+  * @param {} args.getType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

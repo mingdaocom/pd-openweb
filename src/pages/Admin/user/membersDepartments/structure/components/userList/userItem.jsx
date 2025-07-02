@@ -36,6 +36,27 @@ class UserItem extends Component {
     };
   }
 
+  updateFullDepartmentInfo = (projectId, departmentIds) => {
+    const { fullDepartmentInfo = {} } = this.state;
+    const copyFullDepartmentInfo = _.clone(fullDepartmentInfo);
+    departmentIds = departmentIds.filter(it => !copyFullDepartmentInfo[it]);
+    if (_.isEmpty(departmentIds)) {
+      return;
+    }
+    departmentController
+      .getDepartmentFullNameByIds({
+        projectId,
+        departmentIds,
+      })
+      .then(res => {
+        (res || []).forEach(it => {
+          copyFullDepartmentInfo[it.id] = it.name;
+        });
+
+        this.setState({ fullDepartmentInfo: copyFullDepartmentInfo });
+      });
+  };
+
   refreshData = (departmentId, typeCursor, projectId, pageIndex = 1) => {
     if (departmentId) {
       this.props.loadUsers(departmentId, pageIndex);
@@ -410,11 +431,10 @@ class UserItem extends Component {
       selectCount,
       isHideCurrentColumn,
       columnsInfo = [],
-      fullDepartmentInfo = {},
       editCurrentUser = {},
       departmentId,
     } = this.props;
-    const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp } = this.state;
+    const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp,  fullDepartmentInfo = {}} = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
     let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
     const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
@@ -488,7 +508,7 @@ class UserItem extends Component {
                 className="WordBreak overflow_ellipsis"
                 onMouseEnter={() => {
                   const departmentIds = departmentData.map(item => item.id || item.departmentId);
-                  this.props.updateFullDepartmentInfo(projectId, departmentIds);
+                  this.updateFullDepartmentInfo(projectId, departmentIds);
                 }}
               >
                 <Tooltip
@@ -640,7 +660,6 @@ class UserItem extends Component {
 const mapStateToProps = (state, ownProps) => {
   const {
     current: { projectId, departmentId, activeAccountId, selectedAccountIds, typeCursor, isSelectAll },
-    entities: { fullDepartmentInfo = {} },
     pagination: {
       userList: { pageIndex },
     },
@@ -656,7 +675,6 @@ const mapStateToProps = (state, ownProps) => {
     pageIndex,
     typeCursor,
     selectCount: selectedAccountIds.length,
-    fullDepartmentInfo,
   };
 };
 

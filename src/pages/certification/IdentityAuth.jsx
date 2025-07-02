@@ -8,7 +8,7 @@ import certificationApi from 'src/api/certification';
 import preall from 'src/common/preall';
 import { getRequest } from 'src/utils/common';
 import { encrypt } from 'src/utils/common';
-import { RESULT_TYPES, VERIFY_STATUS } from './constant';
+import { FACE_CERT_RESULT_TYPES, RESULT_TYPES, VERIFY_STATUS } from './constant';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -70,7 +70,7 @@ function IdentityAuth() {
             setStatus(VERIFY_STATUS.SUCCESS);
           } else {
             setStatus(VERIFY_STATUS.NORMAL);
-            alert(RESULT_TYPES[data] || _l('认证失败'), 2);
+            alert((RESULT_TYPES[data] || _l('认证失败')) + _l(',错误码:%0', data), 2);
           }
         });
       } else {
@@ -126,17 +126,8 @@ function IdentityAuth() {
               setSubmitLoading(false);
             });
             break;
-          case 2:
-            alert(_l('图形验证码错误'), 2);
-            break;
-          case 3:
-            alert(_l('今天人脸识别次数已用完'), 2);
-            break;
-          case 5:
-            alert(_l('操作频繁，5分钟后再试'), 2);
-            break;
           default:
-            alert(_l('人脸识别链接获取失败'), 2);
+            alert((FACE_CERT_RESULT_TYPES[res.code] || _l('人脸识别链接获取失败')) + _l(',错误码:%0', res.code), 2);
             break;
         }
         ![0, 1].includes(res.code) && setSubmitLoading(false);

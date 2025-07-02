@@ -172,31 +172,11 @@ window._l = function (key, ...args) {
         : currentLang.path.replace('/staticfiles/lang', 'https://alifile.mingdaocloud.com/lang/HAP')) +
       `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
 
-    // 超时标志位
-    let timedOut = false;
-
-    // 设置3秒超时定时器
-    const timeoutId = setTimeout(() => {
-      timedOut = true;
-      xhrObj.abort();
-      console.warn(_l('多语言资源加载超时'));
-    }, 3000);
-
     xhrObj.open('GET', path, false);
-    xhrObj.onreadystatechange = () => {
-      if (xhrObj.readyState === 4) {
-        clearTimeout(timeoutId);
-
-        // 如果未超时且响应成功
-        if (!timedOut && xhrObj.status === 200) {
-          script.type = 'text/javascript';
-          script.text = xhrObj.responseText;
-          document.head.appendChild(script);
-        }
-      }
-    };
-
     xhrObj.send('');
+    script.type = 'text/javascript';
+    script.text = xhrObj.responseText;
+    document.head.appendChild(script);
   }
 })();
 
@@ -449,7 +429,7 @@ const getErrorMessage = (jqXHR = {}, textStatus, exception) => {
 
   // 火狐在用户跳走时会弹 “请求服务器失败”
   if (errorMessage && textStatus !== 'abort' && jqXHR.status !== 0 && !window.isFirefox) {
-    alert(errorMessage, 2);
+    alert({ msg: errorMessage, type: 2, key: _.includes([401, 412], jqXHR.status) ? 'failure' : '' });
   }
 
   return {

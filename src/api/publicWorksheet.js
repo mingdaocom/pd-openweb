@@ -198,7 +198,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

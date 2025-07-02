@@ -534,10 +534,10 @@ export default function Certification(props) {
             case 4:
             case 5:
             case 15:
-              alert(errorMsg[enterpriseType][data], 2);
+              alert(errorMsg[enterpriseType][data] + _l(',错误码:%0', data), 2);
               break;
             default:
-              alert(RESULT_TYPES[data] || _l('提交失败'), 2);
+              alert((RESULT_TYPES[data] || _l('提交失败')) + _l(',错误码:%0', data), 2);
           }
         })
         .finally(() => setSubmitLoading(false));

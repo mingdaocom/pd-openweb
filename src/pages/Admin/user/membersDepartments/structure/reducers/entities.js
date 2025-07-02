@@ -250,12 +250,6 @@ const entities = (state = initialState, action) => {
       importExportType,
     };
   }
-  if (type === 'UPDATE_FULL_DEPARTMENT_INFO') {
-    return {
-      ...state,
-      fullDepartmentInfo,
-    };
-  }
   if (type === 'PROJECT_ID_CHANGED') return initialState;
   if (typeof ACTIONS[type] === 'undefined') return state;
   if (type === ACTIONS.DELETE_DEPARTMENT) {

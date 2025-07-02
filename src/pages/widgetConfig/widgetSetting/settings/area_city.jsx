@@ -34,13 +34,16 @@ export default function Area(props) {
   const { data, onChange, globalSheetInfo = {} } = props;
   const { enumDefault = 0, enumDefault2, controlId } = data;
   const { chooserange } = getAdvanceSetting(data);
-  const [areaData, setData] = useState([]);
+  const [originData, setData] = useState([]);
+  const [searchData, setSearchData] = useState([]);
 
   const isChinaArea = value => _.includes(['CN', 'TW', 'MO', 'HK'], value || chooserange);
   const isChinaSpecialArea = value => _.includes(['TW', 'MO', 'HK'], value || chooserange);
 
   useEffect(() => {
-    getCityList();
+    const list = getCityList();
+    setData(list);
+    setSearchData(list);
   }, []);
 
   useEffect(() => {
@@ -56,21 +59,24 @@ export default function Area(props) {
   };
 
   // 获取地区/国家列表
-  const getCityList = () => {
-    fixedDataController
-      .getCitysByParentID({
-        parentId: '',
-        keywords: '',
+  const getCityList = (keywords = '') => {
+    const { citys = [] } = fixedDataController.getCitysByParentID(
+      {
+        keywords,
         layer: 0,
-        textSplit: '/',
-        isLast: false,
         projectId: globalSheetInfo.projectId,
         langType: getCurrentLangCode(),
-      })
-      .then(res => {
-        setData(res.citys.map(i => ({ ...i, text: i.name, value: i.id })));
-      });
+      },
+      { ajaxOptions: { sync: true } },
+    );
+    return citys.map(i => ({ ...i, text: i.name, value: i.id }));
   };
+
+  const handleSearch = _.debounce(value => {
+    if (_.isUndefined(value)) return;
+    const newList = getCityList(value);
+    setSearchData(newList);
+  }, 500);
 
   // 获取层级类型
   const getEnum2 = value => {
@@ -137,9 +143,18 @@ export default function Area(props) {
             <Dropdown
               border
               openSearch
+              onSearch={handleSearch}
               value={chooserange || undefined}
               placeholder={_l('请选择地区范围')}
-              data={areaData}
+              data={searchData}
+              renderTitle={() => {
+                return (
+                  _.get(
+                    _.find(originData, a => a.value === chooserange),
+                    'text',
+                  ) || ''
+                );
+              }}
               onChange={value =>
                 onChange({
                   ...handleAdvancedSettingChange(data, { chooserange: value }),

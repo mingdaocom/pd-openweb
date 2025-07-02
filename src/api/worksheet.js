@@ -164,7 +164,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -188,7 +188,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -212,7 +212,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {string} args.controlId 子表的控件id
   * @param {string} args.instanceId 流程实例id
   * @param {string} args.workId 运行节点id
@@ -675,6 +675,7 @@ export default {
   * @param {array} args.filterControls 筛选条件
   * @param {string} args.keyWords 搜索关键字
   * @param {array} args.fastFilters 快速筛选
+  * @param {string} args.pushUniqueId 推送ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1004,6 +1005,7 @@ export default {
   * @param {array} args.filterControls 筛选条件
   * @param {string} args.keyWords 搜索关键字
   * @param {array} args.fastFilters 快速筛选
+  * @param {string} args.pushUniqueId 推送ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1392,6 +1394,8 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId
   * @param {string} args.ruleId
+  * @param {string} args.instanceId 通过工作流时必传
+  * @param {string} args.workId 通过工作流时必传
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1499,7 +1503,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1536,7 +1540,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1634,7 +1638,7 @@ export default {
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {boolean} args.getRelationSearch 获取查下记录控件
-  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式
+  * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

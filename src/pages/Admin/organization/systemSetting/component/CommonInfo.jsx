@@ -466,7 +466,7 @@ export default class CommonInfo extends Component {
                 </button>
               </div>
 
-              {/* <div className="split-line" />
+              <div className="split-line"></div>
 
               {isSuperAdmin && (
                 <div className="common-info-row">
@@ -482,7 +482,7 @@ export default class CommonInfo extends Component {
                     </div>
                   </div>
                 </div>
-              )} */}
+              )}
             </div>
           )}
         </div>

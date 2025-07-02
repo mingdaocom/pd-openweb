@@ -241,22 +241,6 @@ export default class ExportApp extends React.Component {
           <div className="Gray_75 singleItemLeft Bold">{_l('应用')}</div>
           <div className="Gray_75 singleItemRight Bold">
             <span>{_l('导出示例数据')}</span>
-            <Tooltip
-              tooltipClass="exportTips"
-              text={
-                <Fragment>
-                  <span className="TxtMiddle"> {_l('如需导出全部数据，可联系顾问或通过')}</span>
-                  <Support
-                    text={_l('公开表单')}
-                    type={3}
-                    href="https://d557778d685be9b5.share.mingdao.net/public/form/f4aaa273d86f4a6b8bbb33fc4273f672"
-                  ></Support>
-                  <span className="TxtMiddle mLeft5">{_l('申请')}</span>
-                </Fragment>
-              }
-            >
-              <i className="icon icon-info_outline Font16 mLeft5" />
-            </Tooltip>
           </div>
         </div>
         <AppSettings

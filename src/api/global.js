@@ -15,6 +15,7 @@ export default {
    },
   /**
   * 获取系统额外配置信息
+地图配置
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -23,5 +24,17 @@ export default {
    getSystemConfiguration: function (args, options = {}) {
      
      return mdyAPI('Global', 'GetSystemConfiguration', args, options);
+   },
+  /**
+  * 获取系统翻译信息
+  * @param {Object} args 请求参数
+  * @param {string} args.langUrl 系统语言数据路径
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSystemTranslation: function (args, options = {}) {
+     
+     return mdyAPI('Global', 'GetSystemTranslation', args, options);
    },
 };

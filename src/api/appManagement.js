@@ -2060,6 +2060,7 @@ export default {
   * @param {integer} args.cycleType 周期类型 (1= 每天，2 = 每周，3 = 每月)
   * @param {integer} args.cycleValue 具体周期值 （日期（1-31），星期（0 = 星期天））
   * @param {boolean} args.datum 备份数据
+  * @param {integer} args.status 状态 （0 = 关闭，1 = 启用，2 = 删除）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -83,6 +83,12 @@ export const RESULT_TYPES = {
   16: _l('人脸识别失败'),
 };
 
+export const FACE_CERT_RESULT_TYPES = {
+  2: _l('图形验证码错误'),
+  3: _l('今天人脸识别次数已用完'),
+  5: _l('操作频繁，5分钟后再试'),
+};
+
 export const VERIFY_STATUS = {
   NORMAL: 'normal',
   SUCCESS: 'success',

@@ -401,6 +401,7 @@ class AttachmentsPreview extends React.Component {
                     return (
                       <iframe
                         className="fileViewer iframeViewer"
+                        style={{ overflowX: 'hidden', overflowY: 'auto' }}
                         src={viewUrl}
                         sandbox="allow-forms allow-scripts allow-same-origin allow-modals"
                       />

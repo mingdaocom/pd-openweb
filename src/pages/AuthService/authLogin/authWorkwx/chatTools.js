@@ -76,7 +76,7 @@ const agentConfigInit = () => {
         },
         fail: res => {
           res.errorType = 'wx.agentConfig';
-          window.nativeAlert(JSON.stringify(res));
+          window.alert(JSON.stringify(res));
         },
       });
     },
@@ -106,7 +106,7 @@ ajax.post({
     window.wx.ready(agentConfigInit);
     window.wx.error(res => {
       res.errorType = 'wx.config';
-      window.nativeAlert(JSON.stringify(res));
+      window.alert(JSON.stringify(res));
     });
   },
   error: login,
