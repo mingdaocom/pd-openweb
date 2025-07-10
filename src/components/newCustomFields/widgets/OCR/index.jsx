@@ -182,6 +182,7 @@ export default class Widgets extends Component {
       apkId: appId,
       apiTemplateId: dataSource,
       authId: authaccount,
+      pushUniqueId: md.global.Config.pushUniqueId,
     };
 
     if (window.isPublicWorksheet) {

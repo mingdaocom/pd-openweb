@@ -1,11 +1,11 @@
-import React, { useState, useRef, Fragment } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
-import _ from 'lodash';
+import { getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
 
 const OCR = props => {
   const { worksheetId, controlId, advancedSetting, formData, onChange, enumDefault, hint = '' } = props;
@@ -51,6 +51,7 @@ const OCR = props => {
       apkId: appId,
       apiTemplateId: dataSource,
       authId: authaccount,
+      pushUniqueId: md.global.Config.pushUniqueId,
     };
 
     if (window.isPublicWorksheet) {

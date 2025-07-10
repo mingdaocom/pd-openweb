@@ -309,6 +309,33 @@ export default class Widgets extends Component {
       icon: 'loading',
       content: _l('正在获取取经纬度，请稍后'),
     });
+    if (!!getMapConfig()) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            onChange(
+              JSON.stringify({
+                x: lng,
+                y: lat,
+                address: '',
+                title: '',
+                coordinate: 'wgs84',
+              }),
+            );
+          },
+          () => {
+            window.nativeAlert(_l('定位失败，请重试'));
+          },
+        );
+        Toast.clear();
+      } else {
+        window.nativeAlert(_l('定位失败，请重试'));
+        Toast.clear();
+      }
+      return;
+    }
     new MapLoader().loadJs().then(() => {
       new MapHandler().getCurrentPos((status, res) => {
         if (status === 'complete') {
@@ -320,6 +347,9 @@ export default class Widgets extends Component {
               title: (res.addressComponent || {}).building || '',
             }),
           );
+          Toast.clear();
+        } else {
+          window.nativeAlert(_l('定位失败，请重试'));
           Toast.clear();
         }
       });

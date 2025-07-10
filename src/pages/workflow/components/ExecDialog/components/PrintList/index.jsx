@@ -121,7 +121,7 @@ export default props => {
       sheetAjax
         .getPrintList({
           worksheetId: props.worksheetId,
-          rowIds: [props.rowId],
+          rowIds: [props.rowId].filter(Boolean),
         })
         .then(result => {
           setPrintList(

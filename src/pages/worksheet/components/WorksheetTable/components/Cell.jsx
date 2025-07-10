@@ -270,6 +270,7 @@ function Cell(props) {
     'cell',
     `rowHeight-${findIndex(ROW_HEIGHT, h => h === rowHeight) || 0}`,
     {
+      rowIsEmpty: isEmpty(row) && cellType === 'data',
       [`control-val-${control.controlId}`]: cellType !== 'head',
       placeholder: !row.rowid,
       emptyRow: row.rowid && isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),

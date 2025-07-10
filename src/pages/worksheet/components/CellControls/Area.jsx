@@ -47,6 +47,7 @@ export default class Date extends React.Component {
         value,
         ...(value === '{"code":"","name":""}' ? { tempValue: undefined } : { tempValue: value }),
       });
+      this.tempValue = value === '{"code":"","name":""}' ? undefined : value;
     }
   }
 
@@ -106,6 +107,7 @@ export default class Date extends React.Component {
     const newValue = JSON.stringify({ code: last.id, name: last.path });
     if (!last || (last.path.split('/').length < cell.enumDefault2 && !last.last)) {
       this.setState({ tempValue: newValue });
+      this.tempValue = newValue;
       return;
     }
 
@@ -116,12 +118,14 @@ export default class Date extends React.Component {
       value: newValue,
       tempValue: newValue,
     });
+    this.tempValue = newValue;
     autoClose && updateEditingStatus(false);
   };
 
   handleExit = () => {
     const { tableFromModule, updateCell, updateEditingStatus } = this.props;
-    const { value, tempValue } = this.state;
+    const { value } = this.state;
+    const tempValue = this.tempValue;
 
     if (value !== tempValue) {
       updateCell({
@@ -184,7 +188,7 @@ export default class Date extends React.Component {
         callback={this.handleChange}
         handleClose={(array = []) => {
           const last = _.last(array);
-          const valueParse = safeParse(tempValue);
+          const valueParse = safeParse(this.tempValue);
 
           if (
             _.isEmpty(valueParse) ||
@@ -250,6 +254,7 @@ export default class Date extends React.Component {
                     search: '',
                     keywords: '',
                   });
+                  this.tempValue = '';
                 }}
               />
             )}

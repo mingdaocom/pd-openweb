@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { FILTER_RELATION_TYPE, FILTER_TYPE } from './enum';
 import {
@@ -111,7 +111,7 @@ class Actions {
       type: 'UPDATE',
       value: {
         editingFilter: filter,
-        needSave: false,
+        ...(get(filter, 'id', '').startsWith('new') ? { needSave: false } : {}),
       },
     });
   };

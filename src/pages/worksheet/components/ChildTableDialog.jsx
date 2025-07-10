@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useKey } from 'react-use';
 import cx from 'classnames';
-import _, { get } from 'lodash';
+import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -290,7 +290,6 @@ export default function ChildTableDialog(props) {
           )}
         </Header>
         <Content>
-          {console.log(control)}
           <ChildTable
             valueChanged={props.valueChanged === true ? props.valueChanged : changed}
             needResetControls={needUpdateControls}
@@ -367,7 +366,12 @@ export default function ChildTableDialog(props) {
                   return { ...oldValue, updated, deleted, rows };
                 });
                 setChanged(true);
-              } else if (get(changedValues, 'lastAction.type') !== 'FORCE_SET_OUT_ROWS') {
+              } else if (
+                !includes(
+                  ['FORCE_SET_OUT_ROWS', 'UPDATE_BASE', 'INIT_ROWS', 'UPDATE_DATA_LOADING', 'LOAD_ROWS'],
+                  get(changedValues, 'lastAction.type'),
+                )
+              ) {
                 setChanged(true);
                 onChange(changedValues, 'childTableDialog');
               }

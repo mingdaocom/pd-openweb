@@ -1175,6 +1175,11 @@ export default class RecordInfo extends Component {
         <RecordInfoContext.Provider
           value={{
             api: this.getRecordApi,
+            enterEditingMode: () => {
+              this.setState({
+                iseditting: true,
+              });
+            },
             updateWorksheetControls: newControls => {
               newControls.forEach(control => {
                 try {

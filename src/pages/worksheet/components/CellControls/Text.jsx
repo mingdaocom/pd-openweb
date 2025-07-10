@@ -527,7 +527,7 @@ export default class Text extends React.Component {
           {!isediting &&
             (!!value || value == 0) &&
             (() => {
-              if ((cell.type === 2 || cell.type === 32) && (cell.advancedSetting || {}).analysislink === '1') {
+              if ((cell.advancedSetting || {}).analysislink === '1') {
                 return (
                   <span
                     className={

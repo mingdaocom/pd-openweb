@@ -24,6 +24,7 @@ import MapView from './MapView';
 import ResourceView from './ResourceView';
 import ViewContext from './ViewContext';
 
+
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
 
 const Con = styled.div`
@@ -31,6 +32,11 @@ const Con = styled.div`
   flex: 1;
   overflow: hidden;
   position: relative;
+  &.viewType-treeTableView {
+    .rowIsEmpty {
+      border: none !important;
+    }
+  }
 `;
 
 const Loading = styled.div``;

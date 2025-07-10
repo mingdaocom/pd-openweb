@@ -111,7 +111,7 @@ const StyledFixedTable = styled(FixedTable)`
     }
   }
   &:not(.classic) {
-    .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps):not(.showAsTextWithBg) {
+    .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps):not(.showAsTextWithBg):not(.rowIsEmpty) {
       background-color: #f5f5f5 !important;
     }
   }

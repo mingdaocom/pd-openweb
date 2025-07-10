@@ -204,6 +204,12 @@ export const DropdownPlaceholder = styled.div`
     &.deleted {
       border-color: #ff0000;
     }
+    .arrowIcon {
+      ${props => (props.cancelAble ? 'display: none;' : '')}
+    }
+    .clearIcon {
+      ${props => (props.cancelAble ? 'display: inline-block;' : '')}
+    }
   }
   &.disabled {
     background-color: #f5f5f5;
@@ -225,6 +231,10 @@ export const DropdownPlaceholder = styled.div`
   }
   &.placeholder {
     color: #bdbdbd;
+  }
+
+  .clearIcon {
+    display: none;
   }
 `;
 

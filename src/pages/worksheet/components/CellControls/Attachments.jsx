@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -375,8 +375,8 @@ function HoverPreviewPanel(props, cb = () => {}) {
   const { controlId, advancedSetting, sourceControlId } = cell;
   const { appId, viewId, worksheetId, recordId, disableDownload } = cellInfo;
   const [loading, setLoading] = useState(true);
-  const allowDelete = advancedSetting.allowdelete || '1';
-  const allowDownload = advancedSetting.allowdownload || '1';
+  const allowDelete = !get(window, 'shareState.shareId') && (advancedSetting.allowdelete || '1');
+  const allowDownload = !get(window, 'shareState.isPublicQuery') && (advancedSetting.allowdownload || '1');
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
   const downloadable =

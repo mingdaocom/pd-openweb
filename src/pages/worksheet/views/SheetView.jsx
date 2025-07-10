@@ -1080,7 +1080,7 @@ class TableView extends React.Component {
             recordColorConfig={getRecordColorConfig(view)}
             watchHeight={!browserIsMobile()}
             setHeightAsRowCount={fullShowTable}
-            minRowCount={minRowCount}
+            minRowCount={isTreeTableView ? rows.length + 2 : minRowCount}
             tableId={this.tableId}
             view={view}
             viewId={viewId}

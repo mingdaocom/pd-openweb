@@ -45,7 +45,7 @@ function tableState(
   }
   switch (action.type) {
     case 'UPDATE_RECORDS':
-      return { ...state, count: action.records.length };
+      return { ...state, count: action.records.length, originalRecords: action.records };
     case 'UPDATE_TABLE_STATE':
       return Object.assign({}, state, action.value);
     case 'APPEND_RECORDS':

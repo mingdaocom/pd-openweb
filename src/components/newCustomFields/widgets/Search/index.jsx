@@ -109,6 +109,7 @@ export default class Widgets extends Component {
       apiTemplateId: dataSource,
       authId: authaccount,
       actionType: enumDefault2 === 1 ? 13 : 8,
+      pushUniqueId: md.global.Config.pushUniqueId,
     };
 
     if (window.isPublicWorksheet) {

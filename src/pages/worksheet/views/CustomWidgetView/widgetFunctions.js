@@ -350,6 +350,7 @@ export const utils = {
         multiple: multiple,
         singleConfirm: true,
         relateSheetId,
+        worksheetId: relateSheetId,
         onOk: records => {
           emitWidgetAction('select-records', records);
           resolve(records);

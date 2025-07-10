@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _, { includes } from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
+import { validate } from 'uuid';
 import { Switch } from 'ming-ui';
 import { emitter, validateFnExpression } from 'src/utils/common';
 import CodeEdit from './common/CodeEdit';
@@ -141,7 +142,7 @@ function Func(props, ref) {
         controlIds.filter(
           id =>
             !_.find(controls, {
-              controlId: /^[a-zA-Z0-9]+-[\w\W]+$/.test(id) ? id.replace(/[a-zA-Z0-9]+-/, '') : id,
+              controlId: /^[a-zA-Z0-9]+-[\w\W]+$/.test(id) && !validate(id) ? id.replace(/[a-zA-Z0-9]+-/, '') : id,
             }),
         ).length
       ) {

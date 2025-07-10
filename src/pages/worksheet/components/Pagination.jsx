@@ -10,6 +10,8 @@ const Con = styled.div`
   font-size: 14px;
   color: #888;
   cursor: default;
+  display: flex;
+  align-items: center;
 `;
 const NoData = styled.div`
   padding: 0 15px;

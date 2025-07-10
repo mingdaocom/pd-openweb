@@ -193,7 +193,7 @@ export default function OperateButtons({
                     .getPrintList({
                       viewId,
                       worksheetId,
-                      rowIds: [recordId],
+                      rowIds: [recordId].filter(Boolean),
                     })
                     .then(templates => {
                       if (find(templates, template => template.id === button.printItem.id && !template.disabled)) {

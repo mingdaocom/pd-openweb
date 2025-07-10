@@ -189,7 +189,7 @@ export default class PrintList extends Component {
         .getPrintList({
           worksheetId,
           viewId,
-          rowIds: [recordId],
+          rowIds: [recordId].filter(Boolean),
         })
         .then(tempList => {
           let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;

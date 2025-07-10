@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { refresh } from 'less';
-import { find, get, isFunction, trim, uniqBy } from 'lodash';
+import _, { find, get, isFunction, trim, uniqBy } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -63,6 +62,8 @@ export default function useRecords(props) {
   const cache = useRef({});
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [worksheetInfo, setWorksheetInfo] = useState({});
+  const [recordsLoading, setRecordsLoading] = useState(true);
   const [keyWords, setKeyWords] = useState('');
   const [sortControl, setSortControl] = useState();
   const [pageIndex, setPageIndex] = useState(1);
@@ -76,22 +77,25 @@ export default function useRecords(props) {
   const { searchControl, clickSearch } = searchConfig;
   const filterControls = useMemo(() => {
     if (control && control.advancedSetting && control.advancedSetting.filters) {
-      return getFilter({ control: { ...control, recordId }, formData });
+      return getFilter({
+        control: { ...control, recordId, relationControls: get(worksheetInfo, 'template.controls', []) },
+        formData,
+      });
     }
     return;
-  }, [control, formData]);
+  }, [control, formData, worksheetInfo]);
   // TODO abort
   const load = useCallback(() => {
     if (filterControls === false && !ignoreAllFilters) {
       setError(ERROR_STATUS.INVALID_CONDITION);
-      setLoading(false);
+      setRecordsLoading(false);
       return;
     }
     if (clickSearch && !keyWords) {
-      setLoading(false);
+      setRecordsLoading(false);
       return;
     }
-    setLoading(true);
+    setRecordsLoading(true);
     setRecords([]);
     const args = {
       appId,
@@ -155,17 +159,29 @@ export default function useRecords(props) {
           get(control, 'advancedSetting.searchcontrol') &&
           searchControl &&
           find(filteredRecords, c => c[searchControl.controlId] === keyWords);
-        if (needSort && get(control, 'advancedSetting.searchtype') !== '1') {
-          filteredRecords = filteredRecords.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
+        if (
+          needSort &&
+          get(control, 'advancedSetting.searchtype') !== '1' &&
+          find(filteredRecords, c => c[searchControl.controlId] === keyWords)
+        ) {
+          filteredRecords = filteredRecords.sort((a, b) => {
+            if (a[searchControl.controlId] === keyWords) {
+              return -1;
+            }
+            if (b[searchControl.controlId] === keyWords) {
+              return 1;
+            }
+            return 0;
+          });
         }
         if (filteredRecords.length === 0 && (pageIndex + 1) * pageSize < res.count) {
           setPageIndex(pageIndex + 1);
         }
         setRecords(filteredRecords);
         setTotal(res.count);
-        setLoading(false);
+        setRecordsLoading(false);
       } else {
-        setLoading(false);
+        setRecordsLoading(false);
         setError(res.resultCode === ERROR_STATUS.OVER_LENGTH ? ERROR_STATUS.OVER_LENGTH : ERROR_STATUS.NO_PERMISSION);
       }
     });
@@ -173,8 +189,16 @@ export default function useRecords(props) {
   useEffect(() => {
     load();
   }, [pageIndex, pageSize, keyWords, filterControls, ignoreAllFilters, sortControl, quickFilters, clickSearch]);
+  useEffect(() => {
+    getWorksheetInfo(worksheetId, parentWorksheetId).then(data => {
+      setWorksheetInfo(data);
+      setLoading(false);
+    });
+  }, [worksheetId, parentWorksheetId]);
   return {
     loading,
+    worksheetInfo,
+    recordsLoading,
     records,
     pageIndex,
     pageSize,
@@ -190,7 +214,7 @@ export default function useRecords(props) {
     setRecords,
     refresh: load,
     handleUpdateKeyWords: newKeyWords => {
-      setLoading(true);
+      setRecordsLoading(true);
       setKeyWords(newKeyWords);
       setPageIndex(1);
     },

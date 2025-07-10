@@ -110,7 +110,7 @@ export default function PrintList(props) {
       .getPrintList({
         worksheetId,
         viewId,
-        rowIds: selectedRowIds,
+        rowIds: selectedRowIds.filter(Boolean),
       })
       .then(data => {
         setLoading(false);

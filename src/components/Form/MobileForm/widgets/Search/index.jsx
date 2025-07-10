@@ -1,11 +1,11 @@
-import React, { useState, useRef, useCallback, memo, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import PopupSearch from './PopupSearch';
-import { getParamsByConfigs, getShowValue, clearValue, handleUpdateApi } from '../../../core/searchUtils';
-import worksheetAjax from 'src/api/worksheet';
-import _ from 'lodash';
+import React, { Fragment, memo, useCallback, useRef, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { clearValue, getParamsByConfigs, getShowValue, handleUpdateApi } from '../../../core/searchUtils';
+import PopupSearch from './PopupSearch';
 
 const SearchBox = props => {
   const { advancedSetting = {}, formData, type, hint, enumDefault, value, controlName, disabled, formDisabled } = props;
@@ -57,6 +57,7 @@ const SearchBox = props => {
       apiTemplateId: dataSource,
       authId: authaccount,
       actionType: enumDefault2 === 1 ? 13 : 8,
+      pushUniqueId: md.global.Config.pushUniqueId,
     };
 
     if (window.isPublicWorksheet) {

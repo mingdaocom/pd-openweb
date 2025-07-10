@@ -1888,6 +1888,12 @@ class ChildTable extends React.Component {
                     }, 100);
                     return;
                   }
+                  if (isDraft) {
+                    const enterEditingMode = _.get(this, 'context.enterEditingMode');
+                    if (enterEditingMode) {
+                      enterEditingMode();
+                    }
+                  }
                 }}
                 onUpdateRules={newRules => {
                   updateBase({ worksheetInfo: { ...this.worksheetInfo, rules: newRules } });

@@ -131,6 +131,7 @@ function TableComp(props) {
     sheetColumnWidths = {},
     selectedRowIds = [],
     isBatchEditing,
+    originalRecords = [],
   } = tableState;
   const worksheetTableRef = useRef();
   const dataCache = useRef({});
@@ -268,108 +269,116 @@ function TableComp(props) {
       columns={columns}
       sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
       sheetViewHighlightRows={highlightRows}
-      renderRowHead={({ className, style, rowIndex, row }) => (
-        <RowHead
-          tableType={tableConfig.tableType}
-          isBatchEditing={isBatchEditing}
-          showQuickFromSetting={showQuickFromSetting}
-          selected={includes(selectedRowIds, row.rowid)}
-          allIsSelected={allIsSelected}
-          relateRecordControlId={control.controlId}
-          allowOpenRecord={allowOpenRecord}
-          className={className}
-          style={style}
-          rowIndex={rowIndex}
-          row={row}
-          layoutChangeVisible={isCharge && layoutChanged}
-          allowRemoveRelation={allowRemoveRelation}
-          tableControls={controls}
-          sheetSwitchPermit={sheetSwitchPermit}
-          appId={relateWorksheetInfo.appId}
-          viewId={control.viewId}
-          worksheetId={relateWorksheetInfo.worksheetId}
-          relateRecordControlPermission={controlPermission}
-          allowAdd={addVisible}
-          allowDelete={allowDeleteFromSetting}
-          allowEdit={allowEdit && control.type !== 51 && !control.disabled}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          recordId={recordId}
-          projectId={relateWorksheetInfo.projectId}
-          deleteRelateRow={handleRemoveRelation}
-          isDraft={isDraft}
-          from={from}
-          removeRecords={rows => {
-            deleteRecords(rows.map(r => r.rowid));
-          }}
-          openRecord={id => handleOpenRecordInfo({ recordId: id })}
-          addRecord={(record, afterRecordId) => {
-            updateTableState({
-              highlightRows: { [record.rowid]: true },
-            });
-            appendRecords([{ ...record, pid: row.pid }], { afterRecordId });
-          }}
-          saveSheetLayout={() => {
-            handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting });
-          }}
-          resetSheetLayout={() => {
-            updateTableState({
-              layoutChanged: false,
-              sheetHiddenColumnIds: [],
-              sortControl: undefined,
-              fixedColumnCount: 0,
-              sheetColumnWidths: {},
-            });
-          }}
-          onRecreate={() => {
-            handleRecreateRecord(row, {
-              openRecord: id => handleOpenRecordInfo({ recordId: id }),
-              isDraft,
-            });
-          }}
-          updateRows={newRow => {
-            updateRecord(newRow);
-          }}
-          onSelect={({ action } = {}) => {
-            let isSelect, selectRowIndex, selectedRecords;
-            switch (action) {
-              case 'toggleSelectRow':
-                selectRowIndex = findIndex(records, { rowid: row.rowid });
-                isSelect = !includes(selectedRowIds, row.rowid);
-                if (isSelect && cache.current.shiftActive && typeof cache.current.lastSelectRowIndex !== 'undefined') {
-                  selectedRecords = records.slice(
-                    Math.min(cache.current.lastSelectRowIndex, selectRowIndex),
-                    Math.max(cache.current.lastSelectRowIndex, selectRowIndex) + 1,
-                  );
+      renderRowHead={({ className, style, rowIndex, row }) => {
+        const isSavedRecord = !!find(originalRecords, { rowid: row.rowid });
+        const canRemoveRelation = allowRemoveRelation || !isSavedRecord;
+        return (
+          <RowHead
+            tableType={tableConfig.tableType}
+            isBatchEditing={isBatchEditing}
+            showQuickFromSetting={showQuickFromSetting}
+            selected={includes(selectedRowIds, row.rowid)}
+            allIsSelected={allIsSelected}
+            relateRecordControlId={control.controlId}
+            allowOpenRecord={allowOpenRecord}
+            className={className}
+            style={style}
+            rowIndex={rowIndex}
+            row={row}
+            layoutChangeVisible={isCharge && layoutChanged}
+            allowRemoveRelation={canRemoveRelation}
+            tableControls={controls}
+            sheetSwitchPermit={sheetSwitchPermit}
+            appId={relateWorksheetInfo.appId}
+            viewId={control.viewId}
+            worksheetId={relateWorksheetInfo.worksheetId}
+            relateRecordControlPermission={controlPermission}
+            allowAdd={addVisible}
+            allowDelete={allowDeleteFromSetting}
+            allowEdit={allowEdit && control.type !== 51 && !control.disabled}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            recordId={recordId}
+            projectId={relateWorksheetInfo.projectId}
+            deleteRelateRow={handleRemoveRelation}
+            isDraft={isDraft}
+            from={from}
+            removeRecords={rows => {
+              deleteRecords(rows.map(r => r.rowid));
+            }}
+            openRecord={id => handleOpenRecordInfo({ recordId: id })}
+            addRecord={(record, afterRecordId) => {
+              updateTableState({
+                highlightRows: { [record.rowid]: true },
+              });
+              appendRecords([{ ...record, pid: row.pid }], { afterRecordId });
+            }}
+            saveSheetLayout={() => {
+              handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting });
+            }}
+            resetSheetLayout={() => {
+              updateTableState({
+                layoutChanged: false,
+                sheetHiddenColumnIds: [],
+                sortControl: undefined,
+                fixedColumnCount: 0,
+                sheetColumnWidths: {},
+              });
+            }}
+            onRecreate={() => {
+              handleRecreateRecord(row, {
+                openRecord: id => handleOpenRecordInfo({ recordId: id }),
+                isDraft,
+              });
+            }}
+            updateRows={newRow => {
+              updateRecord(newRow);
+            }}
+            onSelect={({ action } = {}) => {
+              let isSelect, selectRowIndex, selectedRecords;
+              switch (action) {
+                case 'toggleSelectRow':
+                  selectRowIndex = findIndex(records, { rowid: row.rowid });
+                  isSelect = !includes(selectedRowIds, row.rowid);
+                  if (
+                    isSelect &&
+                    cache.current.shiftActive &&
+                    typeof cache.current.lastSelectRowIndex !== 'undefined'
+                  ) {
+                    selectedRecords = records.slice(
+                      Math.min(cache.current.lastSelectRowIndex, selectRowIndex),
+                      Math.max(cache.current.lastSelectRowIndex, selectRowIndex) + 1,
+                    );
+                    updateTableState({
+                      selectedRowIds: uniq(selectedRowIds.concat(selectedRecords.map(r => r.rowid))),
+                    });
+                  } else {
+                    updateTableState({
+                      selectedRowIds: isSelect
+                        ? selectedRowIds.concat(row.rowid)
+                        : selectedRowIds.filter(rowid => rowid !== row.rowid),
+                    });
+                  }
+                  if (selectRowIndex >= 0) {
+                    cache.current.lastSelectRowIndex = selectRowIndex;
+                  }
+                  break;
+                case 'selectAll':
                   updateTableState({
-                    selectedRowIds: uniq(selectedRowIds.concat(selectedRecords.map(r => r.rowid))),
+                    selectedRowIds: (recordId && !base.saveSync
+                      ? getPageRecords({ records, pageIndex, pageSize, isTreeTableView })
+                      : records
+                    ).map(r => r.rowid),
                   });
-                } else {
-                  updateTableState({
-                    selectedRowIds: isSelect
-                      ? selectedRowIds.concat(row.rowid)
-                      : selectedRowIds.filter(rowid => rowid !== row.rowid),
-                  });
-                }
-                if (selectRowIndex >= 0) {
-                  cache.current.lastSelectRowIndex = selectRowIndex;
-                }
-                break;
-              case 'selectAll':
-                updateTableState({
-                  selectedRowIds: (recordId && !base.saveSync
-                    ? getPageRecords({ records, pageIndex, pageSize, isTreeTableView })
-                    : records
-                  ).map(r => r.rowid),
-                });
-                break;
-              case 'clearSelectAll':
-                updateTableState({ selectedRowIds: [] });
-                break;
-            }
-          }}
-        />
-      )}
+                  break;
+                case 'clearSelectAll':
+                  updateTableState({ selectedRowIds: [] });
+                  break;
+              }
+            }}
+          />
+        );
+      }}
       renderColumnHead={({ ...rest }) => {
         const { control } = rest;
         return (

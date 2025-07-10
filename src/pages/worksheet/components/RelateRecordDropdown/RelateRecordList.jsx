@@ -1,5 +1,5 @@
 import React from 'react';
-import _, { get, isEmpty } from 'lodash';
+import _, { find, get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
@@ -246,8 +246,21 @@ export default class RelateRecordList extends React.PureComponent {
         );
         const needSort =
           keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
-        if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
-          newRecords = newRecords.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
+        if (
+          needSort &&
+          _.get(control, 'advancedSetting.searchtype') !== '1' &&
+          find(newRecords, record => record[searchControl.controlId] === keyWords)
+        ) {
+          // pick match record to top
+          newRecords = newRecords.sort((a, b) => {
+            if (a[searchControl.controlId] === keyWords) {
+              return -1;
+            }
+            if (b[searchControl.controlId] === keyWords) {
+              return 1;
+            }
+            return 0;
+          });
         }
         this.setState({
           error: undefined,

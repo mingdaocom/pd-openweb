@@ -433,6 +433,7 @@ const handleSearchApi = async props => {
     apiTemplateId: dataSource,
     apiEventId: advancedSetting.apiEventId,
     authId: advancedSetting.authaccount,
+    pushUniqueId: md.global.Config.pushUniqueId,
     actionType,
   };
 

@@ -176,7 +176,9 @@ export default function SelectDialog({ ...args }) {
   } = args;
   const worksheetId = control.dataSource || args.worksheetId;
   const {
-    loading: recordsLoading,
+    loading,
+    recordsLoading,
+    worksheetInfo,
     error,
     records,
     total,
@@ -212,9 +214,7 @@ export default function SelectDialog({ ...args }) {
   const recordsCache = useRef({});
   const tableRef = useRef();
   const cache = useRef({});
-  const [loading, setLoading] = useState(true);
   const [activeRowIndex, setActiveRowIndex] = useState(-1);
-  const [worksheetInfo, setWorksheetInfo] = useState({});
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [tempSheetColumnWidths, setTempSheetColumnWidths] = useState({});
   const allowShowIgnoreAllFilters = isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
@@ -365,12 +365,6 @@ export default function SelectDialog({ ...args }) {
       }
     });
   }, [selectedRowIds, records]);
-  useEffect(() => {
-    getWorksheetInfo(worksheetId, parentWorksheetId).then(data => {
-      setWorksheetInfo(data);
-      setLoading(false);
-    });
-  }, [worksheetId, parentWorksheetId]);
   useEffect(() => {
     return () => {
       document.querySelector('#selectRecordsTableCon') &&
@@ -607,7 +601,7 @@ export default function SelectDialog({ ...args }) {
               />
             )}
           </div>
-          {!!total && (
+          {!!total && !selectedRowIds.length && (
             <Pagination
               disabled={loading || recordsLoading}
               appendToBody

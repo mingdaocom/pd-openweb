@@ -1,23 +1,23 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
+import { Toast } from 'antd-mobile';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Toast } from 'antd-mobile';
 import Amap from 'ming-ui/components/amap/Amap';
 import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
-import MDMap from 'ming-ui/components/amap/MDMap';
-import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
-import { wgs84togcj02, toFixed, getMapConfig } from '../../tools/utils';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
+import MDMap from 'ming-ui/components/amap/MDMap';
 import {
-  bindWeiXin,
-  bindWxWork,
-  bindFeishu,
   bindDing,
+  bindFeishu,
+  bindWeiXin,
   bindWeLink,
+  bindWxWork,
   handleTriggerEvent,
 } from '../../../core/authentication';
-import _ from 'lodash';
+import { getMapConfig, toFixed, wgs84togcj02 } from '../../tools/utils';
 
 const LocationWrap = styled.div`
   .locationTitle {
@@ -279,6 +279,33 @@ export default class Widgets extends Component {
       icon: 'loading',
       content: _l('正在获取取经纬度，请稍后'),
     });
+    if (!!getMapConfig()) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            onChange(
+              JSON.stringify({
+                x: lng,
+                y: lat,
+                address: '',
+                title: '',
+                coordinate: 'wgs84',
+              }),
+            );
+          },
+          () => {
+            window.nativeAlert(_l('定位失败，请重试'));
+          },
+        );
+        Toast.clear();
+      } else {
+        window.nativeAlert(_l('定位失败，请重试'));
+        Toast.clear();
+      }
+      return;
+    }
     new MapLoader().loadJs().then(() => {
       new MapHandler().getCurrentPos((status, res) => {
         if (status === 'complete') {

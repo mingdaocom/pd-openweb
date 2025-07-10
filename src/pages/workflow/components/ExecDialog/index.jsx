@@ -208,7 +208,7 @@ export default class ExecDialog extends Component {
         viewId={viewId}
         recordId={rowId}
         worksheetId={worksheetId}
-        recordTitle={data.recordTitle ? data.title : ''}
+        recordTitle={data.recordTitle ? data.title.replace(/(<([^>]+)>)/gi, '') : ''}
         renderHeader={({ resultCode, isLoading, onRefresh }) => {
           return (
             <Header

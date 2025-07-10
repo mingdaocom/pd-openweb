@@ -303,7 +303,7 @@ export default class Card extends Component {
       <div className="mobileProcessCardBody flexColumn">
         <div className="flexRow">
           <img className="accountAvatar" src={createAccount.avatar} />
-          <span className="breakAll">{renderBodyTitle()}</span>
+          <span className="breakAll">{renderBodyTitle().replace(/(<([^>]+)>)/gi, '')}</span>
         </div>
         {this.processInformTabs.includes(currentTab) && (
           <span className="Gray_9e Font13 mTop8 ellipsis">{item.workItem.opinion}</span>

@@ -9,8 +9,8 @@ import { Icon, LoadDiv } from 'ming-ui';
 import fixedDataController from 'src/api/fixedData';
 import { browserIsMobile } from 'src/utils/common';
 import MobileCityPicker from './MobileCityPciker';
-import '../less/CityPicker.less';
 import 'rc-trigger/assets/index.css';
+import '../less/CityPicker.less';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
@@ -285,7 +285,7 @@ export default function CityPicker(props) {
             {data.map(item => {
               if (!item.path) return;
 
-              let diff = diffChars(search, item.path);
+              let diff = diffChars(search, item.path, { ignoreCase: true });
 
               return (
                 <li

@@ -157,6 +157,9 @@ export function handleConditionsDefault(conditions, controls) {
         condition = assign(condition, dynamicResult[0]);
       }
     }
+    if (control.type === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
+      condition.value = 1;
+    }
     return condition;
   });
 }

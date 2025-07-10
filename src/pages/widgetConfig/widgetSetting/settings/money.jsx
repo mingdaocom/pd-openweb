@@ -156,9 +156,22 @@ export default function Money(props) {
             />
           }
         >
-          <DropdownPlaceholder>
+          <DropdownPlaceholder cancelAble={!!currentCurrency}>
             {renderPlaceholder()}
-            <i className="icon-arrow-down-border Font14 Gray_9e"></i>
+            <i
+              className="icon-cancel1 Gray_9e Font14 clearIcon"
+              onClick={e => {
+                e.stopPropagation();
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    currency: '',
+                    currencynames: '',
+                    ...(showformat !== '0' ? { showformat: '0', suffix: _l('元'), prefix: '' } : {}),
+                  }),
+                );
+              }}
+            />
+            <i className="icon-arrow-down-border Font14 Gray_9e arrowIcon"></i>
           </DropdownPlaceholder>
         </Dropdown>
       </SettingItem>

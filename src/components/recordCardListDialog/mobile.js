@@ -71,7 +71,6 @@ export default class RecordCardListDialog extends Component {
       quickFilters: [],
     };
     this.clickSearch = clickSearch;
-    this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
     this.isOnComposition = false;
   }
   componentDidMount() {
@@ -405,7 +404,7 @@ export default class RecordCardListDialog extends Component {
     );
   }
 
-  handleSearch = (value, isScanSearch) => {
+  handleSearch = _.debounce((value, isScanSearch) => {
     this.setState(
       {
         keyWords: value,
@@ -420,10 +419,10 @@ export default class RecordCardListDialog extends Component {
           this.setState({ loading: false });
           return;
         }
-        this.lazyLoadRecorcd();
+        this.loadRecorcd();
       },
     );
-  };
+  }, 500);
 
   handleFilter = filters => {
     this.setState(

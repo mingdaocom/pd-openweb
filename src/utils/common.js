@@ -165,7 +165,7 @@ export function validateFnExpression(expression, type = 'mdfunction') {
     if (type === 'mdfunction') {
       expression = expression.replace(/[\r\r\n ]/g, '');
       expression = expression.replace(/([A-Z_]+)(?=\()/g, 'test');
-      eval(`function test() {return '-';}${expression}`);
+      eval(`let test = function() {return '-';};${expression}`);
     } else if (type === 'javascript') {
       eval(`function test() {${expression} }`);
     }
