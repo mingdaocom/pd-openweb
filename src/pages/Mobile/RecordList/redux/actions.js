@@ -85,12 +85,14 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
   if (!window.isMingDaoApp || !getFilters) {
     dispatch(updateActiveSavedFilter([]));
   }
-  if (appNaviStyle === 2 && currentNavWorksheetInfo) {
+  if (appNaviStyle === 2 && currentNavWorksheetInfo && currentNavWorksheetInfo.worksheetId) {
     dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
-    currentNavWorksheetInfo.worksheetId && dispatch(loadSavedFilters(currentNavWorksheetId));
+    currentNavWorksheetInfo.worksheetId &&
+      currentNavWorksheetInfo.type === 1 &&
+      dispatch(loadSavedFilters(currentNavWorksheetId));
     const views =
       base.type === 'single'
         ? currentNavWorksheetInfo.views
@@ -198,7 +200,9 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       if (workSheetInfo.rules && workSheetInfo.rules.length) {
         workSheetInfo.rules = replaceRulesTranslateInfo(base.appId, workSheetInfo.worksheetId, workSheetInfo.rules);
       }
-      dispatch(loadSavedFilters(workSheetInfo.worksheetId));
+      if (workSheetInfo.type === 1) {
+        dispatch(loadSavedFilters(workSheetInfo.worksheetId));
+      }
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
       dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: switches });
       dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });

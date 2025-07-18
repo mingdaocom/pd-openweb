@@ -106,6 +106,7 @@ export default function (props) {
       _.get(md, 'global.Config.IsLocal') &&
       _.get(md, 'global.SysSettings.hideRegister') &&
       (location.href.indexOf('/register') >= 0 ||
+        (location.href.indexOf('/linkInvite') >= 0 && request.projectId) || //主动注册
         ((location.href.indexOf('/enterpriseRegister') >= 0 || location.href.indexOf('/enterpriseRegister') >= 0) &&
           !request.type))
     ) {

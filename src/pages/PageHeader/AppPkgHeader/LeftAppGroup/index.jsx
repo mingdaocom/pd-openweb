@@ -238,7 +238,7 @@ const AppSectionItem = props => {
               if (classList.contains('appGroup') || classList.contains('nameWrap') || classList.contains('arrowIcon')) {
                 props.setUnfoldAppSectionId(!childrenVisible ? item.workSheetId : null);
                 const elWrap = document.querySelector(`.appGroupWrap-${item.workSheetId} .workSheetLeft>.flex`);
-                const childrens = elWrap.querySelectorAll('&>div');
+                const childrens = elWrap.querySelectorAll(':scope > div');
                 let height = 8;
                 childrens.forEach(el => {
                   const groupItems = el.querySelector('.groupItems');
