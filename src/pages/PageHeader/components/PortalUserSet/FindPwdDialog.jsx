@@ -244,9 +244,12 @@ export default function TelDialog(props) {
           return;
         }
       }; //http://web.dev.mingdao.net/portal/wxscanauth?state=0af0120d50d207807308f07b0360800400fe08a009051068
-      externalPortalAjax.sendAccountVerifyCode(param).then(data => {
-        thenFn(data);
-      });
+      externalPortalAjax
+        .sendAccountVerifyCode(param)
+        .then(data => {
+          thenFn(data);
+        })
+        .catch(() => this.setState({ verifyCodeLoading: false }));
     };
 
     new captcha(callback);

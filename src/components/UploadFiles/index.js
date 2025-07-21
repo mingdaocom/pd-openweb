@@ -30,6 +30,16 @@ import {
 } from './utils';
 import './index.less';
 
+const errorCode = {
+  40001: _l('鉴权失败'),
+  40002: _l('非法的文件类型'),
+  40003: _l('bucket 不存在'),
+  40004: _l('文件大小错误'),
+  50002: _l('系统错误 metadata error'),
+  50003: _l('系统错误 hash error'),
+  50004: _l('系统错误'),
+};
+
 export default class UploadFiles extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -841,6 +851,21 @@ export default class UploadFiles extends Component {
             _this._uploading = false;
           }}
           onError={(uploader, error) => {
+            _this.onRemoveAll(uploader);
+            if (md.global.Config.IsLocal && error.response) {
+              try {
+                const res = JSON.parse(error.response);
+                if (res.code === 50001) {
+                  alert(res.message, 2);
+                  return;
+                } else if (errorCode[res.code]) {
+                  alert(errorCode[res.code], 2);
+                  return;
+                }
+              } catch (error) {
+                console.error(error);
+              }
+            }
             if (error.code === window.plupload.FILE_SIZE_ERROR) {
               alert(_l('单个文件大小超过%0MB，无法支持上传', maxTotalSize), 2);
             } else {

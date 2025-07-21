@@ -82,7 +82,8 @@ export default class WidgetsVerifyCode extends Component {
             );
             _this.setState({ isSubmit: false });
           }
-        });
+        })
+        .catch(() => _this.setState({ isSubmit: false }));
     };
 
     // 前3次关闭图像验证

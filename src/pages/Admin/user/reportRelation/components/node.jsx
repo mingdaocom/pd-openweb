@@ -56,8 +56,8 @@ class Node extends Component {
     } = this.props;
 
     if (subordinates && !collapsed) {
-      const sortSubordinates = !_.isEmpty(sourceData)
-        ? _.orderBy(sourceData, ['status'], ['desc'])
+      const sortSubordinates = !_.isEmpty(_.uniqBy(sourceData, 'accountId'))
+        ? _.orderBy(_.uniqBy(sourceData, 'accountId'), ['status'], ['desc'])
             .map(v => v.accountId)
             .filter(v => _.includes(subordinates, v))
         : subordinates;

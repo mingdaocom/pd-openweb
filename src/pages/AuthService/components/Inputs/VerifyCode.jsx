@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { captcha } from 'ming-ui/functions';
 import RegisterController from 'src/api/register';
 import { ActionResult, CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
-import { isTel, validation } from 'src/pages/AuthService/util.js';
+import { isTel, toMDApp, validation } from 'src/pages/AuthService/util.js';
 import { emitter, encrypt } from 'src/utils/common';
 
 // 'inputCode',//验证码
@@ -137,13 +137,25 @@ export default function (props) {
             }
           }
         };
+        const renderErr = error => {
+          setState({ verifyCodeLoading: false });
+          if (error.errorMessage) {
+            updateWarn([{ tipDom: 'inputCode', warnTxt: error.errorMessage, isError: true }]);
+          }
+        };
         if (type === 'portalLogin') {
-          sendVerifyCode({ ...param, appId }).then(data => fetchCallBack({ ...data, ...param }));
+          sendVerifyCode({ ...param, appId })
+            .then(data => fetchCallBack({ ...data, ...param }))
+            .catch(renderErr);
         } else if (type !== 'findPassword') {
           param.isFirstTime = firstSendVerifyCode;
-          RegisterController.sendRegisterVerifyCode(param).then(data => fetchCallBack(data));
+          RegisterController.sendRegisterVerifyCode(param)
+            .then(data => fetchCallBack(data))
+            .catch(renderErr);
         } else {
-          RegisterController.sendFindPasswordVerifyCode(param).then(data => fetchCallBack(data));
+          RegisterController.sendFindPasswordVerifyCode(param)
+            .then(data => fetchCallBack(data))
+            .catch(renderErr);
         }
       };
 
@@ -231,10 +243,10 @@ export default function (props) {
           })}
           id="btnSendVerifyCode"
           value={verifyCodeText || (verifyCodeLoading ? _l('发送中...') : _l('获取验证码'))}
-          onClick={e => handleSendVerifyCode(CodeTypeEnum.message)}
+          onClick={() => handleSendVerifyCode(CodeTypeEnum.message)}
         />
         <input type="text" tabIndex="-1" className="Alpha0 inputHidden" />
-        <div className="title" onClick={e => CodeRef.current.focus()}>
+        <div className="title" onClick={() => CodeRef.current.focus()}>
           {_l('验证码')}
         </div>
         {warn && <div className={cx('warnTips')}>{warn.warnTxt}</div>}

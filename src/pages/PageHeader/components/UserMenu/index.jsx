@@ -145,9 +145,15 @@ export default function UserMenu(props) {
 
         {md.global.Account.superAdmin && (
           <li data-tag="privateDeployment">
-            <a href="/privateDeployment/base">
-              <span className="icon icon-settings Font16" />
-              {_l('系统配置')}
+            <a
+              href="javascript:;"
+              onClick={e => {
+                e.stopPropagation();
+                location.href = md.global.Config.WebUrl + 'pm/sysconfig';
+              }}
+            >
+              <span className="icon icon-settings" />
+              {_l('平台管理')}
             </a>
           </li>
         )}
@@ -232,13 +238,7 @@ export default function UserMenu(props) {
       </ul>
 
       {showDialog && (
-        <Dialog
-          visible
-          title={_l('关注服务号')}
-          width={400}
-          footer={null}
-          handleClose={() => setShowDialog(false)}
-        >
+        <Dialog visible title={_l('关注服务号')} width={400} footer={null} handleClose={() => setShowDialog(false)}>
           <div className="flexRow alignItemsCenter">
             <div className="flexColumn justifyContentCenter" style={{ width: 100, height: 100 }}>
               {code ? <img src={code} width="100" height="100" /> : <LoadDiv />}

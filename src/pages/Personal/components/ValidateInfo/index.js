@@ -191,9 +191,10 @@ export default class ValidateInfoCon extends Component {
             } else {
               alert(_l('验证码发送失败'), 2);
             }
-            _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('获取验证码') });
+            _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('发送验证码') });
           }
-        });
+        })
+        .catch(() => _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('发送验证码') }));
     };
     new captcha(callback);
   };

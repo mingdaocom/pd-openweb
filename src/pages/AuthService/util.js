@@ -37,7 +37,7 @@ export const registerSuc = (registerData, action) => {
   if (returnUrl.indexOf('type=privatekey') > -1) {
     location.href = returnUrl;
   } else {
-    toMDPage()
+    toMDPage();
   }
 
   if (window.isMingDaoApp) {
@@ -51,12 +51,12 @@ export const registerSuc = (registerData, action) => {
 
 export const toMDPage = () => {
   if (_.get(md, 'global.SysSettings.loginGotoUrl')) {
-    location.href = md.global.Config.WebUrl + md.global.SysSettings.loginGotoUrl
-    return
+    location.href = md.global.Config.WebUrl + md.global.SysSettings.loginGotoUrl;
+    return;
   }
   if (_.get(md, 'global.SysSettings.loginGotoAppId')) {
     window.location.replace(`/app/${md.global.SysSettings.loginGotoAppId}`);
-    return
+    return;
   }
   window.location.replace('/dashboard');
 };
@@ -95,9 +95,7 @@ export const getDialCode = (isMobile = true) => {
 };
 
 export const getDefaultCountry = () => {
-  return (
-    window.localStorage.getItem('DefaultCountry') || _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn'
-  );
+  return window.localStorage.getItem('DefaultCountry') || _.get(md, 'global.Config.DefaultRegion') || 'cn';
 };
 
 export const getAccountTypes = isLogin => {

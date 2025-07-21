@@ -40,7 +40,7 @@ export default function (props) {
 
   const cache = useRef({});
 
-  useKey('Enter', e => {
+  useKey('Enter', () => {
     if (!hasCaptcha()) {
       cache.current.onLogin();
     }
@@ -120,6 +120,9 @@ export default function (props) {
             alert(_l('验证码发送失败'), 3);
             break;
         }
+      })
+      .catch(() => {
+        onChange({ loginDisabled: false });
       });
   };
 

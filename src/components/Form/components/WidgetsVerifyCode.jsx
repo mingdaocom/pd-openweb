@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Button } from 'ming-ui';
-import { captcha } from 'ming-ui/functions';
 import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
+import { captcha } from 'ming-ui/functions';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 
 export default class WidgetsVerifyCode extends Component {
@@ -79,7 +79,8 @@ export default class WidgetsVerifyCode extends Component {
             );
             _this.setState({ isSubmit: false });
           }
-        });
+        })
+        .catch(() => _this.setState({ isSubmit: false }));
     };
     const onCancel = isOk => {
       if (isOk) return;

@@ -124,7 +124,7 @@ export default class Widgets extends Component {
 
   initialCountry() {
     const { advancedSetting } = this.props;
-    const initialCountry = _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn';
+    const initialCountry = _.get(md, 'global.Config.DefaultRegion') || 'cn';
     return advancedSetting.defaultarea ? JSON.parse(advancedSetting.defaultarea).iso2 : initialCountry;
   }
 

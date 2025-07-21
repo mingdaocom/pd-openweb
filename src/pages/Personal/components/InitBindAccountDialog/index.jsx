@@ -134,7 +134,7 @@ export default class InitBindAccountDialog extends Component {
                 }
               }
             })
-            .catch();
+            .catch(() => _this.setState({ isSendVerify: false }));
         }
       },
       10000,

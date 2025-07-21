@@ -248,9 +248,12 @@ class TelCon extends React.Component {
             return;
           }
         };
-        externalPortalAjax.sendAccountVerifyCode(param).then(data => {
-          thenFn(data);
-        });
+        externalPortalAjax
+          .sendAccountVerifyCode(param)
+          .then(data => {
+            thenFn(data);
+          })
+          .catch(() => this.setState({ verifyCodeLoading: false }));
       };
 
       new captcha(callback);

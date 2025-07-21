@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import intlTelInput from 'ming-ui/components/intlTelInput';
 import cx from 'classnames';
 import _ from 'lodash';
+import intlTelInput from 'ming-ui/components/intlTelInput';
 
 export default class Tel extends Component {
   componentDidMount() {
@@ -13,7 +13,7 @@ export default class Tel extends Component {
       customPlaceholder: '',
       separateDialCode: true,
       showSelectedDialCode: true,
-      initialCountry: this.props.allowDropdown ? _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn' : 'cn',
+      initialCountry: this.props.allowDropdown ? _.get(md, 'global.Config.DefaultRegion') || 'cn' : 'cn',
       onlyCountries: this.props.allowDropdown ? [] : ['cn'], //只支持大陆号码
       allowDropdown: this.props.allowDropdown || false, //不下拉
     });

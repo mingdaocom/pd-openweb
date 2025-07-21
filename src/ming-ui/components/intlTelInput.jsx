@@ -263,7 +263,7 @@ export default function MDIntlTelInput(element, options) {
     },
     loadUtils: '',
     autoPlaceholder: 'off',
-    initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+    initialCountry: _.get(md, 'global.Config.DefaultRegion') || 'cn',
     ..._.omit(options, 'preferredCountries'),
   };
 
@@ -329,9 +329,7 @@ export const specialTelVerify = value => {
 };
 
 export const getDefaultCountry = () => {
-  return (
-    window.localStorage.getItem('DefaultCountry') || _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn'
-  );
+  return window.localStorage.getItem('DefaultCountry') || _.get(md, 'global.Config.DefaultRegion') || 'cn';
 };
 
 export const initIntlTelInput = () => {
