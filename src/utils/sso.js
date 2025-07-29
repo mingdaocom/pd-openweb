@@ -42,9 +42,13 @@ export const ajax = {
       if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
         var result = JSON.parse(xhr.responseText);
         if (result.state) {
-          interfaceDataDecryption(result).then(data => {
-            params.success.call(this, data);
-          });
+          if (result.encrypted) {
+            interfaceDataDecryption(result).then(data => {
+              params.success.call(this, data);
+            });
+          } else {
+            params.success.call(this, result);
+          }
         } else {
           window.alert(result.exception);
           params.error.call(this, result);

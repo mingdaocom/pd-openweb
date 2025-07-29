@@ -44,23 +44,25 @@ function destHtml(filename, html) {
 
 function generate() {
   mkdir(htmlDestPath);
-  fs.readdirSync(htmlTemplatesPath).forEach(filename => {
-    let html = fs.readFileSync(path.join(htmlTemplatesPath, filename)).toString();
-    const $ = cheerio.load(html);
-    const entry = getEntryFromHtml(filename);
-    const apiMap = {
-      main: isProduction ? apiServer : '/api/',
-    };
+  fs.readdirSync(htmlTemplatesPath)
+    .filter(filename => filename.endsWith('.html'))
+    .forEach(filename => {
+      let html = fs.readFileSync(path.join(htmlTemplatesPath, filename)).toString();
+      const $ = cheerio.load(html);
+      const entry = getEntryFromHtml(filename);
+      const apiMap = {
+        main: isProduction ? apiServer : '/api/',
+      };
 
-    if (!isProduction) {
-      apiMap.workflow = '/workflow_api';
-      apiMap.report = '/report_api';
-      apiMap.integration = '/integration_api';
-      apiMap.datapipeline = '/data_pipeline_api';
-      apiMap.workflowPlugin = '/workflow_plugin_api';
-    }
+      if (!isProduction) {
+        apiMap.workflow = '/workflow_api';
+        apiMap.report = '/report_api';
+        apiMap.integration = '/integration_api';
+        apiMap.datapipeline = '/data_pipeline_api';
+        apiMap.workflowPlugin = '/workflow_plugin_api';
+      }
 
-    $('head').prepend(`
+      $('head').prepend(`
       <link rel="icon" type="image/png" href="/file/mdpic/ProjectLogo/favicon.png" />
       <style>
         ::-webkit-scrollbar {
@@ -107,7 +109,7 @@ function generate() {
       </script>
     `);
 
-    $('body').prepend(`
+      $('body').prepend(`
       <div id="app">
         <div style="position: absolute;top: 0; right: 0;bottom: 0; left: 0; display: flex;justify-content: center;align-items: center;">
           <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 200 200" width="32" height="32" class="pageLoader" style="enable-background:new 0 0 200 200;" xml:space="preserve">
@@ -120,24 +122,24 @@ function generate() {
       </div>
     `);
 
-    if (entry) {
-      const moduleName = getEntryName(entry.src, filename);
-      const excludeArr = [
-        'auth-workwx',
-        'auth-chat-tools',
-        'auth-welink',
-        'auth-feishu',
-        'auth-dingding',
-        'sso-dingding',
-        'sso-sso',
-        'sso-workweixin',
-        'widget-container',
-        'free-field-sandbox',
-      ];
-      const noCommonResource = excludeArr.some(key => moduleName.includes(key));
+      if (entry) {
+        const moduleName = getEntryName(entry.src, filename);
+        const excludeArr = [
+          'auth-workwx',
+          'auth-chat-tools',
+          'auth-welink',
+          'auth-feishu',
+          'auth-dingding',
+          'sso-dingding',
+          'sso-sso',
+          'sso-workweixin',
+          'widget-container',
+          'free-field-sandbox',
+        ];
+        const noCommonResource = excludeArr.some(key => moduleName.includes(key));
 
-      if (!noCommonResource) {
-        $('head').append(`
+        if (!noCommonResource) {
+          $('head').append(`
           <script>
             if (
               navigator.userAgent.toLowerCase().match(/(msie\\s|trident.*rv:)([\\w.]+)/) ||
@@ -149,69 +151,69 @@ function generate() {
           </script>
           <script src="/staticfiles/staticLanguages.js"></script>
         `);
-      }
+        }
 
-      if (moduleName.startsWith('free-field-sandbox')) {
-        $('head').append(
-          `<script src="${
-            isProduction ? getPublicPath('index').replace('dist/pack/', '') : '/'
-          }staticfiles/tailwindcss.js"/>`,
-        );
-      }
-
-      const $entryScript = $('script')
-        .filter((i, node) => $(node).attr('src') === entry.origin)
-        .eq(0);
-
-      if (!$entryScript[0]) {
-        destHtml(filename, $.html());
-        return;
-      }
-
-      if (!isProduction) {
-        // 开发模式
-        $entryScript.replaceWith(
-          ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals', moduleName]
-            .map(src => `<script src="${getPublicPath(entry.type) + src}.dev.js"></script>`)
-            .join(''),
-        );
-      } else {
-        // 发布模式
-        const baseEntry =
-          entry.type === 'single'
-            ? ['cookies', 'vendors', 'globals']
-            : entry.type === 'singleExtractModules'
-              ? ['node_modules', 'cookies', 'common', 'vendors', 'globals']
-              : ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals'];
-
-        let manifestData = JSON.parse(
-          fs
-            .readFileSync(path.join(buildPath, `dist/${entry.type === 'index' ? '' : `${entry.type}/`}manifest.json`))
-            .toString(),
-        );
-
-        $entryScript.replaceWith(
-          [...(!noCommonResource ? baseEntry : ['cookies']), moduleName]
-            .filter(key => !!manifestData[key] && manifestData[key].js)
-            .map(key => `<script src="${getPublicPath(entry.type) + manifestData[key].js}"></script>`)
-            .join(''),
-        );
-
-        if (!noCommonResource) {
+        if (moduleName.startsWith('free-field-sandbox')) {
           $('head').append(
-            ['css', ...baseEntry, moduleName]
-              .filter(key => !!manifestData[key] && manifestData[key].css)
-              .map(key => `<link rel="stylesheet" href="${getPublicPath(entry.type) + manifestData[key].css}" />`)
-              .join(''),
+            `<script src="${
+              isProduction ? getPublicPath('index').replace('dist/pack/', '') : '/'
+            }staticfiles/tailwindcss.js"/>`,
           );
         }
-      }
 
-      destHtml(filename, $.html());
-    } else {
-      destHtml(filename, $.html());
-    }
-  });
+        const $entryScript = $('script')
+          .filter((i, node) => $(node).attr('src') === entry.origin)
+          .eq(0);
+
+        if (!$entryScript[0]) {
+          destHtml(filename, $.html());
+          return;
+        }
+
+        if (!isProduction) {
+          // 开发模式
+          $entryScript.replaceWith(
+            ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals', moduleName]
+              .map(src => `<script src="${getPublicPath(entry.type) + src}.dev.js"></script>`)
+              .join(''),
+          );
+        } else {
+          // 发布模式
+          const baseEntry =
+            entry.type === 'single'
+              ? ['cookies', 'vendors', 'globals']
+              : entry.type === 'singleExtractModules'
+                ? ['node_modules', 'cookies', 'common', 'vendors', 'globals']
+                : ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals'];
+
+          let manifestData = JSON.parse(
+            fs
+              .readFileSync(path.join(buildPath, `dist/${entry.type === 'index' ? '' : `${entry.type}/`}manifest.json`))
+              .toString(),
+          );
+
+          $entryScript.replaceWith(
+            [...(!noCommonResource ? baseEntry : ['cookies']), moduleName]
+              .filter(key => !!manifestData[key] && manifestData[key].js)
+              .map(key => `<script src="${getPublicPath(entry.type) + manifestData[key].js}"></script>`)
+              .join(''),
+          );
+
+          if (!noCommonResource) {
+            $('head').append(
+              ['css', ...baseEntry, moduleName]
+                .filter(key => !!manifestData[key] && manifestData[key].css)
+                .map(key => `<link rel="stylesheet" href="${getPublicPath(entry.type) + manifestData[key].css}" />`)
+                .join(''),
+            );
+          }
+        }
+
+        destHtml(filename, $.html());
+      } else {
+        destHtml(filename, $.html());
+      }
+    });
 }
 
 module.exports = generate;

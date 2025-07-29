@@ -14,6 +14,7 @@ export default class UploadFile extends Component {
   uploadFile() {
     const { needCheckCert, projectId } = this.props;
     let isUploading = false;
+    let isChecked = false;
     const _this = this;
 
     createUploader({
@@ -31,8 +32,14 @@ export default class UploadFile extends Component {
       ],
       init: {
         Browse: function (up) {
-          if (needCheckCert) {
-            checkCertification({ projectId, checkSuccess: () => up.trigger('Browse') });
+          if (needCheckCert && !isChecked) {
+            checkCertification({
+              projectId,
+              checkSuccess: () => {
+                isChecked = true;
+                up.trigger('Browse');
+              },
+            });
             return false; // 阻止文件选择弹层
           }
         },

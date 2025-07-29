@@ -118,10 +118,10 @@ function start() {
                       document.body.innerText = '已在默认浏览器打开';
                       window.open(dingdingLoginUrl);
                     } else {
-                      window.location = dingdingLoginUrl;
+                      location.replace(dingdingLoginUrl);
                     }
                   } else {
-                    window.location = dingdingLoginUrl;
+                    location.replace(dingdingLoginUrl);
                   }
                 },
                 onFail: onFail,

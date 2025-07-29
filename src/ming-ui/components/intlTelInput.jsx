@@ -1,5 +1,6 @@
 import intlTelInput from 'intl-tel-input';
 import utils from 'intl-tel-input/build/js/utils';
+import _ from 'lodash';
 import 'intl-tel-input/build/css/intlTelInput.min.css';
 
 const countries = {
@@ -348,9 +349,14 @@ export const initIntlTelInput = () => {
   return window.initIntlTelInput;
 };
 
-export const telIsValidNumber = value => {
+export const telIsValidNumber = (value, forLogin) => {
   const iti = initIntlTelInput();
   iti.setNumber(value);
+  if (forLogin) {
+    return _.get(iti.getSelectedCountryData(), 'dialCode') === '86'
+      ? (!_.startsWith(value, '+86') ? value : value.replace(/^\+86/, '')).length === 11
+      : iti.isValidNumber() || specialTelVerify(value);
+  }
   return iti.isValidNumber() && _.get(iti.getSelectedCountryData(), 'dialCode') === '86'
     ? specialTelVerify(_.startsWith(value, '+86') ? value : '+86' + value)
     : iti.isValidNumber() || specialTelVerify(value);

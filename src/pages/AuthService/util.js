@@ -147,7 +147,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
       };
       //手机号验证
       const isTelRule = () => {
-        if (!telIsValidNumber(emailOrTel)) {
+        if (!telIsValidNumber(emailOrTel, true)) {
           warnList.push({ tipDom: 'inputAccount', warnTxt: _l('手机号格式错误') });
           isRight = false;
         }

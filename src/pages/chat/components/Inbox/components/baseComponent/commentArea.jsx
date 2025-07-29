@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import filterXSS from 'xss';
 import { UserCard } from 'ming-ui';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import DiscussionController from 'src/api/discussion';
@@ -189,7 +190,7 @@ class CommentItem extends React.Component {
       <span
         dangerouslySetInnerHTML={{
           __html: createLinksForMessage({
-            message: message.replace(/\n/g, ' <br>'),
+            message: filterXSS(message.replace(/\n/g, ' <br>')),
             rUserList: accountsInMessage,
             rGroupList: groupsInMessage,
             categories,
