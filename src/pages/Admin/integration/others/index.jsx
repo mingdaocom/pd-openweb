@@ -822,7 +822,7 @@ export default class OtherTool extends Component {
                 <div className="toolItemDescribe">
                   {description}
                   {docLink && (
-                    <Support text={_l('查看文档')} type={3} href={docLink + (lang === 'zh-Hans' ? 'zh-Hans/' : 'en/')} />
+                    <a href={docLink + (lang === 'zh-Hans' ? 'zh-Hans/' : 'en/')} className="mLeft5" target="_blank">{_l('查看文档')}</a>
                   )}
                 </div>
                 {showCustomName && (

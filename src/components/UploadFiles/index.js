@@ -844,7 +844,7 @@ export default class UploadFiles extends Component {
               _this.props.onTemporaryDataUpdate(newTemporaryData);
               setTimeout(() => {
                 _this.props.onUploadComplete(true);
-              }, 0);
+              }, 200);
             }
           }}
           onUploadComplete={(up, files) => {

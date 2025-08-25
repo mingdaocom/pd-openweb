@@ -118,7 +118,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
         location.href = `${window.subPath || ''}/portal/${md.global.Account.appId}`;
         return;
       }
-      location.href = '/dashboard';
+      location.href = `${md.global.Config.WebUrl}dashboard`;
     }
     return;
   }
