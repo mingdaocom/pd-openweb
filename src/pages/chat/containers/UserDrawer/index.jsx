@@ -193,7 +193,7 @@ export default props => {
         {(!md.global.SysSettings.hideHelpTip || !md.global.SysSettings.hideDownloadApp) && (
           <Fragment>
             <div className="divider mTop10 mBottom10" />
-            {ss && (
+            {ss && !md.global.SysSettings.hideHelpTip && (
               <div
                 className="flexRow alignItemsCenter pointer itemWrap"
                 onClick={() => {
@@ -204,15 +204,17 @@ export default props => {
                 <div className="flex mLeft15">{_l('帮助')}</div>
               </div>
             )}
-            <div
-              className="flexRow alignItemsCenter pointer itemWrap"
-              onClick={() => {
-                location.href = '/appInstallSetting';
-              }}
-            >
-              <Icon className="Gray_9e Font18" icon="phonelink" />
-              <div className="flex mLeft15">{_l('下载客户端')}</div>
-            </div>
+            {!md.global.SysSettings.hideDownloadApp && (
+              <div
+                className="flexRow alignItemsCenter pointer itemWrap"
+                onClick={() => {
+                  location.href = '/appInstallSetting';
+                }}
+              >
+                <Icon className="Gray_9e Font18" icon="phonelink" />
+                <div className="flex mLeft15">{_l('下载客户端')}</div>
+              </div>
+            )}
           </Fragment>
         )}
 
